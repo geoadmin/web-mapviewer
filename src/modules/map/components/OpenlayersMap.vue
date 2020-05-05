@@ -1,56 +1,24 @@
 <template>
-    <vl-map @click="onClick" :default-controls="controls">
-        <vl-view
-                :zoom="zoom"
-                :center="centerEpsg3857"
-                @update:center="onCenterChange"
-                @update:zoom="onZoomChange"
-        ></vl-view>
-        <component :is="layer.component" v-for="layer in layers" :key="layer.id">
-            <component
-                    v-if="layer.source"
-                    :is="layer.source.component"
-                    :url="layer.source.url"
-                    :feature="layer.source.features"
-                    :projection="layer.source.projection"
-            >
-                <vl-style-box>
-                    <vl-style-stroke color="blue"></vl-style-stroke>
-                    <vl-style-fill color="rgba(255,255,255,0.5)"></vl-style-fill>
-                    <vl-style-text text="I'm a circle"></vl-style-text>
-                </vl-style-box>
-            </component>
-        </component>
-        <vl-layer-vector>
-            <vl-source-vector :features="drawGeoJSON.features" projection="EPSG:4326"></vl-source-vector>
-        </vl-layer-vector>
-    </vl-map>
+    <div id="ol-map"></div>
 </template>
 
 <style>
-    /*.ol-zoom {*/
-    /*    display: none;*/
-    /*}*/
+    #ol-map {
+        width: 100%;
+        height: 100%;
+    }
 </style>
 
 <script>
-    import "vuelayers/lib/style.css";
+    import 'ol/ol.css';
 
     import proj4 from "proj4";
 
-    import Vue from "vue";
-    import { mapState, mapGetters, mapActions } from "vuex";
-    import VueLayers, {
-        ImageLayer,
-        ImageWmsSource,
-        TileLayer,
-        XyzSource,
-        VectorLayer,
-        VectorSource
-    } from "vuelayers";
-    import GeoJSONFormat from "ol/format/GeoJSON";
-
-    Vue.use(VueLayers);
+    import {mapState, mapGetters, mapActions} from "vuex";
+    import {Map, View} from 'ol';
+    import {toLonLat} from 'ol/proj';
+    import TileLayer from "ol/layer/Tile";
+    import XYZ from "ol/source/XYZ";
 
     proj4.defs(
         "EPSG:3857",
@@ -60,15 +28,6 @@
     const BACKGROUND_LAYER_ID = "ch.swisstopo.pixelkarte-farbe";
 
     export default {
-        component: {
-            VueLayers,
-            ImageLayer,
-            ImageWmsSource,
-            TileLayer,
-            XyzSource,
-            VectorLayer,
-            VectorSource
-        },
         computed: {
             ...mapState({
                 latitude: state => state.position.latitude,
@@ -76,92 +35,74 @@
                 zoom: state => state.position.zoom
             }),
             ...mapGetters(["center", "visibleLayers", "drawGeoJSON"]),
-            centerEpsg3857: function() {
+            centerEpsg3857: function () {
                 return proj4(proj4.WGS84, proj4("EPSG:3857"), this.center);
             },
-            layers: function() {
+            layers: function () {
                 let layers = [];
                 // background layer
-                layers.push({
+                layers.push(new TileLayer({
                     id: BACKGROUND_LAYER_ID,
-                    component: TileLayer.Layer.name,
-                    source: {
-                        component: XyzSource.Source.name,
+                    source: new XYZ({
+                        projection: 'EPSG:3857',
                         url: `https://wmts5.geo.admin.ch/1.0.0/${BACKGROUND_LAYER_ID}/default/current/3857/{z}/{x}/{y}.jpeg`
-                    }
-                });
-
-                // visible layers
-                this.visibleLayers.forEach(layer => {
-                    switch (layer.type) {
-                        case "WMS":
-                            layers.push({
-                                id: layer.id,
-                                component: ImageLayer.Layer.name,
-                                source: {
-                                    component: ImageWmsSource.Source.name,
-                                    url: `https://wms.geo.admin.ch?LAYERS=${
-                                        layer.id
-                                    }&FORMAT=image/png&LANG=en`
-                                }
-                            });
-                            break;
-                        case "WMTS":
-                            layers.push({
-                                id: layer.id,
-                                component: TileLayer.Layer.name,
-                                source: {
-                                    component: XyzSource.Source.name,
-                                    url: `https://wmts5.geo.admin.ch/1.0.0/${
-                                        layer.id
-                                    }/default/current/3857/{z}/{x}/{y}.png`
-                                }
-                            });
-                            break;
-                        case "GeoJSON":
-                            layers.push({
-                                id: layer.id,
-                                component: VectorLayer.Layer.name,
-                                source: {
-                                    component: VectorSource.Source.name,
-                                    features: new GeoJSONFormat().readFeatures(layer.data),
-                                    projection: 'EPSG:4326'
-                                }
-                            });
-                            break;
-                        default:
-                            console.log(`layer type '${layer.type}' not yet implemented`);
-                    }
-                });
+                    })
+                }));
                 return layers;
             }
         },
-        methods: {
-            ...mapActions(["setCenter", "setZoom", "click"]),
-            onCenterChange: function(newCenter) {
-                const newCenterWGS84 = proj4("EPSG:3857", proj4.WGS84, newCenter);
-                this.setCenter({
-                    latitude: newCenterWGS84[1],
-                    longitude: newCenterWGS84[0]
+        watch: {
+            zoom: function (val) {
+                this.view.animate({
+                    zoom: val,
+                    duration: 200
                 });
             },
-            onZoomChange: function(newZoom) {
-                this.setZoom(newZoom);
-            },
-            onClick: function(event) {
-                const clickCoordinates = proj4(
-                    "EPSG:3857",
-                    proj4.WGS84,
-                    event.coordinate
-                );
-                this.click({
-                    longitude: clickCoordinates[0],
-                    latitude: clickCoordinates[1]
-                });
+            centerEpsg3857: function (val) {
+                this.view.animate({
+                    center: val,
+                    duration: 500
+                })
             }
+        },
+        mounted() {
+            this.view = new View({
+                center: this.centerEpsg3857,
+                zoom: this.zoom
+            });
+            this.map = new Map({
+                target: 'ol-map',
+                layers: this.layers,
+                view: this.view,
+                controls: []
+            });
+            this.map.on('moveend', () => {
+                if (this.view) {
+                    const [longitude, latitude] = toLonLat(this.view.getCenter());
+                    if (latitude !== this.latitude || longitude !== this.longitude) {
+                        this.setCenter({
+                            latitude: latitude,
+                            longitude: longitude
+                        });
+                    }
+                    const zoom = this.view.getZoom();
+                    if (zoom !== this.zoom) {
+                        this.setZoom(zoom);
+                    }
+                }
+            })
+        },
+        beforeDestroy() {
+            this.map = null;
+            this.view = null;
+        },
+        methods: {
+            ...mapActions(["setCenter", "setZoom", "click"])
         },
         data: () => {
             return {
+                map: null,
+                view: null,
                 controls: {
                     attribution: true,
                     rotate: false,

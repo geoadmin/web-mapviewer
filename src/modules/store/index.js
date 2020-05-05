@@ -9,9 +9,9 @@ import map from "@/modules/map/store"
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  modules: {
-    layers,
-    position,
-    map
-  }
+    modules: {
+        layers,
+        position,
+        map
+    }
 });

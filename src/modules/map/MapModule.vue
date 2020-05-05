@@ -15,7 +15,7 @@
 </style>
 
 <script>
-    import PureOpenlayersMap from "./components/PureOpenlayersMap";
+    import PureOpenlayersMap from "./components/OpenlayersMap";
 
     export default {
         components: {PureOpenlayersMap}

@@ -1,4 +1,4 @@
-import { reproject } from "reproject";
+import {reproject} from "reproject";
 import proj4 from "proj4";
 
 proj4.defs(
@@ -59,7 +59,7 @@ const actions = {
 };
 
 const mutations = {
-    toggleLayerVisibility: function(state, layerId) {
+    toggleLayerVisibility: function (state, layerId) {
         const layer = state.layers.find(layer => layer.id === layerId);
         if (layer) {
             // if GeoJSON data are not yet loaded, we do so

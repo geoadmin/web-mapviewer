@@ -12,17 +12,17 @@ const getters = {
 };
 
 const actions = {
-    setZoom({ commit }, zoom) {
+    setZoom({commit}, zoom) {
         commit("setZoom", zoom);
     },
-    increaseZoom({ commit }) {
+    increaseZoom({commit}) {
         commit("increaseZoom");
     },
-    decreaseZoom({ commit }) {
+    decreaseZoom({commit}) {
         commit("decreaseZoom");
     },
-    setCenter({ commit }, { latitude, longitude }) {
-        commit("setCenter", { latitude, longitude });
+    setCenter({commit}, {latitude, longitude}) {
+        commit("setCenter", {latitude, longitude});
     }
 };
 
@@ -46,7 +46,7 @@ const mutations = {
     decreaseZoom(state) {
         setZoom(state, state.zoom - 1)
     },
-    setCenter(state, { latitude, longitude }) {
+    setCenter(state, {latitude, longitude}) {
         state.latitude = latitude;
         state.longitude = longitude;
     }

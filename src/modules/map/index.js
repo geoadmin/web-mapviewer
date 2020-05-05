@@ -1,13 +1,3 @@
-import map from "./store";
+import MapModule from "./MapModule";
 
-export class MapModule {
-    constructor(store, router) {
-        this.store = store
-        this.router = router
-    }
-
-    install(options = {}) {
-        this.store.registerModule('map', map)
-        // Initialise the module using dependencies
-    }
-}
+export default MapModule;

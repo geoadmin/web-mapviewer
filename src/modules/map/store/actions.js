@@ -7,7 +7,7 @@ proj4.defs(
 );
 
 export default {
-    click({ state, commit }, coordinate) {
+    click({state, commit}, coordinate) {
         if (state.clickMode === CLICK_MODES.IDENTIFY) {
             commit("identify", coordinate);
             const lv95position = proj4(proj4.WGS84, "EPSG:2056", [
@@ -23,27 +23,27 @@ export default {
             )
                 .then(response => response.json())
                 .then(json => {
-                    const { results } = json;
+                    const {results} = json;
                     commit("setIdentifyResults", results);
                 });
         } else if (state.clickMode === CLICK_MODES.DRAWING) {
             commit("draw", coordinate);
         }
     },
-    identify({ commit }, coordinates) {
+    identify({commit}, coordinates) {
         commit("identify", coordinates);
     },
-    clearIdentify({ commit }) {
+    clearIdentify({commit}) {
         commit("identify", {
             latitude: 0,
             longitude: 0
         });
         commit("setIdentifyResults", []);
     },
-    toggleClickMode({ commit }) {
+    toggleClickMode({commit}) {
         commit("toggleClickMode");
     },
-    clearDrawing({ commit }) {
+    clearDrawing({commit}) {
         commit("clearDrawing");
     }
 };

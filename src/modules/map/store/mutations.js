@@ -1,8 +1,8 @@
 import CLICK_MODES from "./state"
 
 export default {
-    identify(state, { latitude, longitude }) {
-        state.identify.coordinate = { latitude, longitude };
+    identify(state, {latitude, longitude}) {
+        state.identify.coordinate = {latitude, longitude};
     },
     setIdentifyResults(state, results) {
         state.identify.results = results;
@@ -14,7 +14,7 @@ export default {
             state.clickMode = CLICK_MODES.IDENTIFY;
         }
     },
-    draw(state, { latitude, longitude }) {
+    draw(state, {latitude, longitude}) {
         state.draw.coordinates.push([longitude, latitude]);
     },
     clearDrawing(state) {

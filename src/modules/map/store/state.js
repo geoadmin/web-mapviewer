@@ -1,4 +1,3 @@
-
 export const CLICK_MODES = {
     IDENTIFY: "IDENTIFY",
     DRAWING: "DRAWING"
