@@ -24,7 +24,7 @@ npm install
 ```
 npm run serve
 ```
-will serve the project under `http://localhost:8080`
+will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output)
 
 ### Compiles and minifies for production
 ```
