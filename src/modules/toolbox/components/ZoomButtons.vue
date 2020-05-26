@@ -1,9 +1,9 @@
 <template>
     <div class="zoom">
-        <a class="button zoomin" href="#" title="Zoom in" @click="increaseZoom()">
+        <a class="button zoomin" data-cy="zoom-in" title="Zoom in" @click="increaseZoom()">
             <span class="icon zoomin"></span>
         </a>
-        <a class="button zoomout" href="#" title="Zoom out" @click="decreaseZoom()">
+        <a class="button zoomout" data-cy="zoom-out" title="Zoom out" @click="decreaseZoom()">
             <span class="icon zoomout"></span>
         </a>
     </div>

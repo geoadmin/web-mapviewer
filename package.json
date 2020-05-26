@@ -6,10 +6,14 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "test:e2e": "start-server-and-test serve http://localhost:8080 cypress:run",
+    "lint": "vue-cli-service lint",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "lodash": "^4.17.15",
     "ol": "^6.3.1",
     "proj4": "^2.6.1",
     "register-service-worker": "^1.7.1",
@@ -26,10 +30,13 @@
     "@vue/cli-service": "~4.3.1",
     "@vue/test-utils": "1.0.0-beta.33",
     "babel-eslint": "^10.1.0",
+    "cypress": "^4.5.0",
     "eslint": "^6.8.0",
+    "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-vue": "^6.2.2",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
+    "start-server-and-test": "^1.11.0",
     "vue-template-compiler": "^2.6.11"
   }
 }
