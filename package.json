@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
+    "test:unit": "cypress run",
     "test:e2e": "start-server-and-test serve http://localhost:8080 cypress:run",
     "lint": "vue-cli-service lint",
     "cypress:open": "cypress open",
