@@ -11,6 +11,10 @@ Each module should have a root component, called `{Name of the module}Module.vue
 If the module needs to add data not related to something app wise (for instance, some internal state), a `store` folder can be created with an `index.js` file exporting a Vuex module.
 This module can then be imported in the store module (see below)
 
+### Architectural decisions
+
+All project related architectural decision will be described in the folder [`/adr`](adr/) (ADR stands for "Architectural Decision Report"). For all more macro decisions (like the CI we use or other broad subjects), please refer to [the `/adr` folder on the project doc-guidelines](https://github.com/geoadmin/doc-guidelines/tree/master/adr). 
+
 ### Store module
  As there can be only one instance of a Vuex's store per app, the store module is there for that. It as the responsibility to instantiate Vuex, and add any module related state data to the store.
 See [its README.md](src/modules/store/README.md) for more details.
@@ -32,7 +36,7 @@ npm install
 | `npm run build` | Compiles and minifies for production |
 | `npm run lint` | Lints and fixes files | 
 | `npm run test:unit` | Runs unit tests from cypress (equivalent to `npm run cypress:run`) |
-| `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome |
+| `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
 
 
