@@ -16,7 +16,7 @@ phases:
 
   build:
     commands:
-      - npm run cypress:run
+      - npm run test:headless
       - npm run build
 
   post_build:
