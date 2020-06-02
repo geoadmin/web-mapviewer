@@ -3,6 +3,9 @@ import _ from 'lodash'
 import { isNumber } from "@/numberUtils";
 
 // Persist and rehydrate the `Vuex` store via url search params (window.location.search)
+// To do that, it will listen (`subscribe` in Vuex terms) to all store mutators, and if one matches the configuration
+// it will extract the value needed for the URL and update the URL params.
+// At app startup, it will read the URL params and set the state according to what's present in the configuration
 class VuexURLSearchParams {
 
     // Used for bypassing handling in the store subscription with arrays
