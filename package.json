@@ -2,14 +2,17 @@
   "name": "web-mapviewer",
   "version": "0.1.0",
   "private": true,
+  "config": {
+    "port": 8080
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port=${PORT:-$npm_package_config_port}",
     "build": "vue-cli-service build",
     "test:unit": "cypress run",
-    "test:headless": "start-server-and-test serve http://localhost:8080 cypress:run",
+    "test:headless": "start-server-and-test serve http://localhost:${PORT:-$npm_package_config_port} cypress:run",
     "lint": "vue-cli-service lint",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
+    "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false"
   },
   "dependencies": {
     "core-js": "^3.6.5",

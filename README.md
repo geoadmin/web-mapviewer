@@ -32,13 +32,14 @@ npm install
 
 | command | what it does |
 |----|----|
-| `npm run serve` | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output) |
+| `npm run serve` | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). You can change port number by using env variable `PORT` (for example `PORT=9999 npm run serve`) |
 | `npm run build` | Compiles and minifies for production |
 | `npm run lint` | Lints and fixes files | 
-| `npm run test:unit` | Runs unit tests from cypress (equivalent to `npm run cypress:run`) |
+| `npm run test:unit` | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
 | `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
 
+All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
