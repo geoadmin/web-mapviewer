@@ -86,7 +86,7 @@
                         });
                     }
                     const zoom = this.view.getZoom();
-                    if (zoom !== this.zoom) {
+                    if (zoom && zoom !== this.zoom) {
                         this.setZoom(zoom);
                     }
                 }

@@ -1,10 +1,12 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    mocha: true
   },
   'extends': [
     'plugin:vue/essential',
+    "plugin:cypress/recommended",
     'eslint:recommended'
   ],
   parserOptions: {

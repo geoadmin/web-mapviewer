@@ -19,3 +19,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Cypress and friends
+cypress/videos
+cypress/screenshots

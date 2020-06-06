@@ -1,3 +1,5 @@
+import {round} from "@/numberUtils";
+
 const state = {
     latitude: 46.97132,
     longitude: 7.44849,
@@ -12,39 +14,32 @@ const getters = {
 };
 
 const actions = {
-    setZoom({commit}, zoom) {
-        commit("setZoom", zoom);
+    setZoom({commit, state}, zoom) {
+        if (typeof zoom !== 'number') {
+            return;
+        }
+        if (zoom < state.minZoom) {
+            commit("setZoom", state.minZoom);
+        } else if (zoom > state.maxZoom) {
+            commit("setZoom", state.maxZoom);
+        } else {
+            commit("setZoom", round(zoom, 3));
+        }
     },
-    increaseZoom({commit}) {
-        commit("increaseZoom");
+    increaseZoom({dispatch, state}) {
+        dispatch("setZoom", Number(state.zoom) + 1);
     },
-    decreaseZoom({commit}) {
-        commit("decreaseZoom");
+    decreaseZoom({dispatch, state}) {
+        dispatch("setZoom", Number(state.zoom) - 1);
     },
     setCenter({commit}, {latitude, longitude}) {
         commit("setCenter", {latitude, longitude});
     }
 };
 
-function setZoom(state, zoom) {
-    if (zoom < state.minZoom) {
-        state.zoom = state.minZoom;
-    } else if (zoom > state.maxZoom) {
-        state.zoom = state.maxZoom;
-    } else {
-        state.zoom = zoom;
-    }
-}
-
 const mutations = {
     setZoom(state, zoom) {
-        setZoom(state, zoom);
-    },
-    increaseZoom(state) {
-        setZoom(state, state.zoom + 1)
-    },
-    decreaseZoom(state) {
-        setZoom(state, state.zoom - 1)
+        state.zoom = zoom;
     },
     setCenter(state, {latitude, longitude}) {
         state.latitude = latitude;
