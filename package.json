@@ -3,16 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "config": {
-    "port": 8080
+    "port": 8080,
+    "bucket:dev": "web-mapviewer-dev-bgdi-ch",
+    "bucket:int": "web-mapviewer-int-bgdi-ch"
   },
   "scripts": {
     "serve": "vue-cli-service serve --port=${PORT:-$npm_package_config_port}",
-    "build": "vue-cli-service build",
+    "build:dev": "vue-cli-service build --mode=development",
+    "build:prod": "vue-cli-service build",
     "test:unit": "cypress run",
     "test:headless": "start-server-and-test serve http://localhost:${PORT:-$npm_package_config_port} cypress:run",
     "lint": "vue-cli-service lint",
     "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
-    "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false"
+    "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
+    "deploy:dev": "build:dev && aws sync ./dist s3://${S3_BUCKET_DEV:-$npm_package_config_bucket_dev}  --acl 'public-read' --delete",
+    "deploy:int": "build:prod && aws sync ./dist s3://${S3_BUCKET_INT:-$npm_package_config_bucket_int} --acl 'public-read' --delete"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -32,6 +37,7 @@
     "@vue/cli-plugin-vuex": "~4.3.1",
     "@vue/cli-service": "~4.3.1",
     "@vue/test-utils": "1.0.0-beta.33",
+    "aws-sdk": "^2.691.0",
     "babel-eslint": "^10.1.0",
     "cypress": "^4.5.0",
     "eslint": "^6.8.0",

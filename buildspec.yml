@@ -16,9 +16,10 @@ phases:
 
   build:
     commands:
+      # will build the application in dev mode before testing
       - npm run test:headless
-      - npm run build
 
   post_build:
     commands:
-      - echo Build completed on `date`
+      # will build the application in production mode before deploying
+      - npm run deploy:int
