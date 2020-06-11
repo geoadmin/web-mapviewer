@@ -16,7 +16,7 @@
     "lint": "vue-cli-service lint",
     "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
     "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
-    "deploy:dev": "build:dev && aws sync ./dist s3://${S3_BUCKET_DEV:-$npm_package_config_bucket_dev}  --acl 'public-read' --delete",
+    "deploy:dev": "node scripts/deploy.js",
     "deploy:int": "build:prod && aws sync ./dist s3://${S3_BUCKET_INT:-$npm_package_config_bucket_int} --acl 'public-read' --delete"
   },
   "dependencies": {
