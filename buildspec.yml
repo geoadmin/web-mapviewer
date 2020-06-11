@@ -21,5 +21,5 @@ phases:
 
   post_build:
     commands:
-      # will build the application in production mode before deploying
-      - npm run deploy:int
+      # will build the application in development mode before deploying
+      - npm run deploy:dev

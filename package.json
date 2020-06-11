@@ -4,8 +4,8 @@
   "private": true,
   "config": {
     "port": 8080,
-    "bucket:dev": "web-mapviewer-dev-bgdi-ch",
-    "bucket:int": "web-mapviewer-int-bgdi-ch"
+    "bucket:dev": "web-mapviewer-dev",
+    "bucket:int": "web-mapviewer-int"
   },
   "scripts": {
     "serve": "vue-cli-service serve --port=${PORT:-$npm_package_config_port}",
