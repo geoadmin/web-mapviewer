@@ -16,7 +16,12 @@ phases:
       - apt-get install -y libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 xvfb
       - npm install
 
-  pre_build:
+  build:
+    commands:
+      # will build the application in dev mode before testing
+      - npm run test:headless
+
+  post_build:
     commands:
       # switching role for deploy
       - S3_ACCESS_ROLE=`aws sts assume-role --role-arn arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --role-session-name s3-access`
@@ -28,13 +33,5 @@ phases:
       - echo $AWS_ACCESS_KEY_ID
       - echo $AWS_SECRET_ACCESS_KEY
       - echo $AWS_SESSION_TOKEN
-
-  build:
-    commands:
-      # will build the application in dev mode before testing
-      - npm run test:headless
-
-  post_build:
-    commands:
       # will build the application in development mode before deploying
-      - npm run deploy:dev AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --build-arg AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
+      - npm run deploy:dev
