@@ -4,6 +4,7 @@
   "private": true,
   "config": {
     "port": 8080,
+    "aws:region": "eu-central-1",
     "bucket:dev": "web-mapviewer-dev",
     "bucket:int": "web-mapviewer-int"
   },
@@ -16,8 +17,8 @@
     "lint": "vue-cli-service lint",
     "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
     "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
-    "deploy:dev": "node scripts/deploy.js",
-    "deploy:int": "build:prod && aws sync ./dist s3://${S3_BUCKET_INT:-$npm_package_config_bucket_int} --acl 'public-read' --delete"
+    "deploy:dev": "npm run build:dev && node scripts/deploy.js --region=${AWS_REGION:-$npm_package_config_aws_region} --bucket=${AWS_S3_BUCKET_DEV:-$npm_package_config_bucket_dev}",
+    "deploy:int": "npm run build:prod && aws s3 sync ./dist s3://${S3_BUCKET_INT:-$npm_package_config_bucket_int} --acl 'public-read' --delete"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -46,6 +47,7 @@
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "start-server-and-test": "^1.11.0",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "yargs": "^15.3.1"
   }
 }

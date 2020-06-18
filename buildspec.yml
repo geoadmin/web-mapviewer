@@ -23,15 +23,15 @@ phases:
 
   post_build:
     commands:
-      # switching role for deploy
-      - S3_ACCESS_ROLE=`aws sts assume-role --role-arn arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --role-session-name s3-access`
-      - export S3_ACCESS_ROLE
-      - echo $S3_ACCESS_ROLE
-      - export AWS_ACCESS_KEY_ID=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.AccessKeyId')
-      - export AWS_SECRET_ACCESS_KEY=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.SecretAccessKey')
-      - export AWS_SESSION_TOKEN=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.SessionToken')
-      - echo $AWS_ACCESS_KEY_ID
-      - echo $AWS_SECRET_ACCESS_KEY
-      - echo $AWS_SESSION_TOKEN
+      # switching role for deploy (otherwise the S3 bucket won't be visible)
+#      - S3_ACCESS_ROLE=`aws sts assume-role --role-arn arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --role-session-name s3-access`
+#      - export S3_ACCESS_ROLE
+#      - echo $S3_ACCESS_ROLE
+#      - export AWS_ACCESS_KEY_ID=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.AccessKeyId')
+#      - export AWS_SECRET_ACCESS_KEY=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+#      - export AWS_SESSION_TOKEN=$(echo "${S3_ACCESS_ROLE}" | jq -r '.Credentials.SessionToken')
+#      - echo $AWS_ACCESS_KEY_ID
+#      - echo $AWS_SECRET_ACCESS_KEY
+#      - echo $AWS_SESSION_TOKEN
       # will build the application in development mode before deploying
-      - npm run deploy:dev
+      - npm run deploy:dev -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess
