@@ -1,31 +1,41 @@
 #!/usr/bin/env node
 
-// describing possible and required arguments for this script (launch with --help to see the doc)
+// This is a Node.js script (requiring Node >= v12) that deploys what's inside the dist/ folder to
+// a S3 bucket, defined by the target given as a script argument.
+
+// describing possible arguments for this script (launch with --help to see the doc)
 const argv = require('yargs')
     .usage('Usage: $0 <target> [options]')
-    .command('dev [branchName]', 'Deploy dist/* files to DEV bucket')
-    .command('int [branchName]', 'Deploy dist/* files to INT bucket')
+    .command('dev', 'Deploy dist/* files to DEV bucket')
+    .command('int', 'Deploy dist/* files to INT bucket')
     .command('prod', 'Deploy dist/* files to PROD bucket')
-    .option('branchName', {
-        describe: 'The git branch names if needed, it will create a subfolder on the S3 bucket if this is defined (otherwise files will be uploaded at the root of the bucket)',
-        default: null
-    })
     .option('role', {
         describe: 'AWS ARN for the role to use (will switch to role before uploading)',
         default: null
     })
     .option('region', {
-        describe: 'AWS Region (required)',
-        demandOption: 'An AWS region must set',
+        describe: 'AWS Region (default is Frankfurt)',
+        default: 'eu-central-1',
         type: 'string'
     })
-    .option('bucket', {
-        describe: 'AWS Bucket in which files should be uploaded (required)',
-        demandOption: 'A bucket must be set',
-        type: 'string'
-    })
+    .demandCommand()
     .help()
+    .showHelpOnFail(true, 'a target is needed')
     .argv;
+
+// Declaring all possible buckets (keys are targets)
+const buckets = {
+    dev: 'web-mapviewer-dev',
+    int: 'web-mapviewer-int',
+    prod: 'web-mapviewer-prod'
+};
+
+// checking that the target is valid
+if (argv._.length !== 1) {
+    console.error('To many arguments, only one target should be provided')
+    process.exit(-1);
+}
+const target = argv._[0];
 
 // Load the AWS SDK for Node.js
 const AWS = require('aws-sdk');
@@ -36,56 +46,12 @@ AWS.config.update({region: argv.region});
 const { resolve } = require('path');
 const fs = require('fs');
 
+// loading external utility function to read git metadata
+const gitBranch = require('git-branch');
 
-// Declaring utility functions
-
-async function getS3(region, roleArn) {
-    console.log('loading s3 service for region', region);
-    const s3Options = {apiVersion: '2006-03-01'};
-
-    // if a switch role is needed, we generate the session token before returning the S3 instance
-    if (roleArn) {
-        console.log('switching to role', roleArn)
-        const sts = new AWS.STS({region});
-        const switchRoleParams = {
-            RoleArn: roleArn,
-            RoleSessionName: 'SwitchRoleSession'
-        };
-        const assumeRoleStep1 = await sts.assumeRole(switchRoleParams).promise();
-
-        s3Options.accessKeyId = assumeRoleStep1.Credentials.AccessKeyId;
-        s3Options.secretAccessKey = assumeRoleStep1.Credentials.SecretAccessKey;
-        s3Options.sessionToken = assumeRoleStep1.Credentials.SessionToken;
-    }
-    console.log('loading done for s3 service')
-    return new AWS.S3(s3Options);
-}
-async function* getFiles(dir) {
-    const directoryEntries = await fs.promises.readdir(dir, { withFileTypes: true });
-    for (const entry of directoryEntries) {
-        const resolvedEntry = resolve(dir, entry.name);
-        if (entry.isDirectory()) {
-            yield* getFiles(resolvedEntry);
-        } else {
-            yield resolvedEntry;
-        }
-    }
-}
-const uploadFileToS3 = (fileName, bucket) => {
-    fs.readFile(fileName, (err, data) => {
-        if (err) throw err;
-        const params = {
-            Bucket: bucket,
-            Key: fileName,
-            // Body: JSON.stringify(data, null, 2)
-        };
-        // console.log('payload for S3', params);
-        // s3.upload(params, function(s3Err, data) {
-        //     if (s3Err) throw s3Err
-        //     console.log(`File uploaded successfully at ${data.Location}`)
-        // });
-    });
-};
+// Loading internal utility functions
+const s3Utils = require('./s3-utils');
+const fileUtils = require('./file-utils');
 
 // Checking if index.html file is present in dist folder (if build has been done beforehand)
 try {
@@ -101,21 +67,33 @@ try {
 }
 
 // Create S3 service object
-getS3(argv.region, argv.role).then(s3 => {
+s3Utils.getS3(argv.region, argv.role)
+.then(s3 => {
 
-    console.log('woot', s3);
-    // Call S3 to list the buckets
-    s3.listBuckets(function(err, data) {
-        if (err) {
-            console.log("Error", err);
-        } else {
-            console.log("Success", data.Buckets);
-        }
-    });
+    const distFolderRelativePath = './dist/';
+    const distFolderFullPath = resolve(distFolderRelativePath);
 
     (async () => {
-        for await (const f of getFiles('./dist/')) {
-            uploadFileToS3(f, argv.bucket);
+
+        // Checking current branch
+        const branch = await gitBranch();
+
+        // if branch is not master and target is prod, we exit
+        if (branch !== 'master' && target === 'prod') {
+            console.error('It is forbidden to deploy anything else than `master` on the PROD environment');
+            process.exit(-1);
+        }
+        // bucket folder will be branch name expect if we are on `master` and target is INT or PROD, or if we are on `develop` and target is DEV
+        let bucketFolder;
+        if (branch === 'master' && (target === 'int' || target === 'prod') || branch === 'develop' && target === 'dev') {
+            bucketFolder = '';
+        } else {
+            bucketFolder = branch;
+        }
+
+        for await (const file of fileUtils.getFiles('./dist/')) {
+            const bucketFilePath = bucketFolder + file.replace(distFolderFullPath, '');
+            s3Utils.uploadFileToS3(s3, file, buckets[target], bucketFilePath);
         }
     })()
 }).catch(console.error)
