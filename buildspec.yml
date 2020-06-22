@@ -24,13 +24,13 @@ phases:
 
   post_build:
     commands:
-      # Reading git branch
+      # Reading git branch (the utility in the deploy script is unable to read it automatically on CodeBuild)
+      # see https://stackoverflow.com/questions/47657423/get-github-git-branch-for-aws-codebuild
       - export CODEBUILD_GIT_BRANCH="$(git symbolic-ref HEAD --short 2>/dev/null)"
       - if [ "$CODEBUILD_GIT_BRANCH" = "" ] ; then
           CODEBUILD_GIT_BRANCH="$(git branch -a --contains HEAD | sed -n 2p | awk '{ printf $1 }')";
           export CODEBUILD_GIT_BRANCH=${CODEBUILD_GIT_BRANCH#remotes/origin/};
         fi
-      - echo "CODEBUILD_GIT_BRANCH ==> $CODEBUILD_GIT_BRANCH"
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # will build the application in development mode before deploying
-      #- npm run deploy:dev -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess
+      - npm run deploy:dev -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --branch=$CODEBUILD_GIT_BRANCH

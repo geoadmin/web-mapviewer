@@ -11,11 +11,17 @@ const argv = require('yargs')
     .command('prod', 'Deploy dist/* files to PROD bucket')
     .option('role', {
         describe: 'AWS ARN for the role to use (will switch to role before uploading)',
-        default: null
+        default: null,
+        type: 'string'
     })
     .option('region', {
         describe: 'AWS Region (default is Frankfurt)',
         default: 'eu-central-1',
+        type: 'string'
+    })
+    .option('branch', {
+        describe: 'Git branch. Will be used as the root folder in S3. This script will try to automatically find the branch name if this option is not given.',
+        default: null,
         type: 'string'
     })
     .demandCommand()
@@ -76,7 +82,14 @@ s3Utils.getS3(argv.region, argv.role)
     (async () => {
 
         // Checking current branch
-        const branch = await gitBranch();
+        let branch = argv.branch;
+        if (!branch) {
+            branch = await gitBranch();
+        }
+        if (!branch) {
+            console.error('Failed to read automatically on which git branch this script has been launched, please specify option --branch and relaunch the script');
+            process.exit(-1);
+        }
 
         // if branch is not master and target is prod, we exit
         if (branch !== 'master' && target === 'prod') {
