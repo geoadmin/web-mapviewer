@@ -34,3 +34,4 @@ phases:
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # will build the application in development mode before deploying
       - npm run deploy:dev -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --branch=$CODEBUILD_GIT_BRANCH
+      - npm run deploy:int -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --branch=$CODEBUILD_GIT_BRANCH
