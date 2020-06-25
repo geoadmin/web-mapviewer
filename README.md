@@ -41,5 +41,9 @@ npm install
 
 All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
 
+### What about `package-lock.json` file?
+
+The CI uses this file to ensure it will not stubble upon a minor version of a library that breaks the app. So this file needs to be versioned, and kept up to date (each time a new library or version of a library is added to `package.json`, `npm install` will update `package-lock.json` accordingly).
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

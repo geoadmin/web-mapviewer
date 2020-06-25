@@ -14,8 +14,8 @@
     "lint": "vue-cli-service lint",
     "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
     "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
-    "deploy:dev": "npm run build:dev && node scripts/deploy.js dev",
-    "deploy:int": "npm run build:prod && node scripts/deploy.js int"
+    "deploy:dev": "DEPLOY=true npm run build:dev && node scripts/deploy.js dev",
+    "deploy:int": "DEPLOY=true npm run build:prod && node scripts/deploy.js int"
   },
   "dependencies": {
     "core-js": "^3.6.5",
