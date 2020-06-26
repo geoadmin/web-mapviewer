@@ -34,7 +34,7 @@ phases:
       # if this build has been triggered by a push on master (PR merge on master), we deploy on INT (otherwise everything goes to dev)
       - export CODEBUILD_DEPLOY_TARGET="dev"
       - if [ "$CODEBUILD_GIT_BRANCH" = "master" ] ; then
-          export CODEBUILD_DEPLOY_TARGET="int"
+          export CODEBUILD_DEPLOY_TARGET="int";
         fi
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # the application will be built by the npm target before deploying
