@@ -40,8 +40,7 @@ npm install
 | `npm run test:headless` | Starts a local server, using `npm run serve`, and run cypress tests on the served URL (this used by the CI to run tests) |
 | `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
-| `npm run deploy:dev` | Build the app using `npm run build:dev` and deploys it on the DEV S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, uses `AWS_PROFILE=another_profile_name npm run deploy:dev`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script). |
-| `npm run deploy:int` | Build the app using `npm run build:prod` and deploys it on the INT S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, uses `AWS_PROFILE=another_profile_name npm run deploy:int`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script). |
+| `npm run deploy:#target#` | Target can be `dev`, `int` or `prod`. Build the app and deploys it on the target S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, use `AWS_PROFILE=another_profile_name npm run deploy:#target#`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script-do). |
 
 All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
 
@@ -51,9 +50,16 @@ The CI uses this file to ensure it will not stumble upon a minor version of a li
 
 The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `pakcage-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
 
-### What does the deploy script?
+### What does the deploy script do?
 
-TODO
+Depending on the target (`dev|int|prod`) it will build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`).
+Then it will detect on which git branch you are, and deploy in a subfolder in the bucket if you are not on either `master` or `develop` (`master` and `develop` are deployed at the root of the bucket).
+ 
+The target bucket will be defined by the target you've specified (`npm run deploy:dev|int`).
+
+- Only `develop` branch can be deployed at the root of the `dev` bucket.
+- Only `master` branch can be deployed at the root of `int` and `prod` buckets.
+
 
 ### Customize VueCLI configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
