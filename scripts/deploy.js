@@ -122,7 +122,10 @@ s3Utils.getS3(argv.region, argv.role)
                 if (countFileBeingUploaded === 0) {
                     // outputs a URL to the index.html file hosted on the bucket in the console.
                     const appUrl = `https://web-mapviewer.${target}.bgdi.ch/${bucketFolder + (bucketFolder !== '' ? '/' : '')}index.html`;
-                    console.log(`Success, your deployment is now available at ${appUrl}`);
+                    console.log('');
+                    console.log('*************************************************************************************')
+                    console.log(`Success, your deployment is now available at : ${appUrl}`);
+                    console.log('*************************************************************************************')
                 }
             });
         }
