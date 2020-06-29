@@ -76,9 +76,6 @@ try {
 s3Utils.getS3(argv.region, argv.role)
 .then(s3 => {
 
-    const distFolderRelativePath = './dist/';
-    const distFolderFullPath = resolve(distFolderRelativePath);
-
     (async () => {
 
         // Checking current branch
@@ -96,6 +93,13 @@ s3Utils.getS3(argv.region, argv.role)
             console.error('It is forbidden to deploy anything else than `master` on the PROD environment');
             process.exit(-1);
         }
+        // if branch is develop and target is not dev, we exit (if it was permitted to deploy on INT for instance, it would
+        // not be a viable build as vue.config.js sets the publicPath to the root of the bucket for develop and master branch
+        // but the code would be deployed in a /develop folder on INT, breaking all links to JS and CSS files)
+        if (branch === 'develop' && target !== 'dev') {
+            console.error('Branch `develop` can only be deployed on DEV environment');
+            process.exit(-1);
+        }
         // bucket folder will be branch name expect if we are on `master` and target is INT or PROD, or if we are on `develop` and target is DEV
         let bucketFolder;
         if (branch === 'master' && (target === 'int' || target === 'prod') || branch === 'develop' && target === 'dev') {
@@ -104,9 +108,16 @@ s3Utils.getS3(argv.region, argv.role)
             bucketFolder = branch;
         }
 
-        for await (const file of fileUtils.getFiles('./dist/')) {
+        const distFolderRelativePath = './dist/';
+        const distFolderFullPath = resolve(distFolderRelativePath);
+
+        for await (const file of fileUtils.getFiles(distFolderRelativePath)) {
+            // file paths returned by fileUtils are absolute paths, we need to get rid of the project directory part to have a valid S3 path.
             const bucketFilePath = bucketFolder + file.replace(distFolderFullPath, '');
             s3Utils.uploadFileToS3(s3, file, buckets[target], bucketFilePath);
         }
+        // outputs a URL to the index.html file hosted on the bucket in the console.
+        const appUrl = `https://web-mapviewer.${target}.bgdi.ch/${bucketFolder + (bucketFolder !== '' ? '/' : '')}index.html`;
+        console.log(`Success, your deployment is now available at ${appUrl}`);
     })()
 }).catch(console.error)

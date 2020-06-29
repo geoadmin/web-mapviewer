@@ -29,21 +29,21 @@ async function getS3(region, roleArn) {
             RoleArn: roleArn,
             RoleSessionName: 'SwitchRoleSession'
         };
-        const assumeRoleStep1 = await sts.assumeRole(switchRoleParams).promise();
+        const assumeRole = await sts.assumeRole(switchRoleParams).promise();
 
-        s3Options.accessKeyId = assumeRoleStep1.Credentials.AccessKeyId;
-        s3Options.secretAccessKey = assumeRoleStep1.Credentials.SecretAccessKey;
-        s3Options.sessionToken = assumeRoleStep1.Credentials.SessionToken;
+        s3Options.accessKeyId = assumeRole.Credentials.AccessKeyId;
+        s3Options.secretAccessKey = assumeRole.Credentials.SecretAccessKey;
+        s3Options.sessionToken = assumeRole.Credentials.SessionToken;
     }
     console.log('loading done for s3 service')
     return new AWS.S3(s3Options);
 }
 
 /**
- * Uploads a file to an S3 bucket using the S3 instance given in param
+ * Uploads a file to a S3 bucket using the S3 instance given in param
  * @param s3 an instance of AWS.S3
  * @param filePath a local file path to be uploaded on S3
- * @param bucket the bucket name (must be accessible through the current AWS profile)
+ * @param bucket the bucket name (must be accessible and writable through the current AWS profile/role)
  * @param bucketFilePath where the file should be uploaded on the S3 bucket (relative to the root of the bucket)
  */
 function uploadFileToS3 (s3, filePath, bucket, bucketFilePath) {
@@ -54,6 +54,7 @@ function uploadFileToS3 (s3, filePath, bucket, bucketFilePath) {
             Key: bucketFilePath,
             Body: gzipSync(data),
             ACL: 'public-read',
+            // mime.lookup will return false if it can't detect content type
             ContentType: mime.lookup(filePath) || 'application/octet-stream',
             ContentEncoding: 'gzip'
         };

@@ -6,7 +6,7 @@ const fs = require('fs');
 /**
  * Perform a deep scan (recursive) of a directory, and returns (through an asynchronous iterator) all file paths found in this folder
  * @param dir a path (relative or absolute) to a directory to be scanned
- * @returns {any} an Asynchronous Iterators returning all file paths of the directory
+ * @returns {any} an Asynchronous Iterators returning all file paths of the directory, paths will be absolute even if dir param is relative
  */
 async function* getFiles(dir) {
     const directoryEntries = await fs.promises.readdir(dir, { withFileTypes: true });
