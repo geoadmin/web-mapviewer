@@ -45,26 +45,26 @@ async function getS3(region, roleArn) {
  * @param filePath a local file path to be uploaded on S3
  * @param bucket the bucket name (must be accessible and writable through the current AWS profile/role)
  * @param bucketFilePath where the file should be uploaded on the S3 bucket (relative to the root of the bucket)
+ * @param callback a callback that will be called if successful
  */
-function uploadFileToS3 (s3, filePath, bucket, bucketFilePath) {
-    fs.readFile(filePath, (err, data) => {
-        if (err) throw err;
-        const params = {
-            Bucket: bucket,
-            Key: bucketFilePath,
-            Body: gzipSync(data),
-            ACL: 'public-read',
-            // mime.lookup will return false if it can't detect content type
-            ContentType: mime.lookup(filePath) || 'application/octet-stream',
-            ContentEncoding: 'gzip'
-        };
-        s3.upload(params, function(s3Err, data) {
-            if (s3Err) {
-                console.error(`Error while uploading file ${bucketFilePath} to bucket ${bucket}`, s3Err);
-                process.exit(-1);
-            }
-            console.log(`File uploaded successfully at ${data.Location}`)
-        });
+function uploadFileToS3 (s3, filePath, bucket, bucketFilePath, callback) {
+    const data = fs.readFileSync(filePath);
+    const params = {
+        Bucket: bucket,
+        Key: bucketFilePath,
+        Body: gzipSync(data),
+        ACL: 'public-read',
+        // mime.lookup will return false if it can't detect content type
+        ContentType: mime.lookup(filePath) || 'application/octet-stream',
+        ContentEncoding: 'gzip'
+    };
+    s3.upload(params, function(s3Err, data) {
+        if (s3Err) {
+            console.error(`Error while uploading file ${bucketFilePath} to bucket ${bucket}`, s3Err);
+            process.exit(-1);
+        }
+        console.log(`File uploaded successfully at ${data.Location}`)
+        callback && callback();
     });
 }
 

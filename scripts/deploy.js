@@ -111,13 +111,20 @@ s3Utils.getS3(argv.region, argv.role)
         const distFolderRelativePath = './dist/';
         const distFolderFullPath = resolve(distFolderRelativePath);
 
+        let countFileBeingUploaded = 0;
         for await (const file of fileUtils.getFiles(distFolderRelativePath)) {
             // file paths returned by fileUtils are absolute paths, we need to get rid of the project directory part to have a valid S3 path.
             const bucketFilePath = bucketFolder + file.replace(distFolderFullPath, '');
-            s3Utils.uploadFileToS3(s3, file, buckets[target], bucketFilePath);
+            countFileBeingUploaded++;
+            s3Utils.uploadFileToS3(s3, file, buckets[target], bucketFilePath, () => {
+                countFileBeingUploaded--;
+                // checking if all files are done being uploaded
+                if (countFileBeingUploaded === 0) {
+                    // outputs a URL to the index.html file hosted on the bucket in the console.
+                    const appUrl = `https://web-mapviewer.${target}.bgdi.ch/${bucketFolder + (bucketFolder !== '' ? '/' : '')}index.html`;
+                    console.log(`Success, your deployment is now available at ${appUrl}`);
+                }
+            });
         }
-        // outputs a URL to the index.html file hosted on the bucket in the console.
-        const appUrl = `https://web-mapviewer.${target}.bgdi.ch/${bucketFolder + (bucketFolder !== '' ? '/' : '')}index.html`;
-        console.log(`Success, your deployment is now available at ${appUrl}`);
     })()
 }).catch(console.error)
