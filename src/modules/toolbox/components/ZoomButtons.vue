@@ -42,7 +42,7 @@
         vertical-align: top;
         width: 20px;
         height: 20px;
-        background-image: url(/img/icons/zoom_sprite.png);
+        background-image: url(../assets/zoom_sprite.png);
     }
 
     .button .icon {
