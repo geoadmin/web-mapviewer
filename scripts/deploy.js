@@ -4,7 +4,8 @@
 // a S3 bucket, defined by the target given as a script argument.
 
 // describing possible arguments for this script (launch with --help to see the doc)
-const argv = require('yargs')
+const yargs = require('yargs');
+const argv = yargs
     .usage('Usage: $0 <target> [options]')
     .command('dev', 'Deploy dist/* files to DEV bucket')
     .command('int', 'Deploy dist/* files to INT bucket')
@@ -37,11 +38,16 @@ const buckets = {
 };
 
 // checking that the target is valid
-if (argv._.length !== 1) {
-    console.error('To many arguments, only one target should be provided')
-    process.exit(-1);
+if (argv._.length > 1) {
+    console.error('To many arguments, only one target must be provided')
+    process.exit(1);
 }
 const target = argv._[0];
+if (!target || !(target in buckets)) {
+    console.error(`Non-existing target specified: "${target}"`);
+    yargs.showHelp();
+    process.exit(1);
+}
 
 // Load the AWS SDK for Node.js
 const AWS = require('aws-sdk');
@@ -50,7 +56,6 @@ AWS.config.update({region: argv.region});
 
 // Loading filesystem API
 const { resolve } = require('path');
-const fs = require('fs');
 
 // loading external utility function to read git metadata
 const gitBranch = require('git-branch');
@@ -60,16 +65,9 @@ const s3Utils = require('./s3-utils');
 const fileUtils = require('./file-utils');
 
 // Checking if index.html file is present in dist folder (if build has been done beforehand)
-try {
-    if (fs.existsSync('./dist/index.html')) {
-        // file exists
-    } else {
-        console.error('Please build the project before trying to deploy')
-        process.exit(-1);
-    }
-} catch (err) {
+if (!fileUtils.fileExists('./dist/index.html')) {
     console.error('Please build the project before trying to deploy')
-    process.exit(-1);
+    process.exit(1);
 }
 
 // Create S3 service object
@@ -85,20 +83,20 @@ s3Utils.getS3(argv.region, argv.role)
         }
         if (!branch) {
             console.error('Failed to read automatically on which git branch this script has been launched, please specify option --branch and relaunch the script');
-            process.exit(-1);
+            process.exit(1);
         }
 
         // if branch is not master and target is prod, we exit
         if (branch !== 'master' && target === 'prod') {
             console.error('It is forbidden to deploy anything else than `master` on the PROD environment');
-            process.exit(-1);
+            process.exit(1);
         }
         // if branch is develop and target is not dev, we exit (if it was permitted to deploy on INT for instance, it would
         // not be a viable build as vue.config.js sets the publicPath to the root of the bucket for develop and master branch
         // but the code would be deployed in a /develop folder on INT, breaking all links to JS and CSS files)
         if (branch === 'develop' && target !== 'dev') {
             console.error('Branch `develop` can only be deployed on DEV environment');
-            process.exit(-1);
+            process.exit(1);
         }
         // bucket folder will be branch name expect if we are on `master` and target is INT or PROD, or if we are on `develop` and target is DEV
         let bucketFolder;
@@ -114,8 +112,16 @@ s3Utils.getS3(argv.region, argv.role)
         let countFileBeingUploaded = 0;
         for await (const file of fileUtils.getFiles(distFolderRelativePath)) {
             // file paths returned by fileUtils are absolute paths, we need to get rid of the project directory part to have a valid S3 path.
-            const bucketFilePath = bucketFolder + file.replace(distFolderFullPath, '');
+            let bucketFilePath = bucketFolder + file.replace(distFolderFullPath, '');
             countFileBeingUploaded++;
+            // removing any slash at the beginning so that it doesn't create a / folder (can happen if we are deploying something at the root of the bucket)
+            // and a slash has been left by the dist path removal).
+            if (bucketFilePath.startsWith('/')) {
+                bucketFilePath = bucketFilePath.substring(1);
+            }
+            // just to be extra careful, replacing any // by a single / in the filepath
+            bucketFilePath = bucketFilePath.replace('//', '/');
+
             s3Utils.uploadFileToS3(s3, file, buckets[target], bucketFilePath, () => {
                 countFileBeingUploaded--;
                 // checking if all files are done being uploaded
