@@ -20,6 +20,15 @@ async function* getFiles(dir) {
     }
 }
 
+function fileExists(file) {
+    try {
+        return fs.existsSync(file);
+    } catch (err) {
+        return false;
+    }
+}
+
 module.exports = {
-    getFiles
+    getFiles,
+    fileExists
 }
