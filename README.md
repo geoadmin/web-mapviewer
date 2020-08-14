@@ -1,5 +1,5 @@
 # web-mapviewer
-The viewer application of www.geo.admin.ch.  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
+The next generation map viewer application of geo.admin.ch:  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
 ## Roadmap
 Geo.admin.ch, in particular the map viewer of the Geoportal Bund https://map.geo.admin.ch, is being used actively (80K visits/day) by the public, authorities and third parties in version [mf-geoadmin3](https://github.com/geoadmin/mf-geoadmin3) and covers all functions according to the currently valid [NGDI](https://cms.geo.admin.ch/www.e-geo.ch/archives/pdf_egeo_de/ngdigesamtkonzeptv2.0.pdf) concept. 
