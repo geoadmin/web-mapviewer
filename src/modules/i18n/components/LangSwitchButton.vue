@@ -1,5 +1,5 @@
 <template>
-    <button class="i18n-lang-switch" @click="onClick(lang)">{{ lang.toUpperCase() }}</button>
+  <button class="i18n-lang-switch" @click="onClick(lang)">{{ lang.toUpperCase() }}</button>
 </template>
 
 <style>
