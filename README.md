@@ -28,6 +28,24 @@ Unit and integration testing is done with Cypress.io. All things related to test
 npm install
 ```
 
+### Tooling for translation update
+
+Our translation master is hosted in a Google Spreadsheet, thus if you want to update translations you will need a valid Google API Key.
+One can be found in our `gopass` store.
+
+For this purpose you will need to install [gopass](https://github.com/gopasspw/gopass), and to be more efficient the use of [summon](https://github.com/cyberark/summon).
+
+In order for them to function together, they need to be linked with
+```bash
+mkdir /usr/local/lib/summon
+ln -s $(which gopass) /usr/local/lib/summon/gopass
+```
+
+Translations can then be updated with
+```bash
+summon -p gopass npm run update:translations
+```
+
 ### List of npm scripts
 
 | command | what it does |
@@ -41,7 +59,7 @@ npm install
 | `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
 | `npm run deploy:#target#` | Target can be `dev`, `int` or `prod`. Build the app and deploys it on the target S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, use `AWS_PROFILE=another_profile_name npm run deploy:#target#`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script-do). |
-| `npm run update:translations` | Update translation files according to our Google Spreadsheet. Requires a valid Google API Key as env variable `GOOGLE_API_KEY`. So Should be run like `GOOGLE_API_KEY=xxx npm run update:translations`. A key can be found in our `gopass`. |
+| `npm run update:translations` | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
 All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
 
