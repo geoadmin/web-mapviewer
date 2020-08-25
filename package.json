@@ -15,7 +15,8 @@
     "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
     "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
     "deploy:dev": "DEPLOY=true npm run build:dev && node scripts/deploy.js dev",
-    "deploy:int": "DEPLOY=true npm run build:prod && node scripts/deploy.js int"
+    "deploy:int": "DEPLOY=true npm run build:prod && node scripts/deploy.js int",
+    "update:translations": "node scripts/generate-i18n-files.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -25,6 +26,7 @@
     "register-service-worker": "^1.7.1",
     "reproject": "^1.2.5",
     "vue": "^2.6.11",
+    "vue-i18n": "^8.18.2",
     "vuex": "^3.3.0"
   },
   "devDependencies": {
@@ -42,6 +44,7 @@
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-vue": "^6.2.2",
     "git-branch": "^2.0.1",
+    "googleapis": "^59.0.0",
     "mime-types": "^2.1.27",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",

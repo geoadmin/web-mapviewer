@@ -58,7 +58,7 @@ This module can then be imported in the store module (see below)
 
 ### Architectural decisions
 
-All project related architectural decision will be described in the folder [`/adr`](adr/) (ADR stands for "Architectural Decision Report"). For all more macro decisions (like the CI we use or other broad subjects), please refer to [the `/adr` folder on the project doc-guidelines](https://github.com/geoadmin/doc-guidelines/tree/master/adr). 
+All project related architectural decision will be described in the folder [`/adr`](adr/) (ADR stands for "Architectural Decision Report"). For all more macro decisions (like the CI we use or other broad subjects), please refer to [the `/adr` folder on the project doc-guidelines](https://github.com/geoadmin/doc-guidelines/tree/master/adr).
 
 ### Store module
  As there can be only one instance of a Vuex's store per app, the store module is there for that. It as the responsibility to instantiate Vuex, and add any module related state data to the store.
@@ -73,6 +73,24 @@ Unit and integration testing is done with Cypress.io. All things related to test
 npm install
 ```
 
+### Tooling for translation update
+
+Our translation master is hosted in a Google Spreadsheet, thus if you want to update translations you will need a valid Google API Key.
+One can be found in our `gopass` store.
+
+For this purpose you will need to install [gopass](https://github.com/gopasspw/gopass), and to be more efficient use it with [summon](https://github.com/cyberark/summon).
+
+In order for them to function together, they need to be linked with
+```bash
+mkdir /usr/local/lib/summon
+ln -s $(which gopass) /usr/local/lib/summon/gopass
+```
+
+Translations can then be updated with
+```bash
+summon -p gopass npm run update:translations
+```
+
 ### List of npm scripts
 
 | command | what it does |
@@ -80,12 +98,13 @@ npm install
 | `npm run serve` | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). You can change port number by using env variable `PORT` (for example `PORT=9999 npm run serve`) |
 | `npm run build:dev` | Compiles all file without bundling and minification |
 | `npm run build:prod` | Compiles and minifies for production |
-| `npm run lint` | Lints and fixes files | 
+| `npm run lint` | Lints and fixes files |
 | `npm run test:unit` | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
 | `npm run test:headless` | Starts a local server, using `npm run serve`, and run cypress tests on the served URL (this used by the CI to run tests) |
 | `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
 | `npm run deploy:#target#` | Target can be `dev`, `int` or `prod`. Build the app and deploys it on the target S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, use `AWS_PROFILE=another_profile_name npm run deploy:#target#`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script-do). |
+| `npm run update:translations` | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
 All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
 
@@ -99,7 +118,7 @@ The CI will use `npm ci`, which act like `npm install` but it ignores the file `
 
 Depending on the target (`dev|int|prod`) it will build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`).
 Then it will detect on which git branch you are, and deploy in a subfolder in the bucket if you are not on either `master` or `develop` (`master` and `develop` are deployed at the root of the bucket).
- 
+
 The target bucket will be defined by the target you've specified (`npm run deploy:dev|int`).
 
 - Only `develop` branch can be deployed at the root of the `dev` bucket.
