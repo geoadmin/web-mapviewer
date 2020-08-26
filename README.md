@@ -96,6 +96,7 @@ Translations can then be updated with
 ```bash
 summon -p gopass npm run update:translations
 ```
+The file `secrets.yml` will tell `gopass` which keys to get from the store.
 
 ### List of npm scripts
 
