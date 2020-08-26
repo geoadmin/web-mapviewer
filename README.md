@@ -1,8 +1,14 @@
+# Table of Contents
+1. [Roadmap](#roadmap)
+2. [Project structure](#project-structure)
+3. [Project setup](#project-setup)
+4. [List of npm scripts](#list-of-npm-scripts)
+
 # web-mapviewer
 The next generation map viewer application of geo.admin.ch:  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
 ## Roadmap
-Geo.admin.ch, in particular the map viewer of the Geoportal Bund https://map.geo.admin.ch, is being used actively (80K visits/day) by the public, authorities and third parties in version [mf-geoadmin3](https://github.com/geoadmin/mf-geoadmin3) and covers all functions according to the currently valid [NGDI](https://cms.geo.admin.ch/www.e-geo.ch/archives/pdf_egeo_de/ngdigesamtkonzeptv2.0.pdf) concept. 
+Geo.admin.ch, in particular the map viewer of the Geoportal Bund https://map.geo.admin.ch, is being used actively (80K visits/day) by the public, authorities and third parties in version [mf-geoadmin3](https://github.com/geoadmin/mf-geoadmin3) and covers all functions according to the currently valid [NGDI](https://cms.geo.admin.ch/www.e-geo.ch/archives/pdf_egeo_de/ngdigesamtkonzeptv2.0.pdf) concept.
 
 geo.admin.ch receives a large number of feature requests, both from inside federal offices and from the broader open-source community. At the same time, backend, services and viewer (frameworks version used such as angular, python, cesium etc ) of mf-geoadmin3 are at the end of their life cycle and must be replaced. We bring together representatives from authorites coordinating agency for Federal geographical information, [GCG](https://www.geo.admin.ch/gkg), and engineering to prioritize this list. As new projects come into the queue, we regularly position them based on relative priority to other projects. As work gets done, projects will move up in the queue.
 
@@ -13,7 +19,7 @@ The projects below are not associated with a particular map.geo.admin.ch version
 We are setting up JS Code Structure, a bare map viewer with panning and investigate PWA technologies. This includes a set up of CI/CD and deployment processes. To ease collaboration , basic documentation is implemented
 
 #### Basic mapviewer with MVP feature set
-A basic viewer consisting of basic Permalink,/ URL mgmt., basic dataset mgmt., basic infoboxes (incl improvements), basic drawing, basic iFrame support and basic 3D. 
+A basic viewer consisting of basic Permalink,/ URL mgmt., basic dataset mgmt., basic infoboxes (incl improvements), basic drawing, basic iFrame support and basic 3D.
 
 ### Future
 #### Map window
