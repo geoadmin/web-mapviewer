@@ -1,8 +1,14 @@
+# Table of Contents
+1. [Roadmap](#roadmap)
+2. [Project structure](#project-structure)
+3. [Project setup](#project-setup)
+4. [List of npm scripts](#list-of-npm-scripts)
+
 # web-mapviewer
 The next generation map viewer application of geo.admin.ch:  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
 ## Roadmap
-Geo.admin.ch, in particular the map viewer of the Geoportal Bund https://map.geo.admin.ch, is being used actively (80K visits/day) by the public, authorities and third parties in version [mf-geoadmin3](https://github.com/geoadmin/mf-geoadmin3) and covers all functions according to the currently valid [NGDI](https://cms.geo.admin.ch/www.e-geo.ch/archives/pdf_egeo_de/ngdigesamtkonzeptv2.0.pdf) concept. 
+Geo.admin.ch, in particular the map viewer of the Geoportal Bund https://map.geo.admin.ch, is being used actively (80K visits/day) by the public, authorities and third parties in version [mf-geoadmin3](https://github.com/geoadmin/mf-geoadmin3) and covers all functions according to the currently valid [NGDI](https://cms.geo.admin.ch/www.e-geo.ch/archives/pdf_egeo_de/ngdigesamtkonzeptv2.0.pdf) concept.
 
 geo.admin.ch receives a large number of feature requests, both from inside federal offices and from the broader open-source community. At the same time, backend, services and viewer (frameworks version used such as angular, python, cesium etc ) of mf-geoadmin3 are at the end of their life cycle and must be replaced. We bring together representatives from authorites coordinating agency for Federal geographical information, [GCG](https://www.geo.admin.ch/gkg), and engineering to prioritize this list. As new projects come into the queue, we regularly position them based on relative priority to other projects. As work gets done, projects will move up in the queue.
 
@@ -13,7 +19,7 @@ The projects below are not associated with a particular map.geo.admin.ch version
 We are setting up JS Code Structure, a bare map viewer with panning and investigate PWA technologies. This includes a set up of CI/CD and deployment processes. To ease collaboration , basic documentation is implemented
 
 #### Basic mapviewer with MVP feature set
-A basic viewer consisting of basic Permalink,/ URL mgmt., basic dataset mgmt., basic infoboxes (incl improvements), basic drawing, basic iFrame support and basic 3D. 
+A basic viewer consisting of basic Permalink,/ URL mgmt., basic dataset mgmt., basic infoboxes (incl improvements), basic drawing, basic iFrame support and basic 3D.
 
 ### Future
 #### Map window
@@ -48,13 +54,37 @@ We will define the user learning journeys to shadow snapping and routing
 
 ## Project structure
 
-This is a Vue app, that is served through `src/main.js`.
+This is a [Vue](https://vuejs.org/) app that is served through `src/main.js`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
 The app is divided into modules (or chunks) that are stored into `src/modules`. The goal is for each of these modules to be able to be externalized if needed (they should explicitly state their dependencies in their `index.js`)
 
 Each module should have a root component, called `{Name of the module}Module.vue` that loads all needed component into the template. It should also have a `README.md` file at the root explaining what this module is about.
 
 If the module needs to add data not related to something app wise (for instance, some internal state), a `store` folder can be created with an `index.js` file exporting a Vuex module.
 This module can then be imported in the store module (see below)
+
+Here's a sample of what project folder structure looks like :
+```
+    .
+    + -- adr
+    |    |    # all architectural decisions made over the course of this project
+    + -- cypress
+    |    + -- integration
+    |    |    |    # all unit test files
+    + -- public
+    |    |    # all files that don't need pre processing before going public (index.html, favicon, etc...)
+    + -- scripts
+    |    |    # NodeJS scripts useful for dev tools or for deploy (used by NPM targets)
+    + -- src
+    |    + -- main.js
+    |    + -- App.vue # here's where you should import your module "moduleName" to the app
+    |    + -- modules
+    |    |    + -- moduleName
+    |    |    |    + -- index.js
+    |    |    |    # other moduleName related files such as a components folder or a store folder
+
+
+```
+
 
 ### Architectural decisions
 
@@ -76,7 +106,7 @@ npm install
 ### Tooling for translation update
 
 Our translation master is hosted in a Google Spreadsheet, thus if you want to update translations you will need a valid Google API Key.
-One can be found in our `gopass` store.
+One can be found in our `gopass` store `infra-gopass-bgdi`.
 
 For this purpose you will need to install [gopass](https://github.com/gopasspw/gopass), and to be more efficient use it with [summon](https://github.com/cyberark/summon).
 
@@ -90,6 +120,7 @@ Translations can then be updated with
 ```bash
 summon -p gopass npm run update:translations
 ```
+The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 
 ### List of npm scripts
 
