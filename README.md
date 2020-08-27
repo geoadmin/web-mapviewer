@@ -54,13 +54,37 @@ We will define the user learning journeys to shadow snapping and routing
 
 ## Project structure
 
-This is a Vue app, that is served through `src/main.js`.
+This is a [Vue](https://vuejs.org/) app that is served through `src/main.js`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
 The app is divided into modules (or chunks) that are stored into `src/modules`. The goal is for each of these modules to be able to be externalized if needed (they should explicitly state their dependencies in their `index.js`)
 
 Each module should have a root component, called `{Name of the module}Module.vue` that loads all needed component into the template. It should also have a `README.md` file at the root explaining what this module is about.
 
 If the module needs to add data not related to something app wise (for instance, some internal state), a `store` folder can be created with an `index.js` file exporting a Vuex module.
 This module can then be imported in the store module (see below)
+
+Here's a sample of what project folder structure looks like :
+```
+    .
+    + -- adr
+    |    |    # all architectural decisions made over the course of this project
+    + -- cypress
+    |    + -- integration
+    |    |    |    # all unit test files
+    + -- public
+    |    |    # all files that don't need pre processing before going public (index.html, favicon, etc...)
+    + -- scripts
+    |    |    # NodeJS scripts useful for dev tools or for deploy (used by NPM targets)
+    + -- src
+    |    + -- main.js
+    |    + -- App.vue # here's where you should import your module "moduleName" to the app
+    |    + -- modules
+    |    |    + -- moduleName
+    |    |    |    + -- index.js
+    |    |    |    # other moduleName related files such as a components folder or a store folder
+
+
+```
+
 
 ### Architectural decisions
 
@@ -82,7 +106,7 @@ npm install
 ### Tooling for translation update
 
 Our translation master is hosted in a Google Spreadsheet, thus if you want to update translations you will need a valid Google API Key.
-One can be found in our `gopass` store.
+One can be found in our `gopass` store `infra-gopass-bgdi`.
 
 For this purpose you will need to install [gopass](https://github.com/gopasspw/gopass), and to be more efficient use it with [summon](https://github.com/cyberark/summon).
 
@@ -96,7 +120,7 @@ Translations can then be updated with
 ```bash
 summon -p gopass npm run update:translations
 ```
-The file `secrets.yml` will tell `gopass` which keys to get from the store.
+The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 
 ### List of npm scripts
 
