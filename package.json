@@ -2,19 +2,31 @@
   "name": "web-mapviewer",
   "version": "0.1.0",
   "private": true,
+  "config": {
+    "port": 8080
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "serve": "vue-cli-service serve --port=${PORT:-$npm_package_config_port}",
+    "build:dev": "vue-cli-service build --mode=development",
+    "build:prod": "vue-cli-service build",
+    "test:unit": "cypress run",
+    "test:headless": "start-server-and-test serve http://localhost:${PORT:-$npm_package_config_port} cypress:run",
+    "lint": "vue-cli-service lint",
+    "cypress:open": "cypress open --config baseUrl=http://localhost:${PORT:-$npm_package_config_port}",
+    "cypress:run": "cypress run --config baseUrl=http://localhost:${PORT:-$npm_package_config_port} --env video=false",
+    "deploy:dev": "DEPLOY=true npm run build:dev && node scripts/deploy.js dev",
+    "deploy:int": "DEPLOY=true npm run build:prod && node scripts/deploy.js int",
+    "update:translations": "node scripts/generate-i18n-files.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "lodash": "^4.17.15",
     "ol": "^6.3.1",
     "proj4": "^2.6.1",
     "register-service-worker": "^1.7.1",
     "reproject": "^1.2.5",
     "vue": "^2.6.11",
+    "vue-i18n": "^8.18.2",
     "vuex": "^3.3.0"
   },
   "devDependencies": {
@@ -25,11 +37,19 @@
     "@vue/cli-plugin-vuex": "~4.3.1",
     "@vue/cli-service": "~4.3.1",
     "@vue/test-utils": "1.0.0-beta.33",
+    "aws-sdk": "^2.691.0",
     "babel-eslint": "^10.1.0",
+    "cypress": "^4.5.0",
     "eslint": "^6.8.0",
+    "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-vue": "^6.2.2",
+    "git-branch": "^2.0.1",
+    "googleapis": "^59.0.0",
+    "mime-types": "^2.1.27",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
+    "start-server-and-test": "^1.11.0",
+    "vue-template-compiler": "^2.6.11",
+    "yargs": "^15.3.1"
   }
 }

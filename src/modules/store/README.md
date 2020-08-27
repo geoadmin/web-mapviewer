@@ -12,5 +12,6 @@ When a set of store values are specific to a single app module, this module shou
 
 ## Importing vuex modules from another app module
 
-If your module has to add something to the store, it can be done in `index.js`
-It can be imported with a `import "@/module/{your module name}/store"`, for an example see `map` module.
+If your module has to add something to the store, but what is added is not relevant to the whole app (private state), it can be imported in `index.js` (syntax is `import "@/module/{your module name}/store"`, see `map` module for an example).
+
+If what is added is useful at a global point of view, you should add your data as a Vuex module in the `/modules` folder.

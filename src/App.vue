@@ -2,18 +2,21 @@
     <div id="app">
         <MapModule></MapModule>
         <ToolboxModule></ToolboxModule>
+        <I18nModule></I18nModule>
     </div>
 </template>
 
 <script>
     import MapModule from "./modules/map/";
     import ToolboxModule from "./modules/toolbox/";
+    import I18nModule from "./modules/i18n/I18nModule";
 
     export default {
         name: 'App',
         components: {
             MapModule,
-            ToolboxModule
+            ToolboxModule,
+            I18nModule
         }
     }
 </script>
