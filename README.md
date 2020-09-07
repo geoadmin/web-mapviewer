@@ -7,16 +7,18 @@
 
 The next generation map viewer application of geo.admin.ch:  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
-# Table of Contents
-1. [Roadmap](#roadmap)
-2. [Project structure](#project-structure)
-3. [Project setup](#project-setup)
-4. [List of npm scripts](#list-of-npm-scripts)
-5. [Contributing](#contributing)
-
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+# Table of Contents
+2. [Project structure](#project-structure)
+3. [Project setup](#project-setup)
+4. [List of npm scripts](#list-of-npm-scripts)
 
 ## Project structure
 
@@ -120,7 +122,3 @@ The target bucket will be defined by the target you've specified (`npm run deplo
 
 - Only `develop` branch can be deployed at the root of the `dev` bucket.
 - Only `master` branch can be deployed at the root of `int` and `prod` buckets.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)
