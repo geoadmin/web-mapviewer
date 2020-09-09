@@ -1,3 +1,5 @@
+const { resolve } = require('path');
+
 // loading external utility function to read git metadata
 const gitBranch = require('git-branch');
 
@@ -12,6 +14,36 @@ if (process.env.DEPLOY && branch !== 'master' && branch !== 'develop') {
     publicPath = `/${branch}/`;
 }
 
+const svgFilePath = resolve('./src/assets/svg/')
+
 module.exports = {
-    publicPath
+    publicPath,
+    chainWebpack(config) {
+        config.module
+            .rule('vue-svgicon')
+            .include.add(svgFilePath)
+            .end()
+            .test(/\.svg$/)
+            .use('svgicon')
+            .loader('@yzfe/svgicon-loader')
+            .options({
+                svgFilePath
+            })
+
+        config.module.rule('svg').exclude.add(svgFilePath).end()
+
+        // Recommended configuration transformAssetUrls
+        config.module
+            .rule('vue')
+            .use('vue-loader')
+            .loader('vue-loader')
+            .tap((opt) => {
+                opt.transformAssetUrls = opt.transformAssetUrls || {}
+                opt.transformAssetUrls['icon'] = ['data']
+                return opt
+            })
+
+        // Recommended configuration alias
+        config.resolve.alias.set('@icon', svgFilePath)
+    }
 }

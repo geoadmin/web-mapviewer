@@ -11,7 +11,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
+    width: calc(100% - 10px); /* 100% - 2x padding 5px */
     height: 15px;
     font-size: 12px;
     padding: 0 5px;
