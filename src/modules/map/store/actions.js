@@ -45,5 +45,11 @@ export default {
     },
     clearDrawing({commit}) {
         commit("clearDrawing");
+    },
+    toggleMapOverlay({commit}, callbackOnClick) {
+        commit("toggleMapOverlay", callbackOnClick);
+    },
+    clearOverlayCallbacks({commit}) {
+        commit('clearOverlayCallbacks');
     }
 };

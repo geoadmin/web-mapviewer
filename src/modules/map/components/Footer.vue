@@ -6,16 +6,18 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
+  @import "node_modules/bootstrap/scss/bootstrap";
+
   #footer {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: calc(100% - 10px); /* 100% - 2x padding 5px */
+    width: 100%;
     height: 15px;
     font-size: 12px;
     padding: 0 5px;
-    background: white;
+    background: $white;
   }
 </style>
 

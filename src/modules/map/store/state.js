@@ -14,5 +14,9 @@ export default {
     draw: {
         coordinates: []
     },
-    clickMode: CLICK_MODES.IDENTIFY
+    clickMode: CLICK_MODES.IDENTIFY,
+    overlay: {
+        show: false,
+        callbacksOnClose: []
+    }
 };

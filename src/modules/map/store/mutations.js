@@ -19,5 +19,19 @@ export default {
     },
     clearDrawing(state) {
         state.draw.coordinates = [];
+    },
+    toggleMapOverlay(state, callbackOnClose) {
+        state.overlay.show = !state.overlay.show;
+        if (state.overlay.show && callbackOnClose) {
+            state.overlay.callbacksOnClose.push(callbackOnClose);
+        } else if (!state.overlay.show && state.overlay.callbacksOnClose.length > 0) {
+            state.overlay.callbacksOnClose.forEach(callback => {
+                callback();
+            });
+            state.overlay.callbacksOnClose = [];
+        }
+    },
+    clearOverlayCallbacks(state) {
+        state.overlay.callbacksOnClose = [];
     }
 };

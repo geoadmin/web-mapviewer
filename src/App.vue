@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <MapModule />
-        <HeaderModule />
+        <MenuModule />
         <ToolboxModule />
         <I18nModule />
     </div>
@@ -9,13 +9,14 @@
 
 <script>
   import MapModule from "./modules/map/";
-    import ToolboxModule from "./modules/toolbox/";
-    import I18nModule from "./modules/i18n/I18nModule";
-    import HeaderModule from "@/modules/header/HeaderModule";
+  import ToolboxModule from "./modules/toolbox/";
+  import I18nModule from "./modules/i18n/I18nModule";
+  import MenuModule from "@/modules/menu/MenuModule";
+
   export default {
     name: 'App',
     components: {
-      HeaderModule,
+      MenuModule,
       MapModule,
       ToolboxModule,
       I18nModule
