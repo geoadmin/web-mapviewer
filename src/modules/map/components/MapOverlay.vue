@@ -1,6 +1,9 @@
 <template>
   <transition name="fade">
-    <div v-show="showOverlay" id="map-overlay" @click="toggleMapOverlay"></div>
+    <div v-show="showOverlay"
+         id="map-overlay"
+         data-cy="map-overlay"
+         @click="toggleMapOverlay"></div>
   </transition>
 </template>
 

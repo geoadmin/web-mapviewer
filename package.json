@@ -15,6 +15,9 @@
     "test:headless": "start-server-and-test serve http://localhost:${PORT:-$npm_package_config_port} cypress:run",
     "update:translations": "node scripts/generate-i18n-files.js"
   },
+  "config": {
+    "port": 8080
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
     "@yzfe/svgicon": "^1.0.1",

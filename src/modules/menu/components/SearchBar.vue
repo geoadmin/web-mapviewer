@@ -1,7 +1,10 @@
 <template>
   <div id="search-bar" class="input-group">
     <div class="input-group-prepend">
-      <button type="button" class="btn-menu btn border-right-0" @click="toggleMenuTrayAndOverlay">
+      <button type="button"
+              data-cy="menu-button"
+              class="btn-menu btn border-right-0"
+              @click="toggleMenuTrayAndOverlay">
         <i class="fa fa-bars"></i>
       </button>
     </div>

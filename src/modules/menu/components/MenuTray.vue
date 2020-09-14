@@ -1,6 +1,9 @@
 <template>
   <transition name="slide">
-    <div v-show="showMenuTray" id="menu-tray" class="p-2">
+    <div v-show="showMenuTray"
+         id="menu-tray"
+         data-cy="menu-tray"
+         class="p-2">
       <h2>Menu</h2>
       <div><h6>Menu item</h6></div>
       <div><h6>Menu item</h6></div>

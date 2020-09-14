@@ -10,7 +10,7 @@
   @import "node_modules/bootstrap/scss/bootstrap";
 
   .full-screen-map {
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     width: 100%;
