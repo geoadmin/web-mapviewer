@@ -18,5 +18,6 @@ export default {
     overlay: {
         show: false,
         callbacksOnClose: []
-    }
+    },
+    isBeingDragged: false
 };

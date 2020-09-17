@@ -51,5 +51,11 @@ export default {
     },
     clearOverlayCallbacks({commit}) {
         commit('clearOverlayCallbacks');
+    },
+    mapStartBeingDragged({commit}) {
+        commit('mapStartBeingDragged');
+    },
+    mapStoppedBeingDragged({commit}) {
+        commit('mapStoppedBeingDragged');
     }
 };

@@ -33,5 +33,11 @@ export default {
     },
     clearOverlayCallbacks(state) {
         state.overlay.callbacksOnClose = [];
+    },
+    mapStartBeingDragged(state) {
+        state.isBeingDragged = true;
+    },
+    mapStoppedBeingDragged(state) {
+        state.isBeingDragged = false;
     }
 };

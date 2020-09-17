@@ -22,15 +22,15 @@
     transition: 0.2s;
   }
   .slide-enter {
-    transform: translate(-100%, 0);
+    transform: translate(100%, 0);
   }
   .slide-leave-to {
-    transform: translate(-100%, 0);
+    transform: translate(100%, 0);
   }
   #menu-tray {
     position: fixed;
     top: 3em;
-    left: 0;
+    right: 0;
     background: $white;
   }
 </style>

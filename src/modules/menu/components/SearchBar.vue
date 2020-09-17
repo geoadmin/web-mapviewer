@@ -1,26 +1,21 @@
 <template>
-  <div id="search-bar" class="input-group">
-    <div class="input-group-prepend">
-      <button type="button"
-              data-cy="menu-button"
-              class="btn-menu btn border-right-0"
-              @click="toggleMenuTrayAndOverlay">
-        <i class="fa fa-bars"></i>
-      </button>
-    </div>
+  <div id="search-bar" class="d-flex flex-fill">
     <input type="text"
-           class="form-control border-left-0"
+           class="form-control"
            :placeholder="$t('search_placeholder')"
            aria-label="Search"
            aria-describedby="search-icon">
+    <button type="button"
+            data-cy="menu-button"
+            class="btn btn-default"
+            @click="toggleMenuTrayAndOverlay">
+      <strong>{{ $t('menu') }}</strong>
+    </button>
   </div>
 </template>
 
 <style lang="scss">
   @import "node_modules/bootstrap/scss/bootstrap";
-  .btn-menu {
-    border-color: $input-border-color !important;
-  }
 </style>
 
 <script>

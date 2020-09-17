@@ -1,5 +1,5 @@
 <template>
-    <div class="zoom">
+    <div class="zoom d-none d-md-block d-print-none">
         <a class="button zoomin" data-cy="zoom-in" title="Zoom in" @click="increaseZoom()">
             <span class="icon zoomin"></span>
         </a>
@@ -16,7 +16,7 @@
         bottom: 10px;
     }
 
-    .zoom .button {
+    .button {
         display: block;
         height: 40px;
         width: 40px;
