@@ -43,7 +43,7 @@ export default {
     },
     defaultState: {
       type: String,
-      default: SWIPE_STATE.HALF
+      default: SWIPE_STATE.ONLY_HEAD
     }
   },
   data() {
@@ -162,6 +162,9 @@ export default {
     background: $red;
     margin: 0 auto;
     cursor: pointer;
+  }
+  .pan-area, .contents {
+    touch-action: none;
   }
   .pan-area {
     padding: 12px 0;
