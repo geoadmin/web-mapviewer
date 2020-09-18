@@ -24,20 +24,20 @@
   export default {
     computed: {
       ...mapState({
-        overlayIsVisible: state => state.map.overlay.show
+        menuTrayIsVisible: state => state.menu.showMenuTray
       })
     },
     methods: {
-      ...mapActions(['toggleMapOverlay', 'toggleMenuTray', 'clearOverlayCallbacks']),
+      ...mapActions(['showOverlay', 'hideOverlay', 'showMenuTray', 'hideMenuTray']),
       toggleMenuTrayAndOverlay() {
-        if (this.overlayIsVisible) {
-          this.clearOverlayCallbacks();
-          this.toggleMapOverlay();
+        if (this.menuTrayIsVisible) {
+          this.hideOverlay();
+          this.hideMenuTray();
         } else {
-          this.toggleMapOverlay(!this.overlayIsVisible ? this.toggleMenuTray : null);
+          this.showOverlay(this.hideMenuTray);
+          this.showMenuTray();
         }
-        this.toggleMenuTray();
-      }
+      },
     }
   };
 </script>

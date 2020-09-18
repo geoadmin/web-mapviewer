@@ -6,15 +6,13 @@ const state = {
 const getters = {};
 
 const actions = {
-    toggleMenuTray: function ({ commit }) {
-        commit('toggleMenuTray');
-    }
+    showMenuTray: ({commit}) => { commit('showMenuTray') },
+    hideMenuTray: ({commit}) => { commit('hideMenuTray') }
 };
 
 const mutations = {
-    toggleMenuTray: function (state) {
-        state.showMenuTray = !state.showMenuTray;
-    }
+    showMenuTray: state => state.showMenuTray = true,
+    hideMenuTray: state => state.showMenuTray = false
 };
 
 export default {

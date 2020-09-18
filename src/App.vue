@@ -1,10 +1,12 @@
 <template>
-    <div id="app">
-        <MapModule />
-        <MenuModule />
-        <ToolboxModule />
-        <I18nModule />
-    </div>
+  <div id="app">
+    <OverlayModule />
+    <MapModule />
+    <MenuModule />
+    <ToolboxModule />
+    <I18nModule />
+    <TooltipModule />
+  </div>
 </template>
 
 <script>
@@ -12,14 +14,18 @@
   import ToolboxModule from "./modules/toolbox/";
   import I18nModule from "./modules/i18n/I18nModule";
   import MenuModule from "@/modules/menu/MenuModule";
+  import TooltipModule from "@/modules/tooltip/TooltipModule";
+  import OverlayModule from "@/modules/overlay/OverlayModule";
 
   export default {
     name: 'App',
     components: {
+      OverlayModule,
       MenuModule,
       MapModule,
       ToolboxModule,
-      I18nModule
+      I18nModule,
+      TooltipModule
     }
   }
 </script>

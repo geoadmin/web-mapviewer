@@ -1,6 +1,5 @@
 <template>
     <div class="full-screen-map">
-      <MapOverlay/>
       <PureOpenlayersMap />
       <Footer />
     </div>
@@ -22,9 +21,8 @@
 <script>
     import PureOpenlayersMap from "./components/OpenlayersMap";
     import Footer from "./components/Footer";
-    import MapOverlay from "@/modules/map/components/MapOverlay";
 
     export default {
-        components: {MapOverlay, PureOpenlayersMap, Footer }
+        components: { PureOpenlayersMap, Footer }
     }
 </script>
