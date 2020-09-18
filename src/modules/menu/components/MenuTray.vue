@@ -4,6 +4,7 @@
          id="menu-tray"
          data-cy="menu-tray"
          class="p-2">
+      <MenuLangSelector />
       <h2>Menu</h2>
       <div><h6>Menu item</h6></div>
       <div><h6>Menu item</h6></div>
@@ -37,8 +38,10 @@
 
 <script>
   import { mapState } from "vuex";
+  import MenuLangSelector from "@/modules/menu/components/MenuLangSelector";
 
   export default {
+    components: { MenuLangSelector },
     computed: {
       ...mapState({
         showMenuTray: state => state.menu.showMenuTray

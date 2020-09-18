@@ -1,23 +1,27 @@
 <template>
-  <div class="lang-switch-toolbar">
-    <LangSwitchButton v-for="lang in languages" :key="lang" :on-click="changeLang" :lang="lang"></LangSwitchButton>
+  <div class="lang-switch-toolbar p-1">
+    <LangSwitchButton class="m-1" v-for="lang in languages" :key="lang" :on-click="changeLang" :lang="lang"></LangSwitchButton>
   </div>
 </template>
 
-<style>
+<style lang="scss">
+  .lang-switch-toolbar {
+  }
 </style>
 
 <script>
+import { mapActions } from "vuex";
 import LangSwitchButton from "./LangSwitchButton";
-import i18n, { languages } from "../index";
+import { languages } from "../index";
 
 export default {
   components: { LangSwitchButton },
   methods: {
-    changeLang: (lang) => {
+    changeLang: function(lang) {
       console.debug('switching locale', lang);
-      i18n.locale = lang;
-    }
+      this.setLang(lang);
+    },
+    ...mapActions(['setLang'])
   },
   data() {
     return {

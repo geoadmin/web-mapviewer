@@ -193,20 +193,6 @@ class VuexURLSearchParams {
     }
 }
 
-const emptyStateModifier = () => [];
-const defaultModifier = value => value;
-
-export const pluginOptions = {
-    subscribeTo: ["setZoom"],
-    modifiers: {
-        setZoom: {
-            key: "zoom",
-            pushStateModifier: defaultModifier,
-            popStateModifier: defaultModifier,
-            emptyStateModifier
-        }
-    }
-};
 
 export function getVuexURLSearchParams(options) {
     const defaultOptions = {

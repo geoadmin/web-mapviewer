@@ -47,7 +47,7 @@
     "@yzfe/vue-cli-plugin-svgicon": "~1.0.1",
     "aws-sdk": "^2.691.0",
     "babel-eslint": "^10.1.0",
-    "cypress": "^4.5.0",
+    "cypress": "^5.2.0",
     "eslint": "^6.8.0",
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-vue": "^6.2.2",
