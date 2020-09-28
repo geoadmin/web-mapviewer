@@ -1,13 +1,13 @@
 <template>
-  <div class="wrapper" :data-open="state === 'OPEN' ? 1 : 0">
+  <div class="wrapper">
     <div ref="card"
          class="card"
          :data-state="isMoving ? 'MOVING' : state"
-         :style="{ top: `${isMoving ? y : calcY()}px` }">
+         :style="{ top: `calc(${isMoving ? y : calcY()}px + 1rem)` }">
       <div class="pan-area" ref="pan">
         <div class="bar" ref="bar"></div>
       </div>
-      <div class="contents p-1">
+      <div class="contents p-1 mt-3">
         <slot></slot>
       </div>
     </div>
@@ -59,6 +59,9 @@ export default {
   computed: {
     maxY: function () {
       return this.rect.height * this.openY
+    },
+    minY: function () {
+      return this.rect.height - 70;
     }
   },
   mounted () {
@@ -117,18 +120,25 @@ export default {
   },
   methods: {
     calcY () {
+      let y = 0;
       switch (this.state) {
         case SWIPE_STATE.CLOSE:
-          return this.rect.height
+          y = this.rect.height;
+          break;
         case SWIPE_STATE.ONLY_HEAD:
-          return this.rect.height * this.headY
+          y = this.rect.height * this.headY;
+          if (y > this.minY) y = this.minY;
+          break;
         case SWIPE_STATE.OPEN:
-          return this.rect.height * this.openY
+          y = this.rect.height * this.openY;
+          break;
         case SWIPE_STATE.HALF:
-          return this.rect.height * this.halfY
+          y = this.rect.height * this.halfY;
+          break;
         default:
-          return this.y;
+          y = this.y;
       }
+      return y;
     },
     setState (state) {
       this.state = state
@@ -142,7 +152,7 @@ export default {
   @import "node_modules/bootstrap/scss/bootstrap";
   .card {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     position: fixed;
     background: $white;
     border-radius: 10px 10px 0 0;
@@ -172,7 +182,7 @@ export default {
   .contents {
     overflow-y: scroll;
     max-height: 100%;
-    padding-bottom: calc(100vh * 0.2);
+    padding-bottom: calc(100% * 0.2);
     box-sizing: border-box;
   }
 </style>

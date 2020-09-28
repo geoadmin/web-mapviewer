@@ -5,7 +5,6 @@
     <MenuModule />
     <ToolboxModule />
     <I18nModule />
-    <TooltipModule />
   </div>
 </template>
 
@@ -14,7 +13,6 @@
   import ToolboxModule from "./modules/toolbox/";
   import I18nModule from "./modules/i18n/I18nModule";
   import MenuModule from "@/modules/menu/MenuModule";
-  import TooltipModule from "@/modules/tooltip/TooltipModule";
   import OverlayModule from "@/modules/overlay/OverlayModule";
 
   export default {
@@ -25,7 +23,6 @@
       MapModule,
       ToolboxModule,
       I18nModule,
-      TooltipModule
     }
   }
 </script>
