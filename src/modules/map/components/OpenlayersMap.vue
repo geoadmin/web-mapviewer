@@ -33,7 +33,8 @@ export default {
       latitude: state => state.position.latitude,
       longitude: state => state.position.longitude,
       zoom: state => state.position.zoom,
-      mapIsBeingDragged: state => state.map.isBeingDragged
+      mapIsBeingDragged: state => state.map.isBeingDragged,
+      highlightedFeature: state => state.map.highlightedFeature,
     }),
     ...mapGetters(["center", "visibleLayers", "drawGeoJSON"]),
     centerEpsg3857: function () {
@@ -42,13 +43,13 @@ export default {
     layers: function () {
       let layers = [];
       // background layer
-      layers.push(new TileLayer({
-        id: BACKGROUND_LAYER_ID,
-        source: new XYZ({
-          projection: 'EPSG:3857',
-          url: `https://wmts5.geo.admin.ch/1.0.0/${BACKGROUND_LAYER_ID}/default/current/3857/{z}/{x}/{y}.jpeg`
-        })
-      }));
+      layers.push(this.createOLTileLayerObject(BACKGROUND_LAYER_ID, 'jpeg'));
+      // if a highlighted feature is set, we put it on top of the layer stack
+      if (this.highlightedFeature) {
+        if (this.highlightedFeature.type === 'layer') {
+          layers.push(this.createOLTileLayerObject(this.highlightedFeature.layerId))
+        }
+      }
       return layers;
     }
   },
@@ -64,7 +65,15 @@ export default {
         center: val,
         duration: 500
       })
-    }
+    },
+    layers: function (newLayers) {
+      const currentlyShownLayers = this.map.getLayers().getArray().map(layer => layer.get('id'));
+      const nextShownLayers = newLayers.map(layer => layer.get('id'));
+      const layersRemoved = currentlyShownLayers.filter(layer => !nextShownLayers.includes(layer));
+      console.log(currentlyShownLayers, 'vs', nextShownLayers);
+      console.log('added/staying', newLayers);
+      console.log('removed', layersRemoved);
+    },
   },
   mounted() {
     this.view = new View({
@@ -102,7 +111,16 @@ export default {
     this.view = null;
   },
   methods: {
-    ...mapActions(["setCenter", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged'])
+    ...mapActions(["setCenter", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
+    createOLTileLayerObject: (layerId, imageFormat) => {
+      return new TileLayer({
+        id: layerId,
+        source: new XYZ({
+          projection: 'EPSG:3857',
+          url: `https://wmts5.geo.admin.ch/1.0.0/${layerId}/default/current/3857/{z}/{x}/{y}.${imageFormat ? imageFormat : 'png'}`
+        })
+      })
+    }
   },
   data: () => {
     return {

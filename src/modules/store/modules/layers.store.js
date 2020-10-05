@@ -1,4 +1,5 @@
 import {reproject} from "reproject";
+import axios from "axios";
 import proj4 from "proj4";
 
 proj4.defs(
@@ -25,25 +26,14 @@ export class GeoJsonLayer extends Layer {
 }
 
 const BASE_URL_GEOJSON = "https://data.geo.admin.ch/";
+const BASE_URL_BACKEND = "https://api3.geo.admin.ch/";
 
 function generateGeoJsonBaseUrl(layerId) {
     return BASE_URL_GEOJSON + layerId + "/" + layerId + "_en.json";
 }
 
 const state = {
-    layers: [
-        new Layer(
-            "WMS Layer (geomol)",
-            "WMS",
-            "ch.swisstopo.geologie-geomol-temperatur_top_omalm"
-        ),
-        new Layer("WMTS Layer", "WMTS", "ch.bav.haltestellen-oev"),
-        new GeoJsonLayer(
-            "GeoJSON Layer",
-            "GeoJSON",
-            "ch.bafu.hydroweb-messstationen_temperatur"
-        )
-    ]
+    layers: []
 };
 
 const getters = {
@@ -53,9 +43,8 @@ const getters = {
 };
 
 const actions = {
-    toggleLayerVisibility(context, layerId) {
-        context.commit("toggleLayerVisibility", layerId);
-    }
+    toggleLayerVisibility: ({ commit }, layerId) => commit("toggleLayerVisibility", layerId),
+    loadLayers: ({ commit, rootScope }) => commit("loadLayers", rootScope.i18n.lang),
 };
 
 const mutations = {
@@ -65,7 +54,7 @@ const mutations = {
             // if GeoJSON data are not yet loaded, we do so
             if (layer.type === "GeoJSON" && !layer.data) {
                 layer.fetching = true;
-                fetch(generateGeoJsonBaseUrl(layer.id))
+                axios.get(generateGeoJsonBaseUrl(layer.id))
                     .then(response => response.json())
                     .then(geojsonData => {
                         const geojsonCRS = geojsonData.crs.properties.name;
@@ -81,7 +70,7 @@ const mutations = {
                         if (!layer.style) {
                             // checking if a style exists in BGDI
                             fetch(
-                                `https://api3.geo.admin.ch/static/vectorStyles/${layerId}.json`
+                                `${BASE_URL_BACKEND}/static/vectorStyles/${layerId}.json`
                             )
                                 .then(response => response.json())
                                 .then(styleJson => {
@@ -98,6 +87,13 @@ const mutations = {
                 layer.visible = !layer.visible;
             }
         }
+    },
+    loadLayers: (state, lang) => {
+        axios.get(`${BASE_URL_BACKEND}rest/services/all/MapServer/layersConfig?lang=${lang}`)
+            .then(response => response.json())
+            .then(layersConfig => {
+                console.log("layersConfig", layersConfig);
+            })
     }
 };
 

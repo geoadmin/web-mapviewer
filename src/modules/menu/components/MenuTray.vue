@@ -5,12 +5,10 @@
          data-cy="menu-tray"
          class="p-2">
       <MenuLangSelector />
-      <h2>Menu</h2>
-      <div><h6>Menu item</h6></div>
-      <div><h6>Menu item</h6></div>
-      <div><h6>Menu item</h6></div>
-      <div><h6>Menu item</h6></div>
-      <div><h6>Menu item</h6></div>
+      <div class="menu-section">
+        <h2>Title</h2>
+        <div><h6>Menu item</h6></div>
+      </div>
     </div>
   </transition>
 </template>

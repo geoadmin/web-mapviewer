@@ -4,7 +4,10 @@
            class="form-control"
            :placeholder="$t('search_placeholder')"
            aria-label="Search"
-           aria-describedby="search-icon">
+           aria-describedby="search-icon"
+           :value="searchQuery"
+           @input="updateSearchQuery"
+    />
     <button type="button"
             data-cy="menu-button"
             class="btn btn-default"
@@ -24,11 +27,12 @@
   export default {
     computed: {
       ...mapState({
-        menuTrayIsVisible: state => state.menu.showMenuTray
+        menuTrayIsVisible: state => state.menu.showMenuTray,
+        searchQuery: state => state.menu.search.query
       })
     },
     methods: {
-      ...mapActions(['showOverlay', 'hideOverlay', 'showMenuTray', 'hideMenuTray']),
+      ...mapActions(['showOverlay', 'hideOverlay', 'showMenuTray', 'hideMenuTray', 'setSearchQuery']),
       toggleMenuTrayAndOverlay() {
         if (this.menuTrayIsVisible) {
           this.hideOverlay();
@@ -38,6 +42,9 @@
           this.showMenuTray();
         }
       },
+      updateSearchQuery: function (e) {
+        this.setSearchQuery(e.target.value);
+      }
     }
   };
 </script>

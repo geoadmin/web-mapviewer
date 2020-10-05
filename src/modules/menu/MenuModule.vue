@@ -3,6 +3,7 @@
     <div class="header align-items-center p-1" v-show="!mapIsBeingDragged">
       <SwissFlag class="swiss-flag ml-1 mr-2" />
       <SearchBar />
+      <SearchResultList />
       <MenuTray />
     </div>
   </transition>
@@ -46,6 +47,7 @@ import { mapState } from "vuex";
 import SwissFlag from "./components/SwissFlag";
 import SearchBar from "./components/SearchBar";
 import MenuTray from "./components/MenuTray";
+import SearchResultList from "@/modules/menu/components/SearchResultList";
 
 export default {
   computed: {
@@ -54,6 +56,7 @@ export default {
     })
   },
   components: {
+    SearchResultList,
     SwissFlag,
     SearchBar,
     MenuTray,
