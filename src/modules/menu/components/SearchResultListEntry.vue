@@ -14,9 +14,12 @@
   @extend .pl-4;
   @extend .border-bottom;
   @extend .border-light;
-  &:hover {
-    @extend .bg-dark;
-    @extend .text-light;
+
+  @include media-breakpoint-up(sm) {
+      &:hover {
+        background-color: $dark;
+        color: $light;
+      }
   }
 }
 </style>

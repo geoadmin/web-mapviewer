@@ -1,7 +1,8 @@
 import axios from "axios";
+import {API_BASE_URL} from "@/config";
 
 function generateAxiosSearchRequest (query, lang, type) {
-    return axios.get('https://api3.geo.admin.ch/2008121130/rest/services/ech/SearchServer', {
+    return axios.get(`${API_BASE_URL}/2008121130/rest/services/ech/SearchServer`, {
         params: {
             sr: 2056,
             searchText: query.trim(),

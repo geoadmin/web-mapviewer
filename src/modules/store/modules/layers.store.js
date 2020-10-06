@@ -1,6 +1,7 @@
 import {reproject} from "reproject";
 import axios from "axios";
 import proj4 from "proj4";
+import {API_BASE_URL, DATA_BASE_URL} from "@/config";
 
 proj4.defs(
     "EPSG:21781",
@@ -25,15 +26,13 @@ export class GeoJsonLayer extends Layer {
     }
 }
 
-const BASE_URL_GEOJSON = "https://data.geo.admin.ch/";
-const BASE_URL_BACKEND = "https://api3.geo.admin.ch/";
-
 function generateGeoJsonBaseUrl(layerId) {
-    return BASE_URL_GEOJSON + layerId + "/" + layerId + "_en.json";
+    return DATA_BASE_URL + layerId + "/" + layerId + "_en.json";
 }
 
 const state = {
-    layers: []
+    layers: [],
+    config: {}
 };
 
 const getters = {
@@ -44,7 +43,7 @@ const getters = {
 
 const actions = {
     toggleLayerVisibility: ({ commit }, layerId) => commit("toggleLayerVisibility", layerId),
-    loadLayers: ({ commit, rootScope }) => commit("loadLayers", rootScope.i18n.lang),
+    setLayerConfig: ({commit}, config) => commit('setLayerConfig', config),
 };
 
 const mutations = {
@@ -70,7 +69,7 @@ const mutations = {
                         if (!layer.style) {
                             // checking if a style exists in BGDI
                             fetch(
-                                `${BASE_URL_BACKEND}/static/vectorStyles/${layerId}.json`
+                                `${API_BASE_URL}/static/vectorStyles/${layerId}.json`
                             )
                                 .then(response => response.json())
                                 .then(styleJson => {
@@ -88,13 +87,7 @@ const mutations = {
             }
         }
     },
-    loadLayers: (state, lang) => {
-        axios.get(`${BASE_URL_BACKEND}rest/services/all/MapServer/layersConfig?lang=${lang}`)
-            .then(response => response.json())
-            .then(layersConfig => {
-                console.log("layersConfig", layersConfig);
-            })
-    }
+    setLayerConfig: (state, config) => state.config = config
 };
 
 export default {
