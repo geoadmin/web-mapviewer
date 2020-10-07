@@ -39,7 +39,7 @@ const actions = {
         })
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
-            // combining the two types backend requests (locations and layers) with axios
+            // combining the two types backend requests (locations and activeLayers) with axios
             axios.all([
                 generateAxiosSearchRequest(query, rootState.i18n.lang, 'locations'),
                 generateAxiosSearchRequest(query, rootState.i18n.lang, 'layers'),
@@ -57,12 +57,13 @@ const actions = {
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
     showSearchResults: ({commit}) => commit('showSearchResults'),
     hideSearchResults: ({commit}) => commit('hideSearchResults'),
-    selectResultEntry: ({ dispatch }, entry) => {
+    selectResultEntry: ({ commit, dispatch }, entry) => {
         if (entry.attrs.layer) {
-            dispatch('highlightLayer', entry.attrs.layer)
+            dispatch('addLayer', entry.attrs.layer)
         } else if (entry.attrs.featureId) {
-            dispatch('highlightLocation', { lon: entry.attrs.lon, lat: entry.attrs.lat })
+            dispatch('addLocation', { lon: entry.attrs.lon, lat: entry.attrs.lat })
         }
+        commit('hideSearchResults');
     }
 };
 

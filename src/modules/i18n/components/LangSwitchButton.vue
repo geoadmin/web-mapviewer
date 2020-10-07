@@ -1,20 +1,18 @@
 <template>
-  <button class="btn btn-default" @click="onClick(lang)">
+  <button class="btn" :class="{ 'btn-default': !isActive, 'btn-danger': isActive }" @click="onClick(lang)">
     {{ lang.toUpperCase() }}
   </button>
 </template>
 
 <style>
-    .i18n-lang-switch {
-
-    }
 </style>
 
 <script>
-    export default {
-        props: {
-            lang: String,
-            onClick: Function
-        }
-    }
+export default {
+  props: {
+    lang: String,
+    onClick: Function,
+    isActive: Boolean
+  }
+}
 </script>

@@ -1,6 +1,11 @@
 <template>
   <div class="lang-switch-toolbar p-1">
-    <LangSwitchButton class="m-1" v-for="lang in languages" :key="lang" :on-click="changeLang" :lang="lang"></LangSwitchButton>
+    <LangSwitchButton v-for="lang in languages"
+                      :key="lang"
+                      :on-click="changeLang"
+                      :lang="lang"
+                      :is-active="lang === currentLang"
+    />
   </div>
 </template>
 
@@ -10,7 +15,7 @@
 </style>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import LangSwitchButton from "./LangSwitchButton";
 import { languages } from "../index";
 
@@ -22,6 +27,11 @@ export default {
       this.setLang(lang);
     },
     ...mapActions(['setLang'])
+  },
+  computed: {
+    ...mapState({
+      currentLang: state => state.i18n.lang
+    })
   },
   data() {
     return {

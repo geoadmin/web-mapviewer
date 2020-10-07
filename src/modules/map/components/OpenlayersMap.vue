@@ -18,14 +18,14 @@ import {mapState, mapGetters, mapActions} from "vuex";
 import {Map, View} from 'ol';
 import {toLonLat} from 'ol/proj';
 import TileLayer from "ol/layer/Tile";
+import ImageLayer from "ol/layer/Image";
 import XYZ from "ol/source/XYZ";
+import WMS from "ol/source/ImageWMS";
 
 proj4.defs(
     "EPSG:3857",
     "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"
 );
-
-const BACKGROUND_LAYER_ID = "ch.swisstopo.pixelkarte-farbe";
 
 export default {
   computed: {
@@ -36,18 +36,22 @@ export default {
       mapIsBeingDragged: state => state.map.isBeingDragged,
       highlightedFeature: state => state.map.highlightedFeature,
     }),
-    ...mapGetters(["center", "visibleLayers", "drawGeoJSON"]),
+    ...mapGetters(["center", "visibleLayers", "currentBackgroundLayer"]),
     centerEpsg3857: function () {
       return proj4(proj4.WGS84, proj4("EPSG:3857"), this.center);
     },
     layers: function () {
       let layers = [];
       // background layer
-      layers.push(this.createOLTileLayerObject(BACKGROUND_LAYER_ID, 'jpeg'));
+      if (this.currentBackgroundLayer) {
+        layers.push(this.createOpenLayersObjectForLayer(this.currentBackgroundLayer));
+      }
+      // all active (and visible) layers
+      this.visibleLayers.forEach(visibleLayer => visibleLayer && layers.push(this.createOpenLayersObjectForLayer(visibleLayer)))
       // if a highlighted feature is set, we put it on top of the layer stack
       if (this.highlightedFeature) {
         if (this.highlightedFeature.type === 'layer') {
-          layers.push(this.createOLTileLayerObject(this.highlightedFeature.layerId))
+          layers.push(this.createOpenLayersObjectForLayer(this.highlightedFeature.layerConfig))
         }
       }
       return layers;
@@ -67,12 +71,35 @@ export default {
       })
     },
     layers: function (newLayers) {
-      const currentlyShownLayers = this.map.getLayers().getArray().map(layer => layer.get('id'));
+      if (!newLayers) return;
+      const olLayers = this.map.getLayers();
+      // first we read all current layer's ids in order to know which one needs to be removed
+      const currentlyShownLayers = olLayers.getArray().map(layer => layer.get('id'));
       const nextShownLayers = newLayers.map(layer => layer.get('id'));
-      const layersRemoved = currentlyShownLayers.filter(layer => !nextShownLayers.includes(layer));
-      console.log(currentlyShownLayers, 'vs', nextShownLayers);
-      console.log('added/staying', newLayers);
-      console.log('removed', layersRemoved);
+      // removing all layer that are not present in the new layer list
+      currentlyShownLayers.filter(layerId => !nextShownLayers.includes(layerId))
+                          .forEach(layerIdToRemove => {
+                            olLayers.forEach((layer, index) => {
+                              if (layer && layer.get('id') === layerIdToRemove) {
+                                olLayers.removeAt(index);
+                              }
+                            });
+                          })
+      // now we parse the current layers and insert any layer that is not yet present in the order it comes
+      if (olLayers.getLength() < newLayers.length) {
+        newLayers.forEach((layer, index) => {
+          if (olLayers.getLength() < index + 1) {
+            olLayers.push(layer);
+          } else {
+            // we have to place our layer in the right place, checking if an item exist already here or not
+            const olLayerAtIndex = olLayers.item(index);
+            // if it's not the same layer, we insert the new layer at this position
+            if (olLayerAtIndex.get('id') !== layer.get('id')) {
+              olLayers.insertAt(index, layer);
+            }
+          }
+        })
+      }
     },
   },
   mounted() {
@@ -112,6 +139,32 @@ export default {
   },
   methods: {
     ...mapActions(["setCenter", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
+    createOpenLayersObjectForLayer: function (layer) {
+      if (!layer) return null;
+      let layerObject = null;
+      switch(layer.type) {
+        case 'wmts':
+          layerObject = new TileLayer({
+            id: layer.id,
+            source: new XYZ({
+              projection: layer.projection,
+              url: layer.url
+            })
+          })
+          break;
+        case 'wms':
+          layerObject = new ImageLayer({
+            id: layer.id,
+            source: new WMS({
+              url: layer.url
+            })
+          })
+          break;
+        default:
+          console.error(`Unknown type of layer ${layer.type}`)
+      }
+      return layerObject;
+    },
     createOLTileLayerObject: (layerId, imageFormat) => {
       return new TileLayer({
         id: layerId,
@@ -120,7 +173,7 @@ export default {
           url: `https://wmts5.geo.admin.ch/1.0.0/${layerId}/default/current/3857/{z}/{x}/{y}.${imageFormat ? imageFormat : 'png'}`
         })
       })
-    }
+    },
   },
   data: () => {
     return {
