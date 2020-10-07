@@ -146,6 +146,7 @@ export default {
         case 'wmts':
           layerObject = new TileLayer({
             id: layer.id,
+            opacity: layer.opacity,
             source: new XYZ({
               projection: layer.projection,
               url: layer.url
@@ -155,6 +156,7 @@ export default {
         case 'wms':
           layerObject = new ImageLayer({
             id: layer.id,
+            opacity: layer.opacity,
             source: new WMS({
               url: layer.url
             })

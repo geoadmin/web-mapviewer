@@ -9,34 +9,35 @@ proj4.defs(
 );
 
 export class Layer {
-    constructor(name, type, id) {
+    constructor(name, type, id, opacity) {
         this.name = name;
         this.type = type;
         this.id = id;
+        this.opacity = opacity;
         this.visible = false;
         this.projection = 'EPSG:3857';
     }
 }
 
 export class WMTSLayer extends Layer {
-    constructor(name, type, id, format) {
-        super(name, type, id);
+    constructor(name, type, id, opacity, format) {
+        super(name, type, id, opacity);
         this.format = format || 'png';
         this.url = `https://wmts5.geo.admin.ch/1.0.0/${id}/default/current/3857/{z}/{x}/{y}.${format}`
     }
 }
 
 export class WMSLayer extends Layer {
-    constructor(name, type, id, baseUrl, format) {
-        super(name, type, id);
+    constructor(name, type, id, opacity, baseUrl, format) {
+        super(name, type, id, opacity);
         this.format = format;
         this.url = `${baseUrl}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${format}&TRANSPARENT=true&LAYERS=${id}&LANG=en`
     }
 }
 
 export class GeoJsonLayer extends Layer {
-    constructor(name, type, id) {
-        super(name, type, id);
+    constructor(name, type, id, opacity) {
+        super(name, type, id, opacity);
         this.data = null;
         this.style = null;
         this.fetching = false;
@@ -50,16 +51,16 @@ function generateGeoJsonBaseUrl(layerId) {
 function generateClassForLayerConfig(layerConfig) {
     let layer = undefined;
     if (layerConfig) {
-        const { serverLayerName: id, label: name, type, format } = layerConfig;
+        const { serverLayerName: id, label: name, type, opacity, format } = layerConfig;
         switch(layerConfig.type.toLowerCase()) {
             case 'wmts':
-                layer = new WMTSLayer(name, type, id, format || 'png');
+                layer = new WMTSLayer(name, type, id, opacity, format || 'png');
                 break;
             case 'wms':
-                layer = new WMSLayer(name, type, id, layerConfig.wmsUrl, format || 'png');
+                layer = new WMSLayer(name, type, id, opacity, layerConfig.wmsUrl, format || 'png');
                 break;
             default:
-                layer = new GeoJsonLayer(name, type, id);
+                layer = new GeoJsonLayer(name, type, id, opacity);
         }
     }
     return layer;
@@ -87,7 +88,7 @@ const getters = {
         if (bgLayers && bgLayers.length > 0)
             return bgLayers[state.backgroundIndex]
         return undefined;
-    }
+    },
 };
 
 const actions = {
@@ -95,6 +96,7 @@ const actions = {
     addLayer: ({commit}, layerId) => commit('addLayer', layerId),
     removeLayer: ({commit}, layerId) => commit('removeLayer', layerId),
     setLayerConfig: ({commit}, config) => commit('setLayerConfig', config),
+    setBackgroundIndex: ({commit}, index) => commit('setBackgroundIndex', index),
 };
 
 const mutations = {
@@ -149,7 +151,8 @@ const mutations = {
         }
     },
     removeLayer: (state, layerId) => state.activeLayers = state.activeLayers.filter(layer => layer.id !== layerId),
-    setLayerConfig: (state, config) => state.config = config
+    setLayerConfig: (state, config) => state.config = config,
+    setBackgroundIndex: (state, index) => state.backgroundIndex = index,
 };
 
 export default {
