@@ -187,7 +187,7 @@ class VuexURLSearchParams {
             if (modifier && typeof emptyStateModifier === 'function') {
                 const modifiedValue = emptyStateModifier(this.store);
                 this.addBypassFlag(key, modifiedValue);
-                this.store.commit(mutation, modifiedValue);
+                this.store.dispatch(mutation, modifiedValue);
             }
         }
     }
