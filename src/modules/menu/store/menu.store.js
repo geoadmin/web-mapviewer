@@ -4,7 +4,7 @@ import {API_BASE_URL} from "@/config";
 function generateAxiosSearchRequest (query, lang, type) {
     return axios.get(`${API_BASE_URL}/2008121130/rest/services/ech/SearchServer`, {
         params: {
-            sr: 2056,
+            sr: 3857,
             searchText: query.trim(),
             lang: lang || 'en',
             type: type || 'locations'
@@ -60,8 +60,22 @@ const actions = {
     selectResultEntry: ({ commit, dispatch }, entry) => {
         if (entry.attrs.layer) {
             dispatch('addLayer', entry.attrs.layer)
-        } else if (entry.attrs.featureId) {
-            dispatch('addLocation', { lon: entry.attrs.lon, lat: entry.attrs.lat })
+        } else if (entry.attrs.geom_st_box2d) {
+            const linestringExtent = entry.attrs.geom_st_box2d;
+            if (linestringExtent && linestringExtent.length > 0) {
+                const matches = Array.from(linestringExtent.matchAll(/BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g))[0];
+                const extent = {
+                    bottomLeft: [ Number(matches[1]), Number(matches[2]) ],
+                    topRight: [ Number(matches[3]), Number(matches[4]) ],
+                }
+                dispatch('setExtent', extent);
+            }
+            const featureId = entry.attrs.featureId || entry.attrs.detail;
+            dispatch('highlightLocation', {
+                id: featureId,
+                coordinate: [entry.attrs.x, entry.attrs.y],
+                name: entry.attrs.label
+            })
         }
         commit('hideSearchResults');
     }

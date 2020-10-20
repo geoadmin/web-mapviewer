@@ -69,7 +69,8 @@ function generateClassForLayerConfig(layerConfig) {
 const state = {
     backgroundIndex: 0,
     activeLayers: [],
-    config: {}
+    config: {},
+    pinLocation: null
 };
 
 const getters = {
@@ -94,6 +95,7 @@ const getters = {
 const actions = {
     toggleLayerVisibility: ({ commit }, layerId) => commit("toggleLayerVisibility", layerId),
     addLayer: ({commit}, layerId) => commit('addLayer', layerId),
+    addLocation: ({commit}, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
     removeLayer: ({commit}, layerId) => commit('removeLayer', layerId),
     setLayerConfig: ({commit}, config) => commit('setLayerConfig', config),
     setBackgroundIndex: ({commit}, index) => commit('setBackgroundIndex', index),
@@ -149,6 +151,9 @@ const mutations = {
             layer.visible = true;
             state.activeLayers.push(layer);
         }
+    },
+    addLocation: (state, {x, y}) => {
+        state.pinLocation = { x, y };
     },
     removeLayer: (state, layerId) => state.activeLayers = state.activeLayers.filter(layer => layer.id !== layerId),
     setLayerConfig: (state, config) => state.config = config,

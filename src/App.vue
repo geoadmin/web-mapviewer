@@ -9,6 +9,7 @@
 </template>
 
 <script>
+  import { mapActions } from "vuex";
   import MapModule from "./modules/map/";
   import ToolboxModule from "./modules/toolbox/";
   import I18nModule from "./modules/i18n/I18nModule";
@@ -23,6 +24,22 @@
       MapModule,
       ToolboxModule,
       I18nModule,
+    },
+    methods: {
+      ...mapActions(['setSize']),
+      setScreenSizeFromWindowSize: function () {
+        this.setSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        })
+      }
+    },
+    mounted() {
+      // reading size
+      this.setScreenSizeFromWindowSize();
+      window.onresize = () => {
+        this.setScreenSizeFromWindowSize();
+      }
     }
   }
 </script>

@@ -16,29 +16,33 @@ import proj4 from "proj4";
 
 import {mapState, mapGetters, mapActions} from "vuex";
 import {Map, View} from 'ol';
-import {toLonLat} from 'ol/proj';
-import TileLayer from "ol/layer/Tile";
-import ImageLayer from "ol/layer/Image";
-import XYZ from "ol/source/XYZ";
-import WMS from "ol/source/ImageWMS";
+import { Tile as TileLayer, Image as ImageLayer, Vector as VectorLayer } from "ol/layer";
+import { XYZ as XYZSource, ImageWMS as WMSSource, Vector as VectorSource } from "ol/source";
+import { Icon as IconStyle, Style } from "ol/style";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
 
-proj4.defs(
-    "EPSG:3857",
-    "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"
-);
+import { round } from "@/numberUtils";
+
+const markerStyle = new Style({
+  image: new IconStyle({
+    anchor: [0.5, 1],
+    src: require('../assets/marker.png'),
+  }),
+});
 
 export default {
   computed: {
     ...mapState({
-      latitude: state => state.position.latitude,
-      longitude: state => state.position.longitude,
-      zoom: state => state.position.zoom,
+      extent: state => state.position.extent,
       mapIsBeingDragged: state => state.map.isBeingDragged,
       highlightedFeature: state => state.map.highlightedFeature,
+      pinLocation: state => state.map.pinLocation,
     }),
-    ...mapGetters(["center", "visibleLayers", "currentBackgroundLayer"]),
-    centerEpsg3857: function () {
-      return proj4(proj4.WGS84, proj4("EPSG:3857"), this.center);
+    ...mapGetters(["center", "visibleLayers", "currentBackgroundLayer", "zoom"]),
+    extentForOL: function () {
+      // OL wants an extent as a one liner array
+      return [ this.extent.bottomLeft[0], this.extent.bottomLeft[1], this.extent.topRight[0], this.extent.topRight[1] ];
     },
     layers: function () {
       let layers = [];
@@ -52,22 +56,31 @@ export default {
       if (this.highlightedFeature) {
         if (this.highlightedFeature.type === 'layer') {
           layers.push(this.createOpenLayersObjectForLayer(this.highlightedFeature.layerConfig))
+        } else if (this.highlightedFeature.type === 'location') {
+          const marker = new Feature({
+            geometry: new Point(this.highlightedFeature.coordinate),
+          });
+          marker.setStyle(markerStyle);
+          layers.push(new VectorLayer({
+            id: `marker-${this.highlightedFeature.id}`,
+            source: new VectorSource({
+              features: [ marker ]
+            })
+          }))
+          console.log('feature at', this.highlightedFeature.coordinate[0], this.highlightedFeature.coordinate[1]);
+        } else {
+          console.error('Unknown feature type', this.highlightedFeature);
         }
       }
       return layers;
     }
   },
   watch: {
-    zoom: function (val) {
+    extent: function () {
       this.view.animate({
-        zoom: val,
-        duration: 200
-      });
-    },
-    centerEpsg3857: function (val) {
-      this.view.animate({
-        center: val,
-        duration: 500
+        zoom: this.zoom,
+        center: this.center,
+        duration: 250
       })
     },
     layers: function (newLayers) {
@@ -104,8 +117,8 @@ export default {
   },
   mounted() {
     this.view = new View({
-      center: this.centerEpsg3857,
-      zoom: this.zoom
+      center: this.center,
+      zoom: this.zoom,
     });
     this.map = new Map({
       target: 'ol-map',
@@ -113,20 +126,18 @@ export default {
       view: this.view,
       controls: []
     });
+    this.view.fit(this.extentForOL);
     this.map.on('pointerdrag', () => {
       if (!this.mapIsBeingDragged) this.mapStartBeingDragged();
     })
     this.map.on('moveend', () => {
       if (this.mapIsBeingDragged) this.mapStoppedBeingDragged();
       if (this.view) {
-        const [longitude, latitude] = toLonLat(this.view.getCenter());
-        if (latitude !== this.latitude || longitude !== this.longitude) {
-          this.setCenter({
-            latitude: latitude,
-            longitude: longitude
-          });
+        const [x, y] = this.view.getCenter();
+        if (x !== this.center[0] || y !== this.center[1]) {
+          this.setCenter({x, y});
         }
-        const zoom = this.view.getZoom();
+        const zoom = round(this.view.getZoom(), 3);
         if (zoom && zoom !== this.zoom) {
           this.setZoom(zoom);
         }
@@ -138,7 +149,7 @@ export default {
     this.view = null;
   },
   methods: {
-    ...mapActions(["setCenter", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
+    ...mapActions(["setCenter", "setExtent", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
     createOpenLayersObjectForLayer: function (layer) {
       if (!layer) return null;
       let layerObject = null;
@@ -147,7 +158,7 @@ export default {
           layerObject = new TileLayer({
             id: layer.id,
             opacity: layer.opacity,
-            source: new XYZ({
+            source: new XYZSource({
               projection: layer.projection,
               url: layer.url
             })
@@ -157,7 +168,7 @@ export default {
           layerObject = new ImageLayer({
             id: layer.id,
             opacity: layer.opacity,
-            source: new WMS({
+            source: new WMSSource({
               url: layer.url
             })
           })
@@ -170,12 +181,13 @@ export default {
     createOLTileLayerObject: (layerId, imageFormat) => {
       return new TileLayer({
         id: layerId,
-        source: new XYZ({
+        source: new XYZSource({
           projection: 'EPSG:3857',
           url: `https://wmts5.geo.admin.ch/1.0.0/${layerId}/default/current/3857/{z}/{x}/{y}.${imageFormat ? imageFormat : 'png'}`
         })
       })
     },
+    projectToEpsg3857: coords => proj4(proj4.WGS84, proj4("EPSG:3857"), coords),
   },
   data: () => {
     return {

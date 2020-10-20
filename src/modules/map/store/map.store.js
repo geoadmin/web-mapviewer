@@ -12,7 +12,7 @@ export default {
         toggleMapOverlay: ({commit}, callbackOnClick) => commit("toggleMapOverlay", callbackOnClick),
         clearOverlayCallbacks: ({commit}) => commit('clearOverlayCallbacks'),
         highlightLayer: ({commit}, layerId) => commit('setHighlightedFeature', { type: 'layer', layerId }),
-        highlightLocation: ({commit}, lonLat) => commit('setHighlightedFeature', { type: 'location', lonLat }),
+        highlightLocation: ({commit}, {id, coordinate, name}) => commit('setHighlightedFeature', { type: 'location', id, coordinate, name }),
         removeHighlight: ({commit}) => commit('setHighlightedFeature', null),
         mapStartBeingDragged: ({commit}) =>commit('mapStartBeingDragged'),
         mapStoppedBeingDragged: ({commit}) => commit('mapStoppedBeingDragged'),

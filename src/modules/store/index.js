@@ -2,7 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import layers from "./modules/layers.store";
-import position from "./modules/position";
+import position from "./modules/position.store";
+import size from "./modules/size.store";
 
 import map from "@/modules/map/store"
 import overlay from "@/modules/overlay/store";
@@ -23,6 +24,7 @@ export default new Vuex.Store({
     modules: {
         layers,
         position,
+        size,
         map,
         overlay,
         menu,
