@@ -39,7 +39,7 @@
     methods: {
       ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults', 'hideMenuTray', 'hideOverlay']),
       updateSearchQuery: function (e) {
-        this.setSearchQuery(e.target.value);
+        this.setSearchQuery({ query: e.target.value });
       },
       showSearchResultsIfExists: function () {
         if (this.searchQuery && this.searchQuery.length >= 2) {

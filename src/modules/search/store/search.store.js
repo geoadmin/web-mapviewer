@@ -34,7 +34,13 @@ const state = {
 const getters = {};
 
 const actions = {
-    setSearchQuery: ({commit, rootState }, query) => {
+    /**
+     * @param {vuex} vuex
+     * @param {Object} payload
+     * @param {String} payload.query
+     * @param {Boolean} payload.showResultsAfterRequest
+     */
+    setSearchQuery: ({ commit, rootState }, {query = '', showResultsAfterRequest = true}) => {
         commit('setSearchQuery', query);
         commit('setSearchResults', {
             layers: [],
@@ -59,7 +65,7 @@ const actions = {
                 commit('setSearchResults', {
                     locations: [...locationsResults],
                     layers: [...layersResults],
-                    show: locationsResults.length + layersResults.length > 0
+                    show: showResultsAfterRequest && locationsResults.length + layersResults.length > 0
                 });
             });
         }

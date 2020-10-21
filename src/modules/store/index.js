@@ -13,6 +13,7 @@ import i18n from "@/modules/i18n/store";
 
 // import { getVuexURLSearchParams } from "./plugins/vuex-url-search-params";
 import loadLayersConfigOnLangChange from "./plugins/load-layersconfig-on-lang-change";
+import redoSearchOnLangChange from "./plugins/redo-search-on-lang-change.plugin";
 // import pluginOptions from "./plugins/vuex-url-search-params.config";
 
 Vue.use(Vuex);
@@ -20,7 +21,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     plugins: [
         // getVuexURLSearchParams(pluginOptions),
-        loadLayersConfigOnLangChange
+        loadLayersConfigOnLangChange,
+        redoSearchOnLangChange,
     ],
     modules: {
         layers,
