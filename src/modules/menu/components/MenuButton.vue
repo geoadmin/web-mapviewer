@@ -17,15 +17,12 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['showOverlay', 'hideOverlay', 'showMenuTray', 'hideMenuTray', 'hideSearchResults']),
+    ...mapActions(['showMenuTray', 'hideMenuTray']),
     toggleMenuTrayAndOverlay() {
       if (this.menuTrayIsVisible) {
-        this.hideOverlay();
         this.hideMenuTray();
       } else {
-        this.showOverlay(this.hideMenuTray);
         this.showMenuTray();
-        this.hideSearchResults();
       }
     },
   }

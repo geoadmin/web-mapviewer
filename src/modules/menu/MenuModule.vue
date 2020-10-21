@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-up">
-    <div class="header align-items-center p-1 d-flex flex-fill" v-show="!mapIsBeingDragged">
+    <div class="header align-items-center p-1 flex-fill" v-show="showHeader">
       <SwissFlag class="swiss-flag ml-1 mr-2" />
       <MenuSwissConfederationText class="d-none d-sm-block" />
       <slot />
@@ -24,6 +24,7 @@
     width: 100%;
     background: $white;
     border-bottom: 4px solid $red;
+    display: flex;
     // so that the menu is above the map overlay
     z-index: 500;
     .swiss-flag {
@@ -75,7 +76,7 @@ import MenuSwissConfederationText from "./components/MenuSwissConfederationText"
 export default {
   computed: {
     ...mapState({
-      mapIsBeingDragged: state => state.map.isBeingDragged
+      showHeader: state => state.menu.showHeader
     })
   },
   components: {

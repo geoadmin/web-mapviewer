@@ -1,5 +1,6 @@
 const state = {
     showMenuTray: false,
+    showHeader: true,
 };
 
 const getters = {};
@@ -7,11 +8,15 @@ const getters = {};
 const actions = {
     showMenuTray: ({commit}) => { commit('showMenuTray') },
     hideMenuTray: ({commit}) => { commit('hideMenuTray') },
+    showHeader: ({commit}) => { commit('showHeader') },
+    hideHeader: ({commit}) => { commit('hideHeader') },
 };
 
 const mutations = {
     showMenuTray: state => state.showMenuTray = true,
     hideMenuTray: state => state.showMenuTray = false,
+    showHeader: state => state.showHeader = true,
+    hideHeader: state => state.showHeader = false,
 };
 
 export default {

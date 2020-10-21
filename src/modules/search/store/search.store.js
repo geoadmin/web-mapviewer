@@ -27,8 +27,8 @@ const state = {
     results: {
         layers: [],
         locations: [],
-        show: false
-    }
+    },
+    show: false
 };
 
 const getters = {};
@@ -45,7 +45,6 @@ const actions = {
         commit('setSearchResults', {
             layers: [],
             locations: [],
-            show: false
         })
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
@@ -65,8 +64,10 @@ const actions = {
                 commit('setSearchResults', {
                     locations: [...locationsResults],
                     layers: [...layersResults],
-                    show: showResultsAfterRequest && locationsResults.length + layersResults.length > 0
                 });
+                if (showResultsAfterRequest && locationsResults.length + layersResults.length > 0) {
+                    commit('showSearchResults')
+                }
             });
         }
     },
@@ -100,8 +101,8 @@ const actions = {
 const mutations = {
     setSearchQuery: (state, query) => state.query = query,
     setSearchResults: (state, results) => state.results = results ? results : [],
-    showSearchResults: state => state.results.show = true,
-    hideSearchResults: state => state.results.show = false
+    showSearchResults: state => state.show = true,
+    hideSearchResults: state => state.show = false
 };
 
 export default {

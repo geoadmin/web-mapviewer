@@ -1,5 +1,5 @@
 <template>
-  <div id="search-results" v-show="results.show" class="bg-light rounded-bottom">
+  <div id="search-results" v-show="showResults" class="bg-light rounded-bottom">
     <SearchResultCategory :title="$t('locations_results_header')"
                           :half-size="results.layers.length > 0"
                           :entries="results.locations" />
@@ -34,7 +34,8 @@ export default {
   components: {SearchResultCategory},
   computed: {
     ...mapState({
-      results: state => state.search.results
+      results: state => state.search.results,
+      showResults: state => state.search.show
     })
   }
 }

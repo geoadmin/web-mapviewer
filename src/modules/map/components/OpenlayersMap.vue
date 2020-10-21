@@ -67,7 +67,6 @@ export default {
               features: [ marker ]
             })
           }))
-          console.log('feature at', this.highlightedFeature.coordinate[0], this.highlightedFeature.coordinate[1]);
         } else {
           console.error('Unknown feature type', this.highlightedFeature);
         }
