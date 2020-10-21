@@ -8,6 +8,7 @@ import size from "./modules/size.store";
 import map from "@/modules/map/store"
 import overlay from "@/modules/overlay/store";
 import menu from "@/modules/menu/store";
+import search from "@/modules/search/store";
 import i18n from "@/modules/i18n/store";
 
 // import { getVuexURLSearchParams } from "./plugins/vuex-url-search-params";
@@ -28,6 +29,7 @@ export default new Vuex.Store({
         map,
         overlay,
         menu,
+        search,
         i18n
     }
 });

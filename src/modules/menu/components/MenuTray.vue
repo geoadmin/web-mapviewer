@@ -1,7 +1,6 @@
 <template>
   <transition name="slide">
     <div v-show="showMenuTray"
-         id="menu-tray"
          data-cy="menu-tray"
          class="p-2">
       <MenuLangSelector class="menu-section" />
@@ -12,8 +11,6 @@
 </template>
 
 <style lang="scss">
-  @import "node_modules/bootstrap/scss/bootstrap";
-
   .slide-leave-active,
   .slide-enter-active {
     transition: 0.2s;
@@ -23,12 +20,6 @@
   }
   .slide-leave-to {
     transform: translate(100%, 0);
-  }
-  #menu-tray {
-    position: fixed;
-    top: 3em;
-    right: 0;
-    background: $white;
   }
 </style>
 

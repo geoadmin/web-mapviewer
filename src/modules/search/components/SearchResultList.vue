@@ -10,12 +10,20 @@
 </template>
 
 <style lang="scss">
+  @import "src/scss/media-query.mixin";
+
   #search-results {
     position: absolute;
     top: 3rem;
     left: 5%;
     width: 90%;
     max-height: calc(75vh - 3rem);
+  }
+  @include respond-above(sm) {
+    #search-results {
+      top: 6rem;
+      max-height: calc(75vh - 6rem);
+    }
   }
 </style>
 
@@ -26,7 +34,7 @@ export default {
   components: {SearchResultCategory},
   computed: {
     ...mapState({
-      results: state => state.menu.search.results
+      results: state => state.search.results
     })
   }
 }

@@ -2,7 +2,9 @@
   <div id="app">
     <OverlayModule />
     <MapModule />
-    <MenuModule />
+    <MenuModule>
+      <SearchModule />
+    </MenuModule>
     <ToolboxModule />
     <I18nModule />
   </div>
@@ -15,10 +17,12 @@
   import I18nModule from "./modules/i18n/I18nModule";
   import MenuModule from "@/modules/menu/MenuModule";
   import OverlayModule from "@/modules/overlay/OverlayModule";
+  import SearchModule from "./modules/search/SearchModule";
 
   export default {
     name: 'App',
     components: {
+      SearchModule,
       OverlayModule,
       MenuModule,
       MapModule,

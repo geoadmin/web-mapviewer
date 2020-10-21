@@ -1,31 +1,42 @@
 <template>
   <transition name="slide-up">
-    <div class="header align-items-center p-1" v-show="!mapIsBeingDragged">
+    <div class="header align-items-center p-1 d-flex flex-fill" v-show="!mapIsBeingDragged">
       <SwissFlag class="swiss-flag ml-1 mr-2" />
-      <SearchBar />
-      <SearchResultList />
-      <MenuTray />
+      <MenuSwissConfederationText class="d-none d-sm-block" />
+      <slot />
+      <MenuButton />
+      <MenuTray class="menu-tray" />
     </div>
   </transition>
 </template>
 
 <style lang="scss">
   @import "node_modules/bootstrap/scss/bootstrap";
+  @import "src/scss/media-query.mixin";
+
+  $headerHeight: 3rem;
 
   .header {
     position: fixed;
     top: 0;
     left: 0;
-    height: 3em;
+    height: $headerHeight;
     width: 100%;
     background: $white;
     border-bottom: 4px solid $red;
     // so that the menu is above the map overlay
     z-index: 500;
-    display: flex;
     .swiss-flag {
-      height: 2em;
-      width: 2em;
+      height: 2rem;
+      width: 2rem;
+      min-height: 2rem;
+      min-width: 2rem;
+    }
+    .menu-tray {
+      position: fixed;
+      top: $headerHeight;
+      right: 0;
+      background: $white;
     }
   }
   .slide-up-leave-active,
@@ -38,6 +49,18 @@
   .slide-up-leave-to {
     transform: translate(0, -100%);
   }
+  @include respond-above(sm) {
+    .header {
+      height: 2 * $headerHeight;
+      .swiss-flag {
+        margin-top: 0.4rem;
+        align-self: flex-start;
+      }
+      .menu-tray {
+        top: 2 * $headerHeight;
+      }
+    }
+  }
 </style>
 
 <script>
@@ -45,9 +68,9 @@
 import { mapState } from "vuex";
 
 import SwissFlag from "./components/SwissFlag";
-import SearchBar from "./components/SearchBar";
 import MenuTray from "./components/MenuTray";
-import SearchResultList from "@/modules/menu/components/SearchResultList";
+import MenuButton from "./components/MenuButton";
+import MenuSwissConfederationText from "./components/MenuSwissConfederationText";
 
 export default {
   computed: {
@@ -56,9 +79,9 @@ export default {
     })
   },
   components: {
-    SearchResultList,
+    MenuSwissConfederationText,
+    MenuButton,
     SwissFlag,
-    SearchBar,
     MenuTray,
   }
 }

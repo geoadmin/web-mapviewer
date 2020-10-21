@@ -16,12 +16,6 @@
             @click="clearSearchQuery">
       <i class="fa fa-times"></i>
     </button>
-    <button type="button"
-            data-cy="menu-button"
-            class="btn btn-default"
-            @click="toggleMenuTrayAndOverlay">
-      <strong>{{ $t('menu') }}</strong>
-    </button>
   </div>
 </template>
 
@@ -39,22 +33,11 @@
   export default {
     computed: {
       ...mapState({
-        menuTrayIsVisible: state => state.menu.showMenuTray,
-        searchQuery: state => state.menu.search.query
+        searchQuery: state => state.search.query
       })
     },
     methods: {
-      ...mapActions(['showOverlay', 'hideOverlay', 'showMenuTray', 'hideMenuTray', 'setSearchQuery', 'showSearchResults', 'hideSearchResults']),
-      toggleMenuTrayAndOverlay() {
-        if (this.menuTrayIsVisible) {
-          this.hideOverlay();
-          this.hideMenuTray();
-        } else {
-          this.showOverlay(this.hideMenuTray);
-          this.showMenuTray();
-          this.hideSearchResults();
-        }
-      },
+      ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults', 'hideMenuTray', 'hideOverlay']),
       updateSearchQuery: function (e) {
         this.setSearchQuery(e.target.value);
       },
@@ -62,6 +45,7 @@
         if (this.searchQuery && this.searchQuery.length >= 2) {
           this.showSearchResults();
           this.hideMenuTray();
+          this.hideOverlay();
         }
       },
       clearSearchQuery: function () {
