@@ -1,8 +1,17 @@
 import axios from "axios";
 import {API_BASE_URL} from "@/config";
 
-function generateAxiosSearchRequest (query, lang, type) {
+let cancelToken = null;
+/**
+ * @param {String} query
+ * @param {String} lang
+ * @param {String} type
+ * @param {CancelToken} cancelToken
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+function generateAxiosSearchRequest (query, lang, type, cancelToken) {
     return axios.get(`${API_BASE_URL}/2008121130/rest/services/ech/SearchServer`, {
+        cancelToken,
         params: {
             sr: 3857,
             searchText: query.trim(),
@@ -39,13 +48,19 @@ const actions = {
         })
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
+            // if a request is currently pending, we cancel it to start the new one
+            if (cancelToken) {
+                cancelToken.cancel('new search query');
+            }
+            cancelToken = axios.CancelToken.source();
             // combining the two types backend requests (locations and activeLayers) with axios
             axios.all([
-                generateAxiosSearchRequest(query, rootState.i18n.lang, 'locations'),
-                generateAxiosSearchRequest(query, rootState.i18n.lang, 'layers'),
+                generateAxiosSearchRequest(query, rootState.i18n.lang, 'locations', cancelToken.token),
+                generateAxiosSearchRequest(query, rootState.i18n.lang, 'layers', cancelToken.token),
             ]).then(responses => {
                 const locationsResults = responses[0].data.results
                 const layersResults = responses[1].data.results
+                cancelToken = null;
                 commit('setSearchResults', {
                     locations: [...locationsResults],
                     layers: [...layersResults],
