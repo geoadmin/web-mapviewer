@@ -28,6 +28,7 @@
     "core-js": "^3.6.5",
     "hammerjs": "^2.0.8",
     "jquery": "^3.5.1",
+    "mobile-device-detect": "^0.4.3",
     "moment": "^2.29.1",
     "ol": "^6.4.3",
     "popper.js": "^1.16.1",
