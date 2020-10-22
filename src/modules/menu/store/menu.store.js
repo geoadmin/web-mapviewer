@@ -10,6 +10,13 @@ const actions = {
     hideMenuTray: ({commit}) => { commit('hideMenuTray') },
     showHeader: ({commit}) => { commit('showHeader') },
     hideHeader: ({commit}) => { commit('hideHeader') },
+    toggleHeader: ({commit, state}) => {
+        if (state.showHeader) {
+            commit('hideHeader');
+        } else {
+            commit('showHeader');
+        }
+    },
 };
 
 const mutations = {

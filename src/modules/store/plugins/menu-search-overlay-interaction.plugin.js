@@ -47,14 +47,6 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = store => {
                 store.commit('hideMenuTray');
                 hideOverlayIfShown();
                 break;
-            // hiding the header bar if the map is being dragged (to clear up space)
-            case 'mapStartBeingDragged':
-                store.commit('hideHeader');
-                break;
-            // putting back the header when the map is not dragged anymore
-            case 'mapStoppedBeingDragged':
-                store.commit('showHeader');
-                break;
         }
     });
 }

@@ -15,16 +15,19 @@ import i18n from "@/modules/i18n/store";
 import loadLayersConfigOnLangChange from "./plugins/load-layersconfig-on-lang-change";
 import redoSearchOnLangChange from "./plugins/redo-search-on-lang-change.plugin";
 import menuSearchBarAndOverlayInteractionManagementPlugin from "./plugins/menu-search-overlay-interaction.plugin";
+import clickOnMapManagementPlugin from "./plugins/click-on-map-management.plugin";
 // import pluginOptions from "./plugins/vuex-url-search-params.config";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+    strict: true,
     plugins: [
         // getVuexURLSearchParams(pluginOptions),
         loadLayersConfigOnLangChange,
         redoSearchOnLangChange,
         menuSearchBarAndOverlayInteractionManagementPlugin,
+        clickOnMapManagementPlugin,
     ],
     modules: {
         layers,

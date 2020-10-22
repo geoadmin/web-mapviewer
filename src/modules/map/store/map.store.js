@@ -6,16 +6,21 @@ export default {
         },
         highlightedFeature: null,
         isBeingDragged: false,
+        clickInfo: {
+            coordinate: [],
+            millisecondsSpentMouseDown: -1
+        },
     },
     getters: {},
     actions: {
         toggleMapOverlay: ({commit}, callbackOnClick) => commit("toggleMapOverlay", callbackOnClick),
         clearOverlayCallbacks: ({commit}) => commit('clearOverlayCallbacks'),
-        highlightLayer: ({commit}, layerId) => commit('setHighlightedFeature', { type: 'layer', layerId }),
+        highlightLayer: ({commit}, layerId) => commit('setHighlightedFeature', {type: 'layer', layerId}),
         highlightLocation: ({commit}, {id, coordinate, name}) => commit('setHighlightedFeature', { type: 'location', id, coordinate, name }),
         removeHighlight: ({commit}) => commit('setHighlightedFeature', null),
-        mapStartBeingDragged: ({commit}) =>commit('mapStartBeingDragged'),
+        mapStartBeingDragged: ({commit}) => commit('mapStartBeingDragged'),
         mapStoppedBeingDragged: ({commit}) => commit('mapStoppedBeingDragged'),
+        click: ({commit}, {coordinate = [], millisecondsSpentMouseDown = -1}) => commit('setClickInfo', { coordinate, millisecondsSpentMouseDown }),
     },
     mutations: {
         toggleMapOverlay: (state, callbackOnClose) => {
@@ -33,5 +38,6 @@ export default {
         setHighlightedFeature: (state, feature) => state.highlightedFeature = feature,
         mapStartBeingDragged: (state) => state.isBeingDragged = true,
         mapStoppedBeingDragged: (state) => state.isBeingDragged = false,
+        setClickInfo: (state, clickInfo) => state.clickInfo = clickInfo,
     }
 };

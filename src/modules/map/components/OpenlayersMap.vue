@@ -1,5 +1,6 @@
 <template>
-  <div id="ol-map"></div>
+  <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
+  <div id="ol-map" oncontextmenu="return false"></div>
 </template>
 
 <style>
@@ -13,6 +14,7 @@
 import 'ol/ol.css';
 
 import proj4 from "proj4";
+import moment from "moment";
 
 import {mapState, mapGetters, mapActions} from "vuex";
 import {Map, View} from 'ol';
@@ -115,6 +117,7 @@ export default {
     },
   },
   mounted() {
+    // Setting up OL objects
     this.view = new View({
       center: this.center,
       zoom: this.zoom,
@@ -126,6 +129,23 @@ export default {
       controls: []
     });
     this.view.fit(this.extentForOL);
+
+    // Click management
+    let pointerDownStart = null;
+    let lastClickTimeLength = 0;
+    this.map.on('pointerdown', () => {
+      pointerDownStart = moment();
+    });
+    this.map.on('pointerup', () => {
+      lastClickTimeLength = moment().diff(pointerDownStart);
+      pointerDownStart = null;
+    });
+    this.map.on('click', (e) => {
+      this.click({
+        coordinate: e.coordinate,
+        millisecondsSpentMouseDown: lastClickTimeLength
+      })
+    })
     this.map.on('pointerdrag', () => {
       if (!this.mapIsBeingDragged) this.mapStartBeingDragged();
     })
