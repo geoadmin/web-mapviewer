@@ -25,6 +25,7 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 
 import { round } from "@/numberUtils";
+import { LayerTypes } from "../../store/modules/layers.store";
 
 const markerStyle = new Style({
   image: new IconStyle({
@@ -173,22 +174,22 @@ export default {
       if (!layer) return null;
       let layerObject = null;
       switch(layer.type) {
-        case 'wmts':
+        case LayerTypes.WMTS:
           layerObject = new TileLayer({
             id: layer.id,
             opacity: layer.opacity,
             source: new XYZSource({
               projection: layer.projection,
-              url: layer.url
+              url: layer.getURL()
             })
           })
           break;
-        case 'wms':
+        case LayerTypes.WMS:
           layerObject = new ImageLayer({
             id: layer.id,
             opacity: layer.opacity,
             source: new WMSSource({
-              url: layer.url
+              url: layer.getURL()
             })
           })
           break;
@@ -196,15 +197,6 @@ export default {
           console.error(`Unknown type of layer ${layer.type}`)
       }
       return layerObject;
-    },
-    createOLTileLayerObject: (layerId, imageFormat) => {
-      return new TileLayer({
-        id: layerId,
-        source: new XYZSource({
-          projection: 'EPSG:3857',
-          url: `https://wmts5.geo.admin.ch/1.0.0/${layerId}/default/current/3857/{z}/{x}/{y}.${imageFormat ? imageFormat : 'png'}`
-        })
-      })
     },
     projectToEpsg3857: coords => proj4(proj4.WGS84, proj4("EPSG:3857"), coords),
   },
