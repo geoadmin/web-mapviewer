@@ -1,12 +1,33 @@
 <template>
   <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-  <div id="ol-map" oncontextmenu="return false"></div>
+  <div id="ol-map" oncontextmenu="return false">
+    <div id="scale-line" ref="scaleLine"></div>
+  </div>
 </template>
 
-<style>
+<style lang="scss">
+@import "node_modules/bootstrap/scss/bootstrap";
 #ol-map {
   width: 100%;
   height: 100%;
+}
+#scale-line {
+  position: absolute;
+  bottom: 1rem;
+  height: 1rem;
+  width: 150px;
+  z-index: 500;
+
+  .ol-scale-line {
+    text-align: center;
+    font-weight: bold;
+    background: rgba(255,255,255,0.6);
+    .ol-scale-line-inner {
+      color: $black;
+      border: 2px solid $black;
+      border-top: none;
+    }
+  }
 }
 </style>
 
@@ -21,6 +42,7 @@ import {Map, View} from 'ol';
 import { Tile as TileLayer, Image as ImageLayer, Vector as VectorLayer } from "ol/layer";
 import { XYZ as XYZSource, ImageWMS as WMSSource, Vector as VectorSource } from "ol/source";
 import { Icon as IconStyle, Style } from "ol/style";
+import ScaleLine from "ol/control/ScaleLine"
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 
@@ -130,6 +152,12 @@ export default {
       controls: []
     });
     this.view.fit(this.extentForOL);
+
+    // adding scale line
+    const scaleLine = new ScaleLine({
+      target: this.$refs.scaleLine
+    })
+    this.map.addControl(scaleLine);
 
     // Click management
     let pointerDownStart = null;

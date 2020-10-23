@@ -2,7 +2,6 @@
     <div class="full-screen-map">
       <PureOpenlayersMap />
       <Footer />
-      <MapScale />
     </div>
 </template>
 
@@ -22,9 +21,8 @@
 <script>
     import PureOpenlayersMap from "./components/OpenlayersMap";
     import Footer from "./components/Footer";
-    import MapScale from "./components/MapScale";
 
     export default {
-        components: {MapScale, PureOpenlayersMap, Footer }
+        components: { PureOpenlayersMap, Footer }
     }
 </script>
