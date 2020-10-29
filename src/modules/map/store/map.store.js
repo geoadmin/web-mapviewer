@@ -10,6 +10,7 @@ export default {
             coordinate: [],
             millisecondsSpentMouseDown: -1
         },
+        showFooter: true,
     },
     getters: {},
     actions: {
@@ -21,6 +22,7 @@ export default {
         mapStartBeingDragged: ({commit}) => commit('mapStartBeingDragged'),
         mapStoppedBeingDragged: ({commit}) => commit('mapStoppedBeingDragged'),
         click: ({commit}, {coordinate = [], millisecondsSpentMouseDown = -1}) => commit('setClickInfo', { coordinate, millisecondsSpentMouseDown }),
+        toggleFooter: ({commit, state}) => commit('setShowFooter', !state.showFooter),
     },
     mutations: {
         toggleMapOverlay: (state, callbackOnClose) => {
@@ -39,5 +41,6 @@ export default {
         mapStartBeingDragged: (state) => state.isBeingDragged = true,
         mapStoppedBeingDragged: (state) => state.isBeingDragged = false,
         setClickInfo: (state, clickInfo) => state.clickInfo = clickInfo,
+        setShowFooter: (state, flagValue) => state.showFooter = flagValue,
     }
 };

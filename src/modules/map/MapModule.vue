@@ -1,7 +1,7 @@
 <template>
     <div class="full-screen-map">
       <PureOpenlayersMap />
-      <Footer />
+      <Footer v-show="showFooter" />
     </div>
 </template>
 
@@ -19,10 +19,16 @@
 </style>
 
 <script>
-    import PureOpenlayersMap from "./components/OpenlayersMap";
-    import Footer from "./components/Footer";
+import { mapState } from "vuex";
+import PureOpenlayersMap from "./components/OpenlayersMap";
+import Footer from "./components/Footer";
 
-    export default {
-        components: { PureOpenlayersMap, Footer }
-    }
+export default {
+  computed: {
+    ...mapState({
+      showFooter: state => state.map.showFooter,
+    })
+  },
+  components: { PureOpenlayersMap, Footer }
+}
 </script>

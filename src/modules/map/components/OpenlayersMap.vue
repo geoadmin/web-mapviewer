@@ -169,7 +169,9 @@ export default {
       lastClickTimeLength = moment().diff(pointerDownStart);
       pointerDownStart = null;
     });
-    this.map.on('click', (e) => {
+    // using 'singleclick' event instead of 'click', otherwise a double click (for zooming) on mobile
+    // will trigger a double 'click' action
+    this.map.on('singleclick', (e) => {
       this.click({
         coordinate: e.coordinate,
         millisecondsSpentMouseDown: lastClickTimeLength

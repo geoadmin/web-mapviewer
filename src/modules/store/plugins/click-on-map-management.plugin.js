@@ -7,6 +7,7 @@ const clickOnMapManagementPlugin = store => {
             if (isMobile) {
                 if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
                     store.dispatch('toggleHeader')
+                    store.dispatch('toggleFooter')
                 } else {
                     // TODO: identify
                 }
