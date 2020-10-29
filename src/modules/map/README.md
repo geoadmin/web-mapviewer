@@ -9,3 +9,4 @@ Responsible for rendering the map according to the state, handles click on the m
 | `identify` | `Object` (structure is `coordinate: { latitude: 0, longitude: 0 }, results: []`) that contains last coordinate used for identify, and the result of this identify on the backend |
 | `draw` | coordinates added while `clickMode` was `DRAWING` |
 | `clickMode` | Enumerate defining how should click be handled, either by identifying at coordinate, or adding a new drawing point |
+| `isBeingDragged` | `true` when the underlying map experiences a drag event from the mouse, goes back to `false` as soon as the interaction ends (doesn't trigger `true` on a click, only on drag events)

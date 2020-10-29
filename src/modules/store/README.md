@@ -5,7 +5,7 @@ This module will declare the store for the app, using `Vuex`
 ## How data is organized
 
 This module contains also a `modules` folder that contains each business modules present in the store (not to be confused with the broader modules of the application).
-For instance, all things related to layer management (opacity, order, visibility of layers) will be stored in a dedicated `store` module called `layers.js`.
+For instance, all things related to layer management (opacity, order, visibility of layers) will be stored in a dedicated `store` module called `layers.store.js`.
 
 When a set of store values are specific to a single app module, this module should be stored into the module in a `/store` folder (see `map` module for an example)
 

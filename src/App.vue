@@ -1,33 +1,63 @@
 <template>
-    <div id="app">
-        <MapModule></MapModule>
-        <ToolboxModule></ToolboxModule>
-        <I18nModule></I18nModule>
-    </div>
+  <div id="app">
+    <OverlayModule />
+    <MapModule />
+    <MenuModule>
+      <SearchModule />
+    </MenuModule>
+    <ToolboxModule />
+    <I18nModule />
+  </div>
 </template>
 
 <script>
-    import MapModule from "./modules/map/";
-    import ToolboxModule from "./modules/toolbox/";
-    import I18nModule from "./modules/i18n/I18nModule";
+  import { mapActions } from "vuex";
+  import MapModule from "./modules/map/";
+  import ToolboxModule from "./modules/toolbox/";
+  import I18nModule from "./modules/i18n/I18nModule";
+  import MenuModule from "@/modules/menu/MenuModule";
+  import OverlayModule from "@/modules/overlay/OverlayModule";
+  import SearchModule from "./modules/search/SearchModule";
 
-    export default {
-        name: 'App',
-        components: {
-            MapModule,
-            ToolboxModule,
-            I18nModule
-        }
+  export default {
+    name: 'App',
+    components: {
+      SearchModule,
+      OverlayModule,
+      MenuModule,
+      MapModule,
+      ToolboxModule,
+      I18nModule,
+    },
+    methods: {
+      ...mapActions(['setSize']),
+      setScreenSizeFromWindowSize: function () {
+        this.setSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        })
+      }
+    },
+    mounted() {
+      // reading size
+      this.setScreenSizeFromWindowSize();
+      window.onresize = () => {
+        this.setScreenSizeFromWindowSize();
+      }
     }
+  }
 </script>
 
 <style lang="scss">
-    #app {
-        font-family: Avenir, Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-align: center;
-        color: #2c3e50;
-        margin-top: 60px;
-    }
+  @import "node_modules/bootstrap/scss/bootstrap";
+
+  #app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+  }
 </style>

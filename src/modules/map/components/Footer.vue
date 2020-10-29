@@ -6,7 +6,9 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
+  @import "node_modules/bootstrap/scss/bootstrap";
+
   #footer {
     position: absolute;
     bottom: 0;
@@ -15,7 +17,7 @@
     height: 15px;
     font-size: 12px;
     padding: 0 5px;
-    background: white;
+    background: $white;
   }
 </style>
 

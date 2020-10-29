@@ -1,5 +1,3 @@
-import _ from 'lodash'
-
 import { isNumber } from "@/numberUtils";
 
 // Persist and rehydrate the `Vuex` store via url search params (window.location.search)
@@ -17,23 +15,16 @@ class VuexURLSearchParams {
     /**
      * @param {Object} options
      * @param {Object} options.store
-     * @param {Array}  options.subscribeTo
-     * @param {Object} options.modifiers
+     * @param {Object}  options.subscriptions
      * @param {String} options.qs
      */
-    constructor({
-                    store,
-                    subscribeTo = [],
-                    modifiers = {},
-                    qs = ''
-                } = {}) {
+    constructor({ store, subscriptions = [], qs = ''} = {}) {
         this.urlParams = new URLSearchParams(qs);
-        this.urlParamsKeys = _.map(Object.values(modifiers), 'key');
+        this.urlParamsKeys = subscriptions.map(sub => sub.urlParamKey);
 
         this.store = store;
-        this.subscribeTo = subscribeTo;
-        this.modifiers = modifiers;
-
+        this.subscribeTo = subscriptions.map(sub => sub.listenTo);
+        this.subscriptions = subscriptions;
         this.commitUrlParams(this.urlParams);
 
         this.store.subscribe(this.subscribe.bind(this));
@@ -42,7 +33,7 @@ class VuexURLSearchParams {
 
     addBypassFlag(key, payload) {
         if (payload) {
-            if (_.isArray(payload)) {
+            if (Array.isArray(payload)) {
                 payload[VuexURLSearchParams.bypassKeyForArray] = true;
             } else {
                 VuexURLSearchParams.bypassSimpleValue[key] = isNumber(payload) ? Number(payload) : payload;
@@ -73,20 +64,19 @@ class VuexURLSearchParams {
         if (!this.subscribeTo.includes(type)) {
             return
         }
-        const modifier = this.modifiers[type];
-        const key = _.get(modifier, 'key');
+        const modifier = this.subscriptions.find(sub => sub.listenTo === type);
+        const { urlParamKey, pushStateModifier } = modifier;
         // we check that this subscribe is not raised by one action of this module (otherwise we could be stuck
         // in a loop of 'set state -> subscribe -> set state -> ...')
-        if (this.hasBypassFlag(key, payload)) {
+        if (this.hasBypassFlag(urlParamKey, payload)) {
             // we can clear this flag as soon as we've used it
-            this.removeBypassFlag(key);
+            this.removeBypassFlag(urlParamKey);
             return
         }
-        const pushStateModifier = _.get(modifier, 'pushStateModifier');
-        if (typeof key !== 'string' || !key || typeof pushStateModifier !== 'function') {
+        if (typeof key !== 'string' || !urlParamKey || typeof pushStateModifier !== 'function') {
             return
         }
-        this.pushState(key, pushStateModifier(payload, this.store))
+        this.pushState(urlParamKey, pushStateModifier(payload, this.store, urlParamKey))
     }
 
 
@@ -98,7 +88,7 @@ class VuexURLSearchParams {
      */
     pushState(key, value) {
         this.urlParams.delete(key);
-        if (_.isArray(value) && !_.isEmpty(value)) {
+        if (Array.isArray(value) && value.length !== 0) {
             const normalizedValues = (Array.isArray(value) || value[Symbol.iterator]) ? value : [value];
             for (const normalized of normalizedValues) {
                 this.urlParams.append(key, normalized)
@@ -111,7 +101,7 @@ class VuexURLSearchParams {
 
         const queryString = this.urlParams.toString();
 
-        if (!_.isEmpty(queryString)) {
+        if (queryString && queryString.length !== 0) {
             window.history.pushState(queryString, null, `?${queryString}`)
         } else {
             const {origin, pathname} = window.location;
@@ -126,7 +116,7 @@ class VuexURLSearchParams {
      * @param {String} state
      */
     popState({state} = {state: ''}) {
-        if (_.isEmpty(state)) {
+        if (state && state.length > 0) {
             this.commitEmpty(this.urlParamsKeys);
             return;
         }
@@ -140,34 +130,31 @@ class VuexURLSearchParams {
      * @param {URLSearchParams} urlParams
     */
     commitUrlParams(urlParams) {
-        const processedKeys = [];
-
-        for (const key of urlParams.keys()) {
-            if (processedKeys.includes(key)) {
+        const processedUrlParamKeys = [];
+        for (const urlParamKey of urlParams.keys()) {
+            if (processedUrlParamKeys.includes(urlParamKey)) {
                 // eslint-disable-next-line no-continue
                 continue
             }
-            const mutation = _.findKey(this.modifiers, {key});
-            const modifier = this.modifiers[mutation];
-            const popStateModifier = _.get(modifier, 'popStateModifier');
-            const isArray = _.get(modifier, 'isArray');
-            if (mutation && typeof popStateModifier === 'function') {
-                let value = urlParams.getAll(key);
+            const subscription = this.subscriptions.find(sub => sub.urlParamKey === urlParamKey);
+            const { popStateModifier, isArray } = subscription
+            if (subscription && typeof popStateModifier === 'function') {
+                let value = urlParams.getAll(urlParamKey);
                 if (!isArray) {
                     value = value[0];
                 }
                 const modifiedValue = popStateModifier(value, this.store);
-                this.addBypassFlag(key, modifiedValue);
-                this.store.commit(mutation, modifiedValue);
+                this.addBypassFlag(urlParamKey, modifiedValue);
+                this.store.dispatch(subscription.dispatchTo, modifiedValue);
             }
-            processedKeys.push(key);
+            processedUrlParamKeys.push(urlParamKey);
         }
 
-        if (!processedKeys.length) {
+        if (!processedUrlParamKeys.length) {
             return;
         }
 
-        this.commitEmpty(_.difference(this.urlParamsKeys, processedKeys));
+        this.commitEmpty(this.urlParamsKeys.filter(key => processedUrlParamKeys.includes(key)));
     }
 
 
@@ -176,37 +163,22 @@ class VuexURLSearchParams {
      *
      * @memberof VuexURLSearchParams
      *
-     * @param {String[]} [keys=[]]
+     * @param {String[]} [urlParamKeys=[]]
      */
-    commitEmpty(keys = []) {
-        for (const key of keys) {
-            const mutation = _.findKey(this.modifiers, {key});
-            const modifier = this.modifiers[mutation];
-            const emptyStateModifier = _.get(modifier, 'emptyStateModifier');
+    commitEmpty(urlParamKeys = []) {
+        for (const urlParamKey of urlParamKeys) {
+            const subscribtion = this.subscriptions.find(sub => sub.urlParamKey === urlParamKey);
+            const { emptyStateModifier } = subscribtion
 
-            if (modifier && typeof emptyStateModifier === 'function') {
+            if (subscribtion && typeof emptyStateModifier === 'function') {
                 const modifiedValue = emptyStateModifier(this.store);
-                this.addBypassFlag(key, modifiedValue);
-                this.store.commit(mutation, modifiedValue);
+                this.addBypassFlag(urlParamKey, modifiedValue);
+                this.store.dispatch(subscribtion.dispatchTo, modifiedValue);
             }
         }
     }
 }
 
-const emptyStateModifier = () => [];
-const defaultModifier = value => value;
-
-export const pluginOptions = {
-    subscribeTo: ["setZoom"],
-    modifiers: {
-        setZoom: {
-            key: "zoom",
-            pushStateModifier: defaultModifier,
-            popStateModifier: defaultModifier,
-            emptyStateModifier
-        }
-    }
-};
 
 export function getVuexURLSearchParams(options) {
     const defaultOptions = {

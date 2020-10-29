@@ -1,0 +1,54 @@
+<template>
+  <div class="search-category" :class="{ 'search-category-half-size': halfSize }" v-show="entries.length > 0">
+    <div class="search-category-header">
+      {{ title }}
+    </div>
+    <div class="search-category-body">
+      <SearchResultListEntry v-for="entry in entries" :key="entry.id" :entry="entry" />
+    </div>
+  </div>
+</template>
+
+<style lang="scss">
+@import "node_modules/bootstrap/scss/bootstrap";
+.search-category {
+  .search-category-header {
+    @extend .p-2;
+    @extend .bg-light;
+    @extend .h5;
+    @extend .mb-0;
+    @extend .font-weight-bold;
+  }
+  .search-category-body {
+    @extend .bg-white;
+    max-height: 15rem;
+    overflow-y: scroll;
+    font-size: 0.8rem;
+  }
+  &.search-category-half-size .search-category-body {
+    max-height: 7rem;
+  }
+}
+</style>
+
+<script>
+import SearchResultListEntry from "./SearchResultListEntry";
+
+export default {
+  components: {SearchResultListEntry},
+  props: {
+    entries: {
+      type: Array,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    halfSize: {
+      type: Boolean,
+      default: false
+    }
+  }
+}
+</script>
