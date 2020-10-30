@@ -1,6 +1,6 @@
 <template>
   <div id="footer">
-    <a :href="`https://www.geo.admin.ch/${$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`" target="_blank">
+    <a class="copyright" :href="`https://www.geo.admin.ch/${$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`" target="_blank">
       {{ $t('copyright_label') }}
     </a>
   </div>
@@ -14,10 +14,15 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 15px;
-    font-size: 12px;
-    padding: 0 5px;
+    height: 1.5rem;
+    font-size: 0.6rem;
+    padding: 0 0.2rem;
     background: $white;
+    text-align: right;
+    .copyright {
+      // same height as #footer so that text is vertically centered
+      line-height: 1.5rem;
+    }
   }
 </style>
 

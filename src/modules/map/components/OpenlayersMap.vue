@@ -13,14 +13,18 @@
 }
 #scale-line {
   position: absolute;
-  bottom: 1rem;
+  // placing Map Scale over the footer to free some map screen space
+  bottom: 0;
   height: 1rem;
   width: 150px;
-  z-index: 500;
+  // OL Map is at z-index 10
+  z-index: 20;
 
   .ol-scale-line {
     text-align: center;
     font-weight: bold;
+    bottom: 0;
+    left: 0;
     background: rgba(255,255,255,0.6);
     .ol-scale-line-inner {
       color: $black;
