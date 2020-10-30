@@ -6,6 +6,7 @@
       <SearchModule />
     </MenuModule>
     <ToolboxModule />
+    <TooltipModule />
     <I18nModule />
   </div>
 </template>
@@ -18,10 +19,12 @@
   import MenuModule from "@/modules/menu/MenuModule";
   import OverlayModule from "@/modules/overlay/OverlayModule";
   import SearchModule from "./modules/search/SearchModule";
+  import TooltipModule from "./modules/tooltip/TooltipModule";
 
   export default {
     name: 'App',
     components: {
+      TooltipModule,
       SearchModule,
       OverlayModule,
       MenuModule,
