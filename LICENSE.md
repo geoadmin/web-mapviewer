@@ -3,7 +3,7 @@ as the 3-clause (or "modified") BSD license:
 
 ==============================
 
-Copyright (c) 2019-2020, swisstopo
+Copyright (c) 2020, swisstopo
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -19,6 +19,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ==============================
 
 Portions of web-mapviewer are based on works by others. A non-extensive list:
+
+[Bootstrap Source Code](https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 [VueJS Source Code](https://github.com/vuejs/vue/blob/dev/LICENSE)
 
