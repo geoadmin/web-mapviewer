@@ -58,7 +58,7 @@ $bg-button-size-in-wheel: $bg-button-size + 0.5rem;
     background-position: -16px 0;
   }
   &.bg-void {
-    background: $white;
+    background: $white url('../assets/grid.png');
   }
 }
 .bg-selector-wheel {
