@@ -1,4 +1,5 @@
 const state = {
+    /** Void layer is when backgroundIndex = -1, default BG is the first from the LayersConfig */
     backgroundIndex: 0,
     activeLayers: [],
     config: {},
@@ -10,7 +11,7 @@ const getters = {
     backgroundLayers: state => state.config.filter(layer => layer.isBackground && !layer.isSpecificFor3D),
     currentBackgroundLayer: (state, getters) => {
         const bgLayers = getters.backgroundLayers;
-        if (bgLayers && bgLayers.length > 0 && state.backgroundIndex < bgLayers.length && state.backgroundIndex >= 0)
+        if (bgLayers && bgLayers.length > 0 && state.backgroundIndex !== -1)
             return bgLayers[state.backgroundIndex]
         return undefined;
     },
