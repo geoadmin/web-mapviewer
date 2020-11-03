@@ -15,6 +15,7 @@ import './registerServiceWorker'
 import { VueSvgIcon } from '@yzfe/vue-svgicon'
 import '@yzfe/svgicon/lib/svgicon.css'
 import proj4 from "proj4";
+import router from './router'
 
 // setting up custom Swiss projection for proj4 (see https://epsg.io/2056)
 proj4.defs(
@@ -30,6 +31,7 @@ Vue.component('icon', VueSvgIcon)
 new Vue({
     store,
     i18n,
+    router,
     render: h => h(App)
 }).$mount('#app');
 

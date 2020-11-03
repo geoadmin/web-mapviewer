@@ -15,9 +15,6 @@
     "test:headless": "start-server-and-test serve http://localhost:${PORT:-$npm_package_config_port} cypress:run",
     "update:translations": "node scripts/generate-i18n-files.js"
   },
-  "config": {
-    "port": 8080
-  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
     "@turf/turf": "^5.1.6",
@@ -37,12 +34,14 @@
     "reproject": "^1.2.6",
     "vue": "^2.6.12",
     "vue-i18n": "^8.22.0",
+    "vue-router": "^3.2.0",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.7",
     "@vue/cli-plugin-eslint": "~4.5.7",
     "@vue/cli-plugin-pwa": "~4.5.7",
+    "@vue/cli-plugin-router": "^4.5.8",
     "@vue/cli-plugin-unit-jest": "~4.5.7",
     "@vue/cli-plugin-vuex": "~4.5.7",
     "@vue/cli-service": "~4.5.7",
@@ -63,5 +62,8 @@
     "start-server-and-test": "^1.11.5",
     "vue-template-compiler": "^2.6.12",
     "yargs": "^15.4.1"
+  },
+  "config": {
+    "port": 8080
   }
 }

@@ -26,7 +26,13 @@ const getters = {
         ])).geometry.coordinates;
     },
     centerEpsg4326: (_, getters) => {
-        return proj4("EPSG:3857","EPSG:4326", getters.center);
+        const centerEpsg4326Unrounded = proj4("EPSG:3857","EPSG:4326", getters.center);
+        return [
+            // a precision of 5 digits means we can track position with 1.11m accuracy
+            // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
+            round(centerEpsg4326Unrounded[0], 5),
+            round(centerEpsg4326Unrounded[1], 5)
+        ]
     },
     /** In meter per pixel */
     resolution: (state, _, rootState) => {
@@ -87,6 +93,26 @@ const actions = {
             if (extent.bottomLeft && extent.topRight) {
                 commit('setExtent', extent);
             }
+        }
+    },
+    setLatitude: ({dispatch, getters}, latInDeg) => {
+        if (typeof latInDeg === 'number') {
+            const newCenter = [getters.centerEpsg4326[0], latInDeg];
+            const newCenterEpsg3857 = proj4("EPSG:4326", "EPSG:3857", newCenter);
+            dispatch('setCenter', {
+                x: newCenterEpsg3857[0],
+                y: newCenterEpsg3857[1]
+            });
+        }
+    },
+    setLongitude: ({dispatch, getters}, lonInDeg) => {
+        if (typeof lonInDeg === 'number') {
+            const newCenter = [lonInDeg, getters.centerEpsg4326[1]];
+            const newCenterEpsg3857 = proj4("EPSG:4326", "EPSG:3857", newCenter);
+            dispatch('setCenter', {
+                x: newCenterEpsg3857[0],
+                y: newCenterEpsg3857[1]
+            });
         }
     },
     increaseZoom: ({dispatch, getters}) => dispatch("setZoom", Number(getters.zoom) + 1),
