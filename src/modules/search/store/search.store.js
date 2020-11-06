@@ -1,33 +1,9 @@
-import axios from "axios";
-import {API_BASE_URL} from "@/config";
-
-let cancelToken = null;
-/**
- * @param {String} query
- * @param {String} lang
- * @param {String} type
- * @param {CancelToken} cancelToken
- * @returns {Promise<AxiosResponse<any>>}
- */
-function generateAxiosSearchRequest (query, lang, type, cancelToken) {
-    return axios.get(`${API_BASE_URL}/2008121130/rest/services/ech/SearchServer`, {
-        cancelToken,
-        params: {
-            sr: 3857,
-            searchText: query.trim(),
-            lang: lang || 'en',
-            type: type || 'locations'
-        }
-    })
-}
+import search, {CombinedSearchResults, RESULT_TYPE} from "../../../api/search.api";
 
 const state = {
     pending: false,
     query: '',
-    results: {
-        layers: [],
-        locations: [],
-    },
+    results: new CombinedSearchResults(),
     show: false
 };
 
@@ -42,57 +18,41 @@ const actions = {
      */
     setSearchQuery: ({ commit, rootState }, {query = '', showResultsAfterRequest = true}) => {
         commit('setSearchQuery', query);
-        commit('setSearchResults', {
-            layers: [],
-            locations: [],
-        })
+        commit('setSearchResults', new CombinedSearchResults())
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
-            // if a request is currently pending, we cancel it to start the new one
-            if (cancelToken) {
-                cancelToken.cancel('new search query');
-            }
-            cancelToken = axios.CancelToken.source();
-            // combining the two types backend requests (locations and layers) with axios
-            axios.all([
-                generateAxiosSearchRequest(query, rootState.i18n.lang, 'locations', cancelToken.token),
-                generateAxiosSearchRequest(query, rootState.i18n.lang, 'layers', cancelToken.token),
-            ]).then(responses => {
-                const locationsResults = responses[0].data.results
-                const layersResults = responses[1].data.results
-                cancelToken = null;
-                commit('setSearchResults', {
-                    locations: [...locationsResults],
-                    layers: [...layersResults],
-                });
-                if (showResultsAfterRequest && locationsResults.length + layersResults.length > 0) {
-                    commit('showSearchResults')
+            search(query, rootState.i18n.lang).then(searchResults => {
+                if (searchResults) {
+                    commit('setSearchResults', searchResults);
+                    if (showResultsAfterRequest && searchResults.count() > 0) {
+                        commit('showSearchResults')
+                    }
                 }
-            });
+            })
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
     showSearchResults: ({commit}) => commit('showSearchResults'),
     hideSearchResults: ({commit}) => commit('hideSearchResults'),
+    /**
+     * @param {vuex} vuex
+     * @param {SearchResult|LayerSearchResult|FeatureSearchResult} entry
+     */
     selectResultEntry: ({ commit, dispatch }, entry) => {
-        if (entry.attrs.layer) {
-            dispatch('addLayer', entry.attrs.layer)
-        } else if (entry.attrs.geom_st_box2d) {
-            const linestringExtent = entry.attrs.geom_st_box2d;
-            if (linestringExtent && linestringExtent.length > 0) {
-                const matches = Array.from(linestringExtent.matchAll(/BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g))[0];
-                const extent = {
-                    bottomLeft: [ Number(matches[1]), Number(matches[2]) ],
-                    topRight: [ Number(matches[3]), Number(matches[4]) ],
+        switch (entry.resultType) {
+            case RESULT_TYPE.LAYER:
+                dispatch('addLayer', entry.layerId)
+                break;
+            case RESULT_TYPE.LOCATION:
+                if (entry.extent.length === 2) {
+                    dispatch('setExtent', entry.extent);
                 }
-                dispatch('setExtent', extent);
-            }
-            const featureId = entry.attrs.featureId || entry.attrs.detail;
-            dispatch('highlightLocation', {
-                id: featureId,
-                coordinate: [entry.attrs.x, entry.attrs.y],
-                name: entry.attrs.label
-            })
+                dispatch('highlightLocation', {
+                    id: entry.featureId || entry.description,
+                    coordinate: entry.coordinates,
+                    name: entry.title
+                })
+                break;
         }
         commit('hideSearchResults');
     }

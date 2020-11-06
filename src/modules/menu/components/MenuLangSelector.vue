@@ -8,7 +8,7 @@
 </style>
 
 <script>
-  import LangSwitchToolbar from "@/modules/i18n/components/LangSwitchToolbar";
+  import LangSwitchToolbar from "../../i18n/components/LangSwitchToolbar";
 
   export default {
     components: {

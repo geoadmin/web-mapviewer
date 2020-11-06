@@ -1,5 +1,3 @@
-import { stateToParamsExtractor } from "./store-to-url-management";
-
 const routerAppLoadingManagement = (router, store) => {
     let wantedDestination = null;
     // checking if app is ready, if not keeping track of the first destination and redirect to loading splashscreen
@@ -8,13 +6,16 @@ const routerAppLoadingManagement = (router, store) => {
         if (store.state.app.isReady) {
             next()
         } else {
-            // if app is not ready, we redirect to loading splashscreen while keeping track of the wanted destination
-            if (!wantedDestination) {
-                wantedDestination = to;
-            }
             if (to.name === 'LoadingView') {
+                if (!wantedDestination) {
+                    wantedDestination = {
+                        name: 'MapView'
+                    }
+                }
                 next()
             } else {
+                // if app is not ready, we redirect to loading screen while keeping track of the last wanted destination
+                wantedDestination = to;
                 next({
                     name: 'LoadingView'
                 });
@@ -23,23 +24,15 @@ const routerAppLoadingManagement = (router, store) => {
     });
 
     store.subscribe((mutation) => {
-    // listening to the store for the "Go" when the app is ready
+        // listening to the store for the "Go" when the app is ready
         if (mutation.type === 'setAppIsReady') {
-            // if lat lon and zoom are not present in the destination, we add them before going to it
-            if (Object.keys(wantedDestination.params).length === 0) {
-                const params = stateToParamsExtractor(store);
-                Object.keys(params).forEach(param => {
-                    wantedDestination.params[param] = params[param];
-                })
+            let query = {};
+            if (wantedDestination && wantedDestination.query) {
+                query = { ...wantedDestination.query };
             }
             router.push({
                 name: 'MapView',
-                params: {
-                    ...wantedDestination.params
-                },
-                query: {
-                    ...wantedDestination.query
-                }
+                query,
             }).then(() => {
                 wantedDestination = null;
             });

@@ -4,7 +4,7 @@
       {{ title }}
     </div>
     <div class="search-category-body">
-      <SearchResultListEntry v-for="entry in entries" :key="entry.id" :entry="entry" />
+      <SearchResultListEntry v-for="entry in entries" :key="entry.getId()" :entry="entry" />
     </div>
   </div>
 </template>

@@ -7,7 +7,7 @@ const menuTraySelector = '[data-cy="menu-tray"]';
 describe('Unit test functions for the header / search bar', () => {
 
     beforeEach(() => {
-        cy.visit('/');
+        cy.goToMapView();
     })
 
     it('doesn\'t show the menu and overlay at app startup', () => {

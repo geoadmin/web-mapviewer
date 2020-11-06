@@ -1,6 +1,5 @@
-import axios from "axios";
-import {SET_LANG_MUTATION_KEY} from "@/modules/i18n/store/i18n.store"
-import {API_BASE_URL} from "@/config";
+import {SET_LANG_MUTATION_KEY} from "../../i18n/store/i18n.store"
+import loadLayersConfigFromBackend from "../../../api/layers.api";
 
 // local storage of layers config, so that if a language has already been loaded, we don't reload it from
 // the backend the second time (will disappear on page reload)
@@ -9,11 +8,10 @@ const layersConfigByLang = {};
 function loadLayersConfig(lang) {
     return new Promise(((resolve) => {
         if (!layersConfigByLang[lang]) {
-            axios.get(`${API_BASE_URL}rest/services/all/MapServer/layersConfig?lang=${lang}`)
-                .then(({data: layersConfig}) => {
-                    layersConfigByLang[lang] = layersConfig;
-                    resolve(layersConfig);
-                })
+            loadLayersConfigFromBackend(lang).then(layersConfig => {
+                layersConfigByLang[lang] = layersConfig;
+                resolve(layersConfig);
+            });
         } else {
             resolve(layersConfigByLang[lang]);
         }

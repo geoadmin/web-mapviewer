@@ -1,11 +1,11 @@
 <template>
   <div id="search-results" v-show="showResults" class="bg-light rounded-bottom">
     <SearchResultCategory :title="$t('locations_results_header')"
-                          :half-size="results.layers.length > 0"
-                          :entries="results.locations" />
+                          :half-size="results.layerResults.length > 0"
+                          :entries="results.locationResults" />
     <SearchResultCategory :title="$t('layers_results_header')"
-                          :half-size="results.locations.length > 0"
-                          :entries="results.layers" />
+                          :half-size="results.locationResults.length > 0"
+                          :entries="results.layerResults" />
   </div>
 </template>
 

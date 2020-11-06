@@ -1,5 +1,5 @@
 <template>
-    <div class="full-screen-map">
+    <div class="full-screen-map" data-cy="map">
       <PureOpenlayersMap />
       <Footer v-show="showFooter" />
     </div>
