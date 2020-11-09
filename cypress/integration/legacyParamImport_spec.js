@@ -46,9 +46,9 @@ describe('Unit test on legacy param import', () => {
         const legacyZoom = 8;
         visitUrlAndWaitForMap(`/?E=${E}&N=${N}&zoom=${legacyZoom}`);
 
-        // the legacy zoom level should be translated to a mercator zoom level of 11.5 according to
+        // the legacy zoom level should be translated to a mercator zoom level of 15.5 according to
         // https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
-        readStoreValue('state.position.zoom').should('eq', 11.5);
+        readStoreValue('state.position.zoom').should('eq', 15.5);
 
         // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
         // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
