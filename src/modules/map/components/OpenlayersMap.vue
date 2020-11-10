@@ -65,7 +65,6 @@ export default {
     ...mapState({
       zoom: state => state.position.zoom,
       center: state => state.position.center,
-      mapIsBeingDragged: state => state.map.isBeingDragged,
       highlightedFeature: state => state.map.highlightedFeature,
       pinLocation: state => state.map.pinLocation,
     }),
@@ -182,11 +181,7 @@ export default {
         millisecondsSpentMouseDown: lastClickTimeLength
       })
     })
-    this.map.on('pointerdrag', () => {
-      if (!this.mapIsBeingDragged) this.mapStartBeingDragged();
-    })
     this.map.on('moveend', () => {
-      if (this.mapIsBeingDragged) this.mapStoppedBeingDragged();
       if (this.view) {
         const [x, y] = this.view.getCenter();
         if (x !== this.center[0] || y !== this.center[1]) {

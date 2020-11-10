@@ -21,11 +21,7 @@ export default {
         }
     },
     actions: {
-        showOverlay({commit}, callbacksOnClose) {
-            commit("showOverlay", callbacksOnClose);
-        },
-        hideOverlay({commit}) {
-            commit('hideOverlay');
-        }
+        showOverlay: ({commit}, callbacksOnClose) => commit("showOverlay", callbacksOnClose),
+        hideOverlay: ({commit}) => commit('hideOverlay'),
     }
 }

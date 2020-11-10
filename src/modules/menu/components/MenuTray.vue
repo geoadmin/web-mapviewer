@@ -31,7 +31,7 @@
     components: { MenuLayerList, MenuLangSelector },
     computed: {
       ...mapState({
-        showMenuTray: state => state.menu.showMenuTray
+        showMenuTray: state => state.ui.showMenuTray
       })
     }
   };

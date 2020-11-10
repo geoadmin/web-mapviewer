@@ -1,17 +1,16 @@
 <template>
   <div class="bg-selector-container">
-    <div class="bg-selector"
-         :class="`bg-${currentBackgroundLayerWithVoid.id.replaceAll('.', '-')}`"
+    <div class="bg-selector bg-ch.swisstopo.swissimage"
          @click="toggleBackgroundWheel">
     </div>
     <div class="bg-selector-wheel">
       <transition-group name="bg-slide-up">
         <div v-show="showBgWheel"
              class="bg-selector"
-             v-for="(background) in backgroundLayersWithVoid"
-             :key="background.id"
-             :class="[`bg-${background.id.replaceAll('.', '-')}`, `bg-index-${background.index}`, { 'active': background.index === currentBackgroundLayerIndex }]"
-             @click="selectBackgroundWithIndex(background.index)">
+             v-for="(background, index) in backgroundLayersWithVoid"
+             :key="background"
+             :class="[`bg-${background.replaceAll('.', '-')}`, `bg-index-${index}`, { 'active': background === currentBackgroundLayerId }]"
+             @click="selectBackgroundWithLayerId(background)">
         </div>
       </transition-group>
     </div>
@@ -21,9 +20,10 @@
 <style lang="scss">
 @import "node_modules/bootstrap/scss/bootstrap";
 
-$bg-button-size: 2rem;
-$bg-button-shadow-size: 1rem;
-$bg-button-size-in-wheel: $bg-button-size + 0.5rem;
+$bg-button-size: 30px;
+$bg-button-shadow-size: 15px;
+$bg-button-size-in-wheel: $bg-button-size + 9px;
+$bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 9px;
 
 .bg-selector-container {
   position: relative;
@@ -80,8 +80,9 @@ $bg-button-size-in-wheel: $bg-button-size + 0.5rem;
       background: $red;
     }
     &:after {
-      left: -0.25rem;
-      top: -0.25rem;
+      border-radius: ($bg-button-size-in-wheel + $bg-button-shadow-size-in-wheel) / 2;
+      left: -$bg-button-shadow-size-in-wheel / 2;
+      top: -$bg-button-shadow-size-in-wheel / 2;
     }
   }
 }
@@ -118,9 +119,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['backgroundLayers', 'currentBackgroundLayer']),
+    ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', "getLayerForId"]),
     ...mapState({
-      currentBackgroundLayerIndex: state => state.layers.backgroundIndex,
+      currentBackgroundLayerId: state => state.layers.backgroundLayerId,
     }),
     currentBackgroundLayerWithVoid: function () {
       const currentBg = this.currentBackgroundLayer;
@@ -130,18 +131,26 @@ export default {
       return currentBg;
     },
     backgroundLayersWithVoid: function () {
-      const bgLayers = [];
-      this.backgroundLayers.forEach((bg, index) => {
-        bgLayers.push({...bg, index: index})
-      });
-      bgLayers.push(voidLayer)
-      return bgLayers;
+      const bgLayers = [
+          'ch.swisstopo.pixelkarte-grau',
+          'ch.swisstopo.pixelkarte-farbe',
+          'ch.swisstopo.swissimage'
+      ];
+      // we check that all background layers are present in the config received from the backend
+      bgLayers.forEach((bgLayerId, index) => {
+        if (!this.getLayerForId(bgLayerId)) {
+          // if layer not defined in config, we remove it
+          bgLayers.splice(index, 1);
+        }
+      })
+      // adding void layer on top
+      return ['void', ...bgLayers];
     },
   },
   methods: {
-    ...mapActions(['setBackgroundIndex']),
-    selectBackgroundWithIndex: function (index) {
-      this.setBackgroundIndex(index);
+    ...mapActions(['setBackground']),
+    selectBackgroundWithLayerId: function (layerId) {
+      this.setBackground(layerId === 'void' ? null : layerId);
       this.toggleBackgroundWheel();
     },
     toggleBackgroundWheel: function () {

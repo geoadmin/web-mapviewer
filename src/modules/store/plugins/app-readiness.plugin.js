@@ -7,7 +7,7 @@ const appReadinessPlugin = store => {
     store.subscribe((_, state) => {
         // if app is not ready yet, we go through the checklist
         if (!state.app.isReady) {
-            if (state.size.width > 0 && state.size.height > 0
+            if (state.ui.width > 0 && state.ui.height > 0
                 && Object.keys(state.layers.config).length > 0) {
                 store.dispatch('setAppIsReady');
             }

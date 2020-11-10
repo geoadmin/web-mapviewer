@@ -1,7 +1,9 @@
 <template>
     <div class="full-screen-map" data-cy="map">
       <PureOpenlayersMap />
-      <Footer v-show="showFooter" />
+      <transition name="slide-down">
+        <Footer v-show="showFooter" />
+      </transition>
     </div>
 </template>
 
@@ -17,6 +19,16 @@
     overflow: hidden;
     background: $white url('./assets/grid.png');
   }
+  .slide-down-leave-active,
+  .slide-down-enter-active {
+    transition: 0.2s;
+  }
+  .slide-down-enter {
+    transform: translate(0, 100%);
+  }
+  .slide-down-leave-to {
+    transform: translate(0, 100%);
+  }
 </style>
 
 <script>
@@ -27,7 +39,7 @@ import Footer from "./components/Footer";
 export default {
   computed: {
     ...mapState({
-      showFooter: state => state.map.showFooter,
+      showFooter: state => state.ui.showFooter,
     })
   },
   components: { PureOpenlayersMap, Footer }
