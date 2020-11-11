@@ -1,7 +1,7 @@
 import proj4 from "proj4";
 import {round} from "../numberUtils";
 
-const legacyZoomMapping = {
+const lv95ZoomMapping = {
     0: 7.35,
     1: 7.75,
     2: 8.75,
@@ -24,9 +24,9 @@ const legacyZoomMapping = {
  * Copy/pasted from https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
  * @param {String} zoom
  */
-const legacyZoomToMercator = (zoom) => {
-    if (Object.keys(legacyZoomMapping).includes(zoom)) {
-        return legacyZoomMapping[zoom];
+const lv95ZoomToMercator = (zoom) => {
+    if (Object.keys(lv95ZoomMapping).includes(zoom)) {
+        return lv95ZoomMapping[zoom];
     } else {
         // if the value is not defined in the old zoom system, we use the 'default' zoom level of 8 (which will roughly
         // show the whole territory of Switzerland)
@@ -73,10 +73,10 @@ const legacyPermalinkManagement = (router) => {
                     let key = param;
                     switch (param) {
 
-                        // we need te re-evaluate legacy zoom, as it was a zoom level tailor made for LV95
+                        // we need te re-evaluate LV95 zoom, as it was a zoom level tailor made for this projection
                         // (and not made to cover the whole globe)
                         case 'zoom':
-                            value = legacyZoomToMercator(legacyParams[param]);
+                            value = lv95ZoomToMercator(legacyParams[param]);
                             key = 'z';
                             break;
 

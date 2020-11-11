@@ -1,4 +1,4 @@
-import {API_BASE_URL, WMTS_BASE_URL} from "../config";
+import {API_BASE_URL, WMTS_BASE_URL} from "@/config";
 import axios from "axios";
 
 /**
@@ -134,8 +134,15 @@ const generateClassForLayerConfig = (layerConfig) => {
             case 'wms':
                 layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format);
                 break;
-            default:
+            case 'geojson':
                 layer = new GeoJsonLayer(name, id, opacity);
+                break;
+            case 'aggregate':
+                // TODO handle aggregate layers
+                console.error('Aggregate layer not yet implemented')
+                break;
+            default:
+                console.error('Unknown layer type', type);
         }
     }
     return layer;
@@ -154,7 +161,8 @@ const loadLayersConfigFromBackend = (lang) => {
                 if (Object.keys(rawLayersConfig).length > 0) {
                     Object.keys(rawLayersConfig).forEach(rawLayerId => {
                         const rawLayer = rawLayersConfig[rawLayerId];
-                        layersConfig.push(generateClassForLayerConfig(rawLayer))
+                        const layer = generateClassForLayerConfig(rawLayer);
+                        if (layer) layersConfig.push(layer)
                     })
                     resolve(layersConfig);
                 } else {

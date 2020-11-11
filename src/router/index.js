@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import MapView from "../views/MapView";
-import LoadingView from "../views/LoadingView";
-import store from "../modules/store"
+import MapView from "@/views/MapView";
+import LoadingView from "@/views/LoadingView";
+import store from "@/modules/store"
 
 import routerAppLoadingManagement from "./router-app-loading-management";
 import storeToUrlManagement from "./store-to-url-management";

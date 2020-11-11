@@ -22,5 +22,5 @@ yarn-error.log*
 *.sublime-*
 
 # Cypress and friends
-cypress/videos
-cypress/screenshots
+tests/e2e/videos
+tests/e2e/screenshots

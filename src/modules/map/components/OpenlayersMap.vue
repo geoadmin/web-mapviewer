@@ -46,8 +46,8 @@ import ScaleLine from "ol/control/ScaleLine"
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 
-import { round } from "../../../numberUtils";
-import { LayerTypes } from "../../../api/layers.api";
+import { round } from "@/numberUtils";
+import { LayerTypes } from "@/api/layers.api";
 
 const markerStyle = new Style({
   image: new IconStyle({

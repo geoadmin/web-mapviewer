@@ -1,6 +1,5 @@
-/// <reference types="cypress" />
-
-import { round, isNumber } from "../../src/numberUtils";
+import { expect } from 'chai'
+import { round, isNumber } from "@/numberUtils";
 
 describe('Unit test functions from numberUtils.js', () => {
 

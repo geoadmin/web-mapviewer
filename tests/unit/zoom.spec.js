@@ -1,4 +1,5 @@
-import store from "../../src/modules/store";
+import { expect } from 'chai'
+import store from "@/modules/store";
 
 describe('Zoom level is calculated correctly in the store', () => {
 

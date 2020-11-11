@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import {round} from "../../src/numberUtils";
+import {round} from "../../../src/numberUtils";
 
 describe('Unit test on legacy param import', () => {
 
@@ -40,13 +40,13 @@ describe('Unit test on legacy param import', () => {
         });
     });
 
-    it('reproject legacy EPSG:2056 coordinates param to EPSG:4326', () => {
+    it('reproject LV95 coordinates/zoom param to EPSG:4326', () => {
         const E = 2660000;
         const N = 1200000;
-        const legacyZoom = 8;
-        visitUrlAndWaitForMap(`/?E=${E}&N=${N}&zoom=${legacyZoom}`);
+        const lv95zoom = 8;
+        visitUrlAndWaitForMap(`/?E=${E}&N=${N}&zoom=${lv95zoom}`);
 
-        // the legacy zoom level should be translated to a mercator zoom level of 15.5 according to
+        // the LV95 zoom level should be translated to a mercator zoom level of 15.5 according to
         // https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
         readStoreValue('state.position.zoom').should('eq', 15.5);
 
