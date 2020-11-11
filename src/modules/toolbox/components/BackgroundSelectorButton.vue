@@ -21,9 +21,9 @@
 @import "node_modules/bootstrap/scss/bootstrap";
 
 $bg-button-size: 30px;
-$bg-button-shadow-size: 15px;
-$bg-button-size-in-wheel: $bg-button-size + 9px;
-$bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 9px;
+$bg-button-shadow-size: 16px;
+$bg-button-size-in-wheel: $bg-button-size + 8px;
+$bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 8px;
 
 .bg-selector-container {
   position: relative;
@@ -38,7 +38,7 @@ $bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 9px;
   position: relative;
   &:after {
     content: '';
-    background: $gray-700;
+    background: $gray-800;
     width: $bg-button-size + $bg-button-shadow-size;
     height: $bg-button-size + $bg-button-shadow-size;
     position: absolute;
