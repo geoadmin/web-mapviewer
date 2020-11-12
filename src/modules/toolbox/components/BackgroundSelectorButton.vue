@@ -1,6 +1,10 @@
 <template>
   <div class="bg-selector-container">
-    <div class="bg-selector bg-ch.swisstopo.swissimage" @click="toggleBackgroundWheel">
+    <div class="bg-selector"
+         :class="{ 'animate__animated animate__pulse bigger-pulse animate__faster': animateMainButton }"
+         @click="toggleBackgroundWheel"
+         @animationend="animateMainButton = false">
+      <img src="../assets/backgrounds_mobile.png" alt="background">
     </div>
     <div class="bg-selector-wheel">
       <transition-group name="bg-slide-up">
@@ -35,6 +39,13 @@ $bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 8px;
   background-size: cover;
   border-radius: $bg-button-size / 2;
   position: relative;
+  img {
+    height: $bg-button-size;
+    width: $bg-button-size;
+    border-radius: $bg-button-size / 2;
+    object-fit: none;
+    object-position: left;
+  }
   &:after {
     content: '';
     background: $gray-800;
@@ -94,6 +105,21 @@ $bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 8px;
     transform: translate(0, 100%);
   }
 }
+@keyframes bigger-pulse {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    transform: scale3d(1.25, 1.25, 1.25);
+  }
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
+.bigger-pulse {
+  animation-name: bigger-pulse;
+  animation-timing-function: ease-in-out;
+}
 </style>
 
 <script>
@@ -108,6 +134,7 @@ export default {
   data() {
     return {
       showBgWheel: false,
+      animateMainButton: false,
     }
   },
   computed: {
@@ -147,6 +174,7 @@ export default {
     },
     toggleBackgroundWheel: function () {
       this.showBgWheel = !this.showBgWheel;
+      this.animateMainButton = true;
     }
   }
 }
