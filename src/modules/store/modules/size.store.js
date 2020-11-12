@@ -3,7 +3,12 @@ export default {
         height: 0,
         width: 0,
     },
-    getters: {},
+    getters: {
+        screenDensity: (state) => {
+            if (state.height === 0) return 0;
+            return state.width / state.height
+        }
+    },
     mutations: {
         setSize: (state, {height, width}) => {
             state.height = height;

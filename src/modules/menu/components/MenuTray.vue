@@ -25,9 +25,9 @@
 
 <script>
   import { mapState } from "vuex";
-  import MenuLangSelector from "@/modules/menu/components/MenuLangSelector";
-  import MenuLayerList from "@/modules/menu/components/MenuLayerList";
-  import MenuBackgroundSelector from "@/modules/menu/components/MenuBackgroundSelector";
+  import MenuLangSelector from "./MenuLangSelector";
+  import MenuLayerList from "./MenuLayerList";
+  import MenuBackgroundSelector from "./MenuBackgroundSelector";
 
   export default {
     components: {MenuBackgroundSelector, MenuLayerList, MenuLangSelector },

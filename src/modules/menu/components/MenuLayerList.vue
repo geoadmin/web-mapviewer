@@ -10,7 +10,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import MenuLayerListItem from "@/modules/menu/components/MenuLayerListItem";
+import MenuLayerListItem from "./MenuLayerListItem";
 export default {
   components: {MenuLayerListItem},
   computed: {

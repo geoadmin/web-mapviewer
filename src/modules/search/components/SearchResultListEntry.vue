@@ -3,7 +3,7 @@
        @click="onClick"
        @mouseover="onMouseOver"
        @mouseleave="onMouseLeave">
-    <span v-html="entry.attrs.label"></span>
+    <span v-html="entry.title"></span>
   </div>
 </template>
 
@@ -26,10 +26,12 @@
 
 <script>
 import { mapActions } from 'vuex'
+import {SearchResult} from "../../../api/search.api";
+
 export default {
   props: {
     entry: {
-      type: Object,
+      type: SearchResult,
       required: true,
     }
   },

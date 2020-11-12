@@ -47,7 +47,7 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 
 import { round } from "@/numberUtils";
-import { LayerTypes } from "../../store/modules/layers.store";
+import { LayerTypes } from "@/api/layers.api";
 
 const markerStyle = new Style({
   image: new IconStyle({
@@ -59,16 +59,13 @@ const markerStyle = new Style({
 export default {
   computed: {
     ...mapState({
-      extent: state => state.position.extent,
+      zoom: state => state.position.zoom,
+      center: state => state.position.center,
       mapIsBeingDragged: state => state.map.isBeingDragged,
       highlightedFeature: state => state.map.highlightedFeature,
       pinLocation: state => state.map.pinLocation,
     }),
-    ...mapGetters(["center", "visibleLayers", "currentBackgroundLayer", "zoom"]),
-    extentForOL: function () {
-      // OL wants an extent as a one liner array
-      return [ this.extent.bottomLeft[0], this.extent.bottomLeft[1], this.extent.topRight[0], this.extent.topRight[1] ];
-    },
+    ...mapGetters(["visibleLayers", "currentBackgroundLayer", "extent"]),
     layers: function () {
       let layers = [];
       // background layer
@@ -100,10 +97,15 @@ export default {
     }
   },
   watch: {
-    extent: function () {
+    center: function () {
+      this.view.animate({
+        center: this.center,
+        duration: 250
+      })
+    },
+    zoom: function () {
       this.view.animate({
         zoom: this.zoom,
-        center: this.center,
         duration: 250
       })
     },
@@ -151,7 +153,6 @@ export default {
       view: this.view,
       controls: []
     });
-    this.view.fit(this.extentForOL);
 
     // adding scale line
     const scaleLine = new ScaleLine({
@@ -234,6 +235,7 @@ export default {
     return {
       map: null,
       view: null,
+      moveInitiatedByStoreChange: false,
       controls: {
         attribution: true,
         rotate: false,

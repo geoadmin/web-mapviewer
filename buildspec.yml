@@ -22,7 +22,7 @@ phases:
   build:
     commands:
       # will build the application in dev mode before testing
-      - npm run test:headless
+      - npm run test:ci
 
   post_build:
     commands:
