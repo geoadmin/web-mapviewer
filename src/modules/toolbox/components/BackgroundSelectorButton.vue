@@ -174,7 +174,7 @@ export default {
     },
     toggleBackgroundWheel: function () {
       this.showBgWheel = !this.showBgWheel;
-      this.animateMainButton = true;
+      this.animateMainButton = this.showBgWheel;
     }
   }
 }
