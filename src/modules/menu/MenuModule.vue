@@ -76,7 +76,7 @@ import MenuSwissConfederationText from "./components/MenuSwissConfederationText"
 export default {
   computed: {
     ...mapState({
-      showHeader: state => state.menu.showHeader
+      showHeader: state => state.ui.showHeader
     })
   },
   components: {

@@ -13,7 +13,7 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = store => {
             if (!hideMenuTrayPending) {
                 // when overlay has been clicked, we hide the menu tray
                 hideMenuTrayPending = true;
-                store.commit('hideMenuTray');
+                hideMenuTrayIfShown();
             }
         }
         const hideOverlayIfShown = () => {
@@ -31,20 +31,26 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = store => {
                 store.commit('hideSearchResults')
             }
         }
+        const hideMenuTrayIfShown = () => {
+            if (state.ui.showMenuTray) {
+                store.dispatch('toggleMenuTray');
+            }
+        }
         switch (mutation.type) {
-            case 'showMenuTray':
-                showOverlayIfHidden();
-                hideSearchResultsIfShown()
-                break;
-            case 'hideMenuTray':
-                if (hideMenuTrayPending) {
-                    hideMenuTrayPending = false;
+            case 'setShowMenuTray':
+                if (state.ui.showMenuTray) {
+                    showOverlayIfHidden();
+                    hideSearchResultsIfShown()
                 } else {
-                    hideOverlayIfShown()
+                    if (hideMenuTrayPending) {
+                        hideMenuTrayPending = false;
+                    } else {
+                        hideOverlayIfShown()
+                    }
                 }
                 break;
             case 'showSearchResults':
-                store.commit('hideMenuTray');
+                hideMenuTrayIfShown();
                 hideOverlayIfShown();
                 break;
         }

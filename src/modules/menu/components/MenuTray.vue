@@ -4,7 +4,6 @@
          data-cy="menu-tray"
          class="p-2">
       <MenuLangSelector class="menu-section" />
-      <MenuBackgroundSelector class="menu-section" />
       <MenuLayerList class="menu-section" />
     </div>
   </transition>
@@ -25,15 +24,14 @@
 
 <script>
   import { mapState } from "vuex";
-  import MenuLangSelector from "./MenuLangSelector";
-  import MenuLayerList from "./MenuLayerList";
-  import MenuBackgroundSelector from "./MenuBackgroundSelector";
+  import MenuLangSelector from "@/modules/menu/components/MenuLangSelector";
+  import MenuLayerList from "@/modules/menu/components/MenuLayerList";
 
   export default {
-    components: {MenuBackgroundSelector, MenuLayerList, MenuLangSelector },
+    components: { MenuLayerList, MenuLangSelector },
     computed: {
       ...mapState({
-        showMenuTray: state => state.menu.showMenuTray
+        showMenuTray: state => state.ui.showMenuTray
       })
     }
   };

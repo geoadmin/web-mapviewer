@@ -4,11 +4,10 @@ import Vuex from "vuex";
 import app from "./modules/app.store";
 import layers from "./modules/layers.store";
 import position from "./modules/position.store";
-import size from "./modules/size.store";
+import ui from "./modules/ui.store";
 
 import map from "../map/store"
 import overlay from "../overlay/store";
-import menu from "../menu/store";
 import search from "../search/store";
 import i18n from "../i18n/store";
 
@@ -33,10 +32,9 @@ export default new Vuex.Store({
         app,
         layers,
         position,
-        size,
+        ui,
         map,
         overlay,
-        menu,
         search,
         i18n,
     }

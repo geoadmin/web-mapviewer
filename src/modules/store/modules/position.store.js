@@ -42,8 +42,8 @@ const getters = {
     resolution: (state, getters) => calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1]),
     extent: (state, getters, rootState) => {
         const halfScreenInMeter = {
-            width: rootState.size.width / 2 * getters.resolution,
-            height: rootState.size.height / 2 * getters.resolution
+            width: rootState.ui.width / 2 * getters.resolution,
+            height: rootState.ui.height / 2 * getters.resolution
         }
         // calculating extent with resolution
         const bottomLeft = [
@@ -96,7 +96,7 @@ const actions = {
                     y: centerOfExtent[1]
                 });
             }
-            const newResolution = (extent[1][0] - extent[0][0]) / rootState.size.width;
+            const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width;
             // calculating new zoom level by reversing
             // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
             const zoom = Math.abs(Math.log2(newResolution / PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES / Math.cos(getters.centerEpsg4326InRadian[1])));
