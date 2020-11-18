@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { round, isNumber } from "@/numberUtils";
+import { round, isNumber, randomIntBetween } from "@/numberUtils";
 
 describe('Unit test functions from numberUtils.js', () => {
 
@@ -63,6 +63,24 @@ describe('Unit test functions from numberUtils.js', () => {
 
         it('rejects text strings', () => {
             expect(isNumber('stupid plain string')).to.be.false;
+        })
+    })
+
+    context('randomIntBetween(start, end)', () => {
+
+        it('returns 0 when invalid start and end are provided', () => {
+            expect(randomIntBetween(2, 1)).to.be.eq(0);
+            expect(randomIntBetween(null, 2)).to.be.eq(0);
+            expect(randomIntBetween(1, null)).to.be.eq(0);
+            expect(randomIntBetween('1', 2)).to.be.eq(0);
+            expect(randomIntBetween()).to.be.eq(0);
+        });
+        it('returns random value according to the given range', () => {
+            const start = 0;
+            const end = 1000;
+            for (let i = 0; i < 10000; i += 1) {
+                expect(randomIntBetween(start, end)).to.be.within(start,end);
+            }
         })
     })
 })

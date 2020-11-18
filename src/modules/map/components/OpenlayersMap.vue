@@ -45,20 +45,43 @@ import {mapState, mapGetters, mapActions} from "vuex";
 import {Map, View} from 'ol';
 import { Tile as TileLayer, Image as ImageLayer, Vector as VectorLayer } from "ol/layer";
 import { XYZ as XYZSource, ImageWMS as WMSSource, Vector as VectorSource } from "ol/source";
-import { Icon as IconStyle, Style } from "ol/style";
+import { Icon as IconStyle, Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
 import ScaleLine from "ol/control/ScaleLine"
 import Feature from "ol/Feature";
-import Point from "ol/geom/Point";
+import { Point, Circle } from "ol/geom";
+import { isMobile } from 'mobile-device-detect';
 
 import { round } from "@/numberUtils";
 import { LayerTypes } from "@/api/layers.api";
+import {randomIntBetween} from "@/numberUtils";
 
-const markerStyle = new Style({
+const markerBalloonStyle = new Style({
   image: new IconStyle({
     anchor: [0.5, 1],
     src: require('../assets/marker.png'),
   }),
 });
+const markerPositionStyle = new Style({
+  image: new CircleStyle({
+    radius: 5,
+    fill: new Fill({
+      color: [255, 0, 0, 0.9]
+    }),
+    stroke: new Stroke({
+      color: [255, 255, 255, 1],
+      width: 3
+    })
+  })
+});
+const markerAccuracyStyle = new Style({
+  fill: new Fill({
+    color: [255, 0, 0, 0.1]
+  }),
+  stroke: new Stroke({
+    color: [255, 0, 0, 0.9],
+    width: 3
+  }),
+})
 
 export default {
   computed: {
@@ -67,6 +90,9 @@ export default {
       center: state => state.position.center,
       highlightedFeature: state => state.map.highlightedFeature,
       pinLocation: state => state.map.pinLocation,
+      geolocationActive: state => state.geolocation.active,
+      geolocationPosition: state => state.geolocation.position,
+      geolocationAccuracy: state => state.geolocation.accuracy,
     }),
     ...mapGetters(["visibleLayers", "currentBackgroundLayer", "extent"]),
     layers: function () {
@@ -77,24 +103,37 @@ export default {
       }
       // all active (and visible) layers
       this.visibleLayers.forEach(visibleLayer => visibleLayer && layers.push(this.createOpenLayersObjectForLayer(visibleLayer)))
+      // managing marker(s)
+      const markers = [];
       // if a highlighted feature is set, we put it on top of the layer stack
       if (this.highlightedFeature) {
         if (this.highlightedFeature.type === 'layer') {
           layers.push(this.createOpenLayersObjectForLayer(this.highlightedFeature.layerConfig))
         } else if (this.highlightedFeature.type === 'location') {
-          const marker = new Feature({
-            geometry: new Point(this.highlightedFeature.coordinate),
-          });
-          marker.setStyle(markerStyle);
-          layers.push(new VectorLayer({
-            id: `marker-${this.highlightedFeature.id}`,
-            source: new VectorSource({
-              features: [ marker ]
-            })
-          }))
+          markers.push(this.createMarkerAtPosition(this.highlightedFeature.coordinate));
         } else {
           console.error('Unknown feature type', this.highlightedFeature);
         }
+      }
+      if (this.geolocationActive && this.geolocationPosition[0] !== 0) {
+        markers.push(this.createMarkerAtPosition(this.geolocationPosition, markerPositionStyle));
+        // showing accuracy circle only on mobile devices
+        if (isMobile) {
+          const accuracyGeom = new Circle(this.geolocationPosition, this.geolocationAccuracy);
+          const accuracyFeature = new Feature({
+            geometry: accuracyGeom,
+          })
+          accuracyFeature.setStyle(markerAccuracyStyle);
+          markers.push(accuracyFeature);
+        }
+      }
+      if (markers.length > 0) {
+        layers.push(new VectorLayer({
+          id: `marker-layer`,
+          source: new VectorSource({
+            features: markers
+          })
+        }));
       }
       return layers;
     }
@@ -229,6 +268,14 @@ export default {
       return layerObject;
     },
     projectToEpsg3857: coords => proj4(proj4.WGS84, proj4("EPSG:3857"), coords),
+    createMarkerAtPosition(position, style) {
+      const marker = new Feature({
+        id: 'marker-' + randomIntBetween(0, 100000),
+        geometry: new Point(position),
+      });
+      marker.setStyle(style ? style : markerBalloonStyle);
+      return marker;
+    },
   },
   data: () => {
     return {

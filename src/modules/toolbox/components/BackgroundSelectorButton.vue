@@ -4,7 +4,6 @@
          :class="{ 'animate__animated animate__pulse bigger-pulse animate__faster': animateMainButton }"
          @click="toggleBackgroundWheel"
          @animationend="animateMainButton = false">
-      <img src="../assets/backgrounds_mobile.png" alt="background">
     </div>
     <div class="bg-selector-wheel">
       <transition-group name="bg-slide-up">
@@ -22,53 +21,30 @@
 
 <style lang="scss">
 @import "node_modules/bootstrap/scss/bootstrap";
+@import "src/scss/variables";
 
-$bg-button-size: 30px;
-$bg-button-shadow-size: 16px;
-$bg-button-size-in-wheel: $bg-button-size + 8px;
-$bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 8px;
+$bg-button-border-size: 8px;
+$bg-button-border-size-in-wheel: 3px;
 
 .bg-selector-container {
   position: relative;
 }
 .bg-selector {
-  height: $bg-button-size;
-  width: $bg-button-size;
+  position: relative;
+  height: $map-button-diameter;
+  width: $map-button-diameter;
   background-image: url("../assets/backgrounds_mobile.png");
   background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: $bg-button-size / 2;
-  position: relative;
-  img {
-    height: $bg-button-size;
-    width: $bg-button-size;
-    border-radius: $bg-button-size / 2;
-    object-fit: none;
-    object-position: left;
-  }
-  &:after {
-    content: '';
-    background: $gray-800;
-    width: $bg-button-size + $bg-button-shadow-size;
-    height: $bg-button-size + $bg-button-shadow-size;
-    position: absolute;
-    left: -$bg-button-shadow-size / 2;
-    top: -$bg-button-shadow-size / 2;
-    border-radius: ($bg-button-size + $bg-button-shadow-size) / 2;
-    z-index: -1;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
-  }
+  background-size: initial;
+  border-radius: $map-button-diameter / 2;
+  border: $bg-button-border-size solid $gray-800;
 }
 .bg-selector-wheel {
   position: absolute;
   bottom: 3.2rem;
   .bg-selector {
-    height: $bg-button-size-in-wheel;
-    width: $bg-button-size-in-wheel;
-    border-radius: $bg-button-size-in-wheel / 2;
-    background-size: initial;
-    margin-top: 1.2rem;
-    margin-left: -0.25rem;
+    border: $bg-button-border-size-in-wheel solid $gray-800;
+    margin-top: 0.5rem;
 
     &.bg-void {
       background: $white url('../assets/grid.png');
@@ -79,13 +55,8 @@ $bg-button-shadow-size-in-wheel: $bg-button-shadow-size - 8px;
     &.bg-ch-swisstopo-pixelkarte-grau {
       background-position: -39px 0;
     }
-    &.active:after {
-      background: $red;
-    }
-    &:after {
-      border-radius: ($bg-button-size-in-wheel + $bg-button-shadow-size-in-wheel) / 2;
-      left: -$bg-button-shadow-size-in-wheel / 2;
-      top: -$bg-button-shadow-size-in-wheel / 2;
+    &.active {
+      border-color: $red;
     }
   }
 }

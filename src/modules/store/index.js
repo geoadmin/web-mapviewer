@@ -3,6 +3,7 @@ import Vuex from "vuex";
 
 import app from "./modules/app.store";
 import layers from "./modules/layers.store";
+import geolocation from "./modules/geolocation.store";
 import position from "./modules/position.store";
 import ui from "./modules/ui.store";
 
@@ -16,6 +17,7 @@ import redoSearchOnLangChange from "./plugins/redo-search-on-lang-change.plugin"
 import menuSearchBarAndOverlayInteractionManagementPlugin from "./plugins/menu-search-overlay-interaction.plugin";
 import clickOnMapManagementPlugin from "./plugins/click-on-map-management.plugin";
 import appReadinessPlugin from "./plugins/app-readiness.plugin";
+import geolocationRefreshPlugin from "./plugins/geolocation-refresh.plugin";
 
 Vue.use(Vuex);
 
@@ -27,10 +29,12 @@ export default new Vuex.Store({
         menuSearchBarAndOverlayInteractionManagementPlugin,
         clickOnMapManagementPlugin,
         appReadinessPlugin,
+        geolocationRefreshPlugin,
     ],
     modules: {
         app,
         layers,
+        geolocation,
         position,
         ui,
         map,

@@ -26,3 +26,16 @@ export function isNumber(value) {
         && !Number.isNaN(Number(value))
         && (typeof value !== 'string' || value.length !== 0);
 }
+
+/**
+ * Returns a random int in the range provided
+ * @param start the start of the range
+ * @param end the end of the range, must be greater than the start
+ * @returns a random number between start and end (both included), or 0 if either start or end is not a number or start is bigger than end
+ */
+export function randomIntBetween(start, end) {
+    if (!Number.isInteger(start) || !Number.isInteger(end) || end < start) {
+        return 0;
+    }
+    return Math.floor(Math.random() * end) + start;
+}
