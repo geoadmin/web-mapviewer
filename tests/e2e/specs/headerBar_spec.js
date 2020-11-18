@@ -4,7 +4,7 @@ const overlaySelector = '[data-cy="overlay"]';
 const menuButtonSelector = '[data-cy="menu-button"]';
 const menuTraySelector = '[data-cy="menu-tray"]';
 
-describe('Unit test functions for the header / search bar', () => {
+describe('Test functions for the header / search bar', () => {
 
     beforeEach(() => {
         cy.goToMapView();

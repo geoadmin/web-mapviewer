@@ -1,5 +1,5 @@
 <template>
-  <div class="geoloc-button" @click="toggleGeolocation" :class="{ 'active': isActive }">
+  <div class="geoloc-button" @click="toggleGeolocation" :class="{ 'active': isActive, 'disabled': isDenied }">
     <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
       <ellipse class="geoloc-button-inner-circle" rx="8" ry="8" stroke-width="9" />
     </svg>
@@ -9,11 +9,17 @@
 <style lang="scss">
   @import "node_modules/bootstrap/scss/bootstrap";
   @import "src/scss/variables";
+
+  $normal-color: $gray-800;
+  $active-color: $red;
+  $disabled-color: $gray-300;
+
   .geoloc-button {
     height: $map-button-diameter;
     width: $map-button-diameter;
     border-radius: $map-button-diameter / 2;
-    background-color: $gray-800;
+    background-color: $normal-color;
+    overflow: hidden;
     svg {
       overflow: initial;
       position: relative;
@@ -22,12 +28,18 @@
     }
     .geoloc-button-inner-circle {
       stroke: $white;
-      fill: $gray-800;
+      fill: $normal-color;
     }
     &.active {
-      background-color: $red;
+      background-color: $active-color;
       .geoloc-button-inner-circle {
-        fill: $red;
+        fill: $active-color;
+      }
+    }
+    &.disabled {
+      opacity: 0.8;
+      .geoloc-button-inner-circle {
+        stroke: $disabled-color;
       }
     }
   }
@@ -38,7 +50,8 @@ import { mapState, mapActions } from "vuex";
 export default {
   computed: {
     ...mapState({
-      isActive: state => state.geolocation.active
+      isActive: state => state.geolocation.active,
+      isDenied: state => state.geolocation.denied,
     })
   },
   methods: {

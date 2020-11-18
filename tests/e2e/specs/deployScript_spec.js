@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('Unit test the deploy script', () => {
+describe('Test the deploy script', () => {
 
     const scriptExec = 'node scripts/deploy.js';
 

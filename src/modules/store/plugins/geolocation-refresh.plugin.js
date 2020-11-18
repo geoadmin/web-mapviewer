@@ -1,6 +1,7 @@
 import proj4 from "proj4";
+import i18n from "@/modules/i18n";
 
-let geolocationRefreshInterval = null;
+let geolocationWatcher = null;
 let firstTimeActivatingGeolocation = true;
 
 const readPositionEpsg3857 = position => {
@@ -14,12 +15,32 @@ const handlePositionAndDispatchToStore = (position, store) => {
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy);
 }
 
+/**
+ * Handles Geolocation API errors
+ * @param {PositionError} error
+ * @param {Vuex.Store} store
+ */
+const handlePositionError = (error, store) => {
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            store.dispatch('setGeolocationDenied', true);
+            alert(i18n.t('geoloc_permission_denied'));
+            break;
+        default:
+            alert(i18n.t('geoloc_unknown'));
+    }
+}
+
 const geolocationRefreshPlugin = store => {
     store.subscribe((mutation, state) => {
         if (mutation.type === 'setGeolocationActive') {
             if (state.geolocation.active) {
                 navigator.geolocation.getCurrentPosition(
                     position => {
+                        // if geoloc was previously denied, we clear the flag
+                        if (state.geolocation.denied) {
+                            store.dispatch('setGeolocationDenied', false);
+                        }
                         // we center the view on the position of the user
                         store.dispatch('setCenter', readPositionEpsg3857(position));
                         if (firstTimeActivatingGeolocation) {
@@ -28,17 +49,14 @@ const geolocationRefreshPlugin = store => {
                             store.dispatch('setZoom', 14.5);
                         }
                         handlePositionAndDispatchToStore(position, store)
-                        geolocationRefreshInterval = setInterval(() => {
-                            navigator.geolocation.getCurrentPosition(position => handlePositionAndDispatchToStore(position, store));
-                        }, 2000);
+                        geolocationWatcher = navigator.geolocation.watchPosition(position => handlePositionAndDispatchToStore(position, store),
+                                                                                   error => handlePositionError(error, store));
                     },
-                    error => {
-                        console.log(error.message);
-                    },
+                    error => handlePositionError(error, store)
                 )
-            } else if (geolocationRefreshInterval) {
-                clearInterval(geolocationRefreshInterval);
-                geolocationRefreshInterval = null;
+            } else if (geolocationWatcher) {
+                navigator.geolocation.clearWatch(geolocationWatcher);
+                geolocationWatcher = null;
             }
         }
     })
