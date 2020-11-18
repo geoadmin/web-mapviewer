@@ -83,6 +83,8 @@ const markerAccuracyStyle = new Style({
   }),
 })
 
+let chaosGenerator = 100;
+
 export default {
   computed: {
     ...mapState({
@@ -115,17 +117,11 @@ export default {
           console.error('Unknown feature type', this.highlightedFeature);
         }
       }
-      if (this.geolocationActive && this.geolocationPosition[0] !== 0) {
-        markers.push(this.createMarkerAtPosition(this.geolocationPosition, markerPositionStyle));
-        // showing accuracy circle only on mobile devices
-        if (isMobile) {
-          const accuracyGeom = new Circle(this.geolocationPosition, this.geolocationAccuracy);
-          const accuracyFeature = new Feature({
-            geometry: accuracyGeom,
-          })
-          accuracyFeature.setStyle(markerAccuracyStyle);
-          markers.push(accuracyFeature);
-        }
+      if (this.geolocation.marker) {
+        markers.push(this.geolocation.marker);
+      }
+      if (isMobile && this.geolocation.accuracyFeature) {
+        markers.push(this.geolocation.accuracyFeature);
       }
       if (markers.length > 0) {
         layers.push(new VectorLayer({
@@ -182,6 +178,23 @@ export default {
         })
       }
     },
+    geolocationActive: function (newState) {
+      if (newState) {
+        this.geolocation.marker.setStyle(markerPositionStyle);
+        this.geolocation.accuracyFeature.setStyle(markerAccuracyStyle);
+      } else {
+        this.geolocation.marker.setStyle(null);
+        this.geolocation.accuracyFeature.setStyle(null);
+      }
+    },
+    geolocationPosition: function (newPosition) {
+      const chaosPosition = [newPosition[0] + randomIntBetween(0, chaosGenerator), newPosition[1] + randomIntBetween(0, chaosGenerator)]
+      this.geolocation.marker.getGeometry().setCoordinates(chaosPosition);
+      this.geolocation.accuracyCircle.setCenter(chaosPosition);
+    },
+    geolocationAccuracy: function (newAccuracy) {
+      this.geolocation.accuracyCircle.setRadius(newAccuracy + randomIntBetween(0, chaosGenerator));
+    },
   },
   mounted() {
     // Setting up OL objects
@@ -231,6 +244,14 @@ export default {
           this.setZoom(zoom);
         }
       }
+    })
+
+    // creating marker and accuracy circle for geolocation (hidden by default, with null style)
+    this.geolocation.marker = this.createMarkerAtPosition(this.geolocationPosition, this.geolocationActive ? markerAccuracyStyle : null);
+    this.geolocation.accuracyCircle = new Circle(this.geolocationPosition, this.geolocationAccuracy);
+    this.geolocation.accuracyFeature = new Feature({
+      geometry: this.geolocation.accuracyCircle,
+      style: this.geolocationActive ? markerAccuracyStyle : null,
     })
   },
   beforeDestroy() {
@@ -286,6 +307,11 @@ export default {
         attribution: true,
         rotate: false,
         zoom: false,
+      },
+      geolocation: {
+        marker: null,
+        accuracyCircle: null,
+        accuracyFeature: null,
       }
     }
   }
