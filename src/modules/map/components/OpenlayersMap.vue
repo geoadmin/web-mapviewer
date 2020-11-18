@@ -83,8 +83,6 @@ const markerAccuracyStyle = new Style({
   }),
 })
 
-let chaosGenerator = 100;
-
 export default {
   computed: {
     ...mapState({
@@ -188,12 +186,11 @@ export default {
       }
     },
     geolocationPosition: function (newPosition) {
-      const chaosPosition = [newPosition[0] + randomIntBetween(0, chaosGenerator), newPosition[1] + randomIntBetween(0, chaosGenerator)]
-      this.geolocation.marker.getGeometry().setCoordinates(chaosPosition);
-      this.geolocation.accuracyCircle.setCenter(chaosPosition);
+      this.geolocation.marker.getGeometry().setCoordinates(newPosition);
+      this.geolocation.accuracyCircle.setCenter(newPosition);
     },
     geolocationAccuracy: function (newAccuracy) {
-      this.geolocation.accuracyCircle.setRadius(newAccuracy + randomIntBetween(0, chaosGenerator));
+      this.geolocation.accuracyCircle.setRadius(newAccuracy);
     },
   },
   mounted() {
