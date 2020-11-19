@@ -93,6 +93,7 @@ export default {
       center: state => state.position.center,
       highlightedFeature: state => state.map.highlightedFeature,
       pinLocation: state => state.map.pinLocation,
+      mapIsBeingDragged: state => state.map.isBeingDragged,
       geolocationActive: state => state.geolocation.active,
       geolocationPosition: state => state.geolocation.position,
       geolocationAccuracy: state => state.geolocation.accuracy,
@@ -233,7 +234,11 @@ export default {
         millisecondsSpentMouseDown: lastClickTimeLength
       })
     })
+    this.map.on('pointerdrag', () => {
+      if (!this.mapIsBeingDragged) this.mapStartBeingDragged();
+    })
     this.map.on('moveend', () => {
+      if (this.mapIsBeingDragged) this.mapStoppedBeingDragged();
       if (this.view) {
         const [x, y] = this.view.getCenter();
         if (x !== this.center[0] || y !== this.center[1]) {

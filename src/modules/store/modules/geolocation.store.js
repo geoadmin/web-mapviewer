@@ -1,6 +1,7 @@
 const state = {
     active: false,
     denied: false,
+    tracking: false,
     /** position in EPSG:3857 (meters) [x, y] */
     position: [0,0],
     /** accuracy of geolocation position in meters */
@@ -11,11 +12,19 @@ const getters = {
 };
 
 const actions = {
-    toggleGeolocation: ({commit, state}) => commit('setGeolocationActive', !state.active),
+    toggleGeolocation: ({commit, state}) => {
+        const willBeActive = !state.active;
+        if (willBeActive) {
+            commit('setGeolocationTracking', true);
+        }
+        commit('setGeolocationActive', willBeActive)
+    },
+    setGeolocationTracking: ({commit}, tracking) => commit('setGeolocationTracking', tracking),
     setGeolocationDenied: ({commit}, denied) => {
         commit('setGeolocationDenied', denied)
         if (denied) {
             commit('setGeolocationActive', false)
+            commit('setGeolocationTracking', false)
         }
     },
     setGeolocationPosition: ({commit}, position) => {
@@ -35,6 +44,7 @@ const actions = {
 const mutations = {
     setGeolocationActive: (state, active) => state.active = active,
     setGeolocationDenied: (state, denied) => state.denied = denied,
+    setGeolocationTracking: (state, tracking) => state.tracking = tracking,
     setGeolocationAccuracy: (state, accuracy) => state.accuracy = accuracy,
     setGeolocationPosition: (state, position) => state.position = position,
 };

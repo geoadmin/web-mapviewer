@@ -13,6 +13,10 @@ const handlePositionAndDispatchToStore = (position, store) => {
     const positionEpsg3857 = readPositionEpsg3857(position);
     store.dispatch('setGeolocationPosition', positionEpsg3857);
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy);
+    // if tracking is active, we center the view of the map on the position received
+    if (store.state.geolocation.tracking) {
+        store.dispatch('setCenter', positionEpsg3857);
+    }
 }
 
 /**
@@ -31,8 +35,14 @@ const handlePositionError = (error, store) => {
     }
 }
 
-const geolocationRefreshPlugin = store => {
+const geolocationManagementPlugin = store => {
     store.subscribe((mutation, state) => {
+        // we listen to the mutation that is triggered when the map is starting being dragged in order to stop
+        // tracking the user geolocation to the center of the view
+        if (state.geolocation.active && mutation.type === 'mapStartBeingDragged') {
+            store.dispatch('setGeolocationTracking', false);
+        }
+        // listening to the start/stop of geolocation
         if (mutation.type === 'setGeolocationActive') {
             if (state.geolocation.active) {
                 navigator.geolocation.getCurrentPosition(
@@ -62,4 +72,4 @@ const geolocationRefreshPlugin = store => {
     })
 };
 
-export default geolocationRefreshPlugin;
+export default geolocationManagementPlugin;

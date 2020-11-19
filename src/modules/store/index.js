@@ -17,7 +17,7 @@ import redoSearchOnLangChange from "./plugins/redo-search-on-lang-change.plugin"
 import menuSearchBarAndOverlayInteractionManagementPlugin from "./plugins/menu-search-overlay-interaction.plugin";
 import clickOnMapManagementPlugin from "./plugins/click-on-map-management.plugin";
 import appReadinessPlugin from "./plugins/app-readiness.plugin";
-import geolocationRefreshPlugin from "./plugins/geolocation-refresh.plugin";
+import geolocationManagementPlugin from "./plugins/geolocation-management.plugin";
 
 Vue.use(Vuex);
 
@@ -29,7 +29,7 @@ export default new Vuex.Store({
         menuSearchBarAndOverlayInteractionManagementPlugin,
         clickOnMapManagementPlugin,
         appReadinessPlugin,
-        geolocationRefreshPlugin,
+        geolocationManagementPlugin,
     ],
     modules: {
         app,
