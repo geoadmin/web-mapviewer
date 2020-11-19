@@ -55,8 +55,8 @@ const geolocationManagementPlugin = store => {
                         store.dispatch('setCenter', readPositionEpsg3857(position));
                         if (firstTimeActivatingGeolocation) {
                             firstTimeActivatingGeolocation = false;
-                            // going to zoom level 14.5 corresponding to map 1:25'000 (or zoom level 7 in the old viewer)
-                            store.dispatch('setZoom', 14.5);
+                            // going to zoom level 15.5 corresponding to map 1:25'000 (or zoom level 8 in the old viewer)
+                            store.dispatch('setZoom', 15.5);
                         }
                         handlePositionAndDispatchToStore(position, store)
                         geolocationWatcher = navigator.geolocation.watchPosition(position => handlePositionAndDispatchToStore(position, store),
