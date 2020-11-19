@@ -82,6 +82,9 @@ const markerAccuracyStyle = new Style({
     width: 3
   }),
 })
+const markerHiddenStyle = new Style({
+  visible: false
+})
 
 export default {
   computed: {
@@ -181,8 +184,8 @@ export default {
         this.geolocation.marker.setStyle(markerPositionStyle);
         this.geolocation.accuracyFeature.setStyle(markerAccuracyStyle);
       } else {
-        this.geolocation.marker.setStyle(null);
-        this.geolocation.accuracyFeature.setStyle(null);
+        this.geolocation.marker.setStyle(markerHiddenStyle);
+        this.geolocation.accuracyFeature.setStyle(markerHiddenStyle);
       }
     },
     geolocationPosition: function (newPosition) {
@@ -243,12 +246,12 @@ export default {
       }
     })
 
-    // creating marker and accuracy circle for geolocation (hidden by default, with null style)
-    this.geolocation.marker = this.createMarkerAtPosition(this.geolocationPosition, this.geolocationActive ? markerAccuracyStyle : null);
+    // creating marker and accuracy circle for geolocation
+    this.geolocation.marker = this.createMarkerAtPosition(this.geolocationPosition, this.geolocationActive ? markerAccuracyStyle : markerHiddenStyle);
     this.geolocation.accuracyCircle = new Circle(this.geolocationPosition, this.geolocationAccuracy);
     this.geolocation.accuracyFeature = new Feature({
       geometry: this.geolocation.accuracyCircle,
-      style: this.geolocationActive ? markerAccuracyStyle : null,
+      style: this.geolocationActive ? markerAccuracyStyle : markerHiddenStyle,
     })
   },
   beforeDestroy() {
