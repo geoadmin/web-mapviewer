@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port=${PORT:-$npm_package_config_port}",
+    "serve": "vue-cli-service serve",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "test:headless": "vue-cli-service test:e2e --headless",
@@ -66,8 +66,5 @@
     "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.6.12",
     "yargs": "^15.4.1"
-  },
-  "config": {
-    "port": 8080
   }
 }

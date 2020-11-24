@@ -1,13 +1,15 @@
 import center from "@turf/center";
 import { point, featureCollection } from "@turf/helpers"
 import proj4 from "proj4";
-import {round} from "@/numberUtils";
+import {round} from "@/utils/numberUtils";
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
 const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0;
 const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A;
 const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256;
+
+export const ZOOM_LEVEL_1_25000_MAP = 15.5;
 
 const state = {
     zoom: 7,

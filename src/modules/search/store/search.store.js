@@ -1,4 +1,7 @@
-import search, {CombinedSearchResults, RESULT_TYPE} from "../../../api/search.api";
+import search, {CombinedSearchResults, RESULT_TYPE} from "@/api/search.api";
+import { coordinateFromString } from "@/utils/coordinateUtils";
+import {ZOOM_LEVEL_1_25000_MAP} from "@/modules/store/modules/position.store";
+import {isWhat3WordsString, retrieveWhat3WordsLocation} from "@/api/what3words.api";
 
 const state = {
     pending: false,
@@ -16,19 +19,39 @@ const actions = {
      * @param {String} payload.query
      * @param {Boolean} payload.showResultsAfterRequest
      */
-    setSearchQuery: ({ commit, rootState }, {query = '', showResultsAfterRequest = true}) => {
+    setSearchQuery: ({ commit, rootState, dispatch }, {query = '', showResultsAfterRequest = true}) => {
         commit('setSearchQuery', query);
         commit('setSearchResults', new CombinedSearchResults())
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
-            search(query, rootState.i18n.lang).then(searchResults => {
-                if (searchResults) {
-                    commit('setSearchResults', searchResults);
-                    if (showResultsAfterRequest && searchResults.count() > 0) {
-                        commit('showSearchResults')
+            // checking first if this corresponds to a set of coordinates (or a what3words)
+            const coordinate = coordinateFromString(query);
+            if (coordinate) {
+                dispatch('setCenter', coordinate);
+                dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
+                dispatch('highlightLocation', {
+                    id: 'search-coordinates',
+                    coordinate,
+                });
+            } else if (isWhat3WordsString(query)) {
+                retrieveWhat3WordsLocation(query).then(what3wordLocation => {
+                    dispatch('setCenter', what3wordLocation);
+                    dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
+                    dispatch('highlightLocation', {
+                        id: 'w3w-coordinates',
+                        coordinate: what3wordLocation,
+                    });
+                })
+            } else {
+                search(query, rootState.i18n.lang).then(searchResults => {
+                    if (searchResults) {
+                        commit('setSearchResults', searchResults);
+                        if (showResultsAfterRequest && searchResults.count() > 0) {
+                            commit('showSearchResults')
+                        }
                     }
-                }
-            })
+                })
+            }
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),

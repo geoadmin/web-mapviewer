@@ -26,7 +26,7 @@
 
 <script>
 import { mapActions } from 'vuex'
-import {SearchResult} from "../../../api/search.api";
+import {SearchResult} from "@/api/search.api";
 
 export default {
   props: {

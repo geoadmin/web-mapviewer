@@ -1,5 +1,6 @@
 import proj4 from "proj4";
-import {round} from "../numberUtils";
+import {round} from "@/utils/numberUtils";
+import {ZOOM_LEVEL_1_25000_MAP} from "@/modules/store/modules/position.store";
 
 const lv95ZoomMapping = {
     0: 7.35,
@@ -10,7 +11,7 @@ const lv95ZoomMapping = {
     5: 12.5,
     6: 13.5,
     7: 14.5,
-    8: 15.5,
+    8: ZOOM_LEVEL_1_25000_MAP,
     9: 15.75,
     10: 16.7,
     11: 17.75,

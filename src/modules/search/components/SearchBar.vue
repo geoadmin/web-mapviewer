@@ -9,6 +9,7 @@
            :value="searchQuery"
            @input="updateSearchQuery"
            @focus="showSearchResultsIfExists"
+           data-cy="searchbar"
     />
     <button id="clear-search-button"
             class="btn bg-transparent"

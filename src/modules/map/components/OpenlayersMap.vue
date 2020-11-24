@@ -51,7 +51,7 @@ import Feature from "ol/Feature";
 import { Point, Circle } from "ol/geom";
 import { isMobile } from 'mobile-device-detect';
 
-import { round } from "@/numberUtils";
+import { round } from "@/utils/numberUtils";
 import { LayerTypes } from "@/api/layers.api";
 import {randomIntBetween} from "@/numberUtils";
 
