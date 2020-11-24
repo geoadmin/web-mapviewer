@@ -2,7 +2,7 @@
 
 import {round} from "../../../src/numberUtils";
 
-describe('Unit test on legacy param import', () => {
+describe('Test on legacy param import', () => {
 
     const readStoreValue = (key) => cy.window().its(`store.${key}`);
 

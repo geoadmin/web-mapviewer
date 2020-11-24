@@ -8,13 +8,14 @@
 
 <style lang="scss">
   @import "node_modules/bootstrap/scss/bootstrap";
+  @import "src/scss/variables";
 
   #footer {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 1.5rem;
+    height: $footer-height;
     font-size: 0.6rem;
     padding: 0 0.2rem;
     background: $white;

@@ -44,17 +44,23 @@ export class Layer {
      * @param {String} id
      * @param {Number} opacity
      * @param {Boolean} isBackground
+     * @param {String} baseURL
      */
     constructor(name= '',
                 type= null,
                 id= '',
                 opacity = 1.0,
-                isBackground = false) {
+                isBackground = false,
+                baseURL = null) {
         this.name = name;
         this.type = type;
         this.id = id;
         this.opacity = opacity;
         this.isBackground = isBackground;
+        this.baseURL = baseURL;
+        if (this.baseURL && !this.baseURL.endsWith('/')) {
+            this.baseURL = this.baseURL + '/';
+        }
         this.isSpecificFor3D = id.toLowerCase().endsWith('_3d');
         this.visible = false;
         this.projection = 'EPSG:3857';
@@ -77,14 +83,16 @@ export class WMTSLayer extends Layer {
      * @param {String} format image format for this WMTS layer (jpeg or png)
      * @param {TimeSeriesConfig} timeSeriesConfig config for layer that are time enabled
      * @param {Boolean} isBackground if this layer should be treated as a background layer
+     * @param {String} baseURL the base URL to be used to request tiles (can use the {0-9} notation to describe many available backends)
      */
     constructor(name= '',
                 id= '',
                 opacity= 1.0,
                 format = 'png',
                 timeSeriesConfig = null,
-                isBackground = false) {
-        super(name, LayerTypes.WMTS, id, opacity, isBackground);
+                isBackground = false,
+                baseURL = null) {
+        super(name, LayerTypes.WMTS, id, opacity, isBackground, baseURL);
         this.format = format;
         this.timeSeriesConfig = timeSeriesConfig;
     }
@@ -94,19 +102,46 @@ export class WMTSLayer extends Layer {
         if (this.timeSeriesConfig) {
             timestamp = this.timeSeriesConfig.currentTimestamp
         }
-        return `${WMTS_BASE_URL}1.0.0/${this.id}/default/${timestamp}/3857/{z}/{x}/{y}.${this.format}`;
+        return `${this.baseURL}1.0.0/${this.id}/default/${timestamp}/3857/{z}/{x}/{y}.${this.format}`;
+    }
+
+    /**
+     * Resolve the {x-y} notation used in WMTS URLs and outputs all possible URLs
+     *
+     * Example : `"https://wmts{1-3}.geo.admin.ch"` will outputs `[ "https://wmts1.geo.admin.ch", "https://wmts3.geo.admin.ch", "https://wmts3.geo.admin.ch" ]`
+     *
+     * @returns {Array<String>} all possible backend URLs for this layer
+     */
+    getURLs() {
+        const mainURL = this.getURL();
+        const urls = [];
+        const bracketNotationMatches = /.*{([0-9-]+)}.*/.exec(mainURL);
+        if (bracketNotationMatches && bracketNotationMatches.length >= 2) {
+            const bracketNotation = {
+                start: Number(bracketNotationMatches[1].split("-")[0]),
+                end: Number(bracketNotationMatches[1].split("-")[1])
+            };
+            for (let i = bracketNotation.start; i < bracketNotation.end; i += 1) {
+                urls.push(mainURL.replace(`{${bracketNotation.start}-${bracketNotation.end}}`, i));
+            }
+            if (urls.length === 0) {
+                urls.push(mainURL);
+            }
+        } else {
+            urls.push(mainURL);
+        }
+        return urls;
     }
 }
 
 export class WMSLayer extends Layer {
-    constructor(name, id, opacity, baseUrl, format) {
-        super(name, LayerTypes.WMS, id, opacity);
+    constructor(name, id, opacity, baseURL, format) {
+        super(name, LayerTypes.WMS, id, opacity, baseURL);
         this.format = format;
-        this.baseUrl = baseUrl;
     }
 
     getURL() {
-        return `${this.baseUrl}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=en`;
+        return `${this.baseURL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=en`;
     }
 }
 
@@ -129,7 +164,7 @@ const generateClassForLayerConfig = (layerConfig) => {
         }
         switch(type.toLowerCase()) {
             case 'wmts':
-                layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, background);
+                layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, background, WMTS_BASE_URL);
                 break;
             case 'wms':
                 layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format);

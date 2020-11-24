@@ -1,6 +1,9 @@
 <template>
   <div id="toolbox">
-    <ZoomButtons id="toolbox-zoom-buttons" />
+    <div id="right-toolbox">
+      <ZoomButtons id="toolbox-zoom-buttons" />
+      <GeolocButton id="geoloc-button" />
+    </div>
     <transition name="slide-left">
       <BackgroundSelectorButton id="toolbox-bg-buttons" v-show="showBgWheel" />
     </transition>
@@ -8,18 +11,24 @@
 </template>
 
 <style lang="scss">
-#toolbox-zoom-buttons,
+
+@import "src/scss/variables";
+
+#right-toolbox,
 #toolbox-bg-buttons {
   position: absolute;
-  // footer is at 1.5rem, adding another 1.5rem of padding
-  bottom: 2.5rem;
   z-index: 250;
 }
-#toolbox-zoom-buttons {
-  right: 1rem;
+#right-toolbox {
+  top: $header-height + $screen-padding-for-ui-elements;
+  right: $screen-padding-for-ui-elements;
+  #toolbox-zoom-buttons {
+    position: relative;
+  }
 }
 #toolbox-bg-buttons {
-  left: 1rem;
+  left: $screen-padding-for-ui-elements;
+  bottom: $footer-height + $screen-padding-for-ui-elements;
 }
 .slide-left-leave-active,
 .slide-left-enter-active {
@@ -37,6 +46,7 @@
 import ZoomButtons from "./components/ZoomButtons"
 import BackgroundSelectorButton from "./components/BackgroundSelectorButton";
 import { mapState } from "vuex";
+import GeolocButton from "./components/GeolocButton";
 
 export default {
   computed: {
@@ -44,6 +54,6 @@ export default {
       showBgWheel: state => state.ui.showBackgroundWheel,
     })
   },
-  components: { ZoomButtons, BackgroundSelectorButton }
+  components: {GeolocButton, ZoomButtons, BackgroundSelectorButton }
 }
 </script>

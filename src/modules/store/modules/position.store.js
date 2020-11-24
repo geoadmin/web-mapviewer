@@ -1,7 +1,7 @@
 import center from "@turf/center";
 import { point, featureCollection } from "@turf/helpers"
 import proj4 from "proj4";
-import {round} from "../../../numberUtils";
+import {round} from "@/numberUtils";
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
@@ -124,7 +124,7 @@ const actions = {
         }
     },
     increaseZoom: ({dispatch, state}) => dispatch("setZoom", Number(state.zoom) + 1),
-    decreaseZoom: ({dispatch, state}) => dispatch("setZoom", Number(state.zoom) - 1)
+    decreaseZoom: ({dispatch, state}) => dispatch("setZoom", Number(state.zoom) - 1),
 };
 
 const mutations = {
