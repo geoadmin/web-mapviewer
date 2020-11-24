@@ -105,6 +105,13 @@ export class WMTSLayer extends Layer {
         return `${this.baseURL}1.0.0/${this.id}/default/${timestamp}/3857/{z}/{x}/{y}.${this.format}`;
     }
 
+    /**
+     * Resolve the {x-y} notation used in WMTS URLs and outputs all possible URLs
+     *
+     * Example : `"https://wmts{1-3}.geo.admin.ch"` will outputs `[ "https://wmts1.geo.admin.ch", "https://wmts3.geo.admin.ch", "https://wmts3.geo.admin.ch" ]`
+     *
+     * @returns {Array<String>} all possible backend URLs for this layer
+     */
     getURLs() {
         const mainURL = this.getURL();
         const urls = [];

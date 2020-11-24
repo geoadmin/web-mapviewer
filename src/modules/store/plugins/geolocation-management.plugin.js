@@ -51,14 +51,12 @@ const geolocationManagementPlugin = store => {
                         if (state.geolocation.denied) {
                             store.dispatch('setGeolocationDenied', false);
                         }
-                        // we center the view on the position of the user
-                        store.dispatch('setCenter', readPositionEpsg3857(position));
+                        handlePositionAndDispatchToStore(position, store)
                         if (firstTimeActivatingGeolocation) {
                             firstTimeActivatingGeolocation = false;
                             // going to zoom level 15.5 corresponding to map 1:25'000 (or zoom level 8 in the old viewer)
                             store.dispatch('setZoom', 15.5);
                         }
-                        handlePositionAndDispatchToStore(position, store)
                         geolocationWatcher = navigator.geolocation.watchPosition(position => handlePositionAndDispatchToStore(position, store),
                                                                                    error => handlePositionError(error, store));
                     },
