@@ -51,9 +51,8 @@ import Feature from "ol/Feature";
 import { Point, Circle } from "ol/geom";
 import { isMobile } from 'mobile-device-detect';
 
-import { round } from "@/utils/numberUtils";
+import { round, randomIntBetween } from "@/utils/numberUtils";
 import { LayerTypes } from "@/api/layers.api";
-import {randomIntBetween} from "@/numberUtils";
 
 const markerBalloonStyle = new Style({
   image: new IconStyle({
