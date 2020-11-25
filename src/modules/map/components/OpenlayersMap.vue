@@ -108,13 +108,14 @@ export default {
       this.visibleLayers.forEach(visibleLayer => visibleLayer && layers.push(this.createOpenLayersObjectForLayer(visibleLayer)))
       // managing marker(s)
       const markers = [];
+      if (this.droppedPin) {
+        markers.push(this.droppedPin);
+      }
       // if a highlighted feature is set, we put it on top of the layer stack
       if (this.highlightedFeature) {
         if (this.highlightedFeature.type === 'layer') {
           layers.push(this.createOpenLayersObjectForLayer(this.highlightedFeature.layerConfig))
-        } else if (this.highlightedFeature.type === 'location') {
-          markers.push(this.createMarkerAtPosition(this.highlightedFeature.coordinate));
-        } else {
+        } else if (this.highlightedFeature.type !== 'location') {
           console.error('Unknown feature type', this.highlightedFeature);
         }
       }
@@ -195,6 +196,14 @@ export default {
     geolocationAccuracy: function (newAccuracy) {
       this.geolocation.accuracyCircle.setRadius(newAccuracy);
     },
+    highlightedFeature: function (newHighlighted) {
+      if (newHighlighted) {
+        this.droppedPin.getGeometry().setCoordinates(newHighlighted.coordinate);
+        this.droppedPin.setStyle(markerBalloonStyle);
+      } else {
+        this.droppedPin.setStyle(markerHiddenStyle);
+      }
+    }
   },
   mounted() {
     // Setting up OL objects
@@ -249,6 +258,9 @@ export default {
         }
       }
     })
+
+    // creating marker for dropped pin
+    this.droppedPin = this.createMarkerAtPosition([0,0], markerHiddenStyle);
 
     // creating marker and accuracy circle for geolocation
     this.geolocation.marker = this.createMarkerAtPosition(this.geolocationPosition, this.geolocationActive ? markerAccuracyStyle : markerHiddenStyle);
@@ -312,6 +324,7 @@ export default {
         rotate: false,
         zoom: false,
       },
+      droppedPin: null,
       geolocation: {
         marker: null,
         accuracyCircle: null,
