@@ -1,19 +1,21 @@
-name: Bump version and push tag
+name: Bump version
 on:
   push:
     branches:
       - master
+      - develop
 jobs:
   build:
-    name: Bump version and push tag
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout source
-      uses: actions/checkout@master
+    - uses: actions/checkout@master
       with:
-        fetch-depth: '0'
+        fetch-depth: '10'
     - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.22.0
+      uses: anothrNick/github-tag-action@1.33.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
+        RELEASE_BRANCHES: master
+        TAG_CONTEXT: repo
+
