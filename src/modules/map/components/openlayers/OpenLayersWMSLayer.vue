@@ -9,7 +9,7 @@ import ImageWMS from "ol/source/ImageWMS"
 import TileWMS from "ol/source/TileWMS"
 import TileGrid from "ol/tilegrid/TileGrid"
 import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
-import {TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE} from "../../../../config";
+import {TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE} from "@/config";
 
 export default {
   props: {
