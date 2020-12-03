@@ -5,11 +5,12 @@
 </template>
 <script>
 import axios from "axios";
+import proj4 from "proj4";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import GeoJSON from "ol/format/GeoJSON";
 import OlStyleForPropertyValue from "./openlayersStyleFromLiterals";
-import openlayersLayerMixin from "./openlayers-mixins";
+import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 import { reproject } from "reproject";
 
 export default {
@@ -35,19 +36,38 @@ export default {
       default: -1,
     }
   },
-  mixins: [openlayersLayerMixin],
+  mixins: [addLayerToMapMixin],
   created() {
+    // loading the GeoJSON data and style with and wait for both the be loaded
     axios.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
       .then(responses => {
         const geojsonData = responses[0].data;
         const geojsonStyleLiterals = responses[1].data;
-        const dataProjection = geojsonData.crs ? geojsonData.crs.properties.name : null;
         const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
+
+        // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
+        const dataProjection = geojsonData.crs ? geojsonData.crs.properties.name : null;
+
+        // reprojecting the GeoJSON if not in EPSG:3857, the default projection for GeoJSON is WGS84
+        // as stated in the reference https://tools.ietf.org/html/rfc7946#section-4
+        // if another projection was set in the GeoJSON (through the "crs" property) we use it instead
+        let reprojectedGeoJSON;
+        if (dataProjection) {
+          if (dataProjection !== 'EPSG:3857') {
+            reprojectedGeoJSON = reproject(geojsonData, dataProjection, 'EPSG:3857');
+          } else {
+            // it's already in the correct projection, we don't reproject
+            reprojectedGeoJSON = geojsonData;
+          }
+        } else {
+          // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
+          reprojectedGeoJSON = reproject(geojsonData, proj4.WGS84, 'EPSG:3857');
+        }
         this.layer = new VectorLayer({
           id: this.layerId,
           opacity: this.opacity,
           source: new VectorSource({
-            features: new GeoJSON().readFeatures(dataProjection && dataProjection !== 'EPSG:3857' ? reproject(geojsonData, dataProjection, 'EPSG:3857') : geojsonData),
+            features: new GeoJSON().readFeatures(reprojectedGeoJSON),
           }),
         })
         this.layer.setStyle(function (feature, res) {

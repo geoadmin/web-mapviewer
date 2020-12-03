@@ -9,6 +9,7 @@ import Feature from "ol/Feature";
 import {Vector as VectorLayer} from "ol/layer";
 import {Vector as VectorSource} from "ol/source";
 import {Fill, Stroke, Style} from "ol/style";
+import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 
 const accuracyCircleStyle = new Style({
   fill: new Fill({
@@ -32,14 +33,14 @@ export default {
     }
   },
   inject: ['getMap'],
+  mixins: [addLayerToMapMixin],
   data() {
     return {
       accuracyCircle: null,
       accuracyCircleFeature: null,
-      layer: null,
     }
   },
-  mounted() {
+  created() {
     this.accuracyCircle = new Circle(this.position, this.accuracy);
     this.accuracyCircleFeature = new Feature({
       geometry: this.accuracyCircle,
@@ -51,10 +52,6 @@ export default {
         features: [this.accuracyCircleFeature]
       })
     })
-    this.getMap().addLayer(this.layer);
-  },
-  destroyed() {
-    this.getMap().removeLayer(this.layer);
   },
   watch: {
     position: function (newPosition) {

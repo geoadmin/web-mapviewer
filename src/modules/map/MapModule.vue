@@ -1,6 +1,6 @@
 <template>
     <div class="full-screen-map" data-cy="map">
-      <OpenlayersMap />
+      <OpenLayersMap />
       <transition name="slide-down">
         <Footer v-show="showFooter" />
       </transition>
@@ -33,7 +33,7 @@
 
 <script>
 import { mapState } from "vuex";
-import OpenlayersMap from "./components/openlayers/OpenlayersMap";
+import OpenLayersMap from "./components/openlayers/OpenLayersMap";
 import Footer from "./components/Footer";
 
 export default {
@@ -42,6 +42,6 @@ export default {
       showFooter: state => state.ui.showFooter,
     })
   },
-  components: { OpenlayersMap, Footer }
+  components: { OpenLayersMap, Footer }
 }
 </script>

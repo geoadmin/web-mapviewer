@@ -6,7 +6,7 @@
 <script>
 import {Tile as TileLayer} from "ol/layer";
 import {XYZ as XYZSource} from "ol/source";
-import openlayersLayerMixin from "./openlayers-mixins";
+import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 
 export default {
   props: {
@@ -35,7 +35,7 @@ export default {
       default: -1,
     },
   },
-  mixins: [openlayersLayerMixin],
+  mixins: [addLayerToMapMixin],
   created() {
     this.layer = new TileLayer({
       id: this.layerId,

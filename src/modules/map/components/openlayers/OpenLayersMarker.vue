@@ -10,8 +10,9 @@ import {Vector as VectorLayer} from "ol/layer";
 import {Vector as VectorSource} from "ol/source";
 import Feature from "ol/Feature";
 import {Point} from "ol/geom";
+
 import {randomIntBetween} from "@/utils/numberUtils";
-import openlayersLayerMixin from "./openlayers-mixins";
+import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 
 const markerBalloonStyle = new Style({
   image: new IconStyle({
@@ -19,6 +20,7 @@ const markerBalloonStyle = new Style({
     src: require('@/modules/map/assets/marker.png'),
   }),
 });
+// style for geolocation point
 const markerPositionStyle = new Style({
   image: new CircleStyle({
     radius: 5,
@@ -70,7 +72,7 @@ export default {
     }
   },
   inject: ['getMap'],
-  mixins: [openlayersLayerMixin],
+  mixins: [addLayerToMapMixin],
   computed: {
     style: function () {
       switch (this.markerStyle) {
@@ -85,13 +87,14 @@ export default {
     }
   },
   created() {
+    const randomId = randomIntBetween(0, 100000)
     this.marker = new Feature({
-      id: 'marker-' + randomIntBetween(0, 100000),
+      id: `marker-${randomId}`,
       geometry: new Point(this.position),
     });
     this.marker.setStyle(this.style);
     this.layer = new VectorLayer({
-      id: `marker-layer`,
+      id: `marker-layer-${randomId}`,
       source: new VectorSource({
         features: [this.marker]
       })

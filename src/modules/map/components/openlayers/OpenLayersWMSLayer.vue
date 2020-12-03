@@ -6,7 +6,7 @@
 <script>
 import { Image as ImageLayer } from "ol/layer"
 import ImageWMS from "ol/source/ImageWMS"
-import openlayersLayerMixin from "./openlayers-mixins";
+import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 
 export default {
   props: {
@@ -27,7 +27,7 @@ export default {
       default: -1,
     },
   },
-  mixins: [openlayersLayerMixin],
+  mixins: [addLayerToMapMixin],
   created() {
     this.layer = new ImageLayer({
       id: this.layerId,
