@@ -143,9 +143,18 @@ export class WMTSLayer extends Layer {
 }
 
 export class WMSLayer extends Layer {
-    constructor(name, id, opacity, baseURL, format) {
+    /**
+     * @param {String} name the name of this layer (lang specific)
+     * @param {String} id the ID of this layer in the BOD
+     * @param {Number} opacity the opacity to apply to this layer
+     * @param {String} baseURL the backend to call for tiles
+     * @param {String} format in which image format the backend must be requested
+     * @param {Number} gutter how much of a gutter we want (specific for tiled WMS, if unset this layer will be a single tile WMS)
+     */
+    constructor(name, id, opacity, baseURL, format, gutter = -1) {
         super(name, LayerTypes.WMS, id, opacity, false, baseURL);
         this.format = format;
+        this.gutter = gutter;
     }
 
     getURL() {
@@ -158,6 +167,10 @@ export class GeoJsonLayer extends Layer {
         super(name, LayerTypes.GEOJSON, id, opacity);
         this.geoJsonUrl = geoJsonUrl;
         this.styleUrl = styleUrl;
+    }
+
+    getURL() {
+        return this.geoJsonUrl;
     }
 }
 
@@ -195,6 +208,10 @@ export class AggregateLayer extends Layer {
     addSubLayer(subLayer) {
         this.subLayers.push(subLayer);
     }
+
+    getURL() {
+        throw new Error("Aggregate layers shouldn't be asked directly for URL, but sub-layers should")
+    }
 }
 
 const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
@@ -210,7 +227,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
                 layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, !!background, WMTS_BASE_URL);
                 break;
             case 'wms':
-                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format);
+                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format, layerConfig.gutter);
                 break;
             case 'geojson':
                 layer = new GeoJsonLayer(name, id, opacity, layerConfig.geojsonUrl, layerConfig.styleUrl);
