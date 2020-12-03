@@ -8,7 +8,8 @@ import axios from "axios";
 export const LayerTypes = {
     WMTS: 'wmts',
     WMS: 'wms',
-    GEOJSON: 'geojson'
+    GEOJSON: 'geojson',
+    AGGREGATE: 'aggregate',
 };
 
 /**
@@ -27,8 +28,8 @@ export class TimeSeriesConfig {
     constructor(behaviour = "last", series = []) {
         this.behaviour = behaviour;
         this.series = series;
-        this.currentTimestamp = null;
-        if (this.series.length > 0) {
+        this.currentTimestamp = this.behaviour;
+        if (this.behaviour === 'last' && this.series.length > 0) {
             switch (this.behaviour) {
                 case 'last':
                     this.currentTimestamp = this.series[0];
@@ -143,7 +144,7 @@ export class WMTSLayer extends Layer {
 
 export class WMSLayer extends Layer {
     constructor(name, id, opacity, baseURL, format) {
-        super(name, LayerTypes.WMS, id, opacity, baseURL);
+        super(name, LayerTypes.WMS, id, opacity, false, baseURL);
         this.format = format;
     }
 
@@ -160,17 +161,53 @@ export class GeoJsonLayer extends Layer {
     }
 }
 
-const generateClassForLayerConfig = (layerConfig) => {
+export class AggregateSubLayer {
+    /**
+     * @param {String} subLayerId the ID used in the BOD to describe this sub-layer
+     * @param {Layer} layer the sub-layer config (can be a {@link GeoJsonLayer}, a {@link WMTSLayer} or a {@link WMTSLayer})
+     * @param {Number} minResolution in meter/px, at which resolution this sub-layer should start to be visible
+     * @param {Number} maxResolution in meter/px, from which resolution the layer should be hidden
+     */
+    constructor(subLayerId, layer, minResolution = Number.MIN_SAFE_INTEGER, maxResolution = Number.MAX_SAFE_INTEGER) {
+        this.subLayerId = subLayerId;
+        this.layer = layer;
+        this.minResolution = minResolution;
+        this.maxResolution = maxResolution;
+    }
+}
+
+export class AggregateLayer extends Layer {
+    /**
+     * @param {String} name the name of this layer in the given lang
+     * @param {String} id the layer ID in the BOD
+     * @param {Number} opacity the opacity to be applied to this layer
+     * @param {TimeSeriesConfig} timeSeriesConfig time series config (if available)
+     */
+    constructor(name, id, opacity, timeSeriesConfig) {
+        super(name, LayerTypes.AGGREGATE, id, opacity);
+        this.timeSeriesConfig = timeSeriesConfig;
+        this.subLayers = [];
+    }
+
+    /**
+     * @param {AggregateSubLayer} subLayer
+     */
+    addSubLayer(subLayer) {
+        this.subLayers.push(subLayer);
+    }
+}
+
+const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
     let layer = undefined;
     if (layerConfig) {
-        const { serverLayerName: id, label: name, type, opacity, format, background } = layerConfig;
+        const { label: name, type, opacity, format, background } = layerConfig;
         let timeEnableConfig = null;
         if (layerConfig.timeEnabled) {
             timeEnableConfig = new TimeSeriesConfig(layerConfig.timeBehaviour, layerConfig.timestamps);
         }
         switch(type.toLowerCase()) {
             case 'wmts':
-                layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, background, WMTS_BASE_URL);
+                layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, !!background, WMTS_BASE_URL);
                 break;
             case 'wms':
                 layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format);
@@ -179,8 +216,41 @@ const generateClassForLayerConfig = (layerConfig) => {
                 layer = new GeoJsonLayer(name, id, opacity, layerConfig.geojsonUrl, layerConfig.styleUrl);
                 break;
             case 'aggregate':
-                // TODO handle aggregate layers
-                console.error('Aggregate layer not yet implemented')
+                // here it's a bit tricky, the aggregate layer has a main entry in the BOD (with everything as usual)
+                // but things get complicated with sub-layers. Each sub-layer has an entry in the BOD but it's ID (or
+                // key in the BOD) is not the one we should ask the server with, that would be the serverLayerName prop,
+                // but the parent layer will describe it's child layers with another identifier, which is the key to the
+                // raw config in the big BOD config object.
+                // here's an example:
+                // {
+                //   "parent.layer": {
+                //      "serverLayerName": "i.am.a.big.aggregate.layer",
+                //      "subLayersIds": [
+                //          "i.am.a.sub.layer_1", <-- that will be the key to another object
+                //          "i.am.a.sub.layer_2",
+                //      ]
+                //   },
+                //   "i.am.a.sub.layer_1": { <-- that's one of the "subLayersIds"
+                //       "serverLayerName": "hey.i.am.not.the.same.as.the.sublayer.id", <-- that's the ID that should be used to ask the server for tiles
+                //   },
+                // }
+
+                // here id would be "parent.layer" in the example above
+                layer = new AggregateLayer(name, id, opacity, timeEnableConfig);
+                layerConfig.subLayersIds.forEach(subLayerId => {
+                    // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
+                    const subLayerRawConfig = allOtherLayers[subLayerId];
+                    // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
+                    // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
+                    const subLayer = generateClassForLayerConfig(subLayerRawConfig, subLayerRawConfig.serverLayerName, allOtherLayers);
+                    if (subLayer) {
+                        layer.addSubLayer(new AggregateSubLayer(subLayerId,
+                                                                subLayer,
+                                                                subLayerRawConfig.minResolution,
+                                                                subLayerRawConfig.maxResolution));
+                    }
+                });
+
                 break;
             default:
                 console.error('Unknown layer type', type);
@@ -216,10 +286,10 @@ const loadLayersConfigFromBackend = (lang) => {
                         reject('LayersConfig loaded from backend is not an defined or is empty');
                     }
                 }).catch((error) => {
-                const message = 'Error while loading layers config from backend';
-                console.error(message, error);
-                reject(message);
-            })
+                    const message = 'Error while loading layers config from backend';
+                    console.error(message, error);
+                    reject(message);
+                })
         }
     })
 }
