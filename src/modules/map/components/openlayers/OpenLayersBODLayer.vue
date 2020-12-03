@@ -9,6 +9,7 @@
                         :layer-id="layerConfig.id"
                         :opacity="layerConfig.opacity"
                         :url="layerConfig.getURL()"
+                        :gutter="layerConfig.gutter"
                         :z-index="zIndex" />
     <OpenLayersGeoJSONLayer v-if="layerConfig.type === LayerTypes.GEOJSON"
                             :layer-id="layerConfig.id"
