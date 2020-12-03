@@ -9,7 +9,7 @@ import proj4 from "proj4";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import GeoJSON from "ol/format/GeoJSON";
-import OlStyleForPropertyValue from "./openlayersStyleFromLiterals";
+import OlStyleForPropertyValue from "./utils/styleFromLiterals";
 import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
 import { reproject } from "reproject";
 
