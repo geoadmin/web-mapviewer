@@ -182,7 +182,6 @@ OlStyleForPropertyValue.prototype.initialize_ = function(properties) {
 OlStyleForPropertyValue.prototype.pushOrInitialize_ = function(geomType, key, styleSpec) {
     // Happens when styling is only resolution dependent (unique type only)
     if (key === undefined) {
-        console.log('setting default val for', geomType, styleSpec)
         key = this.defaultVal;
     }
     if (!this.styles[geomType][key]) {
