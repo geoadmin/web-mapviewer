@@ -24,11 +24,14 @@ describe('Unit test functions from coordinateUtils.js', () => {
             expect(coordinateFromString([45.6, 7.4])).to.be.undefined;
             expect(coordinateFromString({lon: 7, lat: 45})).to.be.undefined;
         });
-        it('Returns null when the given text is not two numbers separated by a coma, a space or a slash', () => {
+        it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', () => {
             expect(coordinateFromString('47.0')).to.be.undefined;
             expect(coordinateFromString('47.0,')).to.be.undefined;
             expect(coordinateFromString('47.0,test')).to.be.undefined;
             expect(coordinateFromString('47.0, test')).to.be.undefined;
+        })
+        it('Returns undefined when coordinates entered don\'t match any projection bur are technically valid (two numbers)', () => {
+            expect(coordinateFromString('600000, 20000')).to.be.undefined;
         })
 
         const checkText = (text, expected, message, acceptableDelta = 0) => {

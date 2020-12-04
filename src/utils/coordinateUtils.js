@@ -58,10 +58,15 @@ const numericalExtractor = regexMatches => {
     // checking LV03 backward
     } else if (y > LV03_BOUNDS.x.lower && y < LV03_BOUNDS.x.upper && x > LV03_BOUNDS.y.lower && x < LV03_BOUNDS.y.upper) {
         return proj4('EPSG:21781', proj4.WGS84, [y, x]);
+    // checking for WGS84 bounds
+    } else if (x > -180.0 && x < 180.0 && y > -360.0 && y < 360.0) {
+        // we inverse lat/lon to lon/lat as user inputs support lat/lon but the app behind function with lon/lat
+        // coordinates, especially proj4js
+        return [y, x];
+    } else {
+        console.debug(`Unknown coordinate type [${x}, ${y}]`);
+        return undefined;
     }
-    // if nothing has been detected, we let it go "as is", it should be WGS84 already (we inverse lat/lon to lon/lat
-    // as user inputs support lat/lon but the app behind function with lon/lat coordinates, especially proj4js)
-    return [y, x];
 }
 
 const webmercatorExtractor = regexMatches => {
@@ -98,7 +103,11 @@ const executeAndReturn = (regex, text, extractor = numericalExtractor, outputPro
     if (typeof text !== 'string') return undefined;
     const matches = regex.exec(text);
     if (matches) {
-        const projectedResult = proj4(proj4.WGS84, outputProjection, extractor(matches));
+        const extractedCoordinates = extractor(matches);
+        if (!extractedCoordinates) {
+            return undefined;
+        }
+        const projectedResult = proj4(proj4.WGS84, outputProjection, extractedCoordinates);
         return [
             round(projectedResult[0], decimals),
             round(projectedResult[1], decimals)
