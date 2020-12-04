@@ -91,7 +91,7 @@ export default {
       zoom: state => state.position.zoom,
       center: state => state.position.center,
       highlightedFeature: state => state.map.highlightedFeature,
-      pinLocation: state => state.map.pinLocation,
+      pinnedLocation: state => state.map.pinnedLocation,
       mapIsBeingDragged: state => state.map.isBeingDragged,
       geolocationActive: state => state.geolocation.active,
       geolocationPosition: state => state.geolocation.position,
@@ -196,9 +196,9 @@ export default {
     geolocationAccuracy: function (newAccuracy) {
       this.geolocation.accuracyCircle.setRadius(newAccuracy);
     },
-    highlightedFeature: function (newHighlighted) {
-      if (newHighlighted) {
-        this.droppedPin.getGeometry().setCoordinates(newHighlighted.coordinate);
+    pinnedLocation: function (newPinnedLocation) {
+      if (newPinnedLocation) {
+        this.droppedPin.getGeometry().setCoordinates(newPinnedLocation);
         this.droppedPin.setStyle(markerBalloonStyle);
       } else {
         this.droppedPin.setStyle(markerHiddenStyle);

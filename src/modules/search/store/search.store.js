@@ -29,18 +29,12 @@ const actions = {
             if (coordinate) {
                 dispatch('setCenter', coordinate);
                 dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
-                dispatch('highlightLocation', {
-                    id: 'search-coordinates',
-                    coordinate,
-                });
+                dispatch('setPinnedLocation', coordinate);
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query).then(what3wordLocation => {
                     dispatch('setCenter', what3wordLocation);
                     dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
-                    dispatch('highlightLocation', {
-                        id: 'w3w-coordinates',
-                        coordinate: what3wordLocation,
-                    });
+                    dispatch('setPinnedLocation', what3wordLocation);
                 })
             } else {
                 search(query, rootState.i18n.lang).then(searchResults => {
