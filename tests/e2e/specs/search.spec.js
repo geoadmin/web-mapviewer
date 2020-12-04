@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 const searchbarSelector = '[data-cy="searchbar"]';
+const searchbarClearSelector = '[data-cy="searchbar-clear"]';
 
-describe('Unit test functions for the header / search bar', () => {
+describe('Test the search bar', () => {
 
     beforeEach(() => {
         cy.goToMapView();
@@ -31,12 +32,13 @@ describe('Unit test functions for the header / search bar', () => {
             // in world-wide zoom level, it means a 15.5 zoom level (in LV95 zoom level it is 8)
             cy.readStoreValue('state.position.zoom').should('be.eq', 15.5);
         }
-        const checkThatCoordinateAreHighlighted = (acceptableDelta) => {
+        const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
             // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
-            cy.readStoreValue('state.map.highlightedFeature').should(feature => {
+            cy.readStoreValue('state.map.pinnedLocation').should(feature => {
                 expect(feature).to.not.be.null;
-                expect(feature.coordinate[0]).to.be.approximately(coordEpsg3857[0], acceptableDelta);
-                expect(feature.coordinate[1]).to.be.approximately(coordEpsg3857[1], acceptableDelta);
+                expect(feature).to.be.a('array').that.is.not.empty;
+                expect(feature[0]).to.be.approximately(coordEpsg3857[0], acceptableDelta);
+                expect(feature[1]).to.be.approximately(coordEpsg3857[1], acceptableDelta);
             })
         }
         const numberWithThousandSeparator = (x, separator = "'") => {
@@ -132,6 +134,20 @@ describe('Unit test functions for the header / search bar', () => {
                 checkZoomLevelInStore();
                 checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS);
             })
+        })
+
+        it('Keeps the dropped pin when the search bar is cleared', () => {
+            cy.get(searchbarSelector).paste(`${LV95[0]} ${LV95[1]}`)
+            checkCenterInStore();
+            checkZoomLevelInStore();
+            checkThatCoordinateAreHighlighted();
+            cy.get(searchbarClearSelector).click();
+            // checking that search bar has been emptied
+            cy.readStoreValue('state.search.query').should('be.empty');
+            // checking that the dropped pin is still there
+            checkCenterInStore();
+            checkZoomLevelInStore();
+            checkThatCoordinateAreHighlighted();
         })
     })
 })
