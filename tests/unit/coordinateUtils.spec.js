@@ -5,8 +5,8 @@ import setupProj4 from "@/utils/setupProj4";
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4();
 
-const numberWithThousandSeparator = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+const numberWithThousandSeparator = (x, separator = "'") => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
 
 describe('Unit test functions from coordinateUtils.js', () => {
@@ -35,22 +35,23 @@ describe('Unit test functions from coordinateUtils.js', () => {
             const result = coordinateFromString(text);
             expect(result).to.be.an('Array', message);
             expect(result.length).to.eq(2, message);
-            expect(result[0]).to.approximately(expected[0], acceptableDelta, message);
-            expect(result[1]).to.approximately(expected[1], acceptableDelta, message);
+            expect(result[0]).to.approximately(expected[0], acceptableDelta, message + '\nx result: ' + result[0] + '\n');
+            expect(result[1]).to.approximately(expected[1], acceptableDelta, message + '\ny result: ' + result[1] + '\n');
         }
         const checkXY = (x, y, xNumericalValue = x, yNumericalValue = y, acceptableDelta = 0) => {
+            const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xNumericalValue}, expected y: ${yNumericalValue}`;
             // checking with simple space and tab
-            checkText(`${x} ${y}`, [xNumericalValue, yNumericalValue], 'fails with space in between', acceptableDelta);
-            checkText(`${x}\t${y}`, [xNumericalValue, yNumericalValue], 'fails with tabs', acceptableDelta);
+            checkText(`${x} ${y}`, [xNumericalValue, yNumericalValue], 'fails with space in between\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}\t${y}`, [xNumericalValue, yNumericalValue], 'fails with tabs\n' + valueOutputInCaseOfErr, acceptableDelta);
             // checking while placing separators with and without spaces before/after
-            checkText(`${x},${y}`, [xNumericalValue, yNumericalValue], 'fails with coma', acceptableDelta);
-            checkText(`${x} ,${y}`, [xNumericalValue, yNumericalValue], 'fails with space and coma', acceptableDelta);
-            checkText(`${x}, ${y}`, [xNumericalValue, yNumericalValue], 'fails with coma and space', acceptableDelta);
-            checkText(`${x} , ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, coma and space', acceptableDelta);
-            checkText(`${x}/${y}`, [xNumericalValue, yNumericalValue], 'fails with slash', acceptableDelta);
-            checkText(`${x} /${y}`, [xNumericalValue, yNumericalValue], 'fails with space and slash', acceptableDelta);
-            checkText(`${x}/ ${y}`, [xNumericalValue, yNumericalValue], 'fails with slash and space', acceptableDelta);
-            checkText(`${x} / ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, slash and space', acceptableDelta);
+            checkText(`${x},${y}`, [xNumericalValue, yNumericalValue], 'fails with coma\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} ,${y}`, [xNumericalValue, yNumericalValue], 'fails with space and coma\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}, ${y}`, [xNumericalValue, yNumericalValue], 'fails with coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} , ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}/${y}`, [xNumericalValue, yNumericalValue], 'fails with slash\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} /${y}`, [xNumericalValue, yNumericalValue], 'fails with space and slash\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}/ ${y}`, [xNumericalValue, yNumericalValue], 'fails with slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} / ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
         }
 
         // creating values that points to the same exact location in many projections
@@ -99,14 +100,30 @@ describe('Unit test functions from coordinateUtils.js', () => {
         it('Returns coordinates from EPSG:2056 (LV95)', () => {
             checkXY(LV95[0], LV95[1], x, y, 0.1);
         })
+        it('Returns coordinates from EPSG:2056 (LV95) when entered backward', () => {
+            checkXY(LV95[1], LV95[0], x, y, 0.1);
+        })
         it('Returns coordinates from EPSG:2056 (LV95) even when there\'s thousands separator', () => {
             checkXY(numberWithThousandSeparator(LV95[0]), numberWithThousandSeparator(LV95[1]), x, y, 0.1);
+            checkXY(numberWithThousandSeparator(LV95[0], ' '), numberWithThousandSeparator(LV95[1], ' '), x, y, 0.1);
+        })
+        it('Returns coordinates from EPSG:2056 (LV95) even when there\'s thousands separator when entered backward', () => {
+            checkXY(numberWithThousandSeparator(LV95[1]), numberWithThousandSeparator(LV95[0]), x, y, 0.1);
+            checkXY(numberWithThousandSeparator(LV95[1], ' '), numberWithThousandSeparator(LV95[0], ' '), x, y, 0.1);
         })
         it('Returns coordinate from EPSG:21781 (LV03)', () => {
             checkXY(LV03[0], LV03[1], x, y, 0.1);
         })
+        it('Returns coordinate from EPSG:21781 (LV03) when entered backward', () => {
+            checkXY(LV03[1], LV03[0], x, y, 0.1);
+        })
         it('Returns coordinate from EPSG:21781 (LV03) with thousands separator', () => {
             checkXY(numberWithThousandSeparator(LV03[0]), numberWithThousandSeparator(LV03[1]), x, y, 0.1);
+            checkXY(numberWithThousandSeparator(LV03[0], ' '), numberWithThousandSeparator(LV03[1], ' '), x, y, 0.1);
+        })
+        it('Returns coordinate from EPSG:21781 (LV03) with thousands separator when entered backward', () => {
+            checkXY(numberWithThousandSeparator(LV03[1]), numberWithThousandSeparator(LV03[0]), x, y, 0.1);
+            checkXY(numberWithThousandSeparator(LV03[1], ' '), numberWithThousandSeparator(LV03[0], ' '), x, y, 0.1);
         })
         it('Returns coordinates in EPSG:4326 when Military Grid Reference System (MGRS) coords are entered', () => {
             // as MGRS is a grid based system, what is return is essentially a 1 meter box.

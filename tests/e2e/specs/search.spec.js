@@ -17,6 +17,8 @@ describe('Unit test functions for the header / search bar', () => {
         // using the same values as coordinateUtils.spec.js (in Unit tests)
         const coordEpsg3857 = [773900, 5976445];
         const WGS84 = [47.2101583, 6.952062];
+        const LV95 = [2563138.69, 1228917.22];
+        const LV03 = [563138.65, 228917.28];
 
         const checkCenterInStore = (acceptableDelta = 0.0) => {
             cy.readStoreValue('state.position.center').should(center => {
@@ -37,26 +39,43 @@ describe('Unit test functions for the header / search bar', () => {
                 expect(feature.coordinate[1]).to.be.approximately(coordEpsg3857[1], acceptableDelta);
             })
         }
-        const tryAllInputPossibilities = (x, y, coordType, acceptableDelta = 0.0) => {
-            const mainTitle = `sets center accordingly when ${coordType} coordinates are entered in the search bar`;
-            it(mainTitle, () => {
+        const numberWithThousandSeparator = (x, separator = "'") => {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+        }
+        const standardCheck = (x, y, title, acceptableDelta = 0.0) => {
+            it(title, () => {
                 cy.get(searchbarSelector).paste(`${x} ${y}`);
                 checkCenterInStore(acceptableDelta)
                 checkZoomLevelInStore()
                 checkThatCoordinateAreHighlighted(acceptableDelta)
             })
-            it(`${mainTitle} with comma as a separator`, () => {
+            it(`${title} with comma as a separator`, () => {
                 cy.get(searchbarSelector).paste(`${x}, ${y}`);
                 checkCenterInStore(acceptableDelta)
                 checkZoomLevelInStore()
                 checkThatCoordinateAreHighlighted(acceptableDelta)
             })
-            it(`${mainTitle} with slash as a separator`, () => {
+            it(`${title} with slash as a separator`, () => {
                 cy.get(searchbarSelector).paste(`${x}/${y}`);
                 checkCenterInStore(acceptableDelta)
                 checkZoomLevelInStore()
                 checkThatCoordinateAreHighlighted(acceptableDelta)
             })
+        }
+        const tryAllInputPossibilities = (x, y, coordType, acceptableDelta = 0.0, withBackwardInputCheck = false, withThousandSeparatorCheck = false) => {
+            const mainTitle = `sets center accordingly when ${coordType} coordinates are entered in the search bar`;
+            standardCheck(x, y, mainTitle, acceptableDelta);
+            if (withBackwardInputCheck) {
+                standardCheck(y, x, `${mainTitle} with coordinates entered backward`, acceptableDelta);
+            }
+            if (withThousandSeparatorCheck) {
+                standardCheck(numberWithThousandSeparator(x, '\''), numberWithThousandSeparator(y, '\''), `${mainTitle} with ' as thousand separator`, acceptableDelta);
+                standardCheck(numberWithThousandSeparator(x, ' '), numberWithThousandSeparator(y, ' '), `${mainTitle} with space as thousand separator`, acceptableDelta);
+            }
+            if (withThousandSeparatorCheck && withBackwardInputCheck) {
+                standardCheck(numberWithThousandSeparator(y, '\''), numberWithThousandSeparator(x, '\''), `${mainTitle} with ' as thousand separator`, acceptableDelta);
+                standardCheck(numberWithThousandSeparator(y, ' '), numberWithThousandSeparator(x, ' '), `${mainTitle} with space as thousand separator`, acceptableDelta);
+            }
         }
 
         context('EPSG:4326 (Web-Mercator) inputs', () => {
@@ -69,13 +88,11 @@ describe('Unit test functions for the header / search bar', () => {
         })
 
         context('EPSG:2056 (LV95) inputs', () => {
-            const LV95 = [2563138.69, 1228917.22];
-            tryAllInputPossibilities(LV95[0], LV95[1], 'LV95')
+            tryAllInputPossibilities(LV95[0], LV95[1], 'LV95', 0.0, true, true)
         })
 
         context('EPSG:21781 (LV03) inputs', () => {
-            const LV03 = [563138.65, 228917.28];
-            tryAllInputPossibilities(LV03[0], LV03[1], 'LV03', 0.1)
+            tryAllInputPossibilities(LV03[0], LV03[1], 'LV03', 0.1, true, true)
         })
 
         context('What3Words input', () => {

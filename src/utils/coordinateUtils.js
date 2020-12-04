@@ -12,24 +12,52 @@ const REGEX_MERCATOR_WITH_DEGREES = /^\s*([\d]{1,3})°\s*([\d.,]+)'\s*[,/]?\s*([
 const REGEX_MERCATOR_WITH_DEGREES_MINUTES = /^\s*([\d]{1,3})°\s*([\d]{1,2})'\s*([\d.]+)['"]+\s*[,/]?\s*([\d]{1,3})°\s*([\d.]+)'\s*([\d.]+)['"]+\s*$/i;
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
-const REGEX_METRIC_COORDINATES = /^\s*([\d .']{5,})[\t ,./]+([\d .,']{5,})/i;
+const REGEX_METRIC_COORDINATES = /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i;
 
 // Military Grid Reference System (MGRS)
 const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i;
 
+const LV95_BOUNDS = {
+    x: {
+        lower: 2485071.58,
+        upper: 2828515.82,
+    },
+    y: {
+        lower: 1075346.31,
+        upper: 1299941.79,
+    },
+};
+const LV03_BOUNDS = {
+    x: {
+        lower: 485071.54,
+        upper: 828515.78,
+    },
+    y: {
+        lower: 75346.36,
+        upper: 299941.84,
+    },
+};
+
 const numericalExtractor = regexMatches => {
-    const x = Number(regexMatches[1].replace(/'/g, ''));
-    const y = Number(regexMatches[2].replace(/'/g, ''));
+    // removing thousand separators
+    const x = Number(regexMatches[1].replace(/[' ]/g, ''));
+    const y = Number(regexMatches[2].replace(/[' ]/g, ''));
     if (Number.isNaN(x) || Number.isNaN(y)) {
         return undefined;
     }
     // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
     // checking LV95 bounds
-    if (x > 2485071.58 && x < 2828515.82 && y > 1075346.31 && y < 1299941.79) {
+    if (x > LV95_BOUNDS.x.lower && x < LV95_BOUNDS.x.upper && y > LV95_BOUNDS.y.lower && y < LV95_BOUNDS.y.upper) {
         return proj4('EPSG:2056', proj4.WGS84, [x, y]);
+    // checking LV95 backward
+    } else if (y > LV95_BOUNDS.x.lower && y < LV95_BOUNDS.x.upper && x > LV95_BOUNDS.y.lower && x < LV95_BOUNDS.y.upper) {
+        return proj4('EPSG:2056', proj4.WGS84, [y, x]);
     // checking LV03 bounds
-    } else if (x > 485071.54 && x < 828515.78 && y > 75346.36 && y < 299941.84) {
+    } else if (x > LV03_BOUNDS.x.lower && x < LV03_BOUNDS.x.upper && y > LV03_BOUNDS.y.lower && y < LV03_BOUNDS.y.upper) {
         return proj4('EPSG:21781', proj4.WGS84, [x, y]);
+    // checking LV03 backward
+    } else if (y > LV03_BOUNDS.x.lower && y < LV03_BOUNDS.x.upper && x > LV03_BOUNDS.y.lower && x < LV03_BOUNDS.y.upper) {
+        return proj4('EPSG:21781', proj4.WGS84, [y, x]);
     }
     // if nothing has been detected, we let it go "as is", it should be WGS84 already (we inverse lat/lon to lon/lat
     // as user inputs support lat/lon but the app behind function with lon/lat coordinates, especially proj4js)
