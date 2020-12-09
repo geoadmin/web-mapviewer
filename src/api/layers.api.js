@@ -14,26 +14,28 @@ export const LayerTypes = {
 
 /**
  * @class
- * @name layers:TimeSeriesConfig
+ * @name layers:TimeConfig
  *
  * Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will determine which "timestamp" to add
  * to the URL used to request tiles/image.
  */
-export class TimeSeriesConfig {
+export class TimeConfig {
 
     /**
      * @param {String} behaviour how the default time series is chosen
      * @param {Array<String>} series list of series identifier (that can be placed in the WMTS URL)
      */
-    constructor(behaviour = "last", series = []) {
+    constructor(behaviour = null, series = []) {
         this.behaviour = behaviour;
-        this.series = series;
-        this.currentTimestamp = this.behaviour;
+        this.series = [...series];
         if (this.behaviour === 'last' && this.series.length > 0) {
-            switch (this.behaviour) {
-                case 'last':
-                    this.currentTimestamp = this.series[0];
-            }
+            this.currentTimestamp = this.series[0];
+        } else if (this.behaviour) {
+            this.currentTimestamp = this.behaviour;
+        } else if (this.series.length > 0) {
+            this.currentTimestamp = this.series[0];
+        } else {
+            this.currentTimestamp = 'current';
         }
     }
 }
@@ -89,7 +91,7 @@ export class WMTSLayer extends Layer {
      * @param {String} id layer ID in the BOD
      * @param {Number} opacity opacity value between 0.0 (transparent) and 1.0 (visible)
      * @param {String} format image format for this WMTS layer (jpeg or png)
-     * @param {TimeSeriesConfig} timeSeriesConfig config for layer that are time enabled
+     * @param {TimeConfig} timeConfig settings telling which timestamp has to be used when request tiles to the backend
      * @param {Boolean} isBackground if this layer should be treated as a background layer
      * @param {String} baseURL the base URL to be used to request tiles (can use the {0-9} notation to describe many available backends)
      */
@@ -97,20 +99,16 @@ export class WMTSLayer extends Layer {
                 id= '',
                 opacity= 1.0,
                 format = 'png',
-                timeSeriesConfig = null,
+                timeConfig = null,
                 isBackground = false,
                 baseURL = null) {
         super(name, LayerTypes.WMTS, id, opacity, isBackground, baseURL);
         this.format = format;
-        this.timeSeriesConfig = timeSeriesConfig;
+        this.timeConfig = timeConfig;
     }
 
     getURL() {
-        let timestamp = 'current';
-        if (this.timeSeriesConfig) {
-            timestamp = this.timeSeriesConfig.currentTimestamp
-        }
-        return `${this.baseURL}1.0.0/${this.id}/default/${timestamp}/3857/{z}/{x}/{y}.${this.format}`;
+        return `${this.baseURL}1.0.0/${this.id}/default/${this.timeConfig.currentTimestamp}/3857/{z}/{x}/{y}.${this.format}`;
     }
 
     /**
@@ -149,16 +147,22 @@ export class WMSLayer extends Layer {
      * @param {Number} opacity the opacity to apply to this layer
      * @param {String} baseURL the backend to call for tiles
      * @param {String} format in which image format the backend must be requested
+     * @param {TimeConfig} timeConfig settings telling which year has to be used when request tiles to the backend
      * @param {Number} gutter how much of a gutter we want (specific for tiled WMS, if unset this layer will be a single tile WMS)
      */
-    constructor(name, id, opacity, baseURL, format, gutter = -1) {
+    constructor(name, id, opacity, baseURL, format, timeConfig, gutter = -1) {
         super(name, LayerTypes.WMS, id, opacity, false, baseURL);
         this.format = format;
+        this.timeConfig = timeConfig;
         this.gutter = gutter;
     }
 
     getURL() {
-        return `${this.baseURL ? this.baseURL : WMS_BASE_URL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=en`;
+        const urlWithoutTime = `${this.baseURL ? this.baseURL : WMS_BASE_URL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=en`;
+        if (this.timeConfig && this.timeConfig.currentTimestamp !== 'all') {
+            return urlWithoutTime + '&TIME=' + this.timeConfig.currentTimestamp;
+        }
+        return urlWithoutTime;
     }
 }
 
@@ -194,11 +198,11 @@ export class AggregateLayer extends Layer {
      * @param {String} name the name of this layer in the given lang
      * @param {String} id the layer ID in the BOD
      * @param {Number} opacity the opacity to be applied to this layer
-     * @param {TimeSeriesConfig} timeSeriesConfig time series config (if available)
+     * @param {TimeConfig} timeConfig time series config (if available)
      */
-    constructor(name, id, opacity, timeSeriesConfig) {
+    constructor(name, id, opacity, timeConfig) {
         super(name, LayerTypes.AGGREGATE, id, opacity);
-        this.timeSeriesConfig = timeSeriesConfig;
+        this.timeConfig = timeConfig;
         this.subLayers = [];
     }
 
@@ -218,16 +222,13 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
     let layer = undefined;
     if (layerConfig) {
         const { label: name, type, opacity, format, background } = layerConfig;
-        let timeEnableConfig = null;
-        if (layerConfig.timeEnabled) {
-            timeEnableConfig = new TimeSeriesConfig(layerConfig.timeBehaviour, layerConfig.timestamps);
-        }
+        const timeConfig = new TimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps);
         switch(type.toLowerCase()) {
             case 'wmts':
-                layer = new WMTSLayer(name, id, opacity, format, timeEnableConfig, !!background, WMTS_BASE_URL);
+                layer = new WMTSLayer(name, id, opacity, format, timeConfig, !!background, WMTS_BASE_URL);
                 break;
             case 'wms':
-                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format, layerConfig.gutter);
+                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format, timeConfig, layerConfig.gutter);
                 break;
             case 'geojson':
                 layer = new GeoJsonLayer(name, id, opacity, layerConfig.geojsonUrl, layerConfig.styleUrl);
@@ -253,7 +254,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
                 // }
 
                 // here id would be "parent.layer" in the example above
-                layer = new AggregateLayer(name, id, opacity, timeEnableConfig);
+                layer = new AggregateLayer(name, id, opacity, timeConfig);
                 layerConfig.subLayersIds.forEach(subLayerId => {
                     // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
                     const subLayerRawConfig = allOtherLayers[subLayerId];
