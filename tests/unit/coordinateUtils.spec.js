@@ -5,34 +5,13 @@ import setupProj4 from "@/utils/setupProj4";
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4();
 
-const numberWithThousandSeparator = (x, separator = "'") => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+const numberWithThousandSeparator = (number, separator = "'") => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
 
 describe('Unit test functions from coordinateUtils.js', () => {
 
     context('coordinateFromString(text)', () => {
-
-        it('Returns undefined when anything else than numbers, coma, whitespaces and point is in the text', () => {
-            expect(coordinateFromString('test')).to.be.undefined;
-            expect(coordinateFromString('47.0, 7.4test')).to.eq(undefined, 'must not accept text after the coordinates');
-            expect(coordinateFromString('test47.0, 7.4')).to.eq(undefined, 'must not accept text before the coordinates');
-        })
-        it('Returns undefined when the given text is invalid (null or not a string)', () => {
-            expect(coordinateFromString(null)).to.be.undefined;
-            expect(coordinateFromString(1234)).to.be.undefined;
-            expect(coordinateFromString([45.6, 7.4])).to.be.undefined;
-            expect(coordinateFromString({lon: 7, lat: 45})).to.be.undefined;
-        });
-        it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', () => {
-            expect(coordinateFromString('47.0')).to.be.undefined;
-            expect(coordinateFromString('47.0,')).to.be.undefined;
-            expect(coordinateFromString('47.0,test')).to.be.undefined;
-            expect(coordinateFromString('47.0, test')).to.be.undefined;
-        })
-        it('Returns undefined when coordinates entered don\'t match any projection bur are technically valid (two numbers)', () => {
-            expect(coordinateFromString('600000, 20000')).to.be.undefined;
-        })
 
         const checkText = (text, expected, message, acceptableDelta = 0) => {
             const result = coordinateFromString(text);
@@ -41,97 +20,143 @@ describe('Unit test functions from coordinateUtils.js', () => {
             expect(result[0]).to.approximately(expected[0], acceptableDelta, message + '\nx result: ' + result[0] + '\n');
             expect(result[1]).to.approximately(expected[1], acceptableDelta, message + '\ny result: ' + result[1] + '\n');
         }
-        const checkXY = (x, y, xNumericalValue = x, yNumericalValue = y, acceptableDelta = 0) => {
-            const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xNumericalValue}, expected y: ${yNumericalValue}`;
+        const checkXY = (x, y, xExpectedValue, yExpectedValue, acceptableDelta = 0) => {
+            const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xExpectedValue}, expected y: ${yExpectedValue}`;
             // checking with simple space and tab
-            checkText(`${x} ${y}`, [xNumericalValue, yNumericalValue], 'fails with space in between\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x}\t${y}`, [xNumericalValue, yNumericalValue], 'fails with tabs\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} ${y}`, [xExpectedValue, yExpectedValue], 'fails with space in between\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}\t${y}`, [xExpectedValue, yExpectedValue], 'fails with tabs\n' + valueOutputInCaseOfErr, acceptableDelta);
             // checking while placing separators with and without spaces before/after
-            checkText(`${x},${y}`, [xNumericalValue, yNumericalValue], 'fails with coma\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x} ,${y}`, [xNumericalValue, yNumericalValue], 'fails with space and coma\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x}, ${y}`, [xNumericalValue, yNumericalValue], 'fails with coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x} , ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x}/${y}`, [xNumericalValue, yNumericalValue], 'fails with slash\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x} /${y}`, [xNumericalValue, yNumericalValue], 'fails with space and slash\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x}/ ${y}`, [xNumericalValue, yNumericalValue], 'fails with slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
-            checkText(`${x} / ${y}`, [xNumericalValue, yNumericalValue], 'fails with space, slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x},${y}`, [xExpectedValue, yExpectedValue], 'fails with coma\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} ,${y}`, [xExpectedValue, yExpectedValue], 'fails with space and coma\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}, ${y}`, [xExpectedValue, yExpectedValue], 'fails with coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} , ${y}`, [xExpectedValue, yExpectedValue], 'fails with space, coma and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}/${y}`, [xExpectedValue, yExpectedValue], 'fails with slash\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} /${y}`, [xExpectedValue, yExpectedValue], 'fails with space and slash\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x}/ ${y}`, [xExpectedValue, yExpectedValue], 'fails with slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
+            checkText(`${x} / ${y}`, [xExpectedValue, yExpectedValue], 'fails with space, slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
         }
 
-        // creating values that points to the same exact location in many projections
-        const x = 773900;
-        const y = 5976445;
+        // values (in EPSG:3857) used throughout next tests (see helper functions below)
+        const EPSG3857 = [773900, 5976445]
 
-        // same place but in other projections (used https://epsg.io for transformations)
-        const LV95 = [2563138.69, 1228917.22];
-        const LV03 = [563138.65, 228917.28];
+        context('Testing non valid inputs', () => {
+            it('Returns undefined when anything else than numbers, coma, whitespaces and point is in the text', () => {
+                expect(coordinateFromString('test')).to.be.undefined;
+                expect(coordinateFromString('47.0, 7.4test')).to.eq(undefined, 'must not accept text after the coordinates');
+                expect(coordinateFromString('test47.0, 7.4')).to.eq(undefined, 'must not accept text before the coordinates');
+            })
+            it('Returns undefined when the given text is invalid (null or not a string)', () => {
+                expect(coordinateFromString(null)).to.be.undefined;
+                expect(coordinateFromString(1234)).to.be.undefined;
+                expect(coordinateFromString([45.6, 7.4])).to.be.undefined;
+                expect(coordinateFromString({lon: 7, lat: 45})).to.be.undefined;
+            });
+            it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', () => {
+                expect(coordinateFromString('47.0')).to.be.undefined;
+                expect(coordinateFromString('47.0,')).to.be.undefined;
+                expect(coordinateFromString('47.0,test')).to.be.undefined;
+                expect(coordinateFromString('47.0, test')).to.be.undefined;
+            })
+            it('Returns undefined when coordinates entered don\'t match any projection bur are technically valid (two numbers)', () => {
+                expect(coordinateFromString('600000, 20000')).to.be.undefined;
+            })
+        })
+        context('EPSG:4326 (WGS84)', () => {
+            const acceptableDelta = 0.1;
+            // lat/lon same place as [x,y] (used https://epsg.io for transformations)
+            const WGS84 = [47.2101583, 6.952062];
+            const WGS84_DM = ['47°12.6095\'', '6°57.12372\'']
+            const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
 
-        // lat/lon (also got values from https://espg.io)
-        const WGS84 = [47.2101583, 6.952062];
-        const WGS84_DM = ['47°12.6095\'', '6°57.12372\'']
-        const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
-        // value from https://www.earthpoint.us/Convert.aspx
-        const MGRS = "32TLT 44918 30553";
+            it('Returns coordinates with degree decimal (DD) format', () => {
+                checkXY(WGS84[0], WGS84[1], EPSG3857[0], EPSG3857[1], acceptableDelta)
+            })
+            it('Returns coordinates with DM (degree/minutes) format', () => {
+                checkXY(WGS84_DM[0], WGS84_DM[1], EPSG3857[0], EPSG3857[1], acceptableDelta);
+                const latWithSpaceBetweenDegAndMin = WGS84_DM[0].replace(/°/g, '° ');
+                const lonWithSpaceBetweenDegAndMin = WGS84_DM[1].replace(/°/g, '° ');
+                checkXY(latWithSpaceBetweenDegAndMin, lonWithSpaceBetweenDegAndMin, EPSG3857[0], EPSG3857[1]);
+            })
+            it('Returns coordinates with DMS (degree/minutes/seconds) format', () => {
+                const latWithSpaceBetweenDegAndMin = WGS84_DMS[0].replace(/°/g, '° ');
+                const lonWithSpaceBetweenDegAndMin = WGS84_DMS[1].replace(/°/g, '° ');
 
-        it('Returns coordinates from EPSG:4326 (Web-mercator)', () => {
-            checkXY(WGS84[0], WGS84[1], x, y, 0.1)
-        })
-        it('Returns coordinates from EPSG:4326 (Web-mercator) with degree/minutes notation', () => {
-            checkXY(WGS84_DM[0], WGS84_DM[1], x, y, 0.1);
-            const latWithSpaceBetweenDegAndMin = WGS84_DM[0].replace(/°/g, '° ');
-            const lonWithSpaceBetweenDegAndMin = WGS84_DM[1].replace(/°/g, '° ');
-            checkXY(latWithSpaceBetweenDegAndMin, lonWithSpaceBetweenDegAndMin, x, y);
-        })
-        it('Returns coordinates from EPSG:4326 (Web-mercator) with degree/minutes/seconds notation', () => {
-            const acceptedDelta = 0.1;
+                const latWithSpaceBetweenDegAndMinAndSec = latWithSpaceBetweenDegAndMin.replace(/'/g, '\' ');
+                const lonWithSpaceBetweenDegAndMinAndSec = lonWithSpaceBetweenDegAndMin.replace(/'/g, '\' ');
 
-            const latWithSpaceBetweenDegAndMin = WGS84_DMS[0].replace(/°/g, '° ');
-            const lonWithSpaceBetweenDegAndMin = WGS84_DMS[1].replace(/°/g, '° ');
+                // double quote notation for seconds
+                checkXY(WGS84_DMS[0], WGS84_DMS[1], EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(latWithSpaceBetweenDegAndMin, lonWithSpaceBetweenDegAndMin, EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(latWithSpaceBetweenDegAndMinAndSec, lonWithSpaceBetweenDegAndMinAndSec, EPSG3857[0], EPSG3857[1], acceptableDelta);
 
-            const latWithSpaceBetweenDegAndMinAndSec = latWithSpaceBetweenDegAndMin.replace(/'/g, '\' ');
-            const lonWithSpaceBetweenDegAndMinAndSec = lonWithSpaceBetweenDegAndMin.replace(/'/g, '\' ');
+                // two single quote notation for seconds
+                checkXY(WGS84_DMS[0].replace(/"/g, '\'\''), WGS84_DMS[1].replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(latWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(latWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinate with DMS format with cardinal point information', () => {
+                const latWithCardinalNotation = WGS84_DMS[0] + 'N';
+                const lonWithCardinalNotation = WGS84_DMS[1] + 'E';
+                checkXY(latWithCardinalNotation, lonWithCardinalNotation, EPSG3857[0], EPSG3857[1], acceptableDelta)
+                checkXY(lonWithCardinalNotation, latWithCardinalNotation, EPSG3857[0], EPSG3857[1], acceptableDelta)
+            })
+            it('Returns coordinate with DMS format with cardinal point information in the south west hemisphere', () => {
+                const pointInSouthAmericaInEPSG3857 = [-6504867, -4110554];
+                const pointInSouthAmericaInEPSG4326 = ['34°36\'23.937"S', '58°26\'3.172"W'];
+                checkXY(pointInSouthAmericaInEPSG4326[0], pointInSouthAmericaInEPSG4326[1], pointInSouthAmericaInEPSG3857[0], pointInSouthAmericaInEPSG3857[1], acceptableDelta)
+                checkXY(pointInSouthAmericaInEPSG4326[1], pointInSouthAmericaInEPSG4326[0], pointInSouthAmericaInEPSG3857[0], pointInSouthAmericaInEPSG3857[1], acceptableDelta)
+            })
+            it('Returns coordinate with DMS format with cardinal point information in the north west hemisphere', () => {
+                const pointInNorthAmericaInEPSG3857 = [-9457276, 4961988];
+                const pointInNorthAmericaInEPSG4326 = ['40°39\'27.846"N', '84°57\'22.161"W'];
+                checkXY(pointInNorthAmericaInEPSG4326[0], pointInNorthAmericaInEPSG4326[1], pointInNorthAmericaInEPSG3857[0], pointInNorthAmericaInEPSG3857[1], acceptableDelta)
+                checkXY(pointInNorthAmericaInEPSG4326[1], pointInNorthAmericaInEPSG4326[0], pointInNorthAmericaInEPSG3857[0], pointInNorthAmericaInEPSG3857[1], acceptableDelta)
+            })
+            it('Returns coordinate with DMS format with cardinal point information in the south east hemisphere', () => {
+                const pointInOceaniaInEPSG3857 = [12894439, -3757563];
+                const pointInOceaniaInEPSG4326 = ['31°57\'22.332"S', '115°49\'57.779"E'];
+                checkXY(pointInOceaniaInEPSG4326[0], pointInOceaniaInEPSG4326[1], pointInOceaniaInEPSG3857[0], pointInOceaniaInEPSG3857[1], acceptableDelta)
+                checkXY(pointInOceaniaInEPSG4326[1], pointInOceaniaInEPSG4326[0], pointInOceaniaInEPSG3857[0], pointInOceaniaInEPSG3857[1], acceptableDelta)
+            })
+        });
 
-            // double quote notation for seconds
-            checkXY(WGS84_DMS[0], WGS84_DMS[1], x, y, acceptedDelta);
-            checkXY(latWithSpaceBetweenDegAndMin, lonWithSpaceBetweenDegAndMin, x, y, acceptedDelta);
-            checkXY(latWithSpaceBetweenDegAndMinAndSec, lonWithSpaceBetweenDegAndMinAndSec, x, y, acceptedDelta);
+        const checkSwissCoordinateSystem = (xInput, yInput, acceptableDelta) => {
+            it('Returns coordinates when input is valid', () => {
+                checkXY(xInput, yInput, EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinates when input is entered backward', () => {
+                checkXY(yInput, xInput, EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinates when there\'s thousands separator', () => {
+                checkXY(numberWithThousandSeparator(xInput), numberWithThousandSeparator(yInput), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(xInput, ' '), numberWithThousandSeparator(yInput, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinates when there\'s thousands separator and input is entered backward', () => {
+                checkXY(numberWithThousandSeparator(yInput), numberWithThousandSeparator(xInput), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(yInput, ' '), numberWithThousandSeparator(xInput, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+        }
 
-            // two single quote notation for seconds
-            checkXY(WGS84_DMS[0].replace(/"/g, '\'\''), WGS84_DMS[1].replace(/"/g, '\'\''), x, y, acceptedDelta);
-            checkXY(latWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), x, y, acceptedDelta);
-            checkXY(latWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), x, y, acceptedDelta);
-        })
-        it('Returns coordinates from EPSG:2056 (LV95)', () => {
-            checkXY(LV95[0], LV95[1], x, y, 0.1);
-        })
-        it('Returns coordinates from EPSG:2056 (LV95) when entered backward', () => {
-            checkXY(LV95[1], LV95[0], x, y, 0.1);
-        })
-        it('Returns coordinates from EPSG:2056 (LV95) even when there\'s thousands separator', () => {
-            checkXY(numberWithThousandSeparator(LV95[0]), numberWithThousandSeparator(LV95[1]), x, y, 0.1);
-            checkXY(numberWithThousandSeparator(LV95[0], ' '), numberWithThousandSeparator(LV95[1], ' '), x, y, 0.1);
-        })
-        it('Returns coordinates from EPSG:2056 (LV95) even when there\'s thousands separator when entered backward', () => {
-            checkXY(numberWithThousandSeparator(LV95[1]), numberWithThousandSeparator(LV95[0]), x, y, 0.1);
-            checkXY(numberWithThousandSeparator(LV95[1], ' '), numberWithThousandSeparator(LV95[0], ' '), x, y, 0.1);
-        })
-        it('Returns coordinate from EPSG:21781 (LV03)', () => {
-            checkXY(LV03[0], LV03[1], x, y, 0.1);
-        })
-        it('Returns coordinate from EPSG:21781 (LV03) when entered backward', () => {
-            checkXY(LV03[1], LV03[0], x, y, 0.1);
-        })
-        it('Returns coordinate from EPSG:21781 (LV03) with thousands separator', () => {
-            checkXY(numberWithThousandSeparator(LV03[0]), numberWithThousandSeparator(LV03[1]), x, y, 0.1);
-            checkXY(numberWithThousandSeparator(LV03[0], ' '), numberWithThousandSeparator(LV03[1], ' '), x, y, 0.1);
-        })
-        it('Returns coordinate from EPSG:21781 (LV03) with thousands separator when entered backward', () => {
-            checkXY(numberWithThousandSeparator(LV03[1]), numberWithThousandSeparator(LV03[0]), x, y, 0.1);
-            checkXY(numberWithThousandSeparator(LV03[1], ' '), numberWithThousandSeparator(LV03[0], ' '), x, y, 0.1);
-        })
-        it('Returns coordinates in EPSG:4326 when Military Grid Reference System (MGRS) coords are entered', () => {
-            // as MGRS is a grid based system, what is return is essentially a 1 meter box.
-            // So depending which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
-            checkText(MGRS, [x, y], 'MGRS not supported', 1);
+        context('EPSG:2056 (LV95)', () => {
+            // same place as [x,y] (used https://epsg.io for transformations)
+            const LV95 = [2563138.69, 1228917.22];
+            checkSwissCoordinateSystem(LV95[0], LV95[1], 0.1)
+        });
+
+        context('EPSG:21781 (LV03)', () => {
+            // same place as [x,y] (used https://epsg.io for transformations)
+            const LV03 = [563138.65, 228917.28];
+            checkSwissCoordinateSystem(LV03[0], LV03[1], 0.1)
+        });
+
+        context('Military Grid Reference System (MGRS)', () => {
+            // value from https://www.earthpoint.us/Convert.aspx
+            const MGRS = "32TLT 44918 30553";
+            it('Returns coordinates in EPSG:4326 when MGRS string is entered', () => {
+                // as MGRS is a grid based system, what is return is essentially a 1 meter box.
+                // So depending which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
+                checkText(MGRS, EPSG3857, 'MGRS not supported', 1);
+            })
         })
     });
 });

@@ -84,9 +84,12 @@ describe('Test the search bar', () => {
             // the search bar only supports input in lat/lon format, so X is lat
             const WGS84_DM = ['47°12.6095\'', '6°57.12372\'']
             const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
+            const WGS84_DMS_WITH_CARDINAL = ['47°12\'36.57"N', '6°57\'7.423"E']
             tryAllInputPossibilities(WGS84[0], WGS84[1], 'DD format')
             tryAllInputPossibilities(WGS84_DM[0], WGS84_DM[1], 'DM format')
             tryAllInputPossibilities(WGS84_DMS[0], WGS84_DMS[1], 'DMS format')
+            tryAllInputPossibilities(WGS84_DMS_WITH_CARDINAL[0], WGS84_DMS_WITH_CARDINAL[1], 'DMS format with cardinal point')
+            tryAllInputPossibilities(WGS84_DMS_WITH_CARDINAL[1], WGS84_DMS_WITH_CARDINAL[0], 'inverted DMS format with cardinal point')
         })
 
         context('EPSG:2056 (LV95) inputs', () => {
@@ -136,7 +139,7 @@ describe('Test the search bar', () => {
             })
         })
 
-        it('Keeps the dropped pin when the search bar is cleared', () => {
+        it('Remove the dropped pin when the search bar is cleared', () => {
             cy.get(searchbarSelector).paste(`${LV95[0]} ${LV95[1]}`)
             checkCenterInStore();
             checkZoomLevelInStore();
@@ -144,10 +147,8 @@ describe('Test the search bar', () => {
             cy.get(searchbarClearSelector).click();
             // checking that search bar has been emptied
             cy.readStoreValue('state.search.query').should('be.empty');
-            // checking that the dropped pin is still there
-            checkCenterInStore();
-            checkZoomLevelInStore();
-            checkThatCoordinateAreHighlighted();
+            // checking that the dropped pin has been removed
+            cy.readStoreValue('state.map.pinnedLocation').should('be.null');
         })
     })
 })

@@ -46,6 +46,8 @@ const actions = {
                     }
                 })
             }
+        } else if (query.length === 0) {
+            dispatch('setPinnedLocation', null);
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),

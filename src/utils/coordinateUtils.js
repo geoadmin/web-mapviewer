@@ -10,6 +10,8 @@ const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,\/]+\s*([\d]{1,3}[.\d]+)\
 const REGEX_MERCATOR_WITH_DEGREES = /^\s*([\d]{1,3})°\s*([\d.,]+)'\s*[,/]?\s*([\d]{1,3})°\s*([\d.,]+)'\s*$/i;
 // 47°38'48'' 7°38'48'' or 47°38'48" 7°38'48"
 const REGEX_MERCATOR_WITH_DEGREES_MINUTES = /^\s*([\d]{1,3})°\s*([\d]{1,2})'\s*([\d.]+)['"]+\s*[,/]?\s*([\d]{1,3})°\s*([\d.]+)'\s*([\d.]+)['"]+\s*$/i;
+// 47°38'48''N 7°38'48''E or 47°38'48"N 7°38'48"E
+const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT = /^\s*([\d]{1,3})°\s*([\d]{1,2})'\s*([\d.]+)['"]+([NSEW]?)\s*[,/]?\s*([\d]{1,3})°\s*([\d.]+)'\s*([\d.]+)['"]+([NSEW]?)\s*$/i;
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES = /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i;
@@ -83,6 +85,45 @@ const webmercatorExtractor = regexMatches => {
                 Number(regexMatches[4]) + Number(regexMatches[5]) / 60.0 + Number(regexMatches[6]) / 3600.0,
                 Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0 + Number(regexMatches[3]) / 3600.0,
             ]
+    }
+    if (regexMatches.length === 9) {
+        // 8 matches + global match, i.e. (47)°(5)'(41.61)"(N), (8)°(4)'(6.32)"(E)
+        const firstNumber = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0 + Number(regexMatches[3]) / 3600.0;
+        const firstCardinal = regexMatches[4];
+        const secondNumber = Number(regexMatches[5]) + Number(regexMatches[6]) / 60.0 + Number(regexMatches[7]) / 3600.0;
+        const secondCardinal = regexMatches[8];
+        let lat, lon;
+        switch (firstCardinal.toUpperCase()) {
+            case 'N':
+                lat = firstNumber;
+                break;
+            case 'S':
+                lat = -firstNumber;
+                break;
+            case 'E':
+                lon = firstNumber;
+                break;
+            case 'W':
+                lon = -firstNumber;
+                break;
+        }
+        switch (secondCardinal.toUpperCase()) {
+            case 'N':
+                lat = secondNumber;
+                break;
+            case 'S':
+                lat = -secondNumber;
+                break;
+            case 'E':
+                lon = secondNumber;
+                break;
+            case 'W':
+                lon = -secondNumber;
+                break;
+        }
+        if (lon && lat) {
+            return [lon, lat];
+        }
     }
     return null;
 }
@@ -160,6 +201,7 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
         { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
         { regex: REGEX_MERCATOR_WITH_DEGREES, extractor: webmercatorExtractor },
         { regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES, extractor: webmercatorExtractor },
+        { regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT, extractor: webmercatorExtractor },
         { regex: REGEX_MILITARY_GRID, extractor: mgrsExtractor },
     ].map(config => {
         return executeAndReturn(config.regex,
