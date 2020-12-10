@@ -148,17 +148,26 @@ export class WMSLayer extends Layer {
      * @param {String} baseURL the backend to call for tiles
      * @param {String} format in which image format the backend must be requested
      * @param {TimeConfig} timeConfig settings telling which year has to be used when request tiles to the backend
+     * @param {String} lang the lang ISO code to use when requesting the backend
      * @param {Number} gutter how much of a gutter we want (specific for tiled WMS, if unset this layer will be a single tile WMS)
      */
-    constructor(name, id, opacity, baseURL, format, timeConfig, gutter = -1) {
+    constructor(name,
+                id,
+                opacity,
+                baseURL,
+                format,
+                timeConfig,
+                lang = 'en',
+                gutter = -1) {
         super(name, LayerTypes.WMS, id, opacity, false, baseURL);
         this.format = format;
         this.timeConfig = timeConfig;
+        this.lang = lang;
         this.gutter = gutter;
     }
 
     getURL() {
-        const urlWithoutTime = `${this.baseURL ? this.baseURL : WMS_BASE_URL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=en`;
+        const urlWithoutTime = `${this.baseURL ? this.baseURL : WMS_BASE_URL}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${this.format}&TRANSPARENT=true&LAYERS=${this.id}&LANG=${this.lang}`;
         if (this.timeConfig && this.timeConfig.currentTimestamp !== 'all') {
             return urlWithoutTime + '&TIME=' + this.timeConfig.currentTimestamp;
         }
@@ -178,6 +187,9 @@ export class GeoJsonLayer extends Layer {
     }
 }
 
+/**
+ * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown (shouldn't overlap other sub-layers from the aggregate)
+ */
 export class AggregateSubLayer {
     /**
      * @param {String} subLayerId the ID used in the BOD to describe this sub-layer
@@ -193,6 +205,10 @@ export class AggregateSubLayer {
     }
 }
 
+/**
+ * An aggregate layer is a combination of 2 or more layers where only one of them will be shown at a time.
+ * Which one is shown is decided by the map resolution, and by the min/max resolution of all sub-layer's config
+ */
 export class AggregateLayer extends Layer {
     /**
      * @param {String} name the name of this layer in the given lang
@@ -218,7 +234,7 @@ export class AggregateLayer extends Layer {
     }
 }
 
-const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
+const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
     let layer = undefined;
     if (layerConfig) {
         const { label: name, type, opacity, format, background } = layerConfig;
@@ -228,7 +244,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
                 layer = new WMTSLayer(name, id, opacity, format, timeConfig, !!background, WMTS_BASE_URL);
                 break;
             case 'wms':
-                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format, timeConfig, layerConfig.gutter);
+                layer = new WMSLayer(name, id, opacity, layerConfig.wmsUrl, format, timeConfig, lang, layerConfig.gutter);
                 break;
             case 'geojson':
                 layer = new GeoJsonLayer(name, id, opacity, layerConfig.geojsonUrl, layerConfig.styleUrl);
@@ -260,7 +276,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers) => {
                     const subLayerRawConfig = allOtherLayers[subLayerId];
                     // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                     // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
-                    const subLayer = generateClassForLayerConfig(subLayerRawConfig, subLayerRawConfig.serverLayerName, allOtherLayers);
+                    const subLayer = generateClassForLayerConfig(subLayerRawConfig, subLayerRawConfig.serverLayerName, allOtherLayers, lang);
                     if (subLayer) {
                         layer.addSubLayer(new AggregateSubLayer(subLayerId,
                                                                 subLayer,

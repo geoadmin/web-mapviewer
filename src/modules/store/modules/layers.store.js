@@ -6,7 +6,7 @@ const state = {
 };
 
 const getters = {
-    visibleLayers: state => state.activeLayers.filter(layer => layer.visible && !layer.fetching),
+    visibleLayers: state => state.activeLayers.filter(layer => layer.visible),
     backgroundLayers: state => state.config.filter(layer => layer.isBackground && !layer.isSpecificFor3D),
     currentBackgroundLayer: (state, getters) => {
         if (!state.backgroundLayerId) {
@@ -25,7 +25,12 @@ const actions = {
     addLayer: ({commit}, layerId) => commit('addLayer', layerId),
     addLocation: ({commit}, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
     removeLayer: ({commit}, layerId) => commit('removeLayer', layerId),
-    setLayerConfig: ({commit}, config) => commit('setLayerConfig', config),
+    setLayerConfig: ({commit, state}, config) => {
+        const activeLayerIdsBeforeConfigChange = state.activeLayers.map(layer => layer.id)
+        commit('clearLayers');
+        commit('setLayerConfig', config);
+        activeLayerIdsBeforeConfigChange.forEach(layerId => commit('addLayer', layerId));
+    },
     setBackground: ({commit}, bgLayerId) => commit('setBackground', bgLayerId),
 };
 
@@ -49,6 +54,7 @@ const mutations = {
         }
     },
     addLocation: (state, {x, y}) => state.pinLocation = { x, y },
+    clearLayers: (state) => state.activeLayers = [],
     removeLayer: (state, layerId) => state.activeLayers = state.activeLayers.filter(layer => layer.id !== layerId),
     setLayerConfig: (state, config) => state.config = config,
     setBackground: (state, bgLayerId) => state.backgroundLayerId = bgLayerId,
