@@ -1,6 +1,20 @@
 <template>
   <div>
-    <MaplibreWMTSLayer v-if="layerConfig.type === LayerTypes.WMTS" :layer="layerConfig" :z-index="zIndex" />
+    <MaplibreWMTSLayer v-if="layerConfig.type === LayerTypes.WMTS"
+                       :layer-id="layerConfig.id"
+                       :urls="layerConfig.getURLs()"
+                       :opacity="layerConfig.opacity"
+                       :z-index="zIndex" />
+    <MaplibreWMSLayer v-if="layerConfig.type === LayerTypes.WMS"
+                      :layer-id="layerConfig.id"
+                      :url="layerConfig.getURL()"
+                      :opacity="layerConfig.opacity"
+                      :z-index="zIndex" />
+    <MaplibreGeoJSONLayer v-if="layerConfig.type === LayerTypes.GEOJSON"
+                          :layer-id="layerConfig.id"
+                          :data-url="layerConfig.geoJsonUrl"
+                          :style-url="layerConfig.styleUrl"
+                          :z-index="zIndex" />
     <slot />
   </div>
 </template>
@@ -8,9 +22,11 @@
 import {mapGetters} from "vuex";
 import {LayerTypes} from "@/api/layers.api";
 import MaplibreWMTSLayer from "./MaplibreWMTSLayer";
+import MaplibreWMSLayer from "@/modules/map/components/maplibre/MaplibreWMSLayer";
+import MaplibreGeoJSONLayer from "@/modules/map/components/maplibre/MaplibreGeoJSONLayer";
 
 export default {
-  components: {MaplibreWMTSLayer},
+  components: {MaplibreGeoJSONLayer, MaplibreWMSLayer, MaplibreWMTSLayer},
   props: {
     layerConfig: {
       type: Object,

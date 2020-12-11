@@ -1,6 +1,6 @@
 <template>
   <div>
-    <slot />
+    <slot/>
   </div>
 </template>
 <script>
@@ -12,37 +12,45 @@ export default {
       type: String,
       required: true,
     },
-    zIndex: {
-      type: Number,
-      default: -1,
-    },
-    urls: {
-      type: Array,
+    url: {
+      type: String,
       required: true,
     },
     opacity: {
       type: Number,
       default: 1.0,
+    },
+    zIndex: {
+      type: Number,
+      default: -1,
+    },
+    gutter: {
+      type: Number,
+      default: -1,
+    },
+    projection: {
+      type: String,
+      default: 'EPSG:3857'
     }
   },
+  mixins: [addLayerToMaplibreMixin],
   data() {
     return {
       layerStyle: null,
       layerSource: null,
     }
   },
-  mixins: [addLayerToMaplibreMixin],
   created() {
+    const tileSize = 256;
     this.layerSource = {
       type: "raster",
-      tiles: [...this.urls],
-      tileSize: 256
-    };
+      tiles: [this.url + `&WIDTH=${tileSize}&HEIGHT=${tileSize}&BBOX={bbox-epsg-3857}&CRS=${this.projection}`],
+      tileSize: tileSize
+    }
     this.layerStyle = {
       id: this.layerId,
       type: "raster",
-      opacity: this.opacity,
-    };
+    }
   },
-}
+};
 </script>

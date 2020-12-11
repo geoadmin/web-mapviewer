@@ -28,26 +28,6 @@ import { VECTOR_TILES_STYLE_URL } from "@/config";
 import {round} from "@/numberUtils";
 import MaplibreBODLayer from "./MaplibreBODLayer";
 
-// function transformGeoadminGeoJSONStyleIntoMapboxStyle(geoadminStyle) {
-//   if (geoadminStyle.values) {
-//     let mapboxStyle = {
-//       "circle-radius": 8,
-//       "circle-color": ["match", ["get", geoadminStyle.property]],
-//       "circle-stroke-color": "#FFFFFF",
-//       "circle-stroke-width": 1
-//     };
-//
-//     geoadminStyle.values.forEach(({ value, vectorOptions }) => {
-//       mapboxStyle["circle-color"].push(value, vectorOptions.fill.color);
-//     });
-//     // default value
-//     mapboxStyle["circle-color"].push("#eee");
-//     return mapboxStyle;
-//   } else {
-//     return geoadminStyle;
-//   }
-// }
-
 export default {
   components: {MaplibreBODLayer},
   data() {
@@ -70,7 +50,6 @@ export default {
   mounted() {
     axios.get(VECTOR_TILES_STYLE_URL).then(response => {
       this.style = response.data;
-      console.log('there are', this.style.layers.length, 'layers')
       this.map = new Map({
         container: 'maplibre-map',
         style: this.style,
