@@ -1,7 +1,13 @@
 /// <reference types="cypress" />
 
+import proj4 from "proj4";
+import setupProj4 from "../../../src/utils/setupProj4";
+
+setupProj4()
+
 const searchbarSelector = '[data-cy="searchbar"]';
 const searchbarClearSelector = '[data-cy="searchbar-clear"]';
+const searchResultEntriesSelector = '[data-cy="search-result-entry"]';
 
 describe('Test the search bar', () => {
 
@@ -149,6 +155,68 @@ describe('Test the search bar', () => {
             cy.readStoreValue('state.search.query').should('be.empty');
             // checking that the dropped pin has been removed
             cy.readStoreValue('state.map.pinnedLocation').should('be.null');
+        })
+    })
+
+    context('Search result handling', () => {
+
+        const acceptedDelta = 0.1;
+        const checkLocation = (expected, result) => {
+            expect(result).to.be.an('Array');
+            expect(result.length).to.eq(2);
+            expect(result[0]).to.approximately(expected[0], acceptedDelta);
+            expect(result[1]).to.approximately(expected[1], acceptedDelta);
+        }
+
+        const mockupServerResponse = (aliasName, wantedResponseLocations = [], wantedResponseLayers=[]) => {
+            cy.server();
+            cy.route('**/rest/services/ech/SearchServer*?type=layers*', wantedResponseLayers).as(aliasName);
+            cy.route('**/rest/services/ech/SearchServer*?type=locations*', wantedResponseLocations).as(aliasName);
+        }
+
+        it('handles search result thoroughly (zoom, center, pin)', () => {
+            const expectedLabel = "<b>Expected result</b>"
+            const expectedCenterEpsg4326 = [7.0, 47.0]; // lon/lat
+            const expectedCenterEpsg3857 = proj4(proj4.WGS84, 'EPSG:3857', expectedCenterEpsg4326);
+            const response = {
+                results: [
+                    {
+                        "id": 1234,
+                        "weight": 1,
+                        "attrs": {
+                            "x": expectedCenterEpsg3857[0],
+                            "y": expectedCenterEpsg3857[1],
+                            "rank": 1,
+                            // we create an extent of 1km around the center
+                            "geom_st_box2d": `BOX(${expectedCenterEpsg3857[0] - 500} ${expectedCenterEpsg3857[1] - 500},${expectedCenterEpsg3857[0] + 500} ${expectedCenterEpsg3857[1] + 500})`,
+                            "label": expectedLabel
+                        }
+                    }
+                ]
+            }
+            // setting width and height value for the viewport to ease resolution calculation
+            const widthAndHeight = 500;
+            // reverting formula resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
+            // => zoomlevel = log2(156543.03 meters/pixel * cos(latitude) / resolution)
+            // resolution in this case is 1000m divided by 500px, so 2m/px
+            const expectedZoomLevel = Math.log2(156543.03 * Math.abs(Math.cos(expectedCenterEpsg4326[1] * Math.PI / 180)) / 2);
+            cy.viewport(widthAndHeight, widthAndHeight);
+            mockupServerResponse('search', response);
+            cy.get(searchbarSelector).paste('test');
+            cy.wait('@search')
+            cy.get(searchResultEntriesSelector).then(entries => {
+                expect(entries.length).to.eq(1);
+                const entry = entries[0];
+                expect(entry.innerHTML).to.contain(expectedLabel);
+            }).click();
+            // checking that the view has centered on the feature
+            cy.readStoreValue('state.position.center').then(center => checkLocation(expectedCenterEpsg3857, center))
+            // checking that the zoom level corresponds to the extent of the feature
+            cy.readStoreValue('state.position.zoom').then(zoom => {
+                expect(zoom).be.closeTo(expectedZoomLevel, 0.2);
+            })
+            // checking that a dropped pin has been placed at the feature's location
+            cy.readStoreValue('state.map.pinnedLocation').then(pinnedLocation => checkLocation(expectedCenterEpsg3857, pinnedLocation))
         })
     })
 })

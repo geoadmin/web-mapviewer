@@ -1,5 +1,5 @@
 <template>
-  <div id="search-results" v-show="showResults" class="bg-light rounded-bottom">
+  <div id="search-results" v-show="showResults" class="bg-light rounded-bottom" data-cy="search-results">
     <SearchResultCategory :title="$t('locations_results_header')"
                           :half-size="results.layerResults.length > 0"
                           :entries="results.locationResults" />

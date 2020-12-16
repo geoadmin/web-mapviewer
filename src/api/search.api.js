@@ -1,5 +1,6 @@
 import axios from "axios";
 import {API_BASE_URL} from "@/config";
+import {translateSwisstopoPyramidZoomToMercatorZoom} from "@/utils/zoomLevelUtils";
 
 /**
  * Enum for search result types
@@ -10,6 +11,8 @@ export const RESULT_TYPE = {
     LAYER: 'LAYER',
     LOCATION: 'LOCATION'
 }
+
+const REGEX_RESULT_TITLE = /<b>(.*)<\/b>/i
 
 /**
  * @abstract
@@ -27,6 +30,16 @@ export class SearchResult {
     }
 
     getId() {
+        return this.getSimpleTitle();
+    }
+
+    /**
+     * @returns the title without any HTML tags (will only keep what's inside <b> tag if there are)
+     */
+    getSimpleTitle() {
+        if (REGEX_RESULT_TITLE.test(this.title)) {
+            return REGEX_RESULT_TITLE.exec(this.title)[1]
+        }
         return this.title;
     }
 }
@@ -48,11 +61,12 @@ export class FeatureSearchResult extends SearchResult {
     /**
      * @param {String} title of this search result (can be HTML as a string)
      * @param {String} description a description of this search result (plain text only, no HTML)
-     * @param {Array<Array<Number>>} extent an extent that describe where to zoom to show the whole search result, structure is [ [bottomLeftCoords], [topRightCoords] ]
-     * @param {Array<Number>} coordinates coordinates of this feature (in EPSG:3857)
      * @param {Number} featureId the feature ID (if it exists) in the BGDI feature list
+     * @param {Array<Number>} coordinates coordinates of this feature (in EPSG:3857)
+     * @param {Array<Array<Number>>} extent an extent that describe where to zoom to show the whole search result, structure is [ [bottomLeftCoords], [topRightCoords] ]
+     * @param {Number} zoom the zoom level at which the map should be zoomed when showing the feature (if extent is defined, this will be ignored)
      */
-    constructor(title, description, featureId, coordinates = [], extent) {
+    constructor(title, description, featureId, coordinates = [], extent, zoom) {
         super(RESULT_TYPE.LOCATION, title, description);
         this.featureId = featureId;
         this.coordinates = coordinates;
@@ -60,6 +74,7 @@ export class FeatureSearchResult extends SearchResult {
             this.extent = extent;
         } else {
             this.extent = [];
+            this.zoom = zoom;
         }
     }
 
@@ -153,14 +168,17 @@ const search = (queryString = '', lang= '') => {
                         }
                         // reading the extent from the LineString (if defined)
                         const extent = [];
+                        const zoom = translateSwisstopoPyramidZoomToMercatorZoom(location.attrs.zoomlevel);
                         if (location.attrs.geom_st_box2d) {
                             const extentMatches = Array.from(location.attrs.geom_st_box2d.matchAll(/BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g))[0];
-                            // bottom left
-                            extent.push([ Number(extentMatches[1]), Number(extentMatches[2]) ])
-                            // top right
-                            extent.push([ Number(extentMatches[3]), Number(extentMatches[4]) ]);
+                            const bottomLeft = [ Number(extentMatches[1]), Number(extentMatches[2]) ];
+                            const topRight = [ Number(extentMatches[3]), Number(extentMatches[4]) ];
+                            // checking if both point are the same (can happen if what is shown is a point of interest)
+                            if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
+                                extent.push(bottomLeft, topRight)
+                            }
                         }
-                        locationResults.push(new FeatureSearchResult(title, description, featureId, coordinate, extent));
+                        locationResults.push(new FeatureSearchResult(title, description, featureId, coordinate, extent, zoom));
                     })
                 }
                 // reading layer results

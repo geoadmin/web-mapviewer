@@ -2,7 +2,8 @@
   <div class="search-category-entry"
        @click="onClick"
        @mouseover="onMouseOver"
-       @mouseleave="onMouseLeave">
+       @mouseleave="onMouseLeave"
+       data-cy="search-result-entry">
     <span v-html="entry.title"></span>
   </div>
 </template>

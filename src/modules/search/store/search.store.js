@@ -1,7 +1,7 @@
 import search, {CombinedSearchResults, RESULT_TYPE} from "@/api/search.api";
 import { coordinateFromString } from "@/utils/coordinateUtils";
-import {ZOOM_LEVEL_1_25000_MAP} from "@/modules/store/modules/position.store";
 import {isWhat3WordsString, retrieveWhat3WordsLocation} from "@/api/what3words.api";
+import {ZOOM_LEVEL_1_25000_MAP} from "@/utils/zoomLevelUtils";
 
 const state = {
     pending: false,
@@ -64,15 +64,15 @@ const actions = {
                 break;
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {
-                    dispatch('setExtent', entry.extent);
+                    dispatch('zoomToExtent', entry.extent);
+                } else if (entry.zoom) {
+                    dispatch('setCenter', entry.coordinates);
+                    dispatch('setZoom', entry.zoom)
                 }
-                dispatch('highlightLocation', {
-                    id: entry.featureId || entry.description,
-                    coordinate: entry.coordinates,
-                    name: entry.title
-                })
+                dispatch('setPinnedLocation', entry.coordinates);
                 break;
         }
+        commit('setSearchQuery', entry.getSimpleTitle());
         commit('hideSearchResults');
     }
 };

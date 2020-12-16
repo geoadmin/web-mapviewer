@@ -9,8 +9,6 @@ const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0;
 const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A;
 const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256;
 
-export const ZOOM_LEVEL_1_25000_MAP = 15.5;
-
 const state = {
     zoom: 7,
     // center of the LV:95 projection (from https://epsg.io/2056) reprojected in EPSG:3857
@@ -84,12 +82,12 @@ const actions = {
             commit('setCenter', {x, y});
         }
     },
-    setExtent: ({commit, getters, rootState}, extent) => {
+    zoomToExtent: ({commit, getters, rootState}, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // calculating center of this extent
             const centerOfExtentEpsg4326 = center(featureCollection([
                 point(proj4('EPSG:3857', proj4.WGS84, extent[0])),
-                point(proj4('EPSG:3857', proj4.WGS84, extent[0]))
+                point(proj4('EPSG:3857', proj4.WGS84, extent[1]))
             ])).geometry.coordinates;
             const centerOfExtent = proj4(proj4.WGS84, 'EPSG:3857', centerOfExtentEpsg4326);
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {

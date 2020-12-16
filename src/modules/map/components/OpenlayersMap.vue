@@ -275,7 +275,7 @@ export default {
     this.view = null;
   },
   methods: {
-    ...mapActions(["setCenter", "setExtent", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
+    ...mapActions(["setCenter", "zoomToExtent", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
     createOpenLayersObjectForLayer: function (layer) {
       if (!layer) return null;
       let layerObject = null;
