@@ -28,7 +28,13 @@ const swisstopoPyramidZoomToMercatorZoomMatrix = {
 export const translateSwisstopoPyramidZoomToMercatorZoom = (swisstopoPyramidZoom) => {
     const key = `${swisstopoPyramidZoom}`;
     if (Object.keys(swisstopoPyramidZoomToMercatorZoomMatrix).includes(key)) {
-        return swisstopoPyramidZoomToMercatorZoomMatrix[key];
+        const webmercatorZoom = swisstopoPyramidZoomToMercatorZoomMatrix[key];
+        // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
+        // TODO: as soon as client zoom is implemented, remove this default value
+        if (webmercatorZoom > 18) {
+            return 18;
+        }
+        return webmercatorZoom
     }
     return null;
 }

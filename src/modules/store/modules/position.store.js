@@ -100,7 +100,13 @@ const actions = {
             // calculating new zoom level by reversing
             // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
             const zoom = Math.abs(Math.log2(newResolution / PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES / Math.cos(getters.centerEpsg4326InRadian[1])));
-            commit('setZoom', zoom);
+            // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
+            // TODO: as soon as client zoom is implemented, remove this fixed value
+            if (zoom > 18) {
+                commit('setZoom', 18);
+            } else {
+                commit('setZoom', zoom);
+            }
         }
     },
     setLatitude: ({dispatch, getters}, latInDeg) => {
