@@ -55,6 +55,7 @@
     "aws-sdk": "^2.789.0",
     "babel-eslint": "^10.1.0",
     "chai": "^4.1.2",
+    "cypress-browser-permissions": "^1.0.5",
     "cypress-vue-unit-test": "^3.5.1",
     "eslint": "^6.8.0",
     "eslint-plugin-cypress": "^2.11.2",
