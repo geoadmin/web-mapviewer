@@ -89,10 +89,12 @@ describe('Test the search bar', () => {
         context('EPSG:4326 (Web-Mercator) inputs', () => {
             // the search bar only supports input in lat/lon format, so X is lat
             const WGS84_DM = ['47°12.6095\'', '6°57.12372\'']
+            const WGS84_DM_GOOGLE_STYLE = ['47 12.6095', '6 57.12372']
             const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
             const WGS84_DMS_WITH_CARDINAL = ['47°12\'36.57"N', '6°57\'7.423"E']
             tryAllInputPossibilities(WGS84[0], WGS84[1], 'DD format')
             tryAllInputPossibilities(WGS84_DM[0], WGS84_DM[1], 'DM format')
+            tryAllInputPossibilities(WGS84_DM_GOOGLE_STYLE[0], WGS84_DM_GOOGLE_STYLE[1], 'DM format (Google style)')
             tryAllInputPossibilities(WGS84_DMS[0], WGS84_DMS[1], 'DMS format')
             tryAllInputPossibilities(WGS84_DMS_WITH_CARDINAL[0], WGS84_DMS_WITH_CARDINAL[1], 'DMS format with cardinal point')
             tryAllInputPossibilities(WGS84_DMS_WITH_CARDINAL[1], WGS84_DMS_WITH_CARDINAL[0], 'inverted DMS format with cardinal point')

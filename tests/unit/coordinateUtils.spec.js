@@ -66,7 +66,9 @@ describe('Unit test functions from coordinateUtils.js', () => {
             // lat/lon same place as [x,y] (used https://epsg.io for transformations)
             const WGS84 = [47.2101583, 6.952062];
             const WGS84_DM = ['47°12.6095\'', '6°57.12372\'']
+            const WGS84_DM_WITHOUT_SYMBOLS = ['47 12.6095', '6 57.12372']
             const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
+            const WGS84_DMS_WITHOUT_SYMBOLS = ['47 12 36.57', '6 57 7.423 ']
 
             it('Returns coordinates with degree decimal (DD) format', () => {
                 checkXY(WGS84[0], WGS84[1], EPSG3857[0], EPSG3857[1], acceptableDelta)
@@ -93,6 +95,12 @@ describe('Unit test functions from coordinateUtils.js', () => {
                 checkXY(WGS84_DMS[0].replace(/"/g, '\'\''), WGS84_DMS[1].replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
                 checkXY(latWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMin.replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
                 checkXY(latWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), lonWithSpaceBetweenDegAndMinAndSec.replace(/"/g, '\'\''), EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinate with DM format (degree minutes without symbols, aka Google style)', () => {
+                checkXY(WGS84_DM_WITHOUT_SYMBOLS[0], WGS84_DM_WITHOUT_SYMBOLS[1], EPSG3857[0], EPSG3857[1], acceptableDelta);
+            })
+            it('Returns coordinate with DMS format (degree minutes without symbols, aka Google style)', () => {
+                checkXY(WGS84_DMS_WITHOUT_SYMBOLS[0], WGS84_DMS_WITHOUT_SYMBOLS[1], EPSG3857[0], EPSG3857[1], acceptableDelta);
             })
             it('Returns coordinate with DMS format with cardinal point information', () => {
                 const latWithCardinalNotation = WGS84_DMS[0] + 'N';

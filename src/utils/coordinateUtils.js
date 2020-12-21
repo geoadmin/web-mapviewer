@@ -5,13 +5,13 @@ import {round} from "@/utils/numberUtils";
 import { toPoint as mgrsToWGS84 } from "./militaryGridProjection"
 
 // 47.5 7.5
-const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,\/]+\s*([\d]{1,3}[.\d]+)\s*$/i; // eslint-disable-line no-useless-escape
+const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i;
 // 47°31.8' 7°31.8'
-const REGEX_MERCATOR_WITH_DEGREES = /^\s*([\d]{1,3})°\s*([\d.,]+)'\s*[,/]?\s*([\d]{1,3})°\s*([\d.,]+)'\s*$/i;
+const REGEX_MERCATOR_WITH_DEGREES = /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)[']?\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)[']?\s*$/i;
 // 47°38'48'' 7°38'48'' or 47°38'48" 7°38'48"
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES = /^\s*([\d]{1,3})°\s*([\d]{1,2})'\s*([\d.]+)['"]+\s*[,/]?\s*([\d]{1,3})°\s*([\d.]+)'\s*([\d.]+)['"]+\s*$/i;
+const REGEX_MERCATOR_WITH_DEGREES_MINUTES = /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['"]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)[' ]+([\d.]+)['"]{0,2}\s*$/i;
 // 47°38'48''N 7°38'48''E or 47°38'48"N 7°38'48"E
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT = /^\s*([\d]{1,3})°\s*([\d]{1,2})'\s*([\d.]+)['"]+([NSEW]?)\s*[,/]?\s*([\d]{1,3})°\s*([\d.]+)'\s*([\d.]+)['"]+([NSEW]?)\s*$/i;
+const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT = /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*$/i;
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES = /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i;
@@ -19,6 +19,16 @@ const REGEX_METRIC_COORDINATES = /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t
 // Military Grid Reference System (MGRS)
 const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i;
 
+const WGS84_BOUNDS = {
+    x: { // lon
+        lower: -180.0,
+        upper: 180.0,
+    },
+    y: { // lat
+        lower: -89.0,
+        upper: 89.0,
+    },
+}
 const LV95_BOUNDS = {
     x: {
         lower: 2485071.58,
@@ -39,6 +49,7 @@ const LV03_BOUNDS = {
         upper: 299941.84,
     },
 };
+const isInBounds = (x, y, bounds) => x > bounds.x.lower && x < bounds.x.upper && y > bounds.y.lower && y < bounds.y.upper;
 
 const numericalExtractor = regexMatches => {
     // removing thousand separators
@@ -49,19 +60,19 @@ const numericalExtractor = regexMatches => {
     }
     // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
     // checking LV95 bounds
-    if (x > LV95_BOUNDS.x.lower && x < LV95_BOUNDS.x.upper && y > LV95_BOUNDS.y.lower && y < LV95_BOUNDS.y.upper) {
+    if (isInBounds(x, y, LV95_BOUNDS)) {
         return proj4('EPSG:2056', proj4.WGS84, [x, y]);
     // checking LV95 backward
-    } else if (y > LV95_BOUNDS.x.lower && y < LV95_BOUNDS.x.upper && x > LV95_BOUNDS.y.lower && x < LV95_BOUNDS.y.upper) {
+    } else if (isInBounds(y, x, LV95_BOUNDS)) {
         return proj4('EPSG:2056', proj4.WGS84, [y, x]);
     // checking LV03 bounds
-    } else if (x > LV03_BOUNDS.x.lower && x < LV03_BOUNDS.x.upper && y > LV03_BOUNDS.y.lower && y < LV03_BOUNDS.y.upper) {
+    } else if (isInBounds(x, y, LV03_BOUNDS)) {
         return proj4('EPSG:21781', proj4.WGS84, [x, y]);
     // checking LV03 backward
-    } else if (y > LV03_BOUNDS.x.lower && y < LV03_BOUNDS.x.upper && x > LV03_BOUNDS.y.lower && x < LV03_BOUNDS.y.upper) {
+    } else if (isInBounds(y, x, LV03_BOUNDS)) {
         return proj4('EPSG:21781', proj4.WGS84, [y, x]);
     // checking for WGS84 bounds
-    } else if (x > -180.0 && x < 180.0 && y > -360.0 && y < 360.0) {
+    } else if (isInBounds(y, x, WGS84_BOUNDS)) {
         // we inverse lat/lon to lon/lat as user inputs support lat/lon but the app behind function with lon/lat
         // coordinates, especially proj4js
         return [y, x];
@@ -72,19 +83,20 @@ const numericalExtractor = regexMatches => {
 }
 
 const webmercatorExtractor = regexMatches => {
-    switch(regexMatches.length) {
-        case 3: // 2 matches + global match i.e. : (45.12), (7.12)
-            return numericalExtractor(regexMatches)
-        case 5: // 4 matches + global match, i.e. : (47)°(5.123)', (8)°(4.154)' (we inverse lat/lon to lon/lat in the process)
-            return [
-                Number(regexMatches[3]) + Number(regexMatches[4]) / 60.0,
-                Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0,
-            ]
-        case 7: // 6 matches + global match, i.e. : (47)°(5)'(41.61)", (8)°(4)'(6.32)" (we inverse lat/lon to lon/lat in the process)
-            return [
-                Number(regexMatches[4]) + Number(regexMatches[5]) / 60.0 + Number(regexMatches[6]) / 3600.0,
-                Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0 + Number(regexMatches[3]) / 3600.0,
-            ]
+    if (regexMatches.length === 3) {
+        // 2 matches + global match i.e. : (45.12), (7.12)
+        return numericalExtractor(regexMatches)
+    }
+    let lon, lat;
+    if (regexMatches.length === 5) {
+        // 4 matches + global match, i.e. : (47)°(5.123)', (8)°(4.154)' (we inverse lat/lon to lon/lat in the process)
+        lon = Number(regexMatches[3]) + Number(regexMatches[4]) / 60.0;
+        lat = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0;
+    }
+    if (regexMatches.length === 7){
+        // 6 matches + global match, i.e. : (47)°(5)'(41.61)", (8)°(4)'(6.32)" (we inverse lat/lon to lon/lat in the process)
+        lon = Number(regexMatches[4]) + Number(regexMatches[5]) / 60.0 + Number(regexMatches[6]) / 3600.0;
+        lat = Number(regexMatches[1]) + Number(regexMatches[2]) / 60.0 + Number(regexMatches[3]) / 3600.0;
     }
     if (regexMatches.length === 9) {
         // 8 matches + global match, i.e. (47)°(5)'(41.61)"(N), (8)°(4)'(6.32)"(E)
@@ -92,7 +104,6 @@ const webmercatorExtractor = regexMatches => {
         const firstCardinal = regexMatches[4];
         const secondNumber = Number(regexMatches[5]) + Number(regexMatches[6]) / 60.0 + Number(regexMatches[7]) / 3600.0;
         const secondCardinal = regexMatches[8];
-        let lat, lon;
         switch (firstCardinal.toUpperCase()) {
             case 'N':
                 lat = firstNumber;
@@ -121,9 +132,9 @@ const webmercatorExtractor = regexMatches => {
                 lon = -secondNumber;
                 break;
         }
-        if (lon && lat) {
-            return [lon, lat];
-        }
+    }
+    if (lon && lat && isInBounds(lon, lat, WGS84_BOUNDS)) {
+        return [lon, lat]
     }
     return null;
 }
@@ -180,6 +191,7 @@ const executeAndReturn = (regex, text, extractor = numericalExtractor, outputPro
  *    - DegreesMinutes (`46°58.7904' 6°36.4542'`)
  *    - DegreesMinutesSeconds, double single quote for seconds (`46°58'47.424'' 6°36'27.252''`)
  *    - DegreesMinutesSeconds, double quote for seconds (`46°58'47.424" 6°36'27.252"`)
+ *    - Google style is also supported (any format above without degrees, minutes and seconds symbol)
  *
  *  **Military Grid Reference System (MGRS)**
  *    - i.e. `32TLT 98757 23913`
@@ -196,6 +208,8 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
     if (typeof text !== 'string') {
         return undefined;
     }
+    // creating a config array with each entry being an object with a regex attribute
+    // and the corresponding extractor when this regex matches the input
     return [
         { regex: REGEX_WEB_MERCATOR, extractor: webmercatorExtractor },
         { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
@@ -204,10 +218,11 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
         { regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT, extractor: webmercatorExtractor },
         { regex: REGEX_MILITARY_GRID, extractor: mgrsExtractor },
     ].map(config => {
+        // going through each config and extracting the result (can be undefined if not a match)
         return executeAndReturn(config.regex,
                                 text.replace(/\t/, ' '),
                                 config.extractor,
                                 toProjection,
                                 roundingToDecimal)
-    }).find(result => Array.isArray(result));
+    }).find(result => Array.isArray(result)); // returning the first value that is a coordinate array (will return undefined if nothing is found)
 }
