@@ -20,7 +20,7 @@
                       :position="highlightedFeature.coordinate"
                       :marker-style="markerStyles.BALLOON" />
     <!-- Adding marker and accuracy circle for Geolocation -->
-    <OpenLayersAccuracyCircle v-if="isMobile && geolocationActive"
+    <OpenLayersAccuracyCircle v-if="geolocationActive"
                               :position="geolocationPosition"
                               :accuracy="geolocationAccuracy" />
     <OpenLayersMarker v-if="geolocationActive"
@@ -67,7 +67,6 @@ import moment from "moment";
 import {mapState, mapGetters, mapActions} from "vuex";
 import {Map, View} from 'ol';
 import ScaleLine from "ol/control/ScaleLine"
-import { isMobile } from 'mobile-device-detect';
 
 import { round } from "@/utils/numberUtils";
 import OpenLayersMarker, { markerStyles } from "./OpenLayersMarker";
@@ -165,7 +164,6 @@ export default {
       map: new Map({ target: 'ol-map', controls: [] }),
       view: null,
       markerStyles,
-      isMobile
     }
   },
   provide: function () {
