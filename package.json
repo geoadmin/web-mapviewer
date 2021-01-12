@@ -21,7 +21,7 @@
     "@yzfe/svgicon": "^1.0.1",
     "@yzfe/vue-svgicon": "^4.0.1",
     "animate.css": "^4.1.1",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
     "core-js": "^3.7.0",
     "hammerjs": "^2.0.8",
