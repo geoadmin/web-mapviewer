@@ -5,6 +5,12 @@ import setupProj4 from "@/utils/setupProj4";
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4();
 
+/**
+ * Place a separator after each group of 3 digit
+ * @param {Number} number a number expressed as a string
+ * @param {String} separator which thousand separator to use
+ * @return {string} the number with thousand separators
+ */
 const numberWithThousandSeparator = (number, separator = "'") => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
@@ -13,6 +19,13 @@ describe('Unit test functions from coordinateUtils.js', () => {
 
     context('coordinateFromString(text)', () => {
 
+        /**
+         * Gives text as input to coordinateFromString and check the output of this function
+         * @param {String} text the input to be given to coordinateFromString
+         * @param {Array<Number>} expected what is expected of coordinateFromString as output
+         * @param {String} message message to be shown if the test fails (in the unit test log)
+         * @param {Number} acceptableDelta if a delta with the expected result is acceptable (default is zero)
+         */
         const checkText = (text, expected, message, acceptableDelta = 0) => {
             const result = coordinateFromString(text);
             expect(result).to.be.an('Array', message);
@@ -20,6 +33,14 @@ describe('Unit test functions from coordinateUtils.js', () => {
             expect(result[0]).to.approximately(expected[0], acceptableDelta, message + '\nx result: ' + result[0] + '\n');
             expect(result[1]).to.approximately(expected[1], acceptableDelta, message + '\ny result: ' + result[1] + '\n');
         }
+        /**
+         * Checks that X and Y (given as param) output the expected X and Y with different combination of coma, spaces, slash and tabs in between X and Y
+         * @param {Number, String}x x to be passed as input to coordinateFromString
+         * @param {Number, String}y y to be passed as input to coordinateFromString
+         * @param {Number}xExpectedValue what coordinateFromString is expected to output as X
+         * @param {Number}yExpectedValue what coordinateFromString is expected to output as Y
+         * @param {Number}acceptableDelta if a delta with the expected result is acceptable (default is zero)
+         */
         const checkXY = (x, y, xExpectedValue, yExpectedValue, acceptableDelta = 0) => {
             const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xExpectedValue}, expected y: ${yExpectedValue}`;
             // checking with simple space and tab
@@ -36,7 +57,7 @@ describe('Unit test functions from coordinateUtils.js', () => {
             checkText(`${x} / ${y}`, [xExpectedValue, yExpectedValue], 'fails with space, slash and space\n' + valueOutputInCaseOfErr, acceptableDelta);
         }
 
-        // values (in EPSG:3857) used throughout next tests (see helper functions below)
+        // values (in EPSG:3857) used throughout next tests
         const EPSG3857 = [773900, 5976445]
 
         context('Testing non valid inputs', () => {
@@ -128,20 +149,28 @@ describe('Unit test functions from coordinateUtils.js', () => {
             })
         });
 
-        const checkSwissCoordinateSystem = (xInput, yInput, acceptableDelta) => {
+        /**
+         * Checks that x and y will output the expected EPSG:3857 coordinate, whether X and Y are expressed in LV95 or
+         * LV03. It will also try to enter X and Y backward, as it must be supported by the app (coordinateFromString
+         * must detect which one is the north and which one is the east part of the coordinate)
+         * @param {Number} x
+         * @param {Number} y
+         * @param {Number} acceptableDelta
+         */
+        const checkSwissCoordinateSystem = (x, y, acceptableDelta) => {
             it('Returns coordinates when input is valid', () => {
-                checkXY(xInput, yInput, EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(x, y, EPSG3857[0], EPSG3857[1], acceptableDelta);
             })
             it('Returns coordinates when input is entered backward', () => {
-                checkXY(yInput, xInput, EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(y, x, EPSG3857[0], EPSG3857[1], acceptableDelta);
             })
             it('Returns coordinates when there\'s thousands separator', () => {
-                checkXY(numberWithThousandSeparator(xInput), numberWithThousandSeparator(yInput), EPSG3857[0], EPSG3857[1], acceptableDelta);
-                checkXY(numberWithThousandSeparator(xInput, ' '), numberWithThousandSeparator(yInput, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(x), numberWithThousandSeparator(y), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(x, ' '), numberWithThousandSeparator(y, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
             })
             it('Returns coordinates when there\'s thousands separator and input is entered backward', () => {
-                checkXY(numberWithThousandSeparator(yInput), numberWithThousandSeparator(xInput), EPSG3857[0], EPSG3857[1], acceptableDelta);
-                checkXY(numberWithThousandSeparator(yInput, ' '), numberWithThousandSeparator(xInput, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(y), numberWithThousandSeparator(x), EPSG3857[0], EPSG3857[1], acceptableDelta);
+                checkXY(numberWithThousandSeparator(y, ' '), numberWithThousandSeparator(x, ' '), EPSG3857[0], EPSG3857[1], acceptableDelta);
             })
         }
 

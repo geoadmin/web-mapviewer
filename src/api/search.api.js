@@ -12,7 +12,7 @@ export const RESULT_TYPE = {
     LOCATION: 'LOCATION'
 }
 
-const REGEX_RESULT_TITLE = /<b>(.*)<\/b>/i
+const REGEX_RESULT_TITLE = /<b>(.*?)<\/b>/i
 
 /**
  * @abstract

@@ -11,10 +11,16 @@ export const LayerTypes = {
     GEOJSON: 'geojson'
 };
 
+/**
+ * @class
+ * @name layers:TimeSeriesConfig
+ *
+ * Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will determine which "timestamp" to add
+ * to the URL used to request tiles/image.
+ */
 export class TimeSeriesConfig {
 
     /**
-     *
      * @param {String} behaviour how the default time series is chosen
      * @param {Array<String>} series list of series identifier (that can be placed in the WMTS URL)
      */
@@ -34,6 +40,7 @@ export class TimeSeriesConfig {
 /**
  * @class
  * @name layers:Layer
+ *
  * Base class for Layer config description, must be extended to a more specific flavor of Layer
  * (e.g. {@link WMTSLayer}, {@link WMSLayer} or {@link GeoJsonLayer})
  */
@@ -201,7 +208,9 @@ const loadLayersConfigFromBackend = (lang) => {
                         Object.keys(rawLayersConfig).forEach(rawLayerId => {
                             const rawLayer = rawLayersConfig[rawLayerId];
                             const layer = generateClassForLayerConfig(rawLayer);
-                            if (layer) layersConfig.push(layer)
+                            if (layer) {
+                                layersConfig.push(layer)
+                            }
                         })
                         resolve(layersConfig);
                     } else {
