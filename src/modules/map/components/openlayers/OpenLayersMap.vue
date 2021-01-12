@@ -12,11 +12,12 @@
                         :layer-config="layer"
                         :z-index="index + (currentBackgroundLayer ? 1 : 0)" />
     <!-- Adding highlight marker and pinned location -->
-    <OpenLayersMarker v-if="highlightedFeature && highlightedFeature.type === 'location'"
-                      :position="highlightedFeature.coordinate"
-                      :marker-style="markerStyles.BALLOON" />
     <OpenLayersMarker v-if="pinnedLocation"
                       :position="pinnedLocation"
+                      :marker-style="markerStyles.BALLOON"
+                      :z-index="visibleLayers.length + 1" />
+    <OpenLayersMarker v-if="highlightedFeature && highlightedFeature.type === 'location'"
+                      :position="highlightedFeature.coordinate"
                       :marker-style="markerStyles.BALLOON" />
     <!-- Adding marker and accuracy circle for Geolocation -->
     <OpenLayersAccuracyCircle v-if="isMobile && geolocationActive"

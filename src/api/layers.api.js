@@ -310,7 +310,7 @@ const loadLayersConfigFromBackend = (lang) => {
                     if (Object.keys(rawLayersConfig).length > 0) {
                         Object.keys(rawLayersConfig).forEach(rawLayerId => {
                             const rawLayer = rawLayersConfig[rawLayerId];
-                            const layer = generateClassForLayerConfig(rawLayer);
+                            const layer = generateClassForLayerConfig(rawLayer, rawLayerId, rawLayersConfig, lang);
                             if (layer) {
                                 layersConfig.push(layer)
                             }
