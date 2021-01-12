@@ -1,10 +1,9 @@
 /// <reference types="cypress" />
 
-import {round} from "../../../src/numberUtils";
+// can't use @ notation with Cypress (Vue's webpack config is not shared with it)
+import {round} from "../../../src/utils/numberUtils";
 
 describe('Test on legacy param import', () => {
-
-    const readStoreValue = (key) => cy.window().its(`store.${key}`);
 
     const visitUrlAndWaitForMap = (url) => {
         cy.visit(url);
@@ -19,8 +18,8 @@ describe('Test on legacy param import', () => {
         visitUrlAndWaitForMap(`/?lat=${lat}&lon=${lon}&z=${zoom}`);
 
         // checking in the store that the position has not changed from what was in the URL
-        readStoreValue('state.position.zoom').should('eq', zoom);
-        readStoreValue('getters.centerEpsg4326').should(center => {
+        cy.readStoreValue('state.position.zoom').should('eq', zoom);
+        cy.readStoreValue('getters.centerEpsg4326').should(center => {
             expect(center[0]).to.eq(lon);
             expect(center[1]).to.eq(lat);
         });
@@ -33,8 +32,8 @@ describe('Test on legacy param import', () => {
         visitUrlAndWaitForMap(`/#/map?lat=${lat}&lon=${lon}&z=${zoom}`);
 
         // checking in the store that the position has not changed from what was in the URL
-        readStoreValue('state.position.zoom').should('eq', zoom);
-        readStoreValue('getters.centerEpsg4326').should(center => {
+        cy.readStoreValue('state.position.zoom').should('eq', zoom);
+        cy.readStoreValue('getters.centerEpsg4326').should(center => {
             expect(center[0]).to.eq(lon);
             expect(center[1]).to.eq(lat);
         });
@@ -48,11 +47,11 @@ describe('Test on legacy param import', () => {
 
         // the LV95 zoom level should be translated to a mercator zoom level of 15.5 according to
         // https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
-        readStoreValue('state.position.zoom').should('eq', 15.5);
+        cy.readStoreValue('state.position.zoom').should('eq', 15.5);
 
         // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
         // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
-        readStoreValue('getters.centerEpsg4326').should(center => {
+        cy.readStoreValue('getters.centerEpsg4326').should(center => {
             // the app applies a rounding to the 6th decimal for lon/lat
             expect(center[0]).to.eq(round(8.2267733, 6));
             expect(center[1]).to.eq(round(46.9483767, 6));

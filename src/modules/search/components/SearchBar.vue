@@ -9,11 +9,13 @@
            :value="searchQuery"
            @input="updateSearchQuery"
            @focus="showSearchResultsIfExists"
+           data-cy="searchbar"
     />
     <button id="clear-search-button"
             class="btn bg-transparent"
             v-show="searchQuery && searchQuery.length > 0"
-            @click="clearSearchQuery">
+            @click="clearSearchQuery"
+            data-cy="searchbar-clear">
       <i class="fa fa-times"></i>
     </button>
   </div>

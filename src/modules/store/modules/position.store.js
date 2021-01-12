@@ -1,7 +1,7 @@
 import center from "@turf/center";
 import { point, featureCollection } from "@turf/helpers"
 import proj4 from "proj4";
-import {round} from "@/numberUtils";
+import {round} from "@/utils/numberUtils";
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
@@ -82,12 +82,12 @@ const actions = {
             commit('setCenter', {x, y});
         }
     },
-    setExtent: ({commit, getters, rootState}, extent) => {
+    zoomToExtent: ({commit, getters, rootState}, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // calculating center of this extent
             const centerOfExtentEpsg4326 = center(featureCollection([
                 point(proj4('EPSG:3857', proj4.WGS84, extent[0])),
-                point(proj4('EPSG:3857', proj4.WGS84, extent[0]))
+                point(proj4('EPSG:3857', proj4.WGS84, extent[1]))
             ])).geometry.coordinates;
             const centerOfExtent = proj4(proj4.WGS84, 'EPSG:3857', centerOfExtentEpsg4326);
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
@@ -100,7 +100,13 @@ const actions = {
             // calculating new zoom level by reversing
             // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
             const zoom = Math.abs(Math.log2(newResolution / PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES / Math.cos(getters.centerEpsg4326InRadian[1])));
-            commit('setZoom', zoom);
+            // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
+            // TODO: as soon as client zoom is implemented, remove this fixed value
+            if (zoom > 18) {
+                commit('setZoom', 18);
+            } else {
+                commit('setZoom', zoom);
+            }
         }
     },
     setLatitude: ({dispatch, getters}, latInDeg) => {

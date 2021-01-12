@@ -1,4 +1,7 @@
-import search, {CombinedSearchResults, RESULT_TYPE} from "../../../api/search.api";
+import search, {CombinedSearchResults, RESULT_TYPE} from "@/api/search.api";
+import { coordinateFromString } from "@/utils/coordinateUtils";
+import {isWhat3WordsString, retrieveWhat3WordsLocation} from "@/api/what3words.api";
+import {ZOOM_LEVEL_1_25000_MAP} from "@/utils/zoomLevelUtils";
 
 const state = {
     pending: false,
@@ -16,19 +19,35 @@ const actions = {
      * @param {String} payload.query
      * @param {Boolean} payload.showResultsAfterRequest
      */
-    setSearchQuery: ({ commit, rootState }, {query = '', showResultsAfterRequest = true}) => {
+    setSearchQuery: ({ commit, rootState, dispatch }, {query = '', showResultsAfterRequest = true}) => {
         commit('setSearchQuery', query);
         commit('setSearchResults', new CombinedSearchResults())
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
-            search(query, rootState.i18n.lang).then(searchResults => {
-                if (searchResults) {
-                    commit('setSearchResults', searchResults);
-                    if (showResultsAfterRequest && searchResults.count() > 0) {
-                        commit('showSearchResults')
+            // checking first if this corresponds to a set of coordinates (or a what3words)
+            const coordinate = coordinateFromString(query);
+            if (coordinate) {
+                dispatch('setCenter', coordinate);
+                dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
+                dispatch('setPinnedLocation', coordinate);
+            } else if (isWhat3WordsString(query)) {
+                retrieveWhat3WordsLocation(query).then(what3wordLocation => {
+                    dispatch('setCenter', what3wordLocation);
+                    dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP);
+                    dispatch('setPinnedLocation', what3wordLocation);
+                })
+            } else {
+                search(query, rootState.i18n.lang).then(searchResults => {
+                    if (searchResults) {
+                        commit('setSearchResults', searchResults);
+                        if (showResultsAfterRequest && searchResults.count() > 0) {
+                            commit('showSearchResults')
+                        }
                     }
-                }
-            })
+                })
+            }
+        } else if (query.length === 0) {
+            dispatch('setPinnedLocation', null);
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
@@ -45,15 +64,15 @@ const actions = {
                 break;
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {
-                    dispatch('setExtent', entry.extent);
+                    dispatch('zoomToExtent', entry.extent);
+                } else if (entry.zoom) {
+                    dispatch('setCenter', entry.coordinates);
+                    dispatch('setZoom', entry.zoom)
                 }
-                dispatch('highlightLocation', {
-                    id: entry.featureId || entry.description,
-                    coordinate: entry.coordinates,
-                    name: entry.title
-                })
+                dispatch('setPinnedLocation', entry.coordinates);
                 break;
         }
+        commit('setSearchQuery', entry.getSimpleTitle());
         commit('hideSearchResults');
     }
 };

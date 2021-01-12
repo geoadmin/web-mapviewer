@@ -51,9 +51,8 @@ import Feature from "ol/Feature";
 import { Point, Circle } from "ol/geom";
 import { isMobile } from 'mobile-device-detect';
 
-import { round } from "@/numberUtils";
+import { round, randomIntBetween } from "@/utils/numberUtils";
 import { LayerTypes } from "@/api/layers.api";
-import {randomIntBetween} from "@/numberUtils";
 
 const markerBalloonStyle = new Style({
   image: new IconStyle({
@@ -92,7 +91,7 @@ export default {
       zoom: state => state.position.zoom,
       center: state => state.position.center,
       highlightedFeature: state => state.map.highlightedFeature,
-      pinLocation: state => state.map.pinLocation,
+      pinnedLocation: state => state.map.pinnedLocation,
       mapIsBeingDragged: state => state.map.isBeingDragged,
       geolocationActive: state => state.geolocation.active,
       geolocationPosition: state => state.geolocation.position,
@@ -109,13 +108,14 @@ export default {
       this.visibleLayers.forEach(visibleLayer => visibleLayer && layers.push(this.createOpenLayersObjectForLayer(visibleLayer)))
       // managing marker(s)
       const markers = [];
+      if (this.droppedPin) {
+        markers.push(this.droppedPin);
+      }
       // if a highlighted feature is set, we put it on top of the layer stack
       if (this.highlightedFeature) {
         if (this.highlightedFeature.type === 'layer') {
           layers.push(this.createOpenLayersObjectForLayer(this.highlightedFeature.layerConfig))
-        } else if (this.highlightedFeature.type === 'location') {
-          markers.push(this.createMarkerAtPosition(this.highlightedFeature.coordinate));
-        } else {
+        } else if (this.highlightedFeature.type !== 'location') {
           console.error('Unknown feature type', this.highlightedFeature);
         }
       }
@@ -196,6 +196,14 @@ export default {
     geolocationAccuracy: function (newAccuracy) {
       this.geolocation.accuracyCircle.setRadius(newAccuracy);
     },
+    pinnedLocation: function (newPinnedLocation) {
+      if (newPinnedLocation) {
+        this.droppedPin.getGeometry().setCoordinates(newPinnedLocation);
+        this.droppedPin.setStyle(markerBalloonStyle);
+      } else {
+        this.droppedPin.setStyle(markerHiddenStyle);
+      }
+    }
   },
   mounted() {
     // Setting up OL objects
@@ -251,6 +259,9 @@ export default {
       }
     })
 
+    // creating marker for dropped pin
+    this.droppedPin = this.createMarkerAtPosition([0,0], markerHiddenStyle);
+
     // creating marker and accuracy circle for geolocation
     this.geolocation.marker = this.createMarkerAtPosition(this.geolocationPosition, this.geolocationActive ? markerAccuracyStyle : markerHiddenStyle);
     this.geolocation.accuracyCircle = new Circle(this.geolocationPosition, this.geolocationAccuracy);
@@ -264,7 +275,7 @@ export default {
     this.view = null;
   },
   methods: {
-    ...mapActions(["setCenter", "setExtent", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
+    ...mapActions(["setCenter", "zoomToExtent", "setZoom", "click", 'mapStoppedBeingDragged', 'mapStartBeingDragged']),
     createOpenLayersObjectForLayer: function (layer) {
       if (!layer) return null;
       let layerObject = null;
@@ -313,6 +324,7 @@ export default {
         rotate: false,
         zoom: false,
       },
+      droppedPin: null,
       geolocation: {
         marker: null,
         accuracyCircle: null,

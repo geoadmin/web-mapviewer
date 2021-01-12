@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { round, isNumber, randomIntBetween } from "@/numberUtils";
+import { round, isNumber, randomIntBetween } from "@/utils/numberUtils";
 
 describe('Unit test functions from numberUtils.js', () => {
 

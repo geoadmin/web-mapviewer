@@ -2,7 +2,8 @@
   <div class="search-category-entry"
        @click="onClick"
        @mouseover="onMouseOver"
-       @mouseleave="onMouseLeave">
+       @mouseleave="onMouseLeave"
+       data-cy="search-result-entry">
     <span v-html="entry.title"></span>
   </div>
 </template>
@@ -26,7 +27,7 @@
 
 <script>
 import { mapActions } from 'vuex'
-import {SearchResult} from "../../../api/search.api";
+import {SearchResult} from "@/api/search.api";
 
 export default {
   props: {

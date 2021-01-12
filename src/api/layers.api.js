@@ -11,10 +11,16 @@ export const LayerTypes = {
     GEOJSON: 'geojson'
 };
 
+/**
+ * @class
+ * @name layers:TimeSeriesConfig
+ *
+ * Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will determine which "timestamp" to add
+ * to the URL used to request tiles/image.
+ */
 export class TimeSeriesConfig {
 
     /**
-     *
      * @param {String} behaviour how the default time series is chosen
      * @param {Array<String>} series list of series identifier (that can be placed in the WMTS URL)
      */
@@ -34,6 +40,7 @@ export class TimeSeriesConfig {
 /**
  * @class
  * @name layers:Layer
+ *
  * Base class for Layer config description, must be extended to a more specific flavor of Layer
  * (e.g. {@link WMTSLayer}, {@link WMSLayer} or {@link GeoJsonLayer})
  */
@@ -190,24 +197,31 @@ const generateClassForLayerConfig = (layerConfig) => {
  */
 const loadLayersConfigFromBackend = (lang) => {
     return new Promise((resolve, reject) => {
-        const layersConfig = [];
-        axios.get(`${API_BASE_URL}rest/services/all/MapServer/layersConfig?lang=${lang}`)
-            .then(({data: rawLayersConfig}) => {
-                if (Object.keys(rawLayersConfig).length > 0) {
-                    Object.keys(rawLayersConfig).forEach(rawLayerId => {
-                        const rawLayer = rawLayersConfig[rawLayerId];
-                        const layer = generateClassForLayerConfig(rawLayer);
-                        if (layer) layersConfig.push(layer)
-                    })
-                    resolve(layersConfig);
-                } else {
-                    reject('LayersConfig loaded from backend is not an defined or is empty');
-                }
-            }).catch((error) => {
+        if (!API_BASE_URL) {
+            // this could happen if we are testing the app in unit tests, we simply reject and do nothing
+            reject('API base URL is undefined');
+        } else {
+            const layersConfig = [];
+            axios.get(`${API_BASE_URL}rest/services/all/MapServer/layersConfig?lang=${lang}`)
+                .then(({data: rawLayersConfig}) => {
+                    if (Object.keys(rawLayersConfig).length > 0) {
+                        Object.keys(rawLayersConfig).forEach(rawLayerId => {
+                            const rawLayer = rawLayersConfig[rawLayerId];
+                            const layer = generateClassForLayerConfig(rawLayer);
+                            if (layer) {
+                                layersConfig.push(layer)
+                            }
+                        })
+                        resolve(layersConfig);
+                    } else {
+                        reject('LayersConfig loaded from backend is not an defined or is empty');
+                    }
+                }).catch((error) => {
                 const message = 'Error while loading layers config from backend';
                 console.error(message, error);
                 reject(message);
-        })
+            })
+        }
     })
 }
 
