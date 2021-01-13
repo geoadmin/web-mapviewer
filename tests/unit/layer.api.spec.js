@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import { WMTSLayer } from "@/api/layers.api";
+import { WMTSLayer, TimeConfig } from "@/api/layers.api";
 
 describe('Test WMTSLayer class', () => {
     it('returns all possible URL with getURLs when provided with a {0-9} notation baseURL', () => {
         const name = 'name';
         const id = 'id';
-        const urls = new WMTSLayer(name, id, 1.0, 'png', null, false, 'https://test{0-4}.admin.ch').getURLs()
+        const urls = new WMTSLayer(name, id, 1.0, 'png', new TimeConfig(), false, 'https://test{0-4}.admin.ch').getURLs()
 
         // generating expected results
         const expected = [];
