@@ -4,15 +4,14 @@
   </div>
 </template>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
 
 <script>
-  import LangSwitchToolbar from "@/modules/i18n/components/LangSwitchToolbar";
+import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar'
 
-  export default {
-    components: {
-      LangSwitchToolbar
-    }
-  }
+export default {
+  components: {
+    LangSwitchToolbar,
+  },
+}
 </script>

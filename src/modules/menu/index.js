@@ -1,3 +1,3 @@
-import HeaderModule from "./MenuModule";
+import HeaderModule from './MenuModule'
 
-export default HeaderModule;
+export default HeaderModule

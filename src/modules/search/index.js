@@ -1,3 +1,3 @@
-import SearchModule from "./SearchModule";
+import SearchModule from './SearchModule'
 
-export default SearchModule;
+export default SearchModule

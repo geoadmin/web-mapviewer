@@ -1,7 +1,7 @@
 <template>
   <div class="menu-layer-list-item">
     <div class="menu-layer-item-name form-check">
-      <input type="checkbox" class="form-check-input" :id="checkboxId" v-model="isVisible">
+      <input :id="checkboxId" v-model="isVisible" type="checkbox" class="form-check-input" />
       <label class="form-check-label" :for="checkboxId">{{ name }}</label>
     </div>
     <div class="menu-layer-item-toolbox btn-group">
@@ -11,7 +11,7 @@
 </template>
 
 <style lang="scss">
-@import "node_modules/bootstrap/scss/bootstrap";
+@import 'node_modules/bootstrap/scss/bootstrap';
 .menu-layer-list-item {
   @extend .d-flex;
   @extend .justify-content-between;
@@ -28,32 +28,32 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     visible: {
       type: Boolean,
-      required: true
+      required: true,
     },
     name: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
-    checkboxId: function() {
+    checkboxId: function () {
       return `toggle-visibility-${this.id}`
     },
     isVisible: {
       get: function () {
-        return this.visible;
+        return this.visible
       },
       set: function () {
-        this.toggleLayerVisibility(this.id);
-      }
-    }
+        this.toggleLayerVisibility(this.id)
+      },
+    },
   },
   methods: {
-    ...mapActions(['toggleLayerVisibility', 'removeLayer'])
-  }
+    ...mapActions(['toggleLayerVisibility', 'removeLayer']),
+  },
 }
 </script>

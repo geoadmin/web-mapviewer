@@ -1,31 +1,31 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
 <script>
-  import { mapActions } from "vuex";
+import { mapActions } from 'vuex'
 
-  export default {
-    name: 'App',
-    methods: {
-      ...mapActions(['setSize']),
-      setScreenSizeFromWindowSize: function () {
-        this.setSize({
-          width: window.innerWidth,
-          height: window.innerHeight
-        })
-      }
-    },
-    mounted() {
-      // reading size
-      this.setScreenSizeFromWindowSize();
-      window.onresize = () => {
-        this.setScreenSizeFromWindowSize();
-      }
+export default {
+  name: 'App',
+  mounted() {
+    // reading size
+    this.setScreenSizeFromWindowSize()
+    window.onresize = () => {
+      this.setScreenSizeFromWindowSize()
     }
-  }
+  },
+  methods: {
+    ...mapActions(['setSize']),
+    setScreenSizeFromWindowSize: function () {
+      this.setSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    },
+  },
+}
 </script>
 
 <style lang="scss">

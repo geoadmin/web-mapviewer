@@ -1,3 +1,3 @@
-import TooltipModule from "./TooltipModule";
+import TooltipModule from './TooltipModule'
 
-export default TooltipModule;
+export default TooltipModule

@@ -1,3 +1,3 @@
-import search from "./search.store"
+import search from './search.store'
 
-export default search;
+export default search
