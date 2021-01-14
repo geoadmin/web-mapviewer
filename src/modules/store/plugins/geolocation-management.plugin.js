@@ -39,7 +39,7 @@ const handlePositionError = (error, store) => {
                 // the position will be returned by a mocked up function by Cypress we can ignore this error
                 // we do nothing...
             } else {
-                alert(i18n.t('geoloc_unknown') + ` ${error.code}`);
+                alert(i18n.t('geoloc_unknown'));
             }
     }
 }
