@@ -25,13 +25,22 @@ const handlePositionAndDispatchToStore = (position, store) => {
  * @param {Vuex.Store} store
  */
 const handlePositionError = (error, store) => {
+    console.error('Geolocation activation failed', error);
     switch (error.code) {
         case error.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', true);
             alert(i18n.t('geoloc_permission_denied'));
             break;
         default:
-            alert(i18n.t('geoloc_unknown'));
+            if (window.Cypress && error.code === error.POSITION_UNAVAILABLE) {
+                // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
+                // we don't raise an alert as it's "normal" in Electron to have this error raised (this API doesn't work
+                // on Electron embedded in Cypress : no Geolocation hardware detected, etc...)
+                // the position will be returned by a mocked up function by Cypress we can ignore this error
+                // we do nothing...
+            } else {
+                alert(i18n.t('geoloc_unknown') + ` ${error.code}`);
+            }
     }
 }
 
