@@ -1,5 +1,8 @@
 <template>
-  <div class="geoloc-button" @click="toggleGeolocation" :class="{ 'active': isActive, 'disabled': isDenied }">
+  <div class="geoloc-button"
+       @click="toggleGeolocation"
+       :class="{ 'active': isActive, 'disabled': isDenied }"
+       data-cy="geolocation-button">
     <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
       <ellipse class="geoloc-button-inner-circle" rx="8" ry="8" stroke-width="9" />
     </svg>

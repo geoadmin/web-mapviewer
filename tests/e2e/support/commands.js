@@ -5,11 +5,24 @@
 // ***********************************************
 
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
-Cypress.Commands.add('goToMapView', () => {
-    cy.visit('/')
+Cypress.Commands.add('goToMapView', (lang = 'en') => {
+    cy.visit(`/?lang=${lang}`)
     // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
     cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible');
 })
+// from https://github.com/cypress-io/cypress/issues/2671
+Cypress.Commands.add('goToMapViewWithMockGeolocation', (latitude = 47, longitude = 7, lang = 'en') => {
+    const mockGeolocation = (win, latitude, longitude) => {
+        cy.stub(win.navigator.geolocation, 'getCurrentPosition', callback => {
+            return callback({ coords: { latitude, longitude } });
+        });
+    };
+    cy.visit(`/?lang=${lang}`, {
+        onBeforeLoad: win => {
+            mockGeolocation(win, latitude, longitude);
+        }
+    });
+});
 
 // Reads a value from the Vuex store
 // for state module value, the key should look like "state.{moduleName}.{valueName}" (e.g. "state.position.center")

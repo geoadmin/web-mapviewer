@@ -7,7 +7,7 @@ class ParamConfig {
      * @param {String} mutationToWatch the name of the Vuex's store mutation to watch for value synchronization
      * @param {String} dispatchChangeTo the name of the Vuex's store action where to publish changes made in the URL
      * @param {Function} extractValueFromStore a function taking the store in param that needs to return the value of this param found in the store
-     * @param {NumberConstructor|StringConstructor} valueType
+     * @param {NumberConstructor|StringConstructor|BooleanConstructor} valueType
      */
     constructor(urlParamName,
                 mutationToWatch,
@@ -66,6 +66,7 @@ const urlParamsConfig = [
     new ParamConfig('lat', 'setCenter', 'setLatitude', store => store.getters.centerEpsg4326[1], Number),
     new ParamConfig('lon', 'setCenter', 'setLongitude', store => store.getters.centerEpsg4326[0], Number),
     new ParamConfig('z', 'setZoom', 'setZoom', store => store.state.position.zoom, Number),
+    new ParamConfig('geolocation', 'setGeolocationActive', 'toggleGeolocation', store => store.state.geolocation.active, Boolean),
 ];
 const watchedMutations = [...new Set(urlParamsConfig.map(paramConfig => paramConfig.mutationToWatch))];
 
