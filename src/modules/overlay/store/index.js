@@ -1,3 +1,3 @@
-import overlayStore from "./overlay.store"
+import overlayStore from './overlay.store'
 
-export default overlayStore;
+export default overlayStore

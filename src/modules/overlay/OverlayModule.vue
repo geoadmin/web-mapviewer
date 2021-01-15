@@ -1,9 +1,6 @@
 <template>
   <transition name="fade">
-    <div v-show="showOverlay"
-         id="overlay"
-         data-cy="overlay"
-         @click="hideOverlay"></div>
+    <div v-show="showOverlay" id="overlay" data-cy="overlay" @click="hideOverlay"></div>
   </transition>
 </template>
 
@@ -14,28 +11,30 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 499;
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
 </style>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex'
 
 export default {
   computed: {
     ...mapState({
-      showOverlay: state => state.overlay.show
-    })
+      showOverlay: (state) => state.overlay.show,
+    }),
   },
   methods: {
     ...mapActions(['hideOverlay']),
-  }
-};
+  },
+}
 </script>

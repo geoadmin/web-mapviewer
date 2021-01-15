@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { mount } from '@vue/test-utils'
-import LangSwitchButton from "@/modules/i18n/components/LangSwitchButton";
+import LangSwitchButton from '@/modules/i18n/components/LangSwitchButton'
 
 describe('LangSwitchButton.vue', () => {
   it('Show lang in upper case', () => {
@@ -9,8 +9,8 @@ describe('LangSwitchButton.vue', () => {
       propsData: {
         lang,
         onClick: () => {},
-        isActive: true
-      }
+        isActive: true,
+      },
     })
     expect(wrapper.text()).to.include(lang.toUpperCase())
   })

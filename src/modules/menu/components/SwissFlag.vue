@@ -3,7 +3,7 @@
 </template>
 
 <style lang="scss">
-@import "node_modules/bootstrap/scss/bootstrap";
+@import 'node_modules/bootstrap/scss/bootstrap';
 .swiss-flag {
   height: 2em;
   width: 2em;
@@ -17,5 +17,5 @@
 </style>
 
 <script>
-  export default {};
+export default {}
 </script>

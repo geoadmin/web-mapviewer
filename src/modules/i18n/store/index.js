@@ -1,3 +1,3 @@
-import i18nStore from "./i18n.store"
+import i18nStore from './i18n.store'
 
-export default i18nStore;
+export default i18nStore

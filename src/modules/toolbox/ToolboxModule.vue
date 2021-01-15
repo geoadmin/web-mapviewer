@@ -5,14 +5,13 @@
       <GeolocButton id="geoloc-button" />
     </div>
     <transition name="slide-left">
-      <BackgroundSelectorButton id="toolbox-bg-buttons" v-show="showBgWheel" />
+      <BackgroundSelectorButton v-show="showBgWheel" id="toolbox-bg-buttons" />
     </transition>
   </div>
 </template>
 
 <style lang="scss">
-
-@import "src/scss/variables";
+@import 'src/scss/variables';
 
 #right-toolbox,
 #toolbox-bg-buttons {
@@ -43,17 +42,17 @@
 </style>
 
 <script>
-import ZoomButtons from "./components/ZoomButtons"
-import BackgroundSelectorButton from "./components/BackgroundSelectorButton";
-import { mapState } from "vuex";
-import GeolocButton from "./components/GeolocButton";
+import ZoomButtons from './components/ZoomButtons'
+import BackgroundSelectorButton from './components/BackgroundSelectorButton'
+import { mapState } from 'vuex'
+import GeolocButton from './components/GeolocButton'
 
 export default {
+  components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
   computed: {
     ...mapState({
-      showBgWheel: state => state.ui.showBackgroundWheel,
-    })
+      showBgWheel: (state) => state.ui.showBackgroundWheel,
+    }),
   },
-  components: {GeolocButton, ZoomButtons, BackgroundSelectorButton }
 }
 </script>

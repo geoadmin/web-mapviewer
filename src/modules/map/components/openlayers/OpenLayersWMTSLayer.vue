@@ -4,11 +4,12 @@
   </div>
 </template>
 <script>
-import {Tile as TileLayer} from "ol/layer";
-import {XYZ as XYZSource} from "ol/source";
-import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
+import { Tile as TileLayer } from 'ol/layer'
+import { XYZ as XYZSource } from 'ol/source'
+import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 export default {
+  mixins: [addLayerToMapMixin],
   props: {
     layerId: {
       type: String,
@@ -20,7 +21,7 @@ export default {
     },
     projection: {
       type: String,
-      default: 'EPSG:3857'
+      default: 'EPSG:3857',
     },
     visible: {
       type: Boolean,
@@ -35,28 +36,27 @@ export default {
       default: -1,
     },
   },
-  mixins: [addLayerToMapMixin],
+  watch: {
+    opacity: function (newOpacity) {
+      this.layer.setOpacity(newOpacity)
+    },
+    visible: function (newVisibility) {
+      this.layer.setVisible(newVisibility)
+    },
+    url: function (newUrl) {
+      this.layer.getSource().setUrl(newUrl)
+    },
+  },
   created() {
     this.layer = new TileLayer({
       id: this.layerId,
       opacity: this.opacity,
       source: new XYZSource({
         projection: this.projection,
-        url: this.url
+        url: this.url,
       }),
       visible: this.visible,
     })
   },
-  watch: {
-    opacity: function (newOpacity) {
-      this.layer.setOpacity(newOpacity)
-    },
-    visible: function (newVisibility) {
-      this.layer.setVisible(newVisibility);
-    },
-    url: function (newUrl) {
-      this.layer.getSource().setUrl(newUrl);
-    }
-  }
 }
 </script>

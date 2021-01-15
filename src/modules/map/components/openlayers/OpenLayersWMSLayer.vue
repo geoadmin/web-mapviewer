@@ -4,14 +4,15 @@
   </div>
 </template>
 <script>
-import { Image as ImageLayer, Tile as TileLayer } from "ol/layer"
-import ImageWMS from "ol/source/ImageWMS"
-import TileWMS from "ol/source/TileWMS"
-import TileGrid from "ol/tilegrid/TileGrid"
-import addLayerToMapMixin from "./utils/addLayerToMap-mixins";
-import {TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE} from "@/config";
+import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
+import ImageWMS from 'ol/source/ImageWMS'
+import TileWMS from 'ol/source/TileWMS'
+import TileGrid from 'ol/tilegrid/TileGrid'
+import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 
 export default {
+  mixins: [addLayerToMapMixin],
   props: {
     layerId: {
       type: String,
@@ -27,7 +28,7 @@ export default {
     },
     projection: {
       type: String,
-      default: 'EPSG:3857'
+      default: 'EPSG:3857',
     },
     zIndex: {
       type: Number,
@@ -38,7 +39,14 @@ export default {
       default: -1,
     },
   },
-  mixins: [addLayerToMapMixin],
+  watch: {
+    url: function (newUrl) {
+      this.layer.getSource().setUrl(newUrl)
+    },
+    opacity: function (newOpacity) {
+      this.layer.setOpacity(newOpacity)
+    },
+  },
   created() {
     if (this.gutter !== -1) {
       this.layer = new TileLayer({
@@ -52,8 +60,8 @@ export default {
             tileSize: WMS_TILE_SIZE,
             origin: TILEGRID_ORIGIN,
             resolutions: TILEGRID_RESOLUTIONS,
-          })
-        })
+          }),
+        }),
       })
     } else {
       this.layer = new ImageLayer({
@@ -61,16 +69,8 @@ export default {
         opacity: this.opacity,
         source: new ImageWMS({
           url: this.url,
-        })
+        }),
       })
-    }
-  },
-  watch: {
-    url: function (newUrl) {
-      this.layer.getSource().setUrl(newUrl);
-    },
-    opacity: function (newOpacity) {
-      this.layer.setOpacity(newOpacity);
     }
   },
 }

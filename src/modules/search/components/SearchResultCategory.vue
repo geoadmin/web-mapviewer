@@ -1,16 +1,24 @@
 <template>
-  <div class="search-category" :class="{ 'search-category-half-size': halfSize }" v-show="entries.length > 0">
+  <div
+    v-show="entries.length > 0"
+    class="search-category"
+    :class="{ 'search-category-half-size': halfSize }"
+  >
     <div class="search-category-header">
       {{ title }}
     </div>
     <div class="search-category-body">
-      <SearchResultListEntry v-for="(entry, index) in entries" :key="`${index}-${entry.getId()}`" :entry="entry" />
+      <SearchResultListEntry
+        v-for="(entry, index) in entries"
+        :key="`${index}-${entry.getId()}`"
+        :entry="entry"
+      />
     </div>
   </div>
 </template>
 
 <style lang="scss">
-@import "node_modules/bootstrap/scss/bootstrap";
+@import 'node_modules/bootstrap/scss/bootstrap';
 .search-category {
   .search-category-header {
     @extend .p-2;
@@ -32,23 +40,23 @@
 </style>
 
 <script>
-import SearchResultListEntry from "./SearchResultListEntry";
+import SearchResultListEntry from './SearchResultListEntry'
 
 export default {
-  components: {SearchResultListEntry},
+  components: { SearchResultListEntry },
   props: {
     entries: {
       type: Array,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     halfSize: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

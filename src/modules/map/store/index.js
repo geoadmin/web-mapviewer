@@ -1,3 +1,3 @@
-import mapStore from "./map.store"
+import mapStore from './map.store'
 
-export default mapStore;
+export default mapStore

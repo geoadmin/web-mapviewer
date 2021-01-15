@@ -12,15 +12,14 @@
 </style>
 
 <script>
-import SearchBar from "./components/SearchBar";
-import SearchResultList from "./components/SearchResultList";
+import SearchBar from './components/SearchBar'
+import SearchResultList from './components/SearchResultList'
 
 export default {
-  computed: {
-  },
   components: {
     SearchResultList,
     SearchBar,
-  }
+  },
+  computed: {},
 }
 </script>

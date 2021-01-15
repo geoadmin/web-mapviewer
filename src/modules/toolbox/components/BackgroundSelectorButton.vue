@@ -1,27 +1,35 @@
 <template>
   <div class="bg-selector-container">
-    <div class="bg-selector"
-         :class="{ 'animate__animated animate__pulse bigger-pulse animate__faster': animateMainButton }"
-         @click="toggleBackgroundWheel"
-         @animationend="animateMainButton = false">
-    </div>
+    <div
+      class="bg-selector"
+      :class="{
+        'animate__animated animate__pulse bigger-pulse animate__faster': animateMainButton,
+      }"
+      @click="toggleBackgroundWheel"
+      @animationend="animateMainButton = false"
+    ></div>
     <div class="bg-selector-wheel">
       <transition-group name="bg-slide-up">
-        <div v-show="showBgWheel"
-             class="bg-selector"
-             v-for="(background, index) in backgroundLayersWithVoid"
-             :key="background"
-             :class="[`bg-${background.replaceAll('.', '-')}`, `bg-index-${index}`, { 'active': background === currentBackgroundLayerId }]"
-             @click="selectBackgroundWithLayerId(background)">
-        </div>
+        <div
+          v-for="(background, index) in backgroundLayersWithVoid"
+          v-show="showBgWheel"
+          :key="background"
+          class="bg-selector"
+          :class="[
+            `bg-${background.replaceAll('.', '-')}`,
+            `bg-index-${index}`,
+            { active: background === currentBackgroundLayerId },
+          ]"
+          @click="selectBackgroundWithLayerId(background)"
+        ></div>
       </transition-group>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-@import "node_modules/bootstrap/scss/bootstrap";
-@import "src/scss/variables";
+@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/variables';
 
 $bg-button-border-size: 8px;
 $bg-button-border-size-in-wheel: 3px;
@@ -33,7 +41,7 @@ $bg-button-border-size-in-wheel: 3px;
   position: relative;
   height: $map-button-diameter;
   width: $map-button-diameter;
-  background-image: url("../assets/backgrounds_mobile.png");
+  background-image: url('../assets/backgrounds_mobile.png');
   background-repeat: no-repeat;
   background-size: initial;
   border-radius: $map-button-diameter / 2;
@@ -64,7 +72,8 @@ $bg-button-border-size-in-wheel: 3px;
 .bg-slide-up-enter-active {
   transition: 0.3s;
 }
-.bg-slide-up-enter, .bg-slide-up-leave-to {
+.bg-slide-up-enter,
+.bg-slide-up-leave-to {
   opacity: 0;
   &.bg-index-0 {
     transform: translate(0, 300%);
@@ -98,7 +107,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 
 const voidLayer = {
   id: 'void',
-  index: -1
+  index: -1,
 }
 
 export default {
@@ -109,44 +118,44 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', "getLayerForId"]),
+    ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForId']),
     ...mapState({
-      currentBackgroundLayerId: state => state.layers.backgroundLayerId,
+      currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
     }),
     currentBackgroundLayerWithVoid: function () {
-      const currentBg = this.currentBackgroundLayer;
+      const currentBg = this.currentBackgroundLayer
       if (!currentBg) {
-        return voidLayer;
+        return voidLayer
       }
-      return currentBg;
+      return currentBg
     },
     backgroundLayersWithVoid: function () {
       const bgLayers = [
-          'ch.swisstopo.pixelkarte-grau',
-          'ch.swisstopo.pixelkarte-farbe',
-          'ch.swisstopo.swissimage'
-      ];
+        'ch.swisstopo.pixelkarte-grau',
+        'ch.swisstopo.pixelkarte-farbe',
+        'ch.swisstopo.swissimage',
+      ]
       // we check that all background layers are present in the config received from the backend
       bgLayers.forEach((bgLayerId, index) => {
         if (!this.getLayerForId(bgLayerId)) {
           // if layer not defined in config, we remove it
-          bgLayers.splice(index, 1);
+          bgLayers.splice(index, 1)
         }
       })
       // adding void layer on top
-      return ['void', ...bgLayers];
+      return ['void', ...bgLayers]
     },
   },
   methods: {
     ...mapActions(['setBackground']),
     selectBackgroundWithLayerId: function (layerId) {
-      this.setBackground(layerId === 'void' ? null : layerId);
-      this.toggleBackgroundWheel();
+      this.setBackground(layerId === 'void' ? null : layerId)
+      this.toggleBackgroundWheel()
     },
     toggleBackgroundWheel: function () {
-      this.showBgWheel = !this.showBgWheel;
-      this.animateMainButton = this.showBgWheel;
-    }
-  }
+      this.showBgWheel = !this.showBgWheel
+      this.animateMainButton = this.showBgWheel
+    },
+  },
 }
 </script>
