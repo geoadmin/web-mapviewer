@@ -5,12 +5,11 @@ import { LayerTypes } from '@/api/layers.api'
 /**
  * Identifies feature under the mouse cursor
  * @param {Vuex.Store} store
- * @param {Object} clickInfo store mutation payload (see map.store.js#click action for structure)
+ * @param {ClickInfo} clickInfo store mutation payload
  * @param {Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>} visibleLayers all currently visible layers on the map
  * @param {String} lang
  */
 const runIdentify = (store, clickInfo, visibleLayers, lang) => {
-  const { coordinate, pixelCoordinate } = clickInfo // destructuring mutation payload
   // we run identify only if there are visible layers (other than background)
   if (visibleLayers.length > 0) {
     const allRequests = []
@@ -22,7 +21,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
         allRequests.push(
           identify(
             layer,
-            coordinate,
+            clickInfo.coordinate,
             store.getters.extent.flat(),
             store.state.ui.width,
             store.state.ui.height,
@@ -41,7 +40,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
         'setHighlightedFeatures',
         allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
       )
-      store.dispatch('setTooltipAnchor', pixelCoordinate)
+      store.dispatch('setTooltipAnchor', clickInfo.pixelCoordinate)
     })
   }
 }
