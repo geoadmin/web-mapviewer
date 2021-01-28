@@ -26,11 +26,18 @@ class ParamConfig {
   /**
    * Reads the value from the given Vue router query (part of {@link RouterLink})
    * @param query an object describing the route URL param
-   * @returns {undefined|number|string} the value casted in the type given to the config (see constructor)
+   * @returns {undefined|number|string|boolean} the value casted in the type given to the config (see constructor)
    */
   readValueFromQuery(query) {
     if (query && query[this.urlParamName]) {
-      return this.valueType(query[this.urlParamName])
+      // Edge case here in Javascript with Boolean constructor, Boolean('false') returns true as the "object" we passed
+      // to the constructor is valid and non-null. So we manage that "the old way" for booleans
+      if (this.valueType === Boolean) {
+        return query[this.urlParamName] === 'true'
+      } else {
+        // if not a boolean, we can trust the other constructor (Number, String) to return a valid value whenever it is possible with the input
+        return this.valueType(query[this.urlParamName])
+      }
     }
     return undefined
   }

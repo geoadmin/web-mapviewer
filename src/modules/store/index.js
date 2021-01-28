@@ -11,6 +11,7 @@ import map from '../map/store'
 import overlay from '../overlay/store'
 import search from '../search/store'
 import i18n from '../i18n/store'
+import tooltip from '../tooltip/store'
 
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
 import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
@@ -41,5 +42,6 @@ export default new Vuex.Store({
     overlay,
     search,
     i18n,
+    tooltip,
   },
 })

@@ -6,6 +6,7 @@
       <SearchModule />
     </MenuModule>
     <ToolboxModule />
+    <TooltipModule />
     <I18nModule />
   </div>
 </template>
@@ -25,8 +26,17 @@ import MenuModule from '@/modules/menu/MenuModule'
 import SearchModule from '@/modules/search/SearchModule'
 import ToolboxModule from '@/modules/toolbox/ToolboxModule'
 import I18nModule from '@/modules/i18n/I18nModule'
+import TooltipModule from '@/modules/tooltip/TooltipModule'
 
 export default {
-  components: { ToolboxModule, SearchModule, MenuModule, MapModule, OverlayModule, I18nModule },
+  components: {
+    TooltipModule,
+    ToolboxModule,
+    SearchModule,
+    MenuModule,
+    MapModule,
+    OverlayModule,
+    I18nModule,
+  },
 }
 </script>

@@ -32,6 +32,10 @@ export default {
       type: Number,
       required: true,
     },
+    zIndex: {
+      type: Number,
+      default: -1,
+    },
   },
   inject: ['getMap'],
   data() {

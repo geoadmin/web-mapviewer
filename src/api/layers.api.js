@@ -61,6 +61,9 @@ export class Layer {
    * @param {Number} opacity
    * @param {Boolean} isBackground
    * @param {String} baseURL
+   * @param {Boolean} isHighlightable TODO define what the heck this is
+   * @param {Boolean} hasTooltip define if this layer shows tooltip when clicked on
+   * @param {Array<String>} topics
    */
   constructor(
     name = '',
@@ -68,7 +71,10 @@ export class Layer {
     id = '',
     opacity = 1.0,
     isBackground = false,
-    baseURL = null
+    baseURL = null,
+    isHighlightable = false,
+    hasTooltip = false,
+    topics = []
   ) {
     this.name = name
     this.type = type
@@ -79,6 +85,9 @@ export class Layer {
     if (this.baseURL && !this.baseURL.endsWith('/')) {
       this.baseURL = this.baseURL + '/'
     }
+    this.isHighlightable = isHighlightable
+    this.hasTooltip = hasTooltip
+    this.topics = topics
     this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
     this.visible = false
     this.projection = 'EPSG:3857'
@@ -91,6 +100,16 @@ export class Layer {
   getURL() {
     throw new Error('You have to implement the method getURL!')
   }
+
+  getTopicForIdentifyAndTooltipRequests() {
+    // by default, the frontend should always request `ech`, so if there's no topic that's what we do
+    // if there are some topics, we look if `ech` is one of them, if so we return it
+    if (this.topics.length === 0 || this.topics.indexOf('ech') !== -1) {
+      return 'ech'
+    }
+    // otherwise we return the first topic to make our backend requests for identify and htmlPopup
+    return this.topics[0]
+  }
 }
 
 export class WMTSLayer extends Layer {
@@ -102,6 +121,8 @@ export class WMTSLayer extends Layer {
    * @param {TimeConfig} timeConfig settings telling which timestamp has to be used when request tiles to the backend
    * @param {Boolean} isBackground if this layer should be treated as a background layer
    * @param {String} baseURL the base URL to be used to request tiles (can use the {0-9} notation to describe many available backends)
+   * @param {Boolean} isHighlightable
+   * @param {Boolean} hasTooltip
    */
   constructor(
     name = '',
@@ -110,9 +131,11 @@ export class WMTSLayer extends Layer {
     format = 'png',
     timeConfig = null,
     isBackground = false,
-    baseURL = null
+    baseURL = null,
+    isHighlightable = false,
+    hasTooltip = false
   ) {
-    super(name, LayerTypes.WMTS, id, opacity, isBackground, baseURL)
+    super(name, LayerTypes.WMTS, id, opacity, isBackground, baseURL, isHighlightable, hasTooltip)
     this.format = format
     this.timeConfig = timeConfig
   }
@@ -160,9 +183,22 @@ export class WMSLayer extends Layer {
    * @param {TimeConfig} timeConfig settings telling which year has to be used when request tiles to the backend
    * @param {String} lang the lang ISO code to use when requesting the backend
    * @param {Number} gutter how much of a gutter we want (specific for tiled WMS, if unset this layer will be a single tile WMS)
+   * @param {Boolean} isHighlightable
+   * @param {Boolean} hasTooltip
    */
-  constructor(name, id, opacity, baseURL, format, timeConfig, lang = 'en', gutter = -1) {
-    super(name, LayerTypes.WMS, id, opacity, false, baseURL)
+  constructor(
+    name,
+    id,
+    opacity,
+    baseURL,
+    format,
+    timeConfig,
+    lang = 'en',
+    gutter = -1,
+    isHighlightable = false,
+    hasTooltip = false
+  ) {
+    super(name, LayerTypes.WMS, id, opacity, false, baseURL, isHighlightable, hasTooltip)
     this.format = format
     this.timeConfig = timeConfig
     this.lang = lang
@@ -249,11 +285,29 @@ export class AggregateLayer extends Layer {
 const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
   let layer = undefined
   if (layerConfig) {
-    const { label: name, type, opacity, format, background } = layerConfig
+    const {
+      label: name,
+      type,
+      opacity,
+      format,
+      background,
+      highlightable: isHighlightable,
+      tooltip: hasTooltip,
+    } = layerConfig
     const timeConfig = new TimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
     switch (type.toLowerCase()) {
       case 'wmts':
-        layer = new WMTSLayer(name, id, opacity, format, timeConfig, !!background, WMTS_BASE_URL)
+        layer = new WMTSLayer(
+          name,
+          id,
+          opacity,
+          format,
+          timeConfig,
+          !!background,
+          WMTS_BASE_URL,
+          isHighlightable,
+          hasTooltip
+        )
         break
       case 'wms':
         layer = new WMSLayer(
@@ -264,7 +318,9 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
           format,
           timeConfig,
           lang,
-          layerConfig.gutter
+          layerConfig.gutter,
+          isHighlightable,
+          hasTooltip
         )
         break
       case 'geojson':

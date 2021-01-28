@@ -31,14 +31,18 @@ const addLayerToMapMixin = {
   },
   methods: {
     addLayerToMap: function (zIndex, layer) {
-      if (!zIndex) {
-        this.getMap().addLayer(layer)
-      } else {
-        this.getMap().getLayers().insertAt(zIndex, layer)
+      if (this.getMap()) {
+        if (!zIndex) {
+          this.getMap().addLayer(layer)
+        } else {
+          this.getMap().getLayers().insertAt(zIndex, layer)
+        }
       }
     },
     removeLayerFromMap: function (layer) {
-      this.getMap().removeLayer(layer)
+      if (this.getMap()) {
+        this.getMap().removeLayer(layer)
+      }
     },
   },
   watch: {

@@ -1,4 +1,50 @@
 import { isMobile } from 'mobile-device-detect'
+import { identify } from '@/api/features.api'
+import { LayerTypes } from '@/api/layers.api'
+
+/**
+ * Identifies feature under the mouse cursor
+ * @param {Vuex.Store} store
+ * @param {Object} clickInfo store mutation payload (see map.store.js#click action for structure)
+ * @param {Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>} visibleLayers all currently visible layers on the map
+ * @param {String} lang
+ */
+const runIdentify = (store, clickInfo, visibleLayers, lang) => {
+  const { coordinate, pixelCoordinate } = clickInfo // destructuring mutation payload
+  // we run identify only if there are visible layers (other than background)
+  if (visibleLayers.length > 0) {
+    const allRequests = []
+    // for each layer we run a backend request
+    visibleLayers.forEach((layer) => {
+      if (layer.type === LayerTypes.GEOJSON) {
+        allRequests.push(new Promise((resolve) => resolve(clickInfo.geoJsonFeatures)))
+      } else if (layer.hasTooltip) {
+        allRequests.push(
+          identify(
+            layer,
+            coordinate,
+            store.getters.extent.flat(),
+            store.state.ui.width,
+            store.state.ui.height,
+            lang
+          )
+        )
+      } else {
+        console.debug('ignoring layer', layer, 'no tooltip')
+      }
+    })
+    Promise.all(allRequests).then((values) => {
+      // grouping all features from the different requests
+      const allFeatures = values.flat()
+      // dispatching all features by going through them in order to keep only one time each of them (no double)
+      store.dispatch(
+        'setHighlightedFeatures',
+        allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
+      )
+      store.dispatch('setTooltipAnchor', pixelCoordinate)
+    })
+  }
+}
 
 const clickOnMapManagementPlugin = (store) => {
   store.subscribe((mutation, state) => {
@@ -10,11 +56,11 @@ const clickOnMapManagementPlugin = (store) => {
           store.dispatch('toggleFooter')
           store.dispatch('toggleBackgroundWheel')
         } else {
-          // TODO: identify
+          runIdentify(store, mutation.payload, store.getters.visibleLayers, store.state.i18n.lang)
         }
       } else {
         // for Desktop, click is always an "identify"
-        // TODO: identify
+        runIdentify(store, mutation.payload, store.getters.visibleLayers, store.state.i18n.lang)
       }
     }
   })
