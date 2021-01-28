@@ -19,6 +19,7 @@ import { Feature } from '@/api/features.api'
 import OpenLayersMarker, {
   highlightedFill,
   highlightedStroke,
+  highlightPointStyle,
   markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
@@ -31,16 +32,17 @@ const geoJsonStyleFunction = (olFeature) => {
       return new Style({
         stroke: highlightedStroke,
       })
-    case 'MultiPoint':
-    case 'Point':
-    case 'MultiPolygon':
     case 'Polygon':
+    case 'MultiPolygon':
     case 'Circle':
     case 'GeometryCollection':
       return new Style({
         stroke: highlightedStroke,
         fill: highlightedFill,
       })
+    case 'Point':
+    case 'MultiPoint':
+      return highlightPointStyle
     default:
       return null
   }

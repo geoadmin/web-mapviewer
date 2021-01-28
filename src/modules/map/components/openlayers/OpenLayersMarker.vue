@@ -40,14 +40,14 @@ export const highlightedStroke = new Stroke({
   color: [255, 128, 0, 1],
   width: 3,
 })
-
-const markerFeatureHighlightStyle = new Style({
+export const highlightPointStyle = new Style({
   image: new CircleStyle({
     radius: 10,
     fill: highlightedFill,
     stroke: highlightedStroke,
   }),
 })
+
 const markerHiddenStyle = new Style({
   visible: false,
 })
@@ -97,7 +97,7 @@ export default {
         case markerStyles.BALLOON:
           return markerBalloonStyle
         case markerStyles.FEATURE:
-          return markerFeatureHighlightStyle
+          return highlightPointStyle
         case markerStyles.HIDDEN:
         default:
           return markerHiddenStyle

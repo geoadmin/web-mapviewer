@@ -1,6 +1,9 @@
 import { API_BASE_URL } from '@/config'
 import axios from 'axios'
 
+/**
+ * Describe a feature from the backend (see {@link getFeature}) below
+ */
 export class Feature {
   /**
    * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer the layer in which this feature belongs
@@ -28,7 +31,7 @@ export class Feature {
 }
 
 /**
- * Asks the backend for identification of features at the coordinates for the given layer
+ * Asks the backend for identification of features at the coordinates for the given layer using http://api3.geo.admin.ch/services/sdiservices.html#identify-features
  * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer
  * @param {Array<Number>} coordinate coordinate where to identify feature in EPSG:3857
  * @param {Array<Number>} mapExtent
@@ -77,6 +80,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
       .then((response) => {
         const featureRequests = []
         if (response.data && response.data.results && response.data.results.length > 0) {
+          // for each feature that has been identify, we will now load their metadata and tooltip content
           response.data.results.forEach((result) => {
             featureRequests.push(getFeature(layer, result.featureId, lang))
           })
@@ -96,6 +100,9 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
 }
 
 /**
+ * Loads a feature metadata and tooltip content from this two endpoint of the backend
+ *  - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
+ *  - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
  * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer the layer from which the feature is part of
  * @param {String|Number} featureID the feature ID in the BGDI
  * @param {String} lang the language for the HTML popup
@@ -109,45 +116,42 @@ const getFeature = (layer, featureID, lang = 'en') => {
     if (!featureID) {
       reject('Needs a valid feature ID')
     }
+    // combining the two requests in one promise
+    const topic = layer.getTopicForIdentifyAndTooltipRequests()
+    const featureUrl = `${API_BASE_URL}/rest/services/${topic}/MapServer/${layer.id}/${featureID}`
     axios
       .all([
-        axios.get(
-          `${API_BASE_URL}/rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${
-            layer.id
-          }/${featureID}`,
-          {
-            params: {
-              sr: 3857,
-              geometryFormat: 'geojson',
-            },
-          }
-        ),
-        axios.get(
-          `${API_BASE_URL}/rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/${
-            layer.id
-          }/${featureID}/htmlPopup?lang=${lang}&sr=3857`
-        ),
+        axios.get(featureUrl, {
+          params: {
+            sr: 3857,
+            geometryFormat: 'geojson',
+          },
+        }),
+        axios.get(`${featureUrl}/htmlPopup`, {
+          params: {
+            sr: 3857,
+            lang: lang,
+          },
+        }),
       ])
       .then((responses) => {
         const featureMetadata = responses[0].data.feature
         const featureHtmlPopup = responses[1].data
         const featureGeoJSONGeometry = featureMetadata.geometry
         const featureExtent = [...featureMetadata.bbox]
-        // if feature's geometry is a point, we grab it as coordinate. Otherwise we calculate the center of the bbox
+
         let featureCoordinate = []
-        let isFeatureGeometryAPoint = false
-        // if GeoJSON type is Point, we grab the coordinates and don't store any geom (hence the flag isFeatureGeometryAPoint)
+        // if GeoJSON type is Point, we grab the coordinates
         if (featureGeoJSONGeometry.type === 'Point') {
           featureCoordinate = featureGeoJSONGeometry.coordinates
-          isFeatureGeometryAPoint = true
         } else if (
           featureGeoJSONGeometry.type === 'MultiPoint' &&
           featureGeoJSONGeometry.coordinates.length === 1
         ) {
-          // or if the GeoJSON type is MultiPoint, but there's only one point in the array, we grab it and don't store any geom
+          // or if the GeoJSON type is MultiPoint, but there's only one point in the array, we grab it
           featureCoordinate = featureGeoJSONGeometry.coordinates[0]
-          isFeatureGeometryAPoint = true
         } else {
+          // this feature has a geometry more complicated that a single point, we store the center of the bbox as the coordinate
           featureCoordinate = [
             (featureMetadata.bbox[0] + featureMetadata.bbox[2]) / 2,
             (featureMetadata.bbox[1] + featureMetadata.bbox[3]) / 2,
@@ -160,7 +164,7 @@ const getFeature = (layer, featureID, lang = 'en') => {
             featureHtmlPopup,
             featureCoordinate,
             featureExtent,
-            isFeatureGeometryAPoint ? null : featureGeoJSONGeometry
+            featureGeoJSONGeometry
           )
         )
       })
