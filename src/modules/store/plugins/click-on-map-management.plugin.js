@@ -40,11 +40,14 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
         'setHighlightedFeatures',
         allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
       )
-      store.dispatch('setTooltipAnchor', clickInfo.pixelCoordinate)
     })
   }
 }
 
+/**
+ * Vuex plugins that will listen to click events and act depending on what's under the click (or how long the mouse button was down)
+ * @param {Vuex.Store} store
+ */
 const clickOnMapManagementPlugin = (store) => {
   store.subscribe((mutation, state) => {
     if (mutation.type === 'setClickInfo') {
