@@ -60,7 +60,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
     }
     axios
       .get(
-        `${API_BASE_URL}/rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
+        `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
         {
           params: {
             layers: `all:${layer.id}`,
@@ -81,8 +81,8 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
         const featureRequests = []
         if (response.data && response.data.results && response.data.results.length > 0) {
           // for each feature that has been identify, we will now load their metadata and tooltip content
-          response.data.results.forEach((result) => {
-            featureRequests.push(getFeature(layer, result.featureId, lang))
+          response.data.results.forEach((feature) => {
+            featureRequests.push(getFeature(layer, feature.id, lang))
           })
           Promise.all(featureRequests)
             .then((values) => {
@@ -109,6 +109,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
  * @return {Promise<Feature>}
  */
 const getFeature = (layer, featureID, lang = 'en') => {
+  console.log('getting feature', featureID, 'from layer', layer.id)
   return new Promise((resolve, reject) => {
     if (!layer || !layer.id) {
       reject('Needs a valid layer with an ID')
@@ -118,7 +119,7 @@ const getFeature = (layer, featureID, lang = 'en') => {
     }
     // combining the two requests in one promise
     const topic = layer.getTopicForIdentifyAndTooltipRequests()
-    const featureUrl = `${API_BASE_URL}/rest/services/${topic}/MapServer/${layer.id}/${featureID}`
+    const featureUrl = `${API_BASE_URL}rest/services/${topic}/MapServer/${layer.id}/${featureID}`
     axios
       .all([
         axios.get(featureUrl, {
@@ -136,9 +137,15 @@ const getFeature = (layer, featureID, lang = 'en') => {
       ])
       .then((responses) => {
         const featureMetadata = responses[0].data.feature
+          ? responses[0].data.feature
+          : responses[0].data
+        console.log('metadata received from the backend', featureMetadata)
         const featureHtmlPopup = responses[1].data
         const featureGeoJSONGeometry = featureMetadata.geometry
-        const featureExtent = [...featureMetadata.bbox]
+        const featureExtent = []
+        if (featureMetadata.bbox) {
+          featureExtent.push(...featureMetadata.bbox)
+        }
 
         let featureCoordinate = []
         // if GeoJSON type is Point, we grab the coordinates
@@ -151,7 +158,7 @@ const getFeature = (layer, featureID, lang = 'en') => {
           // or if the GeoJSON type is MultiPoint, but there's only one point in the array, we grab it
           featureCoordinate = featureGeoJSONGeometry.coordinates[0]
         } else {
-          // this feature has a geometry more complicated that a single point, we store the center of the bbox as the coordinate
+          // this feature has a geometry more complicated that a single point, we store the center of the extent as the coordinate
           featureCoordinate = [
             (featureMetadata.bbox[0] + featureMetadata.bbox[2]) / 2,
             (featureMetadata.bbox[1] + featureMetadata.bbox[3]) / 2,
