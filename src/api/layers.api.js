@@ -1,6 +1,9 @@
 import { API_BASE_URL, WMTS_BASE_URL, WMS_BASE_URL } from '@/config'
 import axios from 'axios'
 
+// API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
+// TODO : implement loading of a cached CloudFront version for MVP
+
 /**
  * @readonly
  * @enum {String}
@@ -47,20 +50,24 @@ export class TimeConfig {
 }
 
 /**
+ * @abstract
  * @class
  * @name layers:Layer
  *
  * Base class for Layer config description, must be extended to a more specific flavor of Layer
- * (e.g. {@link WMTSLayer}, {@link WMSLayer} or {@link GeoJsonLayer})
+ * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer} or {@link AggregateLayer})
  */
 export class Layer {
   /**
-   * @param {String} name
-   * @param {LayerTypes} type
-   * @param {String} id
-   * @param {Number} opacity
-   * @param {Boolean} isBackground
-   * @param {String} baseURL
+   * @param {String} name name of this layer in the current lang
+   * @param {LayerTypes} type see {@link LayerTypes}
+   * @param {String} id the BOD ID of this layer that will be used to request the backend
+   * @param {Number} opacity value from 0.0 to 1.0 telling with which opacity this layer should be shown on the map
+   * @param {Boolean} isBackground if this layer is to be used as a background layer or not (background layer are stored in the background wheel on the side of the UI)
+   * @param {String} baseURL what's the backend base URL to use when requesting tiles/image for this layer, will be used to construct the URL of this layer later on (if null, the default WMS/WMTS backend URL will be used)
+   * @param {Boolean} isHighlightable tells if this layer possess features that should be highlighted on the map after a click (and if the backend will provide valuable information on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+   * @param {Boolean} hasTooltip define if this layer shows tooltip when clicked on
+   * @param {Array<String>} topics all the topics in which belongs this layer
    */
   constructor(
     name = '',
@@ -68,7 +75,10 @@ export class Layer {
     id = '',
     opacity = 1.0,
     isBackground = false,
-    baseURL = null
+    baseURL = null,
+    isHighlightable = false,
+    hasTooltip = false,
+    topics = []
   ) {
     this.name = name
     this.type = type
@@ -79,6 +89,9 @@ export class Layer {
     if (this.baseURL && !this.baseURL.endsWith('/')) {
       this.baseURL = this.baseURL + '/'
     }
+    this.isHighlightable = isHighlightable
+    this.hasTooltip = hasTooltip
+    this.topics = topics
     this.isSpecificFor3D = id.toLowerCase().endsWith('_3d')
     this.visible = false
     this.projection = 'EPSG:3857'
@@ -86,13 +99,31 @@ export class Layer {
 
   /**
    * @abstract
-   * @return {String}
+   * @return {String} the URL to use to request tile/image/data for this layer
    */
   getURL() {
     throw new Error('You have to implement the method getURL!')
   }
+
+  /**
+   * Returns which topic should be used in URL that needs one topic to be defined (identify or htmlPopup for instance).
+   * By default and whenever possible, the viewer should use `ech`. If `ech` is not present in the topics, the first of them should be used to request the backend.
+   * @return {String} the topic to use in request to the backend for this layer
+   */
+  getTopicForIdentifyAndTooltipRequests() {
+    // by default, the frontend should always request `ech`, so if there's no topic that's what we do
+    // if there are some topics, we look if `ech` is one of them, if so we return it
+    if (this.topics.length === 0 || this.topics.indexOf('ech') !== -1) {
+      return 'ech'
+    }
+    // otherwise we return the first topic to make our backend requests for identify and htmlPopup
+    return this.topics[0]
+  }
 }
 
+/**
+ * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
+ */
 export class WMTSLayer extends Layer {
   /**
    * @param {String} name layer name (internationalized)
@@ -102,6 +133,9 @@ export class WMTSLayer extends Layer {
    * @param {TimeConfig} timeConfig settings telling which timestamp has to be used when request tiles to the backend
    * @param {Boolean} isBackground if this layer should be treated as a background layer
    * @param {String} baseURL the base URL to be used to request tiles (can use the {0-9} notation to describe many available backends)
+   * @param {Boolean} isHighlightable tells if this layer possess features that should be highlighted on the map after a click (and if the backend will provide valuable information on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+   * @param {Boolean} hasTooltip define if this layer shows tooltip when clicked on
+   * @param {Array<String>} topics all the topics in which belongs this layer
    */
   constructor(
     name = '',
@@ -110,13 +144,29 @@ export class WMTSLayer extends Layer {
     format = 'png',
     timeConfig = null,
     isBackground = false,
-    baseURL = null
+    baseURL = null,
+    isHighlightable = false,
+    hasTooltip = false,
+    topics = []
   ) {
-    super(name, LayerTypes.WMTS, id, opacity, isBackground, baseURL)
+    super(
+      name,
+      LayerTypes.WMTS,
+      id,
+      opacity,
+      isBackground,
+      baseURL,
+      isHighlightable,
+      hasTooltip,
+      topics
+    )
     this.format = format
     this.timeConfig = timeConfig
   }
 
+  /**
+   * @return {String} a XYZ type URL to request this WMTS layer's tiles
+   */
   getURL() {
     return `${this.baseURL}1.0.0/${this.id}/default/${this.timeConfig.currentTimestamp}/3857/{z}/{x}/{y}.${this.format}`
   }
@@ -150,19 +200,37 @@ export class WMTSLayer extends Layer {
   }
 }
 
+/**
+ * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in chunks, usually 4), or single image (only one request fired for the whole map).
+ */
 export class WMSLayer extends Layer {
   /**
    * @param {String} name the name of this layer (lang specific)
    * @param {String} id the ID of this layer in the BOD
-   * @param {Number} opacity the opacity to apply to this layer
+   * @param {Number} opacity the opacity to apply to this layer (between 0.0 and 1.0)
    * @param {String} baseURL the backend to call for tiles
    * @param {String} format in which image format the backend must be requested
    * @param {TimeConfig} timeConfig settings telling which year has to be used when request tiles to the backend
-   * @param {String} lang the lang ISO code to use when requesting the backend
-   * @param {Number} gutter how much of a gutter we want (specific for tiled WMS, if unset this layer will be a single tile WMS)
+   * @param {String} lang the lang ISO code to use when requesting the backend (WMS images can have text that are language dependent)
+   * @param {Number} gutter how much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS, if unset this layer will be a considered a single tile WMS.
+   * @param {Boolean} isHighlightable tells if this layer possess features that should be highlighted on the map after a click (and if the backend will provide valuable information on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+   * @param {Boolean} hasTooltip define if this layer shows tooltip when clicked on
+   * @param {Array<String>} topics all the topics in which belongs this layer
    */
-  constructor(name, id, opacity, baseURL, format, timeConfig, lang = 'en', gutter = -1) {
-    super(name, LayerTypes.WMS, id, opacity, false, baseURL)
+  constructor(
+    name,
+    id,
+    opacity,
+    baseURL,
+    format,
+    timeConfig,
+    lang = 'en',
+    gutter = -1,
+    isHighlightable = false,
+    hasTooltip = false,
+    topics = []
+  ) {
+    super(name, LayerTypes.WMS, id, opacity, false, baseURL, isHighlightable, hasTooltip, topics)
     this.format = format
     this.timeConfig = timeConfig
     this.lang = lang
@@ -182,7 +250,17 @@ export class WMSLayer extends Layer {
   }
 }
 
+/**
+ * Metadata for a GeoJSON layer
+ */
 export class GeoJsonLayer extends Layer {
+  /**
+   * @param name the name of this layer in the current lang
+   * @param id the BOD ID of this layer (used to request data and style to the backend)
+   * @param opacity the opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
+   * @param geoJsonUrl the URL to use when requesting the GeoJSON data (the true GeoJSON per say...)
+   * @param styleUrl the URL to use to request the styling to apply to the data
+   */
   constructor(name, id, opacity, geoJsonUrl, styleUrl) {
     super(name, LayerTypes.GEOJSON, id, opacity)
     this.geoJsonUrl = geoJsonUrl
@@ -249,11 +327,31 @@ export class AggregateLayer extends Layer {
 const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
   let layer = undefined
   if (layerConfig) {
-    const { label: name, type, opacity, format, background } = layerConfig
+    const {
+      label: name,
+      type,
+      opacity,
+      format,
+      background,
+      highlightable: isHighlightable,
+      tooltip: hasTooltip,
+    } = layerConfig
     const timeConfig = new TimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
+    const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
     switch (type.toLowerCase()) {
       case 'wmts':
-        layer = new WMTSLayer(name, id, opacity, format, timeConfig, !!background, WMTS_BASE_URL)
+        layer = new WMTSLayer(
+          name,
+          id,
+          opacity,
+          format,
+          timeConfig,
+          !!background,
+          WMTS_BASE_URL,
+          isHighlightable,
+          hasTooltip,
+          topics
+        )
         break
       case 'wms':
         layer = new WMSLayer(
@@ -264,7 +362,10 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
           format,
           timeConfig,
           lang,
-          layerConfig.gutter
+          layerConfig.gutter,
+          isHighlightable,
+          hasTooltip,
+          topics
         )
         break
       case 'geojson':

@@ -7,6 +7,11 @@ const REGEX_WHAT_3_WORDS = /^\/{0,}[^0-9`~!@#$%^&*()+\-_=[{\]}\\|'<,.>?/";:£§�
 const WHAT_3_WORDS_API_BASE_URL = 'https://api.what3words.com/v3'
 const WHAT_3_WORDS_API_KEY = 'OM48J50Y'
 
+/**
+ * Check if text is a valid what3word (uses the regex provided by what3words.com)
+ * @param text
+ * @return {boolean}
+ */
 export const isWhat3WordsString = (text) => {
   return REGEX_WHAT_3_WORDS.test(text)
 }
@@ -41,13 +46,18 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
   })
 }
 
-export const registerWhat3WordsLocation = (locationEpsg3857) => {
+/**
+ * Sends the location given in param to what3words backend in get the equivalent what3word entry for this coordinate
+ * @param location a location expressed in EPSG:3857 projection
+ * @return {Promise<String>} the what3words for this location
+ */
+export const registerWhat3WordsLocation = (location) => {
   return new Promise((resolve, reject) => {
-    if (!Array.isArray(locationEpsg3857) && locationEpsg3857.length !== 2) {
+    if (!Array.isArray(location) && location.length !== 2) {
       reject('Bad location, must be a coordinate array')
     } else {
       // transforming EPSG:3857 coordinates into EPGS:4326 (WGS84)
-      const [lat, lon] = proj4('EPSG:3857', proj4.WGS84, locationEpsg3857)
+      const [lat, lon] = proj4('EPSG:3857', proj4.WGS84, location)
       axios
         .get(
           `${WHAT_3_WORDS_API_BASE_URL}/convert-to-3wa/?coordinates=${lat},${lon}&key=${WHAT_3_WORDS_API_KEY}`

@@ -32,6 +32,22 @@ const markerPositionStyle = new Style({
     }),
   }),
 })
+// style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
+export const highlightedFill = new Fill({
+  color: [255, 255, 0, 0.75],
+})
+export const highlightedStroke = new Stroke({
+  color: [255, 128, 0, 1],
+  width: 3,
+})
+export const highlightPointStyle = new Style({
+  image: new CircleStyle({
+    radius: 10,
+    fill: highlightedFill,
+    stroke: highlightedStroke,
+  }),
+})
+
 const markerHiddenStyle = new Style({
   visible: false,
 })
@@ -42,6 +58,7 @@ const markerHiddenStyle = new Style({
 export const markerStyles = {
   BALLOON: 'balloon',
   POSITION: 'position',
+  FEATURE: 'feature',
   HIDDEN: 'hidden',
 }
 
@@ -79,6 +96,8 @@ export default {
           return markerPositionStyle
         case markerStyles.BALLOON:
           return markerBalloonStyle
+        case markerStyles.FEATURE:
+          return highlightPointStyle
         case markerStyles.HIDDEN:
         default:
           return markerHiddenStyle

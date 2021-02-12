@@ -2,6 +2,8 @@ import axios from 'axios'
 import { API_BASE_URL } from '@/config'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 
+// API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
+
 /**
  * Enum for search result types
  * @readonly
@@ -12,6 +14,7 @@ export const RESULT_TYPE = {
   LOCATION: 'LOCATION',
 }
 
+// used to parse backend results and extract the title from sub-titles and other stuff
 const REGEX_RESULT_TITLE = /<b>(.*?)<\/b>/i
 
 /**
