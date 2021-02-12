@@ -6,13 +6,35 @@
  */
 export default {
   state: {
-    /** Height of the viewport (in px) */
+    /**
+     * Height of the viewport (in px)
+     * @type Number
+     */
     height: 0,
-    /** Width of the viewport (in px) */
+    /**
+     * Width of the viewport (in px)
+     * @type Number
+     */
     width: 0,
+    /**
+     * Flag telling if the menu tray (where the layer options, layer tree and other stuff is) should be open
+     * @type Boolean
+     */
     showMenuTray: false,
+    /**
+     * Flag telling if the header bar should be visible (so that we can go map fullscreen)
+     * @type Boolean
+     */
     showHeader: true,
+    /**
+     * Flag telling if the footer should be visible (so that we can go map fullscreen)
+     * @type Boolean
+     */
     showFooter: true,
+    /**
+     * Flag telling if the background wheel button should be visible
+     * @type Boolean
+     */
     showBackgroundWheel: true,
   },
   getters: {

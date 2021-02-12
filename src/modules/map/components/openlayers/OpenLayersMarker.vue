@@ -62,6 +62,9 @@ export const markerStyles = {
   HIDDEN: 'hidden',
 }
 
+/**
+ * Renders a marker on the map (different styling are available)
+ */
 export default {
   mixins: [addLayerToMapMixin],
   props: {

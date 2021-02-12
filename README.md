@@ -23,7 +23,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 ## Project structure
 
 This is a [Vue](https://vuejs.org/) app that is served through `src/main.js`, using [Vuex](https://vuex.vuejs.org/) as a state manager.
-The app is divided into modules (or chunks) that are stored into `src/modules`. The goal is for each of these modules to be able to be externalized if needed (they should explicitly state their dependencies in their `index.js`)
+The app is divided into modules (or chunks) that are stored into `src/modules`. The goal is for each of these modules to be able to be externalized if needed. They should explicitly state their dependencies to other modules' component or store element in their `README.md` (dependency to the main store's modules is not required to be stated)
 
 Each module should have a root component, called `{Name of the module}Module.vue` that loads all needed component into the template. It should also have a `README.md` file at the root explaining what this module is about.
 
@@ -49,8 +49,8 @@ Here's a sample of what project folder structure looks like :
     |    |    + -- moduleName
     |    |    |    + -- index.js
     |    |    |    # other moduleName related files such as a components folder or a store folder
-
-
+    
+    
 ```
 
 
@@ -64,10 +64,12 @@ See [its README.md](src/modules/store/README.md) for more details.
 
 ### Testing
 
-Unit and integration testing is done with Cypress.io. All things related to tests are in the `/cypress` folder, and more specifically in the folder `/cypress/integration`. See [TESTING.md](cypress/TESTING.md) for more documentation on testing in this project.
+Unit testing is done through the VueCLI unit test helper, and integration testing is done with Cypress.io.
+All things related to tests are in the `/tests` folder.
+See [TESTING.md](tests/TESTING.md) for more documentation on testing in this project.
 
 ## Project setup
-```
+```bash
 npm install
 ```
 
@@ -99,13 +101,13 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 | `npm run build:prod` | Compiles and minifies for production |
 | `npm run lint` | Lints and fixes files |
 | `npm run test:unit` | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
+| `npm run test:e2e` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
 | `npm run test:headless` | Starts a local server, using `npm run serve`, and run cypress tests on the served URL (this used by the CI to run tests) |
-| `npm run cypress:open` | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
-| `npm run cypress:run` | Runs all cypress tests headless, outputs results in the console |
+| `npm run test:ci` | Runs both `npm run test:unit` and `npm run test:headless`, this is a shortcut for the CI to run all tests at once |
 | `npm run deploy:#target#` | Target can be `dev`, `int` or `prod`. Build the app and deploys it on the target S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, use `AWS_PROFILE=another_profile_name npm run deploy:#target#`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script-do). |
 | `npm run update:translations` | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
-All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine port to use by looking env variable `PORT`. If not present, will fallback to default port `8080`.
+All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
 ### What about `package-lock.json` file?
 

@@ -13,6 +13,9 @@ import OlStyleForPropertyValue from './utils/styleFromLiterals'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { reproject } from 'reproject'
 
+/**
+ * Adds a GeoJSON layer to the OpenLayers map
+ */
 export default {
   mixins: [addLayerToMapMixin],
   props: {

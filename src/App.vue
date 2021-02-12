@@ -7,6 +7,11 @@
 <script>
 import { mapActions } from 'vuex'
 
+/**
+ * Main component of the App.
+ *
+ * Will listen for screen size changes and commit this changes to the store
+ */
 export default {
   name: 'App',
   mounted() {

@@ -11,6 +11,9 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 
+/**
+ * Renders a WMS layer on the map
+ */
 export default {
   mixins: [addLayerToMapMixin],
   props: {

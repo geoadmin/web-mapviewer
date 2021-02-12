@@ -1,14 +1,41 @@
 const state = {
+  /**
+   * Current background layer ID
+   * @type String
+   */
   backgroundLayerId: 'ch.swisstopo.pixelkarte-farbe',
+  /**
+   * Currently active layers (that have been selected by the user from the search bar or the layer tree)
+   * @type Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>
+   */
   activeLayers: [],
+  /**
+   * All layers' config available to this app, with keys as layer IDs and value as layer's metadata.
+   * @type Object
+   */
   config: {},
-  pinLocation: null,
 }
 
 const getters = {
+  /**
+   * Filter all the active layers and gives only those who have the flag `visible` to `true`
+   * @param state
+   * @return {Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>} all layers that are currently visible on the map
+   */
   visibleLayers: (state) => state.activeLayers.filter((layer) => layer.visible),
+  /**
+   * All layers in the config that have the flag `background` to `true` (that can be shown as a background layer).
+   * @param state
+   * @return Object returned with the same structure as the config, meaning keys of the object are BG layer IDs and values are BG layer metadata.
+   */
   backgroundLayers: (state) =>
     state.config.filter((layer) => layer.isBackground && !layer.isSpecificFor3D),
+  /**
+   * The currently used background layer's metadata
+   * @param state
+   * @param getters
+   * @return {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer}
+   */
   currentBackgroundLayer: (state, getters) => {
     if (!state.backgroundLayerId) {
       return undefined
@@ -16,9 +43,12 @@ const getters = {
       return getters.getLayerForId(state.backgroundLayerId)
     }
   },
-  getLayerForId: (state) => (layerId) => {
-    return state.config.find((layer) => layer.id === layerId)
-  },
+  /**
+   * Retrieves a layer metadata defined by its unique ID
+   * @param state
+   * @return {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer}
+   */
+  getLayerForId: (state) => (layerId) => state.config.find((layer) => layer.id === layerId),
 }
 
 const actions = {

@@ -1,102 +1,7 @@
-/**
- * A description of one URL param that needs synchronization with the app {@link Vuex.Store}
- */
-class ParamConfig {
-  /**
-   * @param {String} urlParamName the name of the param found in the URL (e.g. 'lat' will then be https://.../?lat=value in the URL
-   * @param {String} mutationToWatch the name of the Vuex's store mutation to watch for value synchronization
-   * @param {String} dispatchChangeTo the name of the Vuex's store action where to publish changes made in the URL
-   * @param {Function} extractValueFromStore a function taking the store in param that needs to return the value of this param found in the store
-   * @param {NumberConstructor|StringConstructor|BooleanConstructor} valueType
-   */
-  constructor(
-    urlParamName,
-    mutationToWatch,
-    dispatchChangeTo,
-    extractValueFromStore,
-    valueType = String
-  ) {
-    this.urlParamName = urlParamName
-    this.mutationToWatch = mutationToWatch
-    this.dispatchChangeTo = dispatchChangeTo
-    this.extractValueFromStore = extractValueFromStore
-    this.valueType = valueType
-  }
+import storeToUrlManagementConfig from '@/router/store-to-url-management.config'
 
-  /**
-   * Reads the value from the given Vue router query (part of {@link RouterLink})
-   * @param query an object describing the route URL param
-   * @returns {undefined|number|string|boolean} the value casted in the type given to the config (see constructor)
-   */
-  readValueFromQuery(query) {
-    if (query && query[this.urlParamName]) {
-      // Edge case here in Javascript with Boolean constructor, Boolean('false') returns true as the "object" we passed
-      // to the constructor is valid and non-null. So we manage that "the old way" for booleans
-      if (this.valueType === Boolean) {
-        return query[this.urlParamName] === 'true'
-      } else {
-        // if not a boolean, we can trust the other constructor (Number, String) to return a valid value whenever it is possible with the input
-        return this.valueType(query[this.urlParamName])
-      }
-    }
-    return undefined
-  }
-
-  /**
-   * Reads the value from the given Vue store, and cast it in the type given in the constructor
-   * @param store a {@link Vuex.Store}
-   * @returns {undefined|number|string} the value casted in the type given in the config (see constructor)
-   */
-  readValueFromStore(store) {
-    if (store && this.extractValueFromStore) {
-      return this.valueType(this.extractValueFromStore(store))
-    }
-    return undefined
-  }
-
-  valuesAreDifferentBetweenQueryAndStore(query, store) {
-    const queryValue = this.readValueFromQuery(query)
-    const storeValue = this.readValueFromStore(store)
-    return queryValue !== storeValue
-  }
-
-  populateQueryWithStoreValue(query, store) {
-    if (query && this.urlParamName && this.urlParamName.length > 0) {
-      query[this.urlParamName] = this.readValueFromStore(store)
-    }
-  }
-}
-
-/**
- * Configuration for all URL parameters of this app.
- * @type Array<ParamConfig>
- */
-const urlParamsConfig = [
-  new ParamConfig(
-    'lat',
-    'setCenter',
-    'setLatitude',
-    (store) => store.getters.centerEpsg4326[1],
-    Number
-  ),
-  new ParamConfig(
-    'lon',
-    'setCenter',
-    'setLongitude',
-    (store) => store.getters.centerEpsg4326[0],
-    Number
-  ),
-  new ParamConfig('z', 'setZoom', 'setZoom', (store) => store.state.position.zoom, Number),
-  new ParamConfig(
-    'geolocation',
-    'setGeolocationActive',
-    'toggleGeolocation',
-    (store) => store.state.geolocation.active,
-    Boolean
-  ),
-]
 const watchedMutations = [
-  ...new Set(urlParamsConfig.map((paramConfig) => paramConfig.mutationToWatch)),
+  ...new Set(storeToUrlManagementConfig.map((paramConfig) => paramConfig.mutationToWatch)),
 ]
 
 /**
@@ -107,9 +12,9 @@ const watchedMutations = [
  */
 const isRoutePushNeeded = (store, currentRoute) => {
   let aRoutePushIsNeeded = false
-  urlParamsConfig.forEach(
+  storeToUrlManagementConfig.forEach(
     (paramConfig) =>
-      (aRoutePushIsNeeded |= paramConfig.valuesAreDifferentBetweenQueryAndStore(
+      (aRoutePushIsNeeded ||= paramConfig.valuesAreDifferentBetweenQueryAndStore(
         currentRoute.query,
         store
       ))
@@ -119,6 +24,12 @@ const isRoutePushNeeded = (store, currentRoute) => {
 
 const pendingMutationTriggeredByThisModule = []
 
+/**
+ * Plugin that syncs what is in the URL with what is in the store (and vice-versa). It also reacts to on-the-fly changes in the URL and commit the changes to the store.
+ *
+ * @param {VueRouter} router
+ * @param {Vuex.Store} store
+ */
 const storeToUrlManagement = (router, store) => {
   // flag to distinguish URL change originated by this module or by another source
   let routeChangeIsTriggeredByThisModule = false
@@ -134,7 +45,7 @@ const storeToUrlManagement = (router, store) => {
         routeChangeIsTriggeredByThisModule = true
         const query = {}
         // extracting all param from the store
-        urlParamsConfig.forEach((paramConfig) =>
+        storeToUrlManagementConfig.forEach((paramConfig) =>
           paramConfig.populateQueryWithStoreValue(query, store)
         )
         router.replace({
@@ -150,7 +61,7 @@ const storeToUrlManagement = (router, store) => {
       routeChangeIsTriggeredByThisModule = false
     } else if (store.state.app.isReady) {
       // if the route change is not made by this module we need to check if a store change is needed
-      urlParamsConfig.forEach((paramConfig) => {
+      storeToUrlManagementConfig.forEach((paramConfig) => {
         const queryValue = paramConfig.readValueFromQuery(to.query)
         if (queryValue && paramConfig.valuesAreDifferentBetweenQueryAndStore(to.query, store)) {
           // preventing store.subscribe above to change what is in the URL while dispatching this change

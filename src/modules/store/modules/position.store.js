@@ -10,11 +10,23 @@ const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
 const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
 const state = {
+  /**
+   * The map zoom level, which define the resolution of the view
+   * @type Number
+   */
   zoom: 7,
-  // center of the LV:95 projection (from https://epsg.io/2056) reprojected in EPSG:3857
-  center: [915602.81, 5911929.47],
+  /**
+   * Center of the view of the map expressed in EPSG:3857
+   * @type Array<Number>
+   */
+  center: [915602.81, 5911929.47], // default value is the center of LV:95 projection's extent (from https://epsg.io/2056) reprojected in EPSG:3857
 }
 
+/**
+ * @param zoom
+ * @param latitudeInRad
+ * @return {Number}
+ */
 const calculateResolution = (zoom, latitudeInRad) => {
   // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
   // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
@@ -28,6 +40,11 @@ const calculateResolution = (zoom, latitudeInRad) => {
 }
 
 const getters = {
+  /**
+   * The center of the map reprojected in EPSG:4326
+   * @param state
+   * @return {Array<Number>}
+   */
   centerEpsg4326: (state) => {
     const centerEpsg4326Unrounded = proj4('EPSG:3857', 'EPSG:4326', state.center)
     return [
@@ -37,13 +54,29 @@ const getters = {
       round(centerEpsg4326Unrounded[1], 6),
     ]
   },
+  /**
+   * The center of the map reprojected in EPSG:4326 expressed in radian
+   * @param _
+   * @param getters
+   * @return {Array<Number>}
+   */
   centerEpsg4326InRadian: (_, getters) => {
     const centerEpsg4326 = getters.centerEpsg4326
     return [(centerEpsg4326[0] * Math.PI) / 180.0, (centerEpsg4326[1] * Math.PI) / 180.0]
   },
-  /** In meter per pixel */
+  /**
+   * Resolution of the view expressed in meter per pixel
+   * @type Number
+   */
   resolution: (state, getters) =>
     calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1]),
+  /**
+   * The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight ]`)
+   * @param state
+   * @param getters
+   * @param rootState
+   * @return {[[number, number], [number, number]]}
+   */
   extent: (state, getters, rootState) => {
     const halfScreenInMeter = {
       width: (rootState.ui.width / 2) * getters.resolution,

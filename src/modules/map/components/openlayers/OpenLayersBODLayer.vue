@@ -49,8 +49,10 @@ import { LayerTypes } from '@/api/layers.api'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer'
-import { mapGetters } from 'vuex'
 
+/**
+ * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type.
+ */
 export default {
   // So that we can recursively call ourselves in the template for aggregate layers
   name: 'OpenLayersBodLayer',
@@ -64,21 +66,25 @@ export default {
       type: Number,
       default: -1,
     },
+    // In order to be able to manage aggregate layers we need to know the current map resolution
+    currentMapResolution: {
+      type: Number,
+      default: -1,
+    },
   },
   data() {
     return {
       LayerTypes,
     }
   },
-  computed: {
-    // In order to be able to manage aggregate layers we need to know the current map resolution
-    ...mapGetters(['resolution']),
-  },
   methods: {
     shouldAggregateSubLayerBeVisible: function (subLayer) {
       // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
       // have to worry about checking their validity
-      return this.resolution >= subLayer.minResolution && this.resolution <= subLayer.maxResolution
+      return (
+        this.currentMapResolution >= subLayer.minResolution &&
+        this.currentMapResolution <= subLayer.maxResolution
+      )
     },
   },
 }

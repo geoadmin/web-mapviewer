@@ -32,6 +32,9 @@
 import { mapActions } from 'vuex'
 import { SearchResult } from '@/api/search.api'
 
+/**
+ * Component showing one search result entry (and dispatching its selection to the store)
+ */
 export default {
   props: {
     entry: {

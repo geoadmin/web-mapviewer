@@ -8,6 +8,9 @@ import { Tile as TileLayer } from 'ol/layer'
 import { XYZ as XYZSource } from 'ol/source'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
+/**
+ * Renders a WMTS layer on the map
+ */
 export default {
   mixins: [addLayerToMapMixin],
   props: {

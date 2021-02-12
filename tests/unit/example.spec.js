@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { mount } from '@vue/test-utils'
 import LangSwitchButton from '@/modules/i18n/components/LangSwitchButton'
 
+// A small example of a unit test of a component in isolation
 describe('LangSwitchButton.vue', () => {
   it('Show lang in upper case', () => {
     const lang = 'fr'
