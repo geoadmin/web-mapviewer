@@ -109,7 +109,6 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
  * @return {Promise<Feature>}
  */
 const getFeature = (layer, featureID, lang = 'en') => {
-  console.log('getting feature', featureID, 'from layer', layer.id)
   return new Promise((resolve, reject) => {
     if (!layer || !layer.id) {
       reject('Needs a valid layer with an ID')
@@ -139,7 +138,6 @@ const getFeature = (layer, featureID, lang = 'en') => {
         const featureMetadata = responses[0].data.feature
           ? responses[0].data.feature
           : responses[0].data
-        console.log('metadata received from the backend', featureMetadata)
         const featureHtmlPopup = responses[1].data
         const featureGeoJSONGeometry = featureMetadata.geometry
         const featureExtent = []

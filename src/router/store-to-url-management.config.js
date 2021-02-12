@@ -4,20 +4,20 @@
 export class ParamConfig {
   /**
    * @param {String} urlParamName the name of the param found in the URL (e.g. 'lat' will then be https://.../?lat=value in the URL
-   * @param {String} mutationToWatch the name of the Vuex's store mutation to watch for value synchronization
+   * @param {String} mutationsToWatch the names of the Vuex's store mutations to watch for value synchronization (separated by a coma)
    * @param {String} dispatchChangeTo the name of the Vuex's store action where to publish changes made in the URL
    * @param {Function} extractValueFromStore a function taking the store in param that needs to return the value of this param found in the store
    * @param {NumberConstructor|StringConstructor|BooleanConstructor} valueType
    */
   constructor(
     urlParamName,
-    mutationToWatch,
+    mutationsToWatch,
     dispatchChangeTo,
     extractValueFromStore,
     valueType = String
   ) {
     this.urlParamName = urlParamName
-    this.mutationToWatch = mutationToWatch
+    this.mutationsToWatch = mutationsToWatch
     this.dispatchChangeTo = dispatchChangeTo
     this.extractValueFromStore = extractValueFromStore
     this.valueType = valueType
@@ -71,7 +71,11 @@ export class ParamConfig {
     if (query && this.urlParamName && this.urlParamName.length > 0) {
       const valueFromStore = this.readValueFromStore(store)
       // with boolean, if the value of the flag is false we simply don't add it to the URL's param (or remove it if present)
-      if (this.valueType === Boolean && !valueFromStore) {
+      // with String, if the value is an empty string, we also don't add it to the URL (or remove it if present)
+      if (
+        (this.valueType === Boolean && !valueFromStore) ||
+        (this.valueType === String && valueFromStore === '')
+      ) {
         if (this.urlParamName in query) {
           delete query[this.urlParamName]
         }
@@ -109,6 +113,13 @@ const storeToUrlManagementConfig = [
     'toggleGeolocation',
     (store) => store.state.geolocation.active,
     Boolean
+  ),
+  new ParamConfig(
+    'layers',
+    'toggleLayerVisibility,addLayer,removeLayer',
+    'setVisibleLayersByIds',
+    (store) => store.getters.jointVisibleLayerIds,
+    String
   ),
 ]
 

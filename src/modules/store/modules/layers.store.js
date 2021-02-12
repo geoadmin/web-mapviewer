@@ -49,6 +49,13 @@ const getters = {
    * @return {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer}
    */
   getLayerForId: (state) => (layerId) => state.config.find((layer) => layer.id === layerId),
+  jointVisibleLayerIds: (state, getters) => {
+    const visibleLayerIds = getters.visibleLayers.map((layer) => layer.id)
+    if (visibleLayerIds.length > 0) {
+      return visibleLayerIds.reduce((accumulator, layerId) => `${accumulator},${layerId}`)
+    }
+    return ''
+  },
 }
 
 const actions = {
@@ -63,6 +70,21 @@ const actions = {
     activeLayerIdsBeforeConfigChange.forEach((layerId) => commit('addLayer', layerId))
   },
   setBackground: ({ commit }, bgLayerId) => commit('setBackground', bgLayerId),
+  setVisibleLayersByIds: ({ commit, getters }, ids) => {
+    if (typeof ids === 'string' || ids instanceof String) {
+      const layerIds = ids.split(',')
+      // first we deactivate any visible layer that is not in the last (anymore)
+      getters.visibleLayers.forEach((visibleLayer) => {
+        if (!(visibleLayer.id in layerIds)) {
+          commit('toggleLayerVisibility', visibleLayer.id)
+        }
+      })
+      // we then go trough all IDs that will be visible, and toggle layers that are active but not visible or add them altogether if they are not active yet
+      layerIds.forEach((layerId) => {
+        commit('addLayer', layerId)
+      })
+    }
+  },
 }
 
 const mutations = {

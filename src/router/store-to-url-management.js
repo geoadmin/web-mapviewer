@@ -1,7 +1,9 @@
 import storeToUrlManagementConfig from '@/router/store-to-url-management.config'
 
 const watchedMutations = [
-  ...new Set(storeToUrlManagementConfig.map((paramConfig) => paramConfig.mutationToWatch)),
+  ...new Set(
+    storeToUrlManagementConfig.map((paramConfig) => paramConfig.mutationsToWatch.split(',')).flat()
+  ),
 ]
 
 /**
@@ -67,7 +69,7 @@ const storeToUrlManagement = (router, store) => {
           // preventing store.subscribe above to change what is in the URL while dispatching this change
           // if we don't ignore this next mutation, all other param than the one treated here could go back
           // to default/store value even though they could be defined differently in the URL.
-          pendingMutationTriggeredByThisModule.push(paramConfig.mutationToWatch)
+          pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
           // dispatching URL value to the store
           store.dispatch(paramConfig.dispatchChangeTo, queryValue).then(() => {
             // removing mutation name from the pending ones
