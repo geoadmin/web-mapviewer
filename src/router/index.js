@@ -30,6 +30,7 @@ const routes = [
 
 /**
  * The Vue Router for this app, see [Vue Router's doc on how to use it]{@link https://router.vuejs.org/guide/}
+ *
  * @type {VueRouter}
  */
 const router = new VueRouter({

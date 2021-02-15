@@ -4,9 +4,11 @@ import { LayerTypes } from '@/api/layers.api'
 
 /**
  * Identifies feature under the mouse cursor
+ *
  * @param {Vuex.Store} store
- * @param {ClickInfo} clickInfo store mutation payload
- * @param {Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>} visibleLayers all currently visible layers on the map
+ * @param {ClickInfo} clickInfo Store mutation payload
+ * @param {(WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer)[]} visibleLayers All currently
+ *   visible layers on the map
  * @param {String} lang
  */
 const runIdentify = (store, clickInfo, visibleLayers, lang) => {
@@ -45,7 +47,9 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
 }
 
 /**
- * Vuex plugins that will listen to click events and act depending on what's under the click (or how long the mouse button was down)
+ * Vuex plugins that will listen to click events and act depending on what's under the click (or how
+ * long the mouse button was down)
+ *
  * @param {Vuex.Store} store
  */
 const clickOnMapManagementPlugin = (store) => {

@@ -87,7 +87,8 @@
 
 <script>
 /**
- * Representation of an active layer in the menu, with the name of the layer and some controls (like visibility, opacity or position in the layer stack)
+ * Representation of an active layer in the menu, with the name of the layer and some controls (like
+ * visibility, opacity or position in the layer stack)
  */
 export default {
   props: {

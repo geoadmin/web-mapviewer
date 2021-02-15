@@ -52,9 +52,7 @@ const markerHiddenStyle = new Style({
   visible: false,
 })
 
-/**
- * @enum
- */
+/** @enum */
 export const markerStyles = {
   BALLOON: 'balloon',
   POSITION: 'position',
@@ -62,9 +60,7 @@ export const markerStyles = {
   HIDDEN: 'hidden',
 }
 
-/**
- * Renders a marker on the map (different styling are available)
- */
+/** Renders a marker on the map (different styling are available) */
 export default {
   mixins: [addLayerToMapMixin],
   props: {

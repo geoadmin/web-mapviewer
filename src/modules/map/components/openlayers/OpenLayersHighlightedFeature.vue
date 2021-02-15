@@ -48,9 +48,7 @@ const geoJsonStyleFunction = (olFeature) => {
   }
 }
 
-/**
- * Renders a feature geometry on the map with a highlighted style
- */
+/** Renders a feature geometry on the map with a highlighted style */
 export default {
   components: { OpenLayersMarker },
   mixins: [addLayerToMapMixin],

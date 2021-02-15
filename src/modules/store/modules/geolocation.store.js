@@ -1,26 +1,31 @@
 const state = {
   /**
    * Flag telling if the user has activated the geolocation feature
+   *
    * @type Boolean
    */
   active: false,
   /**
    * Flag telling if the geolocation usage has been denied by the user in his/her browser settings
+   *
    * @type Boolean
    */
   denied: false,
   /**
    * Flag telling if the geolocation position should always be at the center of the app
+   *
    * @type Boolean
    */
   tracking: false,
   /**
    * Device position in EPSG:3857 (meters) [x, y]
+   *
    * @type Array<Number>
    */
   position: [0, 0],
   /**
    * Accuracy of the geolocation position, in meters
+   *
    * @type Number
    */
   accuracy: 0,

@@ -95,10 +95,12 @@ import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
 
 /**
- * Main OpenLayers map component responsible for building the OL map instance and telling the view where to look at.
- * Will delegate other responsibilities to children components (such as layer rendering, marker placement, etc...).
+ * Main OpenLayers map component responsible for building the OL map instance and telling the view
+ * where to look at. Will delegate other responsibilities to children components (such as layer
+ * rendering, marker placement, etc...).
  *
- * This is the only component of the OL components constellation that must be aware of the store, and pass down information about it through props.
+ * This is the only component of the OL components constellation that must be aware of the store,
+ * and pass down information about it through props.
  */
 export default {
   components: {

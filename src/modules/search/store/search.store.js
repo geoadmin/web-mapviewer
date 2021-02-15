@@ -6,21 +6,25 @@ import { ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
 const state = {
   /**
    * Flag telling if a search requesting is ongoing with the backend
+   *
    * @type Boolean
    */
   pending: false,
   /**
    * The search query, will trigger a search to the backend if it contains 3 or more characters
+   *
    * @type String
    */
   query: '',
   /**
    * Search results from the backend for the current query
+   *
    * @type CombinedSearchResults
    */
   results: new CombinedSearchResults(),
   /**
    * Flag telling if search results should visible
+   *
    * @type Boolean
    */
   show: false,
@@ -75,7 +79,7 @@ const actions = {
   /**
    * @param commit
    * @param dispatch
-   * @param {SearchResult|LayerSearchResult|FeatureSearchResult} entry
+   * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
    */
   selectResultEntry: ({ commit, dispatch }, entry) => {
     switch (entry.resultType) {

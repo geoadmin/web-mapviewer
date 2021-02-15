@@ -179,40 +179,43 @@ const executeAndReturn = (
 }
 
 /**
- * Extracts (if possible) a set of coordinates from the text as an array. The text must contains only a coordinates
- * and nothing else, otherwise undefined will be returned.
+ * Extracts (if possible) a set of coordinates from the text as an array. The text must contains
+ * only a coordinates and nothing else, otherwise undefined will be returned.
  *
- * E.G. `'47.1, 7.5'` is valid and will return `[47.1, 7.5]` but `'lat:47.1, lon:7.5'` will fail and return `undefined`.
+ * E.G. `'47.1, 7.5'` is valid and will return `[47.1, 7.5]` but `'lat:47.1, lon:7.5'` will fail and
+ * return `undefined`.
  *
  * Separators
- * ----------
- * To separates the two numerical values, a combination of slashes, spaces (tabs included) or a coma can be used.
+ *     ------------------------------------------------
+ * To separates the two numerical values, a combination of slashes, spaces (tabs included) or a coma
+ * can be used.
  *
  * Accepted formats
- * ----------------
- *  **CH1903+ / LV95**
- *   - with or without thousand separator (`2'600'000 1'200'000` or `2600000 1200000`)
+ *     ------------------------------------------------
+ * **CH1903+ / LV95**
+ * - With or without thousand separator (`2'600'000 1'200'000` or `2600000 1200000`)
  *
- *  **CH1903 / LV03**
- *    - with or without thousand separator (`600'000 200'000` or `600000 200000`)
+ * - *CH1903 / LV03**
+ * - With or without thousand separator (`600'000 200'000` or `600000 200000`)
  *
- *  **WGS84 (Web Mercator)**
- *    - numerical (`46.97984 6.60757`)
- *    - DegreesMinutes (`46°58.7904' 6°36.4542'`)
- *    - DegreesMinutesSeconds, double single quote for seconds (`46°58'47.424'' 6°36'27.252''`)
- *    - DegreesMinutesSeconds, double quote for seconds (`46°58'47.424" 6°36'27.252"`)
- *    - Google style is also supported (any format above without degrees, minutes and seconds symbol)
+ * - *WGS84 (Web Mercator)**
+ * - Numerical (`46.97984 6.60757`)
+ * - DegreesMinutes (`46°58.7904' 6°36.4542'`)
+ * - DegreesMinutesSeconds, double single quote for seconds (`46°58'47.424'' 6°36'27.252''`)
+ * - DegreesMinutesSeconds, double quote for seconds (`46°58'47.424" 6°36'27.252"`)
+ * - Google style is also supported (any format above without degrees, minutes and seconds symbol)
  *
- *  **Military Grid Reference System (MGRS)**
- *    - i.e. `32TLT 98757 23913`
+ * - *Military Grid Reference System (MGRS)**
+ * - I.e. `32TLT 98757 23913`
  *
- *  **what3words**
- *    - i.e. `zufall.anders.blaumeise`
+ * - *what3words**
+ * - I.e. `zufall.anders.blaumeise`
  *
- * @param {String} text the text in which we want to find coordinates
- * @param {String} toProjection projection wanted for the output coordinates (default: EPSG:3857)
- * @param {Number} roundingToDecimal how many decimals should stay in the final coordinates (default: 1)
- * @returns {Array<Number>} coordinates in the given order in text in the wanted projection, or `undefined` if nothing was found
+ * @param {String} text The text in which we want to find coordinates
+ * @param {String} toProjection Projection wanted for the output coordinates (default: EPSG:3857)
+ * @param {Number} roundingToDecimal How many decimals should stay in the final coordinates (default: 1)
+ * @returns {Number[]} Coordinates in the given order in text in the wanted projection, or
+ *   `undefined` if nothing was found
  */
 export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingToDecimal = 1) => {
   if (typeof text !== 'string') {

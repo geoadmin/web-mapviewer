@@ -1,13 +1,18 @@
 /**
- * A description of one URL param that needs synchronization with the app {@link Vuex.Store} with some helper functions
+ * A description of one URL param that needs synchronization with the app {@link Vuex.Store} with
+ * some helper functions
  */
 export class ParamConfig {
   /**
-   * @param {String} urlParamName the name of the param found in the URL (e.g. 'lat' will then be https://.../?lat=value in the URL
-   * @param {String} mutationsToWatch the names of the Vuex's store mutations to watch for value synchronization (separated by a coma)
-   * @param {String} dispatchChangeTo the name of the Vuex's store action where to publish changes made in the URL
-   * @param {Function} extractValueFromStore a function taking the store in param that needs to return the value of this param found in the store
-   * @param {NumberConstructor|StringConstructor|BooleanConstructor} valueType
+   * @param {String} urlParamName The name of the param found in the URL (e.g. 'lat' will then be
+   *   https://.../?lat=value in the URL
+   * @param {String} mutationsToWatch The names of the Vuex's store mutations to watch for value
+   *   synchronization (separated by a coma)
+   * @param {String} dispatchChangeTo The name of the Vuex's store action where to publish changes
+   *   made in the URL
+   * @param {Function} extractValueFromStore A function taking the store in param that needs to
+   *   return the value of this param found in the store
+   * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
    */
   constructor(
     urlParamName,
@@ -25,8 +30,10 @@ export class ParamConfig {
 
   /**
    * Reads the value from the given Vue router query (part of {@link RouterLink})
-   * @param {Object} query an object describing the route URL param
-   * @returns {undefined|number|string|boolean} the value casted in the type given to the config (see constructor)
+   *
+   * @param {Object} query An object describing the route URL param
+   * @returns {undefined | number | string | boolean} The value casted in the type given to the
+   *   config (see constructor)
    */
   readValueFromQuery(query) {
     if (query && this.urlParamName in query) {
@@ -48,8 +55,10 @@ export class ParamConfig {
 
   /**
    * Reads the value from the given Vue store, and cast it in the type given in the constructor
-   * @param store a {@link Vuex.Store}
-   * @returns {undefined|number|string|boolean} the value casted in the type given in the config (see constructor)
+   *
+   * @param store A {@link Vuex.Store}
+   * @returns {undefined | number | string | boolean} The value casted in the type given in the
+   *   config (see constructor)
    */
   readValueFromStore(store) {
     if (store && this.extractValueFromStore) {
@@ -64,7 +73,9 @@ export class ParamConfig {
 
   /**
    * Adds the value of the store to the query object
-   * @param {Object} query simple Object that holds all URL parameters (key is the name of param in the URL, value is its value)
+   *
+   * @param {Object} query Simple Object that holds all URL parameters (key is the name of param in
+   *   the URL, value is its value)
    * @param {Vuex.Store} store
    */
   populateQueryWithStoreValue(query, store) {
@@ -89,6 +100,7 @@ export class ParamConfig {
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and vice-versa)
+ *
  * @type Array<ParamConfig>
  */
 const storeToUrlManagementConfig = [

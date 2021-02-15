@@ -139,9 +139,11 @@ function getMaxResolution(value) {
 }
 
 /**
- * Helper class to transform geoadmin's style description (also called literals) into a full fledged OpenLayers Style instance
- * @param properties the output of geoadmin's API style endpoint as a JSON
- * @constructor
+ * Helper class to transform geoadmin's style description (also called literals) into a full fledged
+ * OpenLayers Style instance
+ *
+ * @class
+ * @param properties The output of geoadmin's API style endpoint as a JSON
  */
 const OlStyleForPropertyValue = function (properties) {
   this.singleStyle = null
@@ -294,10 +296,12 @@ OlStyleForPropertyValue.prototype.getOlStyle_ = function (feature, resolution, p
 }
 
 /**
- * Returns an OpenLayers style for the feature and the current map resolution (as style can be different depending on the zoom level --> resolution)
+ * Returns an OpenLayers style for the feature and the current map resolution (as style can be
+ * different depending on the zoom level --> resolution)
+ *
  * @param {ol.Feature} feature
  * @param {Number} resolution
- * @return {Style}
+ * @returns {Style}
  */
 OlStyleForPropertyValue.prototype.getFeatureStyle = function (feature, resolution) {
   let properties

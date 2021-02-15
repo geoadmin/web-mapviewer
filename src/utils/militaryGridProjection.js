@@ -8,24 +8,21 @@
 //     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
- * UTM zones are grouped, and assigned to one of a group of 6
- * sets.
+ * UTM zones are grouped, and assigned to one of a group of 6 sets.
  *
  * {int} @private
  */
 const NUM_100K_SETS = 6
 
 /**
- * The column letters (for easting) of the lower left value, per
- * set.
+ * The column letters (for easting) of the lower left value, per set.
  *
  * {string} @private
  */
 const SET_ORIGIN_COLUMN_LETTERS = 'AJSAJS'
 
 /**
- * The row letters (for northing) of the lower left value, per
- * set.
+ * The row letters (for northing) of the lower left value, per set.
  *
  * {string} @private
  */
@@ -40,11 +37,11 @@ const Z = 90 // Z
 /**
  * Convert lat/lon to MGRS.
  *
- * @param {[number, number]} ll Array with longitude and latitude on a
- *     WGS84 ellipsoid.
- * @param {number} [accuracy=5] Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for
- *      100 m, 2 for 1 km, 1 for 10 km or 0 for 100 km). Optional, default is 5.
- * @return {string} the MGRS string for the given location and accuracy.
+ * @param {[number, number]} ll Array with longitude and latitude on a WGS84 ellipsoid.
+ * @param {number} [accuracy=5] Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km,
+ *   1 for 10 km or 0 for 100 km). Optional, default is
+ *   5. Default is `5`
+ * @returns {string} The MGRS string for the given location and accuracy.
  */
 export function forward(ll, accuracy) {
   accuracy = typeof accuracy === 'number' ? accuracy : 5 // default accuracy 1m
@@ -80,10 +77,9 @@ export function forward(ll, accuracy) {
  * Convert MGRS to lat/lon bounding box.
  *
  * @param {string} mgrs MGRS string.
- * @return {[number,number,number,number]} An array with left (longitude),
- *    bottom (latitude), right
- *    (longitude) and top (latitude) values in WGS84, representing the
- *    bounding box for the provided MGRS reference.
+ * @returns {[number, number, number, number]} An array with left (longitude), bottom (latitude),
+ *   right (longitude) and top (latitude) values in WGS84, representing the bounding box for the
+ *   provided MGRS reference.
  */
 export function inverse(mgrs) {
   const bbox = UTMtoLL(decode(mgrs.toUpperCase()))
@@ -108,8 +104,8 @@ export function toPoint(mgrs) {
  * Conversion from degrees to radians.
  *
  * @private
- * @param {number} deg the angle in degrees.
- * @return {number} the angle in radians.
+ * @param {number} deg The angle in degrees.
+ * @returns {number} The angle in radians.
  */
 function degToRad(deg) {
   return deg * (Math.PI / 180)
@@ -119,23 +115,22 @@ function degToRad(deg) {
  * Conversion from radians to degrees.
  *
  * @private
- * @param {number} rad the angle in radians.
- * @return {number} the angle in degrees.
+ * @param {number} rad The angle in radians.
+ * @returns {number} The angle in degrees.
  */
 function radToDeg(rad) {
   return 180 * (rad / Math.PI)
 }
 
 /**
- * Converts a set of Longitude and Latitude co-ordinates to UTM
- * using the WGS84 ellipsoid.
+ * Converts a set of Longitude and Latitude co-ordinates to UTM using the WGS84 ellipsoid.
  *
  * @private
- * @param {object} ll Object literal with lat and lon properties
- *     representing the WGS84 coordinate to be converted.
- * @return {object} Object literal containing the UTM value with easting,
- *     northing, zoneNumber and zoneLetter properties, and an optional
- *     accuracy property in digits. Returns null if the conversion failed.
+ * @param {object} ll Object literal with lat and lon properties representing the WGS84 coordinate
+ *   to be converted.
+ * @returns {object} Object literal containing the UTM value with easting, northing, zoneNumber and
+ *   zoneLetter properties, and an optional accuracy property in digits. Returns null if the
+ *   conversion failed.
  */
 function LLtoUTM(ll) {
   const Lat = ll.lat
@@ -229,19 +224,17 @@ function LLtoUTM(ll) {
 }
 
 /**
- * Converts UTM coords to lat/long, using the WGS84 ellipsoid. This is a convenience
- * class where the Zone can be specified as a single string eg."60N" which
- * is then broken down into the ZoneNumber and ZoneLetter.
+ * Converts UTM coords to lat/long, using the WGS84 ellipsoid. This is a convenience class where the
+ * Zone can be specified as a single string eg."60N" which is then broken down into the ZoneNumber
+ * and ZoneLetter.
  *
  * @private
- * @param {object} utm An object literal with northing, easting, zoneNumber
- *     and zoneLetter properties. If an optional accuracy property is
- *     provided (in meters), a bounding box will be returned instead of
- *     latitude and longitude.
- * @return {object} An object literal containing either lat and lon values
- *     (if no accuracy was provided), or top, right, bottom and left values
- *     for the bounding box calculated according to the provided accuracy.
- *     Returns null if the conversion failed.
+ * @param {object} utm An object literal with northing, easting, zoneNumber and zoneLetter
+ *   properties. If an optional accuracy property is provided (in meters), a bounding box will be
+ *   returned instead of latitude and longitude.
+ * @returns {object} An object literal containing either lat and lon values (if no accuracy was
+ *   provided), or top, right, bottom and left values for the bounding box calculated according to
+ *   the provided accuracy. Returns null if the conversion failed.
  */
 function UTMtoLL(utm) {
   const UTMNorthing = utm.northing
@@ -355,9 +348,8 @@ function UTMtoLL(utm) {
  * Calculates the MGRS letter designator for the given latitude.
  *
  * @private (Not intended for public API, only exported for testing.)
- * @param {number} latitude The latitude in WGS84 to get the letter designator
- *     for.
- * @return {string} The letter designator.
+ * @param {number} latitude The latitude in WGS84 to get the letter designator for.
+ * @returns {string} The letter designator.
  */
 export function getLetterDesignator(latitude) {
   if (latitude <= 84 && latitude >= 72) {
@@ -381,10 +373,9 @@ export function getLetterDesignator(latitude) {
  * Encodes a UTM location as MGRS string.
  *
  * @private
- * @param {object} utm An object literal with easting, northing,
- *     zoneLetter, zoneNumber
+ * @param {object} utm An object literal with easting, northing, zoneLetter, zoneNumber
  * @param {number} accuracy Accuracy in digits (0-5).
- * @return {string} MGRS string for the given UTM location.
+ * @returns {string} MGRS string for the given UTM location.
  */
 function encode(utm, accuracy) {
   // prepend with leading zeroes
@@ -401,14 +392,13 @@ function encode(utm, accuracy) {
 }
 
 /**
- * Get the two letter 100k designator for a given UTM easting,
- * northing and zone number value.
+ * Get the two letter 100k designator for a given UTM easting, northing and zone number value.
  *
  * @private
  * @param {number} easting
  * @param {number} northing
  * @param {number} zoneNumber
- * @return {string} the two letter 100k designator for the given UTM location.
+ * @returns {string} The two letter 100k designator for the given UTM location.
  */
 function get100kID(easting, northing, zoneNumber) {
   const setParm = get100kSetForZone(zoneNumber)
@@ -422,7 +412,7 @@ function get100kID(easting, northing, zoneNumber) {
  *
  * @private
  * @param {number} i An UTM zone number.
- * @return {number} the 100k set the UTM zone is in.
+ * @returns {number} The 100k set the UTM zone is in.
  */
 function get100kSetForZone(i) {
   let setParm = i % NUM_100K_SETS
@@ -434,20 +424,17 @@ function get100kSetForZone(i) {
 }
 
 /**
- * Get the two-letter MGRS 100k designator given information
- * translated from the UTM northing, easting and zone number.
+ * Get the two-letter MGRS 100k designator given information translated from the UTM northing,
+ * easting and zone number.
  *
  * @private
- * @param {number} column the column index as it relates to the MGRS
- *        100k set spreadsheet, created from the UTM easting.
- *        Values are 1-8.
- * @param {number} row the row index as it relates to the MGRS 100k set
- *        spreadsheet, created from the UTM northing value. Values
- *        are from 0-19.
- * @param {number} parm the set block, as it relates to the MGRS 100k set
- *        spreadsheet, created from the UTM zone. Values are from
- *        1-60.
- * @return {string} two letter MGRS 100k code.
+ * @param {number} column The column index as it relates to the MGRS 100k set spreadsheet, created
+ *   from the UTM easting. Values are 1-8.
+ * @param {number} row The row index as it relates to the MGRS 100k set spreadsheet, created from
+ *   the UTM northing value. Values are from 0-19.
+ * @param {number} parm The set block, as it relates to the MGRS 100k set spreadsheet, created from
+ *   the UTM zone. Values are from 1-60.
+ * @returns {string} Two letter MGRS 100k code.
  */
 function getLetter100kID(column, row, parm) {
   // colOrigin and rowOrigin are the letters at the origin of the set
@@ -528,9 +515,9 @@ function getLetter100kID(column, row, parm) {
  * Decode the UTM parameters from a MGRS string.
  *
  * @private
- * @param {string} mgrsString an UPPERCASE coordinate string is expected.
- * @return {object} An object literal with easting, northing, zoneLetter,
- *     zoneNumber and accuracy (in meters) properties.
+ * @param {string} mgrsString An UPPERCASE coordinate string is expected.
+ * @returns {object} An object literal with easting, northing, zoneLetter, zoneNumber and accuracy
+ *   (in meters) properties.
  */
 function decode(mgrsString) {
   if (mgrsString && mgrsString.length === 0) {
@@ -629,14 +616,13 @@ northing meters ${mgrsString}`)
 }
 
 /**
- * Given the first letter from a two-letter MGRS 100k zone, and given the
- * MGRS table set for the zone number, figure out the easting value that
- * should be added to the other, secondary easting value.
+ * Given the first letter from a two-letter MGRS 100k zone, and given the MGRS table set for the
+ * zone number, figure out the easting value that should be added to the other, secondary easting value.
  *
  * @private
  * @param {string} e The first letter from a two-letter MGRS 100´k zone.
  * @param {number} set The MGRS table set for the zone number.
- * @return {number} The easting value for the given letter and set.
+ * @returns {number} The easting value for the given letter and set.
  */
 function getEastingFromChar(e, set) {
   // colOrigin is the letter at the origin of the set for the
@@ -667,20 +653,17 @@ function getEastingFromChar(e, set) {
 }
 
 /**
- * Given the second letter from a two-letter MGRS 100k zone, and given the
- * MGRS table set for the zone number, figure out the northing value that
- * should be added to the other, secondary northing value. You have to
- * remember that Northings are determined from the equator, and the vertical
- * cycle of letters mean a 2000000 additional northing meters. This happens
- * approx. every 18 degrees of latitude. This method does *NOT* count any
- * additional northings. You have to figure out how many 2000000 meters need
- * to be added for the zone letter of the MGRS coordinate.
+ * Given the second letter from a two-letter MGRS 100k zone, and given the MGRS table set for the
+ * zone number, figure out the northing value that should be added to the other, secondary northing
+ * value. You have to remember that Northings are determined from the equator, and the vertical
+ * cycle of letters mean a 2000000 additional northing meters. This happens approx. every 18 degrees
+ * of latitude. This method does *NOT* count any additional northings. You have to figure out how
+ * many 2000000 meters need to be added for the zone letter of the MGRS coordinate.
  *
  * @private
  * @param {string} n Second letter of the MGRS 100k zone
- * @param {number} set The MGRS table set number, which is dependent on the
- *     UTM zone number.
- * @return {number} The northing value for the given letter and set.
+ * @param {number} set The MGRS table set number, which is dependent on the UTM zone number.
+ * @returns {number} The northing value for the given letter and set.
  */
 function getNorthingFromChar(n, set) {
   if (n > 'V') {
@@ -718,14 +701,13 @@ function getNorthingFromChar(n, set) {
 }
 
 /**
- * The function getMinNorthing returns the minimum northing value of a MGRS
- * zone.
+ * The function getMinNorthing returns the minimum northing value of a MGRS zone.
  *
  * Ported from Geotrans' c Lattitude_Band_Value structure table.
  *
  * @private
  * @param {string} zoneLetter The MGRS zone to get the min northing for.
- * @return {number}
+ * @returns {number}
  */
 function getMinNorthing(zoneLetter) {
   let northing

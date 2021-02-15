@@ -2,20 +2,23 @@
 
 /**
  * Flag that tells if the app is currently in debug mode (a.k.a. built in dev mode)
+ *
  * @type Boolean
  */
 export const DEBUG = process.env.VUE_APP_DEBUG
 
 /**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
+ *
  * @type Boolean
  */
 export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
 
 /**
  * Adds a slash at the end of the URL if there is none
+ *
  * @param {String} url
- * @return {String} the URL with a trailing slash
+ * @returns {String} The URL with a trailing slash
  */
 function enforceEndingSlashInUrl(url) {
   if (url && !url.endsWith('/')) {
@@ -28,6 +31,7 @@ function enforceEndingSlashInUrl(url) {
  * Base part of the URL to use when requesting the backend (e.g. for prod https://api3.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
  * @type String
  */
 export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE_URL)
@@ -35,22 +39,28 @@ export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE
  * Base part of the URL to use when requesting GeoJSON data (e.g. for prod https://data.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
  * @type {String}
  */
 export const DATA_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_DATA_BASE_URL)
 /**
- * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod https://wmts{5-9}.geo.admin.ch/).
+ * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod
+ * https://wmts{5-9}.geo.admin.ch/).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
  * @type {String}
  */
 export const WMTS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMTS_BASE_URL)
 /**
- * Default WMS base part of the URL to use when requesting tiles (e.g. for prod https://wms{0-4}.geo.admin.ch).
+ * Default WMS base part of the URL to use when requesting tiles (e.g. for prod
+ * https://wms{0-4}.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
- * WMS layers tend to carry their own base URL in their metadata, be mindful of that when using this constant (it might be unnecessary)
+ * WMS layers tend to carry their own base URL in their metadata, be mindful of that when using this
+ * constant (it might be unnecessary)
+ *
  * @type {String}
  */
 export const WMS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMS_BASE_URL)
@@ -58,24 +68,30 @@ export const WMS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMS_BASE
 /**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)
  *
- * comes from {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/map/TileGrid.js}
+ * Comes from {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/map/TileGrid.js}
+ *
  * @type {Number}
  */
 export const WMS_TILE_SIZE = 512 // px
 
 /**
- * Origin of the TileGrid (comes from {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857
+ * Origin of the TileGrid (comes from {@link
+ * https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857
  *
  * Was [2420000, 1350000] (LV95), is now [558147.8, 6152731.53]
- * @type {Array<Number>}
+ *
+ * @type {Number[]}
  */
 export const TILEGRID_ORIGIN = [558147.8, 6152731.53]
 
 /**
- * Resolutions steps (one per zoom level) for our own WMTS pyramid (see {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
+ * Resolutions steps (one per zoom level) for our own WMTS pyramid (see {@link
+ * http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
  *
- * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to World Wide zoom level (see {@link translateSwisstopoPyramidZoomToMercatorZoom})
- * @type {Array<Number>}
+ * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
+ * World Wide zoom level (see {@link translateSwisstopoPyramidZoomToMercatorZoom})
+ *
+ * @type {Number[]}
  */
 export const TILEGRID_RESOLUTIONS = [
   4000,

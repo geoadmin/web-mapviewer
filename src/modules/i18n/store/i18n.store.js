@@ -2,6 +2,7 @@ import i18n from '../'
 
 /**
  * The name of the mutation for lang changes
+ *
  * @type {String}
  */
 export const SET_LANG_MUTATION_KEY = 'setLang'
@@ -9,6 +10,7 @@ export const SET_LANG_MUTATION_KEY = 'setLang'
 const state = {
   /**
    * The current language used by this application, expressed as an country ISO code (`en`,`de`,`fr,etc...)
+   *
    * @type String
    */
   lang: i18n.locale,

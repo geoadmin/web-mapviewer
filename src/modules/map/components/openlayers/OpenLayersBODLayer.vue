@@ -50,9 +50,7 @@ import OpenLayersWMTSLayer from './OpenLayersWMTSLayer'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer'
 
-/**
- * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type.
- */
+/** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {
   // So that we can recursively call ourselves in the template for aggregate layers
   name: 'OpenLayersBodLayer',

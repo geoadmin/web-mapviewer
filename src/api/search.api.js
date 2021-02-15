@@ -6,6 +6,7 @@ import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUt
 
 /**
  * Enum for search result types
+ *
  * @readonly
  * @enum {String}
  */
@@ -17,14 +18,12 @@ export const RESULT_TYPE = {
 // used to parse backend results and extract the title from sub-titles and other stuff
 const REGEX_RESULT_TITLE = /<b>(.*?)<\/b>/i
 
-/**
- * @abstract
- */
+/** @abstract */
 export class SearchResult {
   /**
    * @param {RESULT_TYPE} resultType
-   * @param {String} title of this search result (can be HTML as a string)
-   * @param {String} description a description of this search result (plain text only, no HTML)
+   * @param {String} title Of this search result (can be HTML as a string)
+   * @param {String} description A description of this search result (plain text only, no HTML)
    */
   constructor(resultType, title, description) {
     this.resultType = resultType
@@ -36,9 +35,7 @@ export class SearchResult {
     return this.getSimpleTitle()
   }
 
-  /**
-   * @returns the title without any HTML tags (will only keep what's inside <b> tag if there are)
-   */
+  /** @returns The title without any HTML tags (will only keep what's inside <b> tag if there are) */
   getSimpleTitle() {
     if (REGEX_RESULT_TITLE.test(this.title)) {
       return REGEX_RESULT_TITLE.exec(this.title)[1]
@@ -60,12 +57,14 @@ export class LayerSearchResult extends SearchResult {
 
 export class FeatureSearchResult extends SearchResult {
   /**
-   * @param {String} title of this search result (can be HTML as a string)
-   * @param {String} description a description of this search result (plain text only, no HTML)
-   * @param {Number} featureId the feature ID (if it exists) in the BGDI feature list
-   * @param {Array<Number>} coordinates coordinates of this feature (in EPSG:3857)
-   * @param {Array<Array<Number>>} extent an extent that describe where to zoom to show the whole search result, structure is [ [bottomLeftCoords], [topRightCoords] ]
-   * @param {Number} zoom the zoom level at which the map should be zoomed when showing the feature (if extent is defined, this will be ignored)
+   * @param {String} title Of this search result (can be HTML as a string)
+   * @param {String} description A description of this search result (plain text only, no HTML)
+   * @param {Number} featureId The feature ID (if it exists) in the BGDI feature list
+   * @param {Number[]} coordinates Coordinates of this feature (in EPSG:3857)
+   * @param {Number[][]} extent An extent that describe where to zoom to show the whole search
+   *   result, structure is [ [bottomLeftCoords], [topRightCoords] ]
+   * @param {Number} zoom The zoom level at which the map should be zoomed when showing the feature
+   *   (if extent is defined, this will be ignored)
    */
   constructor(title, description, featureId, coordinates = [], extent, zoom) {
     super(RESULT_TYPE.LOCATION, title, description)
@@ -89,8 +88,8 @@ export class FeatureSearchResult extends SearchResult {
 
 export class CombinedSearchResults {
   /**
-   * @param {Array<LayerSearchResult>} layerResults
-   * @param {Array<FeatureSearchResult>} locationResults
+   * @param {LayerSearchResult[]} layerResults
+   * @param {FeatureSearchResult[]} locationResults
    */
   constructor(layerResults = [], locationResults = []) {
     this.layerResults = layerResults
@@ -123,8 +122,8 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
 
 let cancelToken = null
 /**
- * @param {String} queryString the query string that describe what is wanted from the search
- * @param {String} lang the lang ISO code in which the search must be conducted
+ * @param {String} queryString The query string that describe what is wanted from the search
+ * @param {String} lang The lang ISO code in which the search must be conducted
  * @returns {Promise<CombinedSearchResults>}
  */
 const search = (queryString = '', lang = '') => {

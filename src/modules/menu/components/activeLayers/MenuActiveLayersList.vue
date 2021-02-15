@@ -22,7 +22,8 @@ import { mapState, mapActions } from 'vuex'
 import MenuActiveLayersListItem from './MenuActiveLayersListItem'
 
 /**
- * Component that maps the active layers from the state to the menu (and also forwards user interactions to the state)
+ * Component that maps the active layers from the state to the menu (and also forwards user
+ * interactions to the state)
  */
 export default {
   components: { MenuActiveLayersListItem },

@@ -2,6 +2,7 @@ import { SET_LANG_MUTATION_KEY } from '@/modules/i18n/store/i18n.store'
 
 /**
  * Redo the search results on lang change if the search query is defined
+ *
  * @param {Vuex.Store} store
  */
 const redoSearchOnLangChange = (store) => {

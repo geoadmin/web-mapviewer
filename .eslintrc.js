@@ -51,7 +51,8 @@ module.exports = {
         /**
          * Use prettier to process `<template>` blocks or not
          *
-         * If set to `false`, remember not to `extends: ['prettier/vue']`, as you need the rules from `eslint-plugin-vue` to lint `<template>` blocks
+         * If set to `false`, remember not to `extends: ['prettier/vue']`, as you need the rules
+         * from `eslint-plugin-vue` to lint `<template>` blocks
          *
          * @default true
          */

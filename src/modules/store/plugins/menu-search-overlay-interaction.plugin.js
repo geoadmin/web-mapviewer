@@ -1,7 +1,9 @@
 /**
- * This plugin will orchestrate the UI interaction between components from the menu, the search bar and the map overlay
- * It will, for instance, show the overlay when the menu tray is shown, and then hide the menu tray if the overlay is clicked.
- * Or it will hide the menu tray if the search results are shown.
+ * This plugin will orchestrate the UI interaction between components from the menu, the search bar
+ * and the map overlay It will, for instance, show the overlay when the menu tray is shown, and then
+ * hide the menu tray if the overlay is clicked. Or it will hide the menu tray if the search results
+ * are shown.
+ *
  * @param store
  */
 const menuSearchBarAndOverlayInteractionManagementPlugin = (store) => {

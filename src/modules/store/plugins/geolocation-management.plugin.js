@@ -22,6 +22,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
 
 /**
  * Handles Geolocation API errors
+ *
  * @param {PositionError} error
  * @param {Vuex.Store} store
  */
@@ -46,7 +47,9 @@ const handlePositionError = (error, store) => {
 }
 
 /**
- * Plugin that handle the HTML5 Geolocation API interaction, and dispatch its output to the store when geolocation is active.
+ * Plugin that handle the HTML5 Geolocation API interaction, and dispatch its output to the store
+ * when geolocation is active.
+ *
  * @param {Vuex.Store} store
  */
 const geolocationManagementPlugin = (store) => {

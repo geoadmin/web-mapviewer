@@ -12,11 +12,13 @@ const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN
 const state = {
   /**
    * The map zoom level, which define the resolution of the view
+   *
    * @type Number
    */
   zoom: 7,
   /**
    * Center of the view of the map expressed in EPSG:3857
+   *
    * @type Array<Number>
    */
   center: [915602.81, 5911929.47], // default value is the center of LV:95 projection's extent (from https://epsg.io/2056) reprojected in EPSG:3857
@@ -25,7 +27,7 @@ const state = {
 /**
  * @param zoom
  * @param latitudeInRad
- * @return {Number}
+ * @returns {Number}
  */
 const calculateResolution = (zoom, latitudeInRad) => {
   // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
@@ -42,8 +44,9 @@ const calculateResolution = (zoom, latitudeInRad) => {
 const getters = {
   /**
    * The center of the map reprojected in EPSG:4326
+   *
    * @param state
-   * @return {Array<Number>}
+   * @returns {Number[]}
    */
   centerEpsg4326: (state) => {
     const centerEpsg4326Unrounded = proj4('EPSG:3857', 'EPSG:4326', state.center)
@@ -56,9 +59,10 @@ const getters = {
   },
   /**
    * The center of the map reprojected in EPSG:4326 expressed in radian
+   *
    * @param _
    * @param getters
-   * @return {Array<Number>}
+   * @returns {Number[]}
    */
   centerEpsg4326InRadian: (_, getters) => {
     const centerEpsg4326 = getters.centerEpsg4326
@@ -66,16 +70,18 @@ const getters = {
   },
   /**
    * Resolution of the view expressed in meter per pixel
+   *
    * @type Number
    */
   resolution: (state, getters) =>
     calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1]),
   /**
    * The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight ]`)
+   *
    * @param state
    * @param getters
    * @param rootState
-   * @return {[[number, number], [number, number]]}
+   * @returns {[[number, number], [number, number]]}
    */
   extent: (state, getters, rootState) => {
     const halfScreenInMeter = {

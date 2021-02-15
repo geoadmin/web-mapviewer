@@ -1,5 +1,7 @@
 /**
- * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers change of route, going to the map view, telling the app it can show the map and all other associated UI elements.
+ * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers
+ * change of route, going to the map view, telling the app it can show the map and all other
+ * associated UI elements.
  *
  * What we are waiting for is :
  * - Layers config to be loaded (so we have all layers definition/metadata)

@@ -70,6 +70,7 @@
     "googleapis": "^67.0.0",
     "mime-types": "^2.1.28",
     "prettier": "^2.2.1",
+    "prettier-plugin-jsdoc": "^0.3.11",
     "sass": "^1.32.6",
     "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.6.12",

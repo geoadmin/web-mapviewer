@@ -7,9 +7,10 @@ setupProj4()
 
 /**
  * Place a separator after each group of 3 digit
- * @param {Number} number a number expressed as a string
- * @param {String} separator which thousand separator to use
- * @return {string} the number with thousand separators
+ *
+ * @param {Number} number A number expressed as a string
+ * @param {String} separator Which thousand separator to use
+ * @returns {string} The number with thousand separators
  */
 const numberWithThousandSeparator = (number, separator = "'") => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
@@ -19,10 +20,11 @@ describe('Unit test functions from coordinateUtils.js', () => {
   context('coordinateFromString(text)', () => {
     /**
      * Gives text as input to coordinateFromString and check the output of this function
-     * @param {String} text the input to be given to coordinateFromString
-     * @param {Array<Number>} expected what is expected of coordinateFromString as output
-     * @param {String} message message to be shown if the test fails (in the unit test log)
-     * @param {Number} acceptableDelta if a delta with the expected result is acceptable (default is zero)
+     *
+     * @param {String} text The input to be given to coordinateFromString
+     * @param {Number[]} expected What is expected of coordinateFromString as output
+     * @param {String} message Message to be shown if the test fails (in the unit test log)
+     * @param {Number} acceptableDelta If a delta with the expected result is acceptable (default is zero)
      */
     const checkText = (text, expected, message, acceptableDelta = 0) => {
       const result = coordinateFromString(text)
@@ -40,12 +42,14 @@ describe('Unit test functions from coordinateUtils.js', () => {
       )
     }
     /**
-     * Checks that X and Y (given as param) output the expected X and Y with different combination of coma, spaces, slash and tabs in between X and Y
-     * @param {Number, String}x x to be passed as input to coordinateFromString
-     * @param {Number, String}y y to be passed as input to coordinateFromString
-     * @param {Number}xExpectedValue what coordinateFromString is expected to output as X
-     * @param {Number}yExpectedValue what coordinateFromString is expected to output as Y
-     * @param {Number}acceptableDelta if a delta with the expected result is acceptable (default is zero)
+     * Checks that X and Y (given as param) output the expected X and Y with different combination
+     * of coma, spaces, slash and tabs in between X and Y
+     *
+     * @param {Number, String} x X to be passed as input to coordinateFromString
+     * @param {Number, String} y Y to be passed as input to coordinateFromString
+     * @param {Number} xExpectedValue What coordinateFromString is expected to output as X
+     * @param {Number} yExpectedValue What coordinateFromString is expected to output as Y
+     * @param {Number} acceptableDelta If a delta with the expected result is acceptable (default is zero)
      */
     const checkXY = (x, y, xExpectedValue, yExpectedValue, acceptableDelta = 0) => {
       const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xExpectedValue}, expected y: ${yExpectedValue}`
@@ -307,9 +311,11 @@ describe('Unit test functions from coordinateUtils.js', () => {
     })
 
     /**
-     * Checks that x and y will output the expected EPSG:3857 coordinate, whether X and Y are expressed in LV95 or
-     * LV03. It will also try to enter X and Y backward, as it must be supported by the app (coordinateFromString
-     * must detect which one is the north and which one is the east part of the coordinate)
+     * Checks that x and y will output the expected EPSG:3857 coordinate, whether X and Y are
+     * expressed in LV95 or LV03. It will also try to enter X and Y backward, as it must be
+     * supported by the app (coordinateFromString must detect which one is the north and which one
+     * is the east part of the coordinate)
+     *
      * @param {Number} x
      * @param {Number} y
      * @param {Number} acceptableDelta

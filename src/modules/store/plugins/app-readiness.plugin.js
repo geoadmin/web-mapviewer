@@ -1,7 +1,7 @@
 /**
- * Plugin that will listen to most mutation as long as a certain state of readiness is not reached. When the state has
- * loaded enough data / is ready, this plugin will trigger the mutation that will set a flag to true and let the app
- * know it can show the map and all linked functionalities.
+ * Plugin that will listen to most mutation as long as a certain state of readiness is not reached.
+ * When the state has loaded enough data / is ready, this plugin will trigger the mutation that will
+ * set a flag to true and let the app know it can show the map and all linked functionalities.
  *
  * What is required for the app to be ready is :
  * - Know the width and height of the viewport

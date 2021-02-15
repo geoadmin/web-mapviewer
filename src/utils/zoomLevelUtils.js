@@ -1,8 +1,6 @@
 export const ZOOM_LEVEL_1_25000_MAP = 15.5
 
-/**
- * Conversion matrix from swisstopo LV95 zoom level to Web Mercator zoom level
- */
+/** Conversion matrix from swisstopo LV95 zoom level to Web Mercator zoom level */
 const swisstopoPyramidZoomToMercatorZoomMatrix = {
   0: 7.35,
   1: 7.75,
@@ -22,10 +20,15 @@ const swisstopoPyramidZoomToMercatorZoomMatrix = {
 }
 
 /**
- * Mapping between Swiss map zooms and Web Mercator zooms.
- * Copy/pasted from [MapUtilsService.js on mf-geoadmin3]{@link https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631}
- * @param {String|Number} swisstopoPyramidZoom a zoom level as desribed in [our backend's doc]{@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}
- * @returns {Number} a web-mercator zoom level (as described on [OpenStreetMap's wiki]{@link https://wiki.openstreetmap.org/wiki/Zoom_levels}) or null if the input is not a valid swisstopo pyramid zoom level
+ * Mapping between Swiss map zooms and Web Mercator zooms. Copy/pasted from [MapUtilsService.js on
+ * mf-geoadmin3]{@link
+ * https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631}
+ *
+ * @param {String | Number} swisstopoPyramidZoom A zoom level as desribed in [our backend's
+ *   doc]{@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}
+ * @returns {Number} A web-mercator zoom level (as described on [OpenStreetMap's wiki]{@link
+ *   https://wiki.openstreetmap.org/wiki/Zoom_levels}) or null if the input is not a valid swisstopo
+ *   pyramid zoom level
  */
 export const translateSwisstopoPyramidZoomToMercatorZoom = (swisstopoPyramidZoom) => {
   const key = `${swisstopoPyramidZoom}`

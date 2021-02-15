@@ -40,9 +40,7 @@
 import { mapState } from 'vuex'
 import SearchResultCategory from './SearchResultCategory'
 
-/**
- * Component showing all results from the search, divided in two groups (categories) : layers and locations
- */
+/** Component showing all results from the search, divided in two groups (categories) : layers and locations */
 export default {
   components: { SearchResultCategory },
   computed: {

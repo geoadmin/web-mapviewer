@@ -1,16 +1,16 @@
 import { API_BASE_URL } from '@/config'
 import axios from 'axios'
 
-/**
- * Describe a feature from the backend (see {@link getFeature}) below
- */
+/** Describe a feature from the backend (see {@link getFeature}) below */
 export class Feature {
   /**
-   * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer the layer in which this feature belongs
-   * @param {Number|String} id the unique feature ID in the layer it is part of
+   * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer The layer in which this
+   *   feature belongs
+   * @param {Number | String} id The unique feature ID in the layer it is part of
    * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
-   * @param {Array<Number>} coordinate [x,y] coordinate in EPSG:3857
-   * @param {Array<Number>} extent extent of the feature expressed with two point, bottom left and top right, in EPSG:3857
+   * @param {Number[]} coordinate [x,y] coordinate in EPSG:3857
+   * @param {Number[]} extent Extent of the feature expressed with two point, bottom left and top
+   *   right, in EPSG:3857
    * @param {Object} geometry GeoJSON geometry (if exists)
    */
   constructor(layer, id, htmlPopup, coordinate, extent, geometry = null) {
@@ -22,23 +22,23 @@ export class Feature {
     this.geometry = geometry
   }
 
-  /**
-   * @return {LayerTypes}
-   */
+  /** @returns {LayerTypes} */
   getLayerType() {
     return this.layer && this.layer.type
   }
 }
 
 /**
- * Asks the backend for identification of features at the coordinates for the given layer using http://api3.geo.admin.ch/services/sdiservices.html#identify-features
- * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer
- * @param {Array<Number>} coordinate coordinate where to identify feature in EPSG:3857
- * @param {Array<Number>} mapExtent
+ * Asks the backend for identification of features at the coordinates for the given layer using
+ * http://api3.geo.admin.ch/services/sdiservices.html#identify-features
+ *
+ * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer
+ * @param {Number[]} coordinate Coordinate where to identify feature in EPSG:3857
+ * @param {Number[]} mapExtent
  * @param {Number} screenWidth
  * @param {Number} screenHeight
  * @param {String} lang
- * @return {Promise<Array<Feature>>}
+ * @returns {Promise<Feature[]>}
  */
 export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight, lang) => {
   return new Promise((resolve, reject) => {
@@ -101,12 +101,14 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
 
 /**
  * Loads a feature metadata and tooltip content from this two endpoint of the backend
- *  - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
- *  - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
- * @param {WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer} layer the layer from which the feature is part of
- * @param {String|Number} featureID the feature ID in the BGDI
- * @param {String} lang the language for the HTML popup
- * @return {Promise<Feature>}
+ * - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
+ * - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
+ *
+ * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer The layer from which the
+ *   feature is part of
+ * @param {String | Number} featureID The feature ID in the BGDI
+ * @param {String} lang The language for the HTML popup
+ * @returns {Promise<Feature>}
  */
 const getFeature = (layer, featureID, lang = 'en') => {
   return new Promise((resolve, reject) => {

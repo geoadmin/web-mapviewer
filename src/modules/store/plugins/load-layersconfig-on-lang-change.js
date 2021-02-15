@@ -2,7 +2,9 @@ import { SET_LANG_MUTATION_KEY } from '@/modules/i18n/store/i18n.store'
 import loadLayersConfigFromBackend from '@/api/layers.api'
 
 /**
- * local storage of layers config, so that if a language has already been loaded, we don't reload it from the backend the second time (will disappear on page reload)
+ * Local storage of layers config, so that if a language has already been loaded, we don't reload it
+ * from the backend the second time (will disappear on page reload)
+ *
  * @type Object
  */
 const layersConfigByLang = {}
@@ -32,6 +34,7 @@ const loadLayersConfigAndDispatchToStore = (store) => {
 
 /**
  * Reload (if necessary from the backend) the layers config on language change
+ *
  * @param {Vuex.Store} store
  */
 const loadLayersConfigOnLangChange = (store) => {

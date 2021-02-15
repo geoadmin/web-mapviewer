@@ -4,7 +4,7 @@ import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUt
 
 /**
  * @param {String} search
- * @returns {*}
+ * @returns {any}
  */
 const parseLegacyParams = (search) => {
   const parts = search.match(/(\?|&)([^=]+)=([^&]+)/g)
@@ -23,13 +23,19 @@ const parseLegacyParams = (search) => {
  * Loads all URL parameters before the hash and adds them after the hash.
  *
  * Example:
- * - `http://localhost:8080/?geolocation=true&layers=some.layer.id` => `http://localhost:8080/#/?geolocation=true&layers=some.layer.id`
+ * - `http://localhost:8080/?geolocation=true&layers=some.layer.id` =>
+ *   `http://localhost:8080/#/?geolocation=true&layers=some.layer.id`
  *
- * In this process, we have the opportunity to alter/edit some parameters that are not expressed the same way in web-mapviewer than what they were in mf-geoadmin3, essentially enabling retro-compatibility for link sharing (which is an important feature to have)
+ * In this process, we have the opportunity to alter/edit some parameters that are not expressed the
+ * same way in web-mapviewer than what they were in mf-geoadmin3, essentially enabling
+ * retro-compatibility for link sharing (which is an important feature to have)
  *
  * Some special cases are :
- * - zoom: as mf-geoadmin3 was using zoom level fitting the LV95 projection, we translate those zoom levels into world wide zoom levels. See {@link translateSwisstopoPyramidZoomToMercatorZoom}
- * - easting/northing, E/N or x/y: webmapviewer is using EPSG:3857 as its engine projection and shows EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to EPSG:4326 and relabel them lat and lon accordingly
+ * - Zoom: as mf-geoadmin3 was using zoom level fitting the LV95 projection, we translate those zoom
+ *   levels into world wide zoom levels. See {@link translateSwisstopoPyramidZoomToMercatorZoom}
+ * - Easting/northing, E/N or x/y: webmapviewer is using EPSG:3857 as its engine projection and shows
+ *   EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to
+ *   EPSG:4326 and relabel them lat and lon accordingly
  *
  * @param {VueRouter} router
  */
