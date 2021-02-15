@@ -42,6 +42,9 @@
 <script>
 import SearchResultListEntry from './SearchResultListEntry'
 
+/**
+ * Search results from the backend are sorted in two categories : layers and locations, this component is there to show one of those category at a time
+ */
 export default {
   components: { SearchResultListEntry },
   props: {

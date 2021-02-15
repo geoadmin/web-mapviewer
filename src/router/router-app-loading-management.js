@@ -1,6 +1,19 @@
+/**
+ * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers change of route, going to the map view, telling the app it can show the map and all other associated UI elements.
+ *
+ * What we are waiting for is :
+ * - Layers config to be loaded (so we have all layers definition/metadata)
+ * - We know the size of the viewport (so by definition the resolution of the map)
+ *
+ * See the Vuex "sister" plugin {@link appReadinessPlugin} for more information
+ *
+ * @param {VueRouter} router
+ * @param {Vuex.Store} store
+ */
 const routerAppLoadingManagement = (router, store) => {
   let wantedDestination = null
-  // checking if app is ready, if not keeping track of the first destination and redirect to loading splashscreen
+  // Checking if app is ready.
+  // If not, keeping track of the first destination and redirect to loading splashscreen
   router.beforeEach((to, from, next) => {
     // if app is ready we keep the route going
     if (store.state.app.isReady) {

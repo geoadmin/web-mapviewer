@@ -13,6 +13,7 @@
       v-for="(layer, index) in visibleLayers"
       :key="layer.id"
       :layer-config="layer"
+      :current-map-resolution="resolution"
       :z-index="index + startingZIndexForVisibleLayers"
     />
     <!-- Adding pinned location -->
@@ -93,6 +94,12 @@ import { ClickInfo } from '@/modules/map/store/map.store'
 import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
 
+/**
+ * Main OpenLayers map component responsible for building the OL map instance and telling the view where to look at.
+ * Will delegate other responsibilities to children components (such as layer rendering, marker placement, etc...).
+ *
+ * This is the only component of the OL components constellation that must be aware of the store, and pass down information about it through props.
+ */
 export default {
   components: {
     OpenLayersHighlightedFeature,
@@ -102,8 +109,10 @@ export default {
   },
   data: () => {
     return {
+      // we build the OL instance right away as it is required for "provide" below (otherwise children components will receive a null instance and won't ask for another one later on)
       map: new Map({ target: 'ol-map', controls: [] }),
       view: null,
+      // exposing marker styles to the template
       markerStyles,
     }
   },
@@ -118,7 +127,8 @@ export default {
       geolocationPosition: (state) => state.geolocation.position,
       geolocationAccuracy: (state) => state.geolocation.accuracy,
     }),
-    ...mapGetters(['visibleLayers', 'currentBackgroundLayer', 'extent']),
+    ...mapGetters(['visibleLayers', 'currentBackgroundLayer', 'extent', 'resolution']),
+    // zIndex calculation conundrum...
     startingZIndexForVisibleLayers: function () {
       return this.currentBackgroundLayer ? 1 : 0
     },
@@ -135,6 +145,7 @@ export default {
       return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
     },
   },
+  // let's watch changes for center and zoom, and animate what has changed with a small easing
   watch: {
     center: function () {
       this.view.animate({
@@ -170,6 +181,7 @@ export default {
     this.map.on('pointerdown', () => {
       pointerDownStart = moment()
     })
+    // TODO: trigger a click after pointer is down at (roughly) the same spot for longer than 1sec (no need to wait for the user to stop the click)
     this.map.on('pointerup', () => {
       lastClickTimeLength = moment().diff(pointerDownStart)
       pointerDownStart = null
@@ -243,7 +255,6 @@ export default {
   methods: {
     ...mapActions([
       'setCenter',
-      'setExtent',
       'setZoom',
       'click',
       'mapStoppedBeingDragged',
@@ -252,6 +263,7 @@ export default {
   },
   provide: function () {
     return {
+      // sharing OL map object with children components
       getMap: () => this.map,
     }
   },

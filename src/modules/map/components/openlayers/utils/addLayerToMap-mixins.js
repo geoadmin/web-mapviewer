@@ -32,7 +32,7 @@ const addLayerToMapMixin = {
   methods: {
     addLayerToMap: function (zIndex, layer) {
       if (this.getMap()) {
-        if (!zIndex) {
+        if (zIndex < 0) {
           this.getMap().addLayer(layer)
         } else {
           this.getMap().getLayers().insertAt(zIndex, layer)

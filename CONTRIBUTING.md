@@ -9,6 +9,16 @@ Then a version is made by creating a `release-20xx-xx-xx` branch from `develop` 
 
 All commits on `master` thus represent a new version of the app.
 
+### Linting
+
+This project uses ESLint as the main linter, and uses presets from [https://prettier.io/](https://prettier.io/)
+Lint is enforced at each build, and will result in an error if something is wrong. You can auto lint your code by running `npm run lint` (this will lint the whole `src/` folder)
+
+#### Integration in IDE
+
+As we are using ESLint out of the box, most modern IDE will read ESLint config file `.eslintrc.js` and incorporate it to the environment.
+It is advised to deactivate code generation (or fix it in the settings) for code parts that are not compliant with our linting policy (lambda declaration, auto semi-column, etc...).
+
 ### Automated git tagging of `master`
 
 When merging on `master` (from a `release-20xx-xx-xx` branch), an automatic git tag will be added to `master` branch by [github-tag-bump](https://github.com/marketplace/actions/github-tag-bump)

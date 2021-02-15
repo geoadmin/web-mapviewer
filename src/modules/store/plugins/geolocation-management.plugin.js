@@ -1,5 +1,6 @@
 import proj4 from 'proj4'
 import i18n from '@/modules/i18n'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
@@ -32,7 +33,7 @@ const handlePositionError = (error, store) => {
       alert(i18n.t('geoloc_permission_denied'))
       break
     default:
-      if (window.Cypress && error.code === error.POSITION_UNAVAILABLE) {
+      if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
         // edge case for e2e testing, if we are testing with Cypress and we receive a POSITION_UNAVAILABLE
         // we don't raise an alert as it's "normal" in Electron to have this error raised (this API doesn't work
         // on Electron embedded in Cypress : no Geolocation hardware detected, etc...)
@@ -44,6 +45,10 @@ const handlePositionError = (error, store) => {
   }
 }
 
+/**
+ * Plugin that handle the HTML5 Geolocation API interaction, and dispatch its output to the store when geolocation is active.
+ * @param {Vuex.Store} store
+ */
 const geolocationManagementPlugin = (store) => {
   store.subscribe((mutation, state) => {
     // we listen to the mutation that is triggered when the map is starting being dragged in order to stop

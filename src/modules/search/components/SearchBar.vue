@@ -42,21 +42,13 @@ export default {
     }),
   },
   methods: {
-    ...mapActions([
-      'setSearchQuery',
-      'showSearchResults',
-      'hideSearchResults',
-      'hideMenuTray',
-      'hideOverlay',
-    ]),
+    ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults']),
     updateSearchQuery: function (e) {
       this.setSearchQuery({ query: e.target.value })
     },
     showSearchResultsIfExists: function () {
       if (this.searchQuery && this.searchQuery.length >= 2) {
         this.showSearchResults()
-        this.hideMenuTray()
-        this.hideOverlay()
       }
     },
     clearSearchQuery: function () {

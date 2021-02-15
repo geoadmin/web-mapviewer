@@ -17,11 +17,13 @@ import { VueSvgIcon } from '@yzfe/vue-svgicon'
 import '@yzfe/svgicon/lib/svgicon.css'
 import router from './router'
 import setupProj4 from '@/utils/setupProj4'
+import { DEBUG, IS_TESTING_WITH_CYPRESS } from '@/config'
 
 setupProj4()
 
-Vue.config.productionTip = false
+Vue.config.productionTip = DEBUG
 
+// Adding component used to load the Swiss flag SVG as a Vue component
 Vue.component('icon', VueSvgIcon)
 
 new Vue({
@@ -32,6 +34,6 @@ new Vue({
 }).$mount('#app')
 
 // if we are testing with Cypress, we expose the store
-if (window.Cypress) {
+if (IS_TESTING_WITH_CYPRESS) {
   window.store = store
 }

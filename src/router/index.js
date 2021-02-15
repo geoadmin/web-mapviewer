@@ -15,6 +15,7 @@ const routes = [
     path: '/',
     redirect: { name: 'LoadingView' },
   },
+  // TODO: remove the loading view and make it a UI loading bar or other feedback under the header (while showing the map without tiles)
   {
     path: '/loading',
     name: 'LoadingView',
@@ -27,14 +28,16 @@ const routes = [
   },
 ]
 
+/**
+ * The Vue Router for this app, see [Vue Router's doc on how to use it]{@link https://router.vuejs.org/guide/}
+ * @type {VueRouter}
+ */
 const router = new VueRouter({
-  // mode: 'history',
-  // base: process.env.BASE_URL,
   routes,
 })
 
 routerAppLoadingManagement(router, store)
 storeToUrlManagement(router, store)
-legacyPermalinkManagement(router, store)
+legacyPermalinkManagement(router)
 
 export default router

@@ -21,6 +21,9 @@ const accuracyCircleStyle = new Style({
   }),
 })
 
+/**
+ * Component managing the rendering of a red transparent circle to show currently how accurate is the geolocation
+ */
 export default {
   mixins: [addLayerToMapMixin],
   props: {
