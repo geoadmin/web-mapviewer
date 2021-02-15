@@ -16,7 +16,11 @@
     "update:translations": "node scripts/generate-i18n-files.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.2",
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-regular-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/vue-fontawesome": "^2.0.2",
     "@turf/turf": "^6.3.0",
     "@yzfe/svgicon": "^1.0.1",
     "@yzfe/vue-svgicon": "^4.0.2",

@@ -8,7 +8,7 @@
 <style lang="scss">
 .multi-lang-title,
 .i18n-partnership-text {
-  background: url('../assets/text.png') no-repeat top left;
+  background: url('../../assets/text.png') no-repeat top left;
   background-size: 187px 135px;
 }
 .multi-lang-title {

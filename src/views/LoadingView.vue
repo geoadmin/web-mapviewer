@@ -1,6 +1,6 @@
 <template>
   <div id="splashscreen">
-    <h1>Loading <i class="fa fa-pulse fa-spinner"></i></h1>
+    <h1>Loading <font-awesome-icon spin :icon="['fa', 'spinner']" /></h1>
   </div>
 </template>
 

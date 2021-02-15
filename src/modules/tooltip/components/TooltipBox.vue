@@ -3,7 +3,7 @@
     <div class="tooltip-header">
       <div class="tooltip-toolbox text-right">
         <span @click="closeTooltip">
-          <i class="fa fa-times" />
+          <font-awesome-icon :icon="['fa', 'times']" />
         </span>
       </div>
     </div>

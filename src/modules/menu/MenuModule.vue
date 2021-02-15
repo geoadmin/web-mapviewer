@@ -2,9 +2,10 @@
   <transition name="slide-up">
     <div v-show="showHeader" class="header align-items-center p-1 flex-fill">
       <SwissFlag class="swiss-flag ml-1 mr-2" />
-      <MenuSwissConfederationText class="d-none d-sm-block" />
+      <HeaderSwissConfederationText class="d-none d-sm-block" />
+      <!-- we then let whatever was given in the slot be rendered here, that's where we expect to receive the search module from MapView.vue -->
       <slot />
-      <MenuButton />
+      <HeaderMenuButton />
       <MenuTray class="menu-tray" />
     </div>
   </transition>
@@ -38,6 +39,8 @@ $headerHeight: 3rem;
     top: $headerHeight;
     right: 0;
     background: $white;
+    width: 95%;
+    max-width: 40rem;
   }
 }
 .slide-up-leave-active,
@@ -67,15 +70,16 @@ $headerHeight: 3rem;
 <script>
 import { mapState } from 'vuex'
 
-import SwissFlag from './components/SwissFlag'
+import SwissFlag from './components/header/SwissFlag'
+import HeaderMenuButton from './components/header/HeaderMenuButton'
+import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText'
+
 import MenuTray from './components/MenuTray'
-import MenuButton from './components/MenuButton'
-import MenuSwissConfederationText from './components/MenuSwissConfederationText'
 
 export default {
   components: {
-    MenuSwissConfederationText,
-    MenuButton,
+    HeaderSwissConfederationText,
+    HeaderMenuButton,
     SwissFlag,
     MenuTray,
   },

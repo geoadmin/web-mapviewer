@@ -1,8 +1,10 @@
 <template>
   <transition name="slide">
-    <div v-show="showMenuTray" data-cy="menu-tray" class="p-2">
+    <div v-show="showMenuTray" data-cy="menu-tray" class="pt-2">
       <MenuLangSelector class="menu-section" />
-      <MenuLayerList class="menu-section" />
+      <MenuSection :title="$t('layers_displayed')" :show-content="true">
+        <MenuActiveLayersList />
+      </MenuSection>
     </div>
   </transition>
 </template>
@@ -23,10 +25,11 @@
 <script>
 import { mapState } from 'vuex'
 import MenuLangSelector from '@/modules/menu/components/MenuLangSelector'
-import MenuLayerList from '@/modules/menu/components/MenuLayerList'
+import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList'
+import MenuSection from '@/modules/menu/components/MenuSection'
 
 export default {
-  components: { MenuLayerList, MenuLangSelector },
+  components: { MenuSection, MenuActiveLayersList, MenuLangSelector },
   computed: {
     ...mapState({
       showMenuTray: (state) => state.ui.showMenuTray,

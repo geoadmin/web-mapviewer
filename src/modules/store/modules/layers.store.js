@@ -85,6 +85,45 @@ const actions = {
       })
     }
   },
+  setLayerOpacity: ({ commit }, payload) => {
+    if ('opacity' in payload && 'layerId' in payload) {
+      const layer = state.activeLayers.find((layer) => layer.id === payload.layerId)
+      if (layer) {
+        commit('setLayerOpacity', {
+          layer,
+          opacity: Number(payload.opacity),
+        })
+      }
+    }
+  },
+  moveActiveLayerBack: ({ commit }, layerId) => {
+    const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+    if (activeLayer) {
+      // checking if the layer can be put one step back
+      const currentIndex = state.activeLayers.indexOf(activeLayer)
+      if (currentIndex > 0) {
+        commit('moveActiveLayerFromIndexToIndex', {
+          layer: activeLayer,
+          startingIndex: currentIndex,
+          endingIndex: currentIndex - 1,
+        })
+      }
+    }
+  },
+  moveActiveLayerFront: ({ commit }, layerId) => {
+    const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+    if (activeLayer) {
+      // checking if the layer can be put one step front
+      const currentIndex = state.activeLayers.indexOf(activeLayer)
+      if (currentIndex < state.activeLayers.length - 1) {
+        commit('moveActiveLayerFromIndexToIndex', {
+          layer: activeLayer,
+          startingIndex: currentIndex,
+          endingIndex: currentIndex + 1,
+        })
+      }
+    }
+  },
 }
 
 const mutations = {
@@ -112,6 +151,11 @@ const mutations = {
     (state.activeLayers = state.activeLayers.filter((layer) => layer.id !== layerId)),
   setLayerConfig: (state, config) => (state.config = config),
   setBackground: (state, bgLayerId) => (state.backgroundLayerId = bgLayerId),
+  setLayerOpacity: (state, { layer, opacity }) => (layer.opacity = opacity),
+  moveActiveLayerFromIndexToIndex: (state, { layer, startingIndex, endingIndex }) => {
+    state.activeLayers.splice(startingIndex, 1)
+    state.activeLayers.splice(endingIndex, 0, layer)
+  },
 }
 
 export default {

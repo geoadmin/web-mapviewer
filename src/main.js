@@ -2,10 +2,6 @@ import Vue from 'vue'
 
 // importing styling CSS libraries
 import 'bootstrap'
-import '@fortawesome/fontawesome-free/js/fontawesome'
-import '@fortawesome/fontawesome-free/js/solid'
-import '@fortawesome/fontawesome-free/js/regular'
-import '@fortawesome/fontawesome-free/js/brands'
 import 'animate.css'
 
 import App from './App.vue'
@@ -22,6 +18,11 @@ import { DEBUG, IS_TESTING_WITH_CYPRESS } from '@/config'
 setupProj4()
 
 Vue.config.productionTip = DEBUG
+
+// setting up font awesome vue component
+require('./setup-fontawesome')
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 // Adding component used to load the Swiss flag SVG as a Vue component
 Vue.component('icon', VueSvgIcon)

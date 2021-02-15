@@ -19,7 +19,7 @@
       data-cy="searchbar-clear"
       @click="clearSearchQuery"
     >
-      <i class="fa fa-times"></i>
+      <font-awesome-icon :icon="['fa', 'times']" />
     </button>
   </div>
 </template>
