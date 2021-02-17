@@ -1,23 +1,23 @@
 <template>
-  <div id="map-view">
-    <OverlayModule />
-    <MapModule />
-    <MenuModule>
-      <!-- the only way to merge this two module while having different folder was to add the search bar (or search module)-->
-      <!-- right into the slot of the menu, so that the menu can place it according to the screen size-->
-      <SearchModule />
-    </MenuModule>
-    <ToolboxModule />
-    <TooltipModule />
-    <I18nModule />
-  </div>
+    <div id="map-view">
+        <OverlayModule />
+        <MapModule />
+        <MenuModule>
+            <!-- the only way to merge this two module while having different folder was to add the search bar (or search module)-->
+            <!-- right into the slot of the menu, so that the menu can place it according to the screen size-->
+            <SearchModule />
+        </MenuModule>
+        <ToolboxModule />
+        <TooltipModule />
+        <I18nModule />
+    </div>
 </template>
 
 <style>
 #map-view {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 </style>
 
@@ -31,14 +31,14 @@ import I18nModule from '@/modules/i18n/I18nModule'
 import TooltipModule from '@/modules/tooltip/TooltipModule'
 
 export default {
-  components: {
-    TooltipModule,
-    ToolboxModule,
-    SearchModule,
-    MenuModule,
-    MapModule,
-    OverlayModule,
-    I18nModule,
-  },
+    components: {
+        TooltipModule,
+        ToolboxModule,
+        SearchModule,
+        MenuModule,
+        MapModule,
+        OverlayModule,
+        I18nModule,
+    },
 }
 </script>

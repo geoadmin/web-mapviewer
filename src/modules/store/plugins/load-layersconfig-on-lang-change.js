@@ -10,26 +10,26 @@ import loadLayersConfigFromBackend from '@/api/layers.api'
 const layersConfigByLang = {}
 
 function loadLayersConfig(lang) {
-  return new Promise((resolve, reject) => {
-    if (!layersConfigByLang[lang]) {
-      loadLayersConfigFromBackend(lang)
-        .then((layersConfig) => {
-          layersConfigByLang[lang] = layersConfig
-          resolve(layersConfig)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    } else {
-      resolve(layersConfigByLang[lang])
-    }
-  })
+    return new Promise((resolve, reject) => {
+        if (!layersConfigByLang[lang]) {
+            loadLayersConfigFromBackend(lang)
+                .then((layersConfig) => {
+                    layersConfigByLang[lang] = layersConfig
+                    resolve(layersConfig)
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+        } else {
+            resolve(layersConfigByLang[lang])
+        }
+    })
 }
 
 const loadLayersConfigAndDispatchToStore = (store) => {
-  loadLayersConfig(store.state.i18n.lang)
-    .then((layersConfig) => store.dispatch('setLayerConfig', layersConfig))
-    .catch((error) => console.error(error))
+    loadLayersConfig(store.state.i18n.lang)
+        .then((layersConfig) => store.dispatch('setLayerConfig', layersConfig))
+        .catch((error) => console.error(error))
 }
 
 /**
@@ -38,13 +38,13 @@ const loadLayersConfigAndDispatchToStore = (store) => {
  * @param {Vuex.Store} store
  */
 const loadLayersConfigOnLangChange = (store) => {
-  store.subscribe((mutation) => {
-    if (mutation.type === SET_LANG_MUTATION_KEY) {
-      loadLayersConfigAndDispatchToStore(store)
-    }
-  })
-  // on app init, we load the first layersConfig
-  loadLayersConfigAndDispatchToStore(store)
+    store.subscribe((mutation) => {
+        if (mutation.type === SET_LANG_MUTATION_KEY) {
+            loadLayersConfigAndDispatchToStore(store)
+        }
+    })
+    // on app init, we load the first layersConfig
+    loadLayersConfigAndDispatchToStore(store)
 }
 
 export default loadLayersConfigOnLangChange

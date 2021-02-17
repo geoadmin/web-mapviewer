@@ -21,10 +21,10 @@ export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
  * @returns {String} The URL with a trailing slash
  */
 function enforceEndingSlashInUrl(url) {
-  if (url && !url.endsWith('/')) {
-    return `${url}/`
-  }
-  return url
+    if (url && !url.endsWith('/')) {
+        return `${url}/`
+    }
+    return url
 }
 
 /**
@@ -97,33 +97,33 @@ export const TILEGRID_ORIGIN = [558147.8, 6152731.53]
  * @type {Number[]}
  */
 export const TILEGRID_RESOLUTIONS = [
-  4000,
-  3750,
-  3500,
-  3250,
-  3000,
-  2750,
-  2500,
-  2250,
-  2000,
-  1750,
-  1500,
-  1250,
-  1000,
-  750,
-  650,
-  500,
-  250,
-  100,
-  50,
-  20,
-  10,
-  5,
-  2.5,
-  2,
-  1.5,
-  1,
-  0.5,
-  0.25,
-  0.1,
+    4000,
+    3750,
+    3500,
+    3250,
+    3000,
+    2750,
+    2500,
+    2250,
+    2000,
+    1750,
+    1500,
+    1250,
+    1000,
+    750,
+    650,
+    500,
+    250,
+    100,
+    50,
+    20,
+    10,
+    5,
+    2.5,
+    2,
+    1.5,
+    1,
+    0.5,
+    0.25,
+    0.1,
 ]

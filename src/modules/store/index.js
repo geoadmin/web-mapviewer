@@ -22,24 +22,24 @@ import geolocationManagementPlugin from './plugins/geolocation-management.plugin
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  strict: true,
-  plugins: [
-    loadLayersConfigOnLangChange,
-    redoSearchOnLangChange,
-    menuSearchBarAndOverlayInteractionManagementPlugin,
-    clickOnMapManagementPlugin,
-    appReadinessPlugin,
-    geolocationManagementPlugin,
-  ],
-  modules: {
-    app,
-    layers,
-    geolocation,
-    position,
-    ui,
-    map,
-    overlay,
-    search,
-    i18n,
-  },
+    strict: true,
+    plugins: [
+        loadLayersConfigOnLangChange,
+        redoSearchOnLangChange,
+        menuSearchBarAndOverlayInteractionManagementPlugin,
+        clickOnMapManagementPlugin,
+        appReadinessPlugin,
+        geolocationManagementPlugin,
+    ],
+    modules: {
+        app,
+        layers,
+        geolocation,
+        position,
+        ui,
+        map,
+        overlay,
+        search,
+        i18n,
+    },
 })

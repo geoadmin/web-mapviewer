@@ -11,21 +11,21 @@ import legacyPermalinkManagement from './legacy-permalink-management'
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    redirect: { name: 'LoadingView' },
-  },
-  // TODO: remove the loading view and make it a UI loading bar or other feedback under the header (while showing the map without tiles)
-  {
-    path: '/loading',
-    name: 'LoadingView',
-    component: LoadingView,
-  },
-  {
-    path: '/map',
-    name: 'MapView',
-    component: MapView,
-  },
+    {
+        path: '/',
+        redirect: { name: 'LoadingView' },
+    },
+    // TODO: remove the loading view and make it a UI loading bar or other feedback under the header (while showing the map without tiles)
+    {
+        path: '/loading',
+        name: 'LoadingView',
+        component: LoadingView,
+    },
+    {
+        path: '/map',
+        name: 'MapView',
+        component: MapView,
+    },
 ]
 
 /**
@@ -34,7 +34,7 @@ const routes = [
  * @type {VueRouter}
  */
 const router = new VueRouter({
-  routes,
+    routes,
 })
 
 routerAppLoadingManagement(router, store)

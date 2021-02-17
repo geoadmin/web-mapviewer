@@ -10,27 +10,27 @@ import rm from './locales/rm.json'
 Vue.use(VueI18n)
 
 export const languages = {
-  en: en,
-  de: de,
-  fr: fr,
-  it: it,
-  rm: rm,
+    en: en,
+    de: de,
+    fr: fr,
+    it: it,
+    rm: rm,
 }
 
 // detecting navigator's locale as the default language (if it is a language served by this app)
 let matchingLang = null
 if (navigator.languages) {
-  navigator.languages.forEach((lang) => {
-    // we keep the first match we found
-    if (!matchingLang && lang in languages) {
-      matchingLang = lang
-    }
-  })
+    navigator.languages.forEach((lang) => {
+        // we keep the first match we found
+        if (!matchingLang && lang in languages) {
+            matchingLang = lang
+        }
+    })
 }
 
 const i18n = new VueI18n({
-  locale: matchingLang ? matchingLang : 'en', // default locale
-  messages: languages,
+    locale: matchingLang ? matchingLang : 'en', // default locale
+    messages: languages,
 })
 
 export default i18n

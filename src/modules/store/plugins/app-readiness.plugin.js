@@ -10,19 +10,19 @@
  * @param {Vuex.Store} store
  */
 const appReadinessPlugin = (store) => {
-  store.subscribe((_, state) => {
-    // if app is not ready yet, we go through the checklist
-    if (!state.app.isReady) {
-      if (
-        state.ui.width > 0 &&
-        state.ui.height > 0 &&
-        Object.keys(state.layers.config).length > 0
-      ) {
-        store.dispatch('setAppIsReady')
-      }
-    }
-    // otherwise we ignore all mutations, our job is already done
-  })
+    store.subscribe((_, state) => {
+        // if app is not ready yet, we go through the checklist
+        if (!state.app.isReady) {
+            if (
+                state.ui.width > 0 &&
+                state.ui.height > 0 &&
+                Object.keys(state.layers.config).length > 0
+            ) {
+                store.dispatch('setAppIsReady')
+            }
+        }
+        // otherwise we ignore all mutations, our job is already done
+    })
 }
 
 export default appReadinessPlugin
