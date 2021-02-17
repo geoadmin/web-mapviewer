@@ -35,6 +35,7 @@ function enforceEndingSlashInUrl(url) {
  * @type String
  */
 export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE_URL)
+
 /**
  * Base part of the URL to use when requesting GeoJSON data (e.g. for prod https://data.geo.admin.ch).
  *
@@ -43,6 +44,7 @@ export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE
  * @type {String}
  */
 export const DATA_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_DATA_BASE_URL)
+
 /**
  * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod
  * https://wmts{5-9}.geo.admin.ch/).
@@ -52,6 +54,7 @@ export const DATA_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_DATA_BA
  * @type {String}
  */
 export const WMTS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMTS_BASE_URL)
+
 /**
  * Default WMS base part of the URL to use when requesting tiles (e.g. for prod
  * https://wms{0-4}.geo.admin.ch).
@@ -76,7 +79,7 @@ export const WMS_TILE_SIZE = 512 // px
 
 /**
  * Origin of the TileGrid (comes from {@link
- * https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857
+ * https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857 (WGS84)
  *
  * Was [2420000, 1350000] (LV95), is now [558147.8, 6152731.53]
  *
