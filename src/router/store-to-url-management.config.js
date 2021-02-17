@@ -116,7 +116,7 @@ const storeToUrlManagementConfig = [
   ),
   new ParamConfig(
     'layers',
-    'toggleLayerVisibility,addLayer,removeLayer',
+    'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex',
     'setVisibleLayersByIds',
     (store) => store.getters.jointVisibleLayerIds,
     String

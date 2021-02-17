@@ -3,6 +3,8 @@
     <OverlayModule />
     <MapModule />
     <MenuModule>
+      <!-- the only way to merge this two module while having different folder was to add the search bar (or search module)-->
+      <!-- right into the slot of the menu, so that the menu can place it according to the screen size-->
       <SearchModule />
     </MenuModule>
     <ToolboxModule />
