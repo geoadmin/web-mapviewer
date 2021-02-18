@@ -12,8 +12,11 @@ phases:
     runtime-versions:
       nodejs: latest
     commands:
+      # forcing keyboard layout to US (so we don't get stuck with an apt-get install trying to ask us which keyboard layout we have...)
+      - L='us' && sudo sed -i 's/XKBLAYOUT=\"\w*"/XKBLAYOUT=\"'$L'\"/g' /etc/default/keyboard
+      # ensuring we have the latest libs on this Ubuntu
       - apt-get update -y
-      # needed by Cypress
+      # install libs needed by Cypress
       - apt-get install -y libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 xvfb
       # ensuring that npm is at the latest version (>= 7.0)
       - npm install -g npm@latest
