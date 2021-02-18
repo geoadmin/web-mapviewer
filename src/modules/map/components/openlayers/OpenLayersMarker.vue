@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <slot />
-  </div>
+    <div>
+        <slot />
+    </div>
 </template>
 <script>
 import { Circle as CircleStyle, Fill, Icon as IconStyle, Stroke, Style } from 'ol/style'
@@ -14,120 +14,116 @@ import { randomIntBetween } from '@/utils/numberUtils'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 const markerBalloonStyle = new Style({
-  image: new IconStyle({
-    anchor: [0.5, 1],
-    src: require('@/modules/map/assets/marker.png'),
-  }),
+    image: new IconStyle({
+        anchor: [0.5, 1],
+        src: require('@/modules/map/assets/marker.png'),
+    }),
 })
 // style for geolocation point
 const markerPositionStyle = new Style({
-  image: new CircleStyle({
-    radius: 5,
-    fill: new Fill({
-      color: [255, 0, 0, 0.9],
+    image: new CircleStyle({
+        radius: 5,
+        fill: new Fill({
+            color: [255, 0, 0, 0.9],
+        }),
+        stroke: new Stroke({
+            color: [255, 255, 255, 1],
+            width: 3,
+        }),
     }),
-    stroke: new Stroke({
-      color: [255, 255, 255, 1],
-      width: 3,
-    }),
-  }),
 })
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
 export const highlightedFill = new Fill({
-  color: [255, 255, 0, 0.75],
+    color: [255, 255, 0, 0.75],
 })
 export const highlightedStroke = new Stroke({
-  color: [255, 128, 0, 1],
-  width: 3,
+    color: [255, 128, 0, 1],
+    width: 3,
 })
 export const highlightPointStyle = new Style({
-  image: new CircleStyle({
-    radius: 10,
-    fill: highlightedFill,
-    stroke: highlightedStroke,
-  }),
+    image: new CircleStyle({
+        radius: 10,
+        fill: highlightedFill,
+        stroke: highlightedStroke,
+    }),
 })
 
 const markerHiddenStyle = new Style({
-  visible: false,
+    visible: false,
 })
 
-/**
- * @enum
- */
+/** @enum */
 export const markerStyles = {
-  BALLOON: 'balloon',
-  POSITION: 'position',
-  FEATURE: 'feature',
-  HIDDEN: 'hidden',
+    BALLOON: 'balloon',
+    POSITION: 'position',
+    FEATURE: 'feature',
+    HIDDEN: 'hidden',
 }
 
-/**
- * Renders a marker on the map (different styling are available)
- */
+/** Renders a marker on the map (different styling are available) */
 export default {
-  mixins: [addLayerToMapMixin],
-  props: {
-    position: {
-      type: Array,
-      default: () => [0, 0],
-      required: true,
+    mixins: [addLayerToMapMixin],
+    props: {
+        position: {
+            type: Array,
+            default: () => [0, 0],
+            required: true,
+        },
+        markerStyle: {
+            type: String,
+            default: markerStyles.BALLOON,
+        },
+        radius: {
+            type: Number,
+            default: 0,
+        },
+        zIndex: {
+            type: Number,
+            default: -1,
+        },
     },
-    markerStyle: {
-      type: String,
-      default: markerStyles.BALLOON,
+    data() {
+        return {
+            marker: null,
+        }
     },
-    radius: {
-      type: Number,
-      default: 0,
+    inject: ['getMap'],
+    computed: {
+        style: function () {
+            switch (this.markerStyle) {
+                case markerStyles.POSITION:
+                    return markerPositionStyle
+                case markerStyles.BALLOON:
+                    return markerBalloonStyle
+                case markerStyles.FEATURE:
+                    return highlightPointStyle
+                case markerStyles.HIDDEN:
+                default:
+                    return markerHiddenStyle
+            }
+        },
     },
-    zIndex: {
-      type: Number,
-      default: -1,
+    watch: {
+        position: function (newPosition) {
+            this.marker.getGeometry().setCoordinates(newPosition)
+        },
+        markerStyle: function () {
+            this.marker.setStyle(this.style)
+        },
     },
-  },
-  data() {
-    return {
-      marker: null,
-    }
-  },
-  inject: ['getMap'],
-  computed: {
-    style: function () {
-      switch (this.markerStyle) {
-        case markerStyles.POSITION:
-          return markerPositionStyle
-        case markerStyles.BALLOON:
-          return markerBalloonStyle
-        case markerStyles.FEATURE:
-          return highlightPointStyle
-        case markerStyles.HIDDEN:
-        default:
-          return markerHiddenStyle
-      }
+    created() {
+        const randomId = randomIntBetween(0, 100000)
+        this.marker = new Feature({
+            id: `marker-${randomId}`,
+            geometry: new Point(this.position),
+        })
+        this.marker.setStyle(this.style)
+        this.layer = new VectorLayer({
+            id: `marker-layer-${randomId}`,
+            source: new VectorSource({
+                features: [this.marker],
+            }),
+        })
     },
-  },
-  watch: {
-    position: function (newPosition) {
-      this.marker.getGeometry().setCoordinates(newPosition)
-    },
-    markerStyle: function () {
-      this.marker.setStyle(this.style)
-    },
-  },
-  created() {
-    const randomId = randomIntBetween(0, 100000)
-    this.marker = new Feature({
-      id: `marker-${randomId}`,
-      geometry: new Point(this.position),
-    })
-    this.marker.setStyle(this.style)
-    this.layer = new VectorLayer({
-      id: `marker-layer-${randomId}`,
-      source: new VectorSource({
-        features: [this.marker],
-      }),
-    })
-  },
 }
 </script>

@@ -1,24 +1,24 @@
 <template>
-  <transition name="slide">
-    <div v-show="showMenuTray" data-cy="menu-tray" class="pt-2">
-      <MenuLangSelector class="menu-section" />
-      <MenuSection :title="$t('layers_displayed')" :show-content="true">
-        <MenuActiveLayersList />
-      </MenuSection>
-    </div>
-  </transition>
+    <transition name="slide">
+        <div v-show="showMenuTray" data-cy="menu-tray" class="pt-2">
+            <MenuLangSelector class="menu-section" />
+            <MenuSection :title="$t('layers_displayed')" :show-content="true">
+                <MenuActiveLayersList />
+            </MenuSection>
+        </div>
+    </transition>
 </template>
 
 <style lang="scss">
 .slide-leave-active,
 .slide-enter-active {
-  transition: 0.2s;
+    transition: 0.2s;
 }
 .slide-enter {
-  transform: translate(100%, 0);
+    transform: translate(100%, 0);
 }
 .slide-leave-to {
-  transform: translate(100%, 0);
+    transform: translate(100%, 0);
 }
 </style>
 
@@ -29,11 +29,11 @@ import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuAct
 import MenuSection from '@/modules/menu/components/MenuSection'
 
 export default {
-  components: { MenuSection, MenuActiveLayersList, MenuLangSelector },
-  computed: {
-    ...mapState({
-      showMenuTray: (state) => state.ui.showMenuTray,
-    }),
-  },
+    components: { MenuSection, MenuActiveLayersList, MenuLangSelector },
+    computed: {
+        ...mapState({
+            showMenuTray: (state) => state.ui.showMenuTray,
+        }),
+    },
 }
 </script>

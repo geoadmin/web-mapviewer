@@ -1,13 +1,13 @@
 <template>
-  <div id="search">
-    <SearchBar />
-    <SearchResultList />
-  </div>
+    <div id="search">
+        <SearchBar />
+        <SearchResultList />
+    </div>
 </template>
 
 <style lang="scss">
 #search {
-  width: 100%;
+    width: 100%;
 }
 </style>
 
@@ -16,10 +16,10 @@ import SearchBar from './components/SearchBar'
 import SearchResultList from './components/SearchResultList'
 
 export default {
-  components: {
-    SearchResultList,
-    SearchBar,
-  },
-  computed: {},
+    components: {
+        SearchResultList,
+        SearchBar,
+    },
+    computed: {},
 }
 </script>

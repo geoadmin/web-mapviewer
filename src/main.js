@@ -28,13 +28,13 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('icon', VueSvgIcon)
 
 new Vue({
-  store,
-  i18n,
-  router,
-  render: (h) => h(App),
+    store,
+    i18n,
+    router,
+    render: (h) => h(App),
 }).$mount('#app')
 
 // if we are testing with Cypress, we expose the store
 if (IS_TESTING_WITH_CYPRESS) {
-  window.store = store
+    window.store = store
 }

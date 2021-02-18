@@ -1,13 +1,13 @@
 <template>
-  <div class="lang-switch-toolbar p-1">
-    <LangSwitchButton
-      v-for="lang in languages"
-      :key="lang"
-      :on-click="changeLang"
-      :lang="lang"
-      :is-active="lang === currentLang"
-    />
-  </div>
+    <div class="lang-switch-toolbar p-1">
+        <LangSwitchButton
+            v-for="lang in languages"
+            :key="lang"
+            :on-click="changeLang"
+            :lang="lang"
+            :is-active="lang === currentLang"
+        />
+    </div>
 </template>
 
 <style lang="scss">
@@ -21,23 +21,23 @@ import LangSwitchButton from './LangSwitchButton'
 import { languages } from '../index'
 
 export default {
-  components: { LangSwitchButton },
-  data() {
-    return {
-      languages: Object.keys(languages),
-    }
-  },
-  computed: {
-    ...mapState({
-      currentLang: (state) => state.i18n.lang,
-    }),
-  },
-  methods: {
-    changeLang: function (lang) {
-      console.debug('switching locale', lang)
-      this.setLang(lang)
+    components: { LangSwitchButton },
+    data() {
+        return {
+            languages: Object.keys(languages),
+        }
     },
-    ...mapActions(['setLang']),
-  },
+    computed: {
+        ...mapState({
+            currentLang: (state) => state.i18n.lang,
+        }),
+    },
+    methods: {
+        changeLang: function (lang) {
+            console.debug('switching locale', lang)
+            this.setLang(lang)
+        },
+        ...mapActions(['setLang']),
+    },
 }
 </script>

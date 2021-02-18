@@ -1,13 +1,13 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
-  faTimes,
-  faTimesCircle,
-  faSpinner,
-  faCog,
-  faArrowUp,
-  faArrowDown,
-  faCaretRight,
-  faCaretDown,
+    faTimes,
+    faTimesCircle,
+    faSpinner,
+    faCog,
+    faArrowUp,
+    faArrowDown,
+    faCaretRight,
+    faCaretDown,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
 

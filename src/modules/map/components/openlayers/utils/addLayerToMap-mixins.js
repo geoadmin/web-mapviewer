@@ -1,66 +1,66 @@
 /**
- * Vue mixin that will handle the addition or removal of an OpenLayers layer. This is a centralized way of describing
- * this logic.
+ * Vue mixin that will handle the addition or removal of an OpenLayers layer. This is a centralized
+ * way of describing this logic.
  *
- * Each component that uses this mixin must create a layer (`this.layer`) in their `created(){}` method. This layer will
- * then be added to the map (through dependency injection with `getMap`) to the OL map. The mixin will manage this layer
- * and will remove it from the map as soon as the component that has incorporated this mixin will be removed from
- * the DOM.
+ * Each component that uses this mixin must create a layer (`this.layer`) in their `created(){}`
+ * method. This layer will then be added to the map (through dependency injection with `getMap`) to
+ * the OL map. The mixin will manage this layer and will remove it from the map as soon as the
+ * component that has incorporated this mixin will be removed from the DOM.
  *
  * This layer should be one of OpenLayers JS API layer type, i.e. `/ol/layer/Vector`, `/ol/layer/Tile`, etc...
  *
- * It is also possible to set a prop (or data) called zIndex, which will be used (if defined) to place the layer
- * accordingly in the layer stack of OpenLayers.
+ * It is also possible to set a prop (or data) called zIndex, which will be used (if defined) to
+ * place the layer accordingly in the layer stack of OpenLayers.
  */
 const addLayerToMapMixin = {
-  inject: ['getMap'],
-  data() {
-    return {
-      layer: null,
-    }
-  },
-  mounted() {
-    if (this.layer) {
-      this.addLayerToMap(this.zIndex, this.layer)
-    }
-  },
-  destroyed() {
-    if (this.layer) {
-      this.removeLayerFromMap(this.layer)
-    }
-  },
-  methods: {
-    addLayerToMap: function (zIndex, layer) {
-      if (this.getMap()) {
-        if (zIndex < 0) {
-          this.getMap().addLayer(layer)
-        } else {
-          this.getMap().getLayers().insertAt(zIndex, layer)
+    inject: ['getMap'],
+    data() {
+        return {
+            layer: null,
         }
-      }
     },
-    removeLayerFromMap: function (layer) {
-      if (this.getMap()) {
-        this.getMap().removeLayer(layer)
-      }
+    mounted() {
+        if (this.layer) {
+            this.addLayerToMap(this.zIndex, this.layer)
+        }
     },
-  },
-  watch: {
-    layer: function (newLayer) {
-      if (this.layer) {
-        this.removeLayerFromMap(this.layer)
-      }
-      if (newLayer) {
-        this.addLayerToMap(this.zIndex, newLayer)
-      }
+    destroyed() {
+        if (this.layer) {
+            this.removeLayerFromMap(this.layer)
+        }
     },
-    zIndex: function (zIndex) {
-      if (this.layer) {
-        this.removeLayerFromMap(this.layer)
-        this.addLayerToMap(zIndex, this.layer)
-      }
+    methods: {
+        addLayerToMap: function (zIndex, layer) {
+            if (this.getMap()) {
+                if (zIndex < 0) {
+                    this.getMap().addLayer(layer)
+                } else {
+                    this.getMap().getLayers().insertAt(zIndex, layer)
+                }
+            }
+        },
+        removeLayerFromMap: function (layer) {
+            if (this.getMap()) {
+                this.getMap().removeLayer(layer)
+            }
+        },
     },
-  },
+    watch: {
+        layer: function (newLayer) {
+            if (this.layer) {
+                this.removeLayerFromMap(this.layer)
+            }
+            if (newLayer) {
+                this.addLayerToMap(this.zIndex, newLayer)
+            }
+        },
+        zIndex: function (zIndex) {
+            if (this.layer) {
+                this.removeLayerFromMap(this.layer)
+                this.addLayerToMap(zIndex, this.layer)
+            }
+        },
+    },
 }
 
 export default addLayerToMapMixin

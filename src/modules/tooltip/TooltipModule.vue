@@ -1,5 +1,5 @@
 <template>
-  <TooltipBox />
+    <TooltipBox />
 </template>
 
 <style lang="scss"></style>
@@ -8,8 +8,8 @@
 import TooltipBox from './components/TooltipBox'
 
 export default {
-  components: {
-    TooltipBox,
-  },
+    components: {
+        TooltipBox,
+    },
 }
 </script>
