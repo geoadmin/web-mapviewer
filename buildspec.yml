@@ -13,7 +13,7 @@ phases:
       nodejs: latest
     commands:
       # forcing keyboard layout to US (so we don't get stuck with an apt-get install trying to ask us which keyboard layout we have...)
-      - touch /etc/default/keyboard && L='us' && sed -i 's/XKBLAYOUT=\"\w*"/XKBLAYOUT=\"'$L'\"/g' /etc/default/keyboard
+      - touch /etc/default/keyboard && echo "XKBMODEL=\"pc105\"\nXKBLAYOUT="us"\n" >> /etc/default/keyboard
       # ensuring we have the latest libs on this Ubuntu
       - apt-get update -y
       # install libs needed by Cypress
