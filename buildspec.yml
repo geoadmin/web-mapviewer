@@ -15,7 +15,7 @@ phases:
       # ensuring we have the latest libs on this Ubuntu
       - apt-get update -y
       # install libs needed by Cypress
-      - apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - apt-get install -y libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 xvfb
       # ensuring that npm is at the latest version (>= 7.0)
       - npm install -g npm@latest
       # npm ci reads only the package-lock.json file (not the package.json) to be sure to have exactly the same libraries
