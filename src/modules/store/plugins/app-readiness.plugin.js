@@ -6,6 +6,7 @@
  * What is required for the app to be ready is :
  * - Know the width and height of the viewport
  * - Have loaded the layers config
+ * - Have loaded the topics config
  *
  * @param {Vuex.Store} store
  */
@@ -16,7 +17,8 @@ const appReadinessPlugin = (store) => {
             if (
                 state.ui.width > 0 &&
                 state.ui.height > 0 &&
-                Object.keys(state.layers.config).length > 0
+                Object.keys(state.layers.config).length > 0 &&
+                state.topics.config.length > 0
             ) {
                 store.dispatch('setAppIsReady')
             }

@@ -5,6 +5,7 @@ import app from './modules/app.store'
 import layers from './modules/layers.store'
 import geolocation from './modules/geolocation.store'
 import position from './modules/position.store'
+import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 
 import map from '../map/store'
@@ -18,6 +19,7 @@ import menuSearchBarAndOverlayInteractionManagementPlugin from './plugins/menu-s
 import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin'
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
+import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-management.plugin'
 
 Vue.use(Vuex)
 
@@ -30,10 +32,12 @@ export default new Vuex.Store({
         clickOnMapManagementPlugin,
         appReadinessPlugin,
         geolocationManagementPlugin,
+        topicChangeManagementPlugin,
     ],
     modules: {
         app,
         layers,
+        topics,
         geolocation,
         position,
         ui,
