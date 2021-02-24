@@ -58,3 +58,16 @@ Cypress.Commands.add(
             })
     }
 )
+
+/**
+ * @param endpoint {String} endpoint on the server to mock up, without the base URL part. It can
+ *   have wildcards (e.g. 'rest/services/ech/SearchServer*?type=layers*')
+ * @param wantedOutput {Object} the mocked up JSON output for this endpoint
+ * @param aliasName {String} the name of the alias, so you can wait for it with `cy.wait('@aliasName')`
+ */
+const mockupBackendResponse = (endpoint, wantedOutput, aliasName) => {
+    cy.intercept(`**/${endpoint}`, {
+        body: wantedOutput,
+    }).as(aliasName)
+}
+Cypress.Commands.add('mockupBackendResponse', mockupBackendResponse)

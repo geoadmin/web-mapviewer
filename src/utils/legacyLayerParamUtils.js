@@ -55,12 +55,27 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
     return layersToBeActivated
 }
 
+/**
+ * Reads the URL param "bgLayer" and return the (copy) of the layer that should be the background
+ *
+ * If there is no background set (void layer), `null` is returned
+ *
+ * If no "bgLayer" param is present in the URL, `undefined` is returned
+ *
+ * @param {Layer[]} layersConfig
+ * @param {String} legacyUrlParams
+ * @returns {null | undefined | Layer} The background layer defined in the URL (`null` for void
+ *   layer, `undefined` if nothing is set in the URL)
+ */
 export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams) {
     if (Array.isArray(layersConfig) && typeof legacyUrlParams === 'string') {
         const bgLayerId = readUrlParamValue(legacyUrlParams, 'bgLayer')
+        if (bgLayerId === 'voidLayer') {
+            return null
+        }
         if (bgLayerId) {
             return layersConfig.find((layer) => layer.id === bgLayerId)
         }
     }
-    return null
+    return undefined
 }

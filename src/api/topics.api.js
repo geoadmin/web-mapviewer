@@ -151,11 +151,17 @@ const loadTopicsFromBackend = (layersConfig) => {
                                 layersConfig,
                                 legacyUrlParams
                             )
-                            const defaultBackground = backgroundLayerFromUrlParam
-                                ? backgroundLayerFromUrlParam
-                                : backgroundLayers.find(
-                                      (layer) => layer.id === defaultBackgroundLayerId
-                                  )
+                            // first we get the background from the "plConfig" of the API response
+                            let defaultBackground = backgroundLayerFromUrlParam
+                            // checking if there was something in the "plConfig"
+                            // null is a valid background as it is the void layer in our app
+                            // so we have to exclude only the "undefined" value and fill this variable
+                            // with what is in "defaultBackground" in this case
+                            if (backgroundLayerFromUrlParam === undefined) {
+                                defaultBackground = backgroundLayers.find(
+                                    (layer) => layer.id === defaultBackgroundLayerId
+                                )
+                            }
                             const layersToActivate = [
                                 ...getLayersFromLegacyUrlParams(layersConfig, legacyUrlParams),
                             ]
