@@ -356,7 +356,7 @@ function UTMtoLL(utm) {
 /**
  * Calculates the MGRS letter designator for the given latitude.
  *
- * @private (Not intended for public API, only exported for testing.)
+ * @private (Not Intended for public API, only exported for testing.)
  * @param {number} latitude The latitude in WGS84 to get the letter designator for.
  * @returns {string} The letter designator.
  */
