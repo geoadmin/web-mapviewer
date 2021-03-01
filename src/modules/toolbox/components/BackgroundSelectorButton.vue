@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-selector-container">
+    <div v-if="backgroundLayers.length > 0" class="bg-selector-container">
         <div
             class="bg-selector"
             :class="{
@@ -7,21 +7,21 @@
             }"
             @click="toggleBackgroundWheel"
             @animationend="animateMainButton = false"
-        ></div>
+        />
         <div class="bg-selector-wheel">
             <transition-group name="bg-slide-up">
                 <div
                     v-for="(background, index) in backgroundLayersWithVoid"
                     v-show="showBgWheel"
-                    :key="background"
+                    :key="background.id"
                     class="bg-selector"
                     :class="[
-                        `bg-${background.replaceAll('.', '-')}`,
+                        `bg-${background.id.replaceAll('.', '-')}`,
                         `bg-index-${index}`,
-                        { active: background === currentBackgroundLayerId },
+                        { active: background.id === currentBackgroundLayerId },
                     ]"
-                    @click="selectBackgroundWithLayerId(background)"
-                ></div>
+                    @click="selectBackgroundWithLayerId(background.id)"
+                />
             </transition-group>
         </div>
     </div>
@@ -130,20 +130,8 @@ export default {
             return currentBg
         },
         backgroundLayersWithVoid: function () {
-            const bgLayers = [
-                'ch.swisstopo.pixelkarte-grau',
-                'ch.swisstopo.pixelkarte-farbe',
-                'ch.swisstopo.swissimage',
-            ]
-            // we check that all background layers are present in the config received from the backend
-            bgLayers.forEach((bgLayerId, index) => {
-                if (!this.getLayerForId(bgLayerId)) {
-                    // if layer not defined in config, we remove it
-                    bgLayers.splice(index, 1)
-                }
-            })
             // adding void layer on top
-            return ['void', ...bgLayers]
+            return [{ id: 'void' }, ...this.backgroundLayers]
         },
     },
     methods: {

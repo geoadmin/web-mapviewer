@@ -26,9 +26,10 @@
 
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/variables';
 #clear-search-button {
     margin-left: -40px;
-    z-index: 100;
+    z-index: $zindex-map + 1;
 }
 </style>
 

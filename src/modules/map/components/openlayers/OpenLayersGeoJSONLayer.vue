@@ -12,6 +12,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import OlStyleForPropertyValue from './utils/styleFromLiterals'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { reproject } from 'reproject'
+import log from '@/utils/logging'
 
 /** Adds a GeoJSON layer to the OpenLayers map */
 export default {
@@ -84,7 +85,8 @@ export default {
                 })
             })
             .catch((error) => {
-                console.error(
+                log(
+                    'error',
                     'Error while fetching GeoJSON data/style for layer ' + this.layerId,
                     error
                 )

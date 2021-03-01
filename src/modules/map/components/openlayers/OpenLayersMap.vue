@@ -1,7 +1,7 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
     <div id="ol-map" ref="map" oncontextmenu="return false">
-        <div id="scale-line" ref="scaleLine"></div>
+        <div id="scale-line" ref="scaleLine" />
         <!-- Adding background layer -->
         <OpenLayersBODLayer
             v-if="currentBackgroundLayer"
@@ -48,6 +48,7 @@
 
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/variables';
 #ol-map {
     width: 100%;
     height: 100%;
@@ -58,8 +59,7 @@
     bottom: 0;
     height: 1rem;
     width: 150px;
-    // OL Map is at z-index 10
-    z-index: 20;
+    z-index: $zindex-map;
 
     .ol-scale-line {
         text-align: center;
@@ -93,6 +93,7 @@ import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
 import { ClickInfo } from '@/modules/map/store/map.store'
 import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
+import log from '@/utils/logging'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -225,7 +226,7 @@ export default {
                                 featureGeometry.flatCoordinates,
                                 featureGeometry.getExtent()
                             )
-                            console.debug('GeoJSON feature found', geoJsonFeature)
+                            log('debug', 'GeoJSON feature found', geoJsonFeature)
                             geoJsonFeatures.push(geoJsonFeature)
                         })
                 }

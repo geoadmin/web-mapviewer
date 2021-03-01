@@ -1,5 +1,5 @@
 <template>
-    <icon class="swiss-flag" data="@icon/swiss-flag.svg" />
+    <img class="swiss-flag" :src="swissFlagIcon" alt="swiss-flag" />
 </template>
 
 <style lang="scss">
@@ -17,5 +17,12 @@
 </style>
 
 <script>
-export default {}
+import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
+export default {
+    data() {
+        return {
+            swissFlagIcon,
+        }
+    },
+}
 </script>

@@ -202,5 +202,13 @@ describe('Topics', () => {
                 expectedBackgroundLayerId
             )
         })
+        it('hides the menu and overlay after a topic is selected', () => {
+            goToMapWithParamsAndWaitForTopics()
+            // clicking on topic standard
+            const topicStandard = mockupTopics.topics[1]
+            selectTopicWithId(topicStandard.id)
+            cy.readStoreValue('state.ui.showMenuTray').should('eq', false)
+            cy.readStoreValue('state.overlay.show').should('eq', false)
+        })
     })
 })

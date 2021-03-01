@@ -24,15 +24,23 @@ const topicChangeManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
         // we listen to the "change topic" mutation
         if (mutation.type === CHANGE_TOPIC_MUTATION) {
+            // closing side menu (if open)
+            if (state.ui.showMenuTray) {
+                store.dispatch('toggleMenuTray')
+            }
+            // closing overlay if it's still visible after menu close
+            if (state.overlay.show) {
+                store.dispatch('hideOverlay')
+            }
             const currentTopic = state.topics.current
+            if (currentTopic.defaultBackgroundLayer) {
+                store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.id)
+            } else {
+                store.dispatch('setBackground', null)
+            }
             // we only set/clear layers after the first setTopic has occurred (after app init)
             if (!isFirstSetTopic) {
                 store.dispatch('clearLayers')
-                if (currentTopic.defaultBackgroundLayer) {
-                    store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.id)
-                } else {
-                    store.dispatch('setBackground', null)
-                }
             }
             // at init, if there is no active layer yet, but the topic has some, we add them
             // after init we always add all layers from topic
@@ -54,10 +62,6 @@ const topicChangeManagementPlugin = (store) => {
             loadTopicTreeForTopic(store.state.i18n.lang, currentTopic).then((topicTree) => {
                 store.dispatch('setTopicTree', topicTree)
             })
-            // closing side menu (if open)
-            if (state.ui.showMenuTray) {
-                store.dispatch('toggleMenuTray')
-            }
             isFirstSetTopic = false
         }
     })

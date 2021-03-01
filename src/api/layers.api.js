@@ -1,5 +1,6 @@
 import { API_BASE_URL, WMTS_BASE_URL, WMS_BASE_URL } from '@/config'
 import axios from 'axios'
+import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 // TODO : implement loading of a cached CloudFront version for MVP
@@ -448,10 +449,29 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
 
                 break
             default:
-                console.error('Unknown layer type', type)
+                log('error', 'Unknown layer type', type)
         }
     }
     return layer
+}
+
+/**
+ * Loads the legend (HTML content) for this layer ID
+ *
+ * @param {String} lang The language in which the legend should be rendered
+ * @param {String} layerId The layer ID in the BOD (unique)
+ * @returns {Promise<String>} HTML content of the layer's legend
+ */
+export const getLayerLegend = (lang, layerId) => {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(`${API_BASE_URL}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
+            .then((response) => resolve(response.data))
+            .catch((error) => {
+                log('error', 'Error while retrieving the legend for the layer', layerId, error)
+                reject(error)
+            })
+    })
 }
 
 /**
@@ -490,7 +510,7 @@ const loadLayersConfigFromBackend = (lang) => {
                 })
                 .catch((error) => {
                     const message = 'Error while loading layers config from backend'
-                    console.error(message, error)
+                    log('error', message, error)
                     reject(message)
                 })
         }

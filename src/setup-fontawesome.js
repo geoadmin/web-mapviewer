@@ -10,6 +10,7 @@ import {
     faCaretDown,
     faPlusCircle,
     faMinusCircle,
+    faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
 
@@ -23,5 +24,6 @@ library.add(faCaretRight)
 library.add(faCaretDown)
 library.add(faPlusCircle)
 library.add(faMinusCircle)
+library.add(faInfoCircle)
 library.add(faCheckSquare)
 library.add(faSquare)

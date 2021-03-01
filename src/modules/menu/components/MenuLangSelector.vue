@@ -4,8 +4,6 @@
     </div>
 </template>
 
-<style lang="scss"></style>
-
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar'
 

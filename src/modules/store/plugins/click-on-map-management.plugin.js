@@ -1,6 +1,7 @@
 import { isMobile } from 'mobile-device-detect'
 import { identify } from '@/api/features.api'
 import { LayerTypes } from '@/api/layers.api'
+import log from '@/utils/logging'
 
 /**
  * Identifies feature under the mouse cursor
@@ -31,7 +32,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
                     )
                 )
             } else {
-                console.debug('ignoring layer', layer, 'no tooltip')
+                log('debug', 'ignoring layer', layer, 'no tooltip')
             }
         })
         Promise.all(allRequests).then((values) => {

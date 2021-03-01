@@ -5,10 +5,10 @@
                 {{ $t('choose_theme') }}
             </span>
             <MenuTopicSelectionPopup
-                :show-popup="showTopicSelectionPopup"
+                v-if="showTopicSelectionPopup"
                 :topics="allTopics"
                 @selectTopic="selectTopic"
-                @clickWithoutTopic="showTopicSelectionPopup = false"
+                @close="showTopicSelectionPopup = false"
             />
         </template>
         <div class="menu-topic-tree">
@@ -49,7 +49,7 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
         }),
-        ...mapGetters(['jointVisibleLayerIds', 'getLayerForId']),
+        ...mapGetters(['visibleLayers', 'getLayerForId']),
     },
     methods: {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'changeTopic']),
@@ -59,7 +59,7 @@ export default {
         isLayerTreeItemActive: function (item) {
             return (
                 item.type === topicTypes.LAYER &&
-                this.jointVisibleLayerIds.indexOf(item.layerId) !== -1
+                this.visibleLayers.find((layer) => layer.id === item.layerId)
             )
         },
         onClickOnLayerTopicItem: function (layerId) {

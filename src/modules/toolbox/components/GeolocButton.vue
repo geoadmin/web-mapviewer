@@ -11,6 +11,21 @@
     </div>
 </template>
 
+<script>
+import { mapState, mapActions } from 'vuex'
+export default {
+    computed: {
+        ...mapState({
+            isActive: (state) => state.geolocation.active,
+            isDenied: (state) => state.geolocation.denied,
+        }),
+    },
+    methods: {
+        ...mapActions(['toggleGeolocation']),
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
@@ -49,18 +64,3 @@ $disabled-color: $gray-300;
     }
 }
 </style>
-
-<script>
-import { mapState, mapActions } from 'vuex'
-export default {
-    computed: {
-        ...mapState({
-            isActive: (state) => state.geolocation.active,
-            isDenied: (state) => state.geolocation.denied,
-        }),
-    },
-    methods: {
-        ...mapActions(['toggleGeolocation']),
-    },
-}
-</script>

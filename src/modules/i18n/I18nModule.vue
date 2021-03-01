@@ -1,6 +1,10 @@
 <template>
-    <div class="i18n-module"></div>
+    <div class="i18n-module" />
 </template>
+
+<script>
+export default {}
+</script>
 
 <style>
 .i18n-module {
@@ -9,7 +13,3 @@
     right: 0;
 }
 </style>
-
-<script>
-export default {}
-</script>

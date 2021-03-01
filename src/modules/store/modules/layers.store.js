@@ -1,10 +1,12 @@
+import log from '@/utils/logging'
+
 const state = {
     /**
      * Current background layer ID
      *
      * @type String
      */
-    backgroundLayerId: 'ch.swisstopo.pixelkarte-farbe',
+    backgroundLayerId: null,
     /**
      * Currently active layers (that have been selected by the user from the search bar or the layer tree)
      *
@@ -12,11 +14,11 @@ const state = {
      */
     activeLayers: [],
     /**
-     * All layers' config available to this app, with keys as layer IDs and value as layer's metadata.
+     * All layers' config available to this app
      *
-     * @type Object
+     * @type Layer[]
      */
-    config: {},
+    config: [],
 }
 
 const getters = {
@@ -167,7 +169,7 @@ const mutations = {
                 layer.visible = true
                 state.activeLayers.push(layer)
             } else {
-                console.error('no layer found with id', layerId)
+                log('error', 'no layer found with id', layerId)
             }
         }
     },

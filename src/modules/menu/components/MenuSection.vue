@@ -14,6 +14,7 @@
         </div>
     </div>
 </template>
+
 <style lang="scss">
 .menu-section-head {
     display: flex;
@@ -28,6 +29,7 @@
     }
 }
 </style>
+
 <script>
 export default {
     props: {

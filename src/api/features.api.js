@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '@/config'
 import axios from 'axios'
+import log from '@/utils/logging'
 
 /** Describe a feature from the backend (see {@link getFeature}) below */
 export class Feature {
@@ -43,19 +44,19 @@ export class Feature {
 export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight, lang) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.id) {
-            console.error('Invalid layer', layer)
+            log('error', 'Invalid layer', layer)
             reject('Needs a valid layer with an ID')
         }
         if (!Array.isArray(coordinate) || coordinate.length !== 2) {
-            console.error('Invalid coordinate', coordinate)
+            log('error', 'Invalid coordinate', coordinate)
             reject('Needs a valid coordinate to run identification')
         }
         if (!Array.isArray(mapExtent) || mapExtent.length !== 4) {
-            console.error('Invalid extent', mapExtent)
+            log('error', 'Invalid extent', mapExtent)
             reject('Needs a valid map extent to run identification')
         }
         if (screenWidth <= 0 || screenHeight <= 0) {
-            console.error('Invalid screen size', screenWidth, screenHeight)
+            log('error', 'Invalid screen size', screenWidth, screenHeight)
             reject('Needs valid screen width and height to run identification')
         }
         axios
@@ -86,11 +87,10 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
                     })
                     Promise.all(featureRequests)
                         .then((values) => {
-                            console.debug('feature received', values)
                             resolve(values)
                         })
                         .catch((error) => {
-                            console.error("Wasn't able to get feature", error)
+                            log('error', "Wasn't able to get feature", error)
                         })
                 } else {
                     resolve([])
@@ -176,7 +176,8 @@ const getFeature = (layer, featureID, lang = 'en') => {
                 )
             })
             .catch((error) => {
-                console.error(
+                log(
+                    'error',
                     'Error while requesting a feature to the backend',
                     layer,
                     featureID,

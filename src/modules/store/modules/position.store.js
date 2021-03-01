@@ -2,6 +2,7 @@ import center from '@turf/center'
 import { point, featureCollection } from '@turf/helpers'
 import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
+import log from '@/utils/logging'
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
@@ -114,7 +115,7 @@ const actions = {
             (Array.isArray(center) && center.length !== 2) ||
             (!Array.isArray(center) && (!center.x || !center.y))
         ) {
-            console.debug('bad center received, ignoring', center)
+            log('debug', 'bad center received, ignoring', center)
             return
         }
         if (Array.isArray(center)) {

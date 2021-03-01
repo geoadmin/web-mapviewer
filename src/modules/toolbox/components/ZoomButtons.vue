@@ -1,13 +1,23 @@
 <template>
     <div class="zoom d-none d-md-block d-print-none">
         <a class="button zoom-in" data-cy="zoom-in" title="Zoom in" @click="increaseZoom()">
-            <span class="icon zoom-in"></span>
+            <span class="icon zoom-in" />
         </a>
         <a class="button zoom-out" data-cy="zoom-out" title="Zoom out" @click="decreaseZoom()">
-            <span class="icon zoom-out"></span>
+            <span class="icon zoom-out" />
         </a>
     </div>
 </template>
+
+<script>
+import { mapActions } from 'vuex'
+
+export default {
+    methods: {
+        ...mapActions(['increaseZoom', 'decreaseZoom']),
+    },
+}
+</script>
 
 <style lang="scss">
 .button {
@@ -44,13 +54,3 @@
     }
 }
 </style>
-
-<script>
-import { mapActions } from 'vuex'
-
-export default {
-    methods: {
-        ...mapActions(['increaseZoom', 'decreaseZoom']),
-    },
-}
-</script>

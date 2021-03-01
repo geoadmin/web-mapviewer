@@ -1,4 +1,5 @@
 import storeToUrlManagementConfig from '@/router/store-to-url-management.config'
+import log from '@/utils/logging'
 
 const watchedMutations = [
     ...new Set(
@@ -78,6 +79,16 @@ const storeToUrlManagement = (router, store) => {
                     // to default/store value even though they could be defined differently in the URL.
                     pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
                     // dispatching URL value to the store
+                    log(
+                        'debug',
+                        'dispatching URL param',
+                        paramConfig.urlParamName,
+                        'to store with value',
+                        queryValue,
+                        '(dispatching to:',
+                        paramConfig.dispatchChangeTo,
+                        ')'
+                    )
                     store.dispatch(paramConfig.dispatchChangeTo, queryValue).then(() => {
                         // removing mutation name from the pending ones
                         pendingMutationTriggeredByThisModule.splice(

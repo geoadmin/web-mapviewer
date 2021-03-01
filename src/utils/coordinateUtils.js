@@ -3,6 +3,7 @@ import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
 
 import { toPoint as mgrsToWGS84 } from './militaryGridProjection'
+import log from '@/utils/logging'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
@@ -80,7 +81,7 @@ const numericalExtractor = (regexMatches) => {
         // coordinates, especially proj4js
         return [y, x]
     } else {
-        console.debug(`Unknown coordinate type [${x}, ${y}]`)
+        log('debug', `Unknown coordinate type [${x}, ${y}]`)
         return undefined
     }
 }
@@ -235,7 +236,10 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
         { regex: REGEX_WEB_MERCATOR, extractor: webmercatorExtractor },
         { regex: REGEX_METRIC_COORDINATES, extractor: numericalExtractor },
         { regex: REGEX_MERCATOR_WITH_DEGREES, extractor: webmercatorExtractor },
-        { regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES, extractor: webmercatorExtractor },
+        {
+            regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES,
+            extractor: webmercatorExtractor,
+        },
         {
             regex: REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT,
             extractor: webmercatorExtractor,

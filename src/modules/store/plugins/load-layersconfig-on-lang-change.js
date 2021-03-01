@@ -1,6 +1,7 @@
 import { SET_LANG_MUTATION_KEY } from '@/modules/i18n/store/i18n.store'
 import loadLayersConfigFromBackend from '@/api/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
+import log from '@/utils/logging'
 
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
@@ -46,7 +47,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = (store) => {
                 }
             })
         })
-        .catch((error) => console.error(error))
+        .catch((error) => log('error', error))
 }
 
 /**

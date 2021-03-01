@@ -10,15 +10,11 @@
     </div>
 </template>
 
-<style lang="scss">
-.lang-switch-toolbar {
-}
-</style>
-
 <script>
 import { mapActions, mapState } from 'vuex'
 import LangSwitchButton from './LangSwitchButton'
 import { languages } from '../index'
+import log from '@/utils/logging'
 
 export default {
     components: { LangSwitchButton },
@@ -34,7 +30,7 @@ export default {
     },
     methods: {
         changeLang: function (lang) {
-            console.debug('switching locale', lang)
+            log('debug', 'switching locale', lang)
             this.setLang(lang)
         },
         ...mapActions(['setLang']),

@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 import i18n from '@/modules/i18n'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import log from '@/utils/logging'
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
@@ -27,7 +28,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
  * @param {Vuex.Store} store
  */
 const handlePositionError = (error, store) => {
-    console.error('Geolocation activation failed', error)
+    log('error', 'Geolocation activation failed', error)
     switch (error.code) {
         case error.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', true)

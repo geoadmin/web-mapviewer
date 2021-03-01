@@ -2,6 +2,7 @@
 import { Circle, Icon, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import { Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon } from 'ol/geom'
 import { isNumber } from '@/utils/numberUtils'
+import log from '@/utils/logging'
 
 function getOlStyleForPoint(options, shape) {
     if (shape === 'circle') {
@@ -221,7 +222,8 @@ OlStyleForPropertyValue.prototype.getOlStyleForResolution_ = function (olStyles,
 
 OlStyleForPropertyValue.prototype.log_ = function (value, id) {
     const logValue = value === '' ? '<empty string>' : value
-    console.debug(
+    log(
+        'debug',
         `Feature ID: ${id}. No matching style found for key ${this.key} and value ${logValue}.`
     )
 }
