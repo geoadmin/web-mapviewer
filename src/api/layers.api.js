@@ -329,9 +329,32 @@ export class AggregateLayer extends Layer {
      * @param {String} id The layer ID in the BOD
      * @param {Number} opacity The opacity to be applied to this layer
      * @param {TimeConfig} timeConfig Time series config (if available)
+     * @param {Boolean} isHighlightable Tells if this layer possess features that should be
+     *   highlighted on the map after a click (and if the backend will provide valuable information
+     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
+     * @param {String[]} topics All the topics in which belongs this layer
      */
-    constructor(name, id, opacity, timeConfig) {
-        super(name, LayerTypes.AGGREGATE, id, opacity)
+    constructor(
+        name,
+        id,
+        opacity,
+        timeConfig,
+        isHighlightable = false,
+        hasTooltip = false,
+        topics = []
+    ) {
+        super(
+            name,
+            LayerTypes.AGGREGATE,
+            id,
+            opacity,
+            false,
+            null,
+            isHighlightable,
+            hasTooltip,
+            topics
+        )
         this.timeConfig = timeConfig
         this.subLayers = []
     }
@@ -422,7 +445,15 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 // }
 
                 // here id would be "parent.layer" in the example above
-                layer = new AggregateLayer(name, id, opacity, timeConfig)
+                layer = new AggregateLayer(
+                    name,
+                    id,
+                    opacity,
+                    timeConfig,
+                    isHighlightable,
+                    hasTooltip,
+                    topics
+                )
                 layerConfig.subLayersIds.forEach((subLayerId) => {
                     // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
                     const subLayerRawConfig = allOtherLayers[subLayerId]
