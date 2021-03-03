@@ -4,13 +4,29 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
+const addLayerFixtureAndIntercept = () => {
+    cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
+        fixture: 'layers.fixture',
+    }).as('layers')
+}
+
+const addTopicFixtureAndIntercept = () => {
+    cy.intercept('**/rest/services', {
+        fixture: 'topics.fixture',
+    }).as('topics')
+}
+
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
 Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}) => {
+    addLayerFixtureAndIntercept()
+    addTopicFixtureAndIntercept()
     let flattenedOtherParams = ''
     Object.keys(otherParams).forEach((key) => {
         flattenedOtherParams += `&${key}=${otherParams[key]}`
     })
     cy.visit(`/?lang=${lang}${flattenedOtherParams}`)
+    cy.wait('@layers')
+    cy.wait('@topics')
     // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
     cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
 })
@@ -18,6 +34,8 @@ Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}) => {
 Cypress.Commands.add(
     'goToMapViewWithMockGeolocation',
     (latitude = 47, longitude = 7, lang = 'en') => {
+        addLayerFixtureAndIntercept()
+        addTopicFixtureAndIntercept()
         const mockGeolocation = (win, latitude, longitude) => {
             cy.stub(win.navigator.geolocation, 'getCurrentPosition', (callback) => {
                 return callback({ coords: { latitude, longitude } })
@@ -28,6 +46,8 @@ Cypress.Commands.add(
                 mockGeolocation(win, latitude, longitude)
             },
         })
+        cy.wait('@layers')
+        cy.wait('@topics')
     }
 )
 

@@ -1,83 +1,6 @@
 describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
-    const topicAlias = 'topics'
-    const mockupTopics = {
-        topics: [
-            {
-                activatedLayers: [],
-                backgroundLayers: [
-                    'ch.swisstopo.swissimage',
-                    'ch.swisstopo.pixelkarte-farbe',
-                    'ch.swisstopo.pixelkarte-grau',
-                ],
-                defaultBackground: 'ch.swisstopo.pixelkarte-grau',
-                groupId: 1,
-                id: 'ech',
-                plConfig: null,
-                selectedLayers: [],
-            },
-            {
-                activatedLayers: [],
-                backgroundLayers: [
-                    'ch.swisstopo.swissimage',
-                    'ch.swisstopo.pixelkarte-farbe',
-                    'ch.swisstopo.pixelkarte-grau',
-                ],
-                defaultBackground: 'ch.swisstopo.pixelkarte-grau',
-                groupId: 1,
-                id: 'test-topic-standard',
-                plConfig: null,
-                selectedLayers: [],
-            },
-            {
-                activatedLayers: ['ch.bav.haltestellen-oev'],
-                backgroundLayers: [
-                    'ch.swisstopo.swissimage',
-                    'ch.swisstopo.pixelkarte-farbe',
-                    'ch.swisstopo.pixelkarte-grau',
-                ],
-                defaultBackground: 'ch.swisstopo.pixelkarte-grau',
-                groupId: 1,
-                id: 'test-topic-with-active-layers',
-                plConfig: null,
-                selectedLayers: [],
-            },
-            {
-                activatedLayers: [
-                    'ch.bav.haltestellen-oev',
-                    'ch.bfe.windenergie-geschwindigkeit_h50',
-                ],
-                backgroundLayers: [
-                    'ch.swisstopo.swissimage',
-                    'ch.swisstopo.pixelkarte-farbe',
-                    'ch.swisstopo.pixelkarte-grau',
-                ],
-                defaultBackground: 'ch.swisstopo.pixelkarte-grau',
-                groupId: 1,
-                id: 'test-topic-with-active-and-visible-layers',
-                plConfig: null,
-                selectedLayers: ['ch.bav.haltestellen-oev'],
-            },
-            {
-                activatedLayers: [],
-                backgroundLayers: [
-                    'ch.swisstopo.swissimage',
-                    'ch.swisstopo.pixelkarte-farbe',
-                    'ch.swisstopo.pixelkarte-grau',
-                ],
-                defaultBackground: 'ch.swisstopo.pixelkarte-farbe',
-                groupId: 2,
-                id: 'test-complex-topic',
-                plConfig:
-                    'bgLayer=voidLayer&layers=ch.bav.haltestellen-oev,ch.bfe.windenergie-geschwindigkeit_h50&layers_opacity=0.6,0.8&layers_visibility=true,false',
-                selectedLayers: [],
-            },
-        ],
-    }
-    const goToMapWithParamsAndWaitForTopics = (params = {}) => {
-        cy.goToMapView('en', params)
-        cy.wait(`@${topicAlias}`)
-    }
+    let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
         cy.get('[data-cy="menu-button"]').click()
         cy.get('[data-cy="change-topic-button"]').click()
@@ -85,18 +8,20 @@ describe('Topics', () => {
     }
     // Mocking up topic backend
     beforeEach(() => {
-        cy.mockupBackendResponse('rest/services', mockupTopics, 'topics')
+        cy.fixture('topics.fixture').then((topics) => {
+            mockupTopics = topics
+        })
     })
     context('Topics loading at startup', () => {
         it('loads all topics in the state at startup', () => {
-            goToMapWithParamsAndWaitForTopics()
+            cy.goToMapView()
             cy.readStoreValue('state.topics.config').then((topicConfig) => {
                 expect(topicConfig).to.be.an('Array')
                 expect(topicConfig.length).to.eq(mockupTopics.topics.length)
             })
         })
         it('starts with topics ech at app startup', () => {
-            goToMapWithParamsAndWaitForTopics()
+            cy.goToMapView()
             cy.readStoreValue('state.topics.current').then((currentTopic) => {
                 expect(currentTopic).to.be.an('Object')
                 expect(currentTopic.id).to.eq('ech')
@@ -118,14 +43,14 @@ describe('Topics', () => {
             })
         }
         it('clears all activate layers and change background layer on topic selection', () => {
-            goToMapWithParamsAndWaitForTopics({
-                layers: 'ch.bav.haltestellen-oev',
+            cy.goToMapView('en', {
+                layers: 'test.wmts.layer',
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array')
                 expect(layers.length).to.eq(1)
                 expect(layers[0]).to.be.an('Object')
-                expect(layers[0].id).to.eq('ch.bav.haltestellen-oev')
+                expect(layers[0].id).to.eq('test.wmts.layer')
             })
             // clicking on topic standard
             const topicStandard = mockupTopics.topics[1]
@@ -142,7 +67,7 @@ describe('Topics', () => {
             )
         })
         it('activates layers of the topic after topic swap', () => {
-            goToMapWithParamsAndWaitForTopics()
+            cy.goToMapView()
             const topicWithActiveLayers = mockupTopics.topics[2]
             selectTopicWithId(topicWithActiveLayers.id)
             // we expect the layer to be activated but not visible
@@ -150,7 +75,7 @@ describe('Topics', () => {
             checkThatActiveLayerFromTopicAreActive(topicWithActiveLayers)
         })
         it('activates and set visible layers of the topic after topic swap', () => {
-            goToMapWithParamsAndWaitForTopics()
+            cy.goToMapView()
             const topicWithVisibleLayers = mockupTopics.topics[3]
             selectTopicWithId(topicWithVisibleLayers.id)
             // there should be visible layers
@@ -165,18 +90,18 @@ describe('Topics', () => {
             checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
         })
         it('handles correctly complex topic with custom legacy URL params', () => {
-            goToMapWithParamsAndWaitForTopics()
+            cy.goToMapView()
             const complexTopic = mockupTopics.topics[4]
             selectTopicWithId(complexTopic.id)
             // from the mocked up response above
             const expectedActiveLayers = [
-                'ch.bav.haltestellen-oev',
-                'ch.bfe.windenergie-geschwindigkeit_h50',
+                'test.wmts.layer',
+                'test.wms.layer',
             ]
-            const expectedVisibleLayers = ['ch.bav.haltestellen-oev']
+            const expectedVisibleLayers = ['test.wmts.layer']
             const expectedOpacity = {
-                'ch.bav.haltestellen-oev': 0.6,
-                'ch.bfe.windenergie-geschwindigkeit_h50': 0.8,
+                'test.wmts.layer': 0.6,
+                'test.wms.layer': 0.8,
             }
             const expectedBackgroundLayerId = null // void layer
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
@@ -203,7 +128,6 @@ describe('Topics', () => {
             )
         })
         it('hides the menu and overlay after a topic is selected', () => {
-            goToMapWithParamsAndWaitForTopics()
             // clicking on topic standard
             const topicStandard = mockupTopics.topics[1]
             selectTopicWithId(topicStandard.id)

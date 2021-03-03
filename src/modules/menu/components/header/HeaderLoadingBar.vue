@@ -9,7 +9,7 @@ export default {}
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
-$loading_element_width: 40rem;
+$loading-element-width: 40rem;
 
 .header-loading-bar {
     box-sizing: content-box;
@@ -18,7 +18,7 @@ $loading_element_width: 40rem;
     width: 100%;
     display: block;
     background-color: $red;
-    background-size: $loading_element_width $loading_element_width;
+    background-size: $loading-element-width $loading-element-width;
     background-image: linear-gradient(
         -45deg,
         rgba(255, 255, 255, 0.2) 25%,
@@ -36,7 +36,7 @@ $loading_element_width: 40rem;
         background-position: 0 0;
     }
     100% {
-        background-position: $loading_element_width $loading_element_width;
+        background-position: $loading-element-width $loading-element-width;
     }
 }
 </style>

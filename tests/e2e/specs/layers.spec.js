@@ -6,22 +6,22 @@ describe('Test of layer handling', () => {
         })
         it('adds a layer to the map when the app is opened through a URL with a layer in it', () => {
             cy.goToMapView('en', {
-                layers: 'ch.bfe.windenergie-geschwindigkeit_h50,ch.bav.haltestellen-oev',
+                layers: 'test.wms.layer,test.wmts.layer',
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array')
                 expect(layers.length).to.eq(2)
                 expect(layers[0]).to.be.an('Object')
-                expect(layers[0].id).to.eq('ch.bfe.windenergie-geschwindigkeit_h50')
+                expect(layers[0].id).to.eq('test.wms.layer')
                 expect(layers[1]).to.be.an('Object')
-                expect(layers[1].id).to.eq('ch.bav.haltestellen-oev')
+                expect(layers[1].id).to.eq('test.wmts.layer')
             })
         })
     })
     context('Layer settings in menu', () => {
         const visibleLayerIds = [
-            'ch.bav.haltestellen-oev',
-            'ch.bfe.windenergie-geschwindigkeit_h50',
+            'test.wms.layer',
+            'test.wmts.layer',
         ]
         beforeEach(() => {
             cy.goToMapView('en', {
