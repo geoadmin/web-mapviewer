@@ -73,11 +73,23 @@ const actions = {
     addLayer: ({ commit }, layerId) => commit('addLayer', layerId),
     addLocation: ({ commit }, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
     removeLayer: ({ commit }, layerId) => commit('removeLayer', layerId),
-    setLayerConfig: ({ commit, state }, config) => {
-        const activeLayerIdsBeforeConfigChange = state.activeLayers.map((layer) => layer.id)
+    clearLayers: ({ commit }) => commit('clearLayers'),
+    setLayerConfig: ({ commit, dispatch, state }, config) => {
+        const activedLayerBeforeConfigChange = state.activeLayers.map((layer) => layer)
         commit('clearLayers')
         commit('setLayerConfig', config)
-        activeLayerIdsBeforeConfigChange.forEach((layerId) => commit('addLayer', layerId))
+        activedLayerBeforeConfigChange.forEach((layer) => {
+            commit('addLayer', layer.id)
+            if (!layer.visible) {
+                commit('toggleLayerVisibility', layer.id)
+            }
+            if (layer.opacity) {
+                dispatch('setLayerOpacity', {
+                    layerId: layer.id,
+                    opacity: layer.opacity,
+                })
+            }
+        })
     },
     setBackground: ({ commit }, bgLayerId) => commit('setBackground', bgLayerId),
     setVisibleLayersByIds: ({ commit, getters }, ids) => {
@@ -144,15 +156,19 @@ const mutations = {
         }
     },
     addLayer: (state, layerId) => {
-        // if the layer is already active, we skip the adding
-        if (state.activeLayers.find((layer) => layer.id === layerId)) return
-        // otherwise we load the config for this layer into the active layers
-        const layer = state.config.find((layer) => layer.id === layerId)
-        if (layer) {
-            layer.visible = true
-            state.activeLayers.push(layer)
+        const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+        // if the layer is already active, we only make sure it is visible again
+        if (activeLayer) {
+            activeLayer.visible = true
         } else {
-            console.error('no layer found with id', layerId)
+            // otherwise we load the config for this layer into the active layers
+            const layer = state.config.find((layer) => layer.id === layerId)
+            if (layer) {
+                layer.visible = true
+                state.activeLayers.push(layer)
+            } else {
+                console.error('no layer found with id', layerId)
+            }
         }
     },
     addLocation: (state, { x, y }) => (state.pinLocation = { x, y }),

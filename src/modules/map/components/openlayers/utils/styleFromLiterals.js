@@ -1,6 +1,7 @@
 // copied and adapted from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/StylesFromLiteralsService.js
 import { Circle, Icon, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import { Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon } from 'ol/geom'
+import { isNumber } from '@/utils/numberUtils'
 
 function getOlStyleForPoint(options, shape) {
     if (shape === 'circle') {
@@ -257,7 +258,7 @@ OlStyleForPropertyValue.prototype.setOlRotation_ = function (
 ) {
     if (imageRotationProperty) {
         const rotation = properties[imageRotationProperty]
-        if (rotation && Number.isNumeric(rotation)) {
+        if (rotation && isNumber(rotation)) {
             const image = olStyle.getImage()
             if (image) {
                 image.setRotation(rotation)

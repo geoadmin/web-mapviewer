@@ -1,0 +1,24 @@
+.menu-list-item {
+  border-bottom: 1px solid #e9e9e9;
+  > * {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn,
+  input,
+  span {
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+  .menu-list-item-title {
+    height: 3rem;
+    .menu-item-name {
+      width: 100%;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: hidden;
+    }
+  }
+}

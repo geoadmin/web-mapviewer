@@ -216,14 +216,16 @@ describe('Test the search bar', () => {
             wantedResponseLocations = [],
             wantedResponseLayers = []
         ) => {
-            cy.server()
-            cy.route('**/rest/services/ech/SearchServer*?type=layers*', wantedResponseLayers).as(
+            cy.mockupBackendResponse(
+                'rest/services/ech/SearchServer*?type=layers*',
+                wantedResponseLayers,
                 aliasName
             )
-            cy.route(
-                '**/rest/services/ech/SearchServer*?type=locations*',
-                wantedResponseLocations
-            ).as(aliasName)
+            cy.mockupBackendResponse(
+                'rest/services/ech/SearchServer*?type=locations*',
+                wantedResponseLocations,
+                aliasName
+            )
         }
 
         it('handles search result thoroughly (zoom, center, pin)', () => {
@@ -259,9 +261,10 @@ describe('Test the search bar', () => {
                 (156543.03 * Math.abs(Math.cos((expectedCenterEpsg4326[1] * Math.PI) / 180))) / 2
             )
             cy.viewport(widthAndHeight, widthAndHeight)
-            mockupServerResponse('search', response)
+            const aliasName = 'search'
+            mockupServerResponse(aliasName, response)
             cy.get(searchbarSelector).paste('test')
-            cy.wait('@search')
+            cy.wait(`@${aliasName}`)
             cy.get(searchResultEntriesSelector)
                 .then((entries) => {
                     expect(entries.length).to.eq(1)

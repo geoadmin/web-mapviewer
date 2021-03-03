@@ -1,13 +1,13 @@
 <template>
     <div class="menu-layer-list-item">
-        <div class="menu-layer-list-item-title">
+        <div class="menu-list-item-title">
             <button class="btn btn-default" @click="onRemoveLayer">
                 <font-awesome-icon size="lg" :icon="['fas', 'times-circle']" />
             </button>
             <button class="btn btn-default" @click="onToggleLayerVisibility">
                 <font-awesome-icon size="lg" :icon="['far', checkboxIcon]" />
             </button>
-            <span class="menu-layer-item-name">{{ name }}</span>
+            <span class="menu-item-name" @click="onToggleLayerVisibility">{{ name }}</span>
             <button
                 class="btn btn-default animate__animated animate__faster"
                 :class="{ animate__pulse: showDetails }"
@@ -43,29 +43,9 @@
 
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import '../../scss/menu-items';
 .menu-layer-list-item {
-    border-bottom: 1px solid #e9e9e9;
-    > * {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .btn,
-    input,
-    span {
-        padding-left: 0.2rem;
-        padding-right: 0.2rem;
-    }
-    .menu-layer-list-item-title {
-        height: 3rem;
-        .menu-layer-item-name {
-            width: 100%;
-            text-align: left;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow-x: hidden;
-        }
-    }
+    @extend .menu-list-item;
     .menu-layer-list-item-details {
         border-left: 3px solid #666;
         .menu-layer-list-item-details-transparency {
@@ -78,8 +58,6 @@
                 display: flex;
                 flex-grow: 1;
             }
-        }
-        .menu-layer-list-item-details-order {
         }
     }
 }

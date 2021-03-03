@@ -17,8 +17,8 @@ export const LayerTypes = {
 
 /**
  * @class
- * @name layers:TimeConfig Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will determine which "timestamp" to add
- * to the URL used to request tiles/image.
+ * @name layers:TimeConfig Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will
+ *   determine which "timestamp" to add to the URL used to request tiles/image.
  */
 export class TimeConfig {
     /**
@@ -50,8 +50,9 @@ export class TimeConfig {
 /**
  * @abstract
  * @class
- * @name layers:Layer Base class for Layer config description, must be extended to a more specific flavor of Layer
- * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer} or {@link AggregateLayer})
+ * @name layers:Layer Base class for Layer config description, must be extended to a more specific
+ *   flavor of Layer (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer} or {@link
+ *   AggregateLayer})
  */
 export class Layer {
     /**

@@ -1,10 +1,13 @@
 <template>
     <div class="card menu-section">
-        <div class="card-header menu-section-head" @click="showBody = !showBody">
-            <span>
+        <div class="card-header menu-section-head d-block" @click="toggleShowBody">
+            <span class="float-left">
                 <font-awesome-icon :icon="['fas', titleCaretIcon]" />
+                <span class="menu-section-head-title">{{ title }}</span>
             </span>
-            <span class="menu-section-head-title">{{ title }}</span>
+            <span class="extra-button float-right text-right" @click.prevent="toggleShowBody">
+                <slot name="extra-button" />
+            </span>
         </div>
         <div v-show="showBody" class="card-body p-0 menu-section-body">
             <slot />
@@ -19,6 +22,9 @@
         text-align: left;
         padding-left: 0.5rem;
         padding-right: 0.5rem;
+    }
+    .extra-button:hover {
+        text-decoration: underline;
     }
 }
 </style>
@@ -50,6 +56,11 @@ export default {
     watch: {
         showContent: function (showContent) {
             this.showBody = showContent
+        },
+    },
+    methods: {
+        toggleShowBody: function () {
+            this.showBody = !this.showBody
         },
     },
 }
