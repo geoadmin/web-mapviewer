@@ -17,7 +17,7 @@ const routes = [
     },
     // TODO: remove the loading view and make it a UI loading bar or other feedback under the header (while showing the map without tiles)
     {
-        path: '/loading',
+        path: '/startup',
         name: 'LoadingView',
         component: LoadingView,
     },

@@ -1,47 +1,55 @@
 <template>
     <transition name="slide-up">
-        <div v-show="showHeader" class="header align-items-center p-1 flex-fill">
-            <SwissFlag class="swiss-flag ml-1 mr-2" />
-            <HeaderSwissConfederationText class="d-none d-sm-block" />
-            <!-- we then let whatever was given in the slot be rendered here, that's where we expect to receive the search module from MapView.vue -->
-            <slot />
-            <HeaderMenuButton />
-            <MenuTray class="menu-tray" />
+        <div v-show="showHeader" class="header" :class="{ 'extra-height': showLoadingBar }">
+            <div class="header-content align-items-center p-1 flex-fill">
+                <SwissFlag class="swiss-flag ml-1 mr-2" />
+                <HeaderSwissConfederationText class="d-none d-sm-block" />
+                <!-- we then let whatever was given in the slot be rendered here, that's where we expect to receive the search module from MapView.vue -->
+                <slot />
+                <HeaderMenuButton />
+                <MenuTray class="menu-tray" />
+            </div>
+            <HeaderLoadingBar v-if="showLoadingBar" />
         </div>
     </transition>
 </template>
 
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/variables';
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
-
-$headerHeight: 3rem;
 
 .header {
     position: fixed;
     top: 0;
     left: 0;
-    height: $headerHeight;
+    height: $header-height;
     width: 100%;
     background: $white;
-    border-bottom: 4px solid $red;
-    display: flex;
+    box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
     // so that the menu is above the map overlay
     z-index: $zindex-overlay-default + 1;
-    .swiss-flag {
-        height: 2rem;
-        width: 2rem;
-        min-height: 2rem;
-        min-width: 2rem;
+    &.extra-height {
+        height: $header-height + $header-loading-bar-height;
     }
-    .menu-tray {
-        position: fixed;
-        top: $headerHeight;
-        right: 0;
-        background: $white;
-        width: 95%;
-        max-width: 40rem;
+    .header-content {
+        display: flex;
+        height: $header-height;
+        .swiss-flag {
+            height: 2rem;
+            width: 2rem;
+            min-height: 2rem;
+            min-width: 2rem;
+        }
+        .menu-tray {
+            position: fixed;
+            top: $header-height;
+            right: 0;
+            background: $white;
+            width: 95%;
+            max-width: 40rem;
+        }
     }
 }
 .slide-up-leave-active,
@@ -56,13 +64,19 @@ $headerHeight: 3rem;
 }
 @include respond-above(sm) {
     .header {
-        height: 2 * $headerHeight;
-        .swiss-flag {
-            margin-top: 0.4rem;
-            align-self: flex-start;
+        height: 2 * $header-height;
+        &.extra-height {
+            height: 2 * $header-height + $header-loading-bar-height;
         }
-        .menu-tray {
-            top: 2 * $headerHeight;
+        .header-content {
+            height: 2 * $header-height;
+            .swiss-flag {
+                margin-top: 0.4rem;
+                align-self: flex-start;
+            }
+            .menu-tray {
+                top: 2 * $header-height;
+            }
         }
     }
 }
@@ -76,9 +90,11 @@ import HeaderMenuButton from './components/header/HeaderMenuButton'
 import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText'
 
 import MenuTray from './components/MenuTray'
+import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar'
 
 export default {
     components: {
+        HeaderLoadingBar,
         HeaderSwissConfederationText,
         HeaderMenuButton,
         SwissFlag,
@@ -87,6 +103,7 @@ export default {
     computed: {
         ...mapState({
             showHeader: (state) => state.ui.showHeader,
+            showLoadingBar: (state) => state.ui.showLoadingBar,
         }),
     },
 }

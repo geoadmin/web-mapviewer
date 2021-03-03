@@ -42,6 +42,12 @@ export default {
          * @type Boolean
          */
         showBackgroundWheel: true,
+        /**
+         * Flag telling if a loading bar should be shown to tell the user something is on going
+         *
+         * @type Boolean
+         */
+        showLoadingBar: true,
     },
     getters: {
         screenDensity: (state) => {
@@ -61,6 +67,7 @@ export default {
         toggleFooter: ({ commit, state }) => commit('setShowFooter', !state.showFooter),
         toggleBackgroundWheel: ({ commit, state }) =>
             commit('setShowBackgroundWheel', !state.showBackgroundWheel),
+        toggleLoadingBar: ({ commit, state }) => commit('setShowLoadingBar', !state.showLoadingBar),
     },
     mutations: {
         setSize: (state, { height, width }) => {
@@ -71,5 +78,6 @@ export default {
         setShowHeader: (state, flagValue) => (state.showHeader = flagValue),
         setShowFooter: (state, flagValue) => (state.showFooter = flagValue),
         setShowBackgroundWheel: (state, flagValue) => (state.showBackgroundWheel = flagValue),
+        setShowLoadingBar: (state, flagValue) => (state.showLoadingBar = flagValue),
     },
 }

@@ -16,7 +16,7 @@ const state = {
     /**
      * All layers' config available to this app
      *
-     * @type Layer[]
+     * @type Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>
      */
     config: [],
 }

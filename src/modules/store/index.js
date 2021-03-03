@@ -20,6 +20,7 @@ import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
 import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-management.plugin'
+import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
 
 Vue.use(Vuex)
 
@@ -33,6 +34,7 @@ export default new Vuex.Store({
         appReadinessPlugin,
         geolocationManagementPlugin,
         topicChangeManagementPlugin,
+        loadingBarManagementPlugin,
     ],
     modules: {
         app,

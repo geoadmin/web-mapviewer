@@ -17,7 +17,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: $white url('./assets/grid.png');
+    background: $white url('../../assets/grid.png');
 }
 .slide-down-leave-active,
 .slide-down-enter-active {

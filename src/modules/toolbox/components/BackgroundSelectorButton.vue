@@ -55,7 +55,7 @@ $bg-button-border-size-in-wheel: 3px;
         margin-top: 0.5rem;
 
         &.bg-void {
-            background: $white url('../assets/grid.png');
+            background: $white url('../../../assets/grid.png');
         }
         &.bg-ch-swisstopo-pixelkarte-farbe {
             background-position: -80px 0;
