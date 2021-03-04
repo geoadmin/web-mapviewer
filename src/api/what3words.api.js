@@ -1,6 +1,7 @@
 import axios from 'axios'
 import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
+import log from '@/utils/logging'
 
 // copied from https://developer.what3words.com/tutorial/detecting-if-text-is-in-the-format-of-a-3-word-address
 const REGEX_WHAT_3_WORDS = /^\/{0,}[^0-9`~!@#$%^&*()+\-_=[{\]}\\|'<,.>?/";:£§º©®\s]{1,}[・.。][^0-9`~!@#$%^&*()+\-_=[{\]}\\|'<,.>?/";:£§º©®\s]{1,}[・.。][^0-9`~!@#$%^&*()+\-_=[{\]}\\|'<,.>?/";:£§º©®\s]{1,}$/i
@@ -45,7 +46,7 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                     ])
                 })
                 .catch((error) => {
-                    console.error('Error while fetching What3Words location', error)
+                    log('error', 'Error while fetching What3Words location', error)
                     reject(error)
                 })
         }
@@ -73,7 +74,7 @@ export const registerWhat3WordsLocation = (location) => {
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-3wa
                 .then((response) => resolve(response.data.words))
                 .catch((error) => {
-                    console.error('Error while saving location as a What3words', error)
+                    log('error', 'Error while saving location as a What3words', error)
                     reject(error)
                 })
         }

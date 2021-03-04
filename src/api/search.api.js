@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_BASE_URL } from '@/config'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
+import log from '@/utils/logging'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 
@@ -130,12 +131,12 @@ const search = (queryString = '', lang = '') => {
     return new Promise((resolve, reject) => {
         if (!lang || lang.length !== 2) {
             const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
-            console.error(errorMessage)
+            log('error', errorMessage)
             reject(errorMessage)
         }
         if (!queryString || queryString.length < 2) {
             const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
-            console.error(errorMessage)
+            log('error', errorMessage)
             reject(errorMessage)
         }
         // if a request is currently pending, we cancel it to start the new one

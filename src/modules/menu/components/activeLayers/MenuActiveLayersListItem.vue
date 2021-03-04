@@ -1,16 +1,30 @@
 <template>
     <div class="menu-layer-list-item">
         <div class="menu-list-item-title">
-            <button class="btn btn-default" @click="onRemoveLayer">
+            <button
+                class="btn btn-default"
+                :data-cy="`button-remove-layer-${id}`"
+                @click="onRemoveLayer"
+            >
                 <font-awesome-icon size="lg" :icon="['fas', 'times-circle']" />
             </button>
-            <button class="btn btn-default" @click="onToggleLayerVisibility">
+            <button
+                class="btn btn-default"
+                :data-cy="`button-toggle-visibility-layer-${id}`"
+                @click="onToggleLayerVisibility"
+            >
                 <font-awesome-icon size="lg" :icon="['far', checkboxIcon]" />
             </button>
-            <span class="menu-item-name" @click="onToggleLayerVisibility">{{ name }}</span>
+            <span
+                class="menu-item-name"
+                :data-cy="`visible-layer-name-${id}`"
+                @click="onToggleLayerVisibility"
+                >{{ name }}</span
+            >
             <button
                 class="btn btn-default animate__animated animate__faster"
                 :class="{ animate__pulse: showDetails }"
+                :data-cy="`button-open-visible-layer-settings-${id}`"
                 @click="toggleShowDetails"
             >
                 <font-awesome-icon size="lg" :icon="['fas', 'cog']" />
@@ -26,15 +40,31 @@
                     max="1.0"
                     step="0.01"
                     :value="opacity"
+                    :data-cy="`slider-opacity-layer-${id}`"
                     @change="onOpacityChange"
                 />
             </div>
             <div class="menu-layer-list-item-details-order">
-                <button class="btn btn-default" @click="onOrderChange(1)">
+                <button
+                    class="btn btn-default"
+                    :data-cy="`button-raise-order-layer-${id}`"
+                    @click="onOrderChange(1)"
+                >
                     <font-awesome-icon size="lg" :icon="['fas', 'arrow-up']" />
                 </button>
-                <button class="btn btn-default" @click="onOrderChange(-1)">
+                <button
+                    class="btn btn-default"
+                    :data-cy="`button-lower-order-layer-${id}`"
+                    @click="onOrderChange(-1)"
+                >
                     <font-awesome-icon size="lg" :icon="['fas', 'arrow-down']" />
+                </button>
+                <button
+                    class="btn btn-default"
+                    :data-cy="`button-show-legend-layer-${id}`"
+                    @click="showLayerLegendPopup"
+                >
+                    <font-awesome-icon size="lg" :icon="['fas', 'info-circle']" />
                 </button>
             </div>
         </div>
@@ -124,6 +154,9 @@ export default {
         },
         onOrderChange: function (delta) {
             this.$emit('orderChange', this.id, delta)
+        },
+        showLayerLegendPopup: function () {
+            this.$emit('showLayerLegendPopup', this.id)
         },
     },
 }

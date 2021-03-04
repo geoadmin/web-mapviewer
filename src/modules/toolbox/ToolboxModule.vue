@@ -10,13 +10,29 @@
     </div>
 </template>
 
+<script>
+import ZoomButtons from './components/ZoomButtons'
+import BackgroundSelectorButton from './components/BackgroundSelectorButton'
+import { mapState } from 'vuex'
+import GeolocButton from './components/GeolocButton'
+
+export default {
+    components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
+    computed: {
+        ...mapState({
+            showBgWheel: (state) => state.ui.showBackgroundWheel,
+        }),
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/variables';
 
 #right-toolbox,
 #toolbox-bg-buttons {
     position: absolute;
-    z-index: 250;
+    z-index: $zindex-map + 1;
 }
 #right-toolbox {
     top: $header-height + $screen-padding-for-ui-elements;
@@ -40,19 +56,3 @@
     transform: translate(-100%, 0);
 }
 </style>
-
-<script>
-import ZoomButtons from './components/ZoomButtons'
-import BackgroundSelectorButton from './components/BackgroundSelectorButton'
-import { mapState } from 'vuex'
-import GeolocButton from './components/GeolocButton'
-
-export default {
-    components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
-    computed: {
-        ...mapState({
-            showBgWheel: (state) => state.ui.showBackgroundWheel,
-        }),
-    },
-}
-</script>

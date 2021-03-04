@@ -7,11 +7,9 @@ import 'animate.css'
 import App from './App.vue'
 import store from '@/modules/store'
 import i18n from '@/modules/i18n'
+import router from '@/router'
 import './registerServiceWorker'
 
-import { VueSvgIcon } from '@yzfe/vue-svgicon'
-import '@yzfe/svgicon/lib/svgicon.css'
-import router from './router'
 import setupProj4 from '@/utils/setupProj4'
 import { DEBUG, IS_TESTING_WITH_CYPRESS } from '@/config'
 
@@ -24,8 +22,9 @@ require('./setup-fontawesome')
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
-// Adding component used to load the Swiss flag SVG as a Vue component
-Vue.component('icon', VueSvgIcon)
+// setting up component to replace some Vue component on the body (for modals and such)
+import PortalVue from 'portal-vue'
+Vue.use(PortalVue)
 
 new Vue({
     store,

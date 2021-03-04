@@ -17,6 +17,7 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = (store) => {
                 hideMenuTrayPending = true
                 hideMenuTrayIfShown()
             }
+            return false
         }
         const hideOverlayIfShown = () => {
             if (state.overlay.show) {

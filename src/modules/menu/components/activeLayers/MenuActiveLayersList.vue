@@ -11,22 +11,32 @@
             @toggleLayerVisibility="onToggleLayerVisibility"
             @opacityChange="onOpacityChange"
             @orderChange="onOrderChange"
+            @showLayerLegendPopup="showLayerLegendForId = layer.id"
+        />
+        <MenuActiveLayersLegendPopup
+            v-if="showLayerLegendForId"
+            :layer-id="showLayerLegendForId"
+            @close="showLayerLegendForId = null"
         />
     </div>
 </template>
 
-<style lang="scss"></style>
-
 <script>
 import { mapState, mapActions } from 'vuex'
 import MenuActiveLayersListItem from './MenuActiveLayersListItem'
+import MenuActiveLayersLegendPopup from '@/modules/menu/components/activeLayers/MenuActiveLayersLegendPopup'
 
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
 export default {
-    components: { MenuActiveLayersListItem },
+    components: { MenuActiveLayersLegendPopup, MenuActiveLayersListItem },
+    data() {
+        return {
+            showLayerLegendForId: null,
+        }
+    },
     computed: {
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
@@ -39,6 +49,8 @@ export default {
             'moveActiveLayerFront',
             'toggleLayerVisibility',
             'removeLayer',
+            'showOverlay',
+            'setOverlayShouldBeFront',
         ]),
         onRemoveLayer: function (layerId) {
             this.removeLayer(layerId)

@@ -14,15 +14,34 @@
                 :key="`${feature.layer.id}-${feature.id ? feature.id : index}`"
                 class="tooltip-feature"
                 v-html="feature.htmlPopup"
-            ></div>
+            />
             <!-- eslint-enable vue/no-v-html-->
         </div>
     </div>
 </template>
+
+<script>
+import { mapActions, mapState } from 'vuex'
+export default {
+    computed: {
+        ...mapState({
+            highlightedFeatures: (state) => state.map.highlightedFeatures,
+        }),
+    },
+    methods: {
+        ...mapActions(['clearHighlightedFeatures']),
+        closeTooltip: function () {
+            this.clearHighlightedFeatures()
+        },
+    },
+}
+</script>
+
 <style lang="scss">
+@import 'src/scss/variables';
 .tooltip-box {
     position: absolute;
-    z-index: 250;
+    z-index: $zindex-map + 1;
     max-width: 450px;
     width: 100%;
     bottom: 0;
@@ -74,19 +93,3 @@
     }
 }
 </style>
-<script>
-import { mapActions, mapState } from 'vuex'
-export default {
-    computed: {
-        ...mapState({
-            highlightedFeatures: (state) => state.map.highlightedFeatures,
-        }),
-    },
-    methods: {
-        ...mapActions(['clearHighlightedFeatures']),
-        closeTooltip: function () {
-            this.clearHighlightedFeatures()
-        },
-    },
-}
-</script>

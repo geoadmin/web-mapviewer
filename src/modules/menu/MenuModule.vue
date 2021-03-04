@@ -14,6 +14,7 @@
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
 
 $headerHeight: 3rem;
 
@@ -27,7 +28,7 @@ $headerHeight: 3rem;
     border-bottom: 4px solid $red;
     display: flex;
     // so that the menu is above the map overlay
-    z-index: 500;
+    z-index: $zindex-overlay-default + 1;
     .swiss-flag {
         height: 2rem;
         width: 2rem;

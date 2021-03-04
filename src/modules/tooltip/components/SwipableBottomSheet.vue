@@ -7,10 +7,10 @@
             :style="{ top: `calc(${isMoving ? y : calcY()}px + 1rem)` }"
         >
             <div ref="pan" class="pan-area">
-                <div ref="bar" class="bar"></div>
+                <div ref="bar" class="bar" />
             </div>
             <div class="contents p-1 mt-3">
-                <slot></slot>
+                <slot />
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@ export default {
             }
         })
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.mc.destroy()
         window.onresize = null
     },

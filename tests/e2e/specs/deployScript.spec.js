@@ -52,7 +52,10 @@ describe('Test the deploy script', () => {
             cy.exec(`${scriptExec} a_totally_wrong_target`, {
                 failOnNonZeroExit: false,
             }).then((result) =>
-                checkResult(result, { contains: 'Non-existing target specified', exitCode: 1 })
+                checkResult(result, {
+                    contains: 'Non-existing target specified',
+                    exitCode: 1,
+                })
             )
         })
         it('Fails with exit code 1 if more than 1 target is given', () => {
