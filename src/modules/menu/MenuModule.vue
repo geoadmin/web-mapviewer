@@ -8,6 +8,7 @@
                 <slot />
                 <HeaderMenuButton />
                 <MenuTray class="menu-tray" />
+                <div v-if="showAppVersion" class="app-version small">v{{ appVersion }}</div>
             </div>
             <HeaderLoadingBar v-if="showLoadingBar" />
         </div>
@@ -51,6 +52,13 @@
             max-width: 40rem;
         }
     }
+    .app-version {
+        position: fixed;
+        bottom: 0.1rem;
+        left: 50%;
+        transform: translate(-50%, 0);
+        color: $gray-400;
+    }
 }
 .slide-up-leave-active,
 .slide-up-enter-active {
@@ -91,6 +99,7 @@ import HeaderSwissConfederationText from './components/header/HeaderSwissConfede
 
 import MenuTray from './components/MenuTray'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar'
+import { APP_VERSION, DEBUG } from '@/config'
 
 export default {
     components: {
@@ -100,11 +109,19 @@ export default {
         SwissFlag,
         MenuTray,
     },
+    data() {
+        return {
+            appVersion: APP_VERSION,
+        }
+    },
     computed: {
         ...mapState({
             showHeader: (state) => state.ui.showHeader,
             showLoadingBar: (state) => state.ui.showLoadingBar,
         }),
+        showAppVersion: function () {
+            return DEBUG
+        },
     },
 }
 </script>

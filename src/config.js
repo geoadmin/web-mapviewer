@@ -15,6 +15,13 @@ export const DEBUG = process.env.VUE_APP_DEBUG
 export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
 
 /**
+ * Current app version (from package.json)
+ *
+ * @type {String}
+ */
+export const APP_VERSION = process.env.PACKAGE_VERSION
+
+/**
  * Adds a slash at the end of the URL if there is none
  *
  * @param {String} url
