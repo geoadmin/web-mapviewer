@@ -1,5 +1,5 @@
 <template>
-    <ModalWithOverlay :title="$t('metadata_window_title')" @close="onClose">
+    <ModalWithOverlay :title="$t('metadata_window_title')" :allow-print="true" @close="onClose">
         <div class="layer-legend">
             <h4 v-if="!content" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
