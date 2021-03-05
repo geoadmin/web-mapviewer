@@ -1,4 +1,6 @@
 const { resolve } = require('path')
+const fs = require('fs')
+const { DefinePlugin } = require('webpack')
 
 // loading external utility function to read git metadata
 const gitBranch = require('git-branch')
@@ -16,6 +18,19 @@ if (process.env.DEPLOY && branch !== 'master' && branch !== 'develop') {
     publicPath = `/${branch}/`
 }
 
+// Getting package.json version in order to expose it to the app
+const packageJson = JSON.parse(fs.readFileSync('./package.json'))
+const version = packageJson.version || 0
+
 module.exports = {
     publicPath,
+    configureWebpack: {
+        plugins: [
+            new DefinePlugin({
+                'process.env': {
+                    PACKAGE_VERSION: '"' + version + '"',
+                },
+            }),
+        ],
+    },
 }
