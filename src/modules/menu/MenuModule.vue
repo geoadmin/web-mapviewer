@@ -1,6 +1,7 @@
 <template>
     <transition name="slide-up">
-        <div v-show="showHeader" class="header" :class="{ 'extra-height': showLoadingBar }">
+        <div v-show="showHeader" class="header">
+            <HeaderLoadingBar v-if="showLoadingBar" />
             <div class="header-content align-items-center p-1 flex-fill">
                 <SwissFlag class="swiss-flag ml-1 mr-2" />
                 <HeaderSwissConfederationText class="d-none d-sm-block" />
@@ -10,7 +11,6 @@
                 <MenuTray class="menu-tray" />
                 <div v-if="showAppVersion" class="app-version small">v{{ appVersion }}</div>
             </div>
-            <HeaderLoadingBar v-if="showLoadingBar" />
         </div>
     </transition>
 </template>
@@ -30,9 +30,6 @@
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
     // so that the menu is above the map overlay
     z-index: $zindex-overlay-default + 1;
-    &.extra-height {
-        height: $header-height + $header-loading-bar-height;
-    }
     .header-content {
         display: flex;
         height: $header-height;
@@ -72,9 +69,6 @@
 @include respond-above(sm) {
     .header {
         height: 2 * $header-height;
-        &.extra-height {
-            height: 2 * $header-height + $header-loading-bar-height;
-        }
         .header-content {
             height: 2 * $header-height;
             .swiss-flag {
