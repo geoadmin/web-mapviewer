@@ -31,7 +31,7 @@ This tag will be a bump in :
 ### Continuous integration / deployment
 
 CI is managed by AWS CodeBuild.
-- Every merge (commit) on `develop` will trigger a deploy on http://web-mapviewer.dev.bgdi.ch/ by the CI
+- Every merge (commit) on `develop` will trigger a deploy on https://web-mapviewer.dev.bgdi.ch/ by the CI
 - Every merge (commit) on `master` will trigger a deploy on https://web-mapviewer.int.bgdi.ch/ by the CI
 
 ### structure/architecture of the app
