@@ -20,6 +20,7 @@ yarn-error.log*
 *.sln
 *.sw?
 *.sublime-*
+*.code-*
 
 # Cypress and friends
 tests/e2e/videos
