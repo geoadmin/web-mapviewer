@@ -19,7 +19,6 @@
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
 @import 'src/scss/media-query.mixin';
-@import 'src/scss/variables';
 
 .header {
     position: fixed;
