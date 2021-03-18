@@ -2,8 +2,8 @@
 
 | Branch | Status | Deployed version |
 |--------|--------|------------------|
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | http://web-mapviewer.dev.bgdi.ch/ |
-| master | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | http://web-mapviewer.int.bgdi.ch/ |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | https://web-mapviewer.dev.bgdi.ch/ |
+| master | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | https://web-mapviewer.int.bgdi.ch/ |
 
 The next generation map viewer application of geo.admin.ch:  Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
