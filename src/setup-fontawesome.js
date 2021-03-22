@@ -9,9 +9,13 @@ import {
     faCaretRight,
     faCaretDown,
     faPlusCircle,
+    faPlus,
     faMinusCircle,
     faInfoCircle,
     faPrint,
+    faMapMarkerAlt,
+    faDrawPolygon,
+    faRuler,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
 
@@ -24,8 +28,12 @@ library.add(faArrowDown)
 library.add(faCaretRight)
 library.add(faCaretDown)
 library.add(faPlusCircle)
+library.add(faPlus)
 library.add(faMinusCircle)
 library.add(faInfoCircle)
 library.add(faPrint)
+library.add(faMapMarkerAlt)
+library.add(faDrawPolygon)
+library.add(faRuler)
 library.add(faCheckSquare)
 library.add(faSquare)

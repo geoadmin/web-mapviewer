@@ -1,6 +1,9 @@
 <template>
     <div class="full-screen-map" data-cy="map">
-        <OpenLayersMap />
+        <OpenLayersMap>
+            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+            <slot />
+        </OpenLayersMap>
         <transition name="slide-down">
             <Footer v-show="showFooter" />
         </transition>

@@ -1,6 +1,8 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
     <div id="ol-map" ref="map" oncontextmenu="return false">
+        <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+        <slot />
         <div id="scale-line" ref="scaleLine" />
         <!-- Adding background layer -->
         <OpenLayersBODLayer
