@@ -7,6 +7,7 @@ import geolocation from './modules/geolocation.store'
 import position from './modules/position.store'
 import topics from './modules/topics.store'
 import ui from './modules/ui.store'
+import drawing from './modules/drawing.store'
 
 import map from '../map/store'
 import overlay from '../overlay/store'
@@ -21,6 +22,7 @@ import appReadinessPlugin from './plugins/app-readiness.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
 import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-management.plugin'
 import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
+import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
 
 Vue.use(Vuex)
 
@@ -35,6 +37,7 @@ export default new Vuex.Store({
         geolocationManagementPlugin,
         topicChangeManagementPlugin,
         loadingBarManagementPlugin,
+        drawingOverlayAndMenuManagementPlugin,
     ],
     modules: {
         app,
@@ -43,6 +46,7 @@ export default new Vuex.Store({
         geolocation,
         position,
         ui,
+        drawing,
         map,
         overlay,
         search,

@@ -48,6 +48,18 @@ export default {
          * @type Boolean
          */
         showLoadingBar: true,
+        /**
+         * Flag telling if the zoom and the geolocation buttons should be visible
+         *
+         * @type Boolean
+         */
+        showZoomGeolocationButtons: true,
+        /**
+         * Flag telling if the drawing toolkit / overlay should be visible
+         *
+         * @type Boolean
+         */
+        showDrawingOverlay: false,
     },
     getters: {
         screenDensity: (state) => {
@@ -68,6 +80,10 @@ export default {
         toggleBackgroundWheel: ({ commit, state }) =>
             commit('setShowBackgroundWheel', !state.showBackgroundWheel),
         toggleLoadingBar: ({ commit, state }) => commit('setShowLoadingBar', !state.showLoadingBar),
+        toggleZoomGeolocationButtons: ({ commit, state }) =>
+            commit('setShowZoomGeolocationButtons', !state.showZoomGeolocationButtons),
+        toggleDrawingOverlay: ({ commit, state }) =>
+            commit('setShowDrawingOverlay', !state.showDrawingOverlay),
     },
     mutations: {
         setSize: (state, { height, width }) => {
@@ -79,5 +95,8 @@ export default {
         setShowFooter: (state, flagValue) => (state.showFooter = flagValue),
         setShowBackgroundWheel: (state, flagValue) => (state.showBackgroundWheel = flagValue),
         setShowLoadingBar: (state, flagValue) => (state.showLoadingBar = flagValue),
+        setShowZoomGeolocationButtons: (state, flagValue) =>
+            (state.showZoomGeolocationButtons = flagValue),
+        setShowDrawingOverlay: (state, flagValue) => (state.showDrawingOverlay = flagValue),
     },
 }
