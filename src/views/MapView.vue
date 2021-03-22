@@ -10,6 +10,7 @@
         <ToolboxModule />
         <TooltipModule />
         <I18nModule />
+        <DrawingModule />
     </div>
 </template>
 
@@ -29,9 +30,11 @@ import SearchModule from '@/modules/search/SearchModule'
 import ToolboxModule from '@/modules/toolbox/ToolboxModule'
 import I18nModule from '@/modules/i18n/I18nModule'
 import TooltipModule from '@/modules/tooltip/TooltipModule'
+import DrawingModule from '@/modules/drawing/DrawingModule'
 
 export default {
     components: {
+        DrawingModule,
         TooltipModule,
         ToolboxModule,
         SearchModule,
