@@ -63,6 +63,9 @@ export default {
     methods: {
         toggleShowBody: function () {
             this.showBody = !this.showBody
+            if (this.showBody) {
+                this.$emit('showBody')
+            }
         },
     },
 }

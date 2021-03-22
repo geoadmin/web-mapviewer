@@ -1,11 +1,11 @@
 <template>
     <div id="toolbox">
-        <div id="right-toolbox">
+        <div v-if="showZoomGeolocationButtons" id="right-toolbox">
             <ZoomButtons id="toolbox-zoom-buttons" />
             <GeolocButton id="geoloc-button" />
         </div>
         <transition name="slide-left">
-            <BackgroundSelectorButton v-show="showBgWheel" id="toolbox-bg-buttons" />
+            <BackgroundSelectorButton v-if="showBgWheel" id="toolbox-bg-buttons" />
         </transition>
     </div>
 </template>
@@ -21,6 +21,7 @@ export default {
     computed: {
         ...mapState({
             showBgWheel: (state) => state.ui.showBackgroundWheel,
+            showZoomGeolocationButtons: (state) => state.ui.showZoomGeolocationButtons,
         }),
     },
 }
