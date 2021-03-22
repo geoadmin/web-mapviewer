@@ -43,6 +43,7 @@
             :marker-style="markerStyles.POSITION"
             :z-index="zIndexAccuracyCircle + 1"
         />
+        <OpenLayersPaperLayer :z-index="1000" />
     </div>
 </template>
 
@@ -90,6 +91,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
 import OpenLayersBODLayer from './OpenLayersBODLayer'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
+import OpenLayersPaperLayer from './OpenLayersPaperLayer'
 import { ClickInfo } from '@/modules/map/store/map.store'
 import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
@@ -109,6 +111,7 @@ export default {
         OpenLayersBODLayer,
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
+        OpenLayersPaperLayer,
     },
     data: () => {
         return {

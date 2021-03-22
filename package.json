@@ -31,6 +31,7 @@
     "mobile-device-detect": "^0.4.3",
     "moment": "^2.29.1",
     "ol": "^6.5.0",
+    "paper": "^0.12.15",
     "popper.js": "^1.16.1",
     "portal-vue": "^2.1.7",
     "proj4": "^2.7.2",
