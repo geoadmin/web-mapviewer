@@ -1,5 +1,8 @@
 <template>
-    <div class="header-loading-bar"></div>
+    <div class="header-loading-bar">
+        <div class="loading-bar-inner loading-bar-inner-1"></div>
+        <div class="loading-bar-inner loading-bar-inner-2"></div>
+    </div>
 </template>
 
 <script>
@@ -10,33 +13,78 @@ export default {}
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
 $loading-element-width: 40rem;
+$loading-bar-animation-duration: 2s;
 
 .header-loading-bar {
     box-sizing: content-box;
-    height: $header-loading-bar-height;
-    position: relative;
+    height: 2px;
+    position: fixed;
+    top: 0;
     width: 100%;
     display: block;
-    background-color: $red;
-    background-size: $loading-element-width $loading-element-width;
-    background-image: linear-gradient(
-        -45deg,
-        rgba(255, 255, 255, 0.2) 25%,
-        transparent 25%,
-        transparent 50%,
-        rgba(255, 255, 255, 0.2) 50%,
-        rgba(255, 255, 255, 0.2) 75%,
-        transparent 75%,
-        transparent
-    );
-    animation: move 2s linear infinite;
+    background-color: transparent;
+    transform-origin: 100% 0;
+    animation: loading-bar-animation $loading-bar-animation-duration
+        cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite;
+    .loading-bar-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: auto;
+        right: auto;
+        width: 100%;
+        height: 100%;
+        background: $red;
+        transform-origin: 0 0;
+    }
+    .loading-bar-inner-1 {
+        opacity: 0;
+        animation: loading-bar-animation-inner-1 $loading-bar-animation-duration
+            cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite;
+    }
+    .loading-bar-inner-2 {
+        opacity: 1;
+        animation: loading-bar-animation-inner-2 $loading-bar-animation-duration
+            cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite;
+    }
 }
-@keyframes move {
+
+@keyframes loading-bar-animation {
     0% {
-        background-position: 0 0;
+        transform: scaleX(1);
+    }
+    50% {
+        transform: scaleX(1);
     }
     100% {
-        background-position: $loading-element-width $loading-element-width;
+        transform: scaleX(0);
+    }
+}
+
+@keyframes loading-bar-animation-inner-1 {
+    0% {
+        transform: scaleX(0);
+    }
+    25% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes loading-bar-animation-inner-2 {
+    0% {
+        transform: scaleX(0);
+    }
+    25% {
+        transform: scaleX(0);
+    }
+    50% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(1);
     }
 }
 </style>
