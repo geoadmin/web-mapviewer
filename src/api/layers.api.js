@@ -125,6 +125,10 @@ export class Layer {
         // otherwise we return the first topic to make our backend requests for identify and htmlPopup
         return this.topics[0]
     }
+
+    clone() {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+    }
 }
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */

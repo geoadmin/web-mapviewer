@@ -39,7 +39,7 @@ const parseLegacyParams = (search) => {
  *
  * @param {VueRouter} router
  */
-const legacyPermalinkManagement = (router) => {
+const legacyPermalinkManagementRouterPlugin = (router) => {
     let isFirstRequest = true
     const legacyParams =
         window.location && window.location.search ? parseLegacyParams(window.location.search) : null
@@ -118,4 +118,4 @@ const legacyPermalinkManagement = (router) => {
     })
 }
 
-export default legacyPermalinkManagement
+export default legacyPermalinkManagementRouterPlugin

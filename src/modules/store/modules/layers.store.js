@@ -166,8 +166,10 @@ const mutations = {
             // otherwise we load the config for this layer into the active layers
             const layer = state.config.find((layer) => layer.id === layerId)
             if (layer) {
-                layer.visible = true
-                state.activeLayers.push(layer)
+                // cloning layer config so that we keep the one we received from the backend pristine
+                const layerClone = layer.clone()
+                layerClone.visible = true
+                state.activeLayers.push(layerClone)
             } else {
                 log('error', 'no layer found with id', layerId)
             }
