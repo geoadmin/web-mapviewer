@@ -6,8 +6,9 @@ import LoadingView from '@/views/LoadingView'
 import store from '@/modules/store'
 
 import appLoadingManagementRouterPlugin from './appLoadingManagement.routerPlugin'
-import storeSyncRouterPlugin from './store-sync/storeSync.routerPlugin'
+import storeSyncRouterPlugin from './storeSync/storeSync.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from './legacyPermalinkManagement.routerPlugin'
+import stringifyQuery from '@/router/stringifyQuery'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,7 @@ const routes = [
  */
 const router = new VueRouter({
     routes,
+    stringifyQuery: stringifyQuery,
 })
 
 appLoadingManagementRouterPlugin(router, store)

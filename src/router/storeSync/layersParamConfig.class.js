@@ -1,5 +1,5 @@
-import AbstractParamConfig from '@/router/store-sync/abstractParamConfig.class'
-import layersParamParser from '@/router/store-sync/layersParamParser'
+import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import layersParamParser from '@/router/storeSync/layersParamParser'
 
 function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.id

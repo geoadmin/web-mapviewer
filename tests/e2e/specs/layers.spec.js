@@ -6,7 +6,7 @@ describe('Test of layer handling', () => {
         })
         it('adds a layer to the map when the app is opened through a URL with a layer in it', () => {
             cy.goToMapView('en', {
-                layers: 'test.wms.layer,test.wmts.layer',
+                layers: 'test.wms.layer;test.wmts.layer',
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array')
@@ -25,7 +25,7 @@ describe('Test of layer handling', () => {
         ]
         beforeEach(() => {
             cy.goToMapView('en', {
-                layers: visibleLayerIds.join(','),
+                layers: visibleLayerIds.join(';'),
             })
             // clicking on the menu button
             cy.get('[data-cy="menu-button"]').click()

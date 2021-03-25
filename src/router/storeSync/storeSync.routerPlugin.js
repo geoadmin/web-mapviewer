@@ -1,4 +1,4 @@
-import storeSyncConfig from '@/router/store-sync/storeSync.config'
+import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
 
 const watchedMutations = [

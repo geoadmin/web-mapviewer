@@ -1,4 +1,4 @@
-import AbstractParamConfig from '@/router/store-sync/abstractParamConfig.class'
+import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 
 /**
  * Definition of a URL param that needs to be synced with the store.

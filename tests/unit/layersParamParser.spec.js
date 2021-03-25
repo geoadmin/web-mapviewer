@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import layersParamParser from '@/router/store-sync/layersParamParser'
+import layersParamParser from '@/router/storeSync/layersParamParser'
 
 describe('Testing layersParamParser', () => {
     const checkLayer = (layer, id, visible = true, opacity = undefined, customAttributes = {}) => {

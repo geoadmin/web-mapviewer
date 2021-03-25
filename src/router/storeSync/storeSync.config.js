@@ -1,5 +1,5 @@
-import SimpleUrlParamConfig from '@/router/store-sync/simpleParamConfig.class'
-import LayerParamConfig from '@/router/store-sync/layersParamConfig.class'
+import SimpleUrlParamConfig from '@/router/storeSync/simpleParamConfig.class'
+import LayerParamConfig from '@/router/storeSync/layersParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and vice-versa)
