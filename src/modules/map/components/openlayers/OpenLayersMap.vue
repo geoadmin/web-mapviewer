@@ -2,6 +2,7 @@
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
     <div id="ol-map" ref="map" oncontextmenu="return false">
         <div id="scale-line" ref="scaleLine" />
+        <OpenLayersPaperOverlay />
         <!-- Adding background layer -->
         <OpenLayersBODLayer
             v-if="currentBackgroundLayer"
@@ -90,6 +91,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
 import OpenLayersBODLayer from './OpenLayersBODLayer'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
+import OpenLayersPaperOverlay from '../../../drawing/components/openlayers/OpenLayersPaperOverlay'
 import { ClickInfo } from '@/modules/map/store/map.store'
 import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
@@ -109,11 +111,12 @@ export default {
         OpenLayersBODLayer,
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
+        OpenLayersPaperOverlay,
     },
     data: () => {
         return {
             // we build the OL instance right away as it is required for "provide" below (otherwise children components will receive a null instance and won't ask for another one later on)
-            map: new Map({ target: 'ol-map', controls: [] }),
+            map: new Map({ controls: [] }),
             view: null,
             // exposing marker styles to the template
             markerStyles,
