@@ -1,5 +1,6 @@
 import { expect } from 'chai'
-import { WMTSLayer, TimeConfig } from '@/api/layers.api'
+import WMTSLayer from '@/api/layers/WMTSLayer.class'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 
 describe('Test WMTSLayer class', () => {
     it('returns all possible URL with getURLs when provided with a {0-9} notation baseURL', () => {
@@ -10,7 +11,7 @@ describe('Test WMTSLayer class', () => {
             id,
             1.0,
             'png',
-            new TimeConfig(),
+            new LayerTimeConfig(),
             false,
             'https://test{0-4}.admin.ch'
         ).getURLs()

@@ -1,25 +1,19 @@
 const encodeReserveRE = /[!'()*]/g
 const encodeReserveReplacer = (c) => '%' + c.charCodeAt(0).toString(16)
 const commaRE = /%2C/g
-const semicollonRE = /%3B/g
 
 // fixed encodeURIComponent which is more conformant to RFC3986:
 // - escapes [!'()*]
 // - preserve commas
-// - present semicolons
 const encode = (str) =>
-    encodeURIComponent(str)
-        .replace(encodeReserveRE, encodeReserveReplacer)
-        .replace(commaRE, ',')
-        .replace(semicollonRE, ';')
+    encodeURIComponent(str).replace(encodeReserveRE, encodeReserveReplacer).replace(commaRE, ',')
 
 /**
  * This is in essence a copy past from
  * https://github.com/vuejs/vue-router/blob/f597959b14887cf0535aa895b6325a2f9348c5cf/src/util/query.js#L78-L113
- * so that we can overwrite encode (see above) and keep semicolon unencoded in the URL. It was too
- * much of pain to import this function alone as they use (in Vue-router) Flow, which is a static
- * type checker. If we wanted to import this function straight in our code we would have to set up
- * Flow in our build chain only for that...
+ * so that we can overwrite its behavior for `layers` URL param (we don't want any URL encode on
+ * this specific URL param, otherwise semicolons, at sign and equal signs are encoded which hinder
+ * readability)
  *
  * @param query
  * @returns {string | string}
@@ -52,8 +46,12 @@ const stringifyQuery = (query) => {
                       })
                       return result.join('&')
                   }
-
-                  return encode(key) + '=' + encode(val)
+                  // main change from the original method is this if/else block
+                  if (key === 'layers') {
+                      return encode(key) + '=' + val
+                  } else {
+                      return encode(key) + '=' + encode(val)
+                  }
               })
               .filter((x) => x.length > 0)
               .join('&')

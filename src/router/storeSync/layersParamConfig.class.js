@@ -3,6 +3,9 @@ import layersParamParser from '@/router/storeSync/layersParamParser'
 
 function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.id
+    if (layer.timeConfig && layer.timeConfig.series.length > 1) {
+        layerUrlString += `@time=${layer.timeConfig.currentTimestamp}`
+    }
     if (!layer.visible) {
         layerUrlString += `,f`
     }
@@ -69,6 +72,23 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             }
         }
     })
+    // setting timestamps fore timed layers if specified in the URL
+    parsedLayers
+        .filter((layer) => layer.customAttributes && layer.customAttributes.time)
+        .forEach((timedLayer) => {
+            console.log(
+                'dispatching timestamp',
+                timedLayer.customAttributes.time,
+                'for layer',
+                timedLayer.id
+            )
+            promisesForAllDispatch.push(
+                store.dispatch('setTimedLayerCurrentTimestamp', {
+                    layerId: timedLayer.id,
+                    timestamp: timedLayer.customAttributes.time,
+                })
+            )
+        })
     return Promise.all(promisesForAllDispatch)
 }
 
@@ -87,7 +107,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super(
             'layers',
-            'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex,setLayerOpacity',
+            'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex,setLayerOpacity,setLayerTimestamp',
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
             String

@@ -84,7 +84,7 @@ const storeSyncRouterPlugin = (router, store) => {
                         'to store with value',
                         queryValue
                     )
-                    paramConfig.setValuesInStore(store, queryValue).then(() => {
+                    paramConfig.populateStoreWithQueryValue(store, queryValue).then(() => {
                         // removing mutation name from the pending ones
                         pendingMutationTriggeredByThisModule.splice(
                             pendingMutationTriggeredByThisModule.indexOf(

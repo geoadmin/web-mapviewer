@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { LayerTypes } from '@/api/layers.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer'

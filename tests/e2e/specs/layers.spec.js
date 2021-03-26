@@ -45,6 +45,24 @@ describe('Test of layer handling', () => {
                 expect(wmtsLayer.opacity).to.eq(0.5)
             })
         })
+        it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
+            cy.goToMapView('en', {
+                layers: 'test.timeenabled.wmts.layer',
+            })
+            cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                const [timeEnabledLayer] = layers
+                expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq('2018')
+            })
+        })
+        it('sets the timestamp of a layer when specified in the layers URL param', () => {
+            cy.goToMapView('en', {
+                layers: 'test.timeenabled.wmts.layer@time=2016',
+            })
+            cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                const [timeEnabledLayer] = layers
+                expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq('2016')
+            })
+        })
     })
     context('Layer settings in menu', () => {
         const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer']

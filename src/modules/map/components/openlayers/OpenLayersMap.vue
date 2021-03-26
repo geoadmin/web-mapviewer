@@ -91,7 +91,7 @@ import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
 import OpenLayersBODLayer from './OpenLayersBODLayer'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
 import { ClickInfo } from '@/modules/map/store/map.store'
-import { LayerTypes } from '@/api/layers.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
 

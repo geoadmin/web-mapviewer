@@ -94,28 +94,26 @@ const actions = {
         })
     },
     setBackground: ({ commit }, bgLayerId) => commit('setBackground', bgLayerId),
-    setVisibleLayersByIds: ({ commit, getters }, ids) => {
-        if (typeof ids === 'string' || ids instanceof String) {
-            const layerIds = ids.split(',')
-            // first we deactivate any visible layer that is not in the last (anymore)
-            getters.visibleLayers.forEach((visibleLayer) => {
-                if (!(visibleLayer.id in layerIds)) {
-                    commit('toggleLayerVisibility', visibleLayer.id)
-                }
-            })
-            // we then go trough all IDs that will be visible, and toggle layers that are active but not visible or add them altogether if they are not active yet
-            layerIds.forEach((layerId) => {
-                commit('addLayer', layerId)
-            })
-        }
-    },
-    setLayerOpacity: ({ commit }, payload) => {
+    setLayerOpacity: ({ commit, state }, payload) => {
         if ('opacity' in payload && 'layerId' in payload) {
             const layer = state.activeLayers.find((layer) => layer.id === payload.layerId)
             if (layer) {
                 commit('setLayerOpacity', {
                     layer,
                     opacity: Number(payload.opacity),
+                })
+            }
+        }
+    },
+    setTimedLayerCurrentTimestamp: ({ commit, state }, payload) => {
+        if ('layerId' in payload && 'timestamp' in payload) {
+            const { layerId, timestamp } = payload
+            const layer = state.activeLayers.find((layer) => layer.id === layerId)
+            if (layer && layer.timeConfig.series.indexOf(`${timestamp}`) !== -1) {
+                commit('setLayerTimestamp', {
+                    layer,
+                    // forcing timestamps to be strings
+                    timestamp: `${timestamp}`,
                 })
             }
         }
@@ -182,6 +180,8 @@ const mutations = {
     setLayerConfig: (state, config) => (state.config = config),
     setBackground: (state, bgLayerId) => (state.backgroundLayerId = bgLayerId),
     setLayerOpacity: (state, { layer, opacity }) => (layer.opacity = opacity),
+    setLayerTimestamp: (state, { layer, timestamp }) =>
+        (layer.timeConfig.currentTimestamp = timestamp),
     moveActiveLayerFromIndexToIndex: (state, { layer, startingIndex, endingIndex }) => {
         state.activeLayers.splice(startingIndex, 1)
         state.activeLayers.splice(endingIndex, 0, layer)

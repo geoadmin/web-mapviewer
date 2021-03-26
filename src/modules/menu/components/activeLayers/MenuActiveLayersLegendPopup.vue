@@ -13,7 +13,7 @@
 
 <script>
 import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
-import { getLayerLegend } from '@/api/layers.api'
+import { getLayerLegend } from '@/api/layers/layers.api'
 
 export default {
     components: { ModalWithOverlay },
