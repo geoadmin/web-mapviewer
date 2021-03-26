@@ -7,17 +7,20 @@ export class ClickInfo {
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
      * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the click
+     * @param {Boolean} doubleClick True for double click info
      */
     constructor(
         coordinate = [],
         millisecondsSpentMouseDown = -1,
         pixelCoordinate = [],
-        geoJsonFeatures = []
+        geoJsonFeatures = [],
+        doubleClick = false
     ) {
         this.coordinate = [...coordinate]
         this.millisecondsSpentMouseDown = millisecondsSpentMouseDown
         this.pixelCoordinate = [...pixelCoordinate]
         this.geoJsonFeatures = [...geoJsonFeatures]
+        this.doubleClick = doubleClick
     }
 }
 

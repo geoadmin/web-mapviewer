@@ -49,10 +49,12 @@
 <style lang="scss">
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
+
 #ol-map {
     width: 100%;
     height: 100%;
 }
+
 #scale-line {
     position: absolute;
     // placing Map Scale over the footer to free some map screen space
@@ -67,6 +69,7 @@
         bottom: 0;
         left: 0;
         background: rgba(255, 255, 255, 0.6);
+
         .ol-scale-line-inner {
             color: $black;
             border: 2px solid $black;
@@ -215,11 +218,11 @@ export default {
                             const geoJsonFeature = new Feature(
                                 geoJsonLayer,
                                 feature.get('id') || feature.getId(),
-                                `<div class="htmlpopup-container">
-                              <div class="htmlpopup-header">
+                                `<div class='htmlpopup-container'>
+                              <div class='htmlpopup-header'>
                                   <span>${geoJsonLayer.name}</span>
                               </div>
-                              <div class="htmlpopup-content">
+                              <div class='htmlpopup-content'>
                                   ${feature.get('description')}
                               </div>
                            </div>`,
@@ -249,6 +252,10 @@ export default {
                     this.setZoom(zoom)
                 }
             }
+        })
+        this.map.on('dblclick', (e) => {
+            // todo probably need to create separate function and etc.
+            this.click(new ClickInfo(e.coordinate, lastClickTimeLength, e.pixel, [], true))
         })
     },
     beforeDestroy() {

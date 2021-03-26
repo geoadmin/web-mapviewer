@@ -34,7 +34,7 @@ export default {
                     // TODO: Redo a T+ logo somehow (T text sign is only included in pro version)
                     // so either go pro, and stack icons to achieve this or go the old way :
                     // it was injected as a custom FA icon in the old viewer
-                    return ['fa', 'plus']
+                    return ['fa', 'plus'] // maybe we can use https://fontawesome.com/icons/font?style=solid
             }
             return null
         },
