@@ -86,6 +86,8 @@ s3Utils
                 )
                 process.exit(1)
             }
+            // lowering case for branch name
+            branch = branch.toLowerCase()
 
             // if branch is not master and target is prod, we exit
             if (branch !== 'master' && target === 'prod') {
