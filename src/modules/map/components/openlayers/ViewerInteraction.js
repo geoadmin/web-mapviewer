@@ -41,6 +41,8 @@ function createOLMap(div, view) {
   map.setView(view);
   // map.addLayer(vector);
   changeInteractionDrawMode('Point');
+  changeInteractionDrawMode('LineString');
+  changeInteractionDrawMode('Polygon');
 }
 
 
