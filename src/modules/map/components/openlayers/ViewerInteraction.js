@@ -2,6 +2,7 @@
 import Draw from 'ol/interaction/Draw'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import { Map } from 'ol'
 
 
 const source = new VectorSource({wrapX: false});
@@ -30,8 +31,18 @@ export function changeInteractionDrawMode(drawType) {
 };
 
 
-export function initInteraction(theMap) {
-  map = theMap;
+function createOLMap(div, view) {
+  map = new Map({ target: div, controls: [] });
+  map.setView(view);
   map.addLayer(vector);
   changeInteractionDrawMode('Point');
+}
+
+export function initInteraction(theMap) {
+  const newMapDiv = document.createElement('div');
+  newMapDiv.style.height = '100%'
+  newMapDiv.style.pointerEvents = 'auto'
+  const container = theMap.getOverlayContainer()
+  container.appendChild(newMapDiv)
+  createOLMap(newMapDiv, theMap.getView());
 }
