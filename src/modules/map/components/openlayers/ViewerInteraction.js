@@ -32,7 +32,11 @@ export function changeInteractionDrawMode(drawType) {
 
 
 function createOLMap(div, view) {
-  map = new Map({ target: div, controls: [] });
+  map = new Map({
+    target: div,
+    controls: [],
+    interactions: [],
+  });
   map.setView(view);
   map.addLayer(vector);
   changeInteractionDrawMode('Point');
