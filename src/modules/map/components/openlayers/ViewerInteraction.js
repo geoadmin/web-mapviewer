@@ -39,7 +39,7 @@ function createOLMap(div, view) {
     interactions: [],
   });
   map.setView(view);
-  map.addLayer(vector);
+  // map.addLayer(vector);
   changeInteractionDrawMode('Point');
 }
 
