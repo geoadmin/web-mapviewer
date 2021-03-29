@@ -1,5 +1,6 @@
 /* eslint-disable prettier-vue/prettier */
 import Draw from 'ol/interaction/Draw'
+import DoubleClickZoom from 'ol/interaction/DoubleClickZoom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Map } from 'ol'
@@ -42,7 +43,10 @@ function createOLMap(div, view) {
   changeInteractionDrawMode('Point');
 }
 
+
 export function initInteraction(theMap) {
+  const dcz = theMap.getInteractions().getArray().find(a => a instanceof DoubleClickZoom);
+  dcz.setActive(false);
   const newMapDiv = document.createElement('div');
   newMapDiv.style.height = '100%'
   newMapDiv.style.pointerEvents = 'auto'
