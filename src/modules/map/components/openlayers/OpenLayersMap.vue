@@ -94,6 +94,7 @@ import { ClickInfo } from '@/modules/map/store/map.store'
 import { LayerTypes } from '@/api/layers.api'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
+import { initInteraction } from './ViewerInteraction'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -171,6 +172,7 @@ export default {
             zoom: this.zoom,
         })
         this.map.setView(this.view)
+        initInteraction(this.map)
 
         // adding scale line
         const scaleLine = new ScaleLine({
