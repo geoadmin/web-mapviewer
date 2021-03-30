@@ -113,7 +113,7 @@ export default {
     data: () => {
         return {
             // we build the OL instance right away as it is required for "provide" below (otherwise children components will receive a null instance and won't ask for another one later on)
-            map: new Map({ target: 'ol-map', controls: [] }),
+            map: new Map({ controls: [] }),
             view: null,
             // exposing marker styles to the template
             markerStyles,
