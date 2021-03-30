@@ -4,11 +4,14 @@
             <div class="card">
                 <div class="card-header">
                     <span v-if="title" class="float-left">{{ title }}</span>
-                    <span class="float-right" @click="onClose">
+                    <span class="float-right mx-2" @click="onClose">
                         <font-awesome-icon :icon="['fa', 'times']" />
                     </span>
+                    <span v-if="allowPrint" class="float-right mx-2" @click="printModalContent">
+                        <font-awesome-icon :icon="['fa', 'print']" />
+                    </span>
                 </div>
-                <div class="card-body p-0">
+                <div ref="modalContent" class="card-body p-0">
                     <slot />
                 </div>
             </div>
@@ -42,6 +45,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+import promptUserToPrintHtmlContent from '@/utils/print'
 
 /** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
 export default {
@@ -49,6 +53,10 @@ export default {
         title: {
             type: String,
             default: null,
+        },
+        allowPrint: {
+            type: Boolean,
+            default: false,
         },
     },
     mounted() {
@@ -70,6 +78,11 @@ export default {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
             this.hideOverlay()
             this.$emit('close')
+        },
+        printModalContent: function () {
+            if (this.$refs.modalContent) {
+                promptUserToPrintHtmlContent(this.$refs.modalContent.outerHTML)
+            }
         },
     },
 }

@@ -2,12 +2,15 @@
     <div v-show="highlightedFeatures.length > 0" class="tooltip-box">
         <div class="tooltip-header">
             <div class="tooltip-toolbox text-right">
+                <span class="mx-2" @click="printTooltip">
+                    <font-awesome-icon :icon="['fa', 'print']" />
+                </span>
                 <span @click="closeTooltip">
                     <font-awesome-icon :icon="['fa', 'times']" />
                 </span>
             </div>
         </div>
-        <div class="tooltip-content">
+        <div ref="tooltipContent" class="tooltip-content">
             <!-- eslint-disable vue/no-v-html-->
             <div
                 v-for="(feature, index) in highlightedFeatures"
@@ -22,6 +25,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
+import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
     computed: {
         ...mapState({
@@ -32,6 +36,9 @@ export default {
         ...mapActions(['clearHighlightedFeatures']),
         closeTooltip: function () {
             this.clearHighlightedFeatures()
+        },
+        printTooltip: function () {
+            promptUserToPrintHtmlContent(this.$refs.tooltipContent.outerHTML)
         },
     },
 }
