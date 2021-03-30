@@ -25,6 +25,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                 if (!wantedDestination) {
                     wantedDestination = {
                         name: 'MapView',
+                        query: to.query,
                     }
                 }
                 next()

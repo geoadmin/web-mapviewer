@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
+import { isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
 
 /**
  * @param {String} search
@@ -53,6 +54,12 @@ const legacyPermalinkManagementRouterPlugin = (router) => {
                 // we will also transform legacy zoom level here (see comment below)
                 const newQuery = { ...to.query }
                 const legacyCoordinates = []
+                const legacyLayersParam = {
+                    layers: [],
+                    opacity: [],
+                    visibility: [],
+                    timestamps: [],
+                }
                 Object.keys(legacyParams).forEach((param) => {
                     let value
                     let key = param
@@ -79,6 +86,26 @@ const legacyPermalinkManagementRouterPlugin = (router) => {
 
                         // TODO: add support for X/Y and easting/northing (and have a look if there were other ways mf-geoadmin3 was expressing coordinates)
 
+                        // taking all layers related param aside so that they can be processed later (see below)
+                        // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
+                        case 'layers':
+                            if (isLayersUrlParamLegacy(legacyParams[param])) {
+                                legacyLayersParam.layers.push(...legacyParams[param].split(','))
+                            } else {
+                                // if not legacy, we let it go as it is
+                                value = legacyParams[param]
+                            }
+                            break
+                        case 'layers_opacity':
+                            legacyLayersParam.opacity.push(...legacyParams[param].split(','))
+                            break
+                        case 'layers_visibility':
+                            legacyLayersParam.visibility.push(...legacyParams[param].split(','))
+                            break
+                        case 'layers_timestamp':
+                            legacyLayersParam.timestamps.push(...legacyParams[param].split(','))
+                            break
+
                         // if no special work to do, we just copy past legacy params to the new viewer
                         default:
                             value = legacyParams[param]
@@ -99,6 +126,47 @@ const legacyPermalinkManagementRouterPlugin = (router) => {
                         newQuery[key] = value
                     }
                 })
+                // transforming old layers param into new syntax
+                if (legacyLayersParam.layers.length > 0) {
+                    let newLayerParam = ''
+                    legacyLayersParam.layers.forEach((layer, index) => {
+                        if (index > 0) {
+                            newLayerParam += ';'
+                        }
+                        // grabbing all parts of this layer (visibility, opacity, timestamps)
+                        const visibility =
+                            legacyLayersParam.visibility.length > index
+                                ? legacyLayersParam.visibility[index]
+                                : null
+                        const opacity =
+                            legacyLayersParam.opacity.length > index
+                                ? legacyLayersParam.opacity[index]
+                                : null
+                        const timestamp =
+                            legacyLayersParam.timestamps.length > index
+                                ? legacyLayersParam.timestamps[index]
+                                : null
+                        // first the layer ID
+                        newLayerParam += layer
+                        // then if a timestamp is defined, a @time notation timestamp
+                        if (timestamp !== null) {
+                            newLayerParam += `@time=${timestamp}`
+                        }
+                        // if visibility was set in the legacy params, we transform it in the new format
+                        if (visibility === 'false' || visibility === 'true') {
+                            newLayerParam += `,${visibility === 'true' ? '' : 'f'}`
+                        }
+                        // if opacity is set in the legacy params, we add it
+                        if (opacity !== null) {
+                            // if visibility is not set (overwritten) we must still add the coma before adding the opacity
+                            if (visibility === null) {
+                                newLayerParam += ','
+                            }
+                            newLayerParam += `,${opacity}`
+                        }
+                    })
+                    newQuery.layers = newLayerParam
+                }
                 // removing old query part (new ones will be added by vue-router after the /# part of the URL)
                 const urlWithoutQueryParam = window.location.href.substr(
                     0,

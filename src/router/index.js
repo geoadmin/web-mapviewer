@@ -36,11 +36,12 @@ const routes = [
  */
 const router = new VueRouter({
     routes,
+    // we add a custom stringifier so that the `layers=` param is left untouched by the URL encoder
     stringifyQuery: stringifyQuery,
 })
 
 appLoadingManagementRouterPlugin(router, store)
 storeSyncRouterPlugin(router, store)
-legacyPermalinkManagementRouterPlugin(router)
+legacyPermalinkManagementRouterPlugin(router, store)
 
 export default router

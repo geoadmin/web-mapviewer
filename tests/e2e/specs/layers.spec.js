@@ -30,10 +30,8 @@ describe('Test of layer handling', () => {
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = layers
-                expect(wmsLayer).to.be.an('Object').to.haveOwnProperty('id')
-                expect(wmsLayer.id).to.eq('test.wms.layer')
-                expect(wmtsLayer).to.be.an('Object').to.haveOwnProperty('id')
-                expect(wmtsLayer.id).to.eq('test.wmts.layer')
+                expect(wmsLayer).to.be.an('Object').to.have.property('id', 'test.wms.layer')
+                expect(wmtsLayer).to.be.an('Object').to.have.property('id', 'test.wmts.layer')
             })
         })
         it('sets the opacity to the value defined in the layers URL param', () => {

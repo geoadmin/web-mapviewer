@@ -76,12 +76,6 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     parsedLayers
         .filter((layer) => layer.customAttributes && layer.customAttributes.time)
         .forEach((timedLayer) => {
-            console.log(
-                'dispatching timestamp',
-                timedLayer.customAttributes.time,
-                'for layer',
-                timedLayer.id
-            )
             promisesForAllDispatch.push(
                 store.dispatch('setTimedLayerCurrentTimestamp', {
                     layerId: timedLayer.id,
