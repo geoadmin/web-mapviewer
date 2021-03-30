@@ -79,8 +79,6 @@
 <script>
 import 'ol/ol.css'
 
-import moment from 'moment'
-
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { Map, View } from 'ol'
 import ScaleLine from 'ol/control/ScaleLine'
@@ -182,11 +180,11 @@ export default {
         let pointerDownStart = null
         let lastClickTimeLength = 0
         this.map.on('pointerdown', () => {
-            pointerDownStart = moment()
+            pointerDownStart = performance.now()
         })
         // TODO: trigger a click after pointer is down at (roughly) the same spot for longer than 1sec (no need to wait for the user to stop the click)
         this.map.on('pointerup', () => {
-            lastClickTimeLength = moment().diff(pointerDownStart)
+            lastClickTimeLength = performance.now() - pointerDownStart
             pointerDownStart = null
         })
         // using 'singleclick' event instead of 'click', otherwise a double click (for zooming) on mobile
