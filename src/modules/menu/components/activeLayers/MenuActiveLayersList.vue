@@ -7,10 +7,12 @@
             :visible="layer.visible"
             :opacity="layer.opacity"
             :name="layer.name"
+            :time-config="layer.timeConfig"
             @removeLayer="onRemoveLayer"
             @toggleLayerVisibility="onToggleLayerVisibility"
             @opacityChange="onOpacityChange"
             @orderChange="onOrderChange"
+            @timestampChange="onTimestampChange"
             @showLayerLegendPopup="showLayerLegendForId = layer.id"
         />
         <MenuActiveLayersLegendPopup
@@ -51,6 +53,7 @@ export default {
             'removeLayer',
             'showOverlay',
             'setOverlayShouldBeFront',
+            'setTimedLayerCurrentTimestamp',
         ]),
         onRemoveLayer: function (layerId) {
             this.removeLayer(layerId)
@@ -67,6 +70,9 @@ export default {
         },
         onOpacityChange: function (layerId, opacity) {
             this.setLayerOpacity({ layerId, opacity })
+        },
+        onTimestampChange: function (layerId, timestamp) {
+            this.setTimedLayerCurrentTimestamp({ layerId, timestamp })
         },
     },
 }

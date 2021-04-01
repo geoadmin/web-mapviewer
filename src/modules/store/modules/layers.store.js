@@ -109,7 +109,10 @@ const actions = {
         if ('layerId' in payload && 'timestamp' in payload) {
             const { layerId, timestamp } = payload
             const layer = state.activeLayers.find((layer) => layer.id === layerId)
-            if (layer && layer.timeConfig.series.indexOf(`${timestamp}`) !== -1) {
+            const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
+            // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
+            const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
+            if (layer && (isTimestampInSeries || isTimestampDefaultBehaviour)) {
                 commit('setLayerTimestamp', {
                     layer,
                     // forcing timestamps to be strings
