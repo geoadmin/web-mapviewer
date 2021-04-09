@@ -11,8 +11,23 @@ export default class LayerTimeConfig {
     constructor(behaviour = null, series = []) {
         this.behaviour = behaviour
         this.series = [...series]
+        // Here we will define what is the first "currentTimestamp" for this configuration
+        // We will simplify the two approaches that exists for WMS and WMTS.
+        // The first value will depend on what is in 'behaviour'
+        //
+        // With WMS the behaviour can be :
+        //  - 'last' : the most recent year has to be picked
+        //  - 'all' : all years must be picked (so no year should be specified in the URL)
+        //  - any valid year that is in 'series'
+        //
+        // With WMTS the behaviour can be :
+        //  - 'current' : 'current' is a valid timestamp in regard to WMTS norm so we can keep it as is and it will be added to URLs
+        //  - 'last' : same as WMS, we pick the most recent timestamp from 'series'
+        //  - any valid year that is in 'series'
+        //  - nothing : we then have to pick the first timestamp of the series as default (same as if it was 'last')
+        //
         // first let's tackle layers that have "last" as a timestamp (can be both WMS and WMTS layers)
-        // we will return, well, the last timestamp of the series (if there are some)
+        // we will return, well, the last timestamp (the most recent) of the series (if there are some)
         if (this.behaviour === 'last' && this.series.length > 0) {
             this.currentTimestamp = this.series[0]
         } else if (this.behaviour) {
