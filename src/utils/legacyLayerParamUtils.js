@@ -10,7 +10,7 @@ function readUrlParamValue(url, paramName) {
     return undefined
 }
 
-const newLayerParamRegex = /^[\w\\.]+[@\w=]*[,ft]*[,?\d\\.]*$/
+const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
 
 export function isLayersUrlParamLegacy(layersParamValue) {
     const layers = layersParamValue.split(';')

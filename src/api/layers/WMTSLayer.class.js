@@ -50,33 +50,4 @@ export default class WMTSLayer extends AbstractLayer {
     getURL() {
         return `${this.baseURL}1.0.0/${this.id}/default/${this.timeConfig.currentTimestamp}/3857/{z}/{x}/{y}.${this.format}`
     }
-
-    /**
-     * Resolve the {x-y} notation used in WMTS URLs and outputs all possible URLs
-     *
-     * Example : `"https://wmts{1-3}.geo.admin.ch"` will outputs `[ "https://wmts1.geo.admin.ch",
-     * "https://wmts3.geo.admin.ch", "https://wmts3.geo.admin.ch" ]`
-     *
-     * @returns {String[]} All possible backend URLs for this layer
-     */
-    getURLs() {
-        const mainURL = this.getURL()
-        const urls = []
-        const bracketNotationMatches = /.*{([0-9-]+)}.*/.exec(mainURL)
-        if (bracketNotationMatches && bracketNotationMatches.length >= 2) {
-            const bracketNotation = {
-                start: Number(bracketNotationMatches[1].split('-')[0]),
-                end: Number(bracketNotationMatches[1].split('-')[1]),
-            }
-            for (let i = bracketNotation.start; i < bracketNotation.end; i += 1) {
-                urls.push(mainURL.replace(`{${bracketNotation.start}-${bracketNotation.end}}`, i))
-            }
-            if (urls.length === 0) {
-                urls.push(mainURL)
-            }
-        } else {
-            urls.push(mainURL)
-        }
-        return urls
-    }
 }

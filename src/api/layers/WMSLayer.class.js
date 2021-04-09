@@ -56,14 +56,19 @@ export default class WMSLayer extends AbstractLayer {
     }
 
     getURL() {
-        const urlWithoutTime = `${
-            this.baseURL ? this.baseURL : WMS_BASE_URL
-        }?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2F${
-            this.format
-        }&TRANSPARENT=true&LAYERS=${this.id}&LANG=${this.lang}`
+        const url = new URL(this.baseURL ? this.baseURL : WMS_BASE_URL)
+        const params = url.searchParams
+        params.set('SERVICE', 'WMS')
+        params.set('VERSION', '1.3.0')
+        params.set('REQUEST', 'GetMap')
+        params.set('FORMAT', `image/${this.format}`)
+        params.set('TRANSPARENT', 'true')
+        params.set('LAYERS', this.id)
+        params.set('LANG', this.lang)
+        // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to a WMS, that's the default timestamp used under the hood)
         if (this.timeConfig && this.timeConfig.currentTimestamp !== 'all') {
-            return urlWithoutTime + '&TIME=' + this.timeConfig.currentTimestamp
+            params.set('TIME', this.timeConfig.currentTimestamp)
         }
-        return urlWithoutTime
+        return url.toString()
     }
 }
