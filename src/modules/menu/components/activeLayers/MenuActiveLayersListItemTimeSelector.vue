@@ -46,16 +46,19 @@ export default {
         timestampSelectionList: function () {
             const timestampButtons = []
             this.allTimestampsIncludingAllIfNeeded.forEach((timestamp) => {
-                const isCurrentTimestamp = timestamp === this.timeConfig.currentTimestamp
+                const buttonClasses = ['btn', 'btn-timestamp']
+                if (timestamp === this.timeConfig.currentTimestamp) {
+                    buttonClasses.push('btn-danger')
+                }
                 timestampButtons.push(
-                    `<button class="btn btn-timestamp ${
-                        isCurrentTimestamp ? 'btn-danger' : ''
-                    }" data-timestamp="${timestamp}">${this.renderHumanReadableTimestamp(
-                        timestamp
-                    )}</button>`
+                    `<button class="${buttonClasses.join(' ')}" 
+                             data-timestamp="${timestamp}"
+                             data-cy="time-select-${timestamp}">
+                        ${this.renderHumanReadableTimestamp(timestamp)}
+                    </button>`
                 )
             })
-            return `<div class="popover-timestamps">
+            return `<div class="popover-timestamps" data-cy="time-selection-popup">
                         ${timestampButtons.join('')}
                     </div>`
         },

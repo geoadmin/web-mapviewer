@@ -22,6 +22,7 @@
                 >{{ name }}</span
             >
             <MenuActiveLayersListItemTimeSelector
+                :data-cy="`time-selector-${id}`"
                 :time-config="timeConfig"
                 @timestampChange="onTimestampChange"
             />
