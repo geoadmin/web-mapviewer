@@ -43,6 +43,37 @@
     "type": "wmts",
     "serverLayerName": "test.wmts.layer"
   },
+  "test.timeenabled.wmts.layer": {
+    "opacity": 0.7,
+    "attribution": "attribution_wmts",
+    "background": false,
+    "searchable": true,
+    "format": "png",
+    "queryableAttributes": [
+      "id",
+      "name"
+    ],
+    "topics": "ech,test-topic-standard",
+    "attributionUrl": "https://api3.geo.admin.ch/",
+    "tooltip": true,
+    "highlightable": true,
+    "chargeable": false,
+    "timeEnabled": true,
+    "timestamps": [
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021"
+    ],
+    "timeBehaviour": "2018",
+    "hasLegend": true,
+    "label": "Time enabled WMTS test layer",
+    "type": "wmts",
+    "serverLayerName": "test.timeenabled.wmts.layer"
+  },
   "test.background.layer": {
     "attribution": "attribution_background",
     "background": true,

@@ -10,6 +10,17 @@ function readUrlParamValue(url, paramName) {
     return undefined
 }
 
+const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
+
+export function isLayersUrlParamLegacy(layersParamValue) {
+    const layers = layersParamValue.split(';')
+    let isNewSyntax = false
+    layers.forEach((layerUrlString) => {
+        isNewSyntax |= newLayerParamRegex.test(layerUrlString)
+    })
+    return !isNewSyntax
+}
+
 /**
  * Reads URL params :
  * - Layers
@@ -22,7 +33,7 @@ function readUrlParamValue(url, paramName) {
  * to the store (they are deep copy of what was given as layersConfig param, with opacity/visibility
  * set according to the legacyLayersParam)
  *
- * @param {Layer[]} layersConfig
+ * @param {AbstractLayer[]} layersConfig
  * @param {String} legacyLayersParam
  * @returns {Layer[]}
  */
@@ -32,20 +43,41 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         const layerIdsUrlParam = readUrlParamValue(legacyLayersParam, 'layers')
         const layerVisibilityParam = readUrlParamValue(legacyLayersParam, 'layers_visibility')
         const layerOpacityParam = readUrlParamValue(legacyLayersParam, 'layers_opacity')
+        const layerTimestampsParam = readUrlParamValue(legacyLayersParam, 'layers_timestamps')
+
+        const layerVisibilities = []
+        if (layerVisibilityParam) {
+            layerVisibilities.push(...layerVisibilityParam.split(','))
+        }
+
+        const layerOpacities = []
+        if (layerOpacityParam) {
+            layerOpacities.push(...layerOpacityParam.split(','))
+        }
+
+        const layerTimestamps = []
+        if (layerTimestampsParam) {
+            layerTimestamps.push(...layerTimestampsParam.split(','))
+        }
+
         if (layerIdsUrlParam) {
             layerIdsUrlParam.split(',').forEach((layerId, index) => {
                 let layer = layersConfig.find((layer) => layer.id === layerId)
                 if (layer) {
                     // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
                     // in order to alter it before returning it
-                    layer = Object.assign(Object.create(Object.getPrototypeOf(layer)), layer)
+                    layer = layer.clone()
                     // checking if visibility is set in URL
-                    if (layerVisibilityParam.split(',').length > index) {
-                        layer.visible = layerVisibilityParam.split(',')[index] === 'true'
+                    if (layerVisibilities.length > index) {
+                        layer.visible = layerVisibilities[index] === 'true'
                     }
                     // checking if opacity is set in the URL
-                    if (layerOpacityParam.split(',').length > index) {
-                        layer.opacity = Number(layerOpacityParam.split(',')[index])
+                    if (layerOpacities.length > index) {
+                        layer.opacity = Number(layerOpacities[index])
+                    }
+                    // checking if a timestamp is defined for this layer
+                    if (layerTimestamps.length > index && layerTimestamps[index]) {
+                        layer.timeConfig.currentTimestamp = layerTimestamps[index]
                     }
                     layersToBeActivated.push(layer)
                 }

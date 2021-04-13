@@ -1,6 +1,6 @@
 import { isMobile } from 'mobile-device-detect'
 import { identify } from '@/api/features.api'
-import { LayerTypes } from '@/api/layers.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import log from '@/utils/logging'
 
 /**

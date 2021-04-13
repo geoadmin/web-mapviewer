@@ -17,14 +17,14 @@ const addTopicFixtureAndIntercept = () => {
 }
 
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
-Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}) => {
+Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = false) => {
     addLayerFixtureAndIntercept()
     addTopicFixtureAndIntercept()
     let flattenedOtherParams = ''
     Object.keys(otherParams).forEach((key) => {
         flattenedOtherParams += `&${key}=${otherParams[key]}`
     })
-    cy.visit(`/?lang=${lang}${flattenedOtherParams}`)
+    cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`)
     cy.wait('@layers')
     cy.wait('@topics')
     // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)

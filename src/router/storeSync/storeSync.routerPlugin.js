@@ -1,11 +1,9 @@
-import storeToUrlManagementConfig from '@/router/store-to-url-management.config'
+import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
 
 const watchedMutations = [
     ...new Set(
-        storeToUrlManagementConfig
-            .map((paramConfig) => paramConfig.mutationsToWatch.split(','))
-            .flat()
+        storeSyncConfig.map((paramConfig) => paramConfig.mutationsToWatch.split(',')).flat()
     ),
 ]
 
@@ -18,7 +16,7 @@ const watchedMutations = [
  */
 const isRoutePushNeeded = (store, currentRoute) => {
     let aRoutePushIsNeeded = false
-    storeToUrlManagementConfig.forEach(
+    storeSyncConfig.forEach(
         (paramConfig) =>
             (aRoutePushIsNeeded ||= paramConfig.valuesAreDifferentBetweenQueryAndStore(
                 currentRoute.query,
@@ -37,7 +35,7 @@ const pendingMutationTriggeredByThisModule = []
  * @param {VueRouter} router
  * @param {Vuex.Store} store
  */
-const storeToUrlManagement = (router, store) => {
+const storeSyncRouterPlugin = (router, store) => {
     // flag to distinguish URL change originated by this module or by another source
     let routeChangeIsTriggeredByThisModule = false
     // listening to store mutation in order to update URL
@@ -52,7 +50,7 @@ const storeToUrlManagement = (router, store) => {
                 routeChangeIsTriggeredByThisModule = true
                 const query = {}
                 // extracting all param from the store
-                storeToUrlManagementConfig.forEach((paramConfig) =>
+                storeSyncConfig.forEach((paramConfig) =>
                     paramConfig.populateQueryWithStoreValue(query, store)
                 )
                 router.replace({
@@ -68,7 +66,7 @@ const storeToUrlManagement = (router, store) => {
             routeChangeIsTriggeredByThisModule = false
         } else if (store.state.app.isReady) {
             // if the route change is not made by this module we need to check if a store change is needed
-            storeToUrlManagementConfig.forEach((paramConfig) => {
+            storeSyncConfig.forEach((paramConfig) => {
                 const queryValue = paramConfig.readValueFromQuery(to.query)
                 if (
                     queryValue &&
@@ -84,16 +82,13 @@ const storeToUrlManagement = (router, store) => {
                         'dispatching URL param',
                         paramConfig.urlParamName,
                         'to store with value',
-                        queryValue,
-                        '(dispatching to:',
-                        paramConfig.dispatchChangeTo,
-                        ')'
+                        queryValue
                     )
-                    store.dispatch(paramConfig.dispatchChangeTo, queryValue).then(() => {
+                    paramConfig.populateStoreWithQueryValue(store, queryValue).then(() => {
                         // removing mutation name from the pending ones
                         pendingMutationTriggeredByThisModule.splice(
                             pendingMutationTriggeredByThisModule.indexOf(
-                                paramConfig.dispatchChangeTo
+                                paramConfig.mutationsToWatch
                             ),
                             1
                         )
@@ -105,4 +100,4 @@ const storeToUrlManagement = (router, store) => {
     })
 }
 
-export default storeToUrlManagement
+export default storeSyncRouterPlugin

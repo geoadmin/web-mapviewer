@@ -12,7 +12,7 @@
  * @param {VueRouter} router
  * @param {Vuex.Store} store
  */
-const routerAppLoadingManagement = (router, store) => {
+const appLoadingManagementRouterPlugin = (router, store) => {
     let wantedDestination = null
     // Checking if app is ready.
     // If not, keeping track of the first destination and redirect to loading splashscreen
@@ -25,6 +25,7 @@ const routerAppLoadingManagement = (router, store) => {
                 if (!wantedDestination) {
                     wantedDestination = {
                         name: 'MapView',
+                        query: to.query,
                     }
                 }
                 next()
@@ -57,4 +58,4 @@ const routerAppLoadingManagement = (router, store) => {
     })
 }
 
-export default routerAppLoadingManagement
+export default appLoadingManagementRouterPlugin

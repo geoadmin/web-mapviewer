@@ -1,29 +1,35 @@
 /**
  * A description of one URL param that needs synchronization with the app {@link Vuex.Store} with
- * some helper functions
+ * some helper functions.
+ *
+ * For simple use cases, please use {@link SimpleUrlParamConfig}, otherwise you can extend this
+ * class and do some advanced processing with store syncing. (see {@link LayerParamConfig} as an example)
+ *
+ * @abstract
  */
-export class ParamConfig {
+export default class AbstractParamConfig {
     /**
      * @param {String} urlParamName The name of the param found in the URL (e.g. 'lat' will then be
      *   https://.../?lat=value in the URL
      * @param {String} mutationsToWatch The names of the Vuex's store mutations to watch for value
      *   synchronization (separated by a coma)
-     * @param {String} dispatchChangeTo The name of the Vuex's store action where to publish changes
-     *   made in the URL
+     * @param {Function} setValuesInStore A function taking the store and the current URL value as
+     *   params. It needs to dispatch the value of this param to the store. It must return a promise
+     *   that will be resolve when the store has finished processing the dispatch.
      * @param {Function} extractValueFromStore A function taking the store in param that needs to
      *   return the value of this param found in the store
-     * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
+     * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      */
     constructor(
         urlParamName,
         mutationsToWatch,
-        dispatchChangeTo,
+        setValuesInStore,
         extractValueFromStore,
         valueType = String
     ) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
-        this.dispatchChangeTo = dispatchChangeTo
+        this.setValuesInStore = setValuesInStore
         this.extractValueFromStore = extractValueFromStore
         this.valueType = valueType
     }
@@ -96,43 +102,29 @@ export class ParamConfig {
             }
         }
     }
+
+    /**
+     * Sets the store values according to the URL. Returns a promise that will resolve when the
+     * store is up to date.
+     *
+     * @param {Vuex.Store} store
+     * @param {Object | String | Number | Boolean | null} query The value found in the query
+     * @returns {Promise<any>}
+     */
+    populateStoreWithQueryValue(store, query) {
+        return new Promise((resolve, reject) => {
+            if (query && store && this.setValuesInStore) {
+                const promiseSetValuesInStore = this.setValuesInStore(store, query)
+                if (promiseSetValuesInStore) {
+                    promiseSetValuesInStore.then(() => {
+                        resolve()
+                    })
+                } else {
+                    resolve()
+                }
+            } else {
+                reject('Query, store or setter functions is not set')
+            }
+        })
+    }
 }
-
-/**
- * Configuration for all URL parameters of this app that need syncing with the store (and vice-versa)
- *
- * @type Array<ParamConfig>
- */
-const storeToUrlManagementConfig = [
-    new ParamConfig(
-        'lat',
-        'setCenter',
-        'setLatitude',
-        (store) => store.getters.centerEpsg4326[1],
-        Number
-    ),
-    new ParamConfig(
-        'lon',
-        'setCenter',
-        'setLongitude',
-        (store) => store.getters.centerEpsg4326[0],
-        Number
-    ),
-    new ParamConfig('z', 'setZoom', 'setZoom', (store) => store.state.position.zoom, Number),
-    new ParamConfig(
-        'geolocation',
-        'setGeolocationActive',
-        'toggleGeolocation',
-        (store) => store.state.geolocation.active,
-        Boolean
-    ),
-    new ParamConfig(
-        'layers',
-        'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex',
-        'setVisibleLayersByIds',
-        (store) => store.getters.jointVisibleLayerIds,
-        String
-    ),
-]
-
-export default storeToUrlManagementConfig
