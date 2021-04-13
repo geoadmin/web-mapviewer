@@ -1,7 +1,10 @@
 <template>
     <div id="map-view">
         <OverlayModule />
-        <MapModule />
+        <MapModule>
+            <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
+            <DrawingModule />
+        </MapModule>
         <MenuModule>
             <!-- the only way to merge this two module while having different folder was to add the search bar (or search module)-->
             <!-- right into the slot of the menu, so that the menu can place it according to the screen size-->
@@ -10,7 +13,6 @@
         <ToolboxModule />
         <TooltipModule />
         <I18nModule />
-        <DrawingModule />
     </div>
 </template>
 

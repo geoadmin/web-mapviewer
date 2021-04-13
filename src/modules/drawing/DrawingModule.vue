@@ -14,6 +14,7 @@ import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 export default {
     components: { DrawingToolbox },
+    inject: ['getMap'],
     computed: {
         ...mapState({
             show: (state) => state.ui.showDrawingOverlay,
@@ -24,6 +25,9 @@ export default {
             Object.keys(drawingModes).forEach((key) => modes.push(key))
             return modes
         },
+    },
+    mounted() {
+        console.log('OpenLayers map is', this.getMap())
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay', 'setDrawingMode']),
