@@ -1,4 +1,30 @@
+/// <reference types="cypress" />
+
+import { randomIntBetween } from '../../../src/utils/numberUtils'
+
 describe('Test of layer handling', () => {
+    /**
+     * Returns a timestamp from the layer's config that is different from the default behaviour
+     *
+     * @param {Object} layer A layer's metadata, that usually come from the fixture layers.fixture.json
+     * @returns {String} One of the layer's timestamp, different from the default one (not equal to
+     *   `timeBehaviour`)
+     */
+    const getRandomTimestampFromSeries = (layer) => {
+        expect(layer).to.be.an('Object')
+        expect(layer).to.haveOwnProperty('timeBehaviour')
+        expect(layer).to.haveOwnProperty('timestamps')
+        expect(layer.timestamps).to.be.an('Array')
+        expect(layer.timestamps.length).to.be.greaterThan(1)
+        const defaultTimestamp = layer.timeBehaviour
+        let randomTimestampFromLayer = defaultTimestamp
+        do {
+            randomTimestampFromLayer =
+                layer.timestamps[randomIntBetween(0, layer.timestamps.length - 1)]
+        } while (randomTimestampFromLayer === defaultTimestamp)
+        return randomTimestampFromLayer
+    }
+
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
@@ -44,26 +70,39 @@ describe('Test of layer handling', () => {
             })
         })
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
+            const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
             cy.goToMapView('en', {
-                layers: 'test.timeenabled.wmts.layer',
+                layers: timeEnabledLayerId,
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 const [timeEnabledLayer] = layers
-                expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq('2018')
+                cy.fixture('layers.fixture.json').then((layersMetadata) => {
+                    const timeEnabledLayerMetadata = layersMetadata[timeEnabledLayerId]
+                    expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
+                        timeEnabledLayerMetadata.timeBehaviour
+                    )
+                })
             })
         })
         it('sets the timestamp of a layer when specified in the layers URL param', () => {
-            cy.goToMapView('en', {
-                layers: 'test.timeenabled.wmts.layer@time=2016',
-            })
-            cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                const [timeEnabledLayer] = layers
-                expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq('2016')
+            const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
+            cy.fixture('layers.fixture.json').then((layersMetadata) => {
+                const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
+                const randomTimestampFromLayer = getRandomTimestampFromSeries(timedLayerMetadata)
+                cy.goToMapView('en', {
+                    layers: `${timeEnabledLayerId}@time=${randomTimestampFromLayer}`,
+                })
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    const [timeEnabledLayer] = layers
+                    expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
+                        randomTimestampFromLayer
+                    )
+                })
             })
         })
     })
     context('Layer settings in menu', () => {
-        const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer']
+        const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
         beforeEach(() => {
             cy.goToMapView('en', {
                 layers: visibleLayerIds.join(';'),
@@ -87,7 +126,7 @@ describe('Test of layer handling', () => {
             cy.get(`[data-cy="button-remove-layer-${layerId}"]`).should('be.visible').click()
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                 expect(visibleLayers).to.be.an('Array')
-                expect(visibleLayers.length).to.eq(1)
+                expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
                 expect(visibleLayers[0].id).to.eq(visibleLayerIds[1])
             })
         })
@@ -149,6 +188,41 @@ describe('Test of layer handling', () => {
             cy.wait('@legend')
             // checking that the content of the popup is our mocked up content
             cy.get('[data-cy="layer-legend"]').should('be.visible').contains('Test')
+        })
+        it('shows all possible timestamps in the timestamp popover', () => {
+            const timedLayerId = 'test.timeenabled.wmts.layer'
+            cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
+            cy.get('[data-cy="time-selection-popup"]').should('be.visible')
+            cy.fixture('layers.fixture.json').then((layers) => {
+                const timedLayerMetadata = layers[timedLayerId]
+                const defaultTimestamp = timedLayerMetadata.timeBehaviour
+                timedLayerMetadata.timestamps.forEach((timestamp) => {
+                    cy.get(`[data-cy="time-select-${timestamp}"]`)
+                        .should('be.visible')
+                        .then((timestampButton) => {
+                            if (timestamp === defaultTimestamp) {
+                                expect(timestampButton).to.have.class('btn-danger')
+                            }
+                        })
+                })
+            })
+        })
+        it('changes the timestsamp of a layer when a time button is clicked', () => {
+            const timedLayerId = 'test.timeenabled.wmts.layer'
+            cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
+            cy.fixture('layers.fixture.json').then((layersMetadata) => {
+                const timedLayerMetadata = layersMetadata[timedLayerId]
+                const randomTimestamp = getRandomTimestampFromSeries(timedLayerMetadata)
+                cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click()
+                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                    expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
+                    activeLayers.forEach((layer) => {
+                        if (layer.id === timedLayerId) {
+                            expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
+                        }
+                    })
+                })
+            })
         })
     })
 })

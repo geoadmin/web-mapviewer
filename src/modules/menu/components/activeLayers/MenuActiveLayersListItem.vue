@@ -21,6 +21,11 @@
                 @click="onToggleLayerVisibility"
                 >{{ name }}</span
             >
+            <MenuActiveLayersListItemTimeSelector
+                :data-cy="`time-selector-${id}`"
+                :time-config="timeConfig"
+                @timestampChange="onTimestampChange"
+            />
             <button
                 class="btn btn-default animate__animated animate__faster"
                 :class="{ animate__pulse: showDetails }"
@@ -94,11 +99,15 @@
 </style>
 
 <script>
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector'
+
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)
  */
 export default {
+    components: { MenuActiveLayersListItemTimeSelector },
     props: {
         id: {
             type: String,
@@ -115,6 +124,10 @@ export default {
         opacity: {
             type: Number,
             default: 1.0,
+        },
+        timeConfig: {
+            type: LayerTimeConfig,
+            default: null,
         },
     },
     data() {
@@ -157,6 +170,9 @@ export default {
         },
         showLayerLegendPopup: function () {
             this.$emit('showLayerLegendPopup', this.id)
+        },
+        onTimestampChange: function (timestamp) {
+            this.$emit('timestampChange', this.id, timestamp)
         },
     },
 }
