@@ -14,7 +14,7 @@ let publicPath = '/' // default to root of the bucket URL (or local address if s
 
 // When deploying, if branch is not `master` or `develop`, we use its name as the new base path for the app (it will be uploaded in a subfolder in S3)
 if (process.env.DEPLOY && branch !== 'master' && branch !== 'develop') {
-    publicPath = `/${branch}/`
+    publicPath = `/${branch.toLowerCase()}/`
 }
 
 // Getting package.json version in order to expose it to the app
