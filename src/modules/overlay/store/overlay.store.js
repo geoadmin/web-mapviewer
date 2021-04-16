@@ -28,7 +28,9 @@ export default {
     mutations: {
         showOverlay(state, callbackOnClose) {
             state.show = true
-            state.callbacksOnClose.push(callbackOnClose)
+            if (typeof callbackOnClose === 'function') {
+                state.callbacksOnClose.push(callbackOnClose)
+            }
         },
         setOverlayShouldBeFront: (state, flag) => (state.shouldBeFront = !!flag),
         hideOverlay(state) {
@@ -56,10 +58,14 @@ export default {
                 state.show = false
             }
         },
+        hideOverlayIgnoringCallbacks(state) {
+            state.show = false
+        },
     },
     actions: {
         showOverlay: ({ commit }, callbacksOnClose) => commit('showOverlay', callbacksOnClose),
         setOverlayShouldBeFront: ({ commit }, flag) => commit('setOverlayShouldBeFront', flag),
         hideOverlay: ({ commit }) => commit('hideOverlay'),
+        hideOverlayIgnoringCallbacks: ({ commit }) => commit('hideOverlayIgnoringCallbacks'),
     },
 }

@@ -58,7 +58,10 @@ const clickOnMapManagementPlugin = (store) => {
         if (mutation.type === 'setClickInfo') {
             // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
             if (isMobile) {
-                if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
+                if (
+                    !state.ui.showDrawingOverlay &&
+                    state.map.clickInfo.millisecondsSpentMouseDown < 500
+                ) {
                     store.dispatch('toggleHeader')
                     store.dispatch('toggleFooter')
                     store.dispatch('toggleBackgroundWheel')
