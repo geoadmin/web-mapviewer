@@ -4,5 +4,11 @@
   "semi": false,
   "trailingComma": "es5",
   "tabWidth": 4,
-  "jsxSingleQuote": false
+  "jsxSingleQuote": false,
+  "overrides": [{
+    "files": "*.md",
+    "options": {
+      "tabWidth": 2
+    }
+  }]
 }
