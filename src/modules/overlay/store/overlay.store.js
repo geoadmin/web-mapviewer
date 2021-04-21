@@ -43,7 +43,7 @@ export default {
                     lastCallbackIndex--
                     const callback = state.callbacksOnClose[lastCallbackIndex]
                     // if the next callback returns true, we stop the callbacks loop
-                    keepDiggingIntoCallback &&= !callback()
+                    keepDiggingIntoCallback = keepDiggingIntoCallback && !callback()
                 } while (keepDiggingIntoCallback && lastCallbackIndex !== 0)
                 // if all callbacks have been processed, we hide the overlay
                 if (lastCallbackIndex === 0) {
