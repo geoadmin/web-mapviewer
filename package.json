@@ -73,5 +73,10 @@
     "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.6.12",
     "yargs": "^16.2.0"
-  }
+  },
+  "engines": {
+    "node": "12.*.*",
+    "npm": "6.*.*"
+  },
+  "engineStrict": true
 }

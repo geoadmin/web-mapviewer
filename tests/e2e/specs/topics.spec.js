@@ -94,10 +94,7 @@ describe('Topics', () => {
             const complexTopic = mockupTopics.topics[4]
             selectTopicWithId(complexTopic.id)
             // from the mocked up response above
-            const expectedActiveLayers = [
-                'test.wmts.layer',
-                'test.wms.layer',
-            ]
+            const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
             const expectedVisibleLayers = ['test.wmts.layer']
             const expectedOpacity = {
                 'test.wmts.layer': 0.6,
