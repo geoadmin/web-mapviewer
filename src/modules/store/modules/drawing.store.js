@@ -1,3 +1,6 @@
+import tokml from 'tokml'
+import { create } from '@/api/files.api'
+
 /** @enum */
 export const drawingModes = {
     MARKER: 'MARKER',
@@ -28,13 +31,20 @@ export default {
                 commit('setDrawingMode', mode)
             }
         },
-        setDrawingGeoJSON: ({ commit }, geoJson) => {
+        setDrawingGeoJSON: async ({ commit }, geoJson) => {
+            const kml = tokml(geoJson)
+            const response = await create(kml)
+            console.log(response)
             // TODO: validate GeoJSON (maybe with Mapbox utils, but some part/dependencies are deprecated)
-            commit('setDrawingGeoJSON', geoJson)
+            commit('setDrawingGeoJSON', {
+                geoJson: geoJson,
+                adminId: response.adminId, // todo check where it should be stored
+                fileId: response.fileId,
+            })
         },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
-        setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
+        setDrawingGeoJSON: (state, payload) => (state.geoJson = payload.geoJson),
     },
 }
