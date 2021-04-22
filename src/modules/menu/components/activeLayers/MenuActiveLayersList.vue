@@ -8,8 +8,10 @@
             :opacity="layer.opacity"
             :name="layer.name"
             :time-config="layer.timeConfig"
+            :show-details="showLayerDetailsForId === layer.id"
             @removeLayer="onRemoveLayer"
             @toggleLayerVisibility="onToggleLayerVisibility"
+            @toggleLayerDetails="onToggleLayerDetails"
             @opacityChange="onOpacityChange"
             @orderChange="onOrderChange"
             @timestampChange="onTimestampChange"
@@ -37,6 +39,7 @@ export default {
     data() {
         return {
             showLayerLegendForId: null,
+            showLayerDetailsForId: null,
         }
     },
     computed: {
@@ -45,6 +48,13 @@ export default {
         }),
     },
     methods: {
+        onToggleLayerDetails: function (layerId) {
+            if (this.showLayerDetailsForId === layerId) {
+                this.showLayerDetailsForId = null
+            } else {
+                this.showLayerDetailsForId = layerId
+            }
+        },
         ...mapActions([
             'setLayerOpacity',
             'moveActiveLayerBack',
