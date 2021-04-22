@@ -37,7 +37,7 @@
         </div>
         <div v-show="showDetails" class="menu-layer-list-item-details">
             <div class="menu-layer-list-item-details-transparency">
-                <span class="transparency-title">Transparency</span>
+                <span class="transparency-title">{{ $t('transparency') }}</span>
                 <input
                     class="transparency-slider"
                     type="range"
