@@ -2,7 +2,7 @@
 
 ## Unit testing
 
-This projected uses [@vue/cli-plugin-unit-mocha](https://cli.vuejs.org/core-plugins/unit-mocha.html) (it is prefered to use Mocha instead of Jest, because Cypress also uses mocha, the syntax will then be consistent throughout the project). All things related to unit testing are in the folder `/tests/unit/`.
+This projected uses [@vue/cli-plugin-unit-mocha](https://cli.vuejs.org/core-plugins/unit-mocha.html) (it is preferred to use Mocha instead of Jest, because Cypress also uses mocha, the syntax will then be consistent throughout the project). All things related to unit testing are in the folder `/tests/unit/`.
 
 To run unit tests, execute `npm run test:unit`.
 
@@ -16,8 +16,9 @@ There are two ways of executing E2E tests, either with a UI feedback using `npm 
 
 To use Cypress on Windows, it is required to go through the Windows Linux Subsystem (WLS) and more specifically WSL2 (here's [Microsoft's install guide](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
 
-In order to see Cypress' window, we will need an XServer client running on Windows that can show Linux's window. Here's a [guide that tells you exacly how to do that](https://nickymeuleman.netlify.app/blog/gui-on-wsl2-cypress).
+In order to see Cypress' window, we will need an XServer client running on Windows that can show Linux's window. Here's a [guide that tells you exactly how to do that](https://nickymeuleman.netlify.app/blog/gui-on-wsl2-cypress).
 Other resources :
+
 - [a Microsoft guide](https://techcommunity.microsoft.com/t5/windows-dev-appconsult/running-wsl-gui-apps-on-windows-10/ba-p/1493242) on how to show Linux's windows in Win10.
 - [a markdown file on Github](https://github.com/QMonkey/wsl-tutorial/blob/master/README.wsl2.md) explaining the same thing.
 

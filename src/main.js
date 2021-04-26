@@ -3,6 +3,7 @@ import Vue from 'vue'
 // importing styling CSS libraries
 import 'bootstrap'
 import 'animate.css'
+import VAnimateCss from 'v-animate-css'
 
 import App from './App.vue'
 import store from '@/modules/store'
@@ -16,6 +17,9 @@ import { DEBUG, IS_TESTING_WITH_CYPRESS } from '@/config'
 setupProj4()
 
 Vue.config.productionTip = DEBUG
+
+// setting up animate css
+Vue.use(VAnimateCss)
 
 // setting up font awesome vue component
 require('./setup-fontawesome')

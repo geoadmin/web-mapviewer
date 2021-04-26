@@ -27,17 +27,22 @@
                 @timestampChange="onTimestampChange"
             />
             <button
+                v-animate-css.click="'pulse'"
                 class="btn btn-default animate__animated animate__faster"
-                :class="{ animate__pulse: showDetails }"
+                :class="{ 'text-danger': showDetails }"
                 :data-cy="`button-open-visible-layer-settings-${id}`"
-                @click="toggleShowDetails"
+                @click="onToggleLayerDetails"
             >
                 <font-awesome-icon size="lg" :icon="['fas', 'cog']" />
             </button>
         </div>
-        <div v-show="showDetails" class="menu-layer-list-item-details">
+        <div
+            v-show="showDetails"
+            class="menu-layer-list-item-details"
+            :data-cy="`div-layer-settings-${id}`"
+        >
             <div class="menu-layer-list-item-details-transparency">
-                <span class="transparency-title">Transparency</span>
+                <span class="transparency-title">{{ $t('transparency') }}</span>
                 <input
                     class="transparency-slider"
                     type="range"
@@ -129,11 +134,10 @@ export default {
             type: LayerTimeConfig,
             default: null,
         },
-    },
-    data() {
-        return {
-            showDetails: false,
-        }
+        showDetails: {
+            type: Boolean,
+            default: false,
+        },
     },
     computed: {
         checkboxIcon: function () {
@@ -153,8 +157,8 @@ export default {
         },
     },
     methods: {
-        toggleShowDetails: function () {
-            this.showDetails = !this.showDetails
+        onToggleLayerDetails: function () {
+            this.$emit('toggleLayerDetails', this.id)
         },
         onRemoveLayer: function () {
             this.$emit('removeLayer', this.id)
