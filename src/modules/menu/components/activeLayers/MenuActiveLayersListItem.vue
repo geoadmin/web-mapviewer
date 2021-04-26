@@ -27,8 +27,9 @@
                 @timestampChange="onTimestampChange"
             />
             <button
+                v-animate-css.click="'pulse'"
                 class="btn btn-default animate__animated animate__faster"
-                :class="{ animate__pulse: showDetails }"
+                :class="{ 'text-danger': showDetails }"
                 :data-cy="`button-open-visible-layer-settings-${id}`"
                 @click="onToggleLayerDetails"
             >
