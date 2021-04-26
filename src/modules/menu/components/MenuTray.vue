@@ -20,9 +20,11 @@
 .slide-enter-active {
     transition: 0.2s;
 }
+
 .slide-enter {
     transform: translate(100%, 0);
 }
+
 .slide-leave-to {
     transform: translate(100%, 0);
 }

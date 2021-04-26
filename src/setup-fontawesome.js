@@ -16,14 +16,20 @@ import {
     faMapMarkerAlt,
     faDrawPolygon,
     faRuler,
+    faArrowsAltH,
+    faSquareFull,
 } from '@fortawesome/free-solid-svg-icons'
-import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
+import { faCheckSquare, faSquare, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
+library.add(faSquare)
+library.add(faSquareFull)
+library.add(faTrashAlt)
 library.add(faTimes)
 library.add(faTimesCircle)
 library.add(faSpinner)
 library.add(faCog)
 library.add(faArrowUp)
+library.add(faArrowsAltH)
 library.add(faArrowDown)
 library.add(faCaretRight)
 library.add(faCaretDown)
