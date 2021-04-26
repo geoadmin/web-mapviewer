@@ -13,6 +13,7 @@
 import { mapState, mapActions } from 'vuex'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
+import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 
 export default {
     components: { DrawingToolbox },
@@ -29,7 +30,49 @@ export default {
         },
     },
     mounted() {
-        console.log('OpenLayers map is', this.getMap())
+        this.manager = new DrawingManager(this.getMap(), {
+            [drawingModes.LINE]: {
+                drawOptions: {
+                    type: 'Polygon',
+                    minPoints: 2,
+                },
+            },
+            [drawingModes.MARKER]: {
+                drawOptions: {
+                    type: 'Point',
+                },
+            },
+            [drawingModes.MEASURE]: {
+                drawOptions: {
+                    type: 'Polygon',
+                    minPoints: 2,
+                },
+            },
+            [drawingModes.TEXT]: {
+                drawOptions: {
+                    type: 'Point',
+                },
+            },
+        })
+        this.manager.activate()
+        this.manager.on('drawstart', (event) => {
+            console.log(event)
+        })
+        this.manager.on('drawend', (event) => {
+            console.log(event)
+        })
+        this.manager.on('modifystart', (event) => {
+            console.log(event)
+        })
+        this.manager.on('modifyend', (event) => {
+            console.log(event)
+        })
+        this.manager.on('selected', (event) => {
+            console.log(event)
+        })
+        this.manager.on('deselected', (event) => {
+            console.log(event)
+        })
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay', 'setDrawingMode']),
@@ -39,6 +82,9 @@ export default {
         },
         changeDrawingMode: function (mode) {
             this.setDrawingMode(mode)
+
+            // FIXME: wrong place
+            this.manager.toggleTool(mode)
         },
     },
 }
