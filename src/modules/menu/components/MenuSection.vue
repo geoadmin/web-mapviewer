@@ -18,6 +18,7 @@
 <style lang="scss">
 .menu-section-head {
     display: flex;
+    cursor: pointer;
     .menu-section-head-title {
         width: 100%;
         text-align: left;

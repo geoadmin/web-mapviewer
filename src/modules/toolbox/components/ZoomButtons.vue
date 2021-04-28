@@ -39,6 +39,7 @@ export default {
 .zoom-out {
     margin-bottom: 0;
     border-radius: 4px;
+    cursor: pointer;
 }
 .icon {
     display: inline-block;

@@ -46,6 +46,7 @@ $bg-button-border-size-in-wheel: 3px;
     background-size: initial;
     border-radius: $map-button-diameter / 2;
     border: $bg-button-border-size solid $gray-800;
+    cursor: pointer;
 }
 .bg-selector-wheel {
     position: absolute;
