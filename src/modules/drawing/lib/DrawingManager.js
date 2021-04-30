@@ -1,5 +1,9 @@
 // FIXME: change cursor
 // FIXME: add tooltips
+// FIXME: add style to features
+// FIXME: add coordinates to events
+// FIXME: apply new style function?
+// FIXME: add coordinate, length, and area ?
 
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
@@ -10,13 +14,16 @@ import VectorSource from 'ol/source/Vector'
 import Observable from 'ol/Observable'
 import Event from 'ol/events/Event'
 import GeoJSON from 'ol/format/GeoJSON'
+import { getUid } from 'ol/util'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 
 const geojson = new GeoJSON()
 
 class DrawingManagerEvent extends Event {
-    constructor(type, feature) {
+    constructor(type, feature, coordinate = null) {
         super(type)
+
+        this.coordinate = coordinate
 
         this.feature = geojson.writeFeatureObject(feature)
     }
@@ -34,18 +41,21 @@ export default class DrawingManager extends Observable {
         this.layer = new VectorLayer({
             source: new VectorSource({ useSpatialIndex: false }),
         })
+        this.source = this.layer.getSource()
 
         this.tools = {}
         for (let [id, options] of Object.entries(tools)) {
             const tool = new DrawInteraction({
                 ...options.drawOptions,
-                source: this.layer.getSource(),
+                source: this.source,
             })
             tool.setActive(false)
+            const overlaySource = tool.getOverlay().getSource()
+            overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
             tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
-            this.map.addInteraction(tool)
+            this.map.addInteraction(tool) // FIXME: move to activate
             this.tools[id] = tool
         }
 
@@ -67,7 +77,7 @@ export default class DrawingManager extends Observable {
         this.modify.on('modifyend', (event) => this.onModifyEnd_(event))
 
         this.snap = new SnapInteraction({
-            source: this.layer.getSource(),
+            source: this.source,
         })
 
         this.activeInteraction = null
@@ -110,6 +120,13 @@ export default class DrawingManager extends Observable {
     // API
     remove(feature) {
         console.log('FIXME: remove feature', feature)
+    }
+
+    onAddFeature_(event, properties) {
+        const feature = event.feature
+
+        feature.setId(getUid(feature))
+        feature.setProperties(Object.assign({}, properties))
     }
 
     onDrawActiveChange_(event) {

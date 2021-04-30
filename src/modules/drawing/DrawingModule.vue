@@ -39,10 +39,19 @@ export default {
                         type: 'Polygon',
                         minPoints: 2,
                     },
+                    properties: {
+                        color: '#f00',
+                        description: '',
+                    },
                 },
                 [drawingModes.MARKER]: {
                     drawOptions: {
                         type: 'Point',
+                    },
+                    properties: {
+                        color: '#f00',
+                        text: '',
+                        description: '',
                     },
                 },
                 [drawingModes.MEASURE]: {
@@ -50,10 +59,15 @@ export default {
                         type: 'Polygon',
                         minPoints: 2,
                     },
+                    properties: {},
                 },
                 [drawingModes.TEXT]: {
                     drawOptions: {
                         type: 'Point',
+                    },
+                    properties: {
+                        color: '#f00',
+                        text: 'new text',
                     },
                 },
             },
