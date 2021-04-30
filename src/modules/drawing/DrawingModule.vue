@@ -14,6 +14,7 @@ import { mapState, mapActions } from 'vuex'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
+import { selectStyle } from '@/modules/drawing/lib/style'
 
 export default {
     components: { DrawingToolbox },
@@ -30,30 +31,36 @@ export default {
         },
     },
     mounted() {
-        this.manager = new DrawingManager(this.getMap(), {
-            [drawingModes.LINE]: {
-                drawOptions: {
-                    type: 'Polygon',
-                    minPoints: 2,
+        this.manager = new DrawingManager(
+            this.getMap(),
+            {
+                [drawingModes.LINE]: {
+                    drawOptions: {
+                        type: 'Polygon',
+                        minPoints: 2,
+                    },
+                },
+                [drawingModes.MARKER]: {
+                    drawOptions: {
+                        type: 'Point',
+                    },
+                },
+                [drawingModes.MEASURE]: {
+                    drawOptions: {
+                        type: 'Polygon',
+                        minPoints: 2,
+                    },
+                },
+                [drawingModes.TEXT]: {
+                    drawOptions: {
+                        type: 'Point',
+                    },
                 },
             },
-            [drawingModes.MARKER]: {
-                drawOptions: {
-                    type: 'Point',
-                },
-            },
-            [drawingModes.MEASURE]: {
-                drawOptions: {
-                    type: 'Polygon',
-                    minPoints: 2,
-                },
-            },
-            [drawingModes.TEXT]: {
-                drawOptions: {
-                    type: 'Point',
-                },
-            },
-        })
+            {
+                selectStyle: selectStyle,
+            }
+        )
         this.manager.activate()
         this.manager.on('drawstart', (event) => {
             console.log(event)

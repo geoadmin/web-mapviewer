@@ -4,7 +4,7 @@
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
-// import SnapInteraction from 'ol/interaction/Snap'
+import SnapInteraction from 'ol/interaction/Snap'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Observable from 'ol/Observable'
@@ -47,6 +47,7 @@ export default class DrawingManager extends Observable {
         }
 
         this.select = new SelectInteraction({
+            // style: this.options.selectStyle,
             toggleCondition: () => false,
             layers: [this.layer],
         })
@@ -56,14 +57,15 @@ export default class DrawingManager extends Observable {
 
         this.modify = new ModifyInteraction({
             features: selected,
+            style: this.options.selectStyle,
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
         })
         this.modify.on('modifystart', (event) => this.onModifyStart_(event))
         this.modify.on('modifyend', (event) => this.onModifyEnd_(event))
 
-        // this.snap = new SnapInteraction({
-        //     source: this.layer.getSource(),
-        // })
+        this.snap = new SnapInteraction({
+            source: this.layer.getSource(),
+        })
 
         this.activeInteraction = null
     }
@@ -75,7 +77,7 @@ export default class DrawingManager extends Observable {
             this.map.addInteraction(this.modify)
         }
         this.map.addLayer(this.layer)
-        // this.map.addInteraction(this.snap)
+        this.map.addInteraction(this.snap)
         // this.select.setActive(true)
     }
 
@@ -83,7 +85,8 @@ export default class DrawingManager extends Observable {
     deactivate() {
         this.map.removeInteraction(this.select)
         this.map.removeInteraction(this.modify)
-        // this.map.removeInteraction(this.snap)
+        this.map.removeInteraction(this.snap)
+        // FIXME: remove layer
     }
 
     // API
