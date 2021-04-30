@@ -1,9 +1,9 @@
 // FIXME: change cursor
 // FIXME: add tooltips
 // FIXME: add style to features
-// FIXME: add coordinates to events
 // FIXME: apply new style function?
-// FIXME: add coordinate, length, and area ?
+// FIXME: linestring or polygon
+// FIXME: use feature properties for styling
 
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
@@ -20,10 +20,10 @@ import { noModifierKeys, singleClick } from 'ol/events/condition'
 const geojson = new GeoJSON()
 
 class DrawingManagerEvent extends Event {
-    constructor(type, feature, coordinate = null) {
+    constructor(type, feature, detail = null) {
         super(type)
 
-        this.coordinate = coordinate
+        this.detail = detail
 
         this.feature = geojson.writeFeatureObject(feature)
     }
@@ -80,6 +80,9 @@ export default class DrawingManager extends Observable {
             source: this.source,
         })
 
+        this.pointerCoordinate = null
+        this.map.on('pointerup', (event) => (this.pointerCoordinate = event.coordinate))
+
         this.activeInteraction = null
     }
 
@@ -122,6 +125,12 @@ export default class DrawingManager extends Observable {
         console.log('FIXME: remove feature', feature)
     }
 
+    prepareEvent_(type, feature) {
+        return new DrawingManagerEvent(type, feature, {
+            coordinate: this.pointerCoordinate,
+        })
+    }
+
     onAddFeature_(event, properties) {
         const feature = event.feature
 
@@ -129,27 +138,37 @@ export default class DrawingManager extends Observable {
         feature.setProperties(Object.assign({}, properties))
     }
 
+    setGeographicProperties_(feature) {
+        // FIXME: implement this
+        // FIXME: coordinates to EPSG:2056 ?
+        feature.set('coordinate', 'fixme')
+        feature.set('length', 'fixme')
+        feature.set('area', 'fixme')
+    }
+
     onDrawActiveChange_(event) {
         this.select.setActive(!event.target.getActive())
     }
 
     onDrawStart_(event) {
-        this.dispatchEvent(new DrawingManagerEvent('drawstart', event.feature))
+        this.dispatchEvent(this.prepareEvent_('drawstart', event.feature))
     }
 
     onDrawEnd_(event) {
-        this.dispatchEvent(new DrawingManagerEvent('drawend', event.feature))
+        const feature = event.feature
+        this.setGeographicProperties_(feature)
+        this.dispatchEvent(this.prepareEvent_('drawend', feature))
 
         // deactivate drawing tool
         event.target.setActive(false)
-        this.select.getFeatures().push(event.feature)
+        this.select.getFeatures().push(feature)
     }
 
     onModifyStart_(event) {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
-            this.dispatchEvent(new DrawingManagerEvent('modifystart', features[0]))
+            this.dispatchEvent(this.prepareEvent_('modifystart', features[0]))
         }
     }
 
@@ -157,15 +176,17 @@ export default class DrawingManager extends Observable {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
-            this.dispatchEvent(new DrawingManagerEvent('modifyend', features[0]))
+            const feature = features[0]
+            this.setGeographicProperties_(feature)
+            this.dispatchEvent(this.prepareEvent_('modifyend', feature))
         }
     }
 
     onSelectChange_(event) {
         if (event.type === 'add') {
-            this.dispatchEvent(new DrawingManagerEvent('selected', event.element))
+            this.dispatchEvent(this.prepareEvent_('selected', event.element))
         } else if (event.type === 'remove') {
-            this.dispatchEvent(new DrawingManagerEvent('deselected', event.element))
+            this.dispatchEvent(this.prepareEvent_('deselected', event.element))
         }
     }
 }
