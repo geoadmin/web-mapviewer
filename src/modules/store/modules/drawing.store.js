@@ -1,5 +1,6 @@
 import tokml from 'tokml'
-import { create } from '@/api/files.api'
+import { create, update } from '@/api/files.api'
+import GeoJSON from 'ol/format/GeoJSON'
 
 /** @enum */
 export const drawingModes = {
@@ -8,6 +9,7 @@ export const drawingModes = {
     LINE: 'LINE',
     MEASURE: 'MEASURE',
 }
+const olGeoJson = new GeoJSON()
 
 export default {
     state: {
@@ -23,28 +25,56 @@ export default {
          * @type {Object | null}
          */
         geoJson: null,
+        /**
+         * Array of drawn features
+         *
+         * @type {Array}
+         */
+        features: [],
     },
-    getters: {},
+    getters: {
+        getFeatures(state) {
+            return state.features
+        },
+    },
     actions: {
         setDrawingMode: ({ commit }, mode) => {
             if (mode in drawingModes || mode === null) {
                 commit('setDrawingMode', mode)
             }
         },
-        setDrawingGeoJSON: async ({ commit }, geoJson) => {
-            const kml = tokml(geoJson)
-            const response = await create(kml)
-            console.log(response)
+        setDrawingGeoJSON: ({ commit }, geoJson) => {
             // TODO: validate GeoJSON (maybe with Mapbox utils, but some part/dependencies are deprecated)
-            commit('setDrawingGeoJSON', {
-                geoJson: geoJson,
-                adminId: response.adminId, // todo check where it should be stored
+            commit('setDrawingGeoJSON', geoJson)
+        },
+        addFeature: async ({ commit }, feature) => {
+            const geojson = olGeoJson.writeFeatureObject(feature)
+            const kml = tokml(geojson)
+            const response = await create(kml)
+            feature.set('id', response.adminId)
+            commit('addFeature', {
+                adminId: response.adminId,
                 fileId: response.fileId,
             })
+        },
+        // todo probably remove it
+        modifyFeature: async ({ commit, getters }, feature) => {
+            const id = feature.get('id')
+            const geojson = olGeoJson.writeFeatureObject(feature)
+            const kml = tokml(geojson)
+            const response = await update(id, kml)
+            feature.set('id', response.adminId)
+            const features = getters.getFeatures
+            const featureIndex = features.findIndex((f) => f.adminId === id)
+            features[featureIndex].adminId = response.adminId
+            features[featureIndex].fileId = response.fileId
+            commit('setFeatures', features)
         },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
-        setDrawingGeoJSON: (state, payload) => (state.geoJson = payload.geoJson),
+        setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
+        addFeature: (state, feature) => state.features.push(feature),
+        setFeatures: (state, features) => (state.features = features),
     },
 }

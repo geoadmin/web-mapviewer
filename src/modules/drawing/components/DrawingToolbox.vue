@@ -11,6 +11,7 @@
                         :key="drawingMode"
                         :drawing-mode="drawingMode"
                         :is-active="currentDrawingMode === drawingMode"
+                        :data-cy="`draw-mode-${drawingMode}`"
                         @setDrawingMode="bubbleSetDrawingEventToParent"
                     />
                 </div>
@@ -20,9 +21,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex' // todo remove
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import geojson from 'geojson' // todo remove
 
 export default {
     components: { DrawingToolboxButton },
@@ -36,31 +35,7 @@ export default {
             default: null,
         },
     },
-    data: function () {
-        // todo remove
-        return {
-            coordinates: [],
-        }
-    },
-    computed: {
-        // todo remove
-        ...mapState({
-            coordinate: (state) => (state.map.clickInfo ? state.map.clickInfo.coordinate : null),
-        }),
-    },
-    watch: {
-        // todo remove
-        coordinate: function (coord) {
-            console.log(this.currentDrawingMode)
-            if (this.currentDrawingMode === 'MARKER') {
-                const data = [{ type: this.currentDrawingMode, coords: [...coord] }]
-                this.setDrawingGeoJSON(geojson.parse(data, { Point: 'coords' }))
-                this.setDrawingMode(null)
-            }
-        },
-    },
     methods: {
-        ...mapActions(['setDrawingMode', 'setDrawingGeoJSON']), // todo remove
         emitCloseEvent: function () {
             this.$emit('close')
         },

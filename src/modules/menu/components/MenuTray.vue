@@ -5,6 +5,7 @@
             <MenuSection
                 :title="$t('draw_panel_title')"
                 :show-content="isDrawing"
+                data-cy="draw-menu-section"
                 @showBody="onShowDrawingOverlay"
             />
             <MenuTopicSection class="border-bottom-0" />
@@ -20,9 +21,11 @@
 .slide-enter-active {
     transition: 0.2s;
 }
+
 .slide-enter {
     transform: translate(100%, 0);
 }
+
 .slide-leave-to {
     transform: translate(100%, 0);
 }

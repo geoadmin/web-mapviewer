@@ -10,6 +10,7 @@
 </template>
 
 <script>
+// import GeoJSON from 'ol/format/GeoJSON'
 import { mapState, mapActions } from 'vuex'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
@@ -30,6 +31,7 @@ export default {
         },
     },
     mounted() {
+        // this.olGeoJson = new GeoJSON()
         this.manager = new DrawingManager(this.getMap(), {
             [drawingModes.LINE]: {
                 drawOptions: {
@@ -59,13 +61,15 @@ export default {
             console.log(event)
         })
         this.manager.on('drawend', (event) => {
-            console.log(event)
+            this.addFeature(event.feature)
+            // const geojson = this.olGeoJson.writeFeatureObject(event.feature)
+            // this.setDrawingGeoJSON(geojson)
         })
         this.manager.on('modifystart', (event) => {
             console.log(event)
         })
         this.manager.on('modifyend', (event) => {
-            console.log(event)
+            this.modifyFeature(event.feature)
         })
         this.manager.on('selected', (event) => {
             console.log(event)
@@ -75,7 +79,13 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['toggleDrawingOverlay', 'setDrawingMode']),
+        ...mapActions([
+            'toggleDrawingOverlay',
+            'setDrawingMode',
+            'setDrawingGeoJSON',
+            'addFeature',
+            'modifyFeature',
+        ]),
         hideDrawingOverlay: function () {
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()

@@ -37,6 +37,7 @@
     "register-service-worker": "^1.7.2",
     "reproject": "^1.2.6",
     "v-animate-css": "0.0.3",
+    "tokml": "^0.4.0",
     "vue": "^2.6.12",
     "vue-i18n": "^8.24.1",
     "vue-router": "^3.5.1",
