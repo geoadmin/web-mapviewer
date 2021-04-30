@@ -16,6 +16,8 @@ import Event from 'ol/events/Event'
 import GeoJSON from 'ol/format/GeoJSON'
 import { getUid } from 'ol/util'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
+import tokml from 'tokml'
+import { create, update } from '@/api/files.api'
 
 const geojson = new GeoJSON()
 
@@ -154,9 +156,17 @@ export default class DrawingManager extends Observable {
         this.dispatchEvent(this.prepareEvent_('drawstart', event.feature))
     }
 
-    onDrawEnd_(event) {
+    async onDrawEnd_(event) {
         const feature = event.feature
         this.setGeographicProperties_(feature)
+        const gJson = geojson.writeFeatureObject(feature)
+        const kml = tokml(gJson)
+        const response = await create(kml)
+        if (response && response.adminId && response.fileId) {
+            feature.set('adminId', response.adminId)
+            feature.set('fileId', response.fileId)
+        }
+
         this.dispatchEvent(this.prepareEvent_('drawend', feature))
 
         // deactivate drawing tool
@@ -172,12 +182,18 @@ export default class DrawingManager extends Observable {
         }
     }
 
-    onModifyEnd_(event) {
+    async onModifyEnd_(event) {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
             const feature = features[0]
             this.setGeographicProperties_(feature)
+            const adminId = feature.get('adminId')
+            console.assert(!!adminId)
+            if (adminId) {
+                const kml = tokml(geojson.writeFeatureObject(feature))
+                await update(adminId, kml)
+            }
             this.dispatchEvent(this.prepareEvent_('modifyend', feature))
         }
     }

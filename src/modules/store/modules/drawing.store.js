@@ -1,7 +1,3 @@
-import tokml from 'tokml'
-import { create, update } from '@/api/files.api'
-import GeoJSON from 'ol/format/GeoJSON'
-
 /** @enum */
 export const drawingModes = {
     MARKER: 'MARKER',
@@ -9,7 +5,6 @@ export const drawingModes = {
     LINE: 'LINE',
     MEASURE: 'MEASURE',
 }
-const olGeoJson = new GeoJSON()
 
 export default {
     state: {
@@ -47,27 +42,15 @@ export default {
             // TODO: validate GeoJSON (maybe with Mapbox utils, but some part/dependencies are deprecated)
             commit('setDrawingGeoJSON', geoJson)
         },
-        addFeature: async ({ commit }, feature) => {
-            const geojson = olGeoJson.writeFeatureObject(feature)
-            const kml = tokml(geojson)
-            const response = await create(kml)
-            feature.set('id', response.adminId)
-            commit('addFeature', {
-                adminId: response.adminId,
-                fileId: response.fileId,
-            })
+        addFeature: ({ commit }, geojson) => {
+            commit('addFeature', geojson)
         },
-        // todo probably remove it
-        modifyFeature: async ({ commit, getters }, feature) => {
-            const id = feature.get('id')
-            const geojson = olGeoJson.writeFeatureObject(feature)
-            const kml = tokml(geojson)
-            const response = await update(id, kml)
-            feature.set('id', response.adminId)
+        modifyFeature: ({ commit, getters }, geojson) => {
             const features = getters.getFeatures
-            const featureIndex = features.findIndex((f) => f.adminId === id)
-            features[featureIndex].adminId = response.adminId
-            features[featureIndex].fileId = response.fileId
+            const featureIndex = features.findIndex(
+                (f) => f.properties.adminId === geojson.properties.adminId
+            )
+            features[featureIndex] = geojson
             commit('setFeatures', features)
         },
     },
