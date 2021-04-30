@@ -14,7 +14,7 @@ import { mapState, mapActions } from 'vuex'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
-import { selectStyle } from '@/modules/drawing/lib/style'
+import { createEditingStyle } from '@/modules/drawing/lib/style'
 
 export default {
     components: { DrawingToolbox },
@@ -50,6 +50,9 @@ export default {
                     },
                     properties: {
                         color: '#f00',
+                        font: 'normal 16px Helvetica',
+                        icon: 'https://api3.geo.admin.ch/color/255,0,0/marker-24@2x.png',
+                        anchor: [0.5, 0.9],
                         text: '',
                         description: '',
                     },
@@ -68,11 +71,12 @@ export default {
                     properties: {
                         color: '#f00',
                         text: 'new text',
+                        font: 'normal 16px Helvetica',
                     },
                 },
             },
             {
-                selectStyle: selectStyle,
+                editingStyle: createEditingStyle(),
             }
         )
         this.manager.activate()
