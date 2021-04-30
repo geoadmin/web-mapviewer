@@ -9,13 +9,16 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Observable from 'ol/Observable'
 import Event from 'ol/events/Event'
+import GeoJSON from 'ol/format/GeoJSON'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
+
+const geojson = new GeoJSON()
 
 class DrawingManagerEvent extends Event {
     constructor(type, feature) {
         super(type)
 
-        this.feature = feature
+        this.feature = geojson.writeFeatureObject(feature)
     }
 }
 
