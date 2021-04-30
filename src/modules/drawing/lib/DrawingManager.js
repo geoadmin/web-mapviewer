@@ -4,7 +4,7 @@
 // FIXME: apply new style function?
 // FIXME: linestring or polygon
 // FIXME: use feature properties for styling
-
+import { featureStyle } from './style'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
@@ -60,7 +60,8 @@ export default class DrawingManager extends Observable {
         }
 
         this.select = new SelectInteraction({
-            // style: this.options.selectStyle,
+            // style: null,
+            style: this.options.editingStyle,
             toggleCondition: () => false,
             layers: [this.layer],
         })
@@ -70,7 +71,7 @@ export default class DrawingManager extends Observable {
 
         this.modify = new ModifyInteraction({
             features: selected,
-            style: this.options.selectStyle,
+            style: this.options.editingStyle,
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
         })
         this.modify.on('modifystart', (event) => this.onModifyStart_(event))
@@ -136,6 +137,7 @@ export default class DrawingManager extends Observable {
 
         feature.setId(getUid(feature))
         feature.setProperties(Object.assign({}, properties))
+        feature.setStyle(featureStyle(feature))
     }
 
     setGeographicProperties_(feature) {
