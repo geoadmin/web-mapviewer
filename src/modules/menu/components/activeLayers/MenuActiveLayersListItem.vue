@@ -97,6 +97,7 @@
             .transparency-slider {
                 display: flex;
                 flex-grow: 1;
+                cursor: pointer;
             }
         }
     }

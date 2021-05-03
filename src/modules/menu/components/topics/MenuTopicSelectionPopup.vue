@@ -24,6 +24,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 1rem 0.5rem;
+    cursor: pointer;
     .topic {
         text-align: center;
         align-self: end;

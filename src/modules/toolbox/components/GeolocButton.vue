@@ -40,6 +40,7 @@ $disabled-color: $gray-300;
     border-radius: $map-button-diameter / 2;
     background-color: $normal-color;
     overflow: hidden;
+    cursor: pointer;
     svg {
         overflow: initial;
         position: relative;

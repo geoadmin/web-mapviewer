@@ -3,10 +3,10 @@
         <div class="modal-popup">
             <div class="card">
                 <div class="card-header">
-                    <span v-if="title" class="float-left">{{ title }}</span>
-                    <span class="float-right mx-2" @click="onClose">
+                    <span v-if="title" class="float-left align-middle">{{ title }}</span>
+                    <button class="float-right btn btn-sm" @click="onClose">
                         <font-awesome-icon :icon="['fa', 'times']" />
-                    </span>
+                    </button>
                     <span v-if="allowPrint" class="float-right mx-2" @click="printModalContent">
                         <font-awesome-icon :icon="['fa', 'print']" />
                     </span>
@@ -32,6 +32,13 @@
     max-height: 90vh;
     .card {
         max-height: 90vh;
+        .card-header {
+            align-items: center;
+            display: flex;
+            .btn {
+                margin-left: auto;
+            }
+        }
         .card-body {
             overflow-y: auto;
             a {
