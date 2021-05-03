@@ -18,15 +18,13 @@ import GeoJSON from 'ol/format/GeoJSON'
 import { getUid } from 'ol/util'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 
-const geojson = new GeoJSON()
-
 class DrawingManagerEvent extends Event {
     constructor(type, feature, detail = null) {
         super(type)
 
         this.detail = detail
 
-        this.feature = geojson.writeFeatureObject(feature)
+        this.feature = feature
     }
 }
 
@@ -36,6 +34,10 @@ export default class DrawingManager extends Observable {
         super()
 
         this.map = map
+
+        this.geojsonFormat = new GeoJSON({
+            featureProjection: this.map.getView().getProjection(),
+        })
 
         this.options = options
 
@@ -128,7 +130,8 @@ export default class DrawingManager extends Observable {
     }
 
     prepareEvent_(type, feature) {
-        return new DrawingManagerEvent(type, feature, {
+        const geojson = this.geojsonFormat.writeFeatureObject(feature)
+        return new DrawingManagerEvent(type, geojson, {
             coordinate: this.pointerCoordinate,
         })
     }
