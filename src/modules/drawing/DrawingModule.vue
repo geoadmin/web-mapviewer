@@ -62,7 +62,9 @@ export default {
                         type: 'Polygon',
                         minPoints: 2,
                     },
-                    properties: {},
+                    properties: {
+                        color: '#f00',
+                    },
                 },
                 [drawingModes.TEXT]: {
                     drawOptions: {

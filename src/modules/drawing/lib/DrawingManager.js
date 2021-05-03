@@ -1,9 +1,10 @@
 // FIXME: change cursor
 // FIXME: add tooltips
-// FIXME: add style to features
 // FIXME: apply new style function?
 // FIXME: linestring or polygon
 // FIXME: use feature properties for styling
+// FIXME: no zoom on double click
+
 import { featureStyle } from './style'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
@@ -138,14 +139,7 @@ export default class DrawingManager extends Observable {
         feature.setId(getUid(feature))
         feature.setProperties(Object.assign({}, properties))
         feature.setStyle(featureStyle(feature))
-    }
-
-    setGeographicProperties_(feature) {
-        // FIXME: implement this
-        // FIXME: coordinates to EPSG:2056 ?
-        feature.set('coordinate', 'fixme')
-        feature.set('length', 'fixme')
-        feature.set('area', 'fixme')
+        console.log(feature.getId())
     }
 
     onDrawActiveChange_(event) {
@@ -158,7 +152,6 @@ export default class DrawingManager extends Observable {
 
     onDrawEnd_(event) {
         const feature = event.feature
-        this.setGeographicProperties_(feature)
         this.dispatchEvent(this.prepareEvent_('drawend', feature))
 
         // deactivate drawing tool
@@ -179,7 +172,6 @@ export default class DrawingManager extends Observable {
         if (features.length) {
             console.assert(features.length == 1)
             const feature = features[0]
-            this.setGeographicProperties_(feature)
             this.dispatchEvent(this.prepareEvent_('modifyend', feature))
         }
     }
