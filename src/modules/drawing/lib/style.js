@@ -1,5 +1,5 @@
-import { Style, Fill, Stroke, Text, Icon } from 'ol/style'
 import { asArray } from 'ol/color'
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
 export function createEditingStyle() {
     return undefined

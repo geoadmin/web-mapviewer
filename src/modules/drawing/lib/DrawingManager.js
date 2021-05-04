@@ -4,27 +4,33 @@
 // FIXME: linestring or polygon
 // FIXME: use feature properties for styling
 // FIXME: no zoom on double click
+// FIXME: right click to remove point while drawing ?
 
-import { featureStyle } from './style'
+import { noModifierKeys, singleClick } from 'ol/events/condition'
+import Event from 'ol/events/Event'
+import GeoJSON from 'ol/format/GeoJSON'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
 import SnapInteraction from 'ol/interaction/Snap'
 import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
 import Observable from 'ol/Observable'
-import Event from 'ol/events/Event'
-import GeoJSON from 'ol/format/GeoJSON'
+import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
-import { noModifierKeys, singleClick } from 'ol/events/condition'
+import { featureStyle } from './style'
 
 class DrawingManagerEvent extends Event {
-    constructor(type, feature, detail = null) {
+    /**
+     * @param {string} type Event type
+     * @param {Object} feature Feature in GeoJSON format
+     * @param {Object} detail Additional details
+     */
+    constructor(type, feature, detail) {
         super(type)
 
-        this.detail = detail
-
         this.feature = feature
+
+        this.detail = detail
     }
 }
 
@@ -62,7 +68,6 @@ export default class DrawingManager extends Observable {
         }
 
         this.select = new SelectInteraction({
-            // style: null,
             style: this.options.editingStyle,
             toggleCondition: () => false,
             layers: [this.layer],
@@ -100,7 +105,6 @@ export default class DrawingManager extends Observable {
         }
         this.map.addLayer(this.layer)
         this.map.addInteraction(this.snap)
-        // this.select.setActive(true)
     }
 
     // API
@@ -111,7 +115,7 @@ export default class DrawingManager extends Observable {
         this.map.removeInteraction(this.select)
         this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
-        // FIXME: remove layer
+        this.map.removeLayer(this.layer)
     }
 
     // API
