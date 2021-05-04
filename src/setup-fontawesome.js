@@ -17,8 +17,9 @@ import {
     faDrawPolygon,
     faRuler,
 } from '@fortawesome/free-solid-svg-icons'
-import { faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
+import { faCheckSquare, faSquare, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
+library.add(faTrashAlt)
 library.add(faTimes)
 library.add(faTimesCircle)
 library.add(faSpinner)
