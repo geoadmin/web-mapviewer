@@ -58,7 +58,6 @@ export default class DrawingManager extends Observable {
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
             tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
-            this.map.addInteraction(tool) // FIXME: move to activate
             this.tools[id] = tool
         }
 
@@ -92,6 +91,9 @@ export default class DrawingManager extends Observable {
 
     // API
     activate() {
+        for (const id in this.tools) {
+            this.map.addInteraction(this.tools[id])
+        }
         if (!this.options.noModify) {
             this.map.addInteraction(this.select)
             this.map.addInteraction(this.modify)
@@ -103,6 +105,9 @@ export default class DrawingManager extends Observable {
 
     // API
     deactivate() {
+        for (const id in this.tools) {
+            this.map.removeInteraction(this.tools[id])
+        }
         this.map.removeInteraction(this.select)
         this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
