@@ -93,6 +93,8 @@ export default class DrawingManager extends Observable {
         this.map.on('pointerup', (event) => (this.pointerCoordinate = event.coordinate))
 
         this.activeInteraction = null
+
+        this.onKeyUpFunction_ = this.onKeyUp_.bind(this)
     }
 
     // API
@@ -106,6 +108,8 @@ export default class DrawingManager extends Observable {
         }
         this.map.addLayer(this.layer)
         this.map.addInteraction(this.snap)
+
+        document.addEventListener('keyup', this.onKeyUpFunction_)
     }
 
     // API
@@ -117,6 +121,8 @@ export default class DrawingManager extends Observable {
         this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
         this.map.removeLayer(this.layer)
+
+        document.removeEventListener('keyup', this.onKeyUpFunction_)
     }
 
     // API
@@ -144,6 +150,12 @@ export default class DrawingManager extends Observable {
         return new DrawingManagerEvent(type, geojson, {
             coordinate: this.pointerCoordinate,
         })
+    }
+
+    onKeyUp_(event) {
+        if (this.activeInteraction && event.key == 'Delete') {
+            this.activeInteraction.removeLastPoint()
+        }
     }
 
     onAddFeature_(event, properties) {
