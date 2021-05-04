@@ -53,18 +53,19 @@ export default class DrawingManager extends Observable {
         this.source = this.layer.getSource()
 
         this.tools = {}
-        for (let [id, options] of Object.entries(tools)) {
+        for (let [type, options] of Object.entries(tools)) {
             const tool = new DrawInteraction({
                 ...options.drawOptions,
                 source: this.source,
             })
+            tool.set('type', type)
             tool.setActive(false)
             const overlaySource = tool.getOverlay().getSource()
             overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
             tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
-            this.tools[id] = tool
+            this.tools[type] = tool
         }
 
         this.select = new SelectInteraction({
@@ -149,9 +150,10 @@ export default class DrawingManager extends Observable {
         const feature = event.feature
 
         feature.setId(getUid(feature))
-        feature.setProperties(Object.assign({}, properties))
+        feature.setProperties(
+            Object.assign({ type: this.activeInteraction.get('type') }, properties)
+        )
         feature.setStyle(featureStyle(feature))
-        console.log(feature.getId())
     }
 
     onDrawActiveChange_(event) {
