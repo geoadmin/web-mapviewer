@@ -60,6 +60,18 @@ export default {
             return modes
         },
     },
+    watch: {
+        show: function (show) {
+            if (show) {
+                this.manager.activate()
+            } else {
+                this.manager.deactivate()
+            }
+        },
+        currentDrawingMode: function (mode) {
+            this.manager.toggleTool(mode)
+        },
+    },
     mounted() {
         /** @type {import('ol/Map').default} */
         const map = this.getMap()
@@ -115,7 +127,6 @@ export default {
                 editingStyle: createEditingStyle(),
             }
         )
-        this.manager.activate()
         this.manager.on('drawstart', (event) => {
             console.log(event)
         })
@@ -148,9 +159,6 @@ export default {
         },
         changeDrawingMode: function (mode) {
             this.setDrawingMode(mode)
-
-            // FIXME: wrong place
-            this.manager.toggleTool(mode)
         },
         deleteSelectedFeature: function (id) {
             const newFeatures = this.geoJson.features.filter((f) => f.id !== id)
