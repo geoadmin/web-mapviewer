@@ -3,18 +3,16 @@
         <span v-if="info.type == 'Point'">
             <font-awesome-icon :icon="['fas', 'map-marker-alt']" /> {{ info.location }}
         </span>
-        <div class="compact-measures" v-if="info.type == 'Polygon'">
-            <font-awesome-icon :icon="['far', 'square']" /> {{ info.perimeter }}<br>
-            <font-awesome-icon
-              style="opacity: 0,5"
-              :icon="['fas', 'square-full']"
-            /> {{ info.area }}
+        <div v-if="info.type == 'Polygon'" class="compact-measures">
+            <font-awesome-icon :icon="['far', 'square']" /> {{ info.perimeter }}<br />
+            <font-awesome-icon style="opacity: 0, 5" :icon="['fas', 'square-full']" />
+            {{ info.area }}
         </div>
     </span>
 </template>
 
 <script>
-import {geometryInfo} from '../lib/drawingUtils'
+import { geometryInfo } from '../lib/drawingUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {
@@ -26,9 +24,9 @@ export default {
         },
     },
     computed: {
-        info: function() {
+        info: function () {
             return geometryInfo(this.geometry)
-        }
+        },
     },
     methods: {},
 }
@@ -36,8 +34,8 @@ export default {
 
 
 <style lang="scss">
-    .compact-measures {
-        line-height: 13px;
-        float: left;
-    }
+.compact-measures {
+    line-height: 13px;
+    float: left;
+}
 </style>

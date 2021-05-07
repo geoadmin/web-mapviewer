@@ -50,8 +50,7 @@ export default {
             default: null,
         },
     },
-    computed: {
-    },
+    computed: {},
     methods: {
         onClose: function () {
             this.$emit('close', this.feature.id)
@@ -79,10 +78,10 @@ export default {
         padding: 9px 14px;
         font-size: 12px;
         button {
-            width:44px;
-            height:34px;
-            margin-left:5px;
-            float:right;
+            width: 44px;
+            height: 34px;
+            margin-left: 5px;
+            float: right;
             background-color: #e6e6e6;
             border-color: #ccc;
             color: #333;
@@ -112,7 +111,7 @@ export default {
     label {
         margin-bottom: 5px;
         font-weight: 700;
-        font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
 }
 </style>
