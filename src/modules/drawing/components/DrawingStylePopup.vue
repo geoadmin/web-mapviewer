@@ -10,22 +10,15 @@
             <form>
                 <div v-if="feature.geometry.type === 'Point'" class="form-group">
                     <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
-                    <textarea
-                        id="text"
-                        class="form-control"
-                        rows="1"
-                        :value="feature.properties.text"
-                        @input="updateProperties"
-                    ></textarea>
+                    <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="description">{{ $t('modify_description') }}:</label>
                     <textarea
                         id="description"
+                        v-model="description"
                         class="form-control"
                         rows="2"
-                        :value="feature.properties.description"
-                        @input="updateProperties"
                     ></textarea>
                 </div>
                 <div class="form-group p-0 button-bar">
@@ -50,16 +43,36 @@ export default {
             default: null,
         },
     },
-    computed: {},
+    computed: {
+        description: {
+            get() {
+                return this.feature.properties.description
+            },
+            set(value) {
+                const properties = Object.assign({}, this.feature.properties, {
+                    description: value,
+                })
+                this.$emit('updateProperties', this.feature.id, properties)
+            },
+        },
+        text: {
+            get() {
+                return this.feature.properties.text
+            },
+            set(value) {
+                const properties = Object.assign({}, this.feature.properties, {
+                    text: value,
+                })
+                this.$emit('updateProperties', this.feature.id, properties)
+            },
+        },
+    },
     methods: {
         onClose: function () {
             this.$emit('close', this.feature.id)
         },
         onDelete: function () {
             this.$emit('delete', this.feature.id)
-        },
-        updateProperties: function () {
-            this.$emit('updateProperties', this.feature.properties)
         },
     },
 }

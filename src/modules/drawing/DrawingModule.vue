@@ -14,6 +14,7 @@
                 :feature="selectedFeature"
                 @delete="deleteSelectedFeature"
                 @close="deactivateFeature"
+                @updateProperties="updateProperties"
             />
         </div>
     </div>
@@ -169,6 +170,15 @@ export default {
         },
         deactivateFeature: function () {
             this.setDrawingSelectedFeatureData(null)
+        },
+        updateProperties: function (featureId, properties) {
+            const idx = this.geoJson.features.findIndex((f) => f.id === featureId)
+            const newGeojJson = Object.assign({}, this.geoJson)
+            const newFeature = Object.assign({}, newGeojJson.features[idx], {
+                properties,
+            })
+            newGeojJson.features[idx] = newFeature
+            this.setDrawingGeoJSON(newGeojJson)
         },
     },
 }
