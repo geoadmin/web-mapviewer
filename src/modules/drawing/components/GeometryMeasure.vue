@@ -3,10 +3,13 @@
         <span v-if="info.type == 'Point'">
             <font-awesome-icon :icon="['fas', 'map-marker-alt']" /> {{ info.location }}
         </span>
-        <div v-if="info.type == 'Polygon'" class="compact-measures">
+        <div v-if="info.type == 'Polygon'" class="compact-measures-half">
             <font-awesome-icon :icon="['far', 'square']" /> {{ info.perimeter }}<br />
             <font-awesome-icon style="opacity: 0, 5" :icon="['fas', 'square-full']" />
             {{ info.area }}
+        </div>
+        <div v-if="info.type == 'LineString'" class="compact-measures-full">
+            <font-awesome-icon :icon="['fas', 'arrows-alt-h']" /> {{ info.length }}
         </div>
     </span>
 </template>
@@ -34,8 +37,12 @@ export default {
 
 
 <style lang="scss">
-.compact-measures {
-    line-height: 13px;
+.compact-measures-half {
+    line-height: 17px;
+    float: left;
+}
+.compact-measures-full {
+    line-height: 34px;
     float: left;
 }
 </style>
