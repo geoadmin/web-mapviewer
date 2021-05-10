@@ -1,7 +1,11 @@
 <template>
     <button
         class="btn btn-lg button-drawing"
-        :class="{ 'btn-danger': isActive, 'btn-outline-light text-dark': !isActive }"
+        :class="{
+            'btn-danger': isActive,
+            'btn-outline-light text-dark': !isActive,
+        }"
+        :data-cy="`drawing-${drawingMode.toLowerCase()}`"
         @click="emitSetDrawingMode"
     >
         <font-awesome-icon :icon="buttonIcon" />
