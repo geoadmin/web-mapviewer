@@ -154,28 +154,25 @@ export default {
         },
         deleteSelectedFeature: function (id) {
             const newFeatures = this.geoJson.features.filter((f) => f.id !== id)
-            const newGeojJson = Object.assign({}, this.geoJson, {
+            const newGeoJson = Object.assign({}, this.geoJson, {
                 features: newFeatures,
             })
-            this.setDrawingGeoJSON(newGeojJson)
+            this.setDrawingGeoJSON(newGeoJson)
         },
         deactivateFeature: function () {
             this.setDrawingSelectedFeatureData(null)
         },
         updateProperties: function (featureId, properties) {
             const idx = this.geoJson.features.findIndex((f) => f.id === featureId)
-            const newGeojJson = Object.assign({}, this.geoJson)
-            const newFeature = Object.assign({}, newGeojJson.features[idx], {
+            const newGeoJson = Object.assign({}, this.geoJson)
+            const newFeature = Object.assign({}, newGeoJson.features[idx], {
                 properties,
             })
-            newGeojJson.features[idx] = newFeature
-            this.setDrawingGeoJSON(newGeojJson)
+            newGeoJson.features[idx] = newFeature
+            this.setDrawingGeoJSON(newGeoJson)
         },
     },
 }
 </script>
 
-<style lang="scss">
-.draw-overlay {
-}
-</style>
+<style lang="scss"></style>
