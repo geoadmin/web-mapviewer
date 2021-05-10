@@ -19,18 +19,34 @@ import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
 import { featureStyle } from './style'
 
-class DrawingManagerEvent extends Event {
+class ChangeEvent extends Event {
     /**
-     * @param {string} type Event type
-     * @param {Object} feature Feature in GeoJSON format
-     * @param {Object} detail Additional details
+     * @param {Object} features Features in GeoJSON format
+     * @param {string} [featureId] Feature id
      */
-    constructor(type, feature, detail) {
-        super(type)
+    constructor(features, featureId) {
+        super('change')
 
-        this.feature = feature
+        this.features = features
 
-        this.detail = detail
+        this.featureId = featureId
+    }
+}
+
+class SelectEvent extends Event {
+    /**
+     * @param {string | null} featureId Feature id
+     * @param {number[]} coordinates Pointer coordinates
+     * @param {boolean} modifying
+     */
+    constructor(featureId, coordinates, modifying) {
+        super('select')
+
+        this.featureId = featureId
+
+        this.coordinates = coordinates
+
+        this.modifying = modifying
     }
 }
 
@@ -63,7 +79,6 @@ export default class DrawingManager extends Observable {
             const overlaySource = tool.getOverlay().getSource()
             overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
-            tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
             this.tools[type] = tool
         }
@@ -145,11 +160,14 @@ export default class DrawingManager extends Observable {
         console.log('FIXME: remove feature', feature)
     }
 
-    prepareEvent_(type, feature) {
-        const geojson = this.geojsonFormat.writeFeatureObject(feature)
-        return new DrawingManagerEvent(type, geojson, {
-            coordinate: this.pointerCoordinate,
-        })
+    dispatchChangeEvent_(feature) {
+        const features = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
+        this.dispatchEvent(new ChangeEvent(features, feature.getId()))
+    }
+
+    dispatchSelectEvent_(feature, modifying) {
+        const featureId = feature ? feature.getId() : null
+        this.dispatchEvent(new SelectEvent(featureId, this.pointerCoordinate, modifying))
     }
 
     onKeyUp_(event) {
@@ -172,24 +190,20 @@ export default class DrawingManager extends Observable {
         this.select.setActive(!event.target.getActive())
     }
 
-    onDrawStart_(event) {
-        this.dispatchEvent(this.prepareEvent_('drawstart', event.feature))
-    }
-
     onDrawEnd_(event) {
-        const feature = event.feature
-        this.dispatchEvent(this.prepareEvent_('drawend', feature))
+        this.source.once('addfeature', (event) => this.dispatchChangeEvent_(event.feature))
 
         // deactivate drawing tool
         event.target.setActive(false)
-        this.select.getFeatures().push(feature)
+        this.select.getFeatures().push(event.feature)
     }
 
     onModifyStart_(event) {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
-            this.dispatchEvent(this.prepareEvent_('modifystart', features[0]))
+            const feature = features[0]
+            this.dispatchSelectEvent_(feature, true)
         }
     }
 
@@ -198,15 +212,16 @@ export default class DrawingManager extends Observable {
         if (features.length) {
             console.assert(features.length == 1)
             const feature = features[0]
-            this.dispatchEvent(this.prepareEvent_('modifyend', feature))
+            this.dispatchSelectEvent_(feature, false)
+            this.dispatchChangeEvent_(feature)
         }
     }
 
     onSelectChange_(event) {
         if (event.type === 'add') {
-            this.dispatchEvent(this.prepareEvent_('selected', event.element))
+            this.dispatchSelectEvent_(event.element, false)
         } else if (event.type === 'remove') {
-            this.dispatchEvent(this.prepareEvent_('deselected', event.element))
+            this.dispatchSelectEvent_(null, false)
         }
     }
 }

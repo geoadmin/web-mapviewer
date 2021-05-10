@@ -131,19 +131,10 @@ export default {
         this.manager.on('drawstart', (event) => {
             console.log(event)
         })
-        this.manager.on('drawend', (event) => {
+        this.manager.on('change', (event) => {
             console.log(event)
         })
-        this.manager.on('modifystart', (event) => {
-            console.log(event)
-        })
-        this.manager.on('modifyend', (event) => {
-            console.log(event)
-        })
-        this.manager.on('selected', (event) => {
-            console.log(event)
-        })
-        this.manager.on('deselected', (event) => {
+        this.manager.on('select', (event) => {
             console.log(event)
         })
     },
