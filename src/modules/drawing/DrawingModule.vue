@@ -73,9 +73,13 @@ export default {
             this.manager.toggleTool(mode)
         },
     },
+    destroyed() {
+        document.body['drawingMap'] = undefined
+    },
     mounted() {
         /** @type {import('ol/Map').default} */
         const map = this.getMap()
+        document.body['drawingMap'] = this.map
         overlay.setElement(this.$refs['overlay'].$el)
         map.addOverlay(overlay)
         this.manager = new DrawingManager(
@@ -132,7 +136,7 @@ export default {
             console.log(event)
         })
         this.manager.on('change', (event) => {
-            console.log(event)
+            this.setDrawingGeoJSON(event.geojson)
         })
         this.manager.on('select', (event) => {
             console.log(event)
