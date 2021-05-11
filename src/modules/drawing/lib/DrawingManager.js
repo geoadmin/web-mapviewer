@@ -40,13 +40,16 @@ class ChangeEvent extends Event {
 class SelectEvent extends Event {
     /**
      * @param {string | null} featureId Feature id
+     * @param {string | null} featureType Feature type
      * @param {number[]} coordinates Pointer coordinates
      * @param {boolean} modifying
      */
-    constructor(featureId, coordinates, modifying) {
+    constructor(featureId, featureType, coordinates, modifying) {
         super('select')
 
         this.featureId = featureId
+
+        this.featureType = featureType
 
         this.coordinates = coordinates
 
@@ -176,7 +179,10 @@ export default class DrawingManager extends Observable {
 
     dispatchSelectEvent_(feature, modifying) {
         const featureId = feature ? feature.getId() : null
-        this.dispatchEvent(new SelectEvent(featureId, this.pointerCoordinate, modifying))
+        const featureType = feature ? feature.get('type') : null
+        this.dispatchEvent(
+            new SelectEvent(featureId, featureType, this.pointerCoordinate, modifying)
+        )
     }
 
     onKeyUp_(event) {
