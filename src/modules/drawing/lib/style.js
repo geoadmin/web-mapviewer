@@ -1,27 +1,14 @@
-import { Style, Circle, Fill, Stroke, Text, Icon } from 'ol/style'
 import { asArray } from 'ol/color'
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
 export function createEditingStyle() {
-    const style = new Style({
-        image: new Circle({
-            fill: new Fill({
-                color: [255, 255, 255, 0.4],
-            }),
-            stroke: new Stroke({
-                color: [0, 0, 0, 1.0],
-                width: 1,
-            }),
-            radius: 7,
-        }),
-    })
-    return (feature) => {
-        console.log(style)
-        console.log(feature.getStyle())
-        return style
-        // return feature.getStyle()
-    }
+    return undefined
 }
 
+/**
+ * @param {Feature} feature
+ * @returns {Style}
+ */
 export function featureStyle(feature) {
     const color = asArray(feature.get('color'))
     const fillColor = [...color.slice(0, 3), 0.4]

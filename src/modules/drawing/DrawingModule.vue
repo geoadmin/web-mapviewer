@@ -1,11 +1,22 @@
 <template>
-    <div v-if="show" class="draw-overlay">
-        <DrawingToolbox
-            :drawing-modes="drawingModes"
-            :current-drawing-mode="currentDrawingMode"
-            @close="hideDrawingOverlay"
-            @setDrawingMode="changeDrawingMode"
-        />
+    <div>
+        <div v-if="show" class="draw-overlay">
+            <DrawingToolbox
+                :drawing-modes="drawingModes"
+                :current-drawing-mode="currentDrawingMode"
+                @close="hideDrawingOverlay"
+                @setDrawingMode="changeDrawingMode"
+            />
+        </div>
+        <div v-show="show">
+            <drawing-style-popup
+                ref="overlay"
+                :feature="selectedFeature"
+                @delete="deleteSelectedFeature"
+                @close="deactivateFeature"
+                @updateProperties="updateProperties"
+            />
+        </div>
     </div>
 </template>
 
@@ -15,14 +26,34 @@ import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle } from '@/modules/drawing/lib/style'
+import DrawingStylePopup from './components/DrawingStylePopup.vue'
+import { Overlay } from 'ol'
+
+const overlay = new Overlay({})
 
 export default {
-    components: { DrawingToolbox },
+    components: { DrawingToolbox, DrawingStylePopup },
     inject: ['getMap'],
     computed: {
         ...mapState({
             show: (state) => state.ui.showDrawingOverlay,
             currentDrawingMode: (state) => state.drawing.mode,
+            geoJson: (state) => state.drawing.geoJson,
+            selectedFeature: function (state) {
+                const sfd = state.drawing.selectedFeatureData
+                const geoJson = state.drawing.geoJson
+                let f = null
+                if (sfd) {
+                    f = geoJson.features.find((f) => f.id === sfd.featureId)
+                }
+                overlay.setVisible(!!f)
+                if (!f) {
+                    return null
+                }
+                const xy = f.coordinate || [731667.39, 5862995.8]
+                overlay.setPosition(xy)
+                return f
+            },
         }),
         drawingModes: function () {
             const modes = []
@@ -30,9 +61,25 @@ export default {
             return modes
         },
     },
+    watch: {
+        show: function (show) {
+            if (show) {
+                this.manager.activate()
+            } else {
+                this.manager.deactivate()
+            }
+        },
+        currentDrawingMode: function (mode) {
+            this.manager.toggleTool(mode)
+        },
+    },
     mounted() {
+        /** @type {import('ol/Map').default} */
+        const map = this.getMap()
+        overlay.setElement(this.$refs['overlay'].$el)
+        map.addOverlay(overlay)
         this.manager = new DrawingManager(
-            this.getMap(),
+            map,
             {
                 [drawingModes.LINE]: {
                     drawOptions: {
@@ -62,7 +109,9 @@ export default {
                         type: 'Polygon',
                         minPoints: 2,
                     },
-                    properties: {},
+                    properties: {
+                        color: '#f00',
+                    },
                 },
                 [drawingModes.TEXT]: {
                     drawOptions: {
@@ -79,25 +128,14 @@ export default {
                 editingStyle: createEditingStyle(),
             }
         )
-        this.manager.activate()
         this.manager.on('drawstart', (event) => {
             console.log(event)
         })
-        this.manager.on('drawend', (event) => {
+        this.manager.on('change', (event) => {
             console.log(event)
             this.addFeature(event.feature)
         })
-        this.manager.on('modifystart', (event) => {
-            console.log(event)
-        })
-        this.manager.on('modifyend', (event) => {
-            console.log(event)
-            this.modifyFeature(event.feature)
-        })
-        this.manager.on('selected', (event) => {
-            console.log(event)
-        })
-        this.manager.on('deselected', (event) => {
+        this.manager.on('select', (event) => {
             console.log(event)
         })
     },
@@ -106,6 +144,7 @@ export default {
             'toggleDrawingOverlay',
             'setDrawingMode',
             'setDrawingGeoJSON',
+            'setDrawingSelectedFeatureData',
             'addFeature',
             'modifyFeature',
         ]),
@@ -115,15 +154,28 @@ export default {
         },
         changeDrawingMode: function (mode) {
             this.setDrawingMode(mode)
-
-            // FIXME: wrong place
-            this.manager.toggleTool(mode)
+        },
+        deleteSelectedFeature: function (id) {
+            const newFeatures = this.geoJson.features.filter((f) => f.id !== id)
+            const newGeoJson = Object.assign({}, this.geoJson, {
+                features: newFeatures,
+            })
+            this.setDrawingGeoJSON(newGeoJson)
+        },
+        deactivateFeature: function () {
+            this.setDrawingSelectedFeatureData(null)
+        },
+        updateProperties: function (featureId, properties) {
+            const idx = this.geoJson.features.findIndex((f) => f.id === featureId)
+            const newGeoJson = Object.assign({}, this.geoJson)
+            const newFeature = Object.assign({}, newGeoJson.features[idx], {
+                properties,
+            })
+            newGeoJson.features[idx] = newFeature
+            this.setDrawingGeoJSON(newGeoJson)
         },
     },
 }
 </script>
 
-<style lang="scss">
-.draw-overlay {
-}
-</style>
+<style lang="scss"></style>

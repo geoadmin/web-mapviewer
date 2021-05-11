@@ -1,33 +1,59 @@
 // FIXME: change cursor
 // FIXME: add tooltips
-// FIXME: add style to features
 // FIXME: apply new style function?
 // FIXME: linestring or polygon
 // FIXME: use feature properties for styling
-import { featureStyle } from './style'
+// FIXME: no zoom on double click
+// FIXME: right click to remove point while drawing ?
+
+import { noModifierKeys, singleClick } from 'ol/events/condition'
+import Event from 'ol/events/Event'
+import GeoJSON from 'ol/format/GeoJSON'
+import KML from 'ol/format/KML'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
 import SnapInteraction from 'ol/interaction/Snap'
 import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
 import Observable from 'ol/Observable'
-import Event from 'ol/events/Event'
-import GeoJSON from 'ol/format/GeoJSON'
+import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
-import { noModifierKeys, singleClick } from 'ol/events/condition'
-import tokml from 'tokml'
-import { create, update } from '@/api/files.api'
+import { featureStyle } from './style'
 
-const geojson = new GeoJSON()
+class ChangeEvent extends Event {
+    /**
+     * @param {Object} geojson Features in GeoJSON format
+     * @param {string} kml Features in KML format
+     * @param {string} [featureId] Feature id
+     */
+    constructor(geojson, kml, featureId) {
+        super('change')
 
-class DrawingManagerEvent extends Event {
-    constructor(type, feature, detail = null) {
-        super(type)
+        this.geojson = geojson
 
-        this.detail = detail
+        this.kml = kml
 
-        this.feature = geojson.writeFeatureObject(feature)
+        this.featureId = featureId
+    }
+}
+
+class SelectEvent extends Event {
+    /**
+     * @param {string | null} featureId Feature id
+     * @param {string | null} featureType Feature type
+     * @param {number[]} coordinates Pointer coordinates
+     * @param {boolean} modifying
+     */
+    constructor(featureId, featureType, coordinates, modifying) {
+        super('select')
+
+        this.featureId = featureId
+
+        this.featureType = featureType
+
+        this.coordinates = coordinates
+
+        this.modifying = modifying
     }
 }
 
@@ -38,6 +64,14 @@ export default class DrawingManager extends Observable {
 
         this.map = map
 
+        this.geojsonFormat = new GeoJSON({
+            featureProjection: this.map.getView().getProjection(),
+        })
+
+        this.kmlFormat = new KML({
+            featureProjection: this.map.getView().getProjection(),
+        })
+
         this.options = options
 
         this.layer = new VectorLayer({
@@ -46,23 +80,21 @@ export default class DrawingManager extends Observable {
         this.source = this.layer.getSource()
 
         this.tools = {}
-        for (let [id, options] of Object.entries(tools)) {
+        for (let [type, options] of Object.entries(tools)) {
             const tool = new DrawInteraction({
                 ...options.drawOptions,
                 source: this.source,
             })
+            tool.set('type', type)
             tool.setActive(false)
             const overlaySource = tool.getOverlay().getSource()
             overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
-            tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
-            this.map.addInteraction(tool) // FIXME: move to activate
-            this.tools[id] = tool
+            this.tools[type] = tool
         }
 
         this.select = new SelectInteraction({
-            // style: null,
             style: this.options.editingStyle,
             toggleCondition: () => false,
             layers: [this.layer],
@@ -87,25 +119,36 @@ export default class DrawingManager extends Observable {
         this.map.on('pointerup', (event) => (this.pointerCoordinate = event.coordinate))
 
         this.activeInteraction = null
+
+        this.onKeyUpFunction_ = this.onKeyUp_.bind(this)
     }
 
     // API
     activate() {
+        for (const id in this.tools) {
+            this.map.addInteraction(this.tools[id])
+        }
         if (!this.options.noModify) {
             this.map.addInteraction(this.select)
             this.map.addInteraction(this.modify)
         }
         this.map.addLayer(this.layer)
         this.map.addInteraction(this.snap)
-        // this.select.setActive(true)
+
+        document.addEventListener('keyup', this.onKeyUpFunction_)
     }
 
     // API
     deactivate() {
+        for (const id in this.tools) {
+            this.map.removeInteraction(this.tools[id])
+        }
         this.map.removeInteraction(this.select)
         this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
-        // FIXME: remove layer
+        this.map.removeLayer(this.layer)
+
+        document.removeEventListener('keyup', this.onKeyUpFunction_)
     }
 
     // API
@@ -128,59 +171,54 @@ export default class DrawingManager extends Observable {
         console.log('FIXME: remove feature', feature)
     }
 
-    prepareEvent_(type, feature) {
-        return new DrawingManagerEvent(type, feature, {
-            coordinate: this.pointerCoordinate,
-        })
+    dispatchChangeEvent_(feature) {
+        const geojson = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
+        const kml = this.kmlFormat.writeFeatures(this.source.getFeatures())
+        this.dispatchEvent(new ChangeEvent(geojson, kml, feature.getId()))
+    }
+
+    dispatchSelectEvent_(feature, modifying) {
+        const featureId = feature ? feature.getId() : null
+        const featureType = feature ? feature.get('type') : null
+        this.dispatchEvent(
+            new SelectEvent(featureId, featureType, this.pointerCoordinate, modifying)
+        )
+    }
+
+    onKeyUp_(event) {
+        if (this.activeInteraction && event.key == 'Delete') {
+            this.activeInteraction.removeLastPoint()
+        }
     }
 
     onAddFeature_(event, properties) {
         const feature = event.feature
 
         feature.setId(getUid(feature))
-        feature.setProperties(Object.assign({}, properties))
+        feature.setProperties(
+            Object.assign({ type: this.activeInteraction.get('type') }, properties)
+        )
         feature.setStyle(featureStyle(feature))
-    }
-
-    setGeographicProperties_(feature) {
-        // FIXME: implement this
-        // FIXME: coordinates to EPSG:2056 ?
-        feature.set('coordinate', 'fixme')
-        feature.set('length', 'fixme')
-        feature.set('area', 'fixme')
     }
 
     onDrawActiveChange_(event) {
         this.select.setActive(!event.target.getActive())
     }
 
-    onDrawStart_(event) {
-        this.dispatchEvent(this.prepareEvent_('drawstart', event.feature))
-    }
-
-    async onDrawEnd_(event) {
-        const feature = event.feature
-        this.setGeographicProperties_(feature)
-        const gJson = geojson.writeFeatureObject(feature)
-        const kml = tokml(gJson)
-        const response = await create(kml)
-        if (response && response.adminId && response.fileId) {
-            feature.set('adminId', response.adminId)
-            feature.set('fileId', response.fileId)
-        }
-
-        this.dispatchEvent(this.prepareEvent_('drawend', feature))
+    onDrawEnd_(event) {
+        this.source.once('addfeature', (event) => this.dispatchChangeEvent_(event.feature))
 
         // deactivate drawing tool
         event.target.setActive(false)
-        this.select.getFeatures().push(feature)
+        this.select.getFeatures().push(event.feature)
     }
 
     onModifyStart_(event) {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
-            this.dispatchEvent(this.prepareEvent_('modifystart', features[0]))
+            const feature = features[0]
+            this.dispatchSelectEvent_(feature, true)
         }
     }
 
@@ -189,22 +227,16 @@ export default class DrawingManager extends Observable {
         if (features.length) {
             console.assert(features.length == 1)
             const feature = features[0]
-            this.setGeographicProperties_(feature)
-            const adminId = feature.get('adminId')
-            console.assert(!!adminId)
-            if (adminId) {
-                const kml = tokml(geojson.writeFeatureObject(feature))
-                await update(adminId, kml)
-            }
-            this.dispatchEvent(this.prepareEvent_('modifyend', feature))
+            this.dispatchSelectEvent_(feature, false)
+            this.dispatchChangeEvent_(feature)
         }
     }
 
     onSelectChange_(event) {
         if (event.type === 'add') {
-            this.dispatchEvent(this.prepareEvent_('selected', event.element))
+            this.dispatchSelectEvent_(event.element, false)
         } else if (event.type === 'remove') {
-            this.dispatchEvent(this.prepareEvent_('deselected', event.element))
+            this.dispatchSelectEvent_(null, false)
         }
     }
 }
