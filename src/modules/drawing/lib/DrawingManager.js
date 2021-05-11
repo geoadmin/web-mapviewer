@@ -9,6 +9,7 @@
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import Event from 'ol/events/Event'
 import GeoJSON from 'ol/format/GeoJSON'
+import KML from 'ol/format/KML'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
@@ -21,13 +22,16 @@ import { featureStyle } from './style'
 
 class ChangeEvent extends Event {
     /**
-     * @param {Object} features Features in GeoJSON format
+     * @param {Object} geojson Features in GeoJSON format
+     * @param {string} kml Features in KML format
      * @param {string} [featureId] Feature id
      */
-    constructor(features, featureId) {
+    constructor(geojson, kml, featureId) {
         super('change')
 
-        this.features = features
+        this.geojson = geojson
+
+        this.kml = kml
 
         this.featureId = featureId
     }
@@ -58,6 +62,10 @@ export default class DrawingManager extends Observable {
         this.map = map
 
         this.geojsonFormat = new GeoJSON({
+            featureProjection: this.map.getView().getProjection(),
+        })
+
+        this.kmlFormat = new KML({
             featureProjection: this.map.getView().getProjection(),
         })
 
@@ -161,8 +169,9 @@ export default class DrawingManager extends Observable {
     }
 
     dispatchChangeEvent_(feature) {
-        const features = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
-        this.dispatchEvent(new ChangeEvent(features, feature.getId()))
+        const geojson = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
+        const kml = this.kmlFormat.writeFeatures(this.source.getFeatures())
+        this.dispatchEvent(new ChangeEvent(geojson, kml, feature.getId()))
     }
 
     dispatchSelectEvent_(feature, modifying) {
