@@ -55,8 +55,8 @@ export default {
             // TODO: validate GeoJSON (maybe with Mapbox utils, but some part/dependencies are deprecated)
             commit('setDrawingGeoJSON', geoJson)
         },
-        setDrawingSelectedFeatureData: ({ commit }, feature) => {
-            commit('setDrawingSelectedFeatureData', feature)
+        setDrawingSelectedFeatureData: ({ commit }, data) => {
+            commit('setDrawingSelectedFeatureData', data)
         },
         setKmlIds: ({ commit }, drawingKmlIds) => {
             commit('setKmlIds', drawingKmlIds)
@@ -65,7 +65,7 @@ export default {
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
-        setDrawingSelectedFeatureData: (state, feature) => (state.selectedFeatureData = feature),
+        setDrawingSelectedFeatureData: (state, data) => (state.selectedFeatureData = data),
         setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
     },
 }

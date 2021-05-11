@@ -78,9 +78,13 @@ export default {
             this.manager.updateFeatures(geoJson)
         },
     },
+    destroyed() {
+        document.body['drawingMap'] = undefined
+    },
     mounted() {
         /** @type {import('ol/Map').default} */
         const map = this.getMap()
+        document.body['drawingMap'] = map
         overlay.setElement(this.$refs['overlay'].$el)
         map.addOverlay(overlay)
         this.manager = new DrawingManager(
@@ -138,7 +142,12 @@ export default {
             this.saveDrawing(event.kml)
         })
         this.manager.on('select', (event) => {
-            console.log(event)
+            this.setDrawingSelectedFeatureData({
+                featureId: event.featureId,
+                featureType: event.featureType,
+                coordinates: event.coordinates,
+                modifying: event.modifying,
+            })
         })
     },
     methods: {
