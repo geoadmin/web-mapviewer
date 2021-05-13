@@ -2,6 +2,21 @@ import { API_BASE_URL } from '@/config'
 import axios from 'axios'
 import log from '@/utils/logging'
 
+/**
+ * @typedef FilesResponse
+ * @property {string} adminId The file ID to use if the user wants to modify this file later
+ *   (without changing his sharing links)
+ * @property {string} fileId The file ID that can be shown to anyone, but if changes are made, it
+ *   will then store a new file with the changes (immutable file ID)
+ * @property {string} [status] Status of update
+ */
+
+/**
+ * Publish KML on backend
+ *
+ * @param {string} kml
+ * @returns {Promise<FilesResponse>}
+ */
 export const create = (kml) => {
     return new Promise((resolve, reject) => {
         if (!kml || !kml.length) {
@@ -29,6 +44,13 @@ export const create = (kml) => {
     })
 }
 
+/**
+ * Update KML on backend
+ *
+ * @param {string} id 'adminId' from FilesResponse
+ * @param {string} kml
+ * @returns {Promise<FilesResponse>}
+ */
 export const update = (id, kml) => {
     return new Promise((resolve, reject) => {
         if (!id) {

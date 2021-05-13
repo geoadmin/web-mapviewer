@@ -12,6 +12,12 @@ export const drawingModes = {
  * @property {string} featureId
  */
 
+/**
+ * @typedef DrawingKmlIds
+ * @property {string} adminId
+ * @property {string} fileId
+ */
+
 export default {
     state: {
         /**
@@ -33,11 +39,11 @@ export default {
          */
         selectedFeatureData: null,
         /**
-         * Array of drawn features
+         * Ids of stored KML file
          *
-         * @type {Array}
+         * @type {DrawingKmlIds | null}
          */
-        features: [],
+        drawingKmlIds: null,
     },
     getters: {
         getFeatures(state) {
@@ -57,23 +63,14 @@ export default {
         setDrawingSelectedFeatureData: ({ commit }, feature) => {
             commit('setDrawingSelectedFeatureData', feature)
         },
-        addFeature: ({ commit }, geojson) => {
-            commit('addFeature', geojson)
-        },
-        modifyFeature: ({ commit, getters }, geojson) => {
-            const features = getters.getFeatures
-            const featureIndex = features.findIndex(
-                (f) => f.properties.adminId === geojson.properties.adminId
-            )
-            features[featureIndex] = geojson
-            commit('setFeatures', features)
+        setKmlIds: ({ commit }, drawingKmlIds) => {
+            commit('setKmlIds', drawingKmlIds)
         },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
         setDrawingSelectedFeatureData: (state, feature) => (state.selectedFeatureData = feature),
-        addFeature: (state, feature) => state.features.push(feature),
-        setFeatures: (state, features) => (state.features = features),
+        setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
     },
 }

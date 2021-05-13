@@ -28,6 +28,7 @@ import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle } from '@/modules/drawing/lib/style'
 import DrawingStylePopup from './components/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
+import { create, update } from '@/api/files.api'
 
 const overlay = new Overlay({})
 
@@ -54,6 +55,7 @@ export default {
                 overlay.setPosition(xy)
                 return f
             },
+            kmlIds: (state) => state.drawing.drawingKmlIds,
         }),
         drawingModes: function () {
             const modes = []
@@ -133,7 +135,7 @@ export default {
         })
         this.manager.on('change', (event) => {
             console.log(event)
-            this.addFeature(event.feature)
+            this.saveDrawing(event.kml)
         })
         this.manager.on('select', (event) => {
             console.log(event)
@@ -145,8 +147,7 @@ export default {
             'setDrawingMode',
             'setDrawingGeoJSON',
             'setDrawingSelectedFeatureData',
-            'addFeature',
-            'modifyFeature',
+            'setKmlIds',
         ]),
         hideDrawingOverlay: function () {
             this.setDrawingMode(null)
@@ -173,6 +174,17 @@ export default {
             })
             newGeoJson.features[idx] = newFeature
             this.setDrawingGeoJSON(newGeoJson)
+        },
+        saveDrawing: async function (kml) {
+            let ids
+            if (!this.kmlIds) {
+                ids = await create(kml)
+            } else {
+                ids = await update(this.kmlIds.adminId, kml)
+            }
+            if (ids && ids.adminId && ids.fileId) {
+                this.setKmlIds({ adminId: ids.adminId, fileId: ids.fileId })
+            }
         },
     },
 }
