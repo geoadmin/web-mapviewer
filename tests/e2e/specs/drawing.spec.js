@@ -1,3 +1,5 @@
+const mockResponse = { fileId: 'test', adminId: 'test' }
+
 describe('Drawing', () => {
     function goToDrawing() {
         cy.goToMapView()
@@ -7,7 +9,9 @@ describe('Drawing', () => {
             expect(value).to.equal(true)
         })
     }
+
     const tools = ['marker', 'text', 'line', 'measure']
+
     function clickTool(name) {
         expect(tools).to.include(name)
         cy.get(`[data-cy="drawing-${name}`).click()
@@ -15,6 +19,7 @@ describe('Drawing', () => {
             expect(value).to.equal(name.toUpperCase())
         })
     }
+
     const olSelector = '.ol-viewport'
 
     function readGeoJsonType(type) {
@@ -45,7 +50,7 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 150)
         readGeoJsonType('LineString')
     })
-    it.only('create a polygon', () => {
+    it('create a polygon', () => {
         goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
@@ -53,5 +58,45 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).click(100, 100)
         readGeoJsonType('Polygon')
+    })
+    it.only('test saving', () => {
+        const checkResponse = (interception, types, create = false) => {
+            if (!create) {
+                const urlArray = interception.request.url.split('/')
+                const id = urlArray[urlArray.length - 1]
+                expect(id).to.be.eq(mockResponse.adminId)
+            }
+            expect(interception.request.headers['content-type']).to.be.eq(
+                'application/vnd.google-earth.kml+xml'
+            )
+            expect(interception.request.body).to.be.contain('</kml>')
+            types.forEach((type) => expect(interception.request.body).to.be.contain(type))
+        }
+
+        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
+        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
+
+        goToDrawing()
+        clickTool('marker')
+
+        cy.get(olSelector).dblclick('center')
+        cy.wait('@saveFile').then((interception) => checkResponse(interception, ['MARKER'], true))
+        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
+            expect(ids.adminId).to.eq('test')
+            expect(ids.fileId).to.eq('test')
+        })
+
+        cy.get(olSelector).click('center')
+        cy.wait('@modifyFile').then((interception) => checkResponse(interception, ['MARKER']))
+        clickTool('line')
+        cy.get(olSelector).click(100, 100)
+        cy.get(olSelector).dblclick(150, 100)
+        cy.wait('@modifyFile').then((interception) =>
+            checkResponse(interception, ['MARKER', 'LINE'])
+        )
+        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
+            expect(ids.adminId).to.eq('test')
+            expect(ids.fileId).to.eq('test')
+        })
     })
 })

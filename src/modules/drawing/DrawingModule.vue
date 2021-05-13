@@ -134,7 +134,7 @@ export default {
             console.log(event)
         })
         this.manager.on('change', (event) => {
-            console.log(event)
+            this.setDrawingGeoJSON(event.geojson)
             this.saveDrawing(event.kml)
         })
         this.manager.on('select', (event) => {

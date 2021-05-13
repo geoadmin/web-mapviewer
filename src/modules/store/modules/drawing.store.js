@@ -45,11 +45,6 @@ export default {
          */
         drawingKmlIds: null,
     },
-    getters: {
-        getFeatures(state) {
-            return state.features
-        },
-    },
     actions: {
         setDrawingMode: ({ commit }, mode) => {
             if (mode in drawingModes || mode === null) {

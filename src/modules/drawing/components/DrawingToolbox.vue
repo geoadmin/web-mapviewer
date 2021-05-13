@@ -11,7 +11,6 @@
                         :key="drawingMode"
                         :drawing-mode="drawingMode"
                         :is-active="currentDrawingMode === drawingMode"
-                        :data-cy="`draw-mode-${drawingMode}`"
                         @setDrawingMode="bubbleSetDrawingEventToParent"
                     />
                 </div>
