@@ -59,7 +59,7 @@ describe('Drawing', () => {
         cy.get(olSelector).click(100, 100)
         readGeoJsonType('Polygon')
     })
-    it.only('test saving', () => {
+    it('test saving', () => {
         const checkResponse = (interception, types, create = false) => {
             if (!create) {
                 const urlArray = interception.request.url.split('/')
