@@ -29,8 +29,12 @@ import { createEditingStyle } from '@/modules/drawing/lib/style'
 import DrawingStylePopup from './components/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
+import OverlayPositioning from 'ol/OverlayPositioning'
 
-const overlay = new Overlay({})
+const overlay = new Overlay({
+    offset: [0, 5],
+    positioning: OverlayPositioning.TOP_CENTER,
+})
 
 export default {
     components: { DrawingToolbox, DrawingStylePopup },
@@ -43,17 +47,17 @@ export default {
             selectedFeature: function (state) {
                 const sfd = state.drawing.selectedFeatureData
                 const geoJson = state.drawing.geoJson
-                let f = null
+                let feature = null
+                let showOverlay = false
+                let xy = [0, 0]
                 if (sfd) {
-                    f = geoJson.features.find((f) => f.id === sfd.featureId)
+                    feature = geoJson.features.find((f) => f.id === sfd.featureId)
+                    showOverlay = !!feature && !sfd.modifying
+                    xy = sfd.coordinates
                 }
-                overlay.setVisible(!!f)
-                if (!f) {
-                    return null
-                }
-                const xy = f.coordinate || [731667.39, 5862995.8]
+                overlay.setVisible(showOverlay)
                 overlay.setPosition(xy)
-                return f
+                return feature
             },
             kmlIds: (state) => state.drawing.drawingKmlIds,
         }),
