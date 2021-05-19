@@ -9,7 +9,7 @@
             />
         </div>
         <div v-show="show">
-            <drawing-style-popup
+            <DrawingStylePopup
                 ref="overlay"
                 :feature="selectedFeature"
                 @delete="deleteSelectedFeature"
@@ -22,6 +22,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import { API_BASE_URL } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
@@ -111,7 +112,7 @@ export default {
                     properties: {
                         color: '#f00',
                         font: 'normal 16px Helvetica',
-                        icon: 'https://api3.geo.admin.ch/color/255,0,0/marker-24@2x.png',
+                        icon: `${API_BASE_URL}color/255,0,0/marker-24@2x.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',

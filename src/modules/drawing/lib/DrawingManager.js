@@ -57,8 +57,16 @@ class SelectEvent extends Event {
     }
 }
 
+// Manages a list of drawing interaction on an Openlayers map.
+// In addition to the drawing tools, this class manages a select and snap interactions.
+// When a feature is drawn or modified, a `ChangeEvent` event is dispatched.
+// When a feature is selected or deselected, a `SelectEvent` event is dispatched.
 export default class DrawingManager extends Observable {
-    // API
+    /**
+     * @param {Map} map OpenLayers map instance
+     * @param {Object[]} tools Tools configuration
+     * @param {Object} Options
+     */
     constructor(map, tools, options = {}) {
         super()
 
@@ -151,7 +159,11 @@ export default class DrawingManager extends Observable {
         document.removeEventListener('keyup', this.onKeyUpFunction_)
     }
 
-    // API
+    /**
+     * Activate a specific tool. If an other tool was already active it is deactivated.
+     *
+     * @param {string} tool Tool name
+     */
     toggleTool(tool) {
         if (this.activeInteraction) {
             this.activeInteraction.setActive(false)
