@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import {
     formatPointCoordinates,
     formatMeters,
-    wgs84ToLv95,
+    lonLatToLv95,
 } from '@/modules/drawing/lib/drawingUtils'
 import setupProj4 from '@/utils/setupProj4'
 
@@ -12,26 +12,24 @@ setupProj4()
 describe('Unit test functions from drawingUtils.js', () => {
     describe('wgs84ToLv95(coordinate)', () => {
         it('reprojects points', () => {
-            expect(wgs84ToLv95([46.51333, 6.57268])).to.eql([2533541.8057776038, 1151703.909974419])
+            expect(lonLatToLv95([46.51333, 6.57268].reverse())).to.eql([
+                2533541.8057776038,
+                1151703.909974419,
+            ])
         })
         it('reprojects lines', () => {
-            expect(
-                wgs84ToLv95([
-                    [46.51333, 6.57268],
-                    [46.7, 6.7],
-                ])
-            ).to.eql([
+            expect(lonLatToLv95([[46.51333, 6.57268].reverse(), [46.7, 6.7].reverse()])).to.eql([
                 [2533541.8057776038, 1151703.909974419],
                 [2543508.4227881124, 1172354.2517551924],
             ])
         })
         it('reprojects polygons', () => {
             expect(
-                wgs84ToLv95([
-                    [46.51333, 6.57268],
-                    [46.7, 6.7],
-                    [46.9, 6.9],
-                    [46.51333, 6.57268],
+                lonLatToLv95([
+                    [46.51333, 6.57268].reverse(),
+                    [46.7, 6.7].reverse(),
+                    [46.9, 6.9].reverse(),
+                    [46.51333, 6.57268].reverse(),
                 ])
             ).to.eql([
                 [2533541.8057776038, 1151703.909974419],

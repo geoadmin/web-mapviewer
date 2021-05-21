@@ -33,7 +33,7 @@ import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
 
 const overlay = new Overlay({
-    offset: [0, 5],
+    offset: [0, 15],
     positioning: OverlayPositioning.TOP_CENTER,
 })
 

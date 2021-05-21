@@ -179,8 +179,18 @@ export default class DrawingManager extends Observable {
     }
 
     // API
+    /** @param {import('ol/format/GeoJSON').GeoJSONFeatureCollection} geojson */
     updateFeatures(geojson) {
-        console.log(geojson)
+        const sourceFeatures = this.source.getFeaturesCollection().getArray()
+        const removedFeatures = sourceFeatures.filter(
+            (sf) => !geojson.features.find((gf) => gf.id === sf.getId())
+        )
+        removedFeatures.forEach((f) => this.source.removeFeature(f))
+        geojson.features.forEach((gf) => {
+            const sf = sourceFeatures.find((f) => f.getId() === gf.id)
+            // no way to know what has changed so we overwrite everything
+            sf.setProperties(gf.properties)
+        })
     }
 
     dispatchChangeEvent_(feature) {

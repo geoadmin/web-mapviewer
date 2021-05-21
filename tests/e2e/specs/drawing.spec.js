@@ -28,6 +28,14 @@ describe('Drawing', () => {
         })
     }
 
+    function checkGeoJsonProperty(key, expected) {
+        cy.readStoreValue('state.drawing.geoJson').then((geoJson) => {
+            expect(geoJson.features).to.have.length(1)
+            const v = geoJson.features[0].properties[key]
+            expect(v).to.equal(expected)
+        })
+    }
+
     /**
      * This fonction has been taken from the OL draw spec. Simulates a browser event on the map
      * viewport. The client x/y location will be adjusted as if the map were centered at 0,0.
@@ -97,6 +105,12 @@ describe('Drawing', () => {
                 )
             })
         })
+
+        cy.get('#text').type('This is a title')
+        checkGeoJsonProperty('text', 'This is a title')
+
+        cy.get('#description').type('This is a description')
+        checkGeoJsonProperty('description', 'This is a description')
     })
 
     it('creates a text', () => {

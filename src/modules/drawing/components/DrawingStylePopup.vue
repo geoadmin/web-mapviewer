@@ -1,5 +1,6 @@
 <template>
     <div v-if="feature" class="card drawing-style-popup">
+        <div class="arrow-top"></div>
         <div class="card-header">
             <span class="float-left">{{ $t('draw_popup_title_feature') }}</span>
             <button type="button" class="close" aria-label="Close" @click="onClose">
@@ -128,6 +129,19 @@ export default {
         margin-bottom: 5px;
         font-weight: 700;
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .arrow-top::after {
+        display: block;
+        content: ' ';
+        position: absolute;
+        left: 149px;
+        top: -10px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 10px 10px 10px;
+        z-index: 1000;
+        border-color: transparent transparent #f7f7f7 transparent;
     }
 }
 </style>
