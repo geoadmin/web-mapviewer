@@ -1,11 +1,11 @@
 import { LineString, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 
-export function wgs84ToLv95(input) {
+export function lonLatToLv95(input) {
     if (Array.isArray(input[0])) {
-        return input.map((si) => wgs84ToLv95(si))
+        return input.map((si) => lonLatToLv95(si))
     } else {
-        return proj4(proj4.WGS84, 'EPSG:2056', [input[1], input[0]])
+        return proj4(proj4.WGS84, 'EPSG:2056', [input[0], input[1]])
     }
 }
 
@@ -29,9 +29,9 @@ export function formatMeters(value, { dim = 1, digits = 2 } = {}) {
     return `${nb} ${unit}`
 }
 
-export function geometryInfo(geometry84) {
-    const coos95 = wgs84ToLv95(geometry84.coordinates)
-    const type = geometry84.type
+export function geometryInfo(geometryLonLat) {
+    const coos95 = lonLatToLv95(geometryLonLat.coordinates)
+    const type = geometryLonLat.type
     const output = {
         type,
     }
