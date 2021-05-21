@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
+    "test:e2e-dev": "vue-cli-service test:e2e --mode development",
     "test:headless": "vue-cli-service test:e2e --headless",
     "test:ci": "npm run test:unit && npm run test:headless",
     "lint": "vue-cli-service lint",
