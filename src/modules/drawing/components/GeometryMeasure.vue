@@ -1,5 +1,5 @@
 <template>
-    <span>
+    <span v-if="info">
         <span v-if="info.type == 'Point'">
             <font-awesome-icon :icon="['fas', 'map-marker-alt']" /> {{ info.location }}
         </span>
@@ -28,7 +28,11 @@ export default {
     },
     computed: {
         info: function () {
-            return geometryInfo(this.geometry)
+            if (!this.geometry) return null
+            const type = this.geometry.getType()
+            const coordinates = this.geometry.getCoordinates()
+            const epsg = 'EPSG:3857'
+            return geometryInfo(type, coordinates, epsg)
         },
     },
     methods: {},

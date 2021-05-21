@@ -58,6 +58,11 @@ Cypress.Commands.add('readStoreValue', (key) => {
     return cy.window().its(`store.${key}`)
 })
 
+// Reads a value from the window
+Cypress.Commands.add('readWindowValue', (key) => {
+    return cy.window().its(key)
+})
+
 // from https://github.com/cypress-io/cypress/issues/1123#issuecomment-672640129
 Cypress.Commands.add(
     'paste',

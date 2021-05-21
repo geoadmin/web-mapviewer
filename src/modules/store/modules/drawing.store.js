@@ -33,12 +33,6 @@ export default {
          */
         geoJson: null,
         /**
-         * Current drawing as a GeoJSON, or null if there's no drawing
-         *
-         * @type {SelectedFeatureData | null}
-         */
-        selectedFeatureData: null,
-        /**
          * Ids of stored KML file
          *
          * @type {DrawingKmlIds | null}
@@ -55,9 +49,6 @@ export default {
             // TODO: validate GeoJSON (maybe with Mapbox utils, but some part/dependencies are deprecated)
             commit('setDrawingGeoJSON', geoJson)
         },
-        setDrawingSelectedFeatureData: ({ commit }, data) => {
-            commit('setDrawingSelectedFeatureData', data)
-        },
         setKmlIds: ({ commit }, drawingKmlIds) => {
             commit('setKmlIds', drawingKmlIds)
         },
@@ -65,7 +56,6 @@ export default {
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
-        setDrawingSelectedFeatureData: (state, data) => (state.selectedFeatureData = data),
         setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
     },
 }
