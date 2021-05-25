@@ -19,21 +19,28 @@ describe('Drawing', () => {
 
     const olSelector = '.ol-viewport'
 
-    function readGeoJsonType(type, callback) {
-        cy.readStoreValue('state.drawing.geoJson').then((geoJson) => {
-            expect(geoJson.features).to.have.length(1)
-            const foundType = geoJson.features[0].geometry.type
-            expect(foundType).to.equal(type)
-            if (callback) callback(geoJson)
-        })
+    const readDrawnGeoJSON = () => cy.readStoreValue('state.drawing.geoJson')
+
+    const getDrawingManager = () => cy.readWindowValue('drawingManager')
+    function readDrawingFeatures(type, callback) {
+        getDrawingManager()
+            .then((manager) => manager.source.getFeatures())
+            .then((features) => {
+                expect(features).to.have.length(1)
+                const foundType = features[0].getGeometry().getType()
+                expect(foundType).to.equal(type)
+                if (callback) callback(features)
+            })
     }
 
     function checkGeoJsonProperty(key, expected) {
-        cy.readStoreValue('state.drawing.geoJson').then((geoJson) => {
-            expect(geoJson.features).to.have.length(1)
-            const v = geoJson.features[0].properties[key]
-            expect(v).to.equal(expected)
-        })
+        getDrawingManager()
+            .then((manager) => manager.source.getFeatures())
+            .then((features) => {
+                expect(features).to.have.length(1)
+                const v = features[0].get(key)
+                expect(v).to.equal(expected)
+            })
     }
 
     /**
@@ -72,7 +79,7 @@ describe('Drawing', () => {
         return simulatedEvent
     }
 
-    const getDrawingMap = () => cy.get('body').then((body) => body[0]['drawingMap'])
+    const getDrawingMap = () => cy.readWindowValue('drawingMap')
 
     it('creates a marker', () => {
         goToDrawing()
@@ -82,12 +89,9 @@ describe('Drawing', () => {
             simulateEvent(map, 'pointermove', 0, 0)
             simulateEvent(map, 'pointerdown', 0, 0)
             simulateEvent(map, 'pointerup', 0, 0)
-            readGeoJsonType('Point', (geoJson) => {
-                const coos = geoJson.features[0].geometry.coordinates
-                expect(coos).to.eql(
-                    [8.224999984057822, 46.81500000237665],
-                    `bad: ${JSON.stringify(coos)}`
-                )
+            readDrawingFeatures('Point', (features) => {
+                const coos = features[0].getGeometry().getCoordinates()
+                expect(coos).to.eql([915602.81, 5911929.47], `bad: ${JSON.stringify(coos)}`)
             })
         })
 
@@ -97,10 +101,10 @@ describe('Drawing', () => {
             simulateEvent(map, 'pointermove', 200, 140)
             simulateEvent(map, 'pointerdrag', 200, 140)
             simulateEvent(map, 'pointerup', 200, 140)
-            readGeoJsonType('Point', (geoJson) => {
-                const coos = geoJson.features[0].geometry.coordinates
+            readDrawingFeatures('Point', (features) => {
+                const coos = features[0].getGeometry().getCoordinates()
                 expect(coos).to.eql(
-                    [10.42226560905782, 45.7520927843664],
+                    [1160201.300512564, 5740710.526641205],
                     `bad: ${JSON.stringify(coos)}`
                 )
             })
@@ -111,13 +115,24 @@ describe('Drawing', () => {
 
         cy.get('#description').type('This is a description')
         checkGeoJsonProperty('description', 'This is a description')
+
+        cy.get('.btn-close').click()
+        readDrawnGeoJSON().then((geojson) => {
+            const g0 = geojson.features[0].geometry
+            expect(g0.type).to.equal('Point')
+            const coos = g0.coordinates
+            expect(coos).to.eql(
+                [10.42226560905782, 45.7520927843664],
+                `bad: ${JSON.stringify(coos)}`
+            )
+        })
     })
 
     it('creates a text', () => {
         goToDrawing()
         clickTool('text')
         cy.get(olSelector).click(100, 100)
-        readGeoJsonType('Point')
+        readDrawingFeatures('Point')
     })
 
     it('creates a polygon by re-clicking first point', () => {
@@ -127,7 +142,7 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 100)
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).click(100, 100)
-        readGeoJsonType('Polygon')
+        readDrawingFeatures('Polygon')
     })
 
     // FIXME: it is currently not possible to draw lines
@@ -137,11 +152,11 @@ describe('Drawing', () => {
         cy.get(olSelector).click(100, 100)
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).dblclick(120, 240)
-        readGeoJsonType('LineString', (geoJson) => {
+        readDrawingFeatures('LineString', (geoJson) => {
             expect(geoJson.geometry.coordinates.length).to.equal(3)
         })
         cy.get(olSelector).click(1, 1) // do nothing, already finished
-        readGeoJsonType('LineString', (geoJson) => {
+        readDrawingFeatures('LineString', (geoJson) => {
             expect(geoJson.geometry.coordinates.length).to.equal(3)
         })
     })

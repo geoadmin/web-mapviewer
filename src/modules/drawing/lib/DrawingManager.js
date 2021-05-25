@@ -20,39 +20,22 @@ import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
 import { featureStyle } from './style'
 
-class ChangeEvent extends Event {
-    /**
-     * @param {Object} geojson Features in GeoJSON format
-     * @param {string} kml Features in KML format
-     * @param {string} [featureId] Feature id
-     */
-    constructor(geojson, kml, featureId) {
+export class ChangeEvent extends Event {
+    constructor() {
         super('change')
-
-        this.geojson = geojson
-
-        this.kml = kml
-
-        this.featureId = featureId
     }
 }
 
-class SelectEvent extends Event {
+export class SelectEvent extends Event {
     /**
-     * @param {string | null} featureId Feature id
-     * @param {string | null} featureType Feature type
+     * @param {import('ol/Feature').default | null} feature Feature
      * @param {number[]} coordinates Pointer coordinates
      * @param {boolean} modifying
      */
-    constructor(featureId, featureType, coordinates, modifying) {
+    constructor(feature, coordinates, modifying) {
         super('select')
-
-        this.featureId = featureId
-
-        this.featureType = featureType
-
+        this.feature = feature
         this.coordinates = coordinates
-
         this.modifying = modifying
     }
 }
@@ -178,33 +161,29 @@ export default class DrawingManager extends Observable {
         this.select.getFeatures().clear()
     }
 
-    // API
-    /** @param {import('ol/format/GeoJSON').GeoJSONFeatureCollection} geojson */
-    updateFeatures(geojson) {
-        const sourceFeatures = this.source.getFeaturesCollection().getArray()
-        const removedFeatures = sourceFeatures.filter(
-            (sf) => !geojson.features.find((gf) => gf.id === sf.getId())
-        )
-        removedFeatures.forEach((f) => this.source.removeFeature(f))
-        geojson.features.forEach((gf) => {
-            const sf = sourceFeatures.find((f) => f.getId() === gf.id)
-            // no way to know what has changed so we overwrite everything
-            sf.setProperties(gf.properties)
+    deleteSelected() {
+        this.select.getFeatures().forEach((f) => {
+            this.source.removeFeature(f)
         })
+        this.deselect()
+        this.dispatchChangeEvent_()
     }
 
-    dispatchChangeEvent_(feature) {
+    createGeoJSONAndKML() {
         const geojson = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
         const kml = this.kmlFormat.writeFeatures(this.source.getFeatures())
-        this.dispatchEvent(new ChangeEvent(geojson, kml, feature.getId()))
+        return {
+            geojson,
+            kml,
+        }
+    }
+
+    dispatchChangeEvent_() {
+        this.dispatchEvent(new ChangeEvent())
     }
 
     dispatchSelectEvent_(feature, modifying) {
-        const featureId = feature ? feature.getId() : null
-        const featureType = feature ? feature.get('type') : null
-        this.dispatchEvent(
-            new SelectEvent(featureId, featureType, this.pointerCoordinate, modifying)
-        )
+        this.dispatchEvent(new SelectEvent(feature, this.pointerCoordinate, modifying))
     }
 
     onKeyUp_(event) {

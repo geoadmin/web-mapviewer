@@ -14,7 +14,7 @@
                 :feature="selectedFeature"
                 @delete="deleteSelectedFeature"
                 @close="deactivateFeature"
-                @updateProperties="updateProperties"
+                @updateProperties="triggerKMLUpdate"
             />
         </div>
     </div>
@@ -31,6 +31,7 @@ import DrawingStylePopup from './components/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -40,26 +41,16 @@ const overlay = new Overlay({
 export default {
     components: { DrawingToolbox, DrawingStylePopup },
     inject: ['getMap'],
+    data: function () {
+        return {
+            selectedFeature: null,
+        }
+    },
     computed: {
         ...mapState({
             show: (state) => state.ui.showDrawingOverlay,
             currentDrawingMode: (state) => state.drawing.mode,
             geoJson: (state) => state.drawing.geoJson,
-            selectedFeature: function (state) {
-                const sfd = state.drawing.selectedFeatureData
-                const geoJson = state.drawing.geoJson
-                let feature = null
-                let showOverlay = false
-                let xy = [0, 0]
-                if (sfd) {
-                    feature = geoJson.features.find((f) => f.id === sfd.featureId)
-                    showOverlay = !!feature && !sfd.modifying
-                    xy = sfd.coordinates
-                }
-                overlay.setVisible(showOverlay)
-                overlay.setPosition(xy)
-                return feature
-            },
             kmlIds: (state) => state.drawing.drawingKmlIds,
         }),
         drawingModes: function () {
@@ -79,17 +70,10 @@ export default {
         currentDrawingMode: function (mode) {
             this.manager.toggleTool(mode)
         },
-        geoJson: function (geoJson) {
-            this.manager.updateFeatures(geoJson)
-        },
-    },
-    destroyed() {
-        document.body['drawingMap'] = undefined
     },
     mounted() {
         /** @type {import('ol/Map').default} */
         const map = this.getMap()
-        document.body['drawingMap'] = map
         overlay.setElement(this.$refs['overlay'].$el)
         map.addOverlay(overlay)
         this.manager = new DrawingManager(
@@ -142,52 +126,51 @@ export default {
                 editingStyle: createEditingStyle(),
             }
         )
-        this.manager.on('change', (event) => {
-            this.setDrawingGeoJSON(event.geojson)
-            this.saveDrawing(event.kml)
+        // if we are testing with Cypress, we expose the map and drawing manager
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.drawingMap = map
+            window.drawingManager = this.manager
+        }
+        this.manager.on('change', () => {
+            this.triggerKMLUpdate()
         })
         this.manager.on('select', (event) => {
-            this.setDrawingSelectedFeatureData({
-                featureId: event.featureId,
-                featureType: event.featureType,
-                coordinates: event.coordinates,
-                modifying: event.modifying,
-            })
+            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
+            const selectEvent = event
+            let xy = selectEvent.coordinates
+            const feature = selectEvent.feature
+            const showOverlay = feature && !selectEvent.modifying
+            overlay.setVisible(showOverlay)
+            overlay.setPosition(xy)
+            this.selectedFeature = feature
         })
     },
     methods: {
-        ...mapActions([
-            'toggleDrawingOverlay',
-            'setDrawingMode',
-            'setDrawingGeoJSON',
-            'setDrawingSelectedFeatureData',
-            'setKmlIds',
-        ]),
+        ...mapActions(['toggleDrawingOverlay', 'setDrawingMode', 'setDrawingGeoJSON', 'setKmlIds']),
         hideDrawingOverlay: function () {
+            const { geojson } = this.manager.createGeoJSONAndKML()
+            this.setDrawingGeoJSON(geojson)
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
         },
         changeDrawingMode: function (mode) {
             this.setDrawingMode(mode)
         },
-        deleteSelectedFeature: function (id) {
-            const newFeatures = this.geoJson.features.filter((f) => f.id !== id)
-            const newGeoJson = Object.assign({}, this.geoJson, {
-                features: newFeatures,
-            })
-            this.setDrawingGeoJSON(newGeoJson)
+        deleteSelectedFeature: function () {
+            this.manager.deleteSelected()
         },
         deactivateFeature: function () {
-            this.setDrawingSelectedFeatureData(null)
+            this.manager.deselect()
         },
-        updateProperties: function (featureId, properties) {
-            const idx = this.geoJson.features.findIndex((f) => f.id === featureId)
-            const newGeoJson = Object.assign({}, this.geoJson)
-            const newFeature = Object.assign({}, newGeoJson.features[idx], {
-                properties,
-            })
-            newGeoJson.features[idx] = newFeature
-            this.setDrawingGeoJSON(newGeoJson)
+        triggerKMLUpdate: function () {
+            if (this.KMLUpdateTimeout) {
+                clearTimeout(this.KMLUpdateTimeout)
+                this.KMLUpdateTimeout = 0
+            }
+            this.KMLUpdateTimeout = setTimeout(() => {
+                const { kml } = this.manager.createGeoJSONAndKML()
+                this.saveDrawing(kml)
+            }, 2000)
         },
         saveDrawing: async function (kml) {
             let ids
