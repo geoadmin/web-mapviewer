@@ -18,6 +18,7 @@ import {
     faRuler,
     faArrowsAltH,
     faSquareFull,
+    faFont,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare, faSquare, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
@@ -43,3 +44,4 @@ library.add(faDrawPolygon)
 library.add(faRuler)
 library.add(faCheckSquare)
 library.add(faSquare)
+library.add(faFont)

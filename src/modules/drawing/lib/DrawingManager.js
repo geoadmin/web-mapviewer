@@ -199,7 +199,7 @@ export default class DrawingManager extends Observable {
         feature.setProperties(
             Object.assign({ type: this.activeInteraction.get('type') }, properties)
         )
-        feature.setStyle(featureStyle(feature))
+        feature.setStyle(() => featureStyle(feature))
     }
 
     onDrawActiveChange_(event) {
@@ -223,7 +223,7 @@ export default class DrawingManager extends Observable {
         }
     }
 
-    async onModifyEnd_(event) {
+    onModifyEnd_(event) {
         const features = event.features.getArray()
         if (features.length) {
             console.assert(features.length == 1)
