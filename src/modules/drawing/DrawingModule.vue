@@ -94,12 +94,13 @@ export default {
                         type: 'Point',
                     },
                     properties: {
-                        color: '#f00',
+                        color: '#ff0000',
                         font: 'normal 16px Helvetica',
                         icon: `${API_BASE_URL}color/255,0,0/marker-24@2x.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',
+                        textScale: 1,
                     },
                 },
                 [drawingModes.MEASURE]: {
@@ -116,9 +117,10 @@ export default {
                         type: 'Point',
                     },
                     properties: {
-                        color: '#f00',
+                        color: '#ff0000',
                         text: 'new text',
                         font: 'normal 16px Helvetica',
+                        textScale: 1,
                     },
                 },
             },

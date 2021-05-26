@@ -22,6 +22,7 @@ describe('Drawing', () => {
     const readDrawnGeoJSON = () => cy.readStoreValue('state.drawing.geoJson')
 
     const getDrawingManager = () => cy.readWindowValue('drawingManager')
+
     function readDrawingFeatures(type, callback) {
         getDrawingManager()
             .then((manager) => manager.source.getFeatures())
@@ -81,7 +82,7 @@ describe('Drawing', () => {
 
     const getDrawingMap = () => cy.readWindowValue('drawingMap')
 
-    it('creates a marker', () => {
+    it.only('creates a marker', () => {
         goToDrawing()
         clickTool('marker')
         getDrawingMap().then((map) => {
@@ -115,6 +116,15 @@ describe('Drawing', () => {
 
         cy.get('#description').type('This is a description')
         checkGeoJsonProperty('description', 'This is a description')
+
+        cy.get('.text-style').click()
+
+        cy.get('.text-size-select').click()
+        cy.get('.dropdown-menu > a:nth-child(2)').click()
+        checkGeoJsonProperty('textScale', 1.5)
+
+        cy.get('.color-select-box > div:nth-child(1)').click()
+        checkGeoJsonProperty('color', '#000000')
 
         cy.get('.btn-close').click()
         readDrawnGeoJSON().then((geojson) => {
