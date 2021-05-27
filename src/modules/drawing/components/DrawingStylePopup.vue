@@ -13,7 +13,7 @@
                     <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
                     <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
                 </div>
-                <div v-if="isFeatureText" class="form-group">
+                <div v-if="!isFeatureText" class="form-group">
                     <label for="description">{{ $t('modify_description') }}:</label>
                     <textarea
                         id="description"
