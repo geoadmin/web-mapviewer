@@ -3,31 +3,12 @@
         <button type="button" class="close" @click="onClose">
             <span aria-hidden="true">&times;</span>
         </button>
-        <div class="setting-container">
-            <span>{{ $t('modify_text_size_label') }}:</span>
-            <br />
-            <div class="btn-group">
-                <button
-                    class="btn btn-primary btn-sm dropdown-toggle dropdown-modification text-size-select"
-                    type="button"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                >
-                    {{ $t(sizeLabel) }}
-                </button>
-                <div class="dropdown-menu">
-                    <a
-                        v-for="size in options.textSizes"
-                        :key="size.label"
-                        href="#"
-                        class="dropdown-item"
-                        @click="() => onSizeChange(size)"
-                        >{{ $t(size.label) }}
-                    </a>
-                </div>
-            </div>
-        </div>
+        <Size
+            :sizes="options.textSizes"
+            :scale="feature.get('textScale')"
+            @sizeChange="onSizeChange"
+        >
+        </Size>
         <div class="setting-container">
             <span>{{ $t('modify_text_color_label') }}:</span>
             <div class="color-select-box">
@@ -41,18 +22,7 @@
                         :style="{
                             color: c.name,
                             font: feature.get('font'),
-                            'text-shadow':
-                                '-1px -1px 0 ' +
-                                c.border +
-                                ',' +
-                                '1px -1px 0 ' +
-                                c.border +
-                                ',' +
-                                '-1px 1px 0 ' +
-                                c.border +
-                                ',' +
-                                '1px 1px 0 ' +
-                                c.border,
+                            'text-shadow': textShadow(c.border),
                         }"
                     >
                         Aa
@@ -64,8 +34,9 @@
 </template>
 
 <script>
+import Size from './Size.vue'
 export default {
-    components: {},
+    components: { Size },
     props: {
         feature: {
             type: Object,
@@ -84,16 +55,23 @@ export default {
         this.sizeLabel = sizeOption.label
     },
     methods: {
-        onColorChange: function (color) {
-            this.$emit('colorChange', color)
+        /** @param {string} b Border @return string */
+        textShadow(b) {
+            return `-1px -1px 0 ${b}, 1px -1px 0 ${b}, -1px 1px 0 ${b},1px 1px 0 ${b}`
+        },
+        onColorChange(color) {
+            this.feature.set('color', color.fill)
+            this.feature.set('strokeColor', color.border)
+            this.$emit('updateProperties')
             this.$forceUpdate()
         },
-        onSizeChange: function (size) {
+        onSizeChange(size) {
             this.sizeLabel = size.label
-            this.$emit('sizeChange', size.scale)
+            this.feature.set('textScale', size.scale)
+            this.$emit('updateProperties')
             this.$forceUpdate()
         },
-        onClose: function () {
+        onClose() {
             this.$emit('close')
         },
     },

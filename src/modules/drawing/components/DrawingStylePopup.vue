@@ -45,8 +45,6 @@
                     <text-style-popup
                         :options="textStyleOptions"
                         :feature="feature"
-                        @colorChange="onColorChange"
-                        @sizeChange="onSizeChange"
                         @close="() => textStylePopover.popover('hide')"
                     />
                 </div>
@@ -144,15 +142,6 @@ export default {
         },
         onDelete: function () {
             this.$emit('delete')
-        },
-        onColorChange(color) {
-            this.feature.set('color', color.fill)
-            this.feature.set('strokeColor', color.border)
-            this.$emit('updateProperties')
-        },
-        onSizeChange(scale) {
-            this.feature.set('textScale', scale)
-            this.$emit('updateProperties')
         },
     },
 }
