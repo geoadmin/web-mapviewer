@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "icon_set": "default",
+      "name": "airfield",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/airfield-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "airport",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/airport-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "alcohol-shop",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/alcohol-shop-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "america-football",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/america-football-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "art-gallery",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/art-gallery-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "bakery",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bakery-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "bank",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bank-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "bar",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bar-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "baseball",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/baseball-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "basketball",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/basketball-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "beer",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/beer-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "bicycle",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bicycle-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "building",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/building-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "bus",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bus-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "cafe",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/cafe-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "camera",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/camera-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "campsite",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/campsite-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "car",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/car-255,0,0.png"
+    },
+    {
+      "icon_set": "default",
+      "name": "cemetery",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/cemetery-255,0,0.png"
+    }
+  ],
+  "success": true
+}

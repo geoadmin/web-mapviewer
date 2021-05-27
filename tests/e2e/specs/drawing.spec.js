@@ -2,13 +2,6 @@ const mockResponse = { fileId: 'test', adminId: 'test' }
 const { MapBrowserEvent } = require('ol')
 
 describe('Drawing', () => {
-    function goToDrawing() {
-        cy.goToMapView()
-        cy.get('[data-cy="menu-button"]').click()
-        cy.get('.menu-section-head-title:first').click() // FIXME: how to address a specific menusection
-        cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
-    }
-
     const tools = ['marker', 'text', 'line', 'measure']
 
     function clickTool(name) {
@@ -40,12 +33,19 @@ describe('Drawing', () => {
             .then((features) => {
                 expect(features).to.have.length(1)
                 const v = features[0].get(key)
-                expect(v).to.equal(expected)
+                expect(v).to.equal(
+                    expected,
+                    `${v} != ${expected} Properties are ${JSON.stringify(
+                        features[0].getProperties(),
+                        null,
+                        2
+                    )}`
+                )
             })
     }
 
     /**
-     * This fonction has been taken from the OL draw spec. Simulates a browser event on the map
+     * This function has been taken from the OL draw spec. Simulates a browser event on the map
      * viewport. The client x/y location will be adjusted as if the map were centered at 0,0.
      *
      * @param {string} type Event type.
@@ -82,20 +82,146 @@ describe('Drawing', () => {
 
     const getDrawingMap = () => cy.readWindowValue('drawingMap')
 
-    it('creates a marker', () => {
-        goToDrawing()
-        clickTool('marker')
+    function clickTheMap(x, y, callback) {
         getDrawingMap().then((map) => {
             // Create a point, a geojson will appear in the store
-            simulateEvent(map, 'pointermove', 0, 0)
-            simulateEvent(map, 'pointerdown', 0, 0)
-            simulateEvent(map, 'pointerup', 0, 0)
+            simulateEvent(map, 'pointermove', x, y)
+            simulateEvent(map, 'pointerdown', x, y)
+            simulateEvent(map, 'pointerup', x, y)
+            if (callback) callback(map)
+        })
+    }
+
+    function createAPoint(kind, x = 0, y = 0, xx = 915602.81, yy = 5911929.47) {
+        cy.goToDrawing()
+        clickTool(kind)
+        clickTheMap(x, y, () => {
             readDrawingFeatures('Point', (features) => {
                 const coos = features[0].getGeometry().getCoordinates()
-                expect(coos).to.eql([915602.81, 5911929.47], `bad: ${JSON.stringify(coos)}`)
+                expect(coos).to.eql([xx, yy], `bad: ${JSON.stringify(coos)}`)
             })
         })
+    }
 
+    it('toggles the marker symbol popup when clicking button', () => {
+        createAPoint('marker', 0, -200, 915602.81, 6156527.960512564)
+        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
+        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
+
+        // Opening symbol popup (should display default iconset)
+        cy.get('.marker-style').click()
+        cy.get('.marker-style-popup').should('be.visible')
+
+        cy.wait('@iconsets')
+        cy.wait('@iconset_default')
+
+        // we reduce the number of symbols to speed up the test
+        Array.from(Array(19).keys()).forEach(() =>
+            cy
+                .wait('@icon')
+                .its('request.url')
+                .should('include', 'v4/iconsets/default/icon/')
+                .should('include', '255,0,0.png')
+        )
+
+        // Check default color
+        checkGeoJsonProperty('markerColor', '#ff0000')
+        cy.get('.marker-color-select-box > .selected > div').should(
+            'have.css',
+            'backgroundColor',
+            'rgb(255, 0, 0)'
+        )
+
+        // Select green color
+        cy.get('.marker-color-select-box > :nth-child(4) > div').click()
+        checkGeoJsonProperty('markerColor', '#008000')
+        checkGeoJsonProperty(
+            'icon',
+            'https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bicycle-0,128,0.png'
+        )
+        cy.get('.marker-color-select-box > .selected > div').should(
+            'have.css',
+            'backgroundColor',
+            'rgb(0, 128, 0)'
+        )
+        Array.from(Array(19).keys()).forEach(() =>
+            cy
+                .wait('@icon')
+                .its('request.url')
+                .should('include', 'v4/iconsets/default/icon/')
+                .should('include', '0,128,0.png')
+        )
+        cy.wait('@modifyFile').then((interception) =>
+            expect(interception.request.body).to.contain(
+                '<Data name="icon"><value>https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bicycle-0,128,0.png</value>'
+            )
+        )
+
+        // Select another size
+        checkGeoJsonProperty('markerScale', 1)
+        cy.get('.marker-style-popup [data-cy="size-button"]').click()
+        cy.get('.marker-style-popup [data-cy="size-choices"] > :nth-child(2)').click()
+        checkGeoJsonProperty('markerScale', 1.5)
+        cy.wait('@modifyFile').then((interception) =>
+            expect(interception.request.body).to.contain(
+                '<Data name="markerScale"><value>1.5</value>'
+            )
+        )
+
+        // Select babs iconset
+        cy.get('[data-cy=symbols-button]').click()
+        cy.get('[data-cy=symbols-choices] > :nth-child(1)').click()
+        cy.wait('@iconset_babs')
+
+        Array.from(Array(14).keys()).forEach(() =>
+            cy
+                .wait('@icon')
+                .its('request.url')
+                .should('include', 'v4/iconsets/babs/icon/babs-')
+                .should('include', '.png')
+        )
+        cy.get('.marker-color-select-box').should('not.exist')
+        cy.get('.marker-icon-select-box :nth-child(4) > img').click()
+        checkGeoJsonProperty(
+            'icon',
+            'https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-100.png'
+        )
+        cy.wait('@modifyFile').then((interception) =>
+            expect(interception.request.body).to.contain(
+                '<Data name="icon"><value>https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-100.png</value>'
+            )
+        )
+    })
+
+    describe('test text popup', () => {
+        ;['marker', 'text'].forEach((kind) => {
+            it(`toggles the ${kind} symbol popup when clicking button`, () => {
+                createAPoint(kind, 0, -200, 915602.81, 6156527.960512564)
+
+                // Opening text popup
+                cy.get('.text-style').click()
+                cy.get('.text-style-popup').should('be.visible')
+
+                cy.get('.text-style-popup [data-cy=size-button]').click()
+                cy.get('.text-style-popup [data-cy=size-choices] > a:nth-child(2)').click()
+                checkGeoJsonProperty('textScale', 1.5)
+
+                cy.get('.color-select-box > div:nth-child(1)').click()
+                checkGeoJsonProperty('color', '#000000')
+
+                // Closing the popup
+                cy.get('.text-style').click()
+                cy.get('.text-style-popup').should('not.exist')
+
+                // Opening again the popup
+                cy.get('.text-style').click()
+                cy.get('.text-style-popup').should('be.visible')
+            })
+        })
+    })
+
+    it('moves a marker', () => {
+        createAPoint('marker')
         getDrawingMap().then((map) => {
             // Move it, the geojson geometry should move
             simulateEvent(map, 'pointerdown', 0, 0)
@@ -117,15 +243,6 @@ describe('Drawing', () => {
         cy.get('#description').type('This is a description')
         checkGeoJsonProperty('description', 'This is a description')
 
-        cy.get('.text-style').click()
-
-        cy.get('.text-size-select').click()
-        cy.get('.dropdown-menu > a:nth-child(2)').click()
-        checkGeoJsonProperty('textScale', 1.5)
-
-        cy.get('.color-select-box > div:nth-child(1)').click()
-        checkGeoJsonProperty('color', '#000000')
-
         cy.get('.btn-close').click()
         readDrawnGeoJSON().then((geojson) => {
             const g0 = geojson.features[0].geometry
@@ -139,14 +256,14 @@ describe('Drawing', () => {
     })
 
     it('creates a text', () => {
-        goToDrawing()
+        cy.goToDrawing()
         clickTool('text')
         cy.get(olSelector).click(100, 100)
         readDrawingFeatures('Point')
     })
 
     it('creates a polygon by re-clicking first point', () => {
-        goToDrawing()
+        cy.goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
         cy.get(olSelector).click(150, 100)
@@ -157,7 +274,7 @@ describe('Drawing', () => {
 
     // FIXME: it is currently not possible to draw lines
     it.skip('creates a line with double click', () => {
-        goToDrawing()
+        cy.goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
         cy.get(olSelector).click(150, 150)
@@ -171,7 +288,7 @@ describe('Drawing', () => {
         })
     })
 
-    const checkResponse = (interception, types, create = false) => {
+    const checkResponse = (interception, data, create = false) => {
         if (!create) {
             const urlArray = interception.request.url.split('/')
             const id = urlArray[urlArray.length - 1]
@@ -181,14 +298,14 @@ describe('Drawing', () => {
             'application/vnd.google-earth.kml+xml'
         )
         expect(interception.request.body).to.contain('</kml>')
-        types.forEach((type) => expect(interception.request.body).to.contain(type))
+        data.forEach((text) => expect(interception.request.body).to.contain(text))
     }
 
     it('saves a KML on draw end', () => {
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
 
-        goToDrawing()
+        cy.goToDrawing()
         clickTool('marker')
 
         cy.get(olSelector).dblclick('center')

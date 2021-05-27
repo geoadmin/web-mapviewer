@@ -1,8 +1,52 @@
 import { asArray } from 'ol/color'
-import { Fill, Icon, Stroke, Style, Text } from 'ol/style'
+import { Fill, Icon, Stroke, Style, Text, Circle } from 'ol/style'
+import { MultiPoint, Polygon } from 'ol/geom'
 
 export function createEditingStyle() {
-    return undefined
+    const pointStyle = {
+        radius: 7,
+        stroke: new Stroke({
+            color: [0, 0, 0, 1],
+        }),
+    }
+    const point = new Circle({
+        ...pointStyle,
+        fill: new Fill({
+            color: [255, 255, 255, 1],
+        }),
+    })
+    const sketchPoint = new Circle({
+        ...pointStyle,
+        fill: new Fill({
+            color: [255, 255, 255, 0.4],
+        }),
+    })
+    return (feature) => {
+        const featureGeometries = feature.get('geometries')
+        const isLineOrMeasure = featureGeometries && featureGeometries[0] instanceof Polygon
+        const styles = [
+            new Style({
+                image: isLineOrMeasure ? sketchPoint : point,
+                zIndex: 30,
+            }),
+        ]
+        if (feature.getGeometry() instanceof Polygon) {
+            styles.push(
+                new Style({
+                    image: point,
+                    geometry: function (feature) {
+                        const coordinates = feature.getGeometry().getCoordinates()[0]
+                        return new MultiPoint(coordinates)
+                    },
+                })
+            )
+        }
+        const defStyle = featureStyle(feature)
+        if (defStyle) {
+            styles.push(defStyle)
+        }
+        return styles
+    }
 }
 
 /**
@@ -10,7 +54,11 @@ export function createEditingStyle() {
  * @returns {Style}
  */
 export function featureStyle(feature) {
-    const color = asArray(feature.get('color'))
+    let color = feature.get('color')
+    if (!color) {
+        return
+    }
+    color = asArray(color)
     const stroke = feature.get('strokeColor')
     const fillColor = [...color.slice(0, 3), 0.4]
     const text = feature.get('text')
@@ -18,11 +66,14 @@ export function featureStyle(feature) {
     const icon = feature.get('icon')
     const anchor = feature.get('anchor')
     const textScale = feature.get('textScale')
+    const markerScale = feature.get('markerScale') || 1
     let image = null
     if (icon) {
+        // this might be expensive
         image = new Icon({
             src: icon,
             anchor: anchor,
+            scale: markerScale,
         })
     }
     return new Style({

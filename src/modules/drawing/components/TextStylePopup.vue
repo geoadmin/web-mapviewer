@@ -3,11 +3,7 @@
         <button type="button" class="close" @click="onClose">
             <span aria-hidden="true">&times;</span>
         </button>
-        <Size
-            :sizes="options.textSizes"
-            :scale="feature.get('textScale')"
-            @sizeChange="onSizeChange"
-        >
+        <Size :sizes="options.sizes" :scale="feature.get('textScale')" @sizeChange="onSizeChange">
         </Size>
         <div class="setting-container">
             <span>{{ $t('modify_text_color_label') }}:</span>
@@ -47,12 +43,13 @@ export default {
             default: null,
         },
     },
-    computed: {},
-    beforeMount() {
-        const sizeOption = this.options.textSizes.find(
-            (s) => s.scale === this.feature.get('textScale')
-        )
-        this.sizeLabel = sizeOption.label
+    computed: {
+        sizeLabel() {
+            const sizeOption = this.options.sizes.find(
+                (s) => s.scale === this.feature.get('textScale')
+            )
+            return sizeOption.label
+        },
     },
     methods: {
         /** @param {string} b Border @return string */

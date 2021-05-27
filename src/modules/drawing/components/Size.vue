@@ -4,6 +4,7 @@
         <br />
         <div class="btn-group">
             <button
+                data-cy="size-button"
                 class="btn btn-primary btn-sm dropdown-toggle dropdown-modification"
                 type="button"
                 data-toggle="dropdown"
@@ -12,7 +13,7 @@
             >
                 {{ $t(sizeLabel) }}
             </button>
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" data-cy="size-choices">
                 <a
                     v-for="size in sizes"
                     :key="size.label"
