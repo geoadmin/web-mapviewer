@@ -103,7 +103,7 @@ describe('Drawing', () => {
         })
     }
 
-    it.only('toggles the marker symbol popup when clicking button', () => {
+    it('toggles the marker symbol popup when clicking button', () => {
         createAPoint('marker', 0, -200, 915602.81, 6156527.960512564)
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
@@ -299,19 +299,20 @@ describe('Drawing', () => {
         )
     })
 
-    // FIXME: it is currently not possible to draw lines
-    it.skip('creates a line with double click', () => {
+    it('creates a line with double click', () => {
         cy.goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).dblclick(120, 240)
-        readDrawingFeatures('LineString', (geoJson) => {
-            expect(geoJson.geometry.coordinates.length).to.equal(3)
+        readDrawingFeatures('LineString', (features) => {
+            const coos = features[0].getGeometry().getCoordinates()
+            expect(coos.length).to.equal(3)
         })
-        cy.get(olSelector).click(1, 1) // do nothing, already finished
-        readDrawingFeatures('LineString', (geoJson) => {
-            expect(geoJson.geometry.coordinates.length).to.equal(3)
+        cy.get(olSelector).click(500, 500) // do nothing, already finished
+        readDrawingFeatures('LineString', (features) => {
+            const coos = features[0].getGeometry().getCoordinates()
+            expect(coos.length).to.equal(3)
         })
     })
 
