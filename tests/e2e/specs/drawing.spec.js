@@ -82,7 +82,7 @@ describe('Drawing', () => {
 
     const getDrawingMap = () => cy.readWindowValue('drawingMap')
 
-    it.only('creates a marker', () => {
+    it('creates a marker', () => {
         goToDrawing()
         clickTool('marker')
         getDrawingMap().then((map) => {

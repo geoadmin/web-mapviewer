@@ -17,6 +17,7 @@
                 @updateProperties="triggerKMLUpdate"
             />
         </div>
+        <div ref="draw-help" class="draw-help-popup"></div>
     </div>
 </template>
 
@@ -126,6 +127,7 @@ export default {
             },
             {
                 editingStyle: createEditingStyle(),
+                helpPopupElement: this.$refs['draw-help'],
             }
         )
         // if we are testing with Cypress, we expose the map and drawing manager
@@ -189,4 +191,24 @@ export default {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.draw-help-popup {
+    background-color: rgba(140, 140, 140, 0.9);
+    border-radius: 4px;
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.cursor-grab {
+    cursor: grab;
+}
+
+.cursor-grabbing {
+    cursor: grabbing;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+</style>

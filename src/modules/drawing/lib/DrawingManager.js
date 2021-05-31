@@ -19,6 +19,20 @@ import Observable from 'ol/Observable'
 import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
 import { featureStyle } from './style'
+import Overlay from 'ol/Overlay'
+import Polygon from 'ol/geom/Polygon'
+import i18n from '@/modules/i18n'
+
+const typesInTranslation = {
+    MARKER: 'marker',
+    TEXT: 'annotation',
+    LINE: 'linepolygon',
+    MEASURE: 'measure',
+}
+
+const cssPointer = 'cursor-pointer'
+const cssGrab = 'cursor-grab'
+const cssGrabbing = 'cursor-grabbing'
 
 export class ChangeEvent extends Event {
     constructor() {
@@ -71,6 +85,7 @@ export default class DrawingManager extends Observable {
         this.source = this.layer.getSource()
 
         this.tools = {}
+        this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
             const tool = new DrawInteraction({
                 ...options.drawOptions,
@@ -112,6 +127,14 @@ export default class DrawingManager extends Observable {
         this.activeInteraction = null
 
         this.onKeyUpFunction_ = this.onKeyUp_.bind(this)
+        this.onPointerMoveFunction_ = this.onPointerMove_.bind(this)
+        this.tooltipOverlay = new Overlay({
+            element: this.options.helpPopupElement,
+            offset: [15, 15],
+            positioning: 'top-left',
+            stopEvent: true,
+            insertFirst: false,
+        })
     }
 
     // API
@@ -127,6 +150,9 @@ export default class DrawingManager extends Observable {
         this.map.addInteraction(this.snap)
 
         document.addEventListener('keyup', this.onKeyUpFunction_)
+
+        this.map.addOverlay(this.tooltipOverlay)
+        this.map.on('pointermove', this.onPointerMoveFunction_)
     }
 
     // API
@@ -138,6 +164,8 @@ export default class DrawingManager extends Observable {
         this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
         this.map.removeLayer(this.layer)
+        this.map.un('pointermove', this.onPointerMoveFunction_)
+        this.map.removeOverlay(this.tooltipOverlay)
 
         document.removeEventListener('keyup', this.onKeyUpFunction_)
     }
@@ -154,6 +182,7 @@ export default class DrawingManager extends Observable {
         this.deselect()
         this.activeInteraction = this.tools[tool]
         this.activeInteraction.setActive(true)
+        this.updateHelpTooltip(tool, false)
     }
 
     // API
@@ -200,6 +229,8 @@ export default class DrawingManager extends Observable {
             Object.assign({ type: this.activeInteraction.get('type') }, properties)
         )
         feature.setStyle(() => featureStyle(feature))
+
+        this.updateDrawHelpTooltip(feature)
     }
 
     onDrawActiveChange_(event) {
@@ -212,6 +243,7 @@ export default class DrawingManager extends Observable {
         // deactivate drawing tool
         event.target.setActive(false)
         this.select.getFeatures().push(event.feature)
+        this.sketchPoints = 0
     }
 
     onModifyStart_(event) {
@@ -220,6 +252,7 @@ export default class DrawingManager extends Observable {
             console.assert(features.length == 1)
             const feature = features[0]
             this.dispatchSelectEvent_(feature, true)
+            this.map.getTarget().classList.add('cursor-grabbing')
         }
     }
 
@@ -230,6 +263,7 @@ export default class DrawingManager extends Observable {
             const feature = features[0]
             this.dispatchSelectEvent_(feature, false)
             this.dispatchChangeEvent_(feature)
+            this.map.getTarget().classList.remove('cursor-grabbing')
         }
     }
 
@@ -238,6 +272,148 @@ export default class DrawingManager extends Observable {
             this.dispatchSelectEvent_(event.element, false)
         } else if (event.type === 'remove') {
             this.dispatchSelectEvent_(null, false)
+        }
+    }
+
+    onPointerMove_(event) {
+        this.tooltipOverlay.setPosition(event.coordinate)
+        if (this.select.get('active')) {
+            this.updateCursorAndTooltips(event)
+        }
+    }
+
+    // Display an help tooltip when drawing
+    updateHelpTooltip(type, drawStarted, hasMinNbPoints, onFirstPoint, onLastPoint) {
+        if (!this.tooltipOverlay) {
+            return
+        }
+        type = typesInTranslation[type]
+        let helpMsgId = 'draw_start_'
+        if (drawStarted) {
+            if (type !== 'marker' && type !== 'annotation') {
+                helpMsgId = 'draw_next_'
+            }
+            if (onLastPoint) {
+                helpMsgId = 'draw_snap_last_point_'
+            }
+            if (onFirstPoint) {
+                helpMsgId = 'draw_snap_first_point_'
+            }
+        }
+        let msg = i18n.t(helpMsgId + type)
+
+        if (drawStarted && hasMinNbPoints) {
+            msg += '<br/>' + i18n.t('draw_delete_last_point')
+        }
+        this.tooltipOverlay.getElement().innerHTML = msg
+    }
+
+    // Display an help tooltip when drawing
+    updateDrawHelpTooltip(feature) {
+        const type = this.activeInteraction.get('type')
+        const geom = feature.getGeometry()
+        if (geom instanceof Polygon) {
+            // The sketched polygon is always closed, so we remove the last coordinate.
+            const lineCoords = geom.getCoordinates()[0].slice(0, -1)
+            if (this.sketchPoints !== lineCoords.length) {
+                // A point is added or removed
+                this.sketchPoints = lineCoords.length
+            } else if (lineCoords.length > 1) {
+                const firstPoint = lineCoords[0]
+                const lastPoint = lineCoords[lineCoords.length - 1]
+                const sketchPoint = lineCoords[lineCoords.length - 2]
+
+                // Checks is snapped to first point of geom
+                const isSnapOnFirstPoint =
+                    lastPoint[0] === firstPoint[0] && lastPoint[1] === firstPoint[1]
+
+                // Checks is snapped to last point of geom
+                const isSnapOnLastPoint =
+                    lastPoint[0] === sketchPoint[0] && lastPoint[1] === sketchPoint[1]
+
+                const isFinishOnFirstPoint = !isSnapOnLastPoint && isSnapOnFirstPoint
+
+                this.updateHelpTooltip(
+                    type,
+                    true,
+                    this.tools[type].minPoints_ < lineCoords.length,
+                    isFinishOnFirstPoint,
+                    isSnapOnLastPoint
+                )
+            }
+        }
+    }
+
+    // Display an help tooltip when modifying
+    updateModifyHelpTooltip(type, onExistingVertex) {
+        if (!this.tooltipOverlay) {
+            return
+        }
+        type = typesInTranslation[type]
+        let helpMsgId = 'modify_new_vertex_'
+        if (onExistingVertex) {
+            helpMsgId = 'modify_existing_vertex_'
+        }
+        this.tooltipOverlay.getElement().innerHTML = i18n.t(helpMsgId + type)
+    }
+
+    // Display an help tooltip when selecting
+    updateSelectHelpTooltip(type) {
+        if (!this.tooltipOverlay) {
+            return
+        }
+
+        type = typesInTranslation[type]
+        let helpMsgId = 'select_no_feature'
+        if (type) {
+            helpMsgId = 'select_feature_' + type
+        }
+        this.tooltipOverlay.getElement().innerHTML = i18n.t(helpMsgId)
+    }
+
+    updateCursorAndTooltips(evt) {
+        const mapDiv = this.map.getTarget()
+
+        if (mapDiv.classList.contains(cssGrabbing)) {
+            mapDiv.classList.remove(cssGrab)
+            return
+        }
+        let hoverSelectableFeature = false
+        // todo find way to not use private
+        let hoverVertex = this.modify.snappedToVertex_
+        const hoverNewVertex = this.select.getFeatures().getLength() > 0
+        let selectableFeature
+        const selectFeatures = this.select.getFeatures()
+
+        this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+            if (layer && !selectableFeature) {
+                selectableFeature = feature
+                hoverSelectableFeature = true
+            } else if (
+                selectFeatures.getLength() > 0 &&
+                selectFeatures.item(0).getId() === feature.getId() &&
+                selectableFeature
+            ) {
+                selectableFeature = feature
+            }
+        })
+
+        if (!hoverSelectableFeature) {
+            // If the cursor is not hover a selectable feature.
+            mapDiv.classList.remove(cssPointer)
+            mapDiv.classList.remove(cssGrab)
+            this.updateSelectHelpTooltip()
+        } else if (hoverSelectableFeature && !hoverNewVertex && !hoverVertex) {
+            // If the cursor is hover a selectable feature.
+            mapDiv.classList.add(cssPointer)
+            mapDiv.classList.remove(cssGrab)
+            this.updateSelectHelpTooltip(selectableFeature.get('type'))
+        } else if (hoverNewVertex || hoverVertex) {
+            // If a feature is selected and if the cursor is hover a draggable
+            // vertex.
+            mapDiv.classList.remove(cssPointer)
+            mapDiv.classList.add(cssGrab)
+            this.updateModifyHelpTooltip(selectableFeature.get('type'), hoverVertex)
         }
     }
 }
