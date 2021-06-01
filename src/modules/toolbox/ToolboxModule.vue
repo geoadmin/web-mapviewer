@@ -28,7 +28,9 @@ export default {
 </script>
 
 <style lang="scss">
+@import 'node_modules/bootstrap/scss/bootstrap';
 @import 'src/scss/variables';
+@import 'src/scss/media-query.mixin';
 
 #right-toolbox,
 #toolbox-bg-buttons {
@@ -55,5 +57,11 @@ export default {
 }
 .slide-left-leave-to {
     transform: translate(-100%, 0);
+}
+
+@include respond-above(sm) {
+    #right-toolbox {
+        top: 2 * $header-height + $screen-padding-for-ui-elements;
+    }
 }
 </style>
