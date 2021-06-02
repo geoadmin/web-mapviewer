@@ -26,18 +26,9 @@ Portions of web-mapviewer are based on works by others. A non-extensive list:
 
 [OpenLayers Source Code](https://github.com/openlayers/openlayers/blob/master/LICENSE.md)
 
+[Font Awesome Icons](https://creativecommons.org/licenses/by/4.0/)
 
-Font Awesome Free License
--------------------------
+[Font Awesome Fonts](https://scripts.sil.org/OFL)
 
-# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)
-In the Font Awesome Free download, the CC BY 4.0 license applies to all icons
-packaged as SVG and JS file types.
+[Font Awesome Code](https://opensource.org/licenses/MIT)
 
-# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)
-In the Font Awesome Free download, the SIL OFL license applies to all icons
-packaged as web and desktop font files.
-
-# Code: MIT License (https://opensource.org/licenses/MIT)
-In the Font Awesome Free download, the MIT license applies to all non-font and
-non-icon files.
