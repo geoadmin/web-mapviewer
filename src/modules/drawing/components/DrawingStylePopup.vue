@@ -44,8 +44,29 @@
                     >
                         <font-awesome-icon :icon="['fas', 'map-marker-alt']" />
                     </button>
+                    <button
+                        v-if="isFeatureLine"
+                        ref="lineStylePopoverBtn"
+                        type="button"
+                        class="btn btn-default line-style"
+                    >
+                        <font-awesome-icon :icon="['fas', 'paint-brush']" />
+                    </button>
                 </div>
 
+                <div
+                    v-if="isFeatureLine"
+                    ref="lineStylePopover"
+                    class="line-style-popover"
+                    style="display: none"
+                >
+                    <LineStylePopup
+                        :options="lineStyleOptions"
+                        :feature="feature"
+                        @updateProperties="updateProperties"
+                        @close="() => lineStylePopover.popover('hide')"
+                    />
+                </div>
                 <div
                     v-if="isFeatureMarker || isFeatureText"
                     ref="textStylePopover"
@@ -55,6 +76,7 @@
                     <TextStylePopup
                         :options="textStyleOptions"
                         :feature="feature"
+                        @updateProperties="updateProperties"
                         @close="() => textStylePopover.popover('hide')"
                     />
                 </div>
@@ -80,6 +102,7 @@
 import GeometryMeasure from './GeometryMeasure.vue'
 import TextStylePopup from './TextStylePopup.vue'
 import MarkerStylePopup from './MarkerStylePopup.vue'
+import LineStylePopup from './LineStylePopup.vue'
 import jquery from 'jquery'
 import { fromString } from 'ol/color'
 
@@ -104,7 +127,7 @@ const sizes = [
 // The popup has a form with the drawing's properties (text, description) and
 // some styling configuration.
 export default {
-    components: { GeometryMeasure, TextStylePopup, MarkerStylePopup },
+    components: { GeometryMeasure, TextStylePopup, MarkerStylePopup, LineStylePopup },
     props: {
         feature: {
             type: Object,
@@ -120,6 +143,9 @@ export default {
             markerStyleOptions: {
                 colors,
                 sizes: sizes,
+            },
+            lineStyleOptions: {
+                colors,
             },
         }
     },
@@ -142,29 +168,28 @@ export default {
                 this.$emit('updateProperties')
             },
         },
-        featureGeometry: {
-            get() {
-                return this.feature.getGeometry()
-            },
+        featureGeometry() {
+            return this.feature.getGeometry()
         },
-        isFeatureMarker: {
-            get() {
-                return this.feature.get('type') === 'MARKER'
-            },
+        isFeatureMarker() {
+            return this.feature.get('type') === 'MARKER'
         },
-        isFeatureText: {
-            get() {
-                return this.feature.get('type') === 'TEXT'
-            },
+        isFeatureText() {
+            return this.feature.get('type') === 'TEXT'
+        },
+        isFeatureLine() {
+            return this.feature.get('type') === 'LINE'
         },
     },
     mounted() {
         this.updatePopover('text')
         this.updatePopover('marker')
+        this.updatePopover('line')
     },
     updated() {
         this.updatePopover('text')
         this.updatePopover('marker')
+        this.updatePopover('line')
     },
     methods: {
         updateProperties() {

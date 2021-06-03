@@ -19,9 +19,11 @@ import {
     faArrowsAltH,
     faSquareFull,
     faFont,
+    faPaintBrush,
 } from '@fortawesome/free-solid-svg-icons'
 import { faCheckSquare, faSquare, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
+library.add(faPaintBrush)
 library.add(faSquare)
 library.add(faSquareFull)
 library.add(faTrashAlt)
