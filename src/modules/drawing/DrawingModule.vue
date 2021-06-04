@@ -23,7 +23,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { API_BASE_URL } from '@/config'
+import { API_SERVICE_ICON_BASE_URL } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
@@ -33,6 +33,7 @@ import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { Point } from 'ol/geom'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -97,11 +98,14 @@ export default {
                     properties: {
                         color: '#ff0000',
                         font: 'normal 16px Helvetica',
-                        icon: `${API_BASE_URL}color/255,0,0/marker-24@2x.png`,
+                        icon: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
+                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',
                         textScale: 1,
+                        markerScale: 1,
+                        markerColor: '#ff0000',
                     },
                 },
                 [drawingModes.MEASURE]: {
@@ -141,12 +145,15 @@ export default {
         this.manager.on('select', (event) => {
             /** @type {import('./lib/DrawingManager.js').SelectEvent} */
             const selectEvent = event
-            let xy = selectEvent.coordinates
             const feature = selectEvent.feature
+            let xy =
+                feature && feature.getGeometry() instanceof Point
+                    ? feature.getGeometry().getCoordinates()
+                    : selectEvent.coordinates
             const showOverlay = feature && !selectEvent.modifying
             overlay.setVisible(showOverlay)
             overlay.setPosition(xy)
-            this.selectedFeature = feature
+            this.selectedFeature = showOverlay ? feature : null
         })
     },
     methods: {
@@ -171,10 +178,13 @@ export default {
                 clearTimeout(this.KMLUpdateTimeout)
                 this.KMLUpdateTimeout = 0
             }
-            this.KMLUpdateTimeout = setTimeout(() => {
-                const { kml } = this.manager.createGeoJSONAndKML()
-                this.saveDrawing(kml)
-            }, 2000)
+            this.KMLUpdateTimeout = setTimeout(
+                () => {
+                    const { kml } = this.manager.createGeoJSONAndKML()
+                    this.saveDrawing(kml)
+                },
+                IS_TESTING_WITH_CYPRESS ? 0 : 2000
+            )
         },
         saveDrawing: async function (kml) {
             let ids

@@ -1,0 +1,75 @@
+{
+  "items": [
+    {
+      "icon_set": "babs",
+      "name": "babs-1",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-1.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-10",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-10.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-100",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-100.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-101",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-101.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-102",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-102.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-103",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-103.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-104",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-104.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-105",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-105.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-106",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-106.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-107",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-107.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-108",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-108.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-109",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-109.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-11",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-11.png"
+    },
+    {
+      "icon_set": "babs",
+      "name": "babs-160",
+      "url": "https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-160.png"
+    }
+  ],
+  "success": true
+}

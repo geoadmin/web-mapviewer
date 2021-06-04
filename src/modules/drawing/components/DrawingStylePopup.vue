@@ -22,6 +22,7 @@
                         rows="2"
                     ></textarea>
                 </div>
+
                 <div class="form-group p-0 button-bar">
                     <geometry-measure :geometry="featureGeometry"></geometry-measure>
                     <button type="button" class="btn btn-default" @click="onDelete">
@@ -35,19 +36,39 @@
                     >
                         <font-awesome-icon :icon="['fas', 'font']" />
                     </button>
+                    <button
+                        v-if="isFeatureMarker"
+                        ref="markerStylePopoverBtn"
+                        type="button"
+                        class="btn btn-default marker-style"
+                    >
+                        <font-awesome-icon :icon="['fas', 'map-marker-alt']" />
+                    </button>
                 </div>
+
                 <div
                     v-if="isFeatureMarker || isFeatureText"
                     ref="textStylePopover"
                     class="text-style-popover"
                     style="display: none"
                 >
-                    <text-style-popup
+                    <TextStylePopup
                         :options="textStyleOptions"
                         :feature="feature"
-                        @colorChange="onColorChange"
-                        @sizeChange="onSizeChange"
                         @close="() => textStylePopover.popover('hide')"
+                    />
+                </div>
+                <div
+                    v-if="isFeatureMarker"
+                    ref="markerStylePopover"
+                    class="marker-style-popover"
+                    style="display: none"
+                >
+                    <MarkerStylePopup
+                        :options="markerStyleOptions"
+                        :feature="feature"
+                        @updateProperties="updateProperties"
+                        @close="() => markerStylePopover.popover('hide')"
                     />
                 </div>
             </form>
@@ -58,18 +79,49 @@
 <script>
 import GeometryMeasure from './GeometryMeasure.vue'
 import TextStylePopup from './TextStylePopup.vue'
+import MarkerStylePopup from './MarkerStylePopup.vue'
 import jquery from 'jquery'
+import { fromString } from 'ol/color'
+
+const colors = [
+    { name: 'black', fill: '#000000', border: 'white' },
+    { name: 'blue', fill: '#0000ff', border: 'white' },
+    { name: 'gray', fill: '#808080', border: 'white' },
+    { name: 'green', fill: '#008000', border: 'white' },
+    { name: 'orange', fill: '#ffa500', border: 'black' },
+    { name: 'red', fill: '#ff0000', border: 'white' },
+    { name: 'white', fill: '#ffffff', border: 'black' },
+    { name: 'yellow', fill: '#ffff00', border: 'black' },
+]
+colors.forEach((c) => (c.rgb = fromString(c.fill)))
+const sizes = [
+    { label: 'small_size', scale: 1 },
+    { label: 'medium_size', scale: 1.5 },
+    { label: 'big_size', scale: 2 },
+]
 
 // Display a popup on the map when a drawing is selected.
 // The popup has a form with the drawing's properties (text, description) and
 // some styling configuration.
 export default {
-    components: { GeometryMeasure, TextStylePopup },
+    components: { GeometryMeasure, TextStylePopup, MarkerStylePopup },
     props: {
         feature: {
             type: Object,
             default: null,
         },
+    },
+    data() {
+        return {
+            textStyleOptions: {
+                colors,
+                sizes: sizes,
+            },
+            markerStyleOptions: {
+                colors,
+                sizes: sizes,
+            },
+        }
     },
     computed: {
         description: {
@@ -106,53 +158,36 @@ export default {
             },
         },
     },
-    beforeMount() {
-        this.textStyleOptions = {
-            colors: [
-                { name: 'black', fill: '#000000', border: 'white' },
-                { name: 'blue', fill: '#0000ff', border: 'white' },
-                { name: 'gray', fill: '#808080', border: 'white' },
-                { name: 'green', fill: '#008000', border: 'white' },
-                { name: 'orange', fill: '#ffa500', border: 'black' },
-                { name: 'red', fill: '#ff0000', border: 'white' },
-                { name: 'white', fill: '#ffffff', border: 'black' },
-                { name: 'yellow', fill: '#ffff00', border: 'black' },
-            ],
-            textSizes: [
-                { label: 'small_size', scale: 1 },
-                { label: 'medium_size', scale: 1.5 },
-                { label: 'big_size', scale: 2 },
-            ],
-        }
+    mounted() {
+        this.updatePopover('text')
+        this.updatePopover('marker')
     },
     updated() {
-        if (this.$refs.textStylePopoverBtn && !this.textStylePopover) {
-            this.textStylePopover = jquery(this.$refs.textStylePopoverBtn).popover({
-                trigger: 'click',
-                html: true,
-                content: this.$refs.textStylePopover.firstElementChild,
-            })
-        }
-        if (!this.feature && this.textStylePopover) {
-            this.textStylePopover.popover('hide')
-            this.textStylePopover = null
-        }
+        this.updatePopover('text')
+        this.updatePopover('marker')
     },
     methods: {
+        updateProperties() {
+            this.$emit('updateProperties')
+        },
+        updatePopover(kind) {
+            if (this.$refs[kind + 'StylePopoverBtn'] && !this[kind + 'StylePopover']) {
+                this[kind + 'StylePopover'] = jquery(this.$refs[kind + 'StylePopoverBtn']).popover({
+                    trigger: 'click',
+                    html: true,
+                    content: this.$refs[kind + 'StylePopover'].firstElementChild,
+                })
+            }
+            if (!this.feature && this[kind + 'StylePopover']) {
+                this[kind + 'StylePopover'].popover('hide')
+                this[kind + 'StylePopover'] = null
+            }
+        },
         onClose: function () {
             this.$emit('close')
         },
         onDelete: function () {
             this.$emit('delete')
-        },
-        onColorChange(color) {
-            this.feature.set('color', color.fill)
-            this.feature.set('strokeColor', color.border)
-            this.$emit('updateProperties')
-        },
-        onSizeChange(scale) {
-            this.feature.set('textScale', scale)
-            this.$emit('updateProperties')
         },
     },
 }
