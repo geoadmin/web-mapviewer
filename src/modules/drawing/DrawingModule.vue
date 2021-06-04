@@ -178,10 +178,13 @@ export default {
                 clearTimeout(this.KMLUpdateTimeout)
                 this.KMLUpdateTimeout = 0
             }
-            this.KMLUpdateTimeout = setTimeout(() => {
-                const { kml } = this.manager.createGeoJSONAndKML()
-                this.saveDrawing(kml)
-            }, 2000)
+            this.KMLUpdateTimeout = setTimeout(
+                () => {
+                    const { kml } = this.manager.createGeoJSONAndKML()
+                    this.saveDrawing(kml)
+                },
+                IS_TESTING_WITH_CYPRESS ? 0 : 2000
+            )
         },
         saveDrawing: async function (kml) {
             let ids
