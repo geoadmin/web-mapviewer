@@ -103,7 +103,7 @@ describe('Drawing', () => {
         })
     }
 
-    it('toggles the marker symbol popup when clicking button', () => {
+    it.only('toggles the marker symbol popup when clicking button', () => {
         createAPoint('marker', 0, -200, 915602.81, 6156527.960512564)
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
@@ -126,20 +126,20 @@ describe('Drawing', () => {
 
         // Check default color
         checkGeoJsonProperty('markerColor', '#ff0000')
-        cy.get('.marker-color-select-box > .selected > div').should(
+        cy.get('.marker-style-popup .color-select-box > .selected > div').should(
             'have.css',
             'backgroundColor',
             'rgb(255, 0, 0)'
         )
 
         // Select green color
-        cy.get('.marker-color-select-box > :nth-child(4) > div').click()
+        cy.get('.marker-style-popup .color-select-box > :nth-child(4) > div').click()
         checkGeoJsonProperty('markerColor', '#008000')
         checkGeoJsonProperty(
             'icon',
             'https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/default/icon/bicycle-0,128,0.png'
         )
-        cy.get('.marker-color-select-box > .selected > div').should(
+        cy.get('.marker-style-popup .color-select-box > .selected > div').should(
             'have.css',
             'backgroundColor',
             'rgb(0, 128, 0)'
@@ -180,8 +180,8 @@ describe('Drawing', () => {
                 .should('include', 'v4/iconsets/babs/icon/babs-')
                 .should('include', '.png')
         )
-        cy.get('.marker-color-select-box').should('not.exist')
-        cy.get('.marker-icon-select-box :nth-child(4) > img').click()
+        cy.get('.marker-style-popup .color-select-box').should('not.exist')
+        cy.get('.marker-style-popup .marker-icon-select-box :nth-child(4) > img').click()
         checkGeoJsonProperty(
             'icon',
             'https://service-icons.bgdi-dev.swisstopo.cloud/v4/iconsets/babs/icon/babs-100.png'
@@ -206,7 +206,7 @@ describe('Drawing', () => {
                 cy.get('.text-style-popup [data-cy=size-choices] > a:nth-child(2)').click()
                 checkGeoJsonProperty('textScale', 1.5)
 
-                cy.get('.color-select-box > div:nth-child(1)').click()
+                cy.get('.text-style-popup .color-select-box > div:nth-child(1)').click()
                 checkGeoJsonProperty('color', '#000000')
 
                 // Closing the popup
@@ -270,6 +270,33 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).click(100, 100)
         readDrawingFeatures('Polygon')
+    })
+
+    it('changes color of line/ polygon', () => {
+        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
+        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
+        cy.goToDrawing()
+        clickTool('line')
+        cy.get(olSelector).click(100, 100)
+        cy.get(olSelector).click(150, 100)
+        cy.get(olSelector).click(150, 150)
+        cy.get(olSelector).click(100, 100)
+        readDrawingFeatures('Polygon')
+        cy.wait('@saveFile').then((interception) =>
+            checkResponse(interception, ['LINE', '<Data name="color"><value>#ff0000</value>'], true)
+        )
+
+        // Opening line popup
+        cy.get('.line-style').click()
+        cy.get('.line-style-popup').should('be.visible')
+
+        cy.get('.line-style-popup .color-select-box > div:nth-child(1)').click()
+        checkGeoJsonProperty('color', '#000000')
+        cy.wait('@modifyFile').then((interception) =>
+            expect(interception.request.body).to.contain(
+                '<Data name="color"><value>#000000</value>'
+            )
+        )
     })
 
     // FIXME: it is currently not possible to draw lines

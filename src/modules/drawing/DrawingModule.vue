@@ -87,7 +87,7 @@ export default {
                         minPoints: 2,
                     },
                     properties: {
-                        color: '#f00',
+                        color: '#ff0000',
                         description: '',
                     },
                 },
@@ -114,7 +114,7 @@ export default {
                         minPoints: 2,
                     },
                     properties: {
-                        color: '#f00',
+                        color: '#ff0000',
                     },
                 },
                 [drawingModes.TEXT]: {
@@ -183,6 +183,8 @@ export default {
                     const { kml } = this.manager.createGeoJSONAndKML()
                     this.saveDrawing(kml)
                 },
+                // when testing, speed up and avoid race conditions
+                // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
         },
