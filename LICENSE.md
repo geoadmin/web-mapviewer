@@ -25,3 +25,10 @@ Portions of web-mapviewer are based on works by others. A non-extensive list:
 [VueJS Source Code](https://github.com/vuejs/vue/blob/dev/LICENSE)
 
 [OpenLayers Source Code](https://github.com/openlayers/openlayers/blob/master/LICENSE.md)
+
+[Font Awesome Icons](https://creativecommons.org/licenses/by/4.0/)
+
+[Font Awesome Fonts](https://scripts.sil.org/OFL)
+
+[Font Awesome Code](https://opensource.org/licenses/MIT)
+
