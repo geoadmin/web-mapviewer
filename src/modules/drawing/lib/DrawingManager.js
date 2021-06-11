@@ -1,7 +1,6 @@
 // FIXME: change cursor
 // FIXME: add tooltips
 // FIXME: apply new style function?
-// FIXME: linestring or polygon
 // FIXME: use feature properties for styling
 // FIXME: no zoom on double click
 // FIXME: right click to remove point while drawing ?
@@ -20,8 +19,8 @@ import VectorSource from 'ol/source/Vector'
 import { getUid } from 'ol/util'
 import { featureStyle } from './style'
 import Overlay from 'ol/Overlay'
-import Polygon from 'ol/geom/Polygon'
 import i18n from '@/modules/i18n'
+import { Polygon, LineString } from 'ol/geom'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -87,8 +86,15 @@ export default class DrawingManager extends Observable {
         this.tools = {}
         this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
+            // use the default styling if no specific draw style is set
+            const drawOptions = Object.assign(
+                {
+                    style: (feature) => featureStyle(feature),
+                },
+                options.drawOptions
+            )
             const tool = new DrawInteraction({
-                ...options.drawOptions,
+                ...drawOptions,
                 source: this.source,
             })
             tool.set('type', type)
@@ -135,6 +141,13 @@ export default class DrawingManager extends Observable {
             stopEvent: true,
             insertFirst: false,
         })
+
+        /**
+         * Whether the polygon was finished by a click on the first point of the geometry.
+         *
+         * @type {boolean}
+         */
+        this.isFinishOnFirstPoint_ = false
     }
 
     // API
@@ -228,7 +241,6 @@ export default class DrawingManager extends Observable {
         feature.setProperties(
             Object.assign({ type: this.activeInteraction.get('type') }, properties)
         )
-        feature.setStyle(() => featureStyle(feature))
 
         this.updateDrawHelpTooltip(feature)
     }
@@ -238,7 +250,11 @@ export default class DrawingManager extends Observable {
     }
 
     onDrawEnd_(event) {
-        this.source.once('addfeature', (event) => this.dispatchChangeEvent_(event.feature))
+        event.feature.setStyle(featureStyle(event.feature))
+        this.source.once('addfeature', (event) => {
+            this.polygonToLineString(event.feature)
+            this.dispatchChangeEvent_(event.feature)
+        })
 
         // deactivate drawing tool
         event.target.setActive(false)
@@ -279,6 +295,16 @@ export default class DrawingManager extends Observable {
         this.tooltipOverlay.setPosition(event.coordinate)
         if (this.select.get('active')) {
             this.updateCursorAndTooltips(event)
+        }
+    }
+
+    // transform a Polygon to a LineString if the geometry was not closed by a click on the first point
+    polygonToLineString(feature) {
+        const geometry = feature.getGeometry()
+        if (geometry.getType() == 'Polygon' && !this.isFinishOnFirstPoint_) {
+            const coordinates = geometry.getLinearRing().getCoordinates()
+            coordinates.pop()
+            feature.setGeometry(new LineString(coordinates))
         }
     }
 
@@ -331,13 +357,13 @@ export default class DrawingManager extends Observable {
                 const isSnapOnLastPoint =
                     lastPoint[0] === sketchPoint[0] && lastPoint[1] === sketchPoint[1]
 
-                const isFinishOnFirstPoint = !isSnapOnLastPoint && isSnapOnFirstPoint
+                this.isFinishOnFirstPoint_ = !isSnapOnLastPoint && isSnapOnFirstPoint
 
                 this.updateHelpTooltip(
                     type,
                     true,
                     this.tools[type].minPoints_ < lineCoords.length,
-                    isFinishOnFirstPoint,
+                    this.isFinishOnFirstPoint_,
                     isSnapOnLastPoint
                 )
             }

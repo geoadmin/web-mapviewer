@@ -93,6 +93,9 @@ describe('Drawing', () => {
     }
 
     function createAPoint(kind, x = 0, y = 0, xx = 915602.81, yy = 5911929.47) {
+        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
+        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
+
         cy.goToDrawing()
         clickTool(kind)
         clickTheMap(x, y, () => {
@@ -100,13 +103,14 @@ describe('Drawing', () => {
                 const coos = features[0].getGeometry().getCoordinates()
                 expect(coos).to.eql([xx, yy], `bad: ${JSON.stringify(coos)}`)
             })
+            cy.wait('@saveFile').then((interception) =>
+                checkResponse(interception, ['Placemark'], true)
+            )
         })
     }
 
-    it.only('toggles the marker symbol popup when clicking button', () => {
+    it('toggles the marker symbol popup when clicking button', () => {
         createAPoint('marker', 0, -200, 915602.81, 6156527.960512564)
-        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
-        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
 
         // Opening symbol popup (should display default iconset)
         cy.get('.marker-style').click()
@@ -256,13 +260,11 @@ describe('Drawing', () => {
     })
 
     it('creates a text', () => {
-        cy.goToDrawing()
-        clickTool('text')
-        cy.get(olSelector).click(100, 100)
-        readDrawingFeatures('Point')
+        createAPoint('text', 0, -200, 915602.81, 6156527.960512564)
     })
 
     it('creates a polygon by re-clicking first point', () => {
+        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
@@ -270,6 +272,9 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).click(100, 100)
         readDrawingFeatures('Polygon')
+        cy.wait('@saveFile').then((interception) =>
+            checkResponse(interception, ['LINE', '<Data name="color"><value>#ff0000</value>'], true)
+        )
     })
 
     it('changes color of line/ polygon', () => {
@@ -299,19 +304,20 @@ describe('Drawing', () => {
         )
     })
 
-    // FIXME: it is currently not possible to draw lines
-    it.skip('creates a line with double click', () => {
+    it('creates a line with double click', () => {
         cy.goToDrawing()
         clickTool('line')
         cy.get(olSelector).click(100, 100)
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).dblclick(120, 240)
-        readDrawingFeatures('LineString', (geoJson) => {
-            expect(geoJson.geometry.coordinates.length).to.equal(3)
+        readDrawingFeatures('LineString', (features) => {
+            const coos = features[0].getGeometry().getCoordinates()
+            expect(coos.length).to.equal(3)
         })
-        cy.get(olSelector).click(1, 1) // do nothing, already finished
-        readDrawingFeatures('LineString', (geoJson) => {
-            expect(geoJson.geometry.coordinates.length).to.equal(3)
+        cy.get(olSelector).click(500, 500) // do nothing, already finished
+        readDrawingFeatures('LineString', (features) => {
+            const coos = features[0].getGeometry().getCoordinates()
+            expect(coos.length).to.equal(3)
         })
     })
 

@@ -99,3 +99,45 @@ export function featureStyle(feature) {
         }),
     })
 }
+
+const sketchPointStyle = new Style({
+    image: new Circle({
+        radius: 4,
+        fill: new Fill({
+            color: [255, 0, 0, 0.4],
+        }),
+        stroke: new Stroke({
+            width: 3,
+            color: [255, 0, 0],
+        }),
+    }),
+})
+
+const sketchLineStyle = new Style({
+    stroke: new Stroke({
+        width: 3,
+        color: [255, 0, 0],
+    }),
+})
+
+const sketchPolygonStyle = new Style({
+    fill: new Fill({
+        color: [255, 255, 255, 0.4],
+    }),
+})
+
+export function drawLineStyle(sketch) {
+    const type = sketch.getGeometry().getType()
+    if (type === 'Point') {
+        return sketchPointStyle
+    } else if (type === 'LineString') {
+        return sketchLineStyle
+    } else if (type === 'Polygon') {
+        return sketchPolygonStyle
+    }
+}
+
+export function drawMeasureStyle(sketch) {
+    // FIXME: implement this !
+    return drawLineStyle(sketch)
+}

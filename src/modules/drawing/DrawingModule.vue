@@ -27,7 +27,7 @@ import { API_SERVICE_ICON_BASE_URL } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
-import { createEditingStyle } from '@/modules/drawing/lib/style'
+import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'
 import DrawingStylePopup from './components/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
@@ -85,6 +85,7 @@ export default {
                     drawOptions: {
                         type: 'Polygon',
                         minPoints: 2,
+                        style: drawLineStyle,
                     },
                     properties: {
                         color: '#ff0000',
@@ -112,6 +113,7 @@ export default {
                     drawOptions: {
                         type: 'Polygon',
                         minPoints: 2,
+                        style: drawMeasureStyle,
                     },
                     properties: {
                         color: '#ff0000',
