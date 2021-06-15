@@ -5,7 +5,7 @@ import log from '@/utils/logging'
 /** @returns {Promise<Object>} */
 export function getIconsets() {
     return axios
-        .get(`${API_SERVICE_ICON_BASE_URL}iconsets/`)
+        .get(`${API_SERVICE_ICON_BASE_URL}v4/iconsets/`)
         .then((iconsets) => iconsets.data.items)
         .catch((error) => {
             log('error', 'Error getting iconsets')

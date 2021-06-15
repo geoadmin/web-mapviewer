@@ -7,7 +7,7 @@
 const API_SERVICE_ICON_BASE_URL = 'https://service-icons.bgdi-dev.swisstopo.cloud/'
 
 const addIconsetsFixtureAndIntercept = () => {
-    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}iconsets/`, {
+    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/iconsets/`, {
         fixture: 'iconsets.fixture',
     }).as('iconsets')
 }
