@@ -1,14 +1,16 @@
 <template>
     <div id="mouse-position" ref="mousePosition">
-        <button v-for="proj in availableProjections" :key="proj" @click="changeProjection(proj)">
-            {{ proj }}
-        </button>
+        <select @change="changeProjection($event.target.value)">
+            <option v-for="proj in availableProjections" :key="proj" :value="proj">
+                {{ proj }}
+            </option>
+        </select>
     </div>
 </template>
 
 <script>
 import MousePosition from 'ol/control/MousePosition'
-import { createStringXY } from 'ol/coordinate'
+import { createStringXY, toStringXY, toStringHDMS } from 'ol/coordinate'
 import { get as getProjection } from 'ol/proj'
 
 export default {
@@ -18,6 +20,26 @@ export default {
             mousePositionControl: null,
             projection: 'EPSG:3857',
             availableProjections: ['EPSG:3857', 'EPSG:2056', 'EPSG:21781', 'EPSG:4326'],
+            mousePositionProjections: {
+                'EPSG:2056': {
+                    label: 'CH1903+ / LV95',
+                    format: function (coord) {
+                        return toStringXY(coord, 5)
+                    },
+                },
+                'EPSG:21781': {
+                    label: 'CH1903 / LV03',
+                    format: function (coord) {
+                        return toStringXY(coord, 2)
+                    },
+                },
+                'EPSG:4326': {
+                    label: 'WGS1984',
+                    format: function (coord) {
+                        return toStringHDMS(coord, 2)
+                    },
+                },
+            },
         }
     },
     mounted() {
@@ -41,9 +63,18 @@ export default {
         }
     },
     methods: {
-        changeProjection: function (proj) {
-            this.projection = proj
-            this.mousePositionControl.setProjection(getProjection(proj))
+        changeProjection: function (projCode) {
+            this.projection = projCode
+            this.mousePositionControl.setProjection(getProjection(projCode))
+            console.log(projCode)
+            //this.mousePositionControl.setCoordinateFormat(this.createCoordinatesString)
+            this.mousePositionControl.setCoordinateFormat(
+                this.mousePositionProjections[projCode].format
+            )
+        },
+        createCoordinatesString: function (coord) {
+            //console.log(proj)
+            return toStringXY(coord, 5)
         },
     },
 }
