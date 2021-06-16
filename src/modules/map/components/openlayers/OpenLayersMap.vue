@@ -4,7 +4,7 @@
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <div id="scale-line" ref="scaleLine" />
-        <div id="mouse-position" ref="mousePosition"></div>
+        <OpenLayersMousePosition />
         <!-- Adding background layer -->
         <OpenLayersBODLayer
             v-if="currentBackgroundLayer"
@@ -77,30 +77,6 @@
         }
     }
 }
-
-#mouse-position {
-    position: absolute;
-    // placing Mouse position over the footer to free some map screen space
-    bottom: 1rem;
-    height: 1rem;
-    width: 450px;
-    left: 150px;
-    // OL Map is at z-index 10
-    z-index: 20;
-    .ol-mouse-position {
-        text-align: center;
-        font-weight: bold;
-        bottom: 0;
-        left: 50;
-        font-size: 14px;
-        background: rgba(255, 255, 255, 0.6);
-        .ol-mouse-position-inner {
-            color: $black;
-            border: 2px solid $black;
-            border-top: none;
-        }
-    }
-}
 </style>
 
 <script>
@@ -108,9 +84,9 @@ import 'ol/ol.css'
 
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { Map, View } from 'ol'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
 import ScaleLine from 'ol/control/ScaleLine'
-import MousePosition from 'ol/control/MousePosition'
-import { createStringXY } from 'ol/coordinate'
 
 import { round } from '@/utils/numberUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
@@ -121,6 +97,7 @@ import { ClickInfo } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
+import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -132,6 +109,7 @@ import log from '@/utils/logging'
  */
 export default {
     components: {
+        OpenLayersMousePosition,
         OpenLayersHighlightedFeature,
         OpenLayersBODLayer,
         OpenLayersAccuracyCircle,
@@ -191,6 +169,8 @@ export default {
         },
     },
     mounted() {
+        // register any custom projection in OpenLayers
+        register(proj4)
         this.map.setTarget(this.$refs.map)
         // Setting up OL objects
         this.view = new View({
@@ -204,15 +184,6 @@ export default {
             target: this.$refs.scaleLine,
         })
         this.map.addControl(scaleLine)
-
-        // adding mouse position
-        const mousePositionControl = new MousePosition({
-            coordinateFormat: createStringXY(0),
-            projection: 'EPSG:3857',
-            target: this.$refs.mousePosition,
-            undefinedHTML: '&nbsp;',
-        })
-        this.map.addControl(mousePositionControl)
 
         // Click management
         let pointerDownStart = null
