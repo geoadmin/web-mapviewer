@@ -18,6 +18,8 @@ export default class AbstractParamConfig {
      *   that will be resolve when the store has finished processing the dispatch.
      * @param {Function} extractValueFromStore A function taking the store in param that needs to
      *   return the value of this param found in the store
+     * @param {Boolean} keepValueInUrlWhenEmpty Tells the URL manager if this param should still be
+     *   added to the URL even though its value is empty. Empty means `null` or `false` for Boolean.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      */
     constructor(
@@ -25,12 +27,14 @@ export default class AbstractParamConfig {
         mutationsToWatch,
         setValuesInStore,
         extractValueFromStore,
+        keepValueInUrlWhenEmpty = true,
         valueType = String
     ) {
         this.urlParamName = urlParamName
         this.mutationsToWatch = mutationsToWatch
         this.setValuesInStore = setValuesInStore
         this.extractValueFromStore = extractValueFromStore
+        this.keepValueInUrlWhenEmpty = keepValueInUrlWhenEmpty
         this.valueType = valueType
     }
 
@@ -42,15 +46,25 @@ export default class AbstractParamConfig {
      *   config (see constructor)
      */
     readValueFromQuery(query) {
-        if (query && this.urlParamName in query) {
+        if (query && (this.urlParamName in query || !this.keepValueInUrlWhenEmpty)) {
             const queryValue = query[this.urlParamName]
             // Edge case here in Javascript with Boolean constructor, Boolean('false') returns true as the "object" we passed
             // to the constructor is valid and non-null. So we manage that "the old way" for booleans
             if (this.valueType === Boolean) {
-                return (
-                    (typeof queryValue === 'string' && queryValue === 'true') ||
-                    (typeof queryValue === 'boolean' && !!queryValue)
-                )
+                if (!this.keepValueInUrlWhenEmpty && typeof queryValue === 'undefined') {
+                    return false
+                } else {
+                    return (
+                        (typeof queryValue === 'string' && queryValue === 'true') ||
+                        (typeof queryValue === 'boolean' && !!queryValue)
+                    )
+                }
+            } else if (!(this.urlParamName in query) && !this.keepValueInUrlWhenEmpty) {
+                if (this.valueType === Number) {
+                    return 0
+                } else if (this.valueType === String) {
+                    return ''
+                }
             } else {
                 // if not a boolean, we can trust the other constructor (Number, String) to return a valid value whenever it is possible with the String input
                 return this.valueType(queryValue)

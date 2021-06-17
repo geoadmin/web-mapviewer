@@ -46,3 +46,18 @@ export function randomIntBetween(start, end) {
     }
     return Math.floor(Math.random() * end) + start
 }
+
+// grabbed from https://github.com/geoadmin/mf-geoadmin3/blob/5e10a0d224eba9335070eceb25de8d4cc4eb0579/src/components/measure/MeasureService.js#L18-L25
+const thousandSeparatorRegex = /\B(?=(\d{3})+(?!\d))/g
+/**
+ * Format this number into a string with the `de-CH` locale (thousand separator is ')
+ *
+ * @param {number} value The value to be formatted
+ * @param {number} decimal How many decimal should be shown
+ */
+export function format(value, decimal = 2) {
+    if (typeof value !== 'number') {
+        return undefined
+    }
+    return `${round(value, decimal)}`.replace(thousandSeparatorRegex, "'")
+}

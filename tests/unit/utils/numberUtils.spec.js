@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { round, isNumber, randomIntBetween } from '@/utils/numberUtils'
+import { round, isNumber, randomIntBetween, format } from '@/utils/numberUtils'
 
 describe('Unit test functions from numberUtils.js', () => {
     context('round(value, decimals)', () => {
@@ -77,6 +77,28 @@ describe('Unit test functions from numberUtils.js', () => {
             for (let i = 0; i < 10000; i += 1) {
                 expect(randomIntBetween(start, end)).to.be.within(start, end)
             }
+        })
+    })
+
+    context('format(value)', () => {
+        it('returns undefined if the given value is not a number', () => {
+            expect(format(null)).to.be.undefined
+            expect(format(undefined)).to.be.undefined
+            expect(format('')).to.be.undefined
+        })
+        it('returns number smaller than 1000 as is', () => {
+            expect(format(0)).to.be.a('string').that.eq('0')
+            expect(format(999)).to.be.a('string').that.eq('999')
+        })
+        it('rounds number to the second decimal (if they are floating numbers)', () => {
+            expect(format(1.2345)).to.eq('1.23')
+            // checking that it doesn't add unnecessary tailing 0
+            expect(format(1.2)).to.eq('1.2')
+        })
+        it("uses ' as thousand separator", () => {
+            expect(format(1000)).to.eq("1'000")
+            expect(format(1000.12)).to.eq("1'000.12")
+            expect(format(123456789.12)).to.eq("123'456'789.12")
         })
     })
 })
