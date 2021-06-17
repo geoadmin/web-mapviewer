@@ -90,14 +90,27 @@ export default {
     height: 1rem;
     width: 450px;
     left: 150px;
+    font-size: 12px;
+    select {
+        height: auto;
+        min-height: inherit;
+        width: auto;
+        font-size: inherit;
+        padding: 5px;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    }
     // OL Map is at z-index 10
     z-index: 20;
     .ol-mouse-position {
         text-align: center;
-        font-weight: bold;
+        font-weight: normal;
         bottom: 0;
         left: 50;
-        font-size: 14px;
+        font-size: 12px;
         background: rgba(255, 255, 255, 0.6);
         .ol-mouse-position-inner {
             color: $black;
