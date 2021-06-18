@@ -100,7 +100,7 @@ export function featureStyle(feature) {
     })
 }
 
-const sketchPointStyle = new Style({
+export const sketchPointStyle = new Style({
     image: new Circle({
         radius: 4,
         fill: new Fill({

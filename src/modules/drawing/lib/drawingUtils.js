@@ -45,3 +45,23 @@ export function geometryInfo(type, coordinates, epsg) {
     }
     return output
 }
+
+/**
+ * Formats minutes to hours and minutes (if more than one hour) e.g. 1230 -> '20h 30min', 55 -> '55min'
+ *
+ * @param {Number} minutes
+ * @returns {string}
+ */
+export function formatTime(minutes) {
+    if (isNaN(minutes) || minutes === null) return '-'
+    let result = ''
+    if (minutes >= 60) {
+        let hours = Math.floor(minutes / 60)
+        minutes = minutes - hours * 60
+        result += `${hours}h`
+        if (minutes > 0) result += ` ${minutes}min`
+    } else {
+        result += `${minutes}min`
+    }
+    return result
+}

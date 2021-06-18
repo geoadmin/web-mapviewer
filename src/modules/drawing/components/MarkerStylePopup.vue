@@ -180,10 +180,12 @@ export default {
         max-height: 2500px; // some big number
         &.one-line {
             max-height: 36px;
+
             svg {
                 transform: rotate(0deg);
             }
         }
+
         display: flex;
         flex-wrap: wrap;
         background-color: rgba(0, 0, 0, 0.08);
@@ -212,8 +214,10 @@ export default {
     .dropdown-item {
         cursor: pointer;
     }
+
     .twosettings-container {
         display: flex;
+
         .setting-container {
             padding-right: 1em;
         }

@@ -250,7 +250,7 @@ export default class DrawingManager extends Observable {
     }
 
     onDrawEnd_(event) {
-        event.feature.setStyle(featureStyle(event.feature))
+        event.feature.setStyle((feature) => featureStyle(feature))
         this.source.once('addfeature', (event) => {
             this.polygonToLineString(event.feature)
             this.dispatchChangeEvent_(event.feature)

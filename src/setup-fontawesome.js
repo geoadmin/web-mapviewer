@@ -20,8 +20,20 @@ import {
     faSquareFull,
     faFont,
     faPaintBrush,
+    faArrowsAltV,
+    faSortAmountUpAlt,
+    faSortAmountDownAlt,
+    faChevronUp,
+    faChevronDown,
+    faMinus,
 } from '@fortawesome/free-solid-svg-icons'
-import { faCheckSquare, faSquare, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import {
+    faCheckSquare,
+    faSquare,
+    faTrashAlt,
+    faEye,
+    faClock,
+} from '@fortawesome/free-regular-svg-icons'
 
 library.add(faPaintBrush)
 library.add(faSquare)
@@ -47,3 +59,11 @@ library.add(faRuler)
 library.add(faCheckSquare)
 library.add(faSquare)
 library.add(faFont)
+library.add(faArrowsAltV)
+library.add(faSortAmountUpAlt)
+library.add(faSortAmountDownAlt)
+library.add(faChevronUp)
+library.add(faChevronDown)
+library.add(faEye)
+library.add(faClock)
+library.add(faMinus)
