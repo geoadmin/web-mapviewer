@@ -1,7 +1,7 @@
 <template>
     <div id="mouse-position" ref="mousePosition">
-        <select @change="changeProjection($event.target.value)">
-            <option v-for="proj in availableProjections" :key="proj" :value="proj">
+        <select data-cy="mouse-position-select" @change="changeProjection($event.target.value)">
+            <option v-for="proj in availableDisplayProjections" :key="proj" :value="proj">
                 {{ proj }}
             </option>
         </select>
@@ -12,6 +12,8 @@
 import MousePosition from 'ol/control/MousePosition'
 import { createStringXY, toStringXY, toStringHDMS } from 'ol/coordinate'
 import { get as getProjection } from 'ol/proj'
+import { forward as LLtoMGRS, LLtoUTM } from '@/utils/militaryGridProjection'
+import { formatThousand } from '@/utils/numberUtils'
 
 export default {
     inject: ['getMap'],
@@ -19,24 +21,43 @@ export default {
         return {
             mousePositionControl: null,
             projection: 'EPSG:3857',
-            availableProjections: ['EPSG:3857', 'EPSG:2056', 'EPSG:21781', 'EPSG:4326'],
+            availableDisplayProjections: ['LV95', 'LV03', 'MGRS', 'UTM', 'WGS1984'],
             mousePositionProjections: {
-                'EPSG:2056': {
+                LV95: {
+                    epsg: 'EPSG:2056',
                     label: 'CH1903+ / LV95',
                     format: function (coord) {
                         return toStringXY(coord, 5)
                     },
                 },
-                'EPSG:21781': {
+                LV03: {
+                    epsg: 'EPSG:21781',
                     label: 'CH1903 / LV03',
                     format: function (coord) {
                         return toStringXY(coord, 2)
                     },
                 },
-                'EPSG:4326': {
+                WGS1984: {
+                    epsg: 'EPSG:4326',
                     label: 'WGS1984',
                     format: function (coord) {
                         return toStringHDMS(coord, 2)
+                    },
+                },
+                UTM: {
+                    epsg: 'EPSG:4326',
+                    label: 'UTM',
+                    format: function (coord) {
+                        let c = LLtoUTM({ lat: coord[1], lon: coord[0] })
+                        return `${c.zoneNumber}${c.zoneLetter} ${formatThousand(c.easting)}
+                        ${formatThousand(c.northing)}`
+                    },
+                },
+                MGRS: {
+                    epsg: 'EPSG:4326',
+                    label: 'MGRS',
+                    format: function (coord) {
+                        return LLtoMGRS(coord, 5)
                     },
                 },
             },
@@ -64,16 +85,13 @@ export default {
     },
     methods: {
         changeProjection: function (projCode) {
-            this.projection = projCode
-            this.mousePositionControl.setProjection(getProjection(projCode))
-            console.log(projCode)
-            //this.mousePositionControl.setCoordinateFormat(this.createCoordinatesString)
+            this.projection = this.mousePositionProjections[projCode].epsg
+            this.mousePositionControl.setProjection(getProjection(this.projection))
             this.mousePositionControl.setCoordinateFormat(
                 this.mousePositionProjections[projCode].format
             )
         },
         createCoordinatesString: function (coord) {
-            //console.log(proj)
             return toStringXY(coord, 5)
         },
     },

@@ -125,14 +125,13 @@ function radToDeg(rad) {
 /**
  * Converts a set of Longitude and Latitude co-ordinates to UTM using the WGS84 ellipsoid.
  *
- * @private
  * @param {object} ll Object literal with lat and lon properties representing the WGS84 coordinate
  *   to be converted.
  * @returns {object} Object literal containing the UTM value with easting, northing, zoneNumber and
  *   zoneLetter properties, and an optional accuracy property in digits. Returns null if the
  *   conversion failed.
  */
-function LLtoUTM(ll) {
+export function LLtoUTM(ll) {
     const Lat = ll.lat
     const Long = ll.lon
     const a = 6378137 //ellip.radius;

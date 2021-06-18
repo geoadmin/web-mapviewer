@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { round, isNumber, randomIntBetween, format } from '@/utils/numberUtils'
+import { round, isNumber, randomIntBetween, format, formatThousand } from '@/utils/numberUtils'
 
 describe('Unit test functions from numberUtils.js', () => {
     context('round(value, decimals)', () => {
@@ -99,6 +99,15 @@ describe('Unit test functions from numberUtils.js', () => {
             expect(format(1000)).to.eq("1'000")
             expect(format(1000.12)).to.eq("1'000.12")
             expect(format(123456789.12)).to.eq("123'456'789.12")
+        })
+    })
+    context('formatThousand(num, separator)', () => {
+        it('returns a string with the thousands separator', () => {
+            expect(formatThousand(1000, "'")).to.eq("1'000")
+            expect(formatThousand(2000)).to.eq("2'000")
+            expect(formatThousand(2123.345)).to.eq("2'123.345")
+            expect(formatThousand(1.23456)).to.eq('1.23456')
+            expect(formatThousand(2000, ' ')).to.eq('2 000')
         })
     })
 })
