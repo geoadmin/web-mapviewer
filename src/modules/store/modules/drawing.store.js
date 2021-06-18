@@ -39,6 +39,14 @@ export default {
          */
         drawingKmlIds: null,
     },
+    getters: {
+        getDrawingPublicFileUrl: (state) => {
+            if (state.drawingKmlIds) {
+                return `https://public.geo.admin.ch/${state.drawingKmlIds.fileId}`
+            }
+            return null
+        },
+    },
     actions: {
         setDrawingMode: ({ commit }, mode) => {
             if (mode in drawingModes || mode === null) {

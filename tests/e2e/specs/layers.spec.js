@@ -38,9 +38,9 @@ describe('Test of layer handling', () => {
                 expect(layers).to.be.an('Array')
                 expect(layers.length).to.eq(2)
                 expect(layers[0]).to.be.an('Object')
-                expect(layers[0].id).to.eq('test.wms.layer')
+                expect(layers[0].getID()).to.eq('test.wms.layer')
                 expect(layers[1]).to.be.an('Object')
-                expect(layers[1].id).to.eq('test.wmts.layer')
+                expect(layers[1].getID()).to.eq('test.wmts.layer')
             })
         })
         it('adds a layer to active layers without showing it if the URL sets visibility to false', () => {
@@ -50,14 +50,16 @@ describe('Test of layer handling', () => {
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(1)
                 const [wmtsLayer] = layers
-                expect(wmtsLayer).to.be.an('Object').to.haveOwnProperty('id')
-                expect(wmtsLayer.id).to.eq('test.wmts.layer')
+                expect(wmtsLayer).to.be.an('Object')
+                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
             })
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = layers
-                expect(wmsLayer).to.be.an('Object').to.have.property('id', 'test.wms.layer')
-                expect(wmtsLayer).to.be.an('Object').to.have.property('id', 'test.wmts.layer')
+                expect(wmsLayer).to.be.an('Object')
+                expect(wmsLayer.getID()).to.eq('test.wms.layer')
+                expect(wmtsLayer).to.be.an('Object')
+                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
             })
         })
         it('sets the opacity to the value defined in the layers URL param', () => {
@@ -127,7 +129,7 @@ describe('Test of layer handling', () => {
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
-                expect(visibleLayers[0].id).to.eq(visibleLayerIds[1])
+                expect(visibleLayers[0].getID()).to.eq(visibleLayerIds[1])
             })
         })
         it('changes the opacity of the layer when the slider for this property is used', () => {
@@ -137,7 +139,7 @@ describe('Test of layer handling', () => {
             // getting current layer opacity
             let initialOpacity = 1.0
             cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                initialOpacity = visibleLayers.find((layer) => layer.id === layerId).opacity
+                initialOpacity = visibleLayers.find((layer) => layer.getID() === layerId).opacity
             })
             // using the keyboard to change slider's value
             const step = 5
@@ -146,7 +148,7 @@ describe('Test of layer handling', () => {
             cy.get(`[data-cy="slider-opacity-layer-${layerId}"]`).should('be.visible').type(command)
             // checking that the opacity has changed accordingly
             cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                const layer = visibleLayers.find((layer) => layer.id === layerId)
+                const layer = visibleLayers.find((layer) => layer.getID() === layerId)
                 expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
             })
         })
@@ -159,8 +161,8 @@ describe('Test of layer handling', () => {
                 .click()
             // checking that the order has changed
             cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                expect(visibleLayers[0].id).to.eq(secondLayerId)
-                expect(visibleLayers[1].id).to.eq(firstLayerId)
+                expect(visibleLayers[0].getID()).to.eq(secondLayerId)
+                expect(visibleLayers[1].getID()).to.eq(firstLayerId)
             })
             // using the other button
             cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`)
@@ -168,8 +170,8 @@ describe('Test of layer handling', () => {
                 .click()
             // re-checking the order that should be back to the starting values
             cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                expect(visibleLayers[0].id).to.eq(firstLayerId)
-                expect(visibleLayers[1].id).to.eq(secondLayerId)
+                expect(visibleLayers[0].getID()).to.eq(firstLayerId)
+                expect(visibleLayers[1].getID()).to.eq(secondLayerId)
             })
         })
         it('shows a layer legend when the "i" button is clicked (in layer settings)', () => {
@@ -217,7 +219,7 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
                     activeLayers.forEach((layer) => {
-                        if (layer.id === timedLayerId) {
+                        if (layer.getID() === timedLayerId) {
                             expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
                         }
                     })

@@ -2,14 +2,14 @@
     <div>
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS"
-            :layer-id="layerConfig.id"
+            :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
             :z-index="zIndex"
         />
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.id"
+            :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
             :gutter="layerConfig.gutter"
@@ -17,7 +17,7 @@
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
-            :layer-id="layerConfig.id"
+            :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :geojson-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"

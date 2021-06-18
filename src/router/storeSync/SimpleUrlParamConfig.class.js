@@ -15,8 +15,10 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
      *   made in the URL
      * @param {Function} extractValueFromStore A function taking the store in param that needs to
      *   return the value of this param found in the store
-     * @param {Boolean} keepValueInUrlWhenEmpty Tells if this param should stay in the URL when its
-     *   value is considered empty (or false for a boolean type param)
+     * @param {Boolean} keepValueInUrlWhenEmpty Tells if this param should stay in the URL query
+     *   when its value is considered empty. What is considered empty depends on valueType. For
+     *   Boolean, false is considered empty. For Numbers a value of zero is considered empty. For
+     *   String, an empty or null string is considered empty.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
      */
     constructor(

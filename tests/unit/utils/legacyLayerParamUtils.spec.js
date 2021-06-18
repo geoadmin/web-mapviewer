@@ -28,8 +28,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             const result = getLayersFromLegacyUrlParams(fakeLayerConfig, 'layers=test.wms.layer')
             expect(result).to.be.an('Array').length(1)
             const [firstLayer] = result
-            expect(firstLayer).to.haveOwnProperty('id')
-            expect(firstLayer.id).to.eq('test.wms.layer')
+            expect(firstLayer.getID()).to.eq('test.wms.layer')
         })
         it('Parses visibility when specified', () => {
             const checkOneLayerVisibility = (flagValue) => {
@@ -93,8 +92,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expectedVisibility,
                 expecedTimestamp = undefined
             ) => {
-                expect(layer).to.haveOwnProperty('id')
-                expect(layer.id).to.eq(expectedId)
+                expect(layer.getID()).to.eq(expectedId)
                 expect(layer).to.haveOwnProperty('opacity')
                 expect(layer.opacity).to.eq(expectedOpacity)
                 expect(layer).to.haveOwnProperty('visible')

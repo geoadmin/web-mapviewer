@@ -1,5 +1,5 @@
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import BODLayer from '@/api/layers/BODLayer.class'
 
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown
@@ -32,7 +32,7 @@ export class AggregateSubLayer {
  * time. Which one is shown is decided by the map resolution, and by the min/max resolution of all
  * sub-layer's config
  */
-export default class AggregateLayer extends AbstractLayer {
+export default class AggregateLayer extends BODLayer {
     /**
      * @param {String} name The name of this layer in the given lang
      * @param {String} id The layer ID in the BOD

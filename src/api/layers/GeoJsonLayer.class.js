@@ -1,8 +1,8 @@
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import BODLayer from '@/api/layers/BODLayer.class'
 
 /** Metadata for a GeoJSON layer */
-export default class GeoJsonLayer extends AbstractLayer {
+export default class GeoJsonLayer extends BODLayer {
     /**
      * @param name The name of this layer in the current lang
      * @param id The BOD ID of this layer (used to request data and style to the backend)

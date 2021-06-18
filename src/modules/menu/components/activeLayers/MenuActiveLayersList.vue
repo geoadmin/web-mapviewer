@@ -2,20 +2,20 @@
     <div v-show="activeLayers.length > 0" class="menu-layer-list">
         <MenuActiveLayersListItem
             v-for="layer in activeLayers"
-            :id="layer.id"
-            :key="layer.id"
+            :id="layer.getID()"
+            :key="layer.getID()"
             :visible="layer.visible"
             :opacity="layer.opacity"
             :name="layer.name"
             :time-config="layer.timeConfig"
-            :show-details="showLayerDetailsForId === layer.id"
+            :show-details="showLayerDetailsForId === layer.getID()"
             @removeLayer="onRemoveLayer"
             @toggleLayerVisibility="onToggleLayerVisibility"
             @toggleLayerDetails="onToggleLayerDetails"
             @opacityChange="onOpacityChange"
             @orderChange="onOrderChange"
             @timestampChange="onTimestampChange"
-            @showLayerLegendPopup="showLayerLegendForId = layer.id"
+            @showLayerLegendPopup="showLayerLegendForId = layer.getID()"
         />
         <MenuActiveLayersLegendPopup
             v-if="showLayerLegendForId"

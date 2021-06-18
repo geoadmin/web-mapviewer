@@ -13,7 +13,7 @@
         <!-- Adding all other BOD layers -->
         <OpenLayersBODLayer
             v-for="(layer, index) in visibleLayers"
-            :key="layer.id"
+            :key="layer.getID()"
             :layer-config="layer"
             :current-map-resolution="resolution"
             :z-index="index + startingZIndexForVisibleLayers"
