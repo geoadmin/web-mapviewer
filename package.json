@@ -6,6 +6,7 @@
     "start": "npm run serve",
     "serve": "vue-cli-service serve",
     "test:unit": "vue-cli-service test:unit",
+    "test:unit-watch": "vue-cli-service test:unit --watch",
     "test:e2e": "vue-cli-service test:e2e",
     "test:e2e-dev": "vue-cli-service test:e2e --mode development",
     "test:headless": "vue-cli-service test:e2e --headless",

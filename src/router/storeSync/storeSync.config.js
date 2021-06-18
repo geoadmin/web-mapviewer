@@ -12,6 +12,7 @@ const storeSyncConfig = [
         'setCenter',
         'setLatitude',
         (store) => store.getters.centerEpsg4326[1],
+        true,
         Number
     ),
     new SimpleUrlParamConfig(
@@ -19,6 +20,7 @@ const storeSyncConfig = [
         'setCenter',
         'setLongitude',
         (store) => store.getters.centerEpsg4326[0],
+        true,
         Number
     ),
     new SimpleUrlParamConfig(
@@ -26,6 +28,7 @@ const storeSyncConfig = [
         'setZoom',
         'setZoom',
         (store) => store.state.position.zoom,
+        true,
         Number
     ),
     new SimpleUrlParamConfig(
@@ -33,6 +36,7 @@ const storeSyncConfig = [
         'setGeolocationActive',
         'toggleGeolocation',
         (store) => store.state.geolocation.active,
+        false,
         Boolean
     ),
     new LayerParamConfig(),

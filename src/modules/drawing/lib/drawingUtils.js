@@ -1,5 +1,6 @@
 import { LineString, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
+import { format } from '@/utils/numberUtils'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
@@ -9,12 +10,9 @@ export function toLv95(input, epsg) {
     }
 }
 
-// format to 2'000'333
-const nf = new Intl.NumberFormat('de-CH')
-
 /** @param {[number, number]} coo Coordinates */
 export function formatPointCoordinates(coo) {
-    return `${nf.format(Math.round(coo[0]))}, ${nf.format(Math.round(coo[1]))}`
+    return `${format(coo[0], 0)}, ${format(coo[1], 0)}`
 }
 
 export function formatMeters(value, { dim = 1, digits = 2 } = {}) {
@@ -24,9 +22,7 @@ export function formatMeters(value, { dim = 1, digits = 2 } = {}) {
         unit = dim === 1 ? 'km' : 'km²'
         value /= factor
     }
-    const shift = Math.pow(10, digits)
-    const nb = nf.format(Math.round(shift * value) / shift)
-    return `${nb} ${unit}`
+    return `${format(value, digits)} ${unit}`
 }
 
 export function geometryInfo(type, coordinates, epsg) {

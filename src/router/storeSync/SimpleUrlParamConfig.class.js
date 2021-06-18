@@ -15,6 +15,8 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
      *   made in the URL
      * @param {Function} extractValueFromStore A function taking the store in param that needs to
      *   return the value of this param found in the store
+     * @param {Boolean} keepValueInUrlWhenEmpty Tells if this param should stay in the URL when its
+     *   value is considered empty (or false for a boolean type param)
      * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
      */
     constructor(
@@ -22,6 +24,7 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
         mutationsToWatch,
         dispatchChangeTo,
         extractValueFromStore,
+        keepValueInUrlWhenEmpty = true,
         valueType = String
     ) {
         super(
@@ -29,6 +32,7 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
             mutationsToWatch,
             (store, urlParamValue) => store.dispatch(dispatchChangeTo, urlParamValue),
             extractValueFromStore,
+            keepValueInUrlWhenEmpty,
             valueType
         )
     }
