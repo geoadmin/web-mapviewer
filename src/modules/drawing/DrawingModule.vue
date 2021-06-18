@@ -18,6 +18,11 @@
             />
         </div>
         <div ref="draw-help" class="draw-help-popup"></div>
+        <ProfilePopup
+            :feature="selectedFeature"
+            @delete="deleteSelectedFeature"
+            @close="deactivateFeature"
+        />
     </div>
 </template>
 
@@ -34,6 +39,7 @@ import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { Point } from 'ol/geom'
+import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -41,7 +47,7 @@ const overlay = new Overlay({
 })
 
 export default {
-    components: { DrawingToolbox, DrawingStylePopup },
+    components: { DrawingToolbox, DrawingStylePopup, ProfilePopup },
     inject: ['getMap'],
     data: function () {
         return {

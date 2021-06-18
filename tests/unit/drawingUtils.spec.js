@@ -1,5 +1,10 @@
 import { expect } from 'chai'
-import { formatPointCoordinates, formatMeters, toLv95 } from '@/modules/drawing/lib/drawingUtils'
+import {
+    formatPointCoordinates,
+    formatMeters,
+    toLv95,
+    formatTime,
+} from '@/modules/drawing/lib/drawingUtils'
 import setupProj4 from '@/utils/setupProj4'
 
 // setting up projection for proj4 otherwise they will fail when asked
@@ -74,6 +79,16 @@ describe('Unit test functions from drawingUtils.js', () => {
             expect(formatPointCoordinates([2533541.8057776038, 1151703.909974419])).to.eql(
                 "2'533'542, 1'151'704"
             )
+        })
+    })
+
+    describe('formatTime()', () => {
+        it('format time', () => {
+            expect(formatTime(null)).to.equal('-')
+            expect(formatTime(42)).to.equal('42min')
+            expect(formatTime(1200)).to.equal('20h')
+            expect(formatTime(1230)).to.equal('20h 30min')
+            expect(formatTime(1202)).to.equal('20h 2min')
         })
     })
 })

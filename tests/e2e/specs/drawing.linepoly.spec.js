@@ -62,7 +62,7 @@ describe('Drawing', () => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos.length).to.equal(3)
         })
-        cy.get(olSelector).click(500, 500) // do nothing, already finished
+        cy.get(olSelector).click(500, 300) // do nothing, already finished
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos.length).to.equal(3)
