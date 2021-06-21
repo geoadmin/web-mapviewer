@@ -62,10 +62,22 @@ const addTopicFixtureAndIntercept = () => {
     }).as('topics')
 }
 
+const addCatalogFixtureAndIntercept = () => {
+    // intercepting further topic metadata retrieval
+    cy.fixture('topics.fixture').then((mockedTopics) => {
+        mockedTopics.topics.forEach((topic) => {
+            cy.intercept(`**/rest/services/${topic.id}/CatalogServer?lang=en`, {
+                fixture: 'catalogs.fixture',
+            }).as(`topic-${topic.id}`)
+        })
+    })
+}
+
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
 Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = false) => {
     addLayerFixtureAndIntercept()
     addTopicFixtureAndIntercept()
+    addCatalogFixtureAndIntercept()
     let flattenedOtherParams = ''
     Object.keys(otherParams).forEach((key) => {
         flattenedOtherParams += `&${key}=${otherParams[key]}`
