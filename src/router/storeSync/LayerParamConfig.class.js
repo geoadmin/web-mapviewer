@@ -1,5 +1,6 @@
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.getID()
@@ -9,7 +10,8 @@ function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     if (!layer.visible) {
         layerUrlString += `,f`
     }
-    if (layer.opacity !== defaultLayerConfig.opacity) {
+    // if no default layers config (e.g. external layers) or if the opacity is not the same as the default one
+    if (!defaultLayerConfig || layer.opacity !== defaultLayerConfig.opacity) {
         if (layer.visible) {
             layerUrlString += ','
         }
@@ -62,7 +64,15 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         if (
             !store.state.layers.activeLayers.find((activeLayer) => activeLayer.getID() === layer.id)
         ) {
-            promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))
+            // checking if it is an external layer first
+            if (layer.id.startsWith('KML|') && layer.id.split('|').length === 3) {
+                const splittedLayerId = layer.id.split('|')
+                const kmlLayer = new KMLLayer(splittedLayerId[2], layer.opacity, splittedLayerId[1])
+                promisesForAllDispatch.push(store.dispatch('addLayer', kmlLayer))
+            } else {
+                // if internal (or BOD) layer, we add it through its config we have stored previously
+                promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))
+            }
             if (layer.opacity) {
                 promisesForAllDispatch.push(
                     store.dispatch('setLayerOpacity', {
@@ -108,6 +118,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex,setLayerOpacity,setLayerTimestamp',
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
+            false,
             String
         )
     }

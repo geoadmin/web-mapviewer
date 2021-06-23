@@ -5,13 +5,13 @@
         <slot />
         <div id="scale-line" ref="scaleLine" />
         <!-- Adding background layer -->
-        <OpenLayersBODLayer
+        <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
             :layer-config="currentBackgroundLayer"
             :z-index="0"
         />
-        <!-- Adding all other BOD layers -->
-        <OpenLayersBODLayer
+        <!-- Adding all other layers -->
+        <OpenLayersInternalLayer
             v-for="(layer, index) in visibleLayers"
             :key="layer.getID()"
             :layer-config="layer"
@@ -88,7 +88,7 @@ import ScaleLine from 'ol/control/ScaleLine'
 import { round } from '@/utils/numberUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
-import OpenLayersBODLayer from './OpenLayersBODLayer'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
 import { ClickInfo } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -106,7 +106,7 @@ import log from '@/utils/logging'
 export default {
     components: {
         OpenLayersHighlightedFeature,
-        OpenLayersBODLayer,
+        OpenLayersInternalLayer,
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
     },

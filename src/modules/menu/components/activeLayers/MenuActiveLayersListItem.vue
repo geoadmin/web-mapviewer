@@ -22,6 +22,7 @@
                 >{{ name }}</span
             >
             <MenuActiveLayersListItemTimeSelector
+                v-if="timeConfig"
                 :data-cy="`time-selector-${id}`"
                 :time-config="timeConfig"
                 @timestampChange="onTimestampChange"

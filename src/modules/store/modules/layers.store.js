@@ -1,4 +1,5 @@
 import log from '@/utils/logging'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 const state = {
     /**
@@ -71,7 +72,19 @@ const getters = {
 
 const actions = {
     toggleLayerVisibility: ({ commit }, layerId) => commit('toggleLayerVisibility', layerId),
-    addLayer: ({ commit }, layerId) => commit('addLayer', layerId),
+    addLayer: ({ commit }, layerIdOrConfig) => {
+        let layerConfig = null
+        if (typeof layerIdOrConfig === 'string') {
+            layerConfig = state.config.find((layer) => layer.getID() === layerIdOrConfig)
+        } else if (layerIdOrConfig instanceof AbstractLayer) {
+            layerConfig = layerIdOrConfig
+        }
+        if (layerConfig) {
+            commit('addLayerWithConfig', layerConfig)
+        } else {
+            log('error', 'no layer found with ID', layerIdOrConfig)
+        }
+    },
     addLocation: ({ commit }, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
     removeLayer: ({ commit }, layerId) => commit('removeLayer', layerId),
     clearLayers: ({ commit }) => commit('clearLayers'),
@@ -157,22 +170,16 @@ const mutations = {
             layer.visible = !layer.visible
         }
     },
-    addLayer: (state, layerId) => {
-        const activeLayer = state.activeLayers.find((layer) => layer.getID() === layerId)
+    addLayerWithConfig: (state, config) => {
+        const activeLayer = state.activeLayers.find((layer) => layer.getID() === config.getID())
         // if the layer is already active, we only make sure it is visible again
         if (activeLayer) {
             activeLayer.visible = true
         } else {
-            // otherwise we load the config for this layer into the active layers
-            const layer = state.config.find((layer) => layer.getID() === layerId)
-            if (layer) {
-                // cloning layer config so that we keep the one we received from the backend pristine
-                const layerClone = layer.clone()
-                layerClone.visible = true
-                state.activeLayers.push(layerClone)
-            } else {
-                log('error', 'no layer found with id', layerId)
-            }
+            // otherwise cloning layer config so that we keep the one we received pristine
+            const layerClone = config.clone()
+            layerClone.visible = true
+            state.activeLayers.push(layerClone)
         }
     },
     addLocation: (state, { x, y }) => (state.pinLocation = { x, y }),

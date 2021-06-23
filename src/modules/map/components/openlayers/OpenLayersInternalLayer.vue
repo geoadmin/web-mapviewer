@@ -43,6 +43,13 @@
                 />
             </div>
         </div>
+        <OpenLayersKMLLayer
+            v-if="layerConfig.type === LayerTypes.KML"
+            :layer-id="layerConfig.getID()"
+            :opacity="layerConfig.opacity"
+            :url="layerConfig.getURL()"
+            :z-index="zIndex"
+        />
         <slot />
     </div>
 </template>
@@ -52,12 +59,18 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer'
+import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer'
 
 /** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers
     name: 'OpenLayersBodLayer',
-    components: { OpenLayersGeoJSONLayer, OpenLayersWMSLayer, OpenLayersWMTSLayer },
+    components: {
+        OpenLayersKMLLayer,
+        OpenLayersGeoJSONLayer,
+        OpenLayersWMSLayer,
+        OpenLayersWMTSLayer,
+    },
     props: {
         layerConfig: {
             type: Object,

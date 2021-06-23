@@ -7,6 +7,6 @@ const LayerTypes = {
     WMS: 'wms',
     GEOJSON: 'geojson',
     AGGREGATE: 'aggregate',
-    EXTERNAL: 'external',
+    KML: 'kml',
 }
 export default LayerTypes

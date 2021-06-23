@@ -86,6 +86,17 @@ describe('Testing layersParamParser', () => {
         checkLayer(layer, layerId, false, opacity, customParams)
     })
 
+    it('parse correctly an external KML layer', () => {
+        const externalLayerId = 'KML|https://somerandomurl.ch/file.kml|Some custom label'
+        const result = layersParamParser(`${externalLayerId},f,0.6`)
+        expect(result).to.be.an('Array').with.lengthOf(1)
+        const [layer] = result
+        expect(layer).to.be.an('Object')
+        expect(layer.id).to.eq(externalLayerId)
+        expect(layer.visible).to.be.false
+        expect(layer.opacity).to.eq(0.6)
+    })
+
     it('Parses correctly multiple layers with different types of configuration', () => {
         const layers = [
             {
@@ -111,6 +122,10 @@ describe('Testing layersParamParser', () => {
                     attr2: true,
                     attr3: 20200512,
                 },
+            },
+            {
+                id: 'KML|somerandomurl.ch/file.kml|An external KML',
+                opacity: 0.4,
             },
         ]
         // building query string

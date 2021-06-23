@@ -9,8 +9,12 @@ export default class KMLLayer extends AbstractLayer {
      * @param kmlFileUrl The URL to access the KML data
      */
     constructor(name, opacity, kmlFileUrl) {
-        super(name, LayerTypes.EXTERNAL, `KML|${kmlFileUrl}|${name}`, opacity)
+        super(name, LayerTypes.KML, opacity)
         this.kmlFileUrl = kmlFileUrl
+    }
+
+    getID() {
+        return `KML|${this.kmlFileUrl}|${this.name}`
     }
 
     getURL() {

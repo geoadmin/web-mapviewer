@@ -39,7 +39,18 @@ export default class AbstractParamConfig {
     }
 
     /**
-     * Reads the value from the given Vue router query (part of {@link RouterLink})
+     * Reads the value from the given Vue router query (part of {@link RouterLink}). Depending on
+     * the value of keepValueInUrlWhenEmpty, the output can be drastically different for an empty query.
+     *
+     * When keepValueInUrlWhenEmpty=true, and the query is empty, the function will output (by type) :
+     * - Boolean: false
+     * - Number: 0
+     * - String: ''
+     *
+     * When keepValueInUrlWhenEmpty=false, and the query is empty, the function will output (by type) :
+     * - Boolean: undefined
+     * - Number: undefined
+     * - String: undefined
      *
      * @param {Object} query An object describing the route URL param
      * @returns {undefined | number | string | boolean} The value casted in the type given to the
@@ -82,7 +93,11 @@ export default class AbstractParamConfig {
      */
     readValueFromStore(store) {
         if (store && this.extractValueFromStore) {
-            return this.valueType(this.extractValueFromStore(store))
+            const valueFromStore = this.extractValueFromStore(store)
+            if (valueFromStore === null || valueFromStore === undefined) {
+                return undefined
+            }
+            return this.valueType(valueFromStore)
         }
         return undefined
     }
@@ -92,7 +107,11 @@ export default class AbstractParamConfig {
     }
 
     /**
-     * Adds the value of the store to the query object
+     * Adds the value of the store to the query object. If keepValueInUrlWhenEmpty is false, the
+     * query will not be populated whenever the store value is (by type) :
+     * - Boolean: false or undefined or null
+     * - Number: 0 or undefined or null
+     * - String: '' or undefined or null
      *
      * @param {Object} query Simple Object that holds all URL parameters (key is the name of param
      *   in the URL, value is its value)
@@ -100,21 +119,20 @@ export default class AbstractParamConfig {
      */
     populateQueryWithStoreValue(query, store) {
         if (query && this.urlParamName && this.urlParamName.length > 0) {
-            const valueFromStore = this.readValueFromStore(store)
-            // checking first if when the value is empty it should stay in the query or not
-            if (!this.keepValueInUrlWhenEmpty) {
-                // with boolean, if the value of the flag is false we simply don't add it to the URL's param (or remove it if present)
-                // with String, if the value is an empty string, we also don't add it to the URL (or remove it if present)
-                if (
-                    this.urlParamName in query &&
-                    ((this.valueType === Boolean && !valueFromStore) ||
-                        (this.valueType === String && valueFromStore === ''))
-                ) {
-                    delete query[this.urlParamName]
-                }
+            const storeValue = this.readValueFromStore(store)
+            if (this.keepValueInUrlWhenEmpty) {
+                query[this.urlParamName] = storeValue
             } else {
-                // if the value is staying in the query anyway, we add it regardless of the actual value
-                query[this.urlParamName] = valueFromStore
+                // here we shouldn't populate the query if the value in the store is considered empty
+                // so we are checking all types of empty values before setting things in the query
+                if (
+                    storeValue !== undefined &&
+                    ((this.valueType === Boolean && storeValue !== false) ||
+                        (this.valueType === Number && storeValue !== 0) ||
+                        (this.valueType === String && storeValue !== ''))
+                ) {
+                    query[this.urlParamName] = storeValue
+                }
             }
         }
     }
