@@ -86,7 +86,15 @@ const actions = {
         }
     },
     addLocation: ({ commit }, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
-    removeLayer: ({ commit }, layerId) => commit('removeLayer', layerId),
+    removeLayer: ({ commit }, layerIdOrConfig) => {
+        if (typeof layerIdOrConfig === 'string') {
+            commit('removeLayerWithId', layerIdOrConfig)
+        } else if (layerIdOrConfig instanceof AbstractLayer) {
+            commit('removeLayerWithId', layerIdOrConfig.getID())
+        } else {
+            log('error', 'Can not remove layer that is not yet added', layerIdOrConfig)
+        }
+    },
     clearLayers: ({ commit }) => commit('clearLayers'),
     setLayerConfig: ({ commit, dispatch, state }, config) => {
         const activedLayerBeforeConfigChange = state.activeLayers.map((layer) => layer)
@@ -184,7 +192,7 @@ const mutations = {
     },
     addLocation: (state, { x, y }) => (state.pinLocation = { x, y }),
     clearLayers: (state) => (state.activeLayers = []),
-    removeLayer: (state, layerId) =>
+    removeLayerWithId: (state, layerId) =>
         (state.activeLayers = state.activeLayers.filter((layer) => layer.getID() !== layerId)),
     setLayerConfig: (state, config) => (state.config = config),
     setBackground: (state, bgLayerId) => (state.backgroundLayerId = bgLayerId),
