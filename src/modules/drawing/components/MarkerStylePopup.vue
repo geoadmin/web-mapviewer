@@ -50,7 +50,7 @@
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
                 <font-awesome-icon :icon="['fas', 'caret-down']" @click="() => onCaretClicked()" />
                 <div v-for="c in coloredIcons" :key="c.name" @click="() => onIconSelected(c)">
-                    <img :src="c.url" />
+                    <img :src="c.url" crossorigin="anonymous" />
                 </div>
             </div>
         </div>

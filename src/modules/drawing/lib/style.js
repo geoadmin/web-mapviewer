@@ -72,6 +72,7 @@ export function featureStyle(feature) {
         // this might be expensive
         image = new Icon({
             src: icon,
+            crossOrigin: 'Anonymous',
             anchor: anchor,
             scale: markerScale,
         })
