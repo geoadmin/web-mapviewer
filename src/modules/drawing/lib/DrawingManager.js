@@ -21,6 +21,7 @@ import { featureStyle } from './style'
 import Overlay from 'ol/Overlay'
 import i18n from '@/modules/i18n'
 import { Polygon, LineString } from 'ol/geom'
+import MeasureManager from '@/modules/drawing/lib/MeasureManager'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -83,6 +84,8 @@ export default class DrawingManager extends Observable {
         })
         this.source = this.layer.getSource()
 
+        this.measureManager = new MeasureManager(this.map, this.layer)
+
         this.tools = {}
         this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
@@ -102,6 +105,7 @@ export default class DrawingManager extends Observable {
             const overlaySource = tool.getOverlay().getSource()
             overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
+            tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
             this.tools[type] = tool
         }
@@ -193,9 +197,11 @@ export default class DrawingManager extends Observable {
             this.activeInteraction.setActive(false)
         }
         this.deselect()
-        this.activeInteraction = this.tools[tool]
-        this.activeInteraction.setActive(true)
-        this.updateHelpTooltip(tool, false)
+        if (tool) {
+            this.activeInteraction = this.tools[tool]
+            this.activeInteraction.setActive(true)
+            this.updateHelpTooltip(tool, false)
+        }
     }
 
     // API
@@ -212,7 +218,13 @@ export default class DrawingManager extends Observable {
     }
 
     createGeoJSONAndKML() {
-        const geojson = this.geojsonFormat.writeFeaturesObject(this.source.getFeatures())
+        // todo Do we need overlays in geoJson? it makes loop during state update
+        const features = this.source.getFeatures().map((f) => {
+            const feature = f.clone()
+            feature.set('overlays', undefined)
+            return feature
+        })
+        const geojson = this.geojsonFormat.writeFeaturesObject(features)
         const kml = this.kmlFormat.writeFeatures(this.source.getFeatures())
         return {
             geojson,
@@ -249,10 +261,18 @@ export default class DrawingManager extends Observable {
         this.select.setActive(!event.target.getActive())
     }
 
+    onDrawStart_(event) {
+        event.feature.set('isDrawing', true)
+        if (event.target.get('type') === 'MEASURE') this.measureManager.addOverlays(event.feature)
+    }
+
     onDrawEnd_(event) {
+        event.feature.unset('isDrawing')
         event.feature.setStyle((feature) => featureStyle(feature))
         this.source.once('addfeature', (event) => {
             this.polygonToLineString(event.feature)
+            if (event.feature.get('type') === 'MEASURE')
+                this.measureManager.addOverlays(event.feature)
             this.dispatchChangeEvent_(event.feature)
         })
 
@@ -260,6 +280,9 @@ export default class DrawingManager extends Observable {
         event.target.setActive(false)
         this.select.getFeatures().push(event.feature)
         this.sketchPoints = 0
+
+        // remove the area tooltip.
+        this.measureManager.removeOverlays(event.feature)
     }
 
     onModifyStart_(event) {

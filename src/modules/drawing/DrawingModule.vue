@@ -44,6 +44,7 @@ import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
 const overlay = new Overlay({
     offset: [0, 15],
     positioning: OverlayPositioning.TOP_CENTER,
+    className: 'drawing-style-overlay',
 })
 
 export default {
@@ -212,12 +213,45 @@ export default {
 </script>
 
 <style lang="scss">
+.tooltip-measure,
+.draw-measure-tmp,
 .draw-help-popup {
     background-color: rgba(140, 140, 140, 0.9);
     border-radius: 4px;
     color: white;
     padding: 2px 8px;
     font-size: 12px;
+    pointer-events: none;
+}
+
+.tooltip-measure {
+    background-color: rgba(255, 0, 0, 0.9);
+
+    &:after {
+        position: absolute;
+        left: 50%;
+        bottom: -6px;
+        margin-left: -7px;
+        content: '';
+        border-top: 6px solid rgba(255, 0, 0, 0.9);
+        border-right: 6px solid transparent;
+        border-left: 6px solid transparent;
+    }
+}
+
+.draw-measure-tmp {
+    background-color: transparent;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+
+    &:after {
+        bottom: -11px;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        background-color: red;
+        margin-left: -4px;
+        border: none;
+    }
 }
 
 .cursor-grab {

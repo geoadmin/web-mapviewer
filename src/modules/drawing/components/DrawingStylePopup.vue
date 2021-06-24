@@ -1,5 +1,5 @@
 <template>
-    <div v-if="feature" class="card drawing-style-popup">
+    <div v-if="feature && !isFeatureMeasure" class="card drawing-style-popup">
         <div class="arrow-top"></div>
         <div class="card-header">
             <span class="float-left">{{ $t('draw_popup_title_feature') }}</span>
@@ -180,6 +180,9 @@ export default {
         isFeatureLine() {
             return this.feature.get('type') === 'LINE'
         },
+        isFeatureMeasure() {
+            return this.feature.get('type') === 'MEASURE'
+        },
     },
     mounted() {
         this.updatePopover('text')
@@ -219,6 +222,11 @@ export default {
 </script>
 
 <style lang="scss">
+@import 'src/scss/variables';
+.drawing-style-overlay {
+    z-index: $zindex-overlay-front;
+}
+
 .drawing-style-popup {
     width: 320px;
     position: absolute;
