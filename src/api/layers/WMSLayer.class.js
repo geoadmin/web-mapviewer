@@ -1,15 +1,15 @@
 import { WMS_BASE_URL } from '@/config'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import BODLayer from '@/api/layers/BODLayer.class'
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 
 /**
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
  * chunks, usually 4), or single image (only one request fired for the whole map).
  */
-export default class WMSLayer extends BODLayer {
+export default class WMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
-     * @param {String} id The ID of this layer in the BOD
+     * @param {String} id The unique ID of this layer in the GeoAdmin backends
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
      * @param {String} baseURL The backend to call for tiles
      * @param {String} format In which image format the backend must be requested

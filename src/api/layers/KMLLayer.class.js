@@ -14,6 +14,7 @@ export default class KMLLayer extends AbstractLayer {
     }
 
     getID() {
+        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
         return `KML|${this.kmlFileUrl}|${this.name}`
     }
 

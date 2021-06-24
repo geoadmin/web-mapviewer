@@ -2,15 +2,16 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 /**
  * @abstract
- * @class BODLayer Base class for layer coming from our backend (or BOD layers), must be extended to
- *   a more specific flavor of Layer (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer}
- *   or {@link AggregateLayer})
+ * @class GeoAdminLayer Base class for layer coming from our backend, must be extended to a more
+ *   specific flavor of Layer (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer} or
+ *   {@link AggregateLayer})
  */
-export default class BODLayer extends AbstractLayer {
+export default class GeoAdminLayer extends AbstractLayer {
     /**
      * @param {String} name Name of this layer in the current lang
      * @param {LayerTypes} type See {@link LayerTypes}
-     * @param {String} bodID The BOD ID of this layer that will be used to request the backend
+     * @param {String} geoAdminID The unique ID of this layer that will be used to request the
+     *   different backends of map.geo.admin.ch
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
      * @param {Boolean} isBackground If this layer is to be used as a background layer or not
@@ -27,7 +28,7 @@ export default class BODLayer extends AbstractLayer {
     constructor(
         name = '',
         type = null,
-        bodID = '',
+        geoAdminID = '',
         opacity = 1.0,
         isBackground = false,
         baseURL = null,
@@ -36,7 +37,7 @@ export default class BODLayer extends AbstractLayer {
         topics = []
     ) {
         super(name, type, opacity, hasTooltip)
-        this.bodID = bodID
+        this.geoAdminID = geoAdminID
         this.isBackground = isBackground
         this.baseURL = baseURL
         if (this.baseURL && !this.baseURL.endsWith('/')) {
@@ -44,11 +45,11 @@ export default class BODLayer extends AbstractLayer {
         }
         this.isHighlightable = isHighlightable
         this.topics = topics
-        this.isSpecificFor3D = bodID.toLowerCase().endsWith('_3d')
+        this.isSpecificFor3D = geoAdminID.toLowerCase().endsWith('_3d')
     }
 
     getID() {
-        return this.bodID
+        return this.geoAdminID
     }
 
     /**

@@ -33,7 +33,7 @@ export default class AbstractLayer {
     /**
      * @abstract
      * @returns {String} The unique ID of this layer that will be used in the URL to identify it
-     *   (and also in subsequent backend services for BOD layers)
+     *   (and also in subsequent backend services for GeoAdmin layers)
      */
     getID() {
         throw new Error('You have to implement the method getID!')
