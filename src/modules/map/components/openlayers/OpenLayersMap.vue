@@ -4,6 +4,7 @@
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <div id="scale-line" ref="scaleLine" />
+        <OpenLayersMousePosition />
         <!-- Adding background layer -->
         <OpenLayersBODLayer
             v-if="currentBackgroundLayer"
@@ -83,6 +84,8 @@ import 'ol/ol.css'
 
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { Map, View } from 'ol'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
 import ScaleLine from 'ol/control/ScaleLine'
 
 import { round } from '@/utils/numberUtils'
@@ -94,6 +97,7 @@ import { ClickInfo } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
+import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -105,6 +109,7 @@ import log from '@/utils/logging'
  */
 export default {
     components: {
+        OpenLayersMousePosition,
         OpenLayersHighlightedFeature,
         OpenLayersBODLayer,
         OpenLayersAccuracyCircle,
@@ -164,6 +169,8 @@ export default {
         },
     },
     mounted() {
+        // register any custom projection in OpenLayers
+        register(proj4)
         this.map.setTarget(this.$refs.map)
         // Setting up OL objects
         this.view = new View({

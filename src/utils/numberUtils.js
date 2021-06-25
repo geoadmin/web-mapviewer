@@ -61,3 +61,18 @@ export function format(value, decimal = 2) {
     }
     return `${round(value, decimal)}`.replace(thousandSeparatorRegex, "'")
 }
+
+/**
+ * Returns a string representing a number with the right thousand seaprator
+ *
+ * @param num A number
+ * @param separator The thousand separator, default to "'"
+ * @returns A formatted string representing a number, e.g. 1'546
+ */
+
+export function formatThousand(num, separator = "'") {
+    const decimalSeparator = '.'
+    var parts = num.toString().split(decimalSeparator)
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+    return parts.join(decimalSeparator)
+}
