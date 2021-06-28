@@ -199,7 +199,9 @@ export default class DrawingManager extends Observable {
         this.deselect()
         if (tool) {
             this.activeInteraction = this.tools[tool]
-            this.activeInteraction.setActive(true)
+            if (this.activeInteraction) {
+                this.activeInteraction.setActive(true)
+            }
             this.updateHelpTooltip(tool, false)
         }
     }

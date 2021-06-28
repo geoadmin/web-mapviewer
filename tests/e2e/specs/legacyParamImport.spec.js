@@ -79,10 +79,10 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = activeLayers
-                expect(wmsLayer.id).to.eq('test.wms.layer')
+                expect(wmsLayer.getID()).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
                 expect(wmsLayer.visible).to.be.true
-                expect(wmtsLayer.id).to.eq('test.wmts.layer')
+                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
             })

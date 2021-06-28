@@ -64,11 +64,11 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 )
                 break
             case 'aggregate':
-                // here it's a bit tricky, the aggregate layer has a main entry in the BOD (with everything as usual)
-                // but things get complicated with sub-layers. Each sub-layer has an entry in the BOD but it's ID (or
-                // key in the BOD) is not the one we should ask the server with, that would be the serverLayerName prop,
+                // here it's a bit tricky, the aggregate layer has a main entry in the layers config (with everything as usual)
+                // but things get complicated with sub-layers. Each sub-layer has an entry in the config but it's ID (or
+                // key in the config) is not the one we should ask the server with, that would be the serverLayerName prop,
                 // but the parent layer will describe it's child layers with another identifier, which is the key to the
-                // raw config in the big BOD config object.
+                // raw config in the big backend config object.
                 // here's an example:
                 // {
                 //   "parent.layer": {
@@ -128,7 +128,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
  * Loads the legend (HTML content) for this layer ID
  *
  * @param {String} lang The language in which the legend should be rendered
- * @param {String} layerId The layer ID in the BOD (unique)
+ * @param {String} layerId The unique layer ID used in our backends
  * @returns {Promise<String>} HTML content of the layer's legend
  */
 export const getLayerLegend = (lang, layerId) => {

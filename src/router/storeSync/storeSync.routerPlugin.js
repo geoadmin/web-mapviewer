@@ -54,10 +54,14 @@ const storeSyncRouterPlugin = (router, store) => {
                     paramConfig.populateQueryWithStoreValue(query, store)
                 )
                 log('debug', 'store has changed, rerouting app to query', query)
-                router.replace({
-                    name: 'MapView',
-                    query,
-                })
+                router
+                    .replace({
+                        name: 'MapView',
+                        query,
+                    })
+                    .catch((error) => {
+                        log('info', 'Error while routing to', query, error)
+                    })
             }
         }
     })

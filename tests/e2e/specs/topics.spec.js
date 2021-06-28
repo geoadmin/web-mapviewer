@@ -38,7 +38,7 @@ describe('Topics', () => {
                 expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
                 rawTopic.activatedLayers.forEach((layerIdThatMustBeActive, index) => {
                     const activeLayer = activeLayers[index]
-                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
                 })
             })
         }
@@ -50,7 +50,7 @@ describe('Topics', () => {
                 expect(layers).to.be.an('Array')
                 expect(layers.length).to.eq(1)
                 expect(layers[0]).to.be.an('Object')
-                expect(layers[0].id).to.eq('test.wmts.layer')
+                expect(layers[0].getID()).to.eq('test.wmts.layer')
             })
             // clicking on topic standard
             const topicStandard = mockupTopics.topics[1]
@@ -84,7 +84,7 @@ describe('Topics', () => {
                 expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
                 topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible, index) => {
                     expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                    expect(visibleLayers[index].getID()).to.eq(layerIdThatMustBeVisible)
                 })
             })
             checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
@@ -106,7 +106,7 @@ describe('Topics', () => {
                 expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
                 expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
                     expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                    expect(visibleLayers[index].getID()).to.eq(layerIdThatMustBeVisible)
                 })
             })
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -115,7 +115,7 @@ describe('Topics', () => {
                 expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
                     const activeLayer = activeLayers[index]
                     expect(activeLayer).to.be.an('Object')
-                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
             })

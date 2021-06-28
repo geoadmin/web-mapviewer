@@ -1,15 +1,15 @@
 import { WMS_BASE_URL } from '@/config'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 
 /**
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
  * chunks, usually 4), or single image (only one request fired for the whole map).
  */
-export default class WMSLayer extends AbstractLayer {
+export default class WMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
-     * @param {String} id The ID of this layer in the BOD
+     * @param {String} id The unique ID of this layer in the GeoAdmin backends
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
      * @param {String} baseURL The backend to call for tiles
      * @param {String} format In which image format the backend must be requested
@@ -63,7 +63,7 @@ export default class WMSLayer extends AbstractLayer {
         params.set('REQUEST', 'GetMap')
         params.set('FORMAT', `image/${this.format}`)
         params.set('TRANSPARENT', 'true')
-        params.set('LAYERS', this.id)
+        params.set('LAYERS', this.getID())
         params.set('LANG', this.lang)
         // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to a WMS, that's the default timestamp used under the hood)
         if (this.timeConfig && this.timeConfig.currentTimestamp !== 'all') {

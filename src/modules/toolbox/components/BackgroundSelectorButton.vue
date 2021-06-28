@@ -13,14 +13,14 @@
                 <div
                     v-for="(background, index) in backgroundLayersWithVoid"
                     v-show="showBgWheel"
-                    :key="background.id"
+                    :key="background.getID()"
                     class="bg-selector"
                     :class="[
-                        `bg-${background.id.replaceAll('.', '-')}`,
+                        `bg-${background.getID().replaceAll('.', '-')}`,
                         `bg-index-${index}`,
-                        { active: background.id === currentBackgroundLayerId },
+                        { active: background.getID() === currentBackgroundLayerId },
                     ]"
-                    @click="selectBackgroundWithLayerId(background.id)"
+                    @click="selectBackgroundWithLayerId(background.getID())"
                 />
             </transition-group>
         </div>
@@ -119,7 +119,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForId']),
+        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForBodId']),
         ...mapState({
             currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
         }),
@@ -132,7 +132,7 @@ export default {
         },
         backgroundLayersWithVoid: function () {
             // adding void layer on top
-            return [{ id: 'void' }, ...this.backgroundLayers]
+            return [{ getID: () => 'void' }, ...this.backgroundLayers]
         },
     },
     methods: {

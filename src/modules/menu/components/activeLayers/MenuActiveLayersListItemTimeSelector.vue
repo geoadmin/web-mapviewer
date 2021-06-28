@@ -51,7 +51,7 @@ export default {
                     buttonClasses.push('btn-danger')
                 }
                 timestampButtons.push(
-                    `<button class="${buttonClasses.join(' ')}" 
+                    `<button class="${buttonClasses.join(' ')}"
                              data-timestamp="${timestamp}"
                              data-cy="time-select-${timestamp}">
                         ${this.renderHumanReadableTimestamp(timestamp)}

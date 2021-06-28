@@ -1,4 +1,5 @@
 import log from '@/utils/logging'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 const state = {
     /**
@@ -10,13 +11,13 @@ const state = {
     /**
      * Currently active layers (that have been selected by the user from the search bar or the layer tree)
      *
-     * @type Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>
+     * @type AbstractLayer[]
      */
     activeLayers: [],
     /**
      * All layers' config available to this app
      *
-     * @type Array<WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer>
+     * @type BODLayer[]
      */
     config: [],
 }
@@ -26,8 +27,7 @@ const getters = {
      * Filter all the active layers and gives only those who have the flag `visible` to `true`
      *
      * @param state
-     * @returns {(WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer)[]} All layers that are
-     *   currently visible on the map
+     * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
     visibleLayers: (state) => state.activeLayers.filter((layer) => layer.visible),
     /**
@@ -45,24 +45,24 @@ const getters = {
      *
      * @param state
      * @param getters
-     * @returns {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer}
+     * @returns {BODLayer}
      */
     currentBackgroundLayer: (state, getters) => {
         if (!state.backgroundLayerId) {
             return undefined
         } else {
-            return getters.getLayerForId(state.backgroundLayerId)
+            return getters.getLayerForBodId(state.backgroundLayerId)
         }
     },
     /**
      * Retrieves a layer metadata defined by its unique ID
      *
      * @param state
-     * @returns {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer}
+     * @returns {BODLayer}
      */
-    getLayerForId: (state) => (layerId) => state.config.find((layer) => layer.id === layerId),
+    getLayerForBodId: (state) => (bodId) => state.config.find((layer) => layer.bodID === bodId),
     jointVisibleLayerIds: (state, getters) => {
-        const visibleLayerIds = getters.visibleLayers.map((layer) => layer.id)
+        const visibleLayerIds = getters.visibleLayers.map((layer) => layer.getID())
         if (visibleLayerIds.length > 0) {
             return visibleLayerIds.reduce((accumulator, layerId) => `${accumulator},${layerId}`)
         }
@@ -72,22 +72,42 @@ const getters = {
 
 const actions = {
     toggleLayerVisibility: ({ commit }, layerId) => commit('toggleLayerVisibility', layerId),
-    addLayer: ({ commit }, layerId) => commit('addLayer', layerId),
+    addLayer: ({ commit }, layerIdOrConfig) => {
+        let layerConfig = null
+        if (typeof layerIdOrConfig === 'string') {
+            layerConfig = state.config.find((layer) => layer.getID() === layerIdOrConfig)
+        } else if (layerIdOrConfig instanceof AbstractLayer) {
+            layerConfig = layerIdOrConfig
+        }
+        if (layerConfig) {
+            commit('addLayerWithConfig', layerConfig)
+        } else {
+            log('error', 'no layer found with ID', layerIdOrConfig)
+        }
+    },
     addLocation: ({ commit }, coordsEPSG3857) => commit('addLocation', coordsEPSG3857),
-    removeLayer: ({ commit }, layerId) => commit('removeLayer', layerId),
+    removeLayer: ({ commit }, layerIdOrConfig) => {
+        if (typeof layerIdOrConfig === 'string') {
+            commit('removeLayerWithId', layerIdOrConfig)
+        } else if (layerIdOrConfig instanceof AbstractLayer) {
+            commit('removeLayerWithId', layerIdOrConfig.getID())
+        } else {
+            log('error', 'Can not remove layer that is not yet added', layerIdOrConfig)
+        }
+    },
     clearLayers: ({ commit }) => commit('clearLayers'),
     setLayerConfig: ({ commit, dispatch, state }, config) => {
         const activedLayerBeforeConfigChange = state.activeLayers.map((layer) => layer)
         commit('clearLayers')
         commit('setLayerConfig', config)
         activedLayerBeforeConfigChange.forEach((layer) => {
-            commit('addLayer', layer.id)
+            commit('addLayer', layer.getID())
             if (!layer.visible) {
-                commit('toggleLayerVisibility', layer.id)
+                commit('toggleLayerVisibility', layer.getID())
             }
             if (layer.opacity) {
                 dispatch('setLayerOpacity', {
-                    layerId: layer.id,
+                    layerId: layer.getID(),
                     opacity: layer.opacity,
                 })
             }
@@ -96,7 +116,7 @@ const actions = {
     setBackground: ({ commit }, bgLayerId) => commit('setBackground', bgLayerId),
     setLayerOpacity: ({ commit, state }, payload) => {
         if ('opacity' in payload && 'layerId' in payload) {
-            const layer = state.activeLayers.find((layer) => layer.id === payload.layerId)
+            const layer = state.activeLayers.find((layer) => layer.getID() === payload.layerId)
             if (layer) {
                 commit('setLayerOpacity', {
                     layer,
@@ -108,7 +128,7 @@ const actions = {
     setTimedLayerCurrentTimestamp: ({ commit, state }, payload) => {
         if ('layerId' in payload && 'timestamp' in payload) {
             const { layerId, timestamp } = payload
-            const layer = state.activeLayers.find((layer) => layer.id === layerId)
+            const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
             const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
             // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
             const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
@@ -122,7 +142,7 @@ const actions = {
         }
     },
     moveActiveLayerBack: ({ commit }, layerId) => {
-        const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+        const activeLayer = state.activeLayers.find((layer) => layer.getID() === layerId)
         if (activeLayer) {
             // checking if the layer can be put one step back
             const currentIndex = state.activeLayers.indexOf(activeLayer)
@@ -136,7 +156,7 @@ const actions = {
         }
     },
     moveActiveLayerFront: ({ commit }, layerId) => {
-        const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+        const activeLayer = state.activeLayers.find((layer) => layer.getID() === layerId)
         if (activeLayer) {
             // checking if the layer can be put one step front
             const currentIndex = state.activeLayers.indexOf(activeLayer)
@@ -153,33 +173,27 @@ const actions = {
 
 const mutations = {
     toggleLayerVisibility: function (state, layerId) {
-        const layer = state.activeLayers.find((layer) => layer.id === layerId)
+        const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
         if (layer) {
             layer.visible = !layer.visible
         }
     },
-    addLayer: (state, layerId) => {
-        const activeLayer = state.activeLayers.find((layer) => layer.id === layerId)
+    addLayerWithConfig: (state, config) => {
+        const activeLayer = state.activeLayers.find((layer) => layer.getID() === config.getID())
         // if the layer is already active, we only make sure it is visible again
         if (activeLayer) {
             activeLayer.visible = true
         } else {
-            // otherwise we load the config for this layer into the active layers
-            const layer = state.config.find((layer) => layer.id === layerId)
-            if (layer) {
-                // cloning layer config so that we keep the one we received from the backend pristine
-                const layerClone = layer.clone()
-                layerClone.visible = true
-                state.activeLayers.push(layerClone)
-            } else {
-                log('error', 'no layer found with id', layerId)
-            }
+            // otherwise cloning layer config so that we keep the one we received pristine
+            const layerClone = config.clone()
+            layerClone.visible = true
+            state.activeLayers.push(layerClone)
         }
     },
     addLocation: (state, { x, y }) => (state.pinLocation = { x, y }),
     clearLayers: (state) => (state.activeLayers = []),
-    removeLayer: (state, layerId) =>
-        (state.activeLayers = state.activeLayers.filter((layer) => layer.id !== layerId)),
+    removeLayerWithId: (state, layerId) =>
+        (state.activeLayers = state.activeLayers.filter((layer) => layer.getID() !== layerId)),
     setLayerConfig: (state, config) => (state.config = config),
     setBackground: (state, bgLayerId) => (state.backgroundLayerId = bgLayerId),
     setLayerOpacity: (state, { layer, opacity }) => (layer.opacity = opacity),

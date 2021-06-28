@@ -39,7 +39,7 @@ export default class LayerTimeConfig {
         } else {
             // if no behaviour and no timestamp are defined, we go for "current". This should not happen with WMS layer,
             // as the "current" timestamp in not supported for them but they should always define a behaviour in
-            // the BOD configuration, so this is for WMTS layer without time configuration
+            // the layer configuration (coming from the backend), so this is for WMTS layer without time configuration
             this.currentTimestamp = 'current'
         }
     }

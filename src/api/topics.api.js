@@ -9,11 +9,12 @@ import {
 export class Topic {
     /**
      * @param {String} id The id of the topic (unique)
-     * @param {Layer[]} backgroundLayers The list of layers eligible for background when this topic is active
-     * @param {Layer} defaultBackgroundLayer The layer that should be activated as background layer
-     *   by default when this topic is selected
-     * @param {Layer[]} layersToActivate All layers that should be added to the displayed layer (but
-     *   not necessarily visible, that will depends on their state)
+     * @param {BODLayer[]} backgroundLayers The list of layers eligible for background when this
+     *   topic is active
+     * @param {BODLayer} defaultBackgroundLayer The layer that should be activated as background
+     *   layer by default when this topic is selected
+     * @param {BODLayer[]} layersToActivate All layers that should be added to the displayed layer
+     *   (but not necessarily visible, that will depends on their state)
      */
     constructor(id, backgroundLayers, defaultBackgroundLayer, layersToActivate) {
         this.id = id
@@ -123,7 +124,7 @@ export const loadTopicTreeForTopic = (lang, topic) => {
  * Loads all topics (without their tree) from the backend. Those topics will already by filled with
  * the correct layer object, coming from the `layersConfig` param)
  *
- * @param {Layer[]} layersConfig All available layers for this app (the "layers config")
+ * @param {BODLayer[]} layersConfig All available layers for this app (the "layers config")
  * @returns {Promise<Topic[]>} All topics available for this app
  */
 const loadTopicsFromBackend = (layersConfig) => {
@@ -145,7 +146,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                                 plConfig: legacyUrlParams,
                             } = rawTopic
                             const backgroundLayers = layersConfig.filter(
-                                (layer) => backgroundLayersId.indexOf(layer.id) !== -1
+                                (layer) => backgroundLayersId.indexOf(layer.getID()) !== -1
                             )
                             const backgroundLayerFromUrlParam = getBackgroundLayerFromLegacyUrlParams(
                                 layersConfig,
@@ -159,7 +160,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                             // with what is in "defaultBackground" in this case
                             if (backgroundLayerFromUrlParam === undefined) {
                                 defaultBackground = backgroundLayers.find(
-                                    (layer) => layer.id === defaultBackgroundLayerId
+                                    (layer) => layer.getID() === defaultBackgroundLayerId
                                 )
                             }
                             const layersToActivate = [
@@ -170,7 +171,9 @@ const loadTopicsFromBackend = (layersConfig) => {
                                 rawTopic.activatedLayers.length > 0
                             ) {
                                 rawTopic.activatedLayers.forEach((layerId) => {
-                                    let layer = layersConfig.find((layer) => layer.id === layerId)
+                                    let layer = layersConfig.find(
+                                        (layer) => layer.getID() === layerId
+                                    )
                                     if (layer) {
                                         // deep copy so that we can reassign values later on
                                         // (layers come from the Vuex store so it can't be modified directly)

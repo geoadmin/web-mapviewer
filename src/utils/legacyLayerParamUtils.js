@@ -33,9 +33,9 @@ export function isLayersUrlParamLegacy(layersParamValue) {
  * to the store (they are deep copy of what was given as layersConfig param, with opacity/visibility
  * set according to the legacyLayersParam)
  *
- * @param {AbstractLayer[]} layersConfig
+ * @param {BODLayer[]} layersConfig
  * @param {String} legacyLayersParam
- * @returns {Layer[]}
+ * @returns {BODLayer[]}
  */
 export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
     const layersToBeActivated = []
@@ -62,7 +62,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
 
         if (layerIdsUrlParam) {
             layerIdsUrlParam.split(',').forEach((layerId, index) => {
-                let layer = layersConfig.find((layer) => layer.id === layerId)
+                let layer = layersConfig.find((layer) => layer.getID() === layerId)
                 if (layer) {
                     // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
                     // in order to alter it before returning it
@@ -94,9 +94,9 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
  *
  * If no "bgLayer" param is present in the URL, `undefined` is returned
  *
- * @param {Layer[]} layersConfig
+ * @param {BODLayer[]} layersConfig
  * @param {String} legacyUrlParams
- * @returns {null | undefined | Layer} The background layer defined in the URL (`null` for void
+ * @returns {null | undefined | BODLayer} The background layer defined in the URL (`null` for void
  *   layer, `undefined` if nothing is set in the URL)
  */
 export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams) {
@@ -106,7 +106,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
             return null
         }
         if (bgLayerId) {
-            return layersConfig.find((layer) => layer.id === bgLayerId)
+            return layersConfig.find((layer) => layer.getID() === bgLayerId)
         }
     }
     return undefined

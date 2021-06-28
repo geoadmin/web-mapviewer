@@ -1,11 +1,11 @@
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
-export default class WMTSLayer extends AbstractLayer {
+export default class WMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
-     * @param {String} id Layer ID in the BOD
+     * @param {String} id Unique layer ID used in our backend
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
      * @param {String} format Image format for this WMTS layer (jpeg or png)
      * @param {LayerTimeConfig} timeConfig Settings telling which timestamp has to be used when
@@ -48,6 +48,8 @@ export default class WMTSLayer extends AbstractLayer {
 
     /** @returns {String} A XYZ type URL to request this WMTS layer's tiles */
     getURL() {
-        return `${this.baseURL}1.0.0/${this.id}/default/${this.timeConfig.currentTimestamp}/3857/{z}/{x}/{y}.${this.format}`
+        return `${this.baseURL}1.0.0/${this.getID()}/default/${
+            this.timeConfig.currentTimestamp
+        }/3857/{z}/{x}/{y}.${this.format}`
     }
 }

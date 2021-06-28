@@ -49,7 +49,7 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
         }),
-        ...mapGetters(['visibleLayers', 'getLayerForId']),
+        ...mapGetters(['visibleLayers', 'getLayerForBodId']),
     },
     methods: {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'changeTopic']),
@@ -59,11 +59,11 @@ export default {
         isLayerTreeItemActive: function (item) {
             return (
                 item.type === topicTypes.LAYER &&
-                this.visibleLayers.find((layer) => layer.id === item.layerId)
+                this.visibleLayers.find((layer) => layer.getID() === item.layerId)
             )
         },
         onClickOnLayerTopicItem: function (layerId) {
-            const layer = this.getLayerForId(layerId)
+            const layer = this.getLayerForBodId(layerId)
             if (layer.visible) {
                 this.toggleLayerVisibility(layerId)
             } else {
