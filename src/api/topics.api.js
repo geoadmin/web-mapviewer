@@ -9,12 +9,12 @@ import {
 export class Topic {
     /**
      * @param {String} id The id of the topic (unique)
-     * @param {BODLayer[]} backgroundLayers The list of layers eligible for background when this
-     *   topic is active
-     * @param {BODLayer} defaultBackgroundLayer The layer that should be activated as background
-     *   layer by default when this topic is selected
-     * @param {BODLayer[]} layersToActivate All layers that should be added to the displayed layer
-     *   (but not necessarily visible, that will depends on their state)
+     * @param {GeoAdminLayer[]} backgroundLayers The list of layers eligible for background when
+     *   this topic is active
+     * @param {GeoAdminLayer} defaultBackgroundLayer The layer that should be activated as
+     *   background layer by default when this topic is selected
+     * @param {GeoAdminLayer[]} layersToActivate All layers that should be added to the displayed
+     *   layer (but not necessarily visible, that will depends on their state)
      */
     constructor(id, backgroundLayers, defaultBackgroundLayer, layersToActivate) {
         this.id = id
@@ -124,7 +124,7 @@ export const loadTopicTreeForTopic = (lang, topic) => {
  * Loads all topics (without their tree) from the backend. Those topics will already by filled with
  * the correct layer object, coming from the `layersConfig` param)
  *
- * @param {BODLayer[]} layersConfig All available layers for this app (the "layers config")
+ * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
  * @returns {Promise<Topic[]>} All topics available for this app
  */
 const loadTopicsFromBackend = (layersConfig) => {

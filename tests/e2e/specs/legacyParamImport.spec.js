@@ -87,5 +87,22 @@ describe('Test on legacy param import', () => {
                 expect(wmtsLayer.visible).to.be.false
             })
         })
+        it('is able to import an external KML from a legacy param', () => {
+            const fakeKMLFileURL = 'https//fake-service.geo.admin.ch/1234567890'
+            // serving a dummy KML so that we don't get a 404
+            cy.intercept(fakeKMLFileURL, '<kml />')
+            cy.goToMapView('en', {
+                layers: encodeURIComponent(`KML||${fakeKMLFileURL}`),
+                layers_opacity: '0.6',
+                layers_visibility: 'true',
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(1)
+                const [kmlLayer] = activeLayers
+                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.opacity).to.eq(0.6)
+                expect(kmlLayer.visible).to.be.true
+            })
+        })
     })
 })

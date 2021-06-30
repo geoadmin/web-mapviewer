@@ -5,7 +5,7 @@ import log from '@/utils/logging'
 /** Describe a feature from the backend (see {@link getFeature}) below */
 export class Feature {
     /**
-     * @param {BODLayer} layer The layer in which this feature belongs
+     * @param {GeoAdminLayer} layer The layer in which this feature belongs
      * @param {Number | String} id The unique feature ID in the layer it is part of
      * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
      * @param {Number[]} coordinate [x,y] coordinate in EPSG:3857
@@ -32,7 +32,7 @@ export class Feature {
  * Asks the backend for identification of features at the coordinates for the given layer using
  * http://api3.geo.admin.ch/services/sdiservices.html#identify-features
  *
- * @param {BODLayer} layer
+ * @param {GeoAdminLayer} layer
  * @param {Number[]} coordinate Coordinate where to identify feature in EPSG:3857
  * @param {Number[]} mapExtent
  * @param {Number} screenWidth
@@ -103,7 +103,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
  * - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
  * - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
  *
- * @param {BODLayer} layer The layer from which the feature is part of
+ * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
  * @param {String} lang The language for the HTML popup
  * @returns {Promise<Feature>}

@@ -49,7 +49,7 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
         }),
-        ...mapGetters(['visibleLayers', 'getLayerForBodId']),
+        ...mapGetters(['visibleLayers', 'getLayerForGeoAdminId']),
     },
     methods: {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'changeTopic']),

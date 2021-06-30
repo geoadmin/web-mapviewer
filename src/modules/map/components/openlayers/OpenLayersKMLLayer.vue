@@ -44,6 +44,7 @@ export default {
     },
     created() {
         this.layer = new VectorLayer({
+            opacity: this.opacity,
             source: new VectorSource({
                 url: this.url,
                 format: new KML(),

@@ -1,3 +1,5 @@
+import KMLLayer from '@/api/layers/KMLLayer.class'
+
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
         const urlStartingAtParamDeclaration = url.substr(url.indexOf(paramName) + 1)
@@ -33,9 +35,9 @@ export function isLayersUrlParamLegacy(layersParamValue) {
  * to the store (they are deep copy of what was given as layersConfig param, with opacity/visibility
  * set according to the legacyLayersParam)
  *
- * @param {BODLayer[]} layersConfig
+ * @param {GeoAdminLayer[]} layersConfig
  * @param {String} legacyLayersParam
- * @returns {BODLayer[]}
+ * @returns {AbstractLayer[]}
  */
 export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
     const layersToBeActivated = []
@@ -63,13 +65,23 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         if (layerIdsUrlParam) {
             layerIdsUrlParam.split(',').forEach((layerId, index) => {
                 let layer = layersConfig.find((layer) => layer.getID() === layerId)
+                // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
+                // to add it to the map
                 if (layer) {
                     // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
                     // in order to alter it before returning it
                     layer = layer.clone()
+                } else if (layerId.startsWith(encodeURIComponent('KML||'))) {
+                    const kmlLayerParts = decodeURIComponent(layerId).split('||')
+                    layer = new KMLLayer('Drawing', 1.0, kmlLayerParts[1])
+                }
+                if (layer) {
                     // checking if visibility is set in URL
                     if (layerVisibilities.length > index) {
                         layer.visible = layerVisibilities[index] === 'true'
+                    } else {
+                        // if param layers_visibility is not present, it means all layers are visible
+                        layer.visible = true
                     }
                     // checking if opacity is set in the URL
                     if (layerOpacities.length > index) {
@@ -94,10 +106,10 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
  *
  * If no "bgLayer" param is present in the URL, `undefined` is returned
  *
- * @param {BODLayer[]} layersConfig
+ * @param {GeoAdminLayer[]} layersConfig
  * @param {String} legacyUrlParams
- * @returns {null | undefined | BODLayer} The background layer defined in the URL (`null` for void
- *   layer, `undefined` if nothing is set in the URL)
+ * @returns {null | undefined | GeoAdminLayer} The background layer defined in the URL (`null` for
+ *   void layer, `undefined` if nothing is set in the URL)
  */
 export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams) {
     if (Array.isArray(layersConfig) && typeof legacyUrlParams === 'string') {
