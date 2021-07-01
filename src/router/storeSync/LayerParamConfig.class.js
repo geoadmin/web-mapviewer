@@ -81,7 +81,6 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 // if internal (or BOD) layer, we add it through its config we have stored previously
                 promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))
             }
-            console.log('checking opacity for layer', layer.id, layer.opacity)
             if (layer.opacity) {
                 promisesForAllDispatch.push(
                     store.dispatch('setLayerOpacity', {

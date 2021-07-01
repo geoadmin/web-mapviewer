@@ -1,4 +1,5 @@
 import proj4 from 'proj4'
+import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
@@ -48,7 +49,9 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         window.location && window.location.search ? parseLegacyParams(window.location.search) : null
 
     router.beforeEach((to, from, next) => {
-        if (isFirstRequest) {
+        // waiting for the app to be ready before dealing with legacy param
+        // as we need information from the layers' config
+        if (isFirstRequest && store.state.app.isReady) {
             // before the first request, we check out if we need to manage any legacy params (from the old viewer)
             isFirstRequest = false
             if (legacyParams) {
@@ -96,7 +99,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                                 value = layers
                                     .map((layer) => transformLayerIntoUrlString(layer))
                                     .join(';')
-                                console.log('new layers param is', value)
+                                log('debug', 'Importing legacy layers as', value)
                             } else {
                                 // if not legacy, we let it go as it is
                                 value = legacyParams[param]
