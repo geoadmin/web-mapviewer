@@ -6,13 +6,32 @@
                     <button class="btn-close btn btn-default" @click="emitCloseEvent">
                         <font-awesome-icon :icon="['fas', 'times']" />
                     </button>
-                    <DrawingToolboxButton
-                        v-for="drawingMode in drawingModes"
-                        :key="drawingMode"
-                        :drawing-mode="drawingMode"
-                        :is-active="currentDrawingMode === drawingMode"
-                        @setDrawingMode="bubbleSetDrawingEventToParent"
-                    />
+                    <div class="buttons-container">
+                        <div>
+                            <DrawingToolboxButton
+                                v-for="drawingMode in drawingModes"
+                                :key="drawingMode"
+                                :drawing-mode="drawingMode"
+                                :is-active="currentDrawingMode === drawingMode"
+                                @setDrawingMode="bubbleSetDrawingEventToParent"
+                            />
+                        </div>
+                        <div class="btn-group btn-group-sm draw-action-btns" role="group">
+                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                {{ $t('draw_delete') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary"
+                                @click="emitExportEvent"
+                            >
+                                {{ $t('export_kml') }}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                {{ $t('share') }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,6 +60,9 @@ export default {
         bubbleSetDrawingEventToParent: function (drawingMode) {
             this.$emit('setDrawingMode', drawingMode)
         },
+        emitExportEvent: function () {
+            this.$emit('export')
+        },
     },
 }
 </script>
@@ -56,6 +78,18 @@ export default {
         position: absolute;
         top: 0.25rem;
         right: 0.25rem;
+    }
+}
+
+.card-body > .buttons-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    .draw-action-btns {
+        width: 222px;
+        margin-top: 10px;
     }
 }
 </style>

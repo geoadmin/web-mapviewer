@@ -22,6 +22,9 @@ import Overlay from 'ol/Overlay'
 import i18n from '@/modules/i18n'
 import { Polygon, LineString } from 'ol/geom'
 import MeasureManager from '@/modules/drawing/lib/MeasureManager'
+import { Circle, Icon } from 'ol/style'
+import Feature from 'ol/Feature'
+import Style from 'ol/style/Style'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -33,6 +36,8 @@ const typesInTranslation = {
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
 const cssGrabbing = 'cursor-grabbing'
+
+const nameInKml = 'Drawing'
 
 export class ChangeEvent extends Event {
     constructor() {
@@ -227,11 +232,63 @@ export default class DrawingManager extends Observable {
             return feature
         })
         const geojson = this.geojsonFormat.writeFeaturesObject(features)
-        const kml = this.kmlFormat.writeFeatures(this.source.getFeatures())
+        const kml = this.createKml()
         return {
             geojson,
             kml,
         }
+    }
+
+    createKml() {
+        let kmlString
+        let exportFeatures = []
+        this.source.forEachFeature(function (f) {
+            const clone = f.clone()
+            clone.set('type', clone.get('type').toLowerCase())
+            clone.setId(f.getId())
+            clone.getGeometry().setProperties(f.getGeometry().getProperties())
+            clone.getGeometry().transform('EPSG:3857', 'EPSG:4326')
+            let styles = clone.getStyleFunction() || this.layer.getStyleFunction()
+            styles = styles(clone)
+            const newStyle = {
+                fill: styles[0].getFill(),
+                stroke: styles[0].getStroke(),
+                text: styles[0].getText(),
+                image: styles[0].getImage(),
+                zIndex: styles[0].getZIndex(),
+            }
+            if (newStyle.image instanceof Circle) {
+                newStyle.image = null
+            }
+
+            // If only text is displayed we must specify an image style with scale=0
+            if (newStyle.text && !newStyle.image) {
+                newStyle.image = new Icon({
+                    src: 'noimage',
+                    scale: 0,
+                })
+            }
+
+            const myStyle = new Style(newStyle)
+            clone.setStyle(myStyle)
+            exportFeatures.push(clone)
+        })
+
+        if (exportFeatures.length > 0) {
+            if (exportFeatures.length === 1) {
+                // force the add of a <Document> node
+                exportFeatures.push(new Feature())
+            }
+            kmlString = this.kmlFormat.writeFeatures(exportFeatures)
+            // Remove no image hack
+            kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '')
+
+            // Remove empty placemark added to have <Document> tag
+            kmlString = kmlString.replace(/<Placemark\/>/g, '')
+
+            kmlString = kmlString.replace(/<Document>/, `<Document><name>${nameInKml}</name>`)
+        }
+        return kmlString
     }
 
     dispatchChangeEvent_() {
