@@ -42,7 +42,6 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { Point } from 'ol/geom'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
 import { saveAs } from 'file-saver'
-import moment from 'moment'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -213,7 +212,13 @@ export default {
         },
         exportDrawing: function () {
             const { kml } = this.manager.createGeoJSONAndKML()
-            const fileName = `map.geo.admin.ch_KML_${moment().format('YYYYMMDDhhmmss')}.kml`
+            const date = new Date()
+                .toISOString()
+                .split('.')[0]
+                .replaceAll('-', '')
+                .replaceAll(':', '')
+                .replace('T', '')
+            const fileName = `map.geo.admin.ch_KML_${date}.kml`
             const type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
             const blob = new Blob([kml], { type: type })
             saveAs(blob, fileName)

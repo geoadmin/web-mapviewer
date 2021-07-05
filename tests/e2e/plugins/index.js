@@ -8,8 +8,35 @@
 
 const { cypressBrowserPermissionsPlugin } = require('cypress-browser-permissions')
 
+const fs = require('fs')
+
 module.exports = (on, config) => {
     config = cypressBrowserPermissionsPlugin(on, config)
+
+    on('task', {
+        getFiles(folderName) {
+            return new Promise((resolve, reject) => {
+                fs.readdir(folderName, (err, files) => {
+                    if (err) {
+                        return reject(err)
+                    }
+
+                    resolve(files)
+                })
+            })
+        },
+        removeFile(path) {
+            return new Promise((resolve, reject) => {
+                fs.unlink(path, (err) => {
+                    if (err) {
+                        return reject(err)
+                    }
+
+                    resolve(null)
+                })
+            })
+        },
+    })
 
     return Object.assign({}, config, {
         fixturesFolder: 'tests/e2e/fixtures',

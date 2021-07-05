@@ -7,15 +7,14 @@
                         <font-awesome-icon :icon="['fas', 'times']" />
                     </button>
                     <div class="buttons-container">
-                        <div>
-                            <DrawingToolboxButton
-                                v-for="drawingMode in drawingModes"
-                                :key="drawingMode"
-                                :drawing-mode="drawingMode"
-                                :is-active="currentDrawingMode === drawingMode"
-                                @setDrawingMode="bubbleSetDrawingEventToParent"
-                            />
-                        </div>
+                        <DrawingToolboxButton
+                            v-for="drawingMode in drawingModes"
+                            :key="drawingMode"
+                            :drawing-mode="drawingMode"
+                            :is-active="currentDrawingMode === drawingMode"
+                            @setDrawingMode="bubbleSetDrawingEventToParent"
+                        />
+                        <br />
                         <div class="btn-group btn-group-sm draw-action-btns" role="group">
                             <button type="button" class="btn btn-outline-secondary" disabled>
                                 {{ $t('draw_delete') }}
@@ -81,15 +80,8 @@ export default {
     }
 }
 
-.card-body > .buttons-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-
-    .draw-action-btns {
-        width: 222px;
-        margin-top: 10px;
-    }
+.buttons-container .draw-action-btns {
+    width: 222px;
+    margin-top: 10px;
 }
 </style>

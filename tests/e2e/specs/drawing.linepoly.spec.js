@@ -7,15 +7,15 @@ describe('Drawing', () => {
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 100)
-        cy.get(olSelector).click(150, 100)
+        cy.get(olSelector).click(100, 150)
         cy.get(olSelector).click(150, 150)
-        cy.get(olSelector).click(100, 100)
+        cy.get(olSelector).click(150, 180)
+        cy.get(olSelector).click(100, 150)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@saveFile').then((interception) =>
             checkKMLFileResponse(
                 interception,
-                ['LINE', '<Data name="color"><value>#ff0000</value>'],
+                ['line', '<Data name="color"><value>#ff0000</value>'],
                 true
             )
         )
@@ -26,15 +26,15 @@ describe('Drawing', () => {
         cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 100)
-        cy.get(olSelector).click(150, 100)
+        cy.get(olSelector).click(100, 150)
         cy.get(olSelector).click(150, 150)
-        cy.get(olSelector).click(100, 100)
+        cy.get(olSelector).click(150, 180)
+        cy.get(olSelector).click(100, 150)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@saveFile').then((interception) =>
             checkKMLFileResponse(
                 interception,
-                ['LINE', '<Data name="color"><value>#ff0000</value>'],
+                ['line', '<Data name="color"><value>#ff0000</value>'],
                 true
             )
         )
@@ -55,7 +55,7 @@ describe('Drawing', () => {
     it('creates a line with double click', () => {
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 100)
+        cy.get(olSelector).click(100, 150)
         cy.get(olSelector).click(150, 150)
         cy.get(olSelector).dblclick(120, 240)
         cy.readDrawingFeatures('LineString', (features) => {
