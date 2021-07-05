@@ -11,6 +11,13 @@
             <MenuSection :title="$t('layers_displayed')" :show-content="true">
                 <MenuActiveLayersList />
             </MenuSection>
+            <MenuSection
+                :title="$t('settings')"
+                :show-content="false"
+                data-cy="menu-settings-section"
+            >
+                <MenuSettings />
+            </MenuSection>
         </div>
     </transition>
 </template>
@@ -32,7 +39,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import MenuLangSelector from '@/modules/menu/components/MenuLangSelector'
+import MenuSettings from '@/modules/menu/components/MenuSettings.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList'
 import MenuSection from '@/modules/menu/components/MenuSection'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection'
@@ -42,7 +49,7 @@ export default {
         MenuTopicSection,
         MenuSection,
         MenuActiveLayersList,
-        MenuLangSelector,
+        MenuSettings,
     },
     computed: {
         ...mapState({
