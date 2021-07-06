@@ -25,7 +25,7 @@
         @extend .bg-light;
         @extend .h5;
         @extend .mb-0;
-        @extend .font-weight-bold;
+        @extend .fw-bold;
     }
     .search-category-body {
         @extend .bg-white;

@@ -21,14 +21,13 @@ const swisstopoPyramidZoomToMercatorZoomMatrix = {
 
 /**
  * Mapping between Swiss map zooms and Web Mercator zooms. Copy/pasted from [MapUtilsService.js on
- * mf-geoadmin3]{@link
- * https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631}
+ * mf-geoadmin3]{@link https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631}
  *
  * @param {String | Number} swisstopoPyramidZoom A zoom level as desribed in [our backend's
  *   doc]{@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}
- * @returns {Number} A web-mercator zoom level (as described on [OpenStreetMap's wiki]{@link
- *   https://wiki.openstreetmap.org/wiki/Zoom_levels}) or null if the input is not a valid swisstopo
- *   pyramid zoom level
+ * @returns {Number} A web-mercator zoom level (as described on [OpenStreetMap's
+ *   wiki]{@link https://wiki.openstreetmap.org/wiki/Zoom_levels}) or null if the input is not a
+ *   valid swisstopo pyramid zoom level
  */
 export const translateSwisstopoPyramidZoomToMercatorZoom = (swisstopoPyramidZoom) => {
     const key = `${swisstopoPyramidZoom}`

@@ -7,13 +7,16 @@ let isFirstSetTopic = true
  * Vuex plugins that will manage topic switching.
  *
  * On app init, it will :
+ *
  * - Add any layer present in the topic if there are none yet defined by the URL params
  *
  * On app init and at each topic switch, it will :
+ *
  * - Set the background according to the topic metadata
  * - Load the topic tree for the selected topic
  *
  * After app init, when topic changes, it will :
+ *
  * - Clear up any active layers
  * - Add any layer to the app that are set in the topic metadata (and set their opacity/visibility accordingly)
  * - Close the side menu (so that the map is fully visible with the new topic)

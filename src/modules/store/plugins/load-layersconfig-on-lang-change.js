@@ -35,10 +35,9 @@ const loadLayersAndTopicsConfigAndDispatchToStore = (store) => {
             loadTopicsFromBackend(layersConfig).then((topicsConfig) => {
                 store.dispatch('setTopics', topicsConfig)
                 if (store.state.topics.current) {
-                    loadTopicTreeForTopic(
-                        store.state.i18n.lang,
-                        store.state.topics.current
-                    ).then((tree) => store.dispatch('setTopicTree', tree))
+                    loadTopicTreeForTopic(store.state.i18n.lang, store.state.topics.current).then(
+                        (tree) => store.dispatch('setTopicTree', tree)
+                    )
                 } else {
                     store.dispatch(
                         'changeTopic',

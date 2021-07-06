@@ -16,8 +16,6 @@
 </template>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
-@import 'src/scss/variables';
 @import 'src/scss/media-query.mixin';
 
 .header {
