@@ -8,14 +8,18 @@ import log from '@/utils/logging'
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
 // 47°31.8' 7°31.8'
-const REGEX_MERCATOR_WITH_DEGREES = /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)[']?\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)[']?\s*$/i
+const REGEX_MERCATOR_WITH_DEGREES =
+    /^\s*([\d]{1,3})[° ]+([\d]+[.,]?[\d]*)[']?\s*[,/]?\s*([\d]{1,3})[° ]+([\d.,]+)[']?\s*$/i
 // 47°38'48'' 7°38'48'' or 47°38'48" 7°38'48"
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES = /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['"]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)[' ]+([\d.]+)['"]{0,2}\s*$/i
+const REGEX_MERCATOR_WITH_DEGREES_MINUTES =
+    /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['"]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)[' ]+([\d.]+)['"]{0,2}\s*$/i
 // 47°38'48''N 7°38'48''E or 47°38'48"N 7°38'48"E
-const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT = /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*$/i
+const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT =
+    /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)[' ]+\s*([\d.]+)['"]*([NSEW]?)\s*$/i
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
-const REGEX_METRIC_COORDINATES = /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i
+const REGEX_METRIC_COORDINATES =
+    /^\s*([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})[\t ,./]+([\d]{1,3}[ ']?[\d]{1,3}[ ']?[\d.]{3,})/i
 
 // Military Grid Reference System (MGRS)
 const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i
@@ -194,29 +198,22 @@ const executeAndReturn = (
  * E.G. `'47.1, 7.5'` is valid and will return `[47.1, 7.5]` but `'lat:47.1, lon:7.5'` will fail and
  * return `undefined`.
  *
- * Separators
- *     ------------------------------------------------
- * To separates the two numerical values, a combination of slashes, spaces (tabs included) or a coma
- * can be used.
+ * Separators ------------------------------------------------ To separates the two numerical
+ * values, a combination of slashes, spaces (tabs included) or a coma can be used.
  *
- * Accepted formats
- *     ------------------------------------------------
- * **CH1903+ / LV95**
+ * Accepted formats ------------------------------------------------ **CH1903+ / LV95**
+ *
  * - With or without thousand separator (`2'600'000 1'200'000` or `2600000 1200000`)
- *
  * - *CH1903 / LV03**
  * - With or without thousand separator (`600'000 200'000` or `600000 200000`)
- *
  * - *WGS84 (Web Mercator)**
  * - Numerical (`46.97984 6.60757`)
  * - DegreesMinutes (`46°58.7904' 6°36.4542'`)
  * - DegreesMinutesSeconds, double single quote for seconds (`46°58'47.424'' 6°36'27.252''`)
  * - DegreesMinutesSeconds, double quote for seconds (`46°58'47.424" 6°36'27.252"`)
  * - Google style is also supported (any format above without degrees, minutes and seconds symbol)
- *
  * - *Military Grid Reference System (MGRS)**
  * - I.e. `32TLT 98757 23913`
- *
  * - *what3words**
  * - I.e. `zufall.anders.blaumeise`
  *

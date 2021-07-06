@@ -148,10 +148,8 @@ const loadTopicsFromBackend = (layersConfig) => {
                             const backgroundLayers = layersConfig.filter(
                                 (layer) => backgroundLayersId.indexOf(layer.getID()) !== -1
                             )
-                            const backgroundLayerFromUrlParam = getBackgroundLayerFromLegacyUrlParams(
-                                layersConfig,
-                                legacyUrlParams
-                            )
+                            const backgroundLayerFromUrlParam =
+                                getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams)
                             // first we get the background from the "plConfig" of the API response
                             let defaultBackground = backgroundLayerFromUrlParam
                             // checking if there was something in the "plConfig"

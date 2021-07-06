@@ -4,8 +4,8 @@ import proj4 from 'proj4'
  * Proj4 comes with [EPSG:4326]{@link https://epsg.io/4326} as default projection.
  *
  * This adds the two Swiss projections ([LV95/EPSG:2056]{@link https://epsg.io/2056} and
- * [LV03/EPSG:21781]{@link https://epsg.io/21781}) and metric Web Mercator ([EPSG:3857]{@link
- * https://epsg.io/3857}) definitions to proj4
+ * [LV03/EPSG:21781]{@link https://epsg.io/21781}) and metric Web Mercator
+ * ([EPSG:3857]{@link https://epsg.io/3857}) definitions to proj4
  */
 const setupProj4 = () => {
     proj4.defs(

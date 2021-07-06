@@ -16,14 +16,12 @@ describe('Unit test functions from drawingUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {
         it('reprojects points from EPSG:4326', () => {
             expect(toLv95([6.57268, 46.51333], 'EPSG:4326')).to.eql([
-                2533541.8057776038,
-                1151703.909974419,
+                2533541.8057776038, 1151703.909974419,
             ])
         })
         it('reprojects points from EPSG:3857', () => {
             expect(toLv95([731667, 5862995], 'EPSG:3857')).to.eql([
-                2533541.530335663,
-                1151703.3642947723,
+                2533541.530335663, 1151703.3642947723,
             ])
         })
         it('reprojects lines', () => {
