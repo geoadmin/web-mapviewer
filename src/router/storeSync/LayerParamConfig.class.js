@@ -2,7 +2,15 @@ import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 
-function transformLayerIntoUrlString(layer, defaultLayerConfig) {
+/**
+ * Transform a layer metadata into a string. This value can then be used in the URL to describe a
+ * layer and its state (visibility, opacity, etc...)
+ *
+ * @param {AbstractLayer} layer
+ * @param {GeoAdminLayer[]} defaultLayerConfig
+ * @returns {string}
+ */
+export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.getID()
     if (layer.timeConfig && layer.timeConfig.series.length > 1) {
         layerUrlString += `@time=${layer.timeConfig.currentTimestamp}`

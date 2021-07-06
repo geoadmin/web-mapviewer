@@ -17,7 +17,7 @@ const state = {
     /**
      * All layers' config available to this app
      *
-     * @type BODLayer[]
+     * @type GeoAdminLayer[]
      */
     config: [],
 }
@@ -45,22 +45,23 @@ const getters = {
      *
      * @param state
      * @param getters
-     * @returns {BODLayer}
+     * @returns {GeoAdminLayer}
      */
     currentBackgroundLayer: (state, getters) => {
         if (!state.backgroundLayerId) {
             return undefined
         } else {
-            return getters.getLayerForBodId(state.backgroundLayerId)
+            return getters.getLayerForGeoAdminId(state.backgroundLayerId)
         }
     },
     /**
      * Retrieves a layer metadata defined by its unique ID
      *
      * @param state
-     * @returns {BODLayer}
+     * @returns {GeoAdminLayer}
      */
-    getLayerForBodId: (state) => (bodId) => state.config.find((layer) => layer.bodID === bodId),
+    getLayerForGeoAdminId: (state) => (geoAdminLayerId) =>
+        state.config.find((layer) => layer.getID() === geoAdminLayerId),
     jointVisibleLayerIds: (state, getters) => {
         const visibleLayerIds = getters.visibleLayers.map((layer) => layer.getID())
         if (visibleLayerIds.length > 0) {
@@ -129,15 +130,17 @@ const actions = {
         if ('layerId' in payload && 'timestamp' in payload) {
             const { layerId, timestamp } = payload
             const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
-            const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
-            // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
-            const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
-            if (layer && (isTimestampInSeries || isTimestampDefaultBehaviour)) {
-                commit('setLayerTimestamp', {
-                    layer,
-                    // forcing timestamps to be strings
-                    timestamp: `${timestamp}`,
-                })
+            if (layer && layer.timeConfig) {
+                const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
+                // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
+                const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
+                if (isTimestampInSeries || isTimestampDefaultBehaviour) {
+                    commit('setLayerTimestamp', {
+                        layer,
+                        // forcing timestamps to be strings
+                        timestamp: `${timestamp}`,
+                    })
+                }
             }
         }
     },

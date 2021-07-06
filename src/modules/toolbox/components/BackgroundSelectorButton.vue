@@ -119,7 +119,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForBodId']),
+        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForGeoAdminId']),
         ...mapState({
             currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
         }),

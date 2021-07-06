@@ -47,6 +47,12 @@ describe('Test parsing of legacy URL param into new params', () => {
             checkOneLayerVisibility(true)
             checkOneLayerVisibility(false)
         })
+        it('sets visibility to true when layers_visibility is not present', () => {
+            const result = getLayersFromLegacyUrlParams(fakeLayerConfig, 'layers=test.wms.layer')
+            expect(result).to.be.an('Array').length(1)
+            const [firstLayer] = result
+            expect(firstLayer.visible).to.be.true
+        })
         it('Parses opacity when specified', () => {
             const checkOneLayerOpacity = (opacity) => {
                 const result = getLayersFromLegacyUrlParams(
@@ -106,6 +112,27 @@ describe('Test parsing of legacy URL param into new params', () => {
             checkLayer(wmtsLayer, 'test.wmts.layer', 0.6, false)
             checkLayer(wmsLayer, 'test.wms.layer', 0.5, true)
             checkLayer(timedWmtsLayer, 'test.timed.wmts.layer', 0.8, false, '456')
+        })
+        it('Parses KML layers IDs correctly', () => {
+            const kmlFileUrl = 'https://public.geo.admin.ch/super-legit-file-id'
+            const result = getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                `layers=KML%7C%7C${encodeURIComponent(kmlFileUrl)}`
+            )
+            expect(result).to.be.an('Array').length(1)
+            const [kmlLayer] = result
+            expect(kmlLayer.getID()).to.eq(`KML|${kmlFileUrl}|Drawing`)
+            expect(kmlLayer.getURL()).to.eq(kmlFileUrl)
+        })
+        it('Handles opacity/visibility correctly with external layers', () => {
+            const result = getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'layers=KML%7C%7Cwe-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
+            )
+            expect(result).to.be.an('Array').length(1)
+            const [kmlLayer] = result
+            expect(kmlLayer.opacity).to.eq(0.65)
+            expect(kmlLayer.visible).to.be.true
         })
     })
     context('test isLayersUrlParamLegacy', () => {
