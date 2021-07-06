@@ -39,7 +39,7 @@ $disabled-color: $gray-300;
     display: block;
     height: $map-button-diameter;
     width: $map-button-diameter;
-    border-radius: $map-button-diameter / 2;
+    border-radius: $map-button-diameter * 0.5;
     overflow: hidden;
     cursor: pointer;
     background-color: $normal-color;

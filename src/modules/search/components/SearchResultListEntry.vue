@@ -15,7 +15,7 @@
 @import 'node_modules/bootstrap/scss/bootstrap';
 .search-category-entry {
     @extend .p-2;
-    @extend .pl-4;
+    @extend .ps-4;
     @extend .border-bottom;
     @extend .border-light;
 
