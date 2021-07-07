@@ -3,7 +3,8 @@
 const overlaySelector = '[data-cy="overlay"]'
 const menuButtonSelector = '[data-cy="menu-button"]'
 const menuSettingsContentSelector = '[data-cy="menu-settings-content"]'
-const menuSettingsSectionSelector = '[data-cy="menu-settings-section"]'
+const menuSettingsSectionSelector =
+    '[data-cy="menu-settings-section"] [data-cy="menu-section-header"]'
 
 describe('Test functions for the header / search bar', () => {
     beforeEach(() => {
