@@ -100,6 +100,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
 
 /**
  * Loads a feature metadata and tooltip content from this two endpoint of the backend
+ *
  * - http://api3.geo.admin.ch/services/sdiservices.html#identify-features
  * - http://api3.geo.admin.ch/services/sdiservices.html#htmlpopup-resource
  *

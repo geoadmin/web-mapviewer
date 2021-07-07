@@ -26,6 +26,7 @@ const parseLegacyParams = (search) => {
  * Loads all URL parameters before the hash and adds them after the hash.
  *
  * Example:
+ *
  * - `http://localhost:8080/?geolocation=true&layers=some.layer.id` =>
  *   `http://localhost:8080/#/?geolocation=true&layers=some.layer.id`
  *
@@ -34,6 +35,7 @@ const parseLegacyParams = (search) => {
  * retro-compatibility for link sharing (which is an important feature to have)
  *
  * Some special cases are :
+ *
  * - Zoom: as mf-geoadmin3 was using zoom level fitting the LV95 projection, we translate those zoom
  *   levels into world wide zoom levels. See {@link translateSwisstopoPyramidZoomToMercatorZoom}
  * - Easting/northing, E/N or x/y: webmapviewer is using EPSG:3857 as its engine projection and shows

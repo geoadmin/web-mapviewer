@@ -1,7 +1,6 @@
 /**
  * Base class for layers' config description, must be extended to a more specific flavor of Layer
- * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer}, {@link AggregateLayer} or {@link
- * KMLLayer})
+ * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer}, {@link AggregateLayer} or {@link KMLLayer})
  *
  * @abstract
  */

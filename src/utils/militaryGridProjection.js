@@ -39,8 +39,7 @@ const Z = 90 // Z
  *
  * @param {[number, number]} ll Array with longitude and latitude on a WGS84 ellipsoid.
  * @param {number} [accuracy=5] Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km,
- *   1 for 10 km or 0 for 100 km). Optional, default is
- *   5. Default is `5`
+ *   1 for 10 km or 0 for 100 km). Optional, default is 5. Default is `5`
  * @returns {string} The MGRS string for the given location and accuracy.
  */
 export function forward(ll, accuracy) {
