@@ -19,13 +19,27 @@
                             <button type="button" class="btn btn-outline-secondary" disabled>
                                 {{ $t('draw_delete') }}
                             </button>
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary"
-                                @click="emitExportEvent"
-                            >
-                                {{ $t('export_kml') }}
-                            </button>
+                            <div class="btn-group" role="group">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary dropdown-toggle export-btn"
+                                    @click="toggleExportDropdown"
+                                >
+                                    {{ $t('export_kml') }}
+                                </button>
+                                <ul v-show="showExportDropdown" class="dropdown-menu export-menu">
+                                    <li>
+                                        <a class="dropdown-item" @click="emitExportEvent">KML</a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            @click="(event) => emitExportEvent(event, true)"
+                                            >GPX</a
+                                        >
+                                    </li>
+                                </ul>
+                            </div>
                             <button type="button" class="btn btn-outline-secondary" disabled>
                                 {{ $t('share') }}
                             </button>
@@ -52,6 +66,11 @@ export default {
             default: null,
         },
     },
+    data: function () {
+        return {
+            showExportDropdown: false,
+        }
+    },
     methods: {
         emitCloseEvent: function () {
             this.$emit('close')
@@ -59,8 +78,12 @@ export default {
         bubbleSetDrawingEventToParent: function (drawingMode) {
             this.$emit('setDrawingMode', drawingMode)
         },
-        emitExportEvent: function () {
-            this.$emit('export')
+        emitExportEvent: function (event, gpx = false) {
+            this.showExportDropdown = false
+            this.$emit('export', gpx)
+        },
+        toggleExportDropdown: function () {
+            this.showExportDropdown = !this.showExportDropdown
         },
     },
 }
@@ -83,5 +106,15 @@ export default {
 .buttons-container .draw-action-btns {
     width: 222px;
     margin-top: 10px;
+}
+
+.dropdown-menu.export-menu {
+    width: 92px;
+    display: block;
+    min-width: auto;
+
+    a {
+        cursor: pointer;
+    }
 }
 </style>
