@@ -12,7 +12,7 @@ describe('Drawing saving KML', () => {
 
         cy.get(olSelector).dblclick('center')
         cy.wait('@saveFile').then((interception) =>
-            checkKMLFileResponse(interception, ['MARKER'], true)
+            checkKMLFileResponse(interception, ['marker'], true)
         )
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
             expect(ids.adminId).to.eq(mockResponse.adminId)
@@ -21,13 +21,13 @@ describe('Drawing saving KML', () => {
 
         cy.get(olSelector).click('center')
         cy.wait('@modifyFile').then((interception) =>
-            checkKMLFileResponse(interception, ['MARKER'])
+            checkKMLFileResponse(interception, ['marker'])
         )
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 100)
-        cy.get(olSelector).dblclick(150, 100)
+        cy.get(olSelector).click(100, 150)
+        cy.get(olSelector).dblclick(150, 150)
         cy.wait('@modifyFile').then((interception) =>
-            checkKMLFileResponse(interception, ['MARKER', 'LINE'])
+            checkKMLFileResponse(interception, ['marker', 'line'])
         )
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
             expect(ids.adminId).to.eq(mockResponse.adminId)
