@@ -8,8 +8,54 @@
 
 const { cypressBrowserPermissionsPlugin } = require('cypress-browser-permissions')
 
+const fs = require('fs')
+
 module.exports = (on, config) => {
     config = cypressBrowserPermissionsPlugin(on, config)
+
+    on('task', {
+        getFiles(folderName) {
+            return new Promise((resolve, reject) => {
+                fs.readdir(folderName, (err, files) => {
+                    if (err) {
+                        return reject(err)
+                    }
+
+                    resolve(files)
+                })
+            })
+        },
+        deleteFolder(folderName) {
+            console.log('deleting folder %s', folderName)
+
+            return new Promise((resolve, reject) => {
+                fs.rmdir(folderName, { maxRetries: 10, recursive: true }, (err) => {
+                    if (err) {
+                        console.error(err)
+
+                        return reject(err)
+                    }
+
+                    resolve(null)
+                })
+            })
+        },
+        findFiles({ folderName, extension }) {
+            return new Promise((resolve, reject) => {
+                fs.readdir(folderName, (err, files) => {
+                    if (err) {
+                        return reject(err)
+                    }
+                    files = files.filter((f) => {
+                        const position = f.length - extension.length - 1
+                        return f.includes(`.${extension}`, position)
+                    })
+
+                    resolve(files)
+                })
+            })
+        },
+    })
 
     return Object.assign({}, config, {
         fixturesFolder: 'tests/e2e/fixtures',

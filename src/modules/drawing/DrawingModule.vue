@@ -6,6 +6,7 @@
                 :current-drawing-mode="currentDrawingMode"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
+                @export="exportDrawing"
             />
         </div>
         <div v-show="show">
@@ -40,6 +41,7 @@ import OverlayPositioning from 'ol/OverlayPositioning'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { Point } from 'ol/geom'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
+import { saveAs } from 'file-saver'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -207,6 +209,19 @@ export default {
             if (ids && ids.adminId && ids.fileId) {
                 this.setKmlIds({ adminId: ids.adminId, fileId: ids.fileId })
             }
+        },
+        exportDrawing: function () {
+            const { kml } = this.manager.createGeoJSONAndKML()
+            const date = new Date()
+                .toISOString()
+                .split('.')[0]
+                .replaceAll('-', '')
+                .replaceAll(':', '')
+                .replace('T', '')
+            const fileName = `map.geo.admin.ch_KML_${date}.kml`
+            const type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
+            const blob = new Blob([kml], { type: type })
+            saveAs(blob, fileName)
         },
     },
 }

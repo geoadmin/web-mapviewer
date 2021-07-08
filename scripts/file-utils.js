@@ -1,7 +1,6 @@
-
 // Loading filesystem API
-const { resolve } = require('path');
-const fs = require('fs');
+const { resolve } = require('path')
+const fs = require('fs')
 
 /**
  * Perform a deep scan (recursive) of a directory, and returns (through an asynchronous iterator) all file paths found in this folder
@@ -9,26 +8,26 @@ const fs = require('fs');
  * @returns {any} an Asynchronous Iterators returning all file paths of the directory, paths will be absolute even if dir param is relative
  */
 async function* getFiles(dir) {
-    const directoryEntries = await fs.promises.readdir(dir, { withFileTypes: true });
+    const directoryEntries = await fs.promises.readdir(dir, { withFileTypes: true })
     for (const entry of directoryEntries) {
-        const resolvedEntry = resolve(dir, entry.name);
+        const resolvedEntry = resolve(dir, entry.name)
         if (entry.isDirectory()) {
-            yield* getFiles(resolvedEntry);
+            yield* getFiles(resolvedEntry)
         } else {
-            yield resolvedEntry;
+            yield resolvedEntry
         }
     }
 }
 
 function fileExists(file) {
     try {
-        return fs.existsSync(file);
+        return fs.existsSync(file)
     } catch (err) {
-        return false;
+        return false
     }
 }
 
 module.exports = {
     getFiles,
-    fileExists
+    fileExists,
 }
