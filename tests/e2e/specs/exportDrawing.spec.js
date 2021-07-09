@@ -40,7 +40,7 @@ describe('Export drawing', () => {
                 timeout: 10000,
             }
         ).then((files) => {
-            const fileName = `${downloadsFolder}\\${files[files.length - 1]}`
+            const fileName = `${downloadsFolder}/${files[files.length - 1]}`
             expect(fileName).to.contains('map.geo.admin.ch_KML_')
             cy.readFile(fileName, { timeout: 15000 })
                 .should('have.length.gt', 50)
