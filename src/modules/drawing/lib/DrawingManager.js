@@ -7,8 +7,6 @@
 
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import Event from 'ol/events/Event'
-import GeoJSON from 'ol/format/GeoJSON'
-import KML from 'ol/format/KML'
 import DrawInteraction from 'ol/interaction/Draw'
 import ModifyInteraction from 'ol/interaction/Modify'
 import SelectInteraction from 'ol/interaction/Select'
@@ -25,6 +23,7 @@ import MeasureManager from '@/modules/drawing/lib/MeasureManager'
 import { Circle, Icon } from 'ol/style'
 import Feature from 'ol/Feature'
 import Style from 'ol/style/Style'
+import { GPX, KML, GeoJSON } from 'ol/format'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -81,6 +80,8 @@ export default class DrawingManager extends Observable {
         this.kmlFormat = new KML({
             featureProjection: this.map.getView().getProjection(),
         })
+
+        this.gpxFormat = new GPX()
 
         this.options = options
 
@@ -224,22 +225,33 @@ export default class DrawingManager extends Observable {
         this.dispatchChangeEvent_()
     }
 
-    createGeoJSONAndKML() {
+    createGeoJSON() {
         // todo Do we need overlays in geoJson? it makes loop during state update
         const features = this.source.getFeatures().map((f) => {
             const feature = f.clone()
             feature.set('overlays', undefined)
             return feature
         })
-        const geojson = this.geojsonFormat.writeFeaturesObject(features)
-        const kml = this.createKml()
-        return {
-            geojson,
-            kml,
-        }
+        return this.geojsonFormat.writeFeaturesObject(features)
     }
 
-    createKml() {
+    createGPX() {
+        const features = this.source.getFeatures().map((feature) => {
+            const clone = feature.clone()
+            const geom = clone.getGeometry()
+            // convert polygon to line because gpx doesn't support polygons
+            if (geom instanceof Polygon) {
+                const coordinates = geom.getLinearRing().getCoordinates()
+                clone.setGeometry(new LineString(coordinates))
+            }
+            return clone
+        })
+        return this.gpxFormat.writeFeatures(features, {
+            featureProjection: this.map.getView().getProjection(),
+        })
+    }
+
+    createKML() {
         let kmlString
         let exportFeatures = []
         this.source.forEachFeature(function (f) {
