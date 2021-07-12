@@ -4,6 +4,7 @@
             <DrawingToolbox
                 :drawing-modes="drawingModes"
                 :current-drawing-mode="currentDrawingMode"
+                :export-enabled="exportEnabled"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
                 @export="exportDrawing"
@@ -68,6 +69,9 @@ export default {
             const modes = []
             Object.keys(drawingModes).forEach((key) => modes.push(key))
             return modes
+        },
+        exportEnabled: function () {
+            return this.manager.source && this.manager.source.getFeatures().length > 0
         },
     },
     watch: {
