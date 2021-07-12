@@ -21,13 +21,17 @@
                             </button>
                             <div class="btn-group" role="group">
                                 <button
+                                    :disabled="!exportEnabled"
                                     type="button"
                                     class="btn btn-outline-secondary dropdown-toggle export-btn"
                                     @click="toggleExportDropdown"
                                 >
                                     {{ $t('export_kml') }}
                                 </button>
-                                <ul v-show="showExportDropdown" class="dropdown-menu export-menu">
+                                <ul
+                                    v-show="showExportDropdown && exportEnabled"
+                                    class="dropdown-menu export-menu"
+                                >
                                     <li>
                                         <a class="dropdown-item" @click="emitExportEvent">KML</a>
                                     </li>
@@ -64,6 +68,10 @@ export default {
         currentDrawingMode: {
             type: String,
             default: null,
+        },
+        exportEnabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data: function () {
