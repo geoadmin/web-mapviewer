@@ -4,6 +4,7 @@
             <DrawingToolbox
                 :drawing-modes="drawingModes"
                 :current-drawing-mode="currentDrawingMode"
+                :export-enabled="exportEnabled"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
                 @export="exportDrawing"
@@ -68,6 +69,9 @@ export default {
             const modes = []
             Object.keys(drawingModes).forEach((key) => modes.push(key))
             return modes
+        },
+        exportEnabled: function () {
+            return this.manager.source && this.manager.source.getFeatures().length > 0
         },
     },
     watch: {
@@ -170,7 +174,7 @@ export default {
     methods: {
         ...mapActions(['toggleDrawingOverlay', 'setDrawingMode', 'setDrawingGeoJSON', 'setKmlIds']),
         hideDrawingOverlay: function () {
-            const { geojson } = this.manager.createGeoJSONAndKML()
+            const geojson = this.manager.createGeoJSON()
             this.setDrawingGeoJSON(geojson)
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
@@ -191,8 +195,8 @@ export default {
             }
             this.KMLUpdateTimeout = setTimeout(
                 () => {
-                    const { kml } = this.manager.createGeoJSONAndKML()
-                    this.saveDrawing(kml)
+                    const kml = this.manager.createKML()
+                    if (kml && kml.length) this.saveDrawing(kml)
                 },
                 // when testing, speed up and avoid race conditions
                 // by only waiting for next tick
@@ -210,17 +214,25 @@ export default {
                 this.setKmlIds({ adminId: ids.adminId, fileId: ids.fileId })
             }
         },
-        exportDrawing: function () {
-            const { kml } = this.manager.createGeoJSONAndKML()
+        exportDrawing: function (gpx = false) {
             const date = new Date()
                 .toISOString()
                 .split('.')[0]
                 .replaceAll('-', '')
                 .replaceAll(':', '')
                 .replace('T', '')
-            const fileName = `map.geo.admin.ch_KML_${date}.kml`
-            const type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
-            const blob = new Blob([kml], { type: type })
+            let fileName = 'map.geo.admin.ch_'
+            let content, type
+            if (gpx) {
+                fileName += `GPX_${date}.gpx`
+                content = this.manager.createGPX()
+                type = 'application/gpx+xml;charset=UTF-8'
+            } else {
+                fileName += `KML_${date}.kml`
+                content = this.manager.createKML()
+                type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
+            }
+            const blob = new Blob([content], { type: type })
             saveAs(blob, fileName)
         },
     },
