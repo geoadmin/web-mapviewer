@@ -46,7 +46,7 @@ export default {
         sizeLabel: {
             get: function () {
                 const opt = this.sizes.find((s) => s.scale === this.scale)
-                return opt?.label
+                return opt ? opt.label : null
             },
         },
     },

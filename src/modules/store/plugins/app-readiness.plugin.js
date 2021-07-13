@@ -4,6 +4,7 @@
  * set a flag to true and let the app know it can show the map and all linked functionalities.
  *
  * What is required for the app to be ready is :
+ *
  * - Know the width and height of the viewport
  * - Have loaded the layers config
  * - Have loaded the topics config

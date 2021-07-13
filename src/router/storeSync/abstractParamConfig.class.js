@@ -2,8 +2,8 @@
  * A description of one URL param that needs synchronization with the app {@link Vuex.Store} with
  * some helper functions.
  *
- * For simple use cases, please use {@link SimpleUrlParamConfig}, otherwise you can extend this
- * class and do some advanced processing with store syncing. (see {@link LayerParamConfig} as an example)
+ * For simple use cases, please use {@link SimpleUrlParamConfig}, otherwise you can extend this class
+ * and do some advanced processing with store syncing. (see {@link LayerParamConfig} as an example)
  *
  * @abstract
  */
@@ -39,15 +39,17 @@ export default class AbstractParamConfig {
     }
 
     /**
-     * Reads the value from the given Vue router query (part of {@link RouterLink}). Depending on
-     * the value of keepValueInUrlWhenEmpty, the output can be drastically different for an empty query.
+     * Reads the value from the given Vue router query (part of {@link RouterLink}). Depending on the
+     * value of keepValueInUrlWhenEmpty, the output can be drastically different for an empty query.
      *
      * When keepValueInUrlWhenEmpty=true, and the query is empty, the function will output (by type) :
+     *
      * - Boolean: false
      * - Number: 0
      * - String: ''
      *
      * When keepValueInUrlWhenEmpty=false, and the query is empty, the function will output (by type) :
+     *
      * - Boolean: undefined
      * - Number: undefined
      * - String: undefined
@@ -109,6 +111,7 @@ export default class AbstractParamConfig {
     /**
      * Adds the value of the store to the query object. If keepValueInUrlWhenEmpty is false, the
      * query will not be populated whenever the store value is (by type) :
+     *
      * - Boolean: false or undefined or null
      * - Number: 0 or undefined or null
      * - String: '' or undefined or null

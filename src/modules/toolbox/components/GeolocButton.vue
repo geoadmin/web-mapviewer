@@ -37,7 +37,7 @@ $disabled-color: $gray-300;
 .geoloc-button {
     height: $map-button-diameter;
     width: $map-button-diameter;
-    border-radius: $map-button-diameter / 2;
+    border-radius: $map-button-diameter * 0.5;
     background-color: $normal-color;
     overflow: hidden;
     cursor: pointer;

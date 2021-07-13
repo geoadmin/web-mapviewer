@@ -25,6 +25,7 @@ export function isLayersUrlParamLegacy(layersParamValue) {
 
 /**
  * Reads URL params :
+ *
  * - Layers
  * - Layers_opacity
  * - Layers_visibility
