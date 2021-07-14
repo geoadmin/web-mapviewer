@@ -16,12 +16,17 @@
                         />
                         <br />
                         <div class="btn-group btn-group-sm draw-action-btns" role="group">
-                            <button type="button" class="btn btn-outline-secondary" disabled>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary"
+                                :disabled="!drawingNotEmpty"
+                                @click="showClearConfirmation"
+                            >
                                 {{ $t('draw_delete') }}
                             </button>
                             <div class="btn-group" role="group">
                                 <button
-                                    :disabled="!exportEnabled"
+                                    :disabled="!drawingNotEmpty"
                                     type="button"
                                     class="btn btn-outline-secondary dropdown-toggle export-btn"
                                     @click="toggleExportDropdown"
@@ -29,7 +34,7 @@
                                     {{ $t('export_kml') }}
                                 </button>
                                 <ul
-                                    v-show="showExportDropdown && exportEnabled"
+                                    v-show="showExportDropdown && drawingNotEmpty"
                                     class="dropdown-menu export-menu"
                                 >
                                     <li>
@@ -61,14 +66,20 @@
                 </div>
             </div>
         </div>
+        <confirmation-modal
+            ref="clearConfirmation"
+            title-tag="confirm_remove_all_features"
+            :confirmation-callback="emitClearDrawingEvent"
+        ></confirmation-modal>
     </portal>
 </template>
 
 <script>
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
+import ConfirmationModal from '@/modules/helperComponents/ConfirmationModal'
 
 export default {
-    components: { DrawingToolboxButton },
+    components: { DrawingToolboxButton, ConfirmationModal },
     props: {
         drawingModes: {
             type: Array,
@@ -78,7 +89,7 @@ export default {
             type: String,
             default: null,
         },
-        exportEnabled: {
+        drawingNotEmpty: {
             type: Boolean,
             default: false,
         },
@@ -93,6 +104,9 @@ export default {
         }
     },
     methods: {
+        showClearConfirmation: function () {
+            this.$refs['clearConfirmation'].show = true
+        },
         emitCloseEvent: function () {
             this.$emit('close')
         },
@@ -105,6 +119,10 @@ export default {
         },
         toggleExportDropdown: function () {
             this.showExportDropdown = !this.showExportDropdown
+        },
+        emitClearDrawingEvent: function (event, gpx = false) {
+            this.$emit('clearDrawing', gpx)
+            this.$emit('setDrawingMode', null)
         },
     },
 }

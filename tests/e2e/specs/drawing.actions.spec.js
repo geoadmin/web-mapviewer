@@ -74,4 +74,16 @@ describe('Export drawing', () => {
         }
         checkFiles('gpx', checkCallback)
     })
+
+    it('delete drawing', () => {
+        cy.goToDrawing()
+        drawGeoms()
+        cy.get('.draw-action-btns > :nth-child(1)').click()
+        cy.get('.ga-confirmation .modal-footer .btn-primary').click()
+
+        cy.isDrawingEmpty()
+        cy.get('.draw-action-btns > :nth-child(1)').should('have.attr', 'disabled')
+        cy.get('.draw-action-btns :nth-child(2) > button').should('have.attr', 'disabled')
+        cy.get('.draw-action-btns > :nth-child(3)').should('have.attr', 'disabled')
+    })
 })

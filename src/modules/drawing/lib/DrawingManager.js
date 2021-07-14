@@ -58,6 +58,12 @@ export class SelectEvent extends Event {
     }
 }
 
+export class DrawEndEvent extends Event {
+    constructor() {
+        super('drawEnd')
+    }
+}
+
 // Manages a list of drawing interaction on an Openlayers map.
 // In addition to the drawing tools, this class manages a select and snap interactions.
 // When a feature is drawn or modified, a `ChangeEvent` event is dispatched.
@@ -202,8 +208,8 @@ export default class DrawingManager extends Observable {
         if (this.activeInteraction) {
             this.activeInteraction.setActive(false)
         }
-        this.deselect()
         if (tool) {
+            this.deselect()
             this.activeInteraction = this.tools[tool]
             if (this.activeInteraction) {
                 this.activeInteraction.setActive(true)
@@ -252,7 +258,7 @@ export default class DrawingManager extends Observable {
     }
 
     createKML() {
-        let kmlString
+        let kmlString = '<kml></kml>'
         let exportFeatures = []
         this.source.forEachFeature(function (f) {
             const clone = f.clone()
@@ -311,6 +317,10 @@ export default class DrawingManager extends Observable {
         this.dispatchEvent(new SelectEvent(feature, this.pointerCoordinate, modifying))
     }
 
+    dispatchDrawEndEvent_() {
+        this.dispatchEvent(new DrawEndEvent())
+    }
+
     onKeyUp_(event) {
         if (this.activeInteraction && event.key == 'Delete') {
             this.activeInteraction.removeLastPoint()
@@ -354,6 +364,8 @@ export default class DrawingManager extends Observable {
 
         // remove the area tooltip.
         this.measureManager.removeOverlays(event.feature)
+
+        this.dispatchDrawEndEvent_()
     }
 
     onModifyStart_(event) {
@@ -535,5 +547,11 @@ export default class DrawingManager extends Observable {
             mapDiv.classList.add(cssGrab)
             this.updateModifyHelpTooltip(selectableFeature.get('type'), hoverVertex)
         }
+    }
+
+    clearDrawing() {
+        this.source.clear()
+        this.deselect()
+        this.dispatchChangeEvent_()
     }
 }
