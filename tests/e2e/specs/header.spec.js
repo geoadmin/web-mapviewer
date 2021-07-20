@@ -4,11 +4,19 @@ const overlaySelector = '[data-cy="overlay"]'
 const menuButtonSelector = '[data-cy="menu-button"]'
 const menuSettingsContentSelector = '[data-cy="menu-settings-content"]'
 const menuSettingsSectionSelector = '[data-cy="menu-settings-section"]'
+const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
 
 describe('Test functions for the header / search bar', () => {
     beforeEach(() => {
-        cy.goToMapView()
+        cy.goToMapView('en', {
+            layers: visibleLayerIds.join(';'),
+        })
     })
+    const openLayerSettings = (layerId) => {
+        cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`)
+            .should('be.visible')
+            .click()
+    }
     const checkStoreOverlayValue = (value) => {
         cy.readStoreValue('state.overlay.show').should('eq', value)
     }
@@ -39,6 +47,90 @@ describe('Test functions for the header / search bar', () => {
             cy.get(overlaySelector).click()
             checkStoreOverlayValue(false)
             checkMenuTrayValue(false)
+        })
+    })
+
+    context('Order in Menu sections', () => {
+        it('Disable the "Raise Order" arrow on the top layer', () => {
+            const layerId = visibleLayerIds[0]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('not.be.disabled')
+        })
+        it('Disable the "Lower Order" arrow on the bottom layer', () => {
+            const layerId = visibleLayerIds[2]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('not.be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.disabled')
+        })
+        it('enables both button for any other layer', () => {
+            const layerId = visibleLayerIds[1]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('not.be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('not.be.disabled')
+        })
+        it('disable the "raise order" arrow on a layer which gets to the top layer', () => {
+            const layerId = visibleLayerIds[1]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible').click
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('not.be.disabled')
+        })
+        it('disable the "lower order" arrow on a layer which gets to the bottom layer', () => {
+            const layerId = visibleLayerIds[1]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible').click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('not.be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.disabled')
+        })
+        it('enable the "lower order" arrow on a layer which is raised from the bottom', () => {
+            const layerId = visibleLayerIds[2]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible').click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('not.be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('not.be.disabled')
+        })
+        it('enable the "raise order" arrow on a layer which is lowered from the top', () => {
+            const layerId = visibleLayerIds[0]
+            cy.get(menuButtonSelector).click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+            openLayerSettings(layerId)
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible').click
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('be.visible')
+            cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).should('not.be.disabled')
+            cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).should('not.be.disabled')
         })
     })
 

@@ -172,6 +172,15 @@ const actions = {
             }
         }
     },
+    checkFirstLayer: (layerId) => {
+        /* PROBLEM : here,*/
+        console.log(layerId)
+        console.log(state.activeLayers[0].getID() === layerId)
+        return state.activeLayers[0].getID() === 'ch.astra.wanderland-sperrungen_umleitungen'
+    },
+    checkLastLayer: (layerId) => {
+        return state.activeLayers[state.activeLayers.length - 1].getID() === layerId
+    },
 }
 
 const mutations = {

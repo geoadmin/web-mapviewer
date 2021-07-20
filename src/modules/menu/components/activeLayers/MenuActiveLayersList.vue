@@ -9,6 +9,8 @@
             :name="layer.name"
             :time-config="layer.timeConfig"
             :show-details="showLayerDetailsForId === layer.getID()"
+            :is-first-layer="isFirstLayer(layer.getID())"
+            :is-last-layer="isLastLayer(layer.getID())"
             @removeLayer="onRemoveLayer"
             @toggleLayerVisibility="onToggleLayerVisibility"
             @toggleLayerDetails="onToggleLayerDetails"
@@ -83,6 +85,13 @@ export default {
         },
         onTimestampChange: function (layerId, timestamp) {
             this.setTimedLayerCurrentTimestamp({ layerId, timestamp })
+        },
+
+        isFirstLayer: function (layerId) {
+            return this.activeLayers[0].getID() === layerId
+        },
+        isLastLayer: function (layerId) {
+            return this.activeLayers[this.activeLayers.length - 1].getID() === layerId
         },
     },
 }
