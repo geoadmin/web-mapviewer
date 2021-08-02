@@ -8,10 +8,11 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div v-if="textTag.length" class="modal-body">
+                <div v-if="hasBodySlot || textTag" class="modal-body">
                     {{ $t(textTag) }}
+                    <slot />
                 </div>
-                <div class="modal-footer">
+                <div v-if="confirmationCallback" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="closeModal">
                         {{ $t(cancelBtnTag) }}
                     </button>
@@ -49,13 +50,18 @@ export default {
         },
         confirmationCallback: {
             type: Function,
-            required: true,
+            default: null,
         },
     },
     data: function () {
         return {
             show: false,
         }
+    },
+    computed: {
+        hasBodySlot: function () {
+            return !!this.$slots.default
+        },
     },
     methods: {
         closeModal: function (clickEvent, confirmed) {

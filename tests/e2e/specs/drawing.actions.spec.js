@@ -86,4 +86,51 @@ describe('Export drawing', () => {
         cy.get('.draw-action-btns :nth-child(2) > button').should('have.attr', 'disabled')
         cy.get('.draw-action-btns > :nth-child(3)').should('have.attr', 'disabled')
     })
+
+    it('share drawing', () => {
+        cy.goToDrawing()
+        drawGeoms()
+        const testGeoms = (features) => {
+            expect(features).to.have.length(4)
+            cy.wrap(features.find((f) => f.get('type') === 'MEASURE')).should('exist')
+            cy.wrap(features.find((f) => f.get('type') === 'LINE')).should('exist')
+            cy.wrap(features.find((f) => f.get('type') === 'TEXT')).should('exist')
+            cy.wrap(features.find((f) => f.get('type') === 'MARKER')).should('exist')
+        }
+
+        cy.get('.draw-action-btns > :nth-child(3)').click()
+        cy.get('.ga-share .form-group:nth-child(1) button').click()
+        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
+            cy.readClipboardValue().then((text) => {
+                cy.visit(text)
+                cy.reload()
+                cy.get('[data-cy="menu-button"]').click({ force: true })
+                cy.get('.menu-section-head-title:first').click({ force: true })
+                cy.readStoreValue('state.drawing.drawingKmlIds').then((ids2) => {
+                    cy.wrap(ids).its('fileId').should('not.eq', ids2.fileId)
+                    cy.wrap(ids).its('adminId').should('not.eq', ids2.adminId)
+                    cy.readWindowValue('drawingManager')
+                        .then((manager) => manager.source.getFeatures())
+                        .then((features) => {
+                            testGeoms(features)
+                            cy.get('.draw-action-btns > :nth-child(3)').click()
+                            cy.get('.ga-share .form-group:nth-child(2) button').click()
+                            cy.readClipboardValue().then((text) => {
+                                cy.visit(text)
+                                cy.reload()
+                                cy.readStoreValue('state.drawing.drawingKmlIds').then((ids3) => {
+                                    cy.wrap(ids3).its('fileId').should('eq', ids2.fileId)
+                                    cy.wrap(ids3).its('adminId').should('eq', ids2.adminId)
+                                    cy.intercept(`/${ids3.fileId}`).as('file')
+                                    cy.wait('@file')
+                                    cy.readWindowValue('drawingManager')
+                                        .then((manager) => manager.source.getFeatures())
+                                        .then(testGeoms)
+                                })
+                            })
+                        })
+                })
+            })
+        })
+    })
 })

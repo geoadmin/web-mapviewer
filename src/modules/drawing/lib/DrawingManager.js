@@ -24,6 +24,7 @@ import { Circle, Icon } from 'ol/style'
 import Feature from 'ol/Feature'
 import Style from 'ol/style/Style'
 import { GPX, KML, GeoJSON } from 'ol/format'
+import { getKml } from '@/api/files.api'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -83,9 +84,7 @@ export default class DrawingManager extends Observable {
             featureProjection: this.map.getView().getProjection(),
         })
 
-        this.kmlFormat = new KML({
-            featureProjection: this.map.getView().getProjection(),
-        })
+        this.kmlFormat = new KML()
 
         this.gpxFormat = new GPX()
 
@@ -553,5 +552,18 @@ export default class DrawingManager extends Observable {
         this.source.clear()
         this.deselect()
         this.dispatchChangeEvent_()
+    }
+
+    async addKmlLayer(layer) {
+        const kml = await getKml(layer.kmlFileUrl)
+        const features = this.kmlFormat.readFeatures(kml, {
+            featureProjection: layer.projection,
+        })
+        features.forEach((f) => {
+            f.set('type', f.get('type').toUpperCase())
+            f.setStyle((feature) => featureStyle(feature))
+            if (f.get('type') === 'MEASURE') this.measureManager.addOverlays(f)
+        })
+        this.source.addFeatures(features)
     }
 }

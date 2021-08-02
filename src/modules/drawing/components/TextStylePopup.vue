@@ -3,7 +3,11 @@
         <button type="button" class="close" @click="onClose">
             <span aria-hidden="true">&times;</span>
         </button>
-        <Size :sizes="options.sizes" :scale="feature.get('textScale')" @sizeChange="onSizeChange">
+        <Size
+            :sizes="options.sizes"
+            :scale="Number(feature.get('textScale'))"
+            @sizeChange="onSizeChange"
+        >
         </Size>
         <div class="setting-container">
             <span>{{ $t('modify_text_color_label') }}:</span>
@@ -31,6 +35,7 @@
 
 <script>
 import Size from './Size.vue'
+
 export default {
     components: { Size },
     props: {

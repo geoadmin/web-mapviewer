@@ -67,6 +67,8 @@ export default {
             currentDrawingMode: (state) => state.drawing.mode,
             geoJson: (state) => state.drawing.geoJson,
             kmlIds: (state) => state.drawing.drawingKmlIds,
+            kmlLayers: (state) =>
+                state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
         }),
         drawingModes: function () {
             const modes = []
@@ -85,6 +87,19 @@ export default {
     watch: {
         show: function (show) {
             if (show) {
+                if (this.kmlLayers && this.kmlLayers.length) {
+                    const layer =
+                        this.kmlIds && this.kmlIds.adminId
+                            ? this.kmlLayers.find(
+                                  (l) => l.kmlFileUrl.split('/').pop() === this.kmlIds.fileId
+                              )
+                            : this.kmlLayers[this.kmlLayers.length - 1]
+                    if (layer)
+                        this.manager.addKmlLayer(layer).then(() => {
+                            if (!this.kmlIds) this.triggerKMLUpdate()
+                            this.removeLayer(layer)
+                        })
+                }
                 this.manager.activate()
             } else {
                 this.manager.deactivate()
@@ -157,6 +172,7 @@ export default {
                 helpPopupElement: this.$refs['draw-help'],
             }
         )
+
         // if we are testing with Cypress, we expose the map and drawing manager
         if (IS_TESTING_WITH_CYPRESS) {
             window.drawingMap = map
@@ -183,7 +199,13 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['toggleDrawingOverlay', 'setDrawingMode', 'setDrawingGeoJSON', 'setKmlIds']),
+        ...mapActions([
+            'toggleDrawingOverlay',
+            'setDrawingMode',
+            'setDrawingGeoJSON',
+            'setKmlIds',
+            'removeLayer',
+        ]),
         hideDrawingOverlay: function () {
             const geojson = this.manager.createGeoJSON()
             this.setDrawingGeoJSON(geojson)

@@ -49,7 +49,12 @@
                                     </li>
                                 </ul>
                             </div>
-                            <button type="button" class="btn btn-outline-secondary" disabled>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary"
+                                :disabled="!drawingNotEmpty || !kmlIds"
+                                @click="openShare"
+                            >
                                 {{ $t('share') }}
                             </button>
                         </div>
@@ -66,20 +71,25 @@
                 </div>
             </div>
         </div>
-        <confirmation-modal
+        <configurable-modal
             ref="clearConfirmation"
             title-tag="confirm_remove_all_features"
             :confirmation-callback="emitClearDrawingEvent"
-        ></confirmation-modal>
+        ></configurable-modal>
+        <configurable-modal ref="shareModal" title-tag="share">
+            <share-form></share-form>
+        </configurable-modal>
     </portal>
 </template>
 
 <script>
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import ConfirmationModal from '@/modules/helperComponents/ConfirmationModal'
+import ConfigurableModal from '@/modules/helperComponents/ConfigurableModal'
+import ShareForm from '@/modules/drawing/components/ShareForm'
+import { mapState } from 'vuex'
 
 export default {
-    components: { DrawingToolboxButton, ConfirmationModal },
+    components: { DrawingToolboxButton, ConfigurableModal, ShareForm },
     props: {
         drawingModes: {
             type: Array,
@@ -103,6 +113,11 @@ export default {
             showExportDropdown: false,
         }
     },
+    computed: {
+        ...mapState({
+            kmlIds: (state) => state.drawing.drawingKmlIds,
+        }),
+    },
     methods: {
         showClearConfirmation: function () {
             this.$refs['clearConfirmation'].show = true
@@ -123,6 +138,9 @@ export default {
         emitClearDrawingEvent: function (event, gpx = false) {
             this.$emit('clearDrawing', gpx)
             this.$emit('setDrawingMode', null)
+        },
+        openShare: function () {
+            this.$refs['shareModal'].show = true
         },
     },
 }
