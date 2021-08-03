@@ -48,6 +48,15 @@
                                 {{ $t('share') }}
                             </button>
                         </div>
+                        <br />
+                        <button
+                            v-if="deleteLastPointCallback"
+                            type="button"
+                            class="btn btn-outline-danger btn-sm delete-last-btn"
+                            @click="deleteLastPointCallback"
+                        >
+                            {{ $t('draw_button_delete_last_point') }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -72,6 +81,10 @@ export default {
         exportEnabled: {
             type: Boolean,
             default: false,
+        },
+        deleteLastPointCallback: {
+            type: Function,
+            default: undefined,
         },
     },
     data: function () {
@@ -124,5 +137,9 @@ export default {
     a {
         cursor: pointer;
     }
+}
+
+.delete-last-btn {
+    margin-top: 5px;
 }
 </style>

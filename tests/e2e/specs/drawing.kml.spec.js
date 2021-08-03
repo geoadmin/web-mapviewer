@@ -24,8 +24,8 @@ describe('Drawing saving KML', () => {
             checkKMLFileResponse(interception, ['marker'])
         )
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 150)
-        cy.get(olSelector).dblclick(150, 150)
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).dblclick(150, 200)
         cy.wait('@modifyFile').then((interception) =>
             checkKMLFileResponse(interception, ['marker', 'line'])
         )

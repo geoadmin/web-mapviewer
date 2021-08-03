@@ -5,6 +5,7 @@
                 :drawing-modes="drawingModes"
                 :current-drawing-mode="currentDrawingMode"
                 :export-enabled="exportEnabled"
+                :delete-last-point-callback="deleteLastPointCallback"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
                 @export="exportDrawing"
@@ -72,6 +73,11 @@ export default {
         },
         exportEnabled: function () {
             return this.manager.source && this.manager.source.getFeatures().length > 0
+        },
+        deleteLastPointCallback: function () {
+            return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
+                ? () => this.manager.activeInteraction.removeLastPoint()
+                : undefined
         },
     },
     watch: {

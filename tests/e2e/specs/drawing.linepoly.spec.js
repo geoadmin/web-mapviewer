@@ -7,10 +7,10 @@ describe('Drawing', () => {
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 150)
-        cy.get(olSelector).click(150, 150)
-        cy.get(olSelector).click(150, 180)
-        cy.get(olSelector).click(100, 150)
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).click(150, 200)
+        cy.get(olSelector).click(150, 230)
+        cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@saveFile').then((interception) =>
             checkKMLFileResponse(
@@ -26,10 +26,10 @@ describe('Drawing', () => {
         cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 150)
-        cy.get(olSelector).click(150, 150)
-        cy.get(olSelector).click(150, 180)
-        cy.get(olSelector).click(100, 150)
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).click(150, 200)
+        cy.get(olSelector).click(150, 230)
+        cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@saveFile').then((interception) =>
             checkKMLFileResponse(
@@ -55,14 +55,28 @@ describe('Drawing', () => {
     it('creates a line with double click', () => {
         cy.goToDrawing()
         cy.clickDrawingTool('line')
-        cy.get(olSelector).click(100, 150)
-        cy.get(olSelector).click(150, 150)
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).click(150, 200)
         cy.get(olSelector).dblclick(120, 240)
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos.length).to.equal(3)
         })
         cy.get(olSelector).click(500, 300) // do nothing, already finished
+        cy.readDrawingFeatures('LineString', (features) => {
+            const coos = features[0].getGeometry().getCoordinates()
+            expect(coos.length).to.equal(3)
+        })
+    })
+
+    it('delete last point', () => {
+        cy.goToDrawing()
+        cy.clickDrawingTool('line')
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).click(150, 200)
+        cy.get(olSelector).click(180, 200)
+        cy.get('.delete-last-btn').click()
+        cy.get(olSelector).dblclick(120, 240)
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos.length).to.equal(3)
