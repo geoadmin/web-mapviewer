@@ -113,9 +113,11 @@ describe('Test of layer handling', () => {
             cy.get('[data-cy="menu-button"]').click()
         })
         const openLayerSettings = (layerId) => {
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
             cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`)
                 .should('be.visible')
                 .click()
+            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
         }
         it('shows a visible layer in the menu', () => {
             visibleLayerIds.forEach((layerId) => {
@@ -224,6 +226,59 @@ describe('Test of layer handling', () => {
                         }
                     })
                 })
+            })
+        })
+        context('Re-ordering of layers', () => {
+            const checkOrderButtons = (layerId, raiseShouldBeDisabled, lowerShouldBeDisabled) => {
+                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
+                    .should('be.visible')
+                    .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
+                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                    .should('be.visible')
+                    .should(`${!lowerShouldBeDisabled ? 'not.' : ''}be.disabled`)
+            }
+            it('Disable the "Raise Order" arrow on the top layer', () => {
+                const layerId = visibleLayerIds[0]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, true, false)
+            })
+            it('Disable the "Lower Order" arrow on the bottom layer', () => {
+                const layerId = visibleLayerIds[2]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, false, true)
+            })
+            it('enables both button for any other layer', () => {
+                const layerId = visibleLayerIds[1]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, false, false)
+            })
+            it('disable the "raise order" arrow on a layer which gets to the top layer', () => {
+                const layerId = visibleLayerIds[1]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, false, false)
+                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
+                checkOrderButtons(layerId, true, false)
+            })
+            it('disable the "lower order" arrow on a layer which gets to the bottom layer', () => {
+                const layerId = visibleLayerIds[1]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, false, false)
+                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
+                checkOrderButtons(layerId, false, true)
+            })
+            it('enable the "lower order" arrow on a layer which is raised from the bottom', () => {
+                const layerId = visibleLayerIds[2]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, false, true)
+                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
+                checkOrderButtons(layerId, false, false)
+            })
+            it('enable the "raise order" arrow on a layer which is lowered from the top', () => {
+                const layerId = visibleLayerIds[0]
+                openLayerSettings(layerId)
+                checkOrderButtons(layerId, true, false)
+                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
+                checkOrderButtons(layerId, false, false)
             })
         })
     })
