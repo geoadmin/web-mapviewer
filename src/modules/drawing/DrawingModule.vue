@@ -6,9 +6,11 @@
                 :current-drawing-mode="currentDrawingMode"
                 :export-enabled="exportEnabled"
                 :delete-last-point-callback="deleteLastPointCallback"
+                :drawing-not-empty="drawingNotEmpty"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
                 @export="exportDrawing"
+                @clearDrawing="clearDrawing"
             />
         </div>
         <div v-show="show">
@@ -71,7 +73,7 @@ export default {
             Object.keys(drawingModes).forEach((key) => modes.push(key))
             return modes
         },
-        exportEnabled: function () {
+        drawingNotEmpty: function () {
             return this.manager.source && this.manager.source.getFeatures().length > 0
         },
         deleteLastPointCallback: function () {
@@ -176,6 +178,9 @@ export default {
             overlay.setPosition(xy)
             this.selectedFeature = showOverlay ? feature : null
         })
+        this.manager.on('drawEnd', () => {
+            this.setDrawingMode(null)
+        })
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay', 'setDrawingMode', 'setDrawingGeoJSON', 'setKmlIds']),
@@ -186,6 +191,7 @@ export default {
             this.toggleDrawingOverlay()
         },
         changeDrawingMode: function (mode) {
+            if (mode === this.currentDrawingMode) mode = null
             this.setDrawingMode(mode)
         },
         deleteSelectedFeature: function () {
@@ -240,6 +246,10 @@ export default {
             }
             const blob = new Blob([content], { type: type })
             saveAs(blob, fileName)
+        },
+        clearDrawing: function () {
+            this.manager.clearDrawing()
+            this.triggerKMLUpdate()
         },
     },
 }

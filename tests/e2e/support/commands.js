@@ -250,3 +250,11 @@ Cypress.Commands.add('dragDrawingMap', (sx, sy, tx, ty, callback) => {
         if (callback) callback(map)
     })
 })
+
+Cypress.Commands.add('isDrawingEmpty', () => {
+    cy.readWindowValue('drawingManager')
+        .then((manager) => manager.source.getFeatures())
+        .then((features) => {
+            expect(features).to.have.length(0)
+        })
+})
