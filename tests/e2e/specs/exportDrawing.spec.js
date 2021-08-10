@@ -11,15 +11,15 @@ const drawGeoms = () => {
     cy.get(olSelector).click(200, 190)
 
     cy.clickDrawingTool('measure')
-    cy.get(olSelector).click(100, 150)
-    cy.get(olSelector).click(150, 150)
-    cy.get(olSelector).click(150, 180)
-    cy.get(olSelector).click(100, 150)
+    cy.get(olSelector).click(100, 200)
+    cy.get(olSelector).click(150, 200)
+    cy.get(olSelector).click(150, 230)
+    cy.get(olSelector).click(100, 200)
 
     cy.clickDrawingTool('line')
-    cy.get(olSelector).click(210, 150)
-    cy.get(olSelector).click(220, 150)
-    cy.get(olSelector).dblclick(230, 180)
+    cy.get(olSelector).click(210, 200)
+    cy.get(olSelector).click(220, 200)
+    cy.get(olSelector).dblclick(230, 230)
 }
 
 const isNonEmptyString = (x) => {
