@@ -107,6 +107,7 @@ describe('Export drawing', () => {
                 cy.get('[data-cy="menu-button"]').click({ force: true })
                 cy.get('.menu-section-head-title:first').click({ force: true })
                 cy.readStoreValue('state.drawing.drawingKmlIds').then((ids2) => {
+                    cy.intercept(`/${ids2.fileId}`).as('file')
                     cy.wrap(ids).its('fileId').should('not.eq', ids2.fileId)
                     cy.wrap(ids).its('adminId').should('not.eq', ids2.adminId)
                     cy.readWindowValue('drawingManager')
@@ -118,11 +119,10 @@ describe('Export drawing', () => {
                             cy.readClipboardValue().then((text) => {
                                 cy.visit(text)
                                 cy.reload()
+                                cy.wait('@file')
                                 cy.readStoreValue('state.drawing.drawingKmlIds').then((ids3) => {
                                     cy.wrap(ids3).its('fileId').should('eq', ids2.fileId)
                                     cy.wrap(ids3).its('adminId').should('eq', ids2.adminId)
-                                    cy.intercept(`/${ids3.fileId}`).as('file')
-                                    cy.wait('@file')
                                     cy.readWindowValue('drawingManager')
                                         .then((manager) => manager.source.getFeatures())
                                         .then(testGeoms)

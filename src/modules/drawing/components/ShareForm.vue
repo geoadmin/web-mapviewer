@@ -30,10 +30,15 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import { API_PUBLIC_URL } from '@/config'
 
 export default {
+    props: {
+        kmlIds: {
+            type: Object,
+            default: null,
+        },
+    },
     data: function () {
         return {
             adminUrlCopied: false,
@@ -41,9 +46,6 @@ export default {
         }
     },
     computed: {
-        ...mapState({
-            kmlIds: (state) => state.drawing.drawingKmlIds,
-        }),
         fileUrl() {
             if (!this.kmlIds) return ''
             return `${location.origin}/#/map?layers=KML|${API_PUBLIC_URL}${this.kmlIds.fileId}|Drawing`

@@ -1,8 +1,6 @@
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { getFileId } from '@/api/files.api'
-import { API_PUBLIC_URL } from '@/config'
 
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
@@ -121,20 +119,6 @@ function generateLayerUrlParamFromStoreValues(store) {
         .join(';')
 }
 
-function dispatchAdminLayersFromUrlIntoStore(store, adminId) {
-    return getFileId(adminId).then((fileId) => {
-        const kmlLayer = new KMLLayer('Drawing', 1, `${API_PUBLIC_URL}${fileId}`)
-        return Promise.all([
-            store.dispatch('addLayer', kmlLayer),
-            store.dispatch('setKmlIds', {
-                adminId,
-                fileId,
-            }),
-            store.dispatch('toggleDrawingOverlay'),
-        ])
-    })
-}
-
 export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super(
@@ -142,19 +126,6 @@ export default class LayerParamConfig extends AbstractParamConfig {
             'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex,setLayerOpacity,setLayerTimestamp',
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
-            false,
-            String
-        )
-    }
-}
-
-export class AdminLayerParamConfig extends AbstractParamConfig {
-    constructor() {
-        super(
-            'drawingAdminFileId',
-            '',
-            dispatchAdminLayersFromUrlIntoStore,
-            undefined,
             false,
             String
         )

@@ -4,9 +4,9 @@
             <DrawingToolbox
                 :drawing-modes="drawingModes"
                 :current-drawing-mode="currentDrawingMode"
-                :export-enabled="exportEnabled"
                 :delete-last-point-callback="deleteLastPointCallback"
                 :drawing-not-empty="drawingNotEmpty"
+                :kml-ids="kmlIds"
                 @close="hideDrawingOverlay"
                 @setDrawingMode="changeDrawingMode"
                 @export="exportDrawing"
@@ -87,19 +87,7 @@ export default {
     watch: {
         show: function (show) {
             if (show) {
-                if (this.kmlLayers && this.kmlLayers.length) {
-                    const layer =
-                        this.kmlIds && this.kmlIds.adminId
-                            ? this.kmlLayers.find(
-                                  (l) => l.kmlFileUrl.split('/').pop() === this.kmlIds.fileId
-                              )
-                            : this.kmlLayers[this.kmlLayers.length - 1]
-                    if (layer)
-                        this.manager.addKmlLayer(layer).then(() => {
-                            if (!this.kmlIds) this.triggerKMLUpdate()
-                            this.removeLayer(layer)
-                        })
-                }
+                this.addSavedKmlLayer()
                 this.manager.activate()
             } else {
                 this.manager.deactivate()
@@ -272,6 +260,22 @@ export default {
         clearDrawing: function () {
             this.manager.clearDrawing()
             this.triggerKMLUpdate()
+        },
+        addSavedKmlLayer: function () {
+            if (!this.kmlLayers || !this.kmlLayers.length) return
+            // Search for a layer with corresponding fileId or take last
+            const layer =
+                this.kmlIds && this.kmlIds.adminId
+                    ? this.kmlLayers.find(
+                          (l) => l.kmlFileUrl.split('/').pop() === this.kmlIds.fileId
+                      )
+                    : this.kmlLayers[this.kmlLayers.length - 1]
+            // If KML layer exists add to drawing manager
+            if (layer)
+                this.manager.addKmlLayer(layer).then(() => {
+                    if (!this.kmlIds) this.triggerKMLUpdate()
+                    this.removeLayer(layer)
+                })
         },
     },
 }

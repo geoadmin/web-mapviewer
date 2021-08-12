@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ show: show }" class="ga-confirmation modal fade">
+    <div class="ga-confirmation modal fade show">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div v-if="titleTag.length" class="modal-header">
@@ -12,7 +12,7 @@
                     {{ $t(textTag) }}
                     <slot />
                 </div>
-                <div v-if="confirmationCallback" class="modal-footer">
+                <div v-if="showActionButtons" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="closeModal">
                         {{ $t(cancelBtnTag) }}
                     </button>
@@ -48,15 +48,10 @@ export default {
             type: String,
             default: 'cancel',
         },
-        confirmationCallback: {
-            type: Function,
-            default: null,
+        showActionButtons: {
+            type: Boolean,
+            default: false,
         },
-    },
-    data: function () {
-        return {
-            show: false,
-        }
     },
     computed: {
         hasBodySlot: function () {
@@ -65,8 +60,7 @@ export default {
     },
     methods: {
         closeModal: function (clickEvent, confirmed) {
-            this.show = false
-            if (confirmed) this.confirmationCallback()
+            this.$emit('close', confirmed)
         },
     },
 }
