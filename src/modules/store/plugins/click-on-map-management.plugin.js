@@ -55,13 +55,12 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
  */
 const clickOnMapManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
-        if (mutation.type === 'setClickInfo') {
+        // if a click occurs, we only take it into account (for identify and fullscreen toggle)
+        // when the user is not currently drawing something on the map
+        if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
             if (isMobile) {
-                if (
-                    !state.ui.showDrawingOverlay &&
-                    state.map.clickInfo.millisecondsSpentMouseDown < 500
-                ) {
+                if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
                     store.dispatch('toggleHeader')
                     store.dispatch('toggleFooter')
                     store.dispatch('toggleBackgroundWheel')

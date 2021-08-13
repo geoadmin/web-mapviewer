@@ -48,6 +48,9 @@ export default {
             }
             return null
         },
+        isCurrentlyDrawing: (state) => {
+            return state.mode !== null
+        },
     },
     actions: {
         setDrawingMode: ({ commit }, mode) => {
