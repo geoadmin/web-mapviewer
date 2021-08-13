@@ -50,8 +50,7 @@
 </template>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
-@import 'src/scss/variables';
+@import 'src/scss/bootstrap-theme';
 #ol-map {
     width: 100%;
     height: 100%;

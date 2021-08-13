@@ -22,7 +22,7 @@
     </div>
 </template>
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/bootstrap-theme';
 @import '../../scss/menu-items';
 .menu-topic-tree-item {
     @extend .menu-list-item;

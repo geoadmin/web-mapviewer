@@ -99,7 +99,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/bootstrap-theme';
 @import 'src/scss/variables';
 #mouse-position {
     position: absolute;
