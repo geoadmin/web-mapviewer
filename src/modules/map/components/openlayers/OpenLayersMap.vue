@@ -50,7 +50,7 @@
 </template>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/bootstrap-theme';
 @import 'src/scss/variables';
 #ol-map {
     width: 100%;
@@ -175,7 +175,6 @@ export default {
             })
         },
         isCurrentlyDrawing: function (newValue) {
-            console.log('new value for isDrawing', newValue)
             // we iterate through the map "interaction" classes in order
             // to enable/disable the "double click zoom" interaction while
             // a drawing is currently made (otherwise, when the user double

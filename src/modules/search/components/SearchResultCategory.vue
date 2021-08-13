@@ -18,7 +18,7 @@
 </template>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/bootstrap-theme';
 .search-category {
     .search-category-header {
         @extend .p-2;

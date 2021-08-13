@@ -3,7 +3,7 @@
         <div class="modal-popup">
             <div class="card">
                 <div class="card-header">
-                    <span v-if="title" class="float-left align-middle">{{ title }}</span>
+                    <span v-if="title" class="float-start align-middle">{{ title }}</span>
                     <button class="float-right btn btn-sm" @click="onClose">
                         <font-awesome-icon :icon="['fa', 'times']" />
                     </button>

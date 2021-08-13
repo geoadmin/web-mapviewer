@@ -1,24 +1,13 @@
 <template>
-    <div>
-        <button
-            v-if="hasMultipleTimestamps"
-            ref="popoverButton"
-            class="btn btn-sm btn-danger px-2"
-            data-html="true"
-            :title="$t('time_select_year')"
-            data-custom-class="timestamps-popover"
-            data-content="<div class='timestamps-popover-container'></div>"
-            data-bs-toggle="popover"
-            @click="togglePopover"
-        >
-            {{ humanReadableCurrentTimestamp }}
-        </button>
-        <div
-            ref="popoverContent"
-            :class="{ 'd-none': !showPopoverContent }"
-            class="timestamps-popover-content"
-            data-cy="time-selection-popup"
-        >
+    <PopoverButton
+        v-if="hasMultipleTimestamps"
+        ref="popover"
+        :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
+        :button-bootstrap-class="'btn-danger'"
+        :popover-title="$t('time_select_year')"
+        primary
+    >
+        <div class="timestamps-popover-content">
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"
@@ -30,26 +19,21 @@
                 {{ renderHumanReadableTimestamp(timestamp) }}
             </button>
         </div>
-    </div>
+    </PopoverButton>
 </template>
 
 <script>
-import { Popover } from 'bootstrap'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { isNumber } from '@/utils/numberUtils'
+import PopoverButton from '@/utils/PopoverButton'
 
 export default {
+    components: { PopoverButton },
     props: {
         timeConfig: {
             type: LayerTimeConfig,
             required: true,
         },
-    },
-    data() {
-        return {
-            popover: null,
-            showPopoverContent: false,
-        }
     },
     computed: {
         hasMultipleTimestamps: function () {
@@ -65,14 +49,6 @@ export default {
             }
             return timestamps
         },
-    },
-    mounted() {
-        if (this.hasMultipleTimestamps) {
-            this.popover = Popover.getOrCreateInstance(this.$refs.popoverButton, {
-                content: this.$refs.popoverContent,
-                html: true,
-            })
-        }
     },
     methods: {
         renderHumanReadableTimestamp: function (timestamp) {
@@ -97,14 +73,6 @@ export default {
         },
         handleClickOnTimestamp: function (timestamp) {
             this.$emit('timestampChange', timestamp)
-            this.showPopoverContent = false
-            this.popover.hide()
-        },
-        togglePopover: function () {
-            this.showPopoverContent = !this.showPopoverContent
-            if (this.showPopoverContent) {
-                this.popover.update()
-            }
         },
     },
 }
