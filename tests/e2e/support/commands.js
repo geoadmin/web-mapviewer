@@ -258,3 +258,12 @@ Cypress.Commands.add('isDrawingEmpty', () => {
             expect(features).to.have.length(0)
         })
 })
+
+// Reads a value from clipboard
+Cypress.Commands.add('readClipboardValue', () => {
+    return cy.window().then((win) => {
+        return win.navigator.clipboard.readText().then((t) => {
+            return t
+        })
+    })
+})

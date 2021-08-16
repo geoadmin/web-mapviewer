@@ -1,5 +1,6 @@
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import AdminLayerParamConfig from '@/router/storeSync/AdminLayerParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and vice-versa)
@@ -40,6 +41,7 @@ const storeSyncConfig = [
         Boolean
     ),
     new LayerParamConfig(),
+    new AdminLayerParamConfig(),
 ]
 
 export default storeSyncConfig

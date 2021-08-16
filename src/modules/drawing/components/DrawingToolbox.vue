@@ -49,7 +49,12 @@
                                     </li>
                                 </ul>
                             </div>
-                            <button type="button" class="btn btn-outline-secondary" disabled>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary"
+                                :disabled="!drawingNotEmpty || !kmlIds"
+                                @click="openShare"
+                            >
                                 {{ $t('share') }}
                             </button>
                         </div>
@@ -66,24 +71,33 @@
                 </div>
             </div>
         </div>
-        <confirmation-modal
-            ref="clearConfirmation"
+        <configurable-modal
+            v-if="showClearConfirmationModal"
             title-tag="confirm_remove_all_features"
-            :confirmation-callback="emitClearDrawingEvent"
-        ></confirmation-modal>
+            :show-action-buttons="true"
+            @close="onCloseClearConfirmation"
+        ></configurable-modal>
+        <configurable-modal v-if="showShareModal" title-tag="share" @close="onCloseShare">
+            <share-form :kml-ids="kmlIds"></share-form>
+        </configurable-modal>
     </portal>
 </template>
 
 <script>
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import ConfirmationModal from '@/modules/helperComponents/ConfirmationModal'
+import ConfigurableModal from '@/modules/helperComponents/ConfigurableModal'
+import ShareForm from '@/modules/drawing/components/ShareForm'
 
 export default {
-    components: { DrawingToolboxButton, ConfirmationModal },
+    components: { DrawingToolboxButton, ConfigurableModal, ShareForm },
     props: {
         drawingModes: {
             type: Array,
             required: true,
+        },
+        kmlIds: {
+            type: Object,
+            default: null,
         },
         currentDrawingMode: {
             type: String,
@@ -101,12 +115,11 @@ export default {
     data: function () {
         return {
             showExportDropdown: false,
+            showShareModal: false,
+            showClearConfirmationModal: false,
         }
     },
     methods: {
-        showClearConfirmation: function () {
-            this.$refs['clearConfirmation'].show = true
-        },
         emitCloseEvent: function () {
             this.$emit('close')
         },
@@ -120,9 +133,21 @@ export default {
         toggleExportDropdown: function () {
             this.showExportDropdown = !this.showExportDropdown
         },
-        emitClearDrawingEvent: function (event, gpx = false) {
-            this.$emit('clearDrawing', gpx)
-            this.$emit('setDrawingMode', null)
+        onCloseClearConfirmation(confirmed) {
+            this.showClearConfirmationModal = false
+            if (confirmed) {
+                this.$emit('clearDrawing')
+                this.$emit('setDrawingMode', null)
+            }
+        },
+        onCloseShare() {
+            this.showShareModal = false
+        },
+        openShare: function () {
+            this.showShareModal = true
+        },
+        showClearConfirmation: function () {
+            this.showClearConfirmationModal = true
         },
     },
 }

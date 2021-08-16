@@ -44,6 +44,15 @@ function enforceEndingSlashInUrl(url) {
 export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE_URL)
 
 /**
+ * Public URL to get saved files (e.g. for prod https://public.geo.admin.ch).
+ *
+ * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
+ * @type String
+ */
+export const API_PUBLIC_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_PUBLIC_URL)
+
+/**
  * Base part of the URL to use when requesting icons.
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints

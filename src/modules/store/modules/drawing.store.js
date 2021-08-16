@@ -1,3 +1,5 @@
+import { API_PUBLIC_URL } from '@/config'
+
 /** @enum */
 export const drawingModes = {
     MARKER: 'MARKER',
@@ -42,7 +44,7 @@ export default {
     getters: {
         getDrawingPublicFileUrl: (state) => {
             if (state.drawingKmlIds) {
-                return `https://public.geo.admin.ch/${state.drawingKmlIds.fileId}`
+                return `${API_PUBLIC_URL}${state.drawingKmlIds.fileId}`
             }
             return null
         },

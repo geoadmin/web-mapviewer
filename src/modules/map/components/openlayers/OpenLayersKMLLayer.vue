@@ -8,6 +8,7 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { featureStyle } from '@/modules/drawing/lib/style'
 
 /** Renders a KML file on the map */
 export default {
@@ -49,6 +50,11 @@ export default {
                 url: this.url,
                 format: new KML(),
             }),
+        })
+        this.layer.getSource().on('addfeature', (event) => {
+            const f = event.feature
+            f.set('type', f.get('type').toUpperCase())
+            f.setStyle((feature) => featureStyle(feature))
         })
     },
 }

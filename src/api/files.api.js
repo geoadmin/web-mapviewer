@@ -82,3 +82,61 @@ export const update = (id, kml) => {
             })
     })
 }
+
+/**
+ * Get file ID using admin ID
+ *
+ * @param {string} id 'adminId' from FilesResponse
+ * @returns {Promise<String>}
+ */
+export const getFileId = (id) => {
+    return new Promise((resolve, reject) => {
+        if (!id) {
+            const errorMessage = `Needs a valid file ID`
+            log('error', errorMessage)
+            reject(errorMessage)
+        }
+        axios
+            .get(`${API_BASE_URL}files/${id}`)
+            .then((response) => {
+                if (response.data && response.data.fileId) {
+                    resolve(response.data.fileId)
+                } else {
+                    const msg = 'Incorrect response while getting a file ID'
+                    log('error', msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log('error', `Error while getting a file ID: ${id}`)
+                reject(error)
+            })
+    })
+}
+
+export const getKml = (url) => {
+    return new Promise((resolve, reject) => {
+        if (!url) {
+            const errorMessage = `Needs a valid file URL`
+            log('error', errorMessage)
+            reject(errorMessage)
+        }
+        axios
+            .get(url, {
+                headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
+            })
+            .then((response) => {
+                if (response.data) {
+                    resolve(response.data)
+                } else {
+                    const msg = 'Incorrect response while creating a file'
+                    log('error', msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log('error', `Error while getting a file: ${url}`)
+                reject(error)
+            })
+    })
+}
