@@ -64,7 +64,7 @@ describe('Export drawing', () => {
                 expect(content).to.contains(`<value>${type}</value>`)
             })
             expect(content).to.contains('<value>new text</value>')
-            expect(content).to.contains('/icon/bicycle-255,0,0.png')
+            expect(content).to.contains('/icons/bicycle@1x-255,0,0.png')
         }
         checkFiles('kml', checkCallback)
     })

@@ -1,4 +1,5 @@
 import { API_PUBLIC_URL } from '@/config'
+import { getAllIconSets } from '@/api/icon.api'
 
 /** @enum */
 export const drawingModes = {
@@ -40,6 +41,12 @@ export default {
          * @type {DrawingKmlIds | null}
          */
         drawingKmlIds: null,
+        /**
+         * List of all available icon sets for drawing (loaded from the backend service-icons)
+         *
+         * @type {IconSet[]}
+         */
+        iconSets: [],
     },
     getters: {
         getDrawingPublicFileUrl: (state) => {
@@ -65,10 +72,18 @@ export default {
         setKmlIds: ({ commit }, drawingKmlIds) => {
             commit('setKmlIds', drawingKmlIds)
         },
+        loadAvailableIconSets: ({ commit }) => {
+            getAllIconSets().then((iconSets) => {
+                if (iconSets && iconSets.length > 0) {
+                    commit('setIconSets', iconSets)
+                }
+            })
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setDrawingGeoJSON: (state, geoJson) => (state.geoJson = geoJson),
         setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
+        setIconSets: (state, iconSets) => (state.iconSets = iconSets),
     },
 }

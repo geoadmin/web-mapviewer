@@ -1,6 +1,6 @@
 // FIXME: change cursor
 // FIXME: add tooltips
-// FIXME: apply new style function?
+// FIXME: apply new styling function?
 // FIXME: use feature properties for styling
 // FIXME: no zoom on double click
 // FIXME: right click to remove point while drawing ?
@@ -100,7 +100,7 @@ export default class DrawingManager extends Observable {
         this.tools = {}
         this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
-            // use the default styling if no specific draw style is set
+            // use the default styling if no specific draw styling is set
             const drawOptions = Object.assign(
                 {
                     style: (feature) => featureStyle(feature),
@@ -278,7 +278,7 @@ export default class DrawingManager extends Observable {
                 newStyle.image = null
             }
 
-            // If only text is displayed we must specify an image style with scale=0
+            // If only text is displayed we must specify an image styling with textScale=0
             if (newStyle.text && !newStyle.image) {
                 newStyle.image = new Icon({
                     src: 'noimage',

@@ -1,27 +1,27 @@
 <template>
     <div>
-        <div v-if="show" class="draw-overlay">
-            <DrawingToolbox
-                :drawing-modes="drawingModes"
-                :current-drawing-mode="currentDrawingMode"
-                :delete-last-point-callback="deleteLastPointCallback"
-                :drawing-not-empty="drawingNotEmpty"
-                :kml-ids="kmlIds"
-                @close="hideDrawingOverlay"
-                @setDrawingMode="changeDrawingMode"
-                @export="exportDrawing"
-                @clearDrawing="clearDrawing"
-            />
-        </div>
-        <div v-show="show">
-            <DrawingStylePopup
-                ref="overlay"
-                :feature="selectedFeature"
-                @delete="deleteSelectedFeature"
-                @close="deactivateFeature"
-                @updateProperties="triggerKMLUpdate"
-            />
-        </div>
+        <DrawingToolbox
+            v-if="show"
+            class="draw-overlay"
+            :drawing-modes="drawingModes"
+            :current-drawing-mode="currentDrawingMode"
+            :delete-last-point-callback="deleteLastPointCallback"
+            :drawing-not-empty="drawingNotEmpty"
+            :kml-ids="kmlIds"
+            @close="hideDrawingOverlay"
+            @setDrawingMode="changeDrawingMode"
+            @export="exportDrawing"
+            @clearDrawing="clearDrawing"
+        />
+        <DrawingStylePopup
+            v-show="show && selectedFeature"
+            ref="overlay"
+            :feature="selectedFeature"
+            :available-icon-sets="availableIconSets"
+            @delete="deleteSelectedFeature"
+            @close="deactivateFeature"
+            @updateProperties="triggerKMLUpdate"
+        />
         <div ref="draw-help" class="draw-help-popup"></div>
         <ProfilePopup
             :feature="selectedFeature"
@@ -38,7 +38,7 @@ import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'
-import DrawingStylePopup from './components/DrawingStylePopup.vue'
+import DrawingStylePopup from '@/modules/drawing/components/styling/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
@@ -50,7 +50,7 @@ import { saveAs } from 'file-saver'
 const overlay = new Overlay({
     offset: [0, 15],
     positioning: OverlayPositioning.TOP_CENTER,
-    className: 'drawing-style-overlay',
+    className: 'drawing-styling-overlay',
 })
 
 export default {
@@ -69,6 +69,7 @@ export default {
             kmlIds: (state) => state.drawing.drawingKmlIds,
             kmlLayers: (state) =>
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
+            availableIconSets: (state) => state.drawing.iconSets,
         }),
         drawingModes: function () {
             const modes = []
@@ -89,6 +90,10 @@ export default {
             if (show) {
                 this.addSavedKmlLayer()
                 this.manager.activate()
+                // if icons have not yet been loaded, we do so
+                if (this.availableIconSets.length === 0) {
+                    this.loadAvailableIconSets()
+                }
             } else {
                 this.manager.deactivate()
             }
@@ -123,8 +128,8 @@ export default {
                     properties: {
                         color: '#ff0000',
                         font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
-                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
+                        icon: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
+                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',
@@ -193,6 +198,7 @@ export default {
             'setDrawingGeoJSON',
             'setKmlIds',
             'removeLayer',
+            'loadAvailableIconSets',
         ]),
         hideDrawingOverlay: function () {
             const geojson = this.manager.createGeoJSON()
