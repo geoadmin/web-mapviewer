@@ -123,8 +123,8 @@ export default {
                     properties: {
                         color: '#ff0000',
                         font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
-                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icon/bicycle-255,0,0.png`,
+                        icon: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
+                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',

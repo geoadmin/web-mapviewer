@@ -16,6 +16,7 @@
                 :title="$t('reduce_label')"
                 type="button"
                 class="close"
+                data-cy="profile-popup-minimize-button"
                 @click="minimizePopup"
             >
                 <font-awesome-icon :icon="['fa', 'minus']" />

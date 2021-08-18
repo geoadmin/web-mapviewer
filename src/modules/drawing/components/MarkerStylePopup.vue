@@ -12,28 +12,29 @@
             <div class="setting-container">
                 <span>{{ $t('modify_icon_label') }}:</span>
                 <br />
-                <div class="btn-group">
+                <div class="dropdown">
                     <button
+                        id="drawing-style-icon-size-selector"
                         class="btn btn-primary btn-sm dropdown-toggle dropdown-modification"
-                        data-cy="symbols-button"
+                        data-cy="drawing-style-icon-set-button"
                         type="button"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
+                        data-bs-toggle="dropdown"
                         aria-expanded="false"
                     >
                         {{ currentIconsetName }}
                     </button>
-                    <div class="dropdown-menu" data-cy="symbols-choices">
-                        <div
-                            v-for="c in iconsets"
-                            :key="c.name"
-                            class="dropdown-item"
-                            :class="{ selected: currentIconsetName === c.name }"
-                            @click="() => onIconsetChange(c)"
-                        >
-                            <div>{{ c.name }}</div>
-                        </div>
-                    </div>
+                    <ul class="dropdown-menu">
+                        <li v-for="c in iconsets" :key="c.name">
+                            <a
+                                class="dropdown-item"
+                                :class="{ selected: currentIconsetName === c.name }"
+                                :data-cy="`drawing-style-icon-set-selector-${c.name}`"
+                                @click="() => onIconsetChange(c)"
+                            >
+                                {{ c.name }}
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -48,8 +49,17 @@
         <div v-if="coloredIcons" class="setting-container">
             <span>{{ $t('modify_icon_label') }}:</span>
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
-                <font-awesome-icon :icon="['fas', 'caret-down']" @click="() => onCaretClicked()" />
-                <div v-for="c in coloredIcons" :key="c.name" @click="() => onIconSelected(c)">
+                <font-awesome-icon
+                    :icon="['fas', 'caret-down']"
+                    data-cy="drawing-style-show-all-icons-button"
+                    @click="() => onCaretClicked()"
+                />
+                <div
+                    v-for="c in coloredIcons"
+                    :key="c.name"
+                    :data-cy="`drawing-style-icon-selector-${c.name}`"
+                    @click="() => onIconSelected(c)"
+                >
                     <img :src="c.url" crossorigin="anonymous" />
                 </div>
             </div>

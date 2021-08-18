@@ -16,6 +16,7 @@
                     v-for="c in options.colors"
                     :key="c.name"
                     :class="{ selected: feature.get('color') === c.fill }"
+                    :data-cy="`drawing-style-text-color-${c.name}`"
                     @click="() => onColorChange(c)"
                 >
                     <div

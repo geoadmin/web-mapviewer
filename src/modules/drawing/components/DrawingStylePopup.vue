@@ -11,66 +11,74 @@
             />
         </div>
         <div class="card-body text-start">
-            <form>
-                <div v-if="featureGeometry.getType() === 'Point'" class="form-group">
-                    <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
-                    <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
+            <div v-if="featureGeometry.getType() === 'Point'" class="form-group">
+                <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
+                <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
+            </div>
+            <div v-if="!isFeatureText" class="form-group">
+                <label for="description">{{ $t('modify_description') }}:</label>
+                <textarea
+                    id="description"
+                    v-model="description"
+                    class="form-control"
+                    rows="2"
+                ></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <geometry-measure :geometry="featureGeometry"></geometry-measure>
+                <div class="d-flex justify-content-end margin-between-children">
+                    <PopoverButton
+                        v-if="isFeatureMarker || isFeatureText"
+                        ref="textStylePopover"
+                        data-cy="drawing-style-text-button"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'font']"
+                    >
+                        <TextStylePopup
+                            :options="textStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-text-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.textStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <PopoverButton
+                        v-if="isFeatureMarker"
+                        ref="markerStylePopover"
+                        data-cy="drawing-style-marker-button"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'map-marker-alt']"
+                    >
+                        <MarkerStylePopup
+                            :options="markerStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-marker-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.markerStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <PopoverButton
+                        v-if="isFeatureLine"
+                        ref="lineStylePopover"
+                        data-cy="drawing-style-line-button"
+                        popover-position="top"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'paint-brush']"
+                    >
+                        <LineStylePopup
+                            :options="lineStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-line-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.lineStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['far', 'trash-alt']"
+                        @click="onDelete"
+                    ></ButtonWithIcon>
                 </div>
-                <div v-if="!isFeatureText" class="form-group">
-                    <label for="description">{{ $t('modify_description') }}:</label>
-                    <textarea
-                        id="description"
-                        v-model="description"
-                        class="form-control"
-                        rows="2"
-                    ></textarea>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <geometry-measure :geometry="featureGeometry"></geometry-measure>
-                    <div class="d-flex justify-content-end margin-between-children">
-                        <PopoverButton
-                            v-if="isFeatureMarker || isFeatureText"
-                            ref="textStylePopover"
-                            :button-font-awesome-icon="['fas', 'font']"
-                        >
-                            <TextStylePopup
-                                :options="textStyleOptions"
-                                :feature="feature"
-                                @updateProperties="updateProperties"
-                                @close="() => $refs.textStylePopover.hidePopover()"
-                            />
-                        </PopoverButton>
-                        <PopoverButton
-                            v-if="isFeatureMarker"
-                            ref="markerStylePopover"
-                            :button-font-awesome-icon="['fas', 'map-marker-alt']"
-                        >
-                            <MarkerStylePopup
-                                :options="markerStyleOptions"
-                                :feature="feature"
-                                @updateProperties="updateProperties"
-                                @close="() => $refs.markerStylePopover.hidePopover()"
-                            />
-                        </PopoverButton>
-                        <PopoverButton
-                            v-if="isFeatureLine"
-                            ref="lineStylePopover"
-                            :button-font-awesome-icon="['fas', 'paint-brush']"
-                        >
-                            <LineStylePopup
-                                :options="lineStyleOptions"
-                                :feature="feature"
-                                @updateProperties="updateProperties"
-                                @close="() => $refs.lineStylePopover.hidePopover()"
-                            />
-                        </PopoverButton>
-                        <ButtonWithIcon
-                            :button-font-awesome-icon="['far', 'trash-alt']"
-                            @click="onDelete"
-                        ></ButtonWithIcon>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </template>

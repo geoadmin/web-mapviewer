@@ -1,11 +1,12 @@
 <template>
     <div class="setting-container">
         <span>{{ $t('modify_color_label') }}:</span>
-        <div class="color-select-box">
+        <div class="color-select-box" data-cy="drawing-style-color-select-box">
             <div
                 v-for="c in colors"
                 :key="c.name"
                 :class="{ selected: currentColor === c.fill }"
+                :data-cy="`color-selector-${c.name}`"
                 @click="() => onColorChange(c)"
             >
                 <div :style="{ 'background-color': c.name }"></div>

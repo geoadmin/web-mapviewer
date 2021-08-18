@@ -7,7 +7,7 @@
         :popover-title="$t('time_select_year')"
         primary
     >
-        <div class="timestamps-popover-content">
+        <div class="timestamps-popover-content" data-cy="time-selection-popup">
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"

@@ -9,25 +9,25 @@ const { MapBrowserEvent } = require('ol')
 const API_SERVICE_ICON_BASE_URL = 'https://service-icons.bgdi-dev.swisstopo.cloud/'
 
 const addIconsetsFixtureAndIntercept = () => {
-    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/iconsets/`, {
+    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/icons/sets`, {
         fixture: 'iconsets.fixture',
     }).as('iconsets')
 }
 
 const addDefaultIconsFixtureAndIntercept = () => {
-    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/iconsets/default/icons`, {
+    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons`, {
         fixture: 'iconset_default.fixture',
     }).as('iconset_default')
 }
 
 const addBabsIconsFixtureAndIntercept = () => {
-    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/iconsets/babs/icons`, {
+    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/icons/sets/babs/icons`, {
         fixture: 'iconset_babs.fixture',
     }).as('iconset_babs')
 }
 
 const addIconFixtureAndIntercept = () => {
-    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/iconsets/*/icon/*.png`, async (req) => {
+    cy.intercept(`**${API_SERVICE_ICON_BASE_URL}v4/icons/sets/*/icons/*.png`, async (req) => {
         const parts = req.url.split('/')
         // fixtures with a coma in their name can not be loaded. :/
         // so we replace by underscores
