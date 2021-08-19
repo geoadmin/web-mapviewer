@@ -14,8 +14,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+<style lang="scss" scoped>
+@import 'src/scss/bootstrap-theme';
 #splashscreen {
     position: fixed;
     top: 0;

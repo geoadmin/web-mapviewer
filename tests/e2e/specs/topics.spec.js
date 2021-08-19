@@ -5,6 +5,7 @@ describe('Topics', () => {
         cy.get('[data-cy="menu-button"]').click()
         cy.get('[data-cy="change-topic-button"]').click()
         cy.get(`[data-cy="change-to-topic-${topicId}"]`).click()
+        cy.wait(`@topic-${topicId}`)
     }
     // Mocking up topic backend
     beforeEach(() => {
@@ -125,6 +126,7 @@ describe('Topics', () => {
             )
         })
         it('hides the menu and overlay after a topic is selected', () => {
+            cy.goToMapView()
             // clicking on topic standard
             const topicStandard = mockupTopics.topics[1]
             selectTopicWithId(topicStandard.id)

@@ -1,11 +1,15 @@
 <template>
     <div class="card menu-section">
-        <div class="card-header menu-section-head d-block" @click="toggleShowBody">
-            <span class="float-left">
+        <div
+            class="card-header menu-section-head d-block"
+            data-cy="menu-section-header"
+            @click="toggleShowBody"
+        >
+            <span class="float-start">
                 <font-awesome-icon :icon="['fas', titleCaretIcon]" />
                 <span class="menu-section-head-title">{{ title }}</span>
             </span>
-            <span class="extra-button float-right text-right" @click.prevent="toggleShowBody">
+            <span class="extra-button float-end text-end" @click.prevent="toggleShowBody">
                 <slot name="extra-button" />
             </span>
         </div>

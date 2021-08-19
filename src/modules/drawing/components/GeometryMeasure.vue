@@ -1,17 +1,17 @@
 <template>
-    <span v-if="info">
-        <span v-if="info.type == 'Point'">
+    <div v-if="geometry && info">
+        <span v-if="info.type === 'Point'">
             <font-awesome-icon :icon="['fas', 'map-marker-alt']" /> {{ info.location }}
         </span>
-        <div v-if="info.type == 'Polygon'" class="compact-measures-half">
+        <div v-else-if="info.type === 'Polygon'" class="compact-measures-half">
             <font-awesome-icon :icon="['far', 'square']" /> {{ info.perimeter }}<br />
-            <font-awesome-icon style="opacity: 0, 5" :icon="['fas', 'square-full']" />
+            <font-awesome-icon :icon="['fas', 'square-full']" />
             {{ info.area }}
         </div>
-        <div v-if="info.type == 'LineString'" class="compact-measures-full">
+        <div v-else-if="info.type === 'LineString'" class="compact-measures-full">
             <font-awesome-icon :icon="['fas', 'arrows-alt-h']" /> {{ info.length }}
         </div>
-    </span>
+    </div>
 </template>
 
 <script>
@@ -28,25 +28,16 @@ export default {
     },
     computed: {
         info: function () {
-            if (!this.geometry) return null
-            const type = this.geometry.getType()
-            const coordinates = this.geometry.getCoordinates()
-            const epsg = 'EPSG:3857'
-            return geometryInfo(type, coordinates, epsg)
+            if (this.geometry) {
+                return geometryInfo(
+                    this.geometry.getType(),
+                    this.geometry.getCoordinates(),
+                    'EPSG:3857'
+                )
+            }
+            return null
         },
     },
     methods: {},
 }
 </script>
-
-
-<style lang="scss">
-.compact-measures-half {
-    line-height: 17px;
-    float: left;
-}
-.compact-measures-full {
-    line-height: 34px;
-    float: left;
-}
-</style>

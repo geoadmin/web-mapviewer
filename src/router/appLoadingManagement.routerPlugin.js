@@ -4,6 +4,7 @@
  * associated UI elements.
  *
  * What we are waiting for is :
+ *
  * - Layers config to be loaded (so we have all layers definition/metadata)
  * - We know the size of the viewport (so by definition the resolution of the map)
  *

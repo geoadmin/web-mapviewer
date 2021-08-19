@@ -62,6 +62,7 @@
                         <button
                             v-if="deleteLastPointCallback"
                             type="button"
+                            data-cy="drawing-delete-last-point-button"
                             class="btn btn-outline-danger btn-sm delete-last-btn"
                             @click="deleteLastPointCallback"
                         >

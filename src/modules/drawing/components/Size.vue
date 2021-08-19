@@ -2,27 +2,33 @@
     <div class="setting-container">
         <span>{{ $t('modify_text_size_label') }}:</span>
         <br />
-        <div class="btn-group">
+        <div class="dropdown">
             <button
-                data-cy="size-button"
+                id="drawing-style-size-selector"
+                data-cy="drawing-style-size-selector"
                 class="btn btn-primary btn-sm dropdown-toggle dropdown-modification"
                 type="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
+                data-bs-toggle="dropdown"
                 aria-expanded="false"
             >
                 {{ $t(sizeLabel) }}
             </button>
-            <div class="dropdown-menu" data-cy="size-choices">
-                <a
-                    v-for="size in sizes"
-                    :key="size.label"
-                    href="#"
-                    class="dropdown-item"
-                    @click="() => onChange(size)"
-                    >{{ $t(size.label) }}
-                </a>
-            </div>
+            <ul
+                class="dropdown-menu"
+                aria-labelledby="drawing-style-size-selector"
+                data-cy="size-choices"
+            >
+                <li>
+                    <a
+                        v-for="size in sizes"
+                        :key="size.label"
+                        class="dropdown-item"
+                        :data-cy="`drawing-style-size-selector-${size.label}`"
+                        @click="() => onChange(size)"
+                        >{{ $t(size.label) }}
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
@@ -46,7 +52,7 @@ export default {
         sizeLabel: {
             get: function () {
                 const opt = this.sizes.find((s) => s.scale === this.scale)
-                return opt?.label
+                return opt ? opt.label : null
             },
         },
     },

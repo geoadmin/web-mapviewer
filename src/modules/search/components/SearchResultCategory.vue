@@ -18,14 +18,14 @@
 </template>
 
 <style lang="scss">
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'src/scss/bootstrap-theme';
 .search-category {
     .search-category-header {
         @extend .p-2;
         @extend .bg-light;
         @extend .h5;
         @extend .mb-0;
-        @extend .font-weight-bold;
+        @extend .fw-bold;
     }
     .search-category-body {
         @extend .bg-white;

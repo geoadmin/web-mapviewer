@@ -5,7 +5,7 @@
         :class="{ 'reduced-popup': minimized, 'profile-popup': !minimized }"
     >
         <div class="card-header">
-            <div class="popover-title float-left" @click="expandPopup">
+            <div class="popover-title float-start" @click="expandPopup">
                 {{ $t('draw_popup_title_measure') }}
             </div>
             <button :title="$t('close')" type="button" class="close" @click="onClose">
@@ -16,6 +16,7 @@
                 :title="$t('reduce_label')"
                 type="button"
                 class="close"
+                data-cy="profile-popup-minimize-button"
                 @click="minimizePopup"
             >
                 <font-awesome-icon :icon="['fa', 'minus']" />

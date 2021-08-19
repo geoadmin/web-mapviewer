@@ -105,8 +105,8 @@ export const WMS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMS_BASE
 export const WMS_TILE_SIZE = 512 // px
 
 /**
- * Origin of the TileGrid (comes from {@link
- * https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857 (WGS84)
+ * Origin of the TileGrid (comes from
+ * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857 (WGS84)
  *
  * Was [2420000, 1350000] (LV95), is now [558147.8, 6152731.53]
  *
@@ -115,8 +115,8 @@ export const WMS_TILE_SIZE = 512 // px
 export const TILEGRID_ORIGIN = [558147.8, 6152731.53]
 
 /**
- * Resolutions steps (one per zoom level) for our own WMTS pyramid (see {@link
- * http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
+ * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
+ * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
  *
  * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
  * World Wide zoom level (see {@link translateSwisstopoPyramidZoomToMercatorZoom})
@@ -124,33 +124,6 @@ export const TILEGRID_ORIGIN = [558147.8, 6152731.53]
  * @type {Number[]}
  */
 export const TILEGRID_RESOLUTIONS = [
-    4000,
-    3750,
-    3500,
-    3250,
-    3000,
-    2750,
-    2500,
-    2250,
-    2000,
-    1750,
-    1500,
-    1250,
-    1000,
-    750,
-    650,
-    500,
-    250,
-    100,
-    50,
-    20,
-    10,
-    5,
-    2.5,
-    2,
-    1.5,
-    1,
-    0.5,
-    0.25,
-    0.1,
+    4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500,
+    250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.1,
 ]

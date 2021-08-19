@@ -2,6 +2,10 @@ import { checkKMLFileResponse, mockResponse } from '../drawing.helper'
 
 const olSelector = '.ol-viewport'
 
+const drawingStyleLineButton = '[data-cy="drawing-style-line-button"]'
+const drawingStyleLinePopup = '[data-cy="drawing-style-line-popup"]'
+const drawingDeleteLastPointButton = '[data-cy="drawing-delete-last-point-button"]'
+
 describe('Drawing', () => {
     it('creates a polygon by re-clicking first point', () => {
         cy.mockupBackendResponse('files', mockResponse, 'saveFile')
@@ -40,10 +44,11 @@ describe('Drawing', () => {
         )
 
         // Opening line popup
-        cy.get('.line-style').click()
-        cy.get('.line-style-popup').should('be.visible')
+        cy.get(drawingStyleLineButton).click()
+        cy.get(drawingStyleLinePopup).should('be.visible')
 
-        cy.get('.line-style-popup .color-select-box > div:nth-child(1)').click()
+        cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click()
+        //data-cy="color-selector"
         cy.checkDrawnGeoJsonProperty('color', '#000000')
         cy.wait('@modifyFile').then((interception) =>
             expect(interception.request.body).to.contain(
@@ -75,7 +80,7 @@ describe('Drawing', () => {
         cy.get(olSelector).click(100, 200)
         cy.get(olSelector).click(150, 200)
         cy.get(olSelector).click(180, 200)
-        cy.get('.delete-last-btn').click()
+        cy.get(drawingDeleteLastPointButton).click()
         cy.get(olSelector).dblclick(120, 240)
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()

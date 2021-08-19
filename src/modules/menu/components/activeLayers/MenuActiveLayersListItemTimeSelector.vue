@@ -1,33 +1,39 @@
 <template>
-    <button
+    <PopoverButton
         v-if="hasMultipleTimestamps"
-        ref="popoverButton"
-        class="btn btn-sm btn-danger px-2"
-        data-html="true"
-        :title="$t('time_select_year')"
-        data-custom-class="timestamps-popover"
-        data-content="<div class='timestamps-popover-container'></div>"
+        ref="popover"
+        :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
+        :button-bootstrap-class="'btn-danger'"
+        :popover-title="$t('time_select_year')"
+        primary
     >
-        {{ humanReadableCurrentTimestamp }}
-    </button>
+        <div class="timestamps-popover-content" data-cy="time-selection-popup">
+            <button
+                v-for="timestamp in allTimestampsIncludingAllIfNeeded"
+                :key="timestamp"
+                class="btn btn-timestamp"
+                :class="{ 'btn-danger': timestamp === timeConfig.currentTimestamp }"
+                :data-cy="`time-select-${timestamp}`"
+                @click="handleClickOnTimestamp(timestamp)"
+            >
+                {{ renderHumanReadableTimestamp(timestamp) }}
+            </button>
+        </div>
+    </PopoverButton>
 </template>
 
 <script>
-import jquery from 'jquery'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { isNumber } from '@/utils/numberUtils'
+import PopoverButton from '@/utils/PopoverButton'
 
 export default {
+    components: { PopoverButton },
     props: {
         timeConfig: {
             type: LayerTimeConfig,
             required: true,
         },
-    },
-    data() {
-        return {
-            popover: null,
-        }
     },
     computed: {
         hasMultipleTimestamps: function () {
@@ -43,37 +49,6 @@ export default {
             }
             return timestamps
         },
-        timestampSelectionList: function () {
-            const timestampButtons = []
-            this.allTimestampsIncludingAllIfNeeded.forEach((timestamp) => {
-                const buttonClasses = ['btn', 'btn-timestamp']
-                if (timestamp === this.timeConfig.currentTimestamp) {
-                    buttonClasses.push('btn-danger')
-                }
-                timestampButtons.push(
-                    `<button class="${buttonClasses.join(' ')}"
-                             data-timestamp="${timestamp}"
-                             data-cy="time-select-${timestamp}">
-                        ${this.renderHumanReadableTimestamp(timestamp)}
-                    </button>`
-                )
-            })
-            return `<div class="popover-timestamps" data-cy="time-selection-popup">
-                        ${timestampButtons.join('')}
-                    </div>`
-        },
-    },
-    mounted() {
-        this.popover = jquery(this.$refs.popoverButton).popover({
-            trigger: 'focus',
-            html: true,
-        })
-        this.popover.on('inserted.bs.popover', () => {
-            jquery('.timestamps-popover-container').append(jquery(this.timestampSelectionList))
-            jquery('.btn-timestamp').on('click', (event) => {
-                this.$emit('timestampChange', jquery(event.target).attr('data-timestamp'))
-            })
-        })
     },
     methods: {
         renderHumanReadableTimestamp: function (timestamp) {
@@ -96,23 +71,23 @@ export default {
                 return this.$t(`time_${timestamp}`)
             }
         },
+        handleClickOnTimestamp: function (timestamp) {
+            this.$emit('timestampChange', timestamp)
+        },
     },
 }
 </script>
 
 <style lang="scss">
-.timestamps-popover {
-    .popover-body {
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-    .popover-timestamps {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+.timestamps-popover-content {
+    display: grid;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: white;
+    grid-template-columns: 1fr 1fr 1fr;
 
-        .btn-timestamp {
-            white-space: nowrap;
-        }
+    .btn-timestamp {
+        white-space: nowrap;
     }
 }
 </style>

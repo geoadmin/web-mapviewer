@@ -1,99 +1,84 @@
 <template>
     <div v-if="feature && !isFeatureMeasure" class="card drawing-style-popup">
         <div class="arrow-top"></div>
-        <div class="card-header">
-            <span class="float-left">{{ $t('draw_popup_title_feature') }}</span>
-            <button type="button" class="close" aria-label="Close" @click="onClose">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>{{ $t('draw_popup_title_feature') }}</span>
+            <ButtonWithIcon
+                class="close float-end"
+                :button-font-awesome-icon="['fa', 'times']"
+                small
+                @click="onClose"
+            />
         </div>
-        <div class="card-body text-left">
-            <form>
-                <div v-if="featureGeometry.getType() === 'Point'" class="form-group">
-                    <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
-                    <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
-                </div>
-                <div v-if="!isFeatureText" class="form-group">
-                    <label for="description">{{ $t('modify_description') }}:</label>
-                    <textarea
-                        id="description"
-                        v-model="description"
-                        class="form-control"
-                        rows="2"
-                    ></textarea>
-                </div>
-
-                <div class="form-group p-0 button-bar">
-                    <geometry-measure :geometry="featureGeometry"></geometry-measure>
-                    <button type="button" class="btn btn-default" @click="onDelete">
-                        <font-awesome-icon :icon="['far', 'trash-alt']" />
-                    </button>
-                    <button
+        <div class="card-body text-start">
+            <div v-if="featureGeometry.getType() === 'Point'" class="form-group">
+                <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
+                <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
+            </div>
+            <div v-if="!isFeatureText" class="form-group">
+                <label for="description">{{ $t('modify_description') }}:</label>
+                <textarea
+                    id="description"
+                    v-model="description"
+                    class="form-control"
+                    rows="2"
+                ></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <geometry-measure :geometry="featureGeometry"></geometry-measure>
+                <div class="d-flex justify-content-end margin-between-children">
+                    <PopoverButton
                         v-if="isFeatureMarker || isFeatureText"
-                        ref="textStylePopoverBtn"
-                        type="button"
-                        class="btn btn-default text-style"
+                        ref="textStylePopover"
+                        data-cy="drawing-style-text-button"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'font']"
                     >
-                        <font-awesome-icon :icon="['fas', 'font']" />
-                    </button>
-                    <button
+                        <TextStylePopup
+                            :options="textStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-text-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.textStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <PopoverButton
                         v-if="isFeatureMarker"
-                        ref="markerStylePopoverBtn"
-                        type="button"
-                        class="btn btn-default marker-style"
+                        ref="markerStylePopover"
+                        data-cy="drawing-style-marker-button"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'map-marker-alt']"
                     >
-                        <font-awesome-icon :icon="['fas', 'map-marker-alt']" />
-                    </button>
-                    <button
+                        <MarkerStylePopup
+                            :options="markerStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-marker-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.markerStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <PopoverButton
                         v-if="isFeatureLine"
-                        ref="lineStylePopoverBtn"
-                        type="button"
-                        class="btn btn-default line-style"
+                        ref="lineStylePopover"
+                        data-cy="drawing-style-line-button"
+                        popover-position="top"
+                        with-close-button
+                        :button-font-awesome-icon="['fas', 'paint-brush']"
                     >
-                        <font-awesome-icon :icon="['fas', 'paint-brush']" />
-                    </button>
+                        <LineStylePopup
+                            :options="lineStyleOptions"
+                            :feature="feature"
+                            data-cy="drawing-style-line-popup"
+                            @updateProperties="updateProperties"
+                            @close="() => $refs.lineStylePopover.hidePopover()"
+                        />
+                    </PopoverButton>
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['far', 'trash-alt']"
+                        @click="onDelete"
+                    ></ButtonWithIcon>
                 </div>
-
-                <div
-                    v-if="isFeatureLine"
-                    ref="lineStylePopover"
-                    class="line-style-popover"
-                    style="display: none"
-                >
-                    <LineStylePopup
-                        :options="lineStyleOptions"
-                        :feature="feature"
-                        @updateProperties="updateProperties"
-                        @close="() => lineStylePopover.popover('hide')"
-                    />
-                </div>
-                <div
-                    v-if="isFeatureMarker || isFeatureText"
-                    ref="textStylePopover"
-                    class="text-style-popover"
-                    style="display: none"
-                >
-                    <TextStylePopup
-                        :options="textStyleOptions"
-                        :feature="feature"
-                        @updateProperties="updateProperties"
-                        @close="() => textStylePopover.popover('hide')"
-                    />
-                </div>
-                <div
-                    v-if="isFeatureMarker"
-                    ref="markerStylePopover"
-                    class="marker-style-popover"
-                    style="display: none"
-                >
-                    <MarkerStylePopup
-                        :options="markerStyleOptions"
-                        :feature="feature"
-                        @updateProperties="updateProperties"
-                        @close="() => markerStylePopover.popover('hide')"
-                    />
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </template>
@@ -103,8 +88,9 @@ import GeometryMeasure from './GeometryMeasure.vue'
 import TextStylePopup from './TextStylePopup.vue'
 import MarkerStylePopup from './MarkerStylePopup.vue'
 import LineStylePopup from './LineStylePopup.vue'
-import jquery from 'jquery'
 import { fromString } from 'ol/color'
+import PopoverButton from '@/utils/PopoverButton'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
 
 const colors = [
     { name: 'black', fill: '#000000', border: 'white' },
@@ -123,11 +109,20 @@ const sizes = [
     { label: 'big_size', scale: 2 },
 ]
 
-// Display a popup on the map when a drawing is selected.
-// The popup has a form with the drawing's properties (text, description) and
-// some styling configuration.
+/**
+ * Display a popup on the map when a drawing is selected.
+ *
+ * The popup has a form with the drawing's properties (text, description) and some styling configuration.
+ */
 export default {
-    components: { GeometryMeasure, TextStylePopup, MarkerStylePopup, LineStylePopup },
+    components: {
+        ButtonWithIcon,
+        PopoverButton,
+        GeometryMeasure,
+        TextStylePopup,
+        MarkerStylePopup,
+        LineStylePopup,
+    },
     props: {
         feature: {
             type: Object,
@@ -184,32 +179,9 @@ export default {
             return this.feature.get('type') === 'MEASURE'
         },
     },
-    mounted() {
-        this.updatePopover('text')
-        this.updatePopover('marker')
-        this.updatePopover('line')
-    },
-    updated() {
-        this.updatePopover('text')
-        this.updatePopover('marker')
-        this.updatePopover('line')
-    },
     methods: {
         updateProperties() {
             this.$emit('updateProperties')
-        },
-        updatePopover(kind) {
-            if (this.$refs[kind + 'StylePopoverBtn'] && !this[kind + 'StylePopover']) {
-                this[kind + 'StylePopover'] = jquery(this.$refs[kind + 'StylePopoverBtn']).popover({
-                    trigger: 'click',
-                    html: true,
-                    content: this.$refs[kind + 'StylePopover'].firstElementChild,
-                })
-            }
-            if (!this.feature && this[kind + 'StylePopover']) {
-                this[kind + 'StylePopover'].popover('hide')
-                this[kind + 'StylePopover'] = null
-            }
         },
         onClose: function () {
             this.$emit('close')
@@ -223,67 +195,11 @@ export default {
 
 <style lang="scss">
 @import 'src/scss/variables';
-.drawing-style-overlay {
-    z-index: $zindex-overlay-front;
-}
 
 .drawing-style-popup {
-    width: 320px;
+    min-width: 320px;
     position: absolute;
     z-index: 1000;
-
-    .card-header {
-        font-size: 14px;
-        padding: 8px 14px;
-    }
-
-    .card-body {
-        padding: 9px 14px;
-        font-size: 12px;
-
-        button {
-            width: 44px;
-            height: 34px;
-            margin-left: 5px;
-            float: right;
-            background-color: #e6e6e6;
-            border-color: #ccc;
-            color: #333;
-
-            &:hover {
-                border-color: #adadad;
-                background-color: #cdcdcd;
-            }
-        }
-
-        .form-group {
-            margin-bottom: 5px;
-        }
-
-        .button-bar {
-            line-height: 34px;
-            margin-bottom: 0;
-        }
-    }
-
-    .form-control {
-        font-size: 12px;
-    }
-
-    .btn-default {
-        background-color: lightgrey;
-
-        svg {
-            height: 10px;
-            vertical-align: initial;
-        }
-    }
-
-    label {
-        margin-bottom: 5px;
-        font-weight: 700;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    }
 
     .arrow-top::after {
         display: block;
@@ -297,6 +213,9 @@ export default {
         border-width: 0 10px 10px 10px;
         z-index: 1000;
         border-color: transparent transparent #f7f7f7 transparent;
+    }
+    .margin-between-children > :not(:last-child) {
+        margin-right: 5px;
     }
 }
 </style>
