@@ -3,7 +3,7 @@
     <div id="ol-map" ref="map" oncontextmenu="return false">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
-        <div id="scale-line" ref="scaleLine" />
+        <div v-if="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         <OpenLayersMousePosition />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
