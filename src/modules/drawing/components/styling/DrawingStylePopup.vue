@@ -1,76 +1,92 @@
 <template>
-    <div v-if="feature && !isFeatureMeasure" class="card drawing-style-popup">
+    <div
+        v-if="feature && !isFeatureMeasure"
+        class="card drawing-style-popup"
+        data-cy="drawing-style-popup"
+    >
         <div class="arrow-top"></div>
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>{{ $t('draw_popup_title_feature') }}</span>
             <ButtonWithIcon
                 class="close float-end"
                 :button-font-awesome-icon="['fa', 'times']"
+                data-cy="drawing-style-close-popup"
                 small
                 @click="onClose"
             />
         </div>
         <div class="card-body text-start">
-            <div v-if="featureGeometry.getType() === 'Point'" class="form-group">
-                <label for="text">{{ $t('draw_popup_title_annotation') }}:</label>
-                <textarea id="text" v-model="text" class="form-control" rows="1"></textarea>
-            </div>
-            <div v-if="!isFeatureText" class="form-group">
-                <label for="description">{{ $t('modify_description') }}:</label>
+            <div v-if="isFeatureMarker || isFeatureText" class="form-group mb-2">
+                <label class="form-label" for="drawing-style-feature-title">
+                    {{ $t('draw_popup_title_annotation') }}
+                </label>
                 <textarea
-                    id="description"
+                    id="drawing-style-feature-title"
+                    v-model="text"
+                    data-cy="drawing-style-feature-title"
+                    class="form-control"
+                    rows="1"
+                    @change="triggerChangeEvent"
+                ></textarea>
+            </div>
+            <div v-if="!isFeatureText" class="form-group mb-2">
+                <label class="form-label" for="drawing-style-feature-description">
+                    {{ $t('modify_description') }}
+                </label>
+                <textarea
+                    id="drawing-style-feature-description"
                     v-model="description"
+                    data-cy="drawing-style-feature-description"
                     class="form-control"
                     rows="2"
+                    @change="triggerChangeEvent"
                 ></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-                <geometry-measure :geometry="featureGeometry"></geometry-measure>
+                <DrawingStyleFeatureMeasurements :feature="feature" />
                 <div class="d-flex justify-content-end margin-between-children">
                     <PopoverButton
                         v-if="isFeatureMarker || isFeatureText"
-                        ref="textStylePopover"
                         data-cy="drawing-style-text-button"
                         with-close-button
                         :button-font-awesome-icon="['fas', 'font']"
                     >
-                        <TextStylePopup
-                            :options="textStyleOptions"
-                            :feature="feature"
-                            data-cy="drawing-style-text-popup"
-                            @updateProperties="updateProperties"
-                            @close="() => $refs.textStylePopover.hidePopover()"
-                        />
+                        <div data-cy="drawing-style-text-popup">
+                            <DrawingStyleSizeSelector
+                                class="mb-3"
+                                :current-size="currentTextSize"
+                                @change="setCurrentTextSize"
+                            />
+                            <DrawingStyleTextColorSelector
+                                :feature="feature"
+                                @change="triggerChangeEvent"
+                            />
+                        </div>
                     </PopoverButton>
                     <PopoverButton
                         v-if="isFeatureMarker"
-                        ref="markerStylePopover"
                         data-cy="drawing-style-marker-button"
                         with-close-button
                         :button-font-awesome-icon="['fas', 'map-marker-alt']"
                     >
-                        <MarkerStylePopup
-                            :options="markerStyleOptions"
-                            :feature="feature"
+                        <DrawingStyleIconSelector
                             data-cy="drawing-style-marker-popup"
-                            @updateProperties="updateProperties"
-                            @close="() => $refs.markerStylePopover.hidePopover()"
+                            :feature="feature"
+                            :icon-sets="availableIconSets"
+                            @change="triggerChangeEvent"
                         />
                     </PopoverButton>
                     <PopoverButton
                         v-if="isFeatureLine"
-                        ref="lineStylePopover"
                         data-cy="drawing-style-line-button"
                         popover-position="top"
                         with-close-button
+                        :popover-title="$t('modify_color_label')"
                         :button-font-awesome-icon="['fas', 'paint-brush']"
                     >
-                        <LineStylePopup
-                            :options="lineStyleOptions"
-                            :feature="feature"
+                        <DrawingStyleColorSelector
                             data-cy="drawing-style-line-popup"
-                            @updateProperties="updateProperties"
-                            @close="() => $refs.lineStylePopover.hidePopover()"
+                            @change="changeFeatureColor"
                         />
                     </PopoverButton>
                     <ButtonWithIcon
@@ -84,30 +100,15 @@
 </template>
 
 <script>
-import GeometryMeasure from './GeometryMeasure.vue'
-import TextStylePopup from './TextStylePopup.vue'
-import MarkerStylePopup from './MarkerStylePopup.vue'
-import LineStylePopup from './LineStylePopup.vue'
-import { fromString } from 'ol/color'
+import DrawingStyleFeatureMeasurements from '@/modules/drawing/components/styling/DrawingStyleFeatureMeasurements.vue'
+import { drawingStyleColors } from '@/modules/drawing/lib/drawingStyleColor'
+import { drawingStyleSizes, SMALL } from '@/modules/drawing/lib/drawingStyleSizes'
 import PopoverButton from '@/utils/PopoverButton'
 import ButtonWithIcon from '@/utils/ButtonWithIcon'
-
-const colors = [
-    { name: 'black', fill: '#000000', border: 'white' },
-    { name: 'blue', fill: '#0000ff', border: 'white' },
-    { name: 'gray', fill: '#808080', border: 'white' },
-    { name: 'green', fill: '#008000', border: 'white' },
-    { name: 'orange', fill: '#ffa500', border: 'black' },
-    { name: 'red', fill: '#ff0000', border: 'white' },
-    { name: 'white', fill: '#ffffff', border: 'black' },
-    { name: 'yellow', fill: '#ffff00', border: 'black' },
-]
-colors.forEach((c) => (c.rgb = fromString(c.fill)))
-const sizes = [
-    { label: 'small_size', scale: 1 },
-    { label: 'medium_size', scale: 1.5 },
-    { label: 'big_size', scale: 2 },
-]
+import DrawingStyleColorSelector from '@/modules/drawing/components/styling/DrawingStyleColorSelector'
+import DrawingStyleIconSelector from '@/modules/drawing/components/styling/DrawingStyleIconSelector'
+import DrawingStyleSizeSelector from '@/modules/drawing/components/styling/DrawingStyleSizeSelector'
+import DrawingStyleTextColorSelector from '@/modules/drawing/components/styling/DrawingStyleTextColorSelector'
 
 /**
  * Display a popup on the map when a drawing is selected.
@@ -116,32 +117,29 @@ const sizes = [
  */
 export default {
     components: {
+        DrawingStyleTextColorSelector,
+        DrawingStyleSizeSelector,
+        DrawingStyleIconSelector,
+        DrawingStyleColorSelector,
         ButtonWithIcon,
         PopoverButton,
-        GeometryMeasure,
-        TextStylePopup,
-        MarkerStylePopup,
-        LineStylePopup,
+        DrawingStyleFeatureMeasurements,
     },
     props: {
         feature: {
             type: Object,
             default: null,
         },
+        availableIconSets: {
+            type: Array,
+            required: true,
+        },
     },
     data() {
         return {
-            textStyleOptions: {
-                colors,
-                sizes: sizes,
-            },
-            markerStyleOptions: {
-                colors,
-                sizes: sizes,
-            },
-            lineStyleOptions: {
-                colors,
-            },
+            colors: drawingStyleColors,
+            sizes: drawingStyleSizes,
+            currentTextSize: SMALL,
         }
     },
     computed: {
@@ -151,7 +149,7 @@ export default {
             },
             set(value) {
                 this.feature.set('description', value)
-                this.$emit('updateProperties')
+                this.triggerChangeEvent()
             },
         },
         text: {
@@ -160,11 +158,8 @@ export default {
             },
             set(value) {
                 this.feature.set('text', value)
-                this.$emit('updateProperties')
+                this.triggerChangeEvent()
             },
-        },
-        featureGeometry() {
-            return this.feature.getGeometry()
         },
         isFeatureMarker() {
             return this.feature.get('type') === 'MARKER'
@@ -179,9 +174,19 @@ export default {
             return this.feature.get('type') === 'MEASURE'
         },
     },
+    watch: {
+        feature: function (newFeature) {
+            if (newFeature) {
+                const featureTextScale = newFeature.get('textScale')
+                this.setCurrentTextSize(
+                    this.sizes.find((size) => size.textScale === featureTextScale)
+                )
+            }
+        },
+    },
     methods: {
-        updateProperties() {
-            this.$emit('updateProperties')
+        triggerChangeEvent() {
+            this.$emit('change')
         },
         onClose: function () {
             this.$emit('close')
@@ -189,11 +194,20 @@ export default {
         onDelete: function () {
             this.$emit('delete')
         },
+        setCurrentTextSize: function (size) {
+            this.currentTextSize = size
+            this.feature.set('textScale', size.textScale)
+            this.triggerChangeEvent()
+        },
+        changeFeatureColor: function (color) {
+            this.feature.set('color', color.fill)
+            this.triggerChangeEvent()
+        },
     },
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/variables';
 
 .drawing-style-popup {

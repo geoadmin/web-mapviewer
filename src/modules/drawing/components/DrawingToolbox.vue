@@ -1,69 +1,98 @@
 <template>
-    <portal to="modal-container">
+    <portal to="toolbox-container">
         <div class="drawing-toolbox">
             <div class="card">
-                <div class="card-body">
-                    <button class="btn-close btn btn-default" @click="emitCloseEvent">
-                        <font-awesome-icon :icon="['fas', 'times']" />
-                    </button>
-                    <div class="buttons-container">
+                <div class="card-body position-relative">
+                    <ButtonWithIcon
+                        class="position-absolute top-0 end-0"
+                        data-cy="drawing-toolbox-close-button"
+                        :button-font-awesome-icon="['fas', 'times']"
+                        outline-light
+                        @click="emitCloseEvent"
+                    />
+                    <div class="d-block">
                         <DrawingToolboxButton
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
                             :drawing-mode="drawingMode"
                             :is-active="currentDrawingMode === drawingMode"
+                            :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                            class="m-1"
                             @setDrawingMode="bubbleSetDrawingEventToParent"
                         />
-                        <br />
-                        <div class="btn-group btn-group-sm draw-action-btns" role="group">
+                    </div>
+                    <div class="d-block">
+                        <ButtonWithIcon
+                            :button-font-awesome-icon="['far', 'trash-alt']"
+                            :disabled="!drawingNotEmpty"
+                            outline-light
+                            class="m-1"
+                            data-cy="drawing-toolbox-delete-button"
+                            @click="showClearConfirmation"
+                        />
+                        <div class="btn-group m-1">
                             <button
-                                type="button"
-                                class="btn btn-outline-secondary"
                                 :disabled="!drawingNotEmpty"
-                                @click="showClearConfirmation"
-                            >
-                                {{ $t('draw_delete') }}
-                            </button>
-                            <div class="btn-group" role="group">
-                                <button
-                                    :disabled="!drawingNotEmpty"
-                                    type="button"
-                                    class="btn btn-outline-secondary dropdown-toggle export-btn"
-                                    @click="toggleExportDropdown"
-                                >
-                                    {{ $t('export_kml') }}
-                                </button>
-                                <ul
-                                    v-show="showExportDropdown && drawingNotEmpty"
-                                    class="dropdown-menu export-menu"
-                                >
-                                    <li>
-                                        <a class="dropdown-item" @click="emitExportEvent">KML</a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            class="dropdown-item"
-                                            @click="(event) => emitExportEvent(event, true)"
-                                            >GPX</a
-                                        >
-                                    </li>
-                                </ul>
-                            </div>
-                            <button
                                 type="button"
-                                class="btn btn-outline-secondary"
-                                :disabled="!drawingNotEmpty || !kmlIds"
-                                @click="openShare"
+                                class="btn btn-outline-light text-dark"
+                                data-cy="drawing-toolbox-quick-export-button"
+                                @click="emitExportEvent(false)"
                             >
-                                {{ $t('share') }}
+                                {{ $t('export_kml') }}
                             </button>
+                            <button
+                                id="toggle-export-dropdown-options"
+                                type="button"
+                                :disabled="!drawingNotEmpty"
+                                class="
+                                    btn btn-outline-light
+                                    text-dark
+                                    dropdown-toggle dropdown-toggle-split
+                                "
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                data-cy="drawing-toolbox-choose-export-format-button"
+                            >
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul
+                                class="dropdown-menu"
+                                aria-labelledby="toggle-export-dropdown-options"
+                            >
+                                <li>
+                                    <button
+                                        class="dropdown-item"
+                                        data-cy="drawing-toolbox-export-kml-button"
+                                        @click="emitExportEvent(false)"
+                                    >
+                                        KML
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        class="dropdown-item"
+                                        data-cy="drawing-toolbox-export-gpx-button"
+                                        @click="emitExportEvent(true)"
+                                    >
+                                        GPX
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
-                        <br />
+                        <button
+                            type="button"
+                            class="btn btn-outline-light text-dark m-1"
+                            :disabled="!drawingNotEmpty || !kmlIds"
+                            data-cy="drawing-toolbox-share-button"
+                            @click="openShare"
+                        >
+                            {{ $t('share') }}
+                        </button>
                         <button
                             v-if="deleteLastPointCallback"
                             type="button"
                             data-cy="drawing-delete-last-point-button"
-                            class="btn btn-outline-danger btn-sm delete-last-btn"
+                            class="btn btn-outline-danger m-1"
                             @click="deleteLastPointCallback"
                         >
                             {{ $t('draw_button_delete_last_point') }}
@@ -72,25 +101,38 @@
                 </div>
             </div>
         </div>
-        <configurable-modal
+        <ModalWithOverlay
             v-if="showClearConfirmationModal"
-            title-tag="confirm_remove_all_features"
-            :show-action-buttons="true"
+            show-confirmation-buttons
+            data-cy="drawing-toolbox-delete-confirmation-modal"
             @close="onCloseClearConfirmation"
-        ></configurable-modal>
-        <configurable-modal v-if="showShareModal" title-tag="share" @close="onCloseShare">
-            <share-form :kml-ids="kmlIds"></share-form>
-        </configurable-modal>
+        >
+            {{ $t('confirm_remove_all_features') }}
+        </ModalWithOverlay>
+        <ModalWithOverlay
+            v-if="showShareModal"
+            :title="$t('share')"
+            data-cy="drawing-toolbox-share-modal"
+            @close="onCloseShare"
+        >
+            <share-form :kml-ids="kmlIds" />
+        </ModalWithOverlay>
     </portal>
 </template>
 
 <script>
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import ConfigurableModal from '@/modules/helperComponents/ConfigurableModal'
 import ShareForm from '@/modules/drawing/components/ShareForm'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
 
 export default {
-    components: { DrawingToolboxButton, ConfigurableModal, ShareForm },
+    components: {
+        ModalWithOverlay,
+        ButtonWithIcon,
+        DrawingToolboxButton,
+        ShareForm,
+    },
     props: {
         drawingModes: {
             type: Array,
@@ -127,7 +169,7 @@ export default {
         bubbleSetDrawingEventToParent: function (drawingMode) {
             this.$emit('setDrawingMode', drawingMode)
         },
-        emitExportEvent: function (event, gpx = false) {
+        emitExportEvent: function (gpx = false) {
             this.showExportDropdown = false
             this.$emit('export', gpx)
         },
@@ -153,37 +195,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss">
-.drawing-toolbox {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-
-    .btn-close {
-        position: absolute;
-        top: 0.25rem;
-        right: 0.25rem;
-    }
-}
-
-.buttons-container .draw-action-btns {
-    width: 222px;
-    margin-top: 10px;
-}
-
-.dropdown-menu.export-menu {
-    width: 92px;
-    display: block;
-    min-width: auto;
-
-    a {
-        cursor: pointer;
-    }
-}
-
-.delete-last-btn {
-    margin-top: 5px;
-}
-</style>

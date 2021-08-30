@@ -1,21 +1,20 @@
 <template>
-    <button
-        class="btn btn-lg button-drawing"
-        :class="{
-            'btn-danger': isActive,
-            'btn-outline-light text-dark': !isActive,
-        }"
+    <ButtonWithIcon
+        large
+        outline-light
+        :danger="isActive"
+        :button-font-awesome-icon="buttonIcon"
         :data-cy="`drawing-${drawingMode.toLowerCase()}`"
         @click="emitSetDrawingMode"
-    >
-        <font-awesome-icon :icon="buttonIcon" />
-    </button>
+    />
 </template>
 
 <script>
 import { drawingModes } from '@/modules/store/modules/drawing.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
 
 export default {
+    components: { ButtonWithIcon },
     props: {
         drawingMode: {
             type: String,
