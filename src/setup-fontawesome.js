@@ -25,7 +25,7 @@ import {
     faSortAmountDownAlt,
     faChevronUp,
     faChevronDown,
-    faMinus,
+    faWindowMinimize,
 } from '@fortawesome/free-solid-svg-icons'
 import {
     faCheckSquare,
@@ -66,4 +66,4 @@ library.add(faChevronUp)
 library.add(faChevronDown)
 library.add(faEye)
 library.add(faClock)
-library.add(faMinus)
+library.add(faWindowMinimize)

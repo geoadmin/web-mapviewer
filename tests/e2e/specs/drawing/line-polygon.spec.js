@@ -1,14 +1,11 @@
-import { checkKMLFileResponse, mockResponse } from '../drawing.helper'
-
 const olSelector = '.ol-viewport'
 
 const drawingStyleLineButton = '[data-cy="drawing-style-line-button"]'
 const drawingStyleLinePopup = '[data-cy="drawing-style-line-popup"]'
 const drawingDeleteLastPointButton = '[data-cy="drawing-delete-last-point-button"]'
 
-describe('Drawing', () => {
+describe('Line/Polygon tool', () => {
     it('creates a polygon by re-clicking first point', () => {
-        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
         cy.get(olSelector).click(100, 200)
@@ -16,8 +13,8 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 230)
         cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
-        cy.wait('@saveFile').then((interception) =>
-            checkKMLFileResponse(
+        cy.wait('@post-kml').then((interception) =>
+            cy.checkKMLFileResponse(
                 interception,
                 ['line', '<Data name="color"><value>#ff0000</value>'],
                 true
@@ -26,8 +23,6 @@ describe('Drawing', () => {
     })
 
     it('changes color of line/ polygon', () => {
-        cy.mockupBackendResponse('files', mockResponse, 'saveFile')
-        cy.mockupBackendResponse('files/**', { ...mockResponse, status: 'updated' }, 'modifyFile')
         cy.goToDrawing()
         cy.clickDrawingTool('line')
         cy.get(olSelector).click(100, 200)
@@ -35,8 +30,8 @@ describe('Drawing', () => {
         cy.get(olSelector).click(150, 230)
         cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
-        cy.wait('@saveFile').then((interception) =>
-            checkKMLFileResponse(
+        cy.wait('@post-kml').then((interception) =>
+            cy.checkKMLFileResponse(
                 interception,
                 ['line', '<Data name="color"><value>#ff0000</value>'],
                 true
@@ -48,9 +43,8 @@ describe('Drawing', () => {
         cy.get(drawingStyleLinePopup).should('be.visible')
 
         cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click()
-        //data-cy="color-selector"
         cy.checkDrawnGeoJsonProperty('color', '#000000')
-        cy.wait('@modifyFile').then((interception) =>
+        cy.wait('@update-kml').then((interception) =>
             expect(interception.request.body).to.contain(
                 '<Data name="color"><value>#000000</value>'
             )
