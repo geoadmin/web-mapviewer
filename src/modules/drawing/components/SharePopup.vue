@@ -5,7 +5,12 @@
             <div class="input-group input-group-sm mb-3">
                 <input type="text" class="form-control" :value="fileUrl" disabled />
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" @click="copyUrl">
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        data-cy="drawing-share-normal-link"
+                        @click="copyUrl"
+                    >
                         {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
                     </button>
                 </div>
@@ -19,6 +24,7 @@
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
+                        data-cy="drawing-share-admin-link"
                         @click="(e) => copyUrl(e, true)"
                     >
                         {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}

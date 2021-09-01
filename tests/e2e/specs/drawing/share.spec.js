@@ -9,48 +9,30 @@ const testGeoms = (features) => {
 }
 
 describe('Drawing toolbox actions', () => {
-    it('share drawing', () => {
+    beforeEach(() => {
         cy.goToDrawing()
-        cy.intercept('POST', '/files*').as('filePost')
-        cy.intercept('/map?layers=KML').as('page')
         cy.drawGeoms()
-        cy.wait('@filePost')
-
+        cy.wait('@post-kml')
+    })
+    it('generates a URL with the public file ID for a standard share link', () => {
         cy.get(shareButton).click()
-        cy.get('.ga-share .form-group:nth-child(1) button').click()
+        cy.get('[data-cy="drawing-share-normal-link"]').click()
+        // checking that the ID present in the "normal" link matches the
+        // public file ID (and not the admin ID)
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
-            cy.intercept('GET', `/${ids.fileId}`).as('file')
-            cy.readClipboardValue().then((text) => {
-                cy.visit(text)
-                cy.reload()
-                cy.wait('@file')
-                cy.get('[data-cy="menu-button"]').click()
-                cy.get('.menu-section-head-title:first').click()
-                cy.wait('@filePost')
-                cy.readStoreValue('state.drawing.drawingKmlIds').then((ids2) => {
-                    cy.intercept('GET', `/${ids2.fileId}`).as('file2')
-                    cy.wrap(ids).its('fileId').should('not.eq', ids2.fileId)
-                    cy.wrap(ids).its('adminId').should('not.eq', ids2.adminId)
-                    cy.readWindowValue('drawingManager')
-                        .then((manager) => manager.source.getFeatures())
-                        .then((features) => {
-                            testGeoms(features)
-                            cy.get(shareButton).click()
-                            cy.get('.ga-share .form-group:nth-child(2) button').click()
-                            cy.readClipboardValue().then((text) => {
-                                cy.visit(text)
-                                cy.reload()
-                                cy.wait('@file2')
-                                cy.readStoreValue('state.drawing.drawingKmlIds').then((ids3) => {
-                                    cy.wrap(ids3).its('fileId').should('eq', ids2.fileId)
-                                    cy.wrap(ids3).its('adminId').should('eq', ids2.adminId)
-                                    cy.readWindowValue('drawingManager')
-                                        .then((manager) => manager.source.getFeatures())
-                                        .then(testGeoms)
-                                })
-                            })
-                        })
-                })
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.contain(`/${ids.fileId}`)
+                expect(clipboardText).to.not.contain(`/${ids.adminId}`)
+            })
+        })
+    })
+    it('generates a URL with the adminId when sharing a "draw later" link', () => {
+        cy.get(shareButton).click()
+        cy.get('[data-cy="drawing-share-admin-link"]').click()
+        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.not.contain(`/${ids.fileId}`)
+                expect(clipboardText).to.contain(`drawingAdminFileId=${ids.adminId}`)
             })
         })
     })

@@ -122,7 +122,7 @@
 
 <script>
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import ShareForm from '@/modules/drawing/components/ShareForm'
+import ShareForm from '@/modules/drawing/components/SharePopup'
 import ButtonWithIcon from '@/utils/ButtonWithIcon'
 import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
 
