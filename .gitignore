@@ -23,5 +23,6 @@ yarn-error.log*
 *.code-*
 
 # Cypress and friends
+tests/e2e/downloads
 tests/e2e/videos
 tests/e2e/screenshots
