@@ -1,27 +1,27 @@
 <template>
     <div>
-        <div v-if="show" class="draw-overlay">
-            <DrawingToolbox
-                :drawing-modes="drawingModes"
-                :current-drawing-mode="currentDrawingMode"
-                :delete-last-point-callback="deleteLastPointCallback"
-                :drawing-not-empty="drawingNotEmpty"
-                :kml-ids="kmlIds"
-                @close="hideDrawingOverlay"
-                @setDrawingMode="changeDrawingMode"
-                @export="exportDrawing"
-                @clearDrawing="clearDrawing"
-            />
-        </div>
-        <div v-show="show">
-            <DrawingStylePopup
-                ref="overlay"
-                :feature="selectedFeature"
-                @delete="deleteSelectedFeature"
-                @close="deactivateFeature"
-                @updateProperties="triggerKMLUpdate"
-            />
-        </div>
+        <DrawingToolbox
+            v-if="show"
+            class="draw-overlay"
+            :drawing-modes="drawingModes"
+            :current-drawing-mode="currentDrawingMode"
+            :delete-last-point-callback="deleteLastPointCallback"
+            :drawing-not-empty="drawingNotEmpty"
+            :kml-ids="kmlIds"
+            @close="hideDrawingOverlay"
+            @setDrawingMode="changeDrawingMode"
+            @export="exportDrawing"
+            @clearDrawing="clearDrawing"
+        />
+        <DrawingStylePopup
+            v-show="show && selectedFeature"
+            ref="overlay"
+            :feature="selectedFeature"
+            :available-icon-sets="availableIconSets"
+            @delete="deleteSelectedFeature"
+            @close="deactivateFeature"
+            @change="triggerKMLUpdate"
+        />
         <div ref="draw-help" class="draw-help-popup"></div>
         <ProfilePopup
             :feature="selectedFeature"
@@ -32,20 +32,21 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
-import { API_SERVICE_ICON_BASE_URL } from '@/config'
+import { mapActions, mapState } from 'vuex'
+import { API_SERVICE_ICON_BASE_URL, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'
-import DrawingStylePopup from './components/DrawingStylePopup.vue'
+import DrawingStylePopup from '@/modules/drawing/components/styling/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
 import { create, update } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { Point } from 'ol/geom'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
 import { saveAs } from 'file-saver'
+import { SMALL } from '@/modules/drawing/lib/drawingStyleSizes'
+import { RED } from '@/modules/drawing/lib/drawingStyleColor'
 
 const overlay = new Overlay({
     offset: [0, 15],
@@ -65,10 +66,10 @@ export default {
         ...mapState({
             show: (state) => state.ui.showDrawingOverlay,
             currentDrawingMode: (state) => state.drawing.mode,
-            geoJson: (state) => state.drawing.geoJson,
             kmlIds: (state) => state.drawing.drawingKmlIds,
             kmlLayers: (state) =>
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
+            availableIconSets: (state) => state.drawing.iconSets,
         }),
         drawingModes: function () {
             const modes = []
@@ -89,6 +90,10 @@ export default {
             if (show) {
                 this.addSavedKmlLayer()
                 this.manager.activate()
+                // if icons have not yet been loaded, we do so
+                if (this.availableIconSets.length === 0) {
+                    this.loadAvailableIconSets()
+                }
             } else {
                 this.manager.deactivate()
             }
@@ -112,7 +117,7 @@ export default {
                         style: drawLineStyle,
                     },
                     properties: {
-                        color: '#ff0000',
+                        color: RED.fill,
                         description: '',
                     },
                 },
@@ -121,16 +126,13 @@ export default {
                         type: 'Point',
                     },
                     properties: {
-                        color: '#ff0000',
+                        color: RED.fill,
                         font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
-                        iconTemplate: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/bicycle-255,0,0.png`,
+                        icon: `${API_SERVICE_ICON_BASE_URL}icons/sets/default/icons/001-marker@1x-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',
-                        textScale: 1,
-                        markerScale: 1,
-                        markerColor: '#ff0000',
+                        textScale: SMALL.textScale,
                     },
                 },
                 [drawingModes.MEASURE]: {
@@ -140,7 +142,7 @@ export default {
                         style: drawMeasureStyle,
                     },
                     properties: {
-                        color: '#ff0000',
+                        color: RED.fill,
                     },
                 },
                 [drawingModes.TEXT]: {
@@ -148,10 +150,10 @@ export default {
                         type: 'Point',
                     },
                     properties: {
-                        color: '#ff0000',
+                        color: RED.fill,
                         text: 'new text',
                         font: 'normal 16px Helvetica',
-                        textScale: 1,
+                        textScale: SMALL.textScale,
                     },
                 },
             },
@@ -190,13 +192,11 @@ export default {
         ...mapActions([
             'toggleDrawingOverlay',
             'setDrawingMode',
-            'setDrawingGeoJSON',
             'setKmlIds',
             'removeLayer',
+            'loadAvailableIconSets',
         ]),
         hideDrawingOverlay: function () {
-            const geojson = this.manager.createGeoJSON()
-            this.setDrawingGeoJSON(geojson)
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
         },

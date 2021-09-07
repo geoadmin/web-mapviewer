@@ -3,7 +3,7 @@
         v-if="hasMultipleTimestamps"
         ref="popover"
         :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
-        :button-bootstrap-class="'btn-danger'"
+        danger
         :popover-title="$t('time_select_year')"
         primary
     >

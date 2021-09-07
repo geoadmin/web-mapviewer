@@ -83,7 +83,6 @@ export function featureStyle(feature) {
     const icon = feature.get('icon')
     const anchor = feature.get('anchor')
     const textScale = feature.get('textScale')
-    const markerScale = feature.get('markerScale') || 1
     let image = null
     if (icon) {
         // this might be expensive
@@ -91,7 +90,6 @@ export function featureStyle(feature) {
             src: icon,
             crossOrigin: 'Anonymous',
             anchor: anchor,
-            scale: markerScale,
         })
     }
     const styles = [

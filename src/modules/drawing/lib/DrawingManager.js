@@ -153,8 +153,9 @@ export default class DrawingManager extends Observable {
             element: this.options.helpPopupElement,
             offset: [15, 15],
             positioning: 'top-left',
-            stopEvent: true,
-            insertFirst: false,
+            // so that the tooltip is not on top of the style popup (and its children popup)
+            stopEvent: false,
+            insertFirst: true,
         })
 
         /**

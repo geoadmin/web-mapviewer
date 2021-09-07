@@ -4,6 +4,7 @@
             <MenuSection
                 :title="$t('draw_panel_title')"
                 :show-content="isDrawing"
+                data-cy="menu-tray-drawing-section"
                 @showBody="onShowDrawingOverlay"
             />
             <MenuTopicSection class="border-bottom-0" />

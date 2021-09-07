@@ -173,7 +173,7 @@ export default class ProfileChart {
     create(data) {
         this.data = this.formatData(data)
         this.element = document.createElement('DIV')
-        this.element.className = 'ga-profile-inner'
+        this.element.className = 'profile-inner'
         this.domain = getXYDomains(this.width, this.height, this.elevationModel, this.data)
         const axis = createAxis(this.domain)
 
@@ -182,11 +182,11 @@ export default class ProfileChart {
             .append('svg')
             .attr('width', this.width + this.marginHoriz)
             .attr('height', this.height + this.marginVert)
-            .attr('class', 'ga-profile-svg')
+            .attr('class', 'profile-svg')
 
         const group = this.svg
             .append('g')
-            .attr('class', 'ga-profile-group')
+            .attr('class', 'profile-group')
             .attr(
                 'transform',
                 'translate(' + this.options.margin.left + ', ' + this.options.margin.top + ')'
@@ -212,22 +212,27 @@ export default class ProfileChart {
 
         group
             .append('g')
-            .attr('class', 'ga-profile-grid-x')
+            .attr('class', 'profile-grid-x')
             .attr('transform', 'translate(0, ' + this.height + ')')
             .call(axis.X.tickSize(-this.height, 0, 0).tickFormat(''))
 
         group
             .append('g')
-            .attr('class', 'ga-profile-grid-y')
+            .attr('class', 'profile-grid-y')
             .call(axis.Y.tickSize(-this.width, 0, 0).tickFormat(''))
 
-        group.append('path').datum(this.data).attr('class', 'ga-profile-area').attr('d', area)
+        group
+            .append('path')
+            .datum(this.data)
+            .attr('class', 'profile-area')
+            .attr('d', area)
+            .attr('data-cy', 'profile-popup-area')
 
         this.group = group
 
         group
             .append('text')
-            .attr('class', 'ga-profile-legend')
+            .attr('class', 'profile-legend')
             .attr('x', this.width - 118)
             .attr('y', 11)
             .attr('width', 100)
@@ -236,7 +241,7 @@ export default class ProfileChart {
 
         group
             .append('text')
-            .attr('class', 'ga-profile-label ga-profile-label-x')
+            .attr('class', 'profile-label ga-profile-label-x')
             .attr('x', this.width / 2)
             .attr('y', this.height + this.options.margin.bottom - 5)
             .style('text-anchor', 'middle')
@@ -244,7 +249,7 @@ export default class ProfileChart {
 
         group
             .append('text')
-            .attr('class', 'ga-profile-label ga-profile-label-y')
+            .attr('class', 'profile-label ga-profile-label-y')
             .attr('transform', 'rotate(-90)')
             .attr('y', 0 - this.options.margin.left)
             .attr('x', 0 - this.height / 2 - 30)
@@ -256,9 +261,9 @@ export default class ProfileChart {
 
     updateLabels() {
         this.group
-            .select('text.ga-profile-label-x')
+            .select('text.profile-label-x')
             .text(`${i18n.t(this.options.xLabel)} [${this.unitX}]`)
-        this.group.select('text.ga-profile-label-y').text(`${i18n.t(this.options.yLabel)} [m]`)
+        this.group.select('text.profile-label-y').text(`${i18n.t(this.options.yLabel)} [m]`)
     }
 
     getProfileInfo() {
@@ -284,16 +289,16 @@ export default class ProfileChart {
                 .duration(transitionTime)
                 .attr('width', this.width + this.marginHoriz)
                 .attr('height', this.height + this.marginVert)
-                .attr('class', 'ga-profile-svg')
+                .attr('class', 'profile-svg')
             this.group
-                .select('text.ga-profile-label-x')
+                .select('text.profile-label-x')
                 .transition()
                 .duration(transitionTime)
                 .attr('x', this.width / 2)
                 .attr('y', this.height + this.options.margin.bottom - 5)
                 .style('text-anchor', 'middle')
             this.group
-                .select('text.ga-profile-legend')
+                .select('text.profile-legend')
                 .transition()
                 .duration(transitionTime)
                 .attr('x', this.width - 118)
@@ -309,21 +314,21 @@ export default class ProfileChart {
         const area = createArea(this.domain, this.height, this.elevationModel)
 
         this.group
-            .select('.ga-profile-area')
+            .select('.profile-area')
             .datum(this.data)
             .transition()
             .duration(transitionTime)
-            .attr('class', 'ga-profile-area')
+            .attr('class', 'profile-area')
             .attr('d', area)
         this.group.select('g.x').transition().duration(transitionTime).call(axis.X)
         this.group.select('g.y').transition().duration(transitionTime).call(axis.Y)
         this.group
-            .select('g.ga-profile-grid-x')
+            .select('g.profile-grid-x')
             .transition()
             .duration(transitionTime)
             .call(axis.X.tickSize(-this.height, 0, 0).tickFormat(''))
         this.group
-            .select('g.ga-profile-grid-y')
+            .select('g.profile-grid-y')
             .transition()
             .duration(transitionTime)
             .call(axis.Y.tickSize(-this.width, 0, 0).tickFormat(''))

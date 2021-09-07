@@ -4,20 +4,94 @@
             <div class="card">
                 <div class="card-header">
                     <span v-if="title" class="float-start align-middle">{{ title }}</span>
-                    <button class="float-right btn btn-sm" @click="onClose">
-                        <font-awesome-icon :icon="['fa', 'times']" />
-                    </button>
-                    <span v-if="allowPrint" class="float-right mx-2" @click="printModalContent">
-                        <font-awesome-icon :icon="['fa', 'print']" />
-                    </span>
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['fa', 'times']"
+                        small
+                        class="float-end"
+                        data-cy="modal-close-button"
+                        @click="onClose(false)"
+                    />
+                    <ButtonWithIcon
+                        v-if="allowPrint"
+                        small
+                        class="float-end"
+                        :button-font-awesome-icon="['fa', 'print']"
+                        data-cy="modal-print-button"
+                        @click="printModalContent"
+                    />
                 </div>
-                <div ref="modalContent" class="card-body p-0">
+                <div ref="modalContent" class="card-body p-2">
                     <slot />
+                    <div v-if="showConfirmationButtons" class="mt-1 d-flex justify-content-end">
+                        <ButtonWithIcon
+                            :button-title="$t('cancel')"
+                            class="me-1"
+                            data-cy="modal-cancel-button"
+                            @click="onClose(false)"
+                        />
+                        <ButtonWithIcon
+                            :button-title="$t('success')"
+                            primary
+                            data-cy="modal-confirm-button"
+                            @click="onClose(true)"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
     </portal>
 </template>
+
+<script>
+import { mapActions } from 'vuex'
+import promptUserToPrintHtmlContent from '@/utils/print'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
+
+/** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
+export default {
+    components: { ButtonWithIcon },
+    props: {
+        title: {
+            type: String,
+            default: null,
+        },
+        allowPrint: {
+            type: Boolean,
+            default: false,
+        },
+        showConfirmationButtons: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    mounted() {
+        this.showOverlay(this.preventOverlayToClose)
+        this.setOverlayShouldBeFront(true)
+    },
+    beforeDestroy() {
+        this.setOverlayShouldBeFront(false)
+    },
+    methods: {
+        ...mapActions(['showOverlay', 'setOverlayShouldBeFront', 'hideOverlay']),
+        // will be used as a callback for the overlay
+        preventOverlayToClose: function () {
+            this.$emit('close', false)
+            // stopping the overlay from closing and processing the callbacks after the one for this modal
+            return true
+        },
+        onClose: function (withConfirmation) {
+            // it will go through preventOverlayToClose first and only remove our callback from the stack
+            this.hideOverlay()
+            this.$emit('close', withConfirmation)
+        },
+        printModalContent: function () {
+            if (this.$refs.modalContent) {
+                promptUserToPrintHtmlContent(this.$refs.modalContent.outerHTML)
+            }
+        },
+    },
+}
+</script>
 
 <style lang="scss">
 @import 'src/scss/variables';
@@ -49,48 +123,3 @@
     }
 }
 </style>
-
-<script>
-import { mapActions } from 'vuex'
-import promptUserToPrintHtmlContent from '@/utils/print'
-
-/** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
-export default {
-    props: {
-        title: {
-            type: String,
-            default: null,
-        },
-        allowPrint: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    mounted() {
-        this.showOverlay(this.preventOverlayToClose)
-        this.setOverlayShouldBeFront(true)
-    },
-    beforeDestroy() {
-        this.setOverlayShouldBeFront(false)
-    },
-    methods: {
-        ...mapActions(['showOverlay', 'setOverlayShouldBeFront', 'hideOverlay']),
-        // will be used as a callback for the overlay
-        preventOverlayToClose: function () {
-            this.$emit('close')
-            // stopping the overlay from closing and processing the callbacks after the one for this modal
-            return true
-        },
-        onClose: function () {
-            // it will go through preventOverlayToClose first and only remove our callback from the stack
-            this.hideOverlay()
-            this.$emit('close')
-        },
-        printModalContent: function () {
-            if (this.$refs.modalContent) {
-                promptUserToPrintHtmlContent(this.$refs.modalContent.outerHTML)
-            }
-        },
-    },
-}
-</script>
