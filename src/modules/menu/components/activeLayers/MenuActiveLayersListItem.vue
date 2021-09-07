@@ -57,6 +57,7 @@
             </div>
             <div class="menu-layer-list-item-details-order">
                 <button
+                    :disabled="isFirstLayer"
                     class="btn btn-default"
                     :data-cy="`button-raise-order-layer-${id}`"
                     @click="onOrderChange(1)"
@@ -64,6 +65,7 @@
                     <font-awesome-icon size="lg" :icon="['fas', 'arrow-up']" />
                 </button>
                 <button
+                    :disabled="isLastLayer"
                     class="btn btn-default"
                     :data-cy="`button-lower-order-layer-${id}`"
                     @click="onOrderChange(-1)"
@@ -137,6 +139,14 @@ export default {
             default: null,
         },
         showDetails: {
+            type: Boolean,
+            default: false,
+        },
+        isFirstLayer: {
+            type: Boolean,
+            default: false,
+        },
+        isLastLayer: {
             type: Boolean,
             default: false,
         },
