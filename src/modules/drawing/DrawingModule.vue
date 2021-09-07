@@ -128,7 +128,7 @@ export default {
                     properties: {
                         color: RED.fill,
                         font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICE_ICON_BASE_URL}v4/icons/sets/default/icons/001-marker@1x-255,0,0.png`,
+                        icon: `${API_SERVICE_ICON_BASE_URL}icons/sets/default/icons/001-marker@1x-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',
