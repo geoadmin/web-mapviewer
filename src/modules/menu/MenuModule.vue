@@ -15,6 +15,42 @@
     </transition>
 </template>
 
+<script>
+import { mapState } from 'vuex'
+
+import SwissFlag from './components/header/SwissFlag'
+import HeaderMenuButton from './components/header/HeaderMenuButton'
+import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText'
+
+import MenuTray from './components/MenuTray'
+import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar'
+import { APP_VERSION, DEBUG } from '@/config'
+
+export default {
+    components: {
+        HeaderLoadingBar,
+        HeaderSwissConfederationText,
+        HeaderMenuButton,
+        SwissFlag,
+        MenuTray,
+    },
+    data() {
+        return {
+            appVersion: APP_VERSION,
+        }
+    },
+    computed: {
+        ...mapState({
+            showHeader: (state) => state.ui.showHeader,
+            showLoadingBar: (state) => state.ui.showLoadingBar,
+        }),
+        showAppVersion: function () {
+            return DEBUG
+        },
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/media-query.mixin';
 
@@ -80,39 +116,3 @@
     }
 }
 </style>
-
-<script>
-import { mapState } from 'vuex'
-
-import SwissFlag from './components/header/SwissFlag'
-import HeaderMenuButton from './components/header/HeaderMenuButton'
-import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText'
-
-import MenuTray from './components/MenuTray'
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar'
-import { APP_VERSION, DEBUG } from '@/config'
-
-export default {
-    components: {
-        HeaderLoadingBar,
-        HeaderSwissConfederationText,
-        HeaderMenuButton,
-        SwissFlag,
-        MenuTray,
-    },
-    data() {
-        return {
-            appVersion: APP_VERSION,
-        }
-    },
-    computed: {
-        ...mapState({
-            showHeader: (state) => state.ui.showHeader,
-            showLoadingBar: (state) => state.ui.showLoadingBar,
-        }),
-        showAppVersion: function () {
-            return DEBUG
-        },
-    },
-}
-</script>

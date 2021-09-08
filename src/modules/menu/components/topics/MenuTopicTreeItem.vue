@@ -21,27 +21,7 @@
         </div>
     </div>
 </template>
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-@import '../../scss/menu-items';
-.menu-topic-tree-item {
-    @extend .menu-list-item;
-    border-bottom: none;
-    cursor: pointer;
-    &.active {
-        color: $red;
-    }
-    .menu-tree-item-theme {
-        border-bottom: 1px solid #e9e9e9;
-    }
-    .menu-tree-item-layer {
-        border-bottom: 1px dashed #e9e9e9;
-    }
-    .menu-tree-children {
-        display: block;
-    }
-}
-</style>
+
 <script>
 import { topicTypes } from '@/api/topics.api'
 
@@ -108,3 +88,25 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+@import '../../scss/menu-items';
+.menu-topic-tree-item {
+    @extend .menu-list-item;
+    border-bottom: none;
+    cursor: pointer;
+    &.active {
+        color: $red;
+    }
+    .menu-tree-item-theme {
+        border-bottom: 1px solid #e9e9e9;
+    }
+    .menu-tree-item-layer {
+        border-bottom: 1px dashed #e9e9e9;
+    }
+    .menu-tree-children {
+        display: block;
+    }
+}
+</style>

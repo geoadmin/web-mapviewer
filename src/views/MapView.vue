@@ -16,14 +16,6 @@
     </div>
 </template>
 
-<style>
-#map-view {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-</style>
-
 <script>
 import OverlayModule from '@/modules/overlay/OverlayModule'
 import MapModule from '@/modules/map/MapModule'
@@ -47,3 +39,11 @@ export default {
     },
 }
 </script>
+
+<style>
+#map-view {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+</style>

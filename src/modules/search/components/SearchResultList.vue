@@ -18,6 +18,22 @@
     </div>
 </template>
 
+<script>
+import { mapState } from 'vuex'
+import SearchResultCategory from './SearchResultCategory'
+
+/** Component showing all results from the search, divided in two groups (categories) : layers and locations */
+export default {
+    components: { SearchResultCategory },
+    computed: {
+        ...mapState({
+            results: (state) => state.search.results,
+            showResults: (state) => state.search.show,
+        }),
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/media-query.mixin';
 
@@ -35,19 +51,3 @@
     }
 }
 </style>
-
-<script>
-import { mapState } from 'vuex'
-import SearchResultCategory from './SearchResultCategory'
-
-/** Component showing all results from the search, divided in two groups (categories) : layers and locations */
-export default {
-    components: { SearchResultCategory },
-    computed: {
-        ...mapState({
-            results: (state) => state.search.results,
-            showResults: (state) => state.search.show,
-        }),
-    },
-}
-</script>

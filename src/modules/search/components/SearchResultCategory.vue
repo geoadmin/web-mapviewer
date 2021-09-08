@@ -17,28 +17,6 @@
     </div>
 </template>
 
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-.search-category {
-    .search-category-header {
-        @extend .p-2;
-        @extend .bg-light;
-        @extend .h5;
-        @extend .mb-0;
-        @extend .fw-bold;
-    }
-    .search-category-body {
-        @extend .bg-white;
-        max-height: 15rem;
-        overflow-y: scroll;
-        font-size: 0.8rem;
-    }
-    &.search-category-half-size .search-category-body {
-        max-height: 7rem;
-    }
-}
-</style>
-
 <script>
 import SearchResultListEntry from './SearchResultListEntry'
 
@@ -64,3 +42,25 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+.search-category {
+    .search-category-header {
+        @extend .p-2;
+        @extend .bg-light;
+        @extend .h5;
+        @extend .mb-0;
+        @extend .fw-bold;
+    }
+    .search-category-body {
+        @extend .bg-white;
+        max-height: 15rem;
+        overflow-y: scroll;
+        font-size: 0.8rem;
+    }
+    &.search-category-half-size .search-category-body {
+        max-height: 7rem;
+    }
+}
+</style>

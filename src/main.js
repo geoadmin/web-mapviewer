@@ -24,7 +24,7 @@ Vue.use(VAnimateCss)
 // setting up font awesome vue component
 require('./setup-fontawesome')
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('FontAwesomeIcon', FontAwesomeIcon)
 
 // setting up component to replace some Vue component on the body (for modals and such)
 import PortalVue from 'portal-vue'

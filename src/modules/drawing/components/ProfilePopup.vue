@@ -106,13 +106,13 @@ import { sketchPointStyle } from '@/modules/drawing/lib/style'
 
 export default {
     components: { ButtonWithIcon },
+    inject: ['getMap'],
     props: {
         feature: {
             type: Object,
             default: null,
         },
     },
-    inject: ['getMap'],
     data: function () {
         return {
             options: {

@@ -10,6 +10,21 @@
     </div>
 </template>
 
+<script>
+import { mapState } from 'vuex'
+import OpenLayersMap from './components/openlayers/OpenLayersMap'
+import Footer from './components/Footer'
+
+export default {
+    components: { OpenLayersMap, Footer },
+    computed: {
+        ...mapState({
+            showFooter: (state) => state.ui.showFooter,
+        }),
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/bootstrap-theme';
 
@@ -33,18 +48,3 @@
     transform: translate(0, 100%);
 }
 </style>
-
-<script>
-import { mapState } from 'vuex'
-import OpenLayersMap from './components/openlayers/OpenLayersMap'
-import Footer from './components/Footer'
-
-export default {
-    components: { OpenLayersMap, Footer },
-    computed: {
-        ...mapState({
-            showFooter: (state) => state.ui.showFooter,
-        }),
-    },
-}
-</script>

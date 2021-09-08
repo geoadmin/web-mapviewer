@@ -24,14 +24,6 @@
     </div>
 </template>
 
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-#clear-search-button {
-    margin-left: -40px;
-    z-index: $zindex-map + 1;
-}
-</style>
-
 <script>
 import { mapActions, mapState } from 'vuex'
 
@@ -59,3 +51,11 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+#clear-search-button {
+    margin-left: -40px;
+    z-index: $zindex-map + 1;
+}
+</style>

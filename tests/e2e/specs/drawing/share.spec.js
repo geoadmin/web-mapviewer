@@ -1,13 +1,5 @@
 const shareButton = '[data-cy="drawing-toolbox-share-button"]'
 
-const testGeoms = (features) => {
-    expect(features).to.have.length(4)
-    cy.wrap(features.find((f) => f.get('type') === 'MEASURE')).should('exist')
-    cy.wrap(features.find((f) => f.get('type') === 'LINE')).should('exist')
-    cy.wrap(features.find((f) => f.get('type') === 'TEXT')).should('exist')
-    cy.wrap(features.find((f) => f.get('type') === 'MARKER')).should('exist')
-}
-
 describe('Drawing toolbox actions', () => {
     beforeEach(() => {
         cy.goToDrawing()

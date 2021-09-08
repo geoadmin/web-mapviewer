@@ -19,22 +19,6 @@
     </div>
 </template>
 
-<style lang="scss">
-.menu-section-head {
-    display: flex;
-    cursor: pointer;
-    .menu-section-head-title {
-        width: 100%;
-        text-align: left;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-    .extra-button:hover {
-        text-decoration: underline;
-    }
-}
-</style>
-
 <script>
 export default {
     props: {
@@ -75,3 +59,19 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+.menu-section-head {
+    display: flex;
+    cursor: pointer;
+    .menu-section-head-title {
+        width: 100%;
+        text-align: left;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    .extra-button:hover {
+        text-decoration: underline;
+    }
+}
+</style>

@@ -27,6 +27,7 @@ const accuracyCircleStyle = new Style({
  */
 export default {
     mixins: [addLayerToMapMixin],
+    inject: ['getMap'],
     props: {
         position: {
             type: Array,
@@ -41,7 +42,6 @@ export default {
             default: -1,
         },
     },
-    inject: ['getMap'],
     data() {
         return {
             accuracyCircle: null,

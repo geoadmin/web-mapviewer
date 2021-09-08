@@ -15,26 +15,6 @@
     </ModalWithOverlay>
 </template>
 
-<style lang="scss">
-@import 'src/scss/variables';
-.menu-topic-selector-popup {
-    * {
-        text-align: left;
-    }
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 1rem 0.5rem;
-    cursor: pointer;
-    .topic {
-        text-align: center;
-        align-self: end;
-    }
-    .topic:last-child {
-        padding-bottom: 1rem;
-    }
-}
-</style>
-
 <script>
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon'
 import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
@@ -56,3 +36,23 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/variables';
+.menu-topic-selector-popup {
+    * {
+        text-align: left;
+    }
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1rem 0.5rem;
+    cursor: pointer;
+    .topic {
+        text-align: center;
+        align-self: end;
+    }
+    .topic:last-child {
+        padding-bottom: 1rem;
+    }
+}
+</style>

@@ -11,23 +11,6 @@
     </div>
 </template>
 
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-.search-category-entry {
-    @extend .p-2;
-    @extend .ps-4;
-    @extend .border-bottom;
-    @extend .border-light;
-
-    @include media-breakpoint-up(sm) {
-        &:hover {
-            background-color: $dark;
-            color: $light;
-        }
-    }
-}
-</style>
-
 <script>
 import { mapActions } from 'vuex'
 import { SearchResult } from '@/api/search.api'
@@ -50,3 +33,20 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+.search-category-entry {
+    @extend .p-2;
+    @extend .ps-4;
+    @extend .border-bottom;
+    @extend .border-light;
+
+    @include media-breakpoint-up(sm) {
+        &:hover {
+            background-color: $dark;
+            color: $light;
+        }
+    }
+}
+</style>

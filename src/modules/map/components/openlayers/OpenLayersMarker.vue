@@ -63,6 +63,7 @@ export const markerStyles = {
 /** Renders a marker on the map (different styling are available) */
 export default {
     mixins: [addLayerToMapMixin],
+    inject: ['getMap'],
     props: {
         position: {
             type: Array,
@@ -87,7 +88,6 @@ export default {
             marker: null,
         }
     },
-    inject: ['getMap'],
     computed: {
         style: function () {
             switch (this.markerStyle) {

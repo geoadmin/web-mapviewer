@@ -10,6 +10,22 @@
     </transition>
 </template>
 
+<script>
+import { mapState, mapActions } from 'vuex'
+
+export default {
+    computed: {
+        ...mapState({
+            showOverlay: (state) => state.overlay.show,
+            shouldBeFront: (state) => state.overlay.shouldBeFront,
+        }),
+    },
+    methods: {
+        ...mapActions(['hideOverlay']),
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/variables';
 #overlay {
@@ -33,19 +49,3 @@
     opacity: 0;
 }
 </style>
-
-<script>
-import { mapState, mapActions } from 'vuex'
-
-export default {
-    computed: {
-        ...mapState({
-            showOverlay: (state) => state.overlay.show,
-            shouldBeFront: (state) => state.overlay.shouldBeFront,
-        }),
-    },
-    methods: {
-        ...mapActions(['hideOverlay']),
-    },
-}
-</script>
