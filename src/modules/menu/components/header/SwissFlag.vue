@@ -2,6 +2,17 @@
     <img class="swiss-flag" :src="swissFlagIcon" alt="swiss-flag" />
 </template>
 
+<script>
+import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
+export default {
+    data() {
+        return {
+            swissFlagIcon,
+        }
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/bootstrap-theme';
 .swiss-flag {
@@ -15,14 +26,3 @@
     }
 }
 </style>
-
-<script>
-import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
-export default {
-    data() {
-        return {
-            swissFlagIcon,
-        }
-    },
-}
-</script>

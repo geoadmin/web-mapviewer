@@ -27,6 +27,52 @@
     </div>
 </template>
 
+<script>
+import { mapGetters, mapActions, mapState } from 'vuex'
+
+const voidLayer = {
+    id: 'void',
+    index: -1,
+}
+
+export default {
+    data() {
+        return {
+            showBgWheel: false,
+            animateMainButton: false,
+        }
+    },
+    computed: {
+        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForGeoAdminId']),
+        ...mapState({
+            currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
+        }),
+        currentBackgroundLayerWithVoid: function () {
+            const currentBg = this.currentBackgroundLayer
+            if (!currentBg) {
+                return voidLayer
+            }
+            return currentBg
+        },
+        backgroundLayersWithVoid: function () {
+            // adding void layer on top
+            return [{ getID: () => 'void' }, ...this.backgroundLayers]
+        },
+    },
+    methods: {
+        ...mapActions(['setBackground']),
+        selectBackgroundWithLayerId: function (layerId) {
+            this.setBackground(layerId === 'void' ? null : layerId)
+            this.toggleBackgroundWheel()
+        },
+        toggleBackgroundWheel: function () {
+            this.showBgWheel = !this.showBgWheel
+            this.animateMainButton = this.showBgWheel
+        },
+    },
+}
+</script>
+
 <style lang="scss">
 @import 'src/scss/bootstrap-theme';
 
@@ -101,49 +147,3 @@ $bg-button-border-size-in-wheel: 3px;
     animation-timing-function: ease-in-out;
 }
 </style>
-
-<script>
-import { mapGetters, mapActions, mapState } from 'vuex'
-
-const voidLayer = {
-    id: 'void',
-    index: -1,
-}
-
-export default {
-    data() {
-        return {
-            showBgWheel: false,
-            animateMainButton: false,
-        }
-    },
-    computed: {
-        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForGeoAdminId']),
-        ...mapState({
-            currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
-        }),
-        currentBackgroundLayerWithVoid: function () {
-            const currentBg = this.currentBackgroundLayer
-            if (!currentBg) {
-                return voidLayer
-            }
-            return currentBg
-        },
-        backgroundLayersWithVoid: function () {
-            // adding void layer on top
-            return [{ getID: () => 'void' }, ...this.backgroundLayers]
-        },
-    },
-    methods: {
-        ...mapActions(['setBackground']),
-        selectBackgroundWithLayerId: function (layerId) {
-            this.setBackground(layerId === 'void' ? null : layerId)
-            this.toggleBackgroundWheel()
-        },
-        toggleBackgroundWheel: function () {
-            this.showBgWheel = !this.showBgWheel
-            this.animateMainButton = this.showBgWheel
-        },
-    },
-}
-</script>

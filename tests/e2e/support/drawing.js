@@ -44,7 +44,7 @@ Cypress.Commands.add('drawGeoms', () => {
 // https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
 // As we have some issue with uncaught exception when testing with drawing, we disable the "fail on uncaught" approach
 // This exception is typically raised by a call to api3.geo.admin.ch/files/... with a HTTP 200 ERR_INCOMPLETE_CHUNKED_ENCODING error
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', () => {
     // returning false here prevents Cypress from failing the test
     return false
 })

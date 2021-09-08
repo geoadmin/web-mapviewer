@@ -1,5 +1,3 @@
-const olSelector = '.ol-viewport'
-
 const deleteButton = '[data-cy="drawing-toolbox-delete-button"]'
 const quickExportButton = '[data-cy="drawing-toolbox-quick-export-button"]'
 const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format-button"]'

@@ -84,29 +84,6 @@
     </div>
 </template>
 
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-@import '../../scss/menu-items';
-.menu-layer-list-item {
-    @extend .menu-list-item;
-    .menu-layer-list-item-details {
-        border-left: 3px solid #666;
-        .menu-layer-list-item-details-transparency {
-            display: flex;
-            flex-grow: 1;
-            .transparency-title {
-                font-size: 0.9rem;
-            }
-            .transparency-slider {
-                display: flex;
-                flex-grow: 1;
-                cursor: pointer;
-            }
-        }
-    }
-}
-</style>
-
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector'
@@ -193,3 +170,26 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+@import '../../scss/menu-items';
+.menu-layer-list-item {
+    @extend .menu-list-item;
+    .menu-layer-list-item-details {
+        border-left: 3px solid #666;
+        .menu-layer-list-item-details-transparency {
+            display: flex;
+            flex-grow: 1;
+            .transparency-title {
+                font-size: 0.9rem;
+            }
+            .transparency-slider {
+                display: flex;
+                flex-grow: 1;
+                cursor: pointer;
+            }
+        }
+    }
+}
+</style>

@@ -8,6 +8,18 @@
     </div>
 </template>
 
+<script>
+import { mapState } from 'vuex'
+
+export default {
+    computed: {
+        ...mapState({
+            currentLang: (state) => state.i18n.lang,
+        }),
+    },
+}
+</script>
+
 <style lang="scss">
 .multi-lang-title,
 .i18n-partnership-text {
@@ -39,15 +51,3 @@
     }
 }
 </style>
-
-<script>
-import { mapState } from 'vuex'
-
-export default {
-    computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-        }),
-    },
-}
-</script>

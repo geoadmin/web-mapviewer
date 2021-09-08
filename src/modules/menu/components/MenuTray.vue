@@ -22,21 +22,6 @@
     </transition>
 </template>
 
-<style lang="scss">
-.slide-leave-active,
-.slide-enter-active {
-    transition: 0.2s;
-}
-
-.slide-enter {
-    transform: translate(100%, 0);
-}
-
-.slide-leave-to {
-    transform: translate(100%, 0);
-}
-</style>
-
 <script>
 import { mapActions, mapState } from 'vuex'
 import MenuSettings from '@/modules/menu/components/MenuSettings.vue'
@@ -65,3 +50,18 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+.slide-leave-active,
+.slide-enter-active {
+    transition: 0.2s;
+}
+
+.slide-enter {
+    transform: translate(100%, 0);
+}
+
+.slide-leave-to {
+    transform: translate(100%, 0);
+}
+</style>

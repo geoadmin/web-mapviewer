@@ -10,6 +10,10 @@
     </div>
 </template>
 
+<script>
+export default {}
+</script>
+
 <style lang="scss">
 @import 'src/scss/bootstrap-theme';
 @import 'src/scss/variables';
@@ -30,7 +34,3 @@
     }
 }
 </style>
-
-<script>
-export default {}
-</script>

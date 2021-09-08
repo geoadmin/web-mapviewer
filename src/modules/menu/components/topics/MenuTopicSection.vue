@@ -1,6 +1,6 @@
 <template>
     <MenuSection v-if="currentTopic" :title="$t(currentTopic.id)">
-        <template v-slot:extra-button>
+        <template #extra-button>
             <span data-cy="change-topic-button" @click="setShowTopicSelectionPopup">
                 {{ $t('choose_theme') }}
             </span>
@@ -22,12 +22,7 @@
         </div>
     </MenuSection>
 </template>
-<style lang="scss">
-.menu-topic-tree {
-    max-height: 50vh;
-    overflow-y: auto;
-}
-</style>
+
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { topicTypes } from '@/api/topics.api'
@@ -77,3 +72,10 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+.menu-topic-tree {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+</style>

@@ -49,35 +49,6 @@
     </div>
 </template>
 
-<style lang="scss">
-@import 'src/scss/bootstrap-theme';
-#ol-map {
-    width: 100%;
-    height: 100%;
-}
-#scale-line {
-    position: absolute;
-    // placing Map Scale over the footer to free some map screen space
-    bottom: 0;
-    height: 1rem;
-    width: 150px;
-    z-index: $zindex-map;
-
-    .ol-scale-line {
-        text-align: center;
-        font-weight: bold;
-        bottom: 0;
-        left: 0;
-        background: rgba(255, 255, 255, 0.6);
-        .ol-scale-line-inner {
-            color: $black;
-            border: 2px solid $black;
-            border-top: none;
-        }
-    }
-}
-</style>
-
 <script>
 import 'ol/ol.css'
 
@@ -114,6 +85,12 @@ export default {
         OpenLayersInternalLayer,
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
+    },
+    provide: function () {
+        return {
+            // sharing OL map object with children components
+            getMap: () => this.map,
+        }
     },
     data: () => {
         return {
@@ -293,11 +270,34 @@ export default {
             'mapStartBeingDragged',
         ]),
     },
-    provide: function () {
-        return {
-            // sharing OL map object with children components
-            getMap: () => this.map,
-        }
-    },
 }
 </script>
+
+<style lang="scss">
+@import 'src/scss/bootstrap-theme';
+#ol-map {
+    width: 100%;
+    height: 100%;
+}
+#scale-line {
+    position: absolute;
+    // placing Map Scale over the footer to free some map screen space
+    bottom: 0;
+    height: 1rem;
+    width: 150px;
+    z-index: $zindex-map;
+
+    .ol-scale-line {
+        text-align: center;
+        font-weight: bold;
+        bottom: 0;
+        left: 0;
+        background: rgba(255, 255, 255, 0.6);
+        .ol-scale-line-inner {
+            color: $black;
+            border: 2px solid $black;
+            border-top: none;
+        }
+    }
+}
+</style>
