@@ -10,7 +10,7 @@ module.exports = {
         'plugin:cypress/recommended',
         'eslint:recommended',
         'plugin:prettier-vue/recommended',
-        'prettier/vue',
+        'prettier',
     ],
     parserOptions: {
         parser: 'babel-eslint',
