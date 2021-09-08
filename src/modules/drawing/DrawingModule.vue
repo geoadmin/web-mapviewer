@@ -77,7 +77,9 @@ export default {
             return modes
         },
         drawingNotEmpty: function () {
-            return this.manager.source && this.manager.source.getFeatures().length > 0
+            return (
+                this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
+            )
         },
         deleteLastPointCallback: function () {
             return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
