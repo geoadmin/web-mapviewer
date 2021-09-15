@@ -1,5 +1,9 @@
 <template>
-    <div v-show="activeLayers.length > 0" class="menu-layer-list">
+    <div
+        v-show="activeLayers.length > 0"
+        data-cy="menu-section-active-layers"
+        class="menu-layer-list"
+    >
         <MenuActiveLayersListItem
             v-for="layer in activeLayers"
             :id="layer.getID()"

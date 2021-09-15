@@ -8,7 +8,7 @@
                 @showBody="onShowDrawingOverlay"
             />
             <MenuTopicSection class="border-bottom-0" />
-            <MenuSection :title="$t('layers_displayed')" :show-content="true">
+            <MenuSection :title="$t('layers_displayed')" :show-content="showLayerList">
                 <MenuActiveLayersList />
             </MenuSection>
             <MenuSection
@@ -40,7 +40,11 @@ export default {
         ...mapState({
             showMenuTray: (state) => state.ui.showMenuTray,
             isDrawing: (state) => state.ui.showDrawingOverlay,
+            activeLayers: (state) => state.layers.activeLayers,
         }),
+        showLayerList: function () {
+            return this.activeLayers.length > 0
+        },
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay']),

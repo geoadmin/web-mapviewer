@@ -57,7 +57,7 @@ const addCatalogFixtureAndIntercept = () => {
     // intercepting further topic metadata retrieval
     cy.fixture('topics.fixture').then((mockedTopics) => {
         mockedTopics.topics.forEach((topic) => {
-            cy.intercept(`**/rest/services/${topic.id}/CatalogServer?lang=en`, {
+            cy.intercept(`**/rest/services/${topic.id}/CatalogServer?lang=**`, {
                 fixture: 'catalogs.fixture',
             }).as(`topic-${topic.id}`)
         })

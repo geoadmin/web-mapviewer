@@ -2,7 +2,11 @@ describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
-        cy.get('[data-cy="menu-button"]').click()
+        cy.readStoreValue('state.ui.showMenuTray').then((showMenuTray) => {
+            if (!showMenuTray) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+        })
         cy.get('[data-cy="change-topic-button"]').click()
         cy.get(`[data-cy="change-to-topic-${topicId}"]`).click()
         cy.wait(`@topic-${topicId}`)
@@ -125,13 +129,29 @@ describe('Topics', () => {
                 expectedBackgroundLayerId
             )
         })
-        it('hides the menu and overlay after a topic is selected', () => {
+        it('keeps the menu and overlay after a topic is selected', () => {
             cy.goToMapView()
             // clicking on topic standard
             const topicStandard = mockupTopics.topics[1]
             selectTopicWithId(topicStandard.id)
+            cy.readStoreValue('state.ui.showMenuTray').should('eq', true)
+            cy.readStoreValue('state.overlay.show').should('eq', true)
+        })
+        it('close overlay, after a topic switch, when we click on the menu button again', () => {
+            cy.goToMapView()
+            // clicking on topic standard
+            const topicStandard = mockupTopics.topics[1]
+            selectTopicWithId(topicStandard.id)
+            cy.get('[data-cy="menu-button"]').click()
             cy.readStoreValue('state.ui.showMenuTray').should('eq', false)
             cy.readStoreValue('state.overlay.show').should('eq', false)
+        })
+        it('open active layers section in menu when a topic with active layers is selected', () => {
+            cy.goToMapView()
+            selectTopicWithId('test-topic-standard')
+            cy.get('[data-cy="menu-section-active-layers"]').should('be.hidden')
+            selectTopicWithId('test-topic-with-active-layers')
+            cy.get('[data-cy="menu-section-active-layers"]').should('be.visible')
         })
     })
 })
