@@ -1,3 +1,9 @@
+/** @enum */
+export const ClickType = {
+    RIGHT_CLICK: 'RIGHT_CLICK',
+    LEFT_CLICK: 'LEFT_CLICK',
+}
+
 export class ClickInfo {
     /**
      * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
@@ -7,17 +13,20 @@ export class ClickInfo {
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
      * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the click
+     * @param {ClickType} clickType Which button of the mouse has been used to make this click
      */
     constructor(
         coordinate = [],
         millisecondsSpentMouseDown = -1,
         pixelCoordinate = [],
-        geoJsonFeatures = []
+        geoJsonFeatures = [],
+        clickType = ClickType.LEFT_CLICK
     ) {
         this.coordinate = [...coordinate]
         this.millisecondsSpentMouseDown = millisecondsSpentMouseDown
         this.pixelCoordinate = [...pixelCoordinate]
         this.geoJsonFeatures = [...geoJsonFeatures]
+        this.clickType = clickType
     }
 }
 

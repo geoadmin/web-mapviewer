@@ -1,5 +1,6 @@
 import { isMobile } from 'mobile-device-detect'
 import { identify } from '@/api/features.api'
+import { ClickType } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import log from '@/utils/logging'
 
@@ -58,13 +59,24 @@ const clickOnMapManagementPlugin = (store) => {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
-            // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
-            if (isMobile) {
-                if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
-                    store.dispatch('toggleHeader')
-                    store.dispatch('toggleFooter')
-                    store.dispatch('toggleBackgroundWheel')
+            // we only react to left click, right clicks are handled by the LocationPopup component
+            if (state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
+                // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
+                if (isMobile) {
+                    if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
+                        store.dispatch('toggleHeader')
+                        store.dispatch('toggleFooter')
+                        store.dispatch('toggleBackgroundWheel')
+                    } else {
+                        runIdentify(
+                            store,
+                            mutation.payload,
+                            store.getters.visibleLayers,
+                            store.state.i18n.lang
+                        )
+                    }
                 } else {
+                    // for Desktop, click is always an "identify"
                     runIdentify(
                         store,
                         mutation.payload,
@@ -72,14 +84,6 @@ const clickOnMapManagementPlugin = (store) => {
                         store.state.i18n.lang
                     )
                 }
-            } else {
-                // for Desktop, click is always an "identify"
-                runIdentify(
-                    store,
-                    mutation.payload,
-                    store.getters.visibleLayers,
-                    store.state.i18n.lang
-                )
             }
         }
     })
