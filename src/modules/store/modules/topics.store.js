@@ -6,7 +6,11 @@ const state = {
     tree: [],
 }
 
-const getters = {}
+const getters = {
+    isDefaultTopic: (state) => {
+        return state.current && state.config.length > 0 && state.current.id === 'ech'
+    },
+}
 
 const actions = {
     setTopics: ({ commit, state }, topics) => {
