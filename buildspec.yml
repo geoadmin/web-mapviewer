@@ -5,6 +5,7 @@ env:
     AWS_DEFAULT_REGION: eu-central-1
   parameter-store:
     AWS_SWISSTOPO_BGDI_ACCOUNT_ID: swisstopo-bgdi_account-id
+    AWS_SWISSTOPO_BGDI_DEV_ACCOUNT_ID: swisstopo-bgdi-dev_account-id
 
 phases:
 
@@ -35,6 +36,11 @@ phases:
       - if [ "$CODEBUILD_GIT_BRANCH" = "master" ] ; then
           export CODEBUILD_DEPLOY_TARGET="int";
         fi
+      # if we are on DEV, we have to switch to the account "swisstopo-bgdi-dev", otherwise the account is "swisstopo-bgdi"
+      - export AWS_ACCOUNT_TO_USE="$AWS_SWISSTOPO_BGDI_DEV_ACCOUNT_ID:role/BgdiDevCodebuildAccess"
+      - if [ "$CODEBUILD_DEPLOY_TARGET" = "int" ] ; then
+          export AWS_ACCOUNT_TO_USE="$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess";
+        fi
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # the application will be built by the npm target before deploying
-      - npm run deploy:$CODEBUILD_DEPLOY_TARGET -- --role=arn:aws:iam::$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess --branch=$CODEBUILD_GIT_BRANCH
+      - npm run deploy:$CODEBUILD_DEPLOY_TARGET -- --role=arn:aws:iam::$AWS_ACCOUNT_TO_USE --branch=$CODEBUILD_GIT_BRANCH
