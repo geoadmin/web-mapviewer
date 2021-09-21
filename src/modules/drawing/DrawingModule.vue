@@ -2,7 +2,6 @@
     <div>
         <DrawingToolbox
             v-if="show"
-            class="draw-overlay"
             :drawing-modes="drawingModes"
             :current-drawing-mode="currentDrawingMode"
             :delete-last-point-callback="deleteLastPointCallback"
@@ -170,33 +169,9 @@ export default {
             window.drawingMap = map
             window.drawingManager = this.manager
         }
-        this.manager.on('change', () => {
-            this.drawingNotEmpty = this.isDrawingEmpty()
-            this.triggerKMLUpdate()
-        })
-        this.manager.on('clear', () => {
-            this.drawingNotEmpty = this.isDrawingEmpty()
-            // Only trigger the kml update if we have an active open drawing. The clear
-            // event also happens when removing a drawing layer when the drawing menu
-            // is closed and in this condition we don't want to re-created now a new KML
-            // until the menu is opened again.
-            if (this.show) {
-                this.triggerKMLUpdate()
-            }
-        })
-        this.manager.on('select', (event) => {
-            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
-            const selectEvent = event
-            const feature = selectEvent.feature
-            let xy =
-                feature && feature.getGeometry() instanceof Point
-                    ? feature.getGeometry().getCoordinates()
-                    : selectEvent.coordinates
-            const showOverlay = feature && !selectEvent.modifying
-            overlay.setVisible(showOverlay)
-            overlay.setPosition(xy)
-            this.selectedFeature = showOverlay ? feature : null
-        })
+        this.manager.on('change', this.onChange)
+        this.manager.on('clear', this.onClear)
+        this.manager.on('select', this.onSelect)
         this.manager.on('drawEnd', () => {
             this.setDrawingMode(null)
         })
@@ -246,6 +221,33 @@ export default {
                 // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
+        },
+        onChange: function () {
+            this.drawingNotEmpty = this.isDrawingEmpty()
+            this.triggerKMLUpdate()
+        },
+        onClear: function () {
+            this.drawingNotEmpty = this.isDrawingEmpty()
+            // Only trigger the kml update if we have an active open drawing. The clear
+            // event also happens when removing a drawing layer when the drawing menu
+            // is closed and in this condition we don't want to re-created now a new KML
+            // until the menu is opened again.
+            if (this.show) {
+                this.triggerKMLUpdate()
+            }
+        },
+        onSelect: function (event) {
+            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
+            const selectEvent = event
+            const feature = selectEvent.feature
+            let xy =
+                feature && feature.getGeometry() instanceof Point
+                    ? feature.getGeometry().getCoordinates()
+                    : selectEvent.coordinates
+            const showOverlay = feature && !selectEvent.modifying
+            overlay.setVisible(showOverlay)
+            overlay.setPosition(xy)
+            this.selectedFeature = showOverlay ? feature : null
         },
         saveDrawing: async function (kml) {
             let metadata

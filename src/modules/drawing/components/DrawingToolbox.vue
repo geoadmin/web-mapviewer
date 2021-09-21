@@ -1,5 +1,5 @@
 <template>
-    <portal to="toolbox-container">
+    <teleport to="body">
         <div class="drawing-toolbox">
             <div class="card">
                 <div class="card-body position-relative">
@@ -119,7 +119,7 @@
         >
             <share-form :kml-ids="kmlIds" />
         </ModalWithOverlay>
-    </portal>
+    </teleport>
 </template>
 
 <script>
@@ -157,6 +157,7 @@ export default {
             default: undefined,
         },
     },
+    emits: ['close', 'setDrawingMode', 'export', 'clearDrawing'],
     data: function () {
         return {
             showExportDropdown: false,

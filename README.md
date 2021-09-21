@@ -89,7 +89,7 @@ See [TESTING.md](tests/TESTING.md) for more documentation on testing in this pro
 The followings programs/tools are required in order to develop on `web-mapviewer`
 
 - Nodejs 12
-- npm 6
+- npm 7
 
 ### Install
 

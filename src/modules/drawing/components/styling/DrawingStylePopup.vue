@@ -135,6 +135,7 @@ export default {
             required: true,
         },
     },
+    emits: ['change', 'close', 'delete'],
     data() {
         return {
             colors: drawingStyleColors,

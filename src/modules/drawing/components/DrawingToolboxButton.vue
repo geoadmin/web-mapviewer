@@ -25,6 +25,7 @@ export default {
             default: false,
         },
     },
+    emits: ['setDrawingMode'],
     computed: {
         buttonIcon: function () {
             switch (this.drawingMode) {

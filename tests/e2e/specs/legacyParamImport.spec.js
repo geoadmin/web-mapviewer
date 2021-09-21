@@ -88,7 +88,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            const fakeKMLFileURL = 'https//fake-service.geo.admin.ch/api/kml/files/1234567890'
+            const fakeKMLFileURL = 'https://fake-service.geo.admin.ch/api/kml/files/1234567890'
             // serving a dummy KML so that we don't get a 404
             cy.intercept(fakeKMLFileURL, '<kml />')
             cy.goToMapView('en', {

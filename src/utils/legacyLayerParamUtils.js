@@ -74,7 +74,8 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                     // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
                     // in order to alter it before returning it
                     layer = layer.clone()
-                } else if (layerId.startsWith(encodeURIComponent('KML||'))) {
+                }
+                if (layerId.startsWith('KML||')) {
                     const kmlLayerParts = decodeURIComponent(layerId).split('||')
                     layer = new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlLayerParts[1])
                 }

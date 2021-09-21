@@ -43,6 +43,7 @@ export default {
             required: true,
         },
     },
+    emits: ['change'],
     data() {
         return {
             sizes: drawingStyleSizes,

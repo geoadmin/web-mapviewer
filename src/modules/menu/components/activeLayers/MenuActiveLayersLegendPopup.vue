@@ -23,6 +23,7 @@ export default {
             required: true,
         },
     },
+    emits: ['close'],
     data() {
         return {
             content: null,

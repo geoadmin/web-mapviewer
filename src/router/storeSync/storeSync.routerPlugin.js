@@ -10,7 +10,7 @@ const watchedMutations = [
 /**
  * Checks all param in the current route and the store to see if there's a difference in values
  *
- * @param {Vuex.Store} store
+ * @param {Store} store
  * @param {RouterLink} currentRoute
  * @returns {boolean} True if a value is different between the store and the URL
  */
@@ -32,8 +32,8 @@ const pendingMutationTriggeredByThisModule = []
  * Plugin that syncs what is in the URL with what is in the store (and vice-versa). It also reacts
  * to on-the-fly changes in the URL and commit the changes to the store.
  *
- * @param {VueRouter} router
- * @param {Vuex.Store} store
+ * @param {Router} router
+ * @param {Store} store
  */
 const storeSyncRouterPlugin = (router, store) => {
     // flag to distinguish URL change originated by this module or by another source
