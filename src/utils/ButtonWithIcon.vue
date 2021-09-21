@@ -43,6 +43,7 @@ export default {
             default: false,
         },
     },
+    emits: ['click'],
     computed: {
         buttonClasses: function () {
             const classes = []

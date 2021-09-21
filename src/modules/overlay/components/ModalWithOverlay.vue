@@ -1,23 +1,21 @@
 <template>
-    <portal to="modal-container">
+    <teleport to="body">
         <div class="modal-popup">
             <div class="card">
-                <div class="card-header">
-                    <span v-if="title" class="float-start align-middle">{{ title }}</span>
-                    <ButtonWithIcon
-                        :button-font-awesome-icon="['fa', 'times']"
-                        small
-                        class="float-end"
-                        data-cy="modal-close-button"
-                        @click="onClose(false)"
-                    />
+                <div class="card-header d-flex">
+                    <span v-if="title" class="align-middle flex-grow-1">{{ title }}</span>
                     <ButtonWithIcon
                         v-if="allowPrint"
                         small
-                        class="float-end"
                         :button-font-awesome-icon="['fa', 'print']"
                         data-cy="modal-print-button"
                         @click="printModalContent"
+                    />
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['fa', 'times']"
+                        small
+                        data-cy="modal-close-button"
+                        @click="onClose(false)"
                     />
                 </div>
                 <div ref="modalContent" class="card-body p-2">
@@ -39,7 +37,7 @@
                 </div>
             </div>
         </div>
-    </portal>
+    </teleport>
 </template>
 
 <script>
@@ -64,6 +62,7 @@ export default {
             default: false,
         },
     },
+    emits: ['close'],
     mounted() {
         this.showOverlay(this.preventOverlayToClose)
         this.setOverlayShouldBeFront(true)

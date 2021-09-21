@@ -94,6 +94,7 @@ export default {
             required: true,
         },
     },
+    emits: ['change'],
     data: function () {
         return {
             showAllSymbols: false,

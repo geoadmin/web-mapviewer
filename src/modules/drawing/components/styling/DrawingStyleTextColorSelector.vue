@@ -35,6 +35,7 @@ export default {
             required: true,
         },
     },
+    emits: ['change'],
     data() {
         return {
             colors: drawingStyleColors,

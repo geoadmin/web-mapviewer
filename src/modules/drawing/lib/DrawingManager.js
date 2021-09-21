@@ -379,8 +379,8 @@ export default class DrawingManager extends Observable {
     }
 
     onModifyEnd_(event) {
-        const features = event.features.getArray()
-        if (features.length) {
+        if (event && event.features && event.features.getArray().length) {
+            const features = event.features.getArray()
             console.assert(features.length == 1)
             const feature = features[0]
             this.dispatchSelectEvent_(feature, false)
@@ -432,10 +432,10 @@ export default class DrawingManager extends Observable {
                 helpMsgId = 'draw_snap_first_point_'
             }
         }
-        let msg = i18n.t(helpMsgId + type)
+        let msg = i18n.global.t(helpMsgId + type)
 
         if (drawStarted && hasMinNbPoints) {
-            msg += '<br/>' + i18n.t('draw_delete_last_point')
+            msg += '<br/>' + i18n.global.t('draw_delete_last_point')
         }
         this.tooltipOverlay.getElement().innerHTML = msg
     }
@@ -486,7 +486,7 @@ export default class DrawingManager extends Observable {
         if (onExistingVertex) {
             helpMsgId = 'modify_existing_vertex_'
         }
-        this.tooltipOverlay.getElement().innerHTML = i18n.t(helpMsgId + type)
+        this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId + type)
     }
 
     // Display an help tooltip when selecting
@@ -500,7 +500,7 @@ export default class DrawingManager extends Observable {
         if (type) {
             helpMsgId = 'select_feature_' + type
         }
-        this.tooltipOverlay.getElement().innerHTML = i18n.t(helpMsgId)
+        this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId)
     }
 
     updateCursorAndTooltips(evt) {

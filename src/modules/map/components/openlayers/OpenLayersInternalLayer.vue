@@ -35,13 +35,7 @@
             <div
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
-            >
-                <open-layers-bod-layer
-                    v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
-                    :layer-config="aggregateSubLayer.layer"
-                    :z-index="zIndex"
-                />
-            </div>
+            ></div>
         </div>
         <OpenLayersKMLLayer
             v-if="layerConfig.type === LayerTypes.KML"
@@ -64,7 +58,7 @@ import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKM
 /** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers
-    name: 'OpenLayersBodLayer',
+    name: 'OpenLayersInternalLayer',
     components: {
         OpenLayersKMLLayer,
         OpenLayersGeoJSONLayer,

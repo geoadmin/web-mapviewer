@@ -17,15 +17,16 @@ const addLayerToMapMixin = {
     data() {
         return {
             layer: null,
+            isPresentOnMap: false,
         }
     },
     mounted() {
-        if (this.layer) {
+        if (this.layer && !this.isPresentOnMap) {
             this.addLayerToMap(this.zIndex, this.layer)
         }
     },
     destroyed() {
-        if (this.layer) {
+        if (this.layer && this.isPresentOnMap) {
             this.removeLayerFromMap(this.layer)
         }
     },
@@ -37,6 +38,7 @@ const addLayerToMapMixin = {
                 } else {
                     this.getMap().getLayers().insertAt(zIndex, layer)
                 }
+                this.isPresentOnMap = true
             }
         },
         removeLayerFromMap: function (layer) {

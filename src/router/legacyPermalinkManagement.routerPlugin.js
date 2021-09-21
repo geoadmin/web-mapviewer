@@ -42,8 +42,8 @@ const parseLegacyParams = (search) => {
  *   EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to
  *   EPSG:4326 and relabel them lat and lon accordingly
  *
- * @param {VueRouter} router
- * @param {Vuex.Store} store
+ * @param {Router} router
+ * @param {Store} store
  */
 const legacyPermalinkManagementRouterPlugin = (router, store) => {
     let isFirstRequest = true

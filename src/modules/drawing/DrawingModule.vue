@@ -2,7 +2,6 @@
     <div>
         <DrawingToolbox
             v-if="show"
-            class="draw-overlay"
             :drawing-modes="drawingModes"
             :current-drawing-mode="currentDrawingMode"
             :delete-last-point-callback="deleteLastPointCallback"
@@ -170,22 +169,8 @@ export default {
             window.drawingMap = map
             window.drawingManager = this.manager
         }
-        this.manager.on('change', () => {
-            this.triggerKMLUpdate()
-        })
-        this.manager.on('select', (event) => {
-            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
-            const selectEvent = event
-            const feature = selectEvent.feature
-            let xy =
-                feature && feature.getGeometry() instanceof Point
-                    ? feature.getGeometry().getCoordinates()
-                    : selectEvent.coordinates
-            const showOverlay = feature && !selectEvent.modifying
-            overlay.setVisible(showOverlay)
-            overlay.setPosition(xy)
-            this.selectedFeature = showOverlay ? feature : null
-        })
+        this.manager.on('change', this.triggerKMLUpdate)
+        this.manager.on('select', this.onSelect)
         this.manager.on('drawEnd', () => {
             this.setDrawingMode(null)
         })
@@ -226,6 +211,19 @@ export default {
                 // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
+        },
+        onSelect: function (event) {
+            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
+            const selectEvent = event
+            const feature = selectEvent.feature
+            let xy =
+                feature && feature.getGeometry() instanceof Point
+                    ? feature.getGeometry().getCoordinates()
+                    : selectEvent.coordinates
+            const showOverlay = feature && !selectEvent.modifying
+            overlay.setVisible(showOverlay)
+            overlay.setPosition(xy)
+            this.selectedFeature = showOverlay ? feature : null
         },
         saveDrawing: async function (kml) {
             let ids

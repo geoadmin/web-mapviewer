@@ -10,8 +10,8 @@
  *
  * See the Vuex "sister" plugin {@link appReadinessPlugin} for more information
  *
- * @param {VueRouter} router
- * @param {Vuex.Store} store
+ * @param {Router} router
+ * @param {Store} store
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
     let wantedDestination = null

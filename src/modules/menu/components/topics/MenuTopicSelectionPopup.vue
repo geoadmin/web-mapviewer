@@ -26,6 +26,7 @@ export default {
             default: () => [],
         },
     },
+    emits: ['selectTopic', 'close'],
     methods: {
         selectTopic: function (topic) {
             this.$emit('selectTopic', topic)

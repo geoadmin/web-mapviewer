@@ -61,7 +61,7 @@ export default {
     transition: 0.2s;
 }
 
-.slide-enter {
+.slide-enter-from {
     transform: translate(100%, 0);
 }
 

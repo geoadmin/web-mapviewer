@@ -35,6 +35,7 @@ export default {
             required: true,
         },
     },
+    emits: ['timestampChange'],
     computed: {
         hasMultipleTimestamps: function () {
             return this.timeConfig.series.length > 1

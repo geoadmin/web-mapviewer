@@ -12,11 +12,12 @@ import { Point } from 'ol/geom'
 
 import { randomIntBetween } from '@/utils/numberUtils'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import markerImage from '@/modules/map/assets/marker.png'
 
 const markerBalloonStyle = new Style({
     image: new IconStyle({
         anchor: [0.5, 1],
-        src: require('@/modules/map/assets/marker.png'),
+        src: markerImage,
     }),
 })
 // style for geolocation point

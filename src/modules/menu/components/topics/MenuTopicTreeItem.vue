@@ -43,6 +43,7 @@ export default {
             required: true,
         },
     },
+    emits: ['clickOnLayerTopicItem'],
     data() {
         return {
             showChildren: false,

@@ -1,8 +1,6 @@
 <template>
     <div id="app">
         <router-view />
-        <portal-target name="toolbox-container" />
-        <portal-target name="modal-container" />
     </div>
 </template>
 

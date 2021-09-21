@@ -113,6 +113,7 @@ export default {
             default: null,
         },
     },
+    emits: ['close', 'delete'],
     data: function () {
         return {
             options: {
