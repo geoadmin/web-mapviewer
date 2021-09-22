@@ -19,6 +19,7 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
 - [Project setup](#project-setup)
   - [Pre-Requirements](#pre-requirements)
   - [Install](#install)
+  - [Environment variables](#environment-variables)
   - [Tooling for translation update](#tooling-for-translation-update)
   - [List of npm scripts](#list-of-npm-scripts)
   - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
@@ -95,6 +96,16 @@ The followings programs/tools are required in order to develop on `web-mapviewer
 ```bash
 npm install
 ```
+
+### Environment variables
+
+Environment variables are defined in the following files
+
+- .env.development
+- .env.prodcution
+
+The first one is used by `npm run serve` as well as for all `development` modes. Otherwise `.env.production` is used by default.
+For more information about loading environment variables see [Vue - Modes and Environment Variables](https://cli.vuejs.org/guide/mode-and-env.html#modes-and-environment-variables)
 
 ### Tooling for translation update
 
