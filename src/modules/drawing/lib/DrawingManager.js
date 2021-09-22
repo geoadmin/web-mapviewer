@@ -379,13 +379,15 @@ export default class DrawingManager extends Observable {
     }
 
     onModifyEnd_(event) {
-        const features = event.features.getArray()
-        if (features.length) {
-            console.assert(features.length == 1)
-            const feature = features[0]
-            this.dispatchSelectEvent_(feature, false)
-            this.dispatchChangeEvent_(feature)
-            this.map.getTarget().classList.remove('cursor-grabbing')
+        if (event.features) {
+            const features = event.features.getArray()
+            if (features.length) {
+                console.assert(features.length == 1)
+                const feature = features[0]
+                this.dispatchSelectEvent_(feature, false)
+                this.dispatchChangeEvent_(feature)
+                this.map.getTarget().classList.remove('cursor-grabbing')
+            }
         }
     }
 
