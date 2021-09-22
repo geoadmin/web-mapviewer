@@ -1,5 +1,10 @@
 <template>
-    <MenuSection v-if="currentTopic" :title="$t(currentTopic.id)">
+    <MenuSection
+        v-if="currentTopic"
+        :title="$t(currentTopic.id)"
+        :show-content="showTopicTree"
+        data-cy="menu-topic-section"
+    >
         <template #extra-button>
             <span data-cy="change-topic-button" @click="setShowTopicSelectionPopup">
                 {{ $t('choose_theme') }}
@@ -11,7 +16,7 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <div class="menu-topic-tree">
+        <div class="menu-topic-tree" data-cy="menu-topic-tree">
             <MenuTopicTreeItem
                 v-for="item in currentTopicTree"
                 :key="item.name"
@@ -44,7 +49,12 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
         }),
-        ...mapGetters(['visibleLayers', 'getLayerForGeoAdminId']),
+        ...mapGetters(['visibleLayers', 'getLayerForGeoAdminId', 'isDefaultTopic']),
+        showTopicTree: function () {
+            // We only want the topic tree open whenever the user has chosen a different topic
+            // than the default one (it can be opened by the user by a click on it, but by default it's closed)
+            return !this.isDefaultTopic
+        },
     },
     methods: {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'changeTopic']),
@@ -58,7 +68,7 @@ export default {
             )
         },
         onClickOnLayerTopicItem: function (layerId) {
-            const layer = this.getLayerForBodId(layerId)
+            const layer = this.getLayerForGeoAdminId(layerId)
             if (layer.visible) {
                 this.toggleLayerVisibility(layerId)
             } else {

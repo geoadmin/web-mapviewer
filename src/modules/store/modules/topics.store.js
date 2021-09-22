@@ -1,12 +1,32 @@
 export const CHANGE_TOPIC_MUTATION = 'changeTopic'
 
 const state = {
+    /**
+     * List of all available topics
+     *
+     * @type {Topic[]}
+     */
     config: [],
+    /**
+     * Current topic (either default 'ech' at app startup, or another from the config later chosen
+     * by the user)
+     *
+     * @type {Topic}
+     */
     current: null,
+    /**
+     * Current topic's layers tree (that will help the user select layers belonging to this topic)
+     *
+     * @type {TopicTreeItem[]}
+     */
     tree: [],
 }
 
-const getters = {}
+const getters = {
+    isDefaultTopic: (state) => {
+        return state.current && state.current.id === 'ech'
+    },
+}
 
 const actions = {
     setTopics: ({ commit, state }, topics) => {

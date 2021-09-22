@@ -19,7 +19,6 @@ let isFirstSetTopic = true
  *
  * - Clear up any active layers
  * - Add any layer to the app that are set in the topic metadata (and set their opacity/visibility accordingly)
- * - Close the side menu (so that the map is fully visible with the new topic)
  *
  * @param store
  */
@@ -27,10 +26,6 @@ const topicChangeManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
         // we listen to the "change topic" mutation
         if (mutation.type === CHANGE_TOPIC_MUTATION) {
-            // closing side menu (if open)
-            if (state.ui.showMenuTray) {
-                store.dispatch('toggleMenuTray')
-            }
             // closing overlay if it's still visible after menu close
             if (state.overlay.show) {
                 store.dispatch('hideOverlay')
