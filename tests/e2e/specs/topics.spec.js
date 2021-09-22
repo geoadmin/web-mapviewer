@@ -3,6 +3,7 @@ describe('Topics', () => {
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
         cy.readStoreValue('state.ui.showMenuTray').then((showMenuTray) => {
+            // only click on the menu button if the menu is not opened yet
             if (!showMenuTray) {
                 cy.get('[data-cy="menu-button"]').click()
             }
@@ -31,6 +32,13 @@ describe('Topics', () => {
                 expect(currentTopic).to.be.an('Object')
                 expect(currentTopic.id).to.eq('ech')
             })
+        })
+        it('keeps the topic tree closed at app startup (with default topic)', () => {
+            // even though this topic has a topic tree (so the menu should be open)
+            // at app startup we do not want that
+            cy.goToMapView()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-topic-tree"]').should('be.hidden')
         })
     })
     context('Topic switching', () => {
@@ -152,6 +160,38 @@ describe('Topics', () => {
             cy.get('[data-cy="menu-section-active-layers"]').should('be.hidden')
             selectTopicWithId('test-topic-with-active-layers')
             cy.get('[data-cy="menu-section-active-layers"]').should('be.visible')
+        })
+        it('shows the topic tree in the menu when a topic is selected (that is not the default topic)', () => {
+            cy.goToMapView()
+            selectTopicWithId('test-topic-standard')
+            cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
+        })
+    })
+    context('Layer selection in the topic tree', () => {
+        beforeEach(() => {
+            cy.goToMapView()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-topic-section"]').click()
+            cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
+        })
+        it('does not open the first elements of the tree by default', () => {
+            cy.get('[data-cy="topic-tree-item-2"]').should('be.visible')
+            cy.get('[data-cy="topic-tree-item-3"]').should('be.hidden')
+        })
+        it("shows a topic tree item's children when we click on it", () => {
+            cy.get('[data-cy="topic-tree-item-2"]').click()
+            cy.get('[data-cy="topic-tree-item-3"]').should('be.visible')
+        })
+        it('adds a layer to the map when we click on its name in the topic tree', () => {
+            cy.get('[data-cy="topic-tree-item-2"]').click()
+            cy.get('[data-cy="topic-tree-item-3"]').click()
+            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+            cy.get('[data-cy="topic-tree-item-test.wmts.layer"]').click()
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').lengthOf(1)
+                const [firstLayer] = activeLayers
+                expect(firstLayer.getID()).to.eq('test.wmts.layer')
+            })
         })
     })
 })

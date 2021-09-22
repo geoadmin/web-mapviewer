@@ -1,5 +1,10 @@
 <template>
-    <MenuSection v-if="currentTopic" :title="$t(currentTopic.id)" :show-content="showTopicTree">
+    <MenuSection
+        v-if="currentTopic"
+        :title="$t(currentTopic.id)"
+        :show-content="showTopicTree"
+        data-cy="menu-topic-section"
+    >
         <template #extra-button>
             <span data-cy="change-topic-button" @click="setShowTopicSelectionPopup">
                 {{ $t('choose_theme') }}
@@ -11,7 +16,7 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <div class="menu-topic-tree">
+        <div class="menu-topic-tree" data-cy="menu-topic-tree">
             <MenuTopicTreeItem
                 v-for="item in currentTopicTree"
                 :key="item.name"
@@ -63,7 +68,7 @@ export default {
             )
         },
         onClickOnLayerTopicItem: function (layerId) {
-            const layer = this.getLayerForBodId(layerId)
+            const layer = this.getLayerForGeoAdminId(layerId)
             if (layer.visible) {
                 this.toggleLayerVisibility(layerId)
             } else {

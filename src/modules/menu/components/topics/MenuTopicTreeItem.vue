@@ -3,6 +3,7 @@
         <div
             class="menu-list-item-title"
             :class="`menu-tree-item-${item.type.toLowerCase()}`"
+            :data-cy="`topic-tree-item-${item.id}`"
             @click="onClick"
         >
             <button class="btn btn-default" :class="{ 'text-danger': isActive }">
