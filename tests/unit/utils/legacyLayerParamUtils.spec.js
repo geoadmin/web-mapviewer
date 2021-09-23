@@ -121,7 +121,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             const kmlFileUrl = 'https://public.geo.admin.ch/super-legit-file-id'
             const result = getLayersFromLegacyUrlParams(
                 fakeLayerConfig,
-                `layers=KML%7C%7C${encodeURIComponent(kmlFileUrl)}`
+                `layers=KML||${encodeURIComponent(kmlFileUrl)}`
             )
             expect(result).to.be.an('Array').length(1)
             const [kmlLayer] = result
@@ -131,7 +131,7 @@ describe('Test parsing of legacy URL param into new params', () => {
         it('Handles opacity/visibility correctly with external layers', () => {
             const result = getLayersFromLegacyUrlParams(
                 fakeLayerConfig,
-                'layers=KML%7C%7Cwe-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
+                'layers=KML||we-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
             )
             expect(result).to.be.an('Array').length(1)
             const [kmlLayer] = result
