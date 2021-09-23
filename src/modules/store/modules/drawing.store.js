@@ -1,5 +1,5 @@
-import { API_PUBLIC_URL } from '@/config'
 import { getAllIconSets } from '@/api/icon.api'
+import { getKmlUrl } from '@/api/files.api'
 
 /** @enum */
 export const drawingModes = {
@@ -45,7 +45,7 @@ export default {
     getters: {
         getDrawingPublicFileUrl: (state) => {
             if (state.drawingKmlIds) {
-                return `${API_PUBLIC_URL}${state.drawingKmlIds.fileId}`
+                return getKmlUrl(state.drawingKmlIds.fileId)
             }
             return null
         },

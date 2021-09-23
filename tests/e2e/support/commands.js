@@ -18,24 +18,26 @@ const addFileAPIFixtureAndIntercept = () => {
     cy.intercept(
         {
             method: 'POST',
-            url: '/files',
+            url: '/api/kml/admin',
         },
         {
+            statusCode: 201,
             fixture: 'service-kml/create-file.fixture.json',
         }
     ).as('post-kml')
     cy.intercept(
         {
-            method: 'POST',
-            url: '/files/**',
+            method: 'PUT',
+            url: '/api/kml/admin/**',
         },
         {
+            statusCode: 200,
             fixture: 'service-kml/update-file.fixture.json',
         }
     ).as('update-kml')
     // intercepting now the call to the file itself
     cy.fixture('service-kml/create-file.fixture.json').then((fileFixture) => {
-        cy.intercept(`**/${fileFixture.fileId}`, {
+        cy.intercept(`**/api/kml/files/${fileFixture.fileId}`, {
             body: '<kml></kml>',
         }).as('get-kml')
     })

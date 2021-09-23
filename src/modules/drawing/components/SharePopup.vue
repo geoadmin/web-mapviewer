@@ -16,7 +16,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
             <div class="input-group input-group-sm mb-3">
                 <input type="text" class="form-control" :value="adminUrl" disabled />
@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import { API_PUBLIC_URL } from '@/config'
+import { getKmlUrl } from '@/api/files.api'
+import i18n from '@/modules/i18n'
 
 export default {
     props: {
@@ -53,12 +54,21 @@ export default {
     },
     computed: {
         fileUrl() {
-            if (!this.kmlIds) return ''
-            return `${location.origin}/#/map?layers=KML|${API_PUBLIC_URL}${this.kmlIds.fileId}|Drawing`
+            if (this.kmlIds && this.kmlIds.fileId) {
+                return `${location.origin}/#/map?layers=KML|${getKmlUrl(
+                    this.kmlIds.fileId
+                )}|${i18n.t('draw_layer_label')}`
+            }
+            return ''
         },
         adminUrl() {
-            if (!this.kmlIds) return ''
-            return `${location.origin}/#/map?drawingAdminFileId=${this.kmlIds.adminId}`
+            if (this.kmlIds && this.kmlIds.fileId && this.kmlIds.adminId) {
+                return `${location.origin}/#/map?layers=KML|${getKmlUrl(
+                    this.kmlIds.fileId
+                )}|${i18n.t('draw_layer_label')}@adminId=${this.kmlIds.adminId}`
+            }
+            // if no adminID is availble don't show the edit share link.
+            return null
         },
     },
     methods: {

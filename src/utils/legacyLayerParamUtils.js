@@ -1,4 +1,5 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import i18n from '@/modules/i18n'
 
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
@@ -74,7 +75,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                     layer = layer.clone()
                 } else if (layerId.startsWith(encodeURIComponent('KML||'))) {
                     const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                    layer = new KMLLayer('Drawing', 1.0, kmlLayerParts[1])
+                    layer = new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlLayerParts[1])
                 }
                 if (layer) {
                     // checking if visibility is set in URL

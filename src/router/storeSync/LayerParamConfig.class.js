@@ -75,8 +75,21 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             // checking if it is an external layer first
             if (layer.id.startsWith('KML|') && layer.id.split('|').length === 3) {
                 const splittedLayerId = layer.id.split('|')
-                const kmlLayer = new KMLLayer(splittedLayerId[2], layer.opacity, splittedLayerId[1])
+                const kmlLayer = new KMLLayer(
+                    splittedLayerId[2],
+                    layer.opacity,
+                    splittedLayerId[1],
+                    null,
+                    layer.customAttributes.adminId
+                )
                 promisesForAllDispatch.push(store.dispatch('addLayer', kmlLayer))
+                // Set the kmlIds in the drawing module in order to edit it.
+                promisesForAllDispatch.push(
+                    store.dispatch('setKmlIds', {
+                        fileId: splittedLayerId[1].split('/').pop(),
+                        adminId: layer.customAttributes.adminId,
+                    })
+                )
             } else {
                 // if internal (or BOD) layer, we add it through its config we have stored previously
                 promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))

@@ -40,7 +40,7 @@ import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'
 import DrawingStylePopup from '@/modules/drawing/components/styling/DrawingStylePopup.vue'
 import { Overlay } from 'ol'
-import { create, update } from '@/api/files.api'
+import { createKml, updateKml } from '@/api/files.api'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { Point } from 'ol/geom'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup'
@@ -220,7 +220,9 @@ export default {
             this.KMLUpdateTimeout = setTimeout(
                 () => {
                     const kml = this.manager.createKML()
-                    if (kml && kml.length) this.saveDrawing(kml)
+                    if (kml && kml.length) {
+                        this.saveDrawing(kml)
+                    }
                 },
                 // when testing, speed up and avoid race conditions
                 // by only waiting for next tick
@@ -228,14 +230,15 @@ export default {
             )
         },
         saveDrawing: async function (kml) {
-            let ids
-            if (!this.kmlIds) {
-                ids = await create(kml)
+            let metadata
+            if (!this.kmlIds || !this.kmlIds.adminId) {
+                // if we don't have an adminId then create a new KML File
+                metadata = await createKml(kml)
             } else {
-                ids = await update(this.kmlIds.adminId, kml)
+                metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
             }
-            if (ids && ids.adminId && ids.fileId) {
-                this.setKmlIds({ adminId: ids.adminId, fileId: ids.fileId })
+            if (metadata) {
+                this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }
         },
         exportDrawing: function (gpx = false) {
@@ -264,20 +267,27 @@ export default {
             this.triggerKMLUpdate()
         },
         addSavedKmlLayer: function () {
-            if (!this.kmlLayers || !this.kmlLayers.length) return
+            if (!this.kmlLayers || !this.kmlLayers.length) {
+                return
+            }
             // Search for a layer with corresponding fileId or take last
-            const layer =
-                this.kmlIds && this.kmlIds.adminId
-                    ? this.kmlLayers.find(
-                          (l) => l.kmlFileUrl.split('/').pop() === this.kmlIds.fileId
-                      )
-                    : this.kmlLayers[this.kmlLayers.length - 1]
+            let layer
+            if (this.kmlIds && this.kmlIds.fileId) {
+                layer = this.kmlLayers.find((l) => l.fileId === this.kmlIds.fileId)
+            } else {
+                layer = this.kmlLayers[this.kmlLayers.length - 1]
+            }
             // If KML layer exists add to drawing manager
-            if (layer)
+            if (layer) {
                 this.manager.addKmlLayer(layer).then(() => {
-                    if (!this.kmlIds) this.triggerKMLUpdate()
+                    if (!this.kmlIds) {
+                        this.triggerKMLUpdate()
+                    }
+                    // Remove the layer to not have an overlap with the drawing from
+                    // the drawing manager
                     this.removeLayer(layer)
                 })
+            }
         },
     },
 }

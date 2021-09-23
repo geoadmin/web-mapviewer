@@ -1,7 +1,8 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import i18n from '@/modules/i18n'
 
-const generateKmlLayer = (kmlUrl) => {
-    return new KMLLayer('test', 1.0, kmlUrl)
+const generateKmlLayer = (kmlUrl, fileId, adminId) => {
+    return new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlUrl, fileId, adminId)
 }
 
 /**
@@ -18,18 +19,22 @@ const drawingAddLayerWhenDrawingDonePlugin = (store) => {
     store.subscribe((mutation, state) => {
         if (mutation.type === 'setKmlIds') {
             if (state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
-                kmlLayer = generateKmlLayer(store.getters.getDrawingPublicFileUrl)
+                kmlLayer = generateKmlLayer(
+                    store.getters.getDrawingPublicFileUrl,
+                    state.drawing.drawingKmlIds.fileId,
+                    state.drawing.drawingKmlIds.adminId
+                )
             }
         } else if (mutation.type === 'setShowDrawingOverlay') {
-            if (!kmlLayer && state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
-                kmlLayer = generateKmlLayer(store.getters.getDrawingPublicFileUrl)
+            if (state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
+                kmlLayer = generateKmlLayer(
+                    store.getters.getDrawingPublicFileUrl,
+                    state.drawing.drawingKmlIds.fileId,
+                    state.drawing.drawingKmlIds.adminId
+                )
             }
             if (kmlLayer) {
-                if (state.ui.showDrawingOverlay) {
-                    // we remove the drawing layer (the KML) so that it can be edited in the drawing
-                    // module, without having a duplicate in the layer stack
-                    store.dispatch('removeLayer', kmlLayer)
-                } else {
+                if (!state.ui.showDrawingOverlay) {
                     store.dispatch('addLayer', kmlLayer)
                 }
             }
