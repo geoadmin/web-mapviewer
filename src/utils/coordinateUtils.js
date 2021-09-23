@@ -59,13 +59,18 @@ const LV03_BOUNDS = {
 const isInBounds = (x, y, bounds) =>
     x > bounds.x.lower && x < bounds.x.upper && y > bounds.y.lower && y < bounds.y.upper
 
-const numericalExtractor = (regexMatches) => {
-    // removing thousand separators
-    const x = Number(regexMatches[1].replace(/[' ]/g, ''))
-    const y = Number(regexMatches[2].replace(/[' ]/g, ''))
-    if (Number.isNaN(x) || Number.isNaN(y)) {
-        return undefined
-    }
+/**
+ * Attempts to re-project given coordinates to WebMercator (WGS84). Will return a tuple containing
+ * [lat, lon] even if input is given as [lon, lat] (as this is what OpenLayers wants to be fed.
+ *
+ * This function supports input from LV95, LV03 or WebMercator input (no other projection supported)
+ *
+ * @param x {Number} X part of the coordinate (Easting/Longitude)
+ * @param y {Number} Y part of the coordinate (Northing/Latitude)
+ * @returns {Number[]} Re-projected coordinate as [lat, lon], or undefined if the input was not
+ *   convertible to WebMercator
+ */
+export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
     // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
     // checking LV95 bounds
     if (isInBounds(x, y, LV95_BOUNDS)) {
@@ -80,14 +85,27 @@ const numericalExtractor = (regexMatches) => {
     } else if (isInBounds(y, x, LV03_BOUNDS)) {
         return proj4('EPSG:21781', proj4.WGS84, [y, x])
         // checking for WGS84 bounds
-    } else if (isInBounds(y, x, WGS84_BOUNDS)) {
+    } else if (isInBounds(x, y, WGS84_BOUNDS)) {
         // we inverse lat/lon to lon/lat as user inputs support lat/lon but the app behind function with lon/lat
         // coordinates, especially proj4js
         return [y, x]
+    } else if (isInBounds(y, x, WGS84_BOUNDS)) {
+        // if it's already a lat/lon we return it as is
+        return [x, y]
     } else {
         log('debug', `Unknown coordinate type [${x}, ${y}]`)
         return undefined
     }
+}
+
+const numericalExtractor = (regexMatches) => {
+    // removing thousand separators
+    const x = Number(regexMatches[1].replace(/[' ]/g, ''))
+    const y = Number(regexMatches[2].replace(/[' ]/g, ''))
+    if (Number.isNaN(x) || Number.isNaN(y)) {
+        return undefined
+    }
+    return reprojectUnknownSrsCoordsToWebMercator(x, y)
 }
 
 const webmercatorExtractor = (regexMatches) => {

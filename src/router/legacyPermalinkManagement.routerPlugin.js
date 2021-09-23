@@ -1,9 +1,9 @@
-import proj4 from 'proj4'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
+import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
 
 /**
  * @param {String} search
@@ -79,13 +79,13 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
 
                         // storing coordinate parts for later conversion
                         case 'E':
+                        case 'X':
                             legacyCoordinates[0] = Number(legacyParams[param])
                             break
                         case 'N':
+                        case 'Y':
                             legacyCoordinates[1] = Number(legacyParams[param])
                             break
-
-                        // TODO: add support for X/Y and easting/northing (and have a look if there were other ways mf-geoadmin3 was expressing coordinates)
 
                         // taking all layers related param aside so that they can be processed later (see below)
                         // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
@@ -126,7 +126,10 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         legacyCoordinates[0] &&
                         legacyCoordinates[1]
                     ) {
-                        const center = proj4('EPSG:2056', 'EPSG:4326', legacyCoordinates)
+                        const center = reprojectUnknownSrsCoordsToWebMercator(
+                            legacyCoordinates[0],
+                            legacyCoordinates[1]
+                        )
                         newQuery['lon'] = round(center[0], 6)
                         newQuery['lat'] = round(center[1], 6)
                     }
