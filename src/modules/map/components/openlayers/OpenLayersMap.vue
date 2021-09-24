@@ -369,8 +369,8 @@ export default {
         left: 0;
         background: rgba(255, 255, 255, 0.6);
         .scale-line-inner {
-            color: #000;
-            border: 2px solid #000;
+            color: $black;
+            border: 2px solid $black;
             border-top: none;
             max-width: 150px;
         }
