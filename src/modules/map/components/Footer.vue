@@ -1,7 +1,8 @@
 <template>
-    <div id="footer">
+    <div id="footer" class="d-flex">
+        <portal-target multiple class="flex-grow-1 d-flex align-items-center" name="footer" />
         <a
-            class="copyright"
+            class="copyright align-self-center"
             :href="`https://www.geo.admin.ch/${$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`"
             target="_blank"
         >
@@ -16,21 +17,16 @@ export default {}
 
 <style lang="scss">
 @import 'src/scss/bootstrap-theme';
-@import 'src/scss/variables';
 
 #footer {
     position: absolute;
     bottom: 0;
     left: 0;
+    z-index: $zindex-footer;
     width: 100%;
     height: $footer-height;
     font-size: 0.6rem;
     padding: 0 0.2rem;
     background: $white;
-    text-align: right;
-    .copyright {
-        // same height as #footer so that text is vertically centered
-        line-height: 1.5rem;
-    }
 }
 </style>

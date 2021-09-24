@@ -1,9 +1,10 @@
 import proj4 from 'proj4'
 
-import { round } from '@/utils/numberUtils'
+import { formatThousand, round } from '@/utils/numberUtils'
 
-import { toPoint as mgrsToWGS84 } from './militaryGridProjection'
+import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
 import log from '@/utils/logging'
+import { toStringHDMS, toStringXY } from 'ol/coordinate'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
@@ -272,4 +273,57 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
             )
         })
         .find((result) => Array.isArray(result)) // returning the first value that is a coordinate array (will return undefined if nothing is found)
+}
+
+/** @enum */
+export const CoordinateSystems = {
+    LV95: {
+        epsg: 'EPSG:2056',
+        label: 'CH1903+ / LV95',
+        format: function (coordinate) {
+            return toStringXY(coordinate, 2)
+        },
+    },
+    LV03: {
+        epsg: 'EPSG:21781',
+        label: 'CH1903 / LV03',
+        format: function (coordinate) {
+            return toStringXY(coordinate, 2)
+        },
+    },
+    WGS84: {
+        epsg: 'EPSG:4326',
+        label: 'WGS84',
+        format: function (coordinate) {
+            return toStringHDMS(coordinate, 2)
+        },
+    },
+    UTM: {
+        epsg: 'EPSG:4326',
+        label: 'UTM',
+        format: function (coordinate) {
+            let c = LLtoUTM({ lat: coordinate[1], lon: coordinate[0] })
+            return `${c.zoneNumber}${c.zoneLetter} ${formatThousand(c.easting)}
+                        ${formatThousand(c.northing)}`
+        },
+    },
+    MGRS: {
+        epsg: 'EPSG:4326',
+        label: 'MGRS',
+        format: function (coordinate) {
+            return LLtoMGRS(coordinate, 5)
+        },
+    },
+}
+
+/**
+ * @param coordinates {Number[]}
+ * @param coordinateSystem {CoordinateSystems}
+ * @returns {string}
+ */
+export const printHumanReadableCoordinates = (
+    coordinates,
+    coordinateSystem = CoordinateSystems.LV95
+) => {
+    return coordinateSystem.format(coordinates)
 }
