@@ -1,6 +1,7 @@
 <template>
-    <div id="footer" class="d-flex">
+    <div id="footer" class="d-flex align-items-center">
         <portal-target multiple class="flex-grow-1 d-flex align-items-center" name="footer" />
+        <div v-if="showAppVersion" class="mx-3 app-version small">v{{ appVersion }}</div>
         <a
             class="copyright align-self-center"
             :href="`https://www.geo.admin.ch/${$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`"
@@ -12,10 +13,23 @@
 </template>
 
 <script>
-export default {}
+import { APP_VERSION, DEBUG } from '@/config'
+
+export default {
+    data() {
+        return {
+            appVersion: APP_VERSION,
+        }
+    },
+    computed: {
+        showAppVersion: function () {
+            return DEBUG
+        },
+    },
+}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/bootstrap-theme';
 
 #footer {
@@ -28,5 +42,9 @@ export default {}
     font-size: 0.6rem;
     padding: 0 0.2rem;
     background: $white;
+
+    .app-version {
+        color: $gray-400;
+    }
 }
 </style>

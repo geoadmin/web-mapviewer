@@ -83,7 +83,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .menu-topic-tree {
     max-height: 50vh;
     overflow-y: auto;

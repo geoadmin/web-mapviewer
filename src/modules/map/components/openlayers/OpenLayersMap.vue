@@ -285,7 +285,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/scss/bootstrap-theme';
+// style is unscoped so that it may reach scale-line outside of itself
+// as it was transported in the footer by vue-portal
 #ol-map {
     width: 100%;
     height: 100%;
@@ -302,8 +303,8 @@ export default {
         left: 0;
         background: rgba(255, 255, 255, 0.6);
         .scale-line-inner {
-            color: $black;
-            border: 2px solid $black;
+            color: #000;
+            border: 2px solid #000;
             border-top: none;
             max-width: 150px;
         }

@@ -78,7 +78,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .timestamps-popover-content {
     display: grid;
     max-height: 60vh;

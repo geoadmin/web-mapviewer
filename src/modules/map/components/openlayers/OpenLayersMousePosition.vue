@@ -1,9 +1,9 @@
 <template>
     <portal to="footer" :order="2">
-        <div ref="mousePosition" class="d-flex">
+        <div ref="mousePosition" class="d-flex align-items-center">
             <select
                 v-model="projection"
-                class="form-control from-select-sm mx-1"
+                class="form-control-xs mx-1"
                 data-cy="mouse-position-select"
             >
                 <option v-for="proj in availableProjections" :key="proj.id" :value="proj">
@@ -61,7 +61,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
-</style>

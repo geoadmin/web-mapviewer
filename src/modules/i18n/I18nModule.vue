@@ -6,7 +6,7 @@
 export default {}
 </script>
 
-<style>
+<style scoped>
 .i18n-module {
     position: absolute;
     top: 0;
