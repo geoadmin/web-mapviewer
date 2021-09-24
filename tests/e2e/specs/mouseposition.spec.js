@@ -20,26 +20,32 @@ function getMousePositionValue(x = 100, y = 100, coordStr = '671202, 6074296') {
 }
 
 describe('Test mouse position', () => {
-    it('Changing displayed projection for mouse position', () => {
-        const E = 2600000
-        const N = 1200000
-        const lv95zoom = 8
+    beforeEach(() => {
         cy.goToMapView('en', {
-            E,
-            N,
-            z: lv95zoom,
+            E: 2600000,
+            N: 1200000,
+            z: 8,
         })
-        // Change display projection without moving the mouse
-        getMousePositionAndSelect('LV95')
+    })
+    it('Shows LV95 coordinates by default', () => {
         getMousePositionValue(100, 100, '2435419.18467, 1297425.85760')
-
+    })
+    it('switches to LV03 when this SRS is selected in the UI', () => {
         getMousePositionAndSelect('LV03')
         getMousePositionValue(100, 100, '435419.18, 297425.86')
-
+    })
+    it('switches to MGRS when this SRS is selected in the UI', () => {
         getMousePositionAndSelect('MGRS')
         getMousePositionValue(100, 100, '31TFN6781597235')
-
+    })
+    it('switches to WebMercator when this SRS is selected in the UI', () => {
         getMousePositionAndSelect('WGS1984')
         getMousePositionValue(100, 100, '47° 48′ 23.71″ N 5° 14′ 28.92″ E')
+    })
+    it('goes back to LV95 display if selected again', () => {
+        // Change display projection without moving the mouse
+        getMousePositionAndSelect('MGRS')
+        getMousePositionAndSelect('LV95')
+        getMousePositionValue(100, 100, '2435419.18467, 1297425.85760')
     })
 })
