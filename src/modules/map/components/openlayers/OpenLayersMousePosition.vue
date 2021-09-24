@@ -1,12 +1,13 @@
 <template>
     <portal to="footer" :order="2">
-        <div ref="mousePosition" class="d-flex align-items-center">
+        <div ref="mousePosition" class="d-flex align-items-center" data-cy="mouse-position">
             <select
-                v-model="projection"
+                v-model="currentProjectionId"
                 class="form-control-xs mx-1"
                 data-cy="mouse-position-select"
+                @change="onCurrentProjectionChange"
             >
-                <option v-for="proj in availableProjections" :key="proj.id" :value="proj">
+                <option v-for="proj in availableProjections" :key="proj.id" :value="proj.id">
                     {{ proj.label }}
                 </option>
             </select>
@@ -24,22 +25,14 @@ export default {
     inject: ['getMap'],
     data: function () {
         return {
+            // we start by showing LV95 coordinates
             mousePositionControl: new MousePosition({
-                coordinateFormat: CoordinateSystems.LV95.format,
-                projection: getProjection(CoordinateSystems.LV95.epsg),
                 className: 'mouse-position',
                 undefinedHTML: '&nbsp;',
             }),
-            // we start by showing LV95 coordinates
-            projection: CoordinateSystems.LV95,
+            currentProjectionId: CoordinateSystems.LV95.id,
             availableProjections: CoordinateSystems,
         }
-    },
-    watch: {
-        projection: function (newProj) {
-            this.mousePositionControl.setProjection(getProjection(newProj.epsg))
-            this.mousePositionControl.setCoordinateFormat(newProj.format)
-        },
     },
     mounted() {
         const map = this.getMap()
@@ -47,6 +40,8 @@ export default {
         this.$nextTick().then(() => {
             this.$nextTick(() => {
                 this.mousePositionControl.setTarget(this.$refs.mousePosition)
+                this.mousePositionControl.setCoordinateFormat(CoordinateSystems.LV95.format)
+                this.mousePositionControl.setProjection(getProjection(CoordinateSystems.LV95.epsg))
                 if (map) {
                     map.addControl(this.mousePositionControl)
                 }
@@ -58,6 +53,13 @@ export default {
         if (map) {
             map.removeControl(this.mousePositionControl)
         }
+    },
+    methods: {
+        onCurrentProjectionChange: function () {
+            const newProjection = CoordinateSystems[this.currentProjectionId]
+            this.mousePositionControl.setProjection(getProjection(newProjection.epsg))
+            this.mousePositionControl.setCoordinateFormat(newProjection.format)
+        },
     },
 }
 </script>

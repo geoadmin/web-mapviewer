@@ -1,9 +1,8 @@
 import proj4 from 'proj4'
 
-import { formatThousand, round } from '@/utils/numberUtils'
-
+import { formatThousand, round } from './numberUtils'
 import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
-import log from '@/utils/logging'
+import log from './logging'
 import { toStringHDMS, toStringXY } from 'ol/coordinate'
 
 // 47.5 7.5
@@ -278,6 +277,7 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
 /** @enum */
 export const CoordinateSystems = {
     LV95: {
+        id: 'LV95',
         epsg: 'EPSG:2056',
         label: 'CH1903+ / LV95',
         format: function (coordinate) {
@@ -285,6 +285,7 @@ export const CoordinateSystems = {
         },
     },
     LV03: {
+        id: 'LV03',
         epsg: 'EPSG:21781',
         label: 'CH1903 / LV03',
         format: function (coordinate) {
@@ -292,6 +293,7 @@ export const CoordinateSystems = {
         },
     },
     WGS84: {
+        id: 'WGS84',
         epsg: 'EPSG:4326',
         label: 'WGS84',
         format: function (coordinate) {
@@ -299,6 +301,7 @@ export const CoordinateSystems = {
         },
     },
     UTM: {
+        id: 'UTM',
         epsg: 'EPSG:4326',
         label: 'UTM',
         format: function (coordinate) {
@@ -308,6 +311,7 @@ export const CoordinateSystems = {
         },
     },
     MGRS: {
+        id: 'MGRS',
         epsg: 'EPSG:4326',
         label: 'MGRS',
         format: function (coordinate) {
