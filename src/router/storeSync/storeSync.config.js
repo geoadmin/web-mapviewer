@@ -55,6 +55,14 @@ const storeSyncConfig = [
         false,
         String
     ),
+    new SimpleUrlParamConfig(
+        'topic',
+        'changeTopic',
+        'setTopicById',
+        (store) => store.getters.currentTopicId,
+        false,
+        String
+    ),
     new LayerParamConfig(),
     new AdminLayerParamConfig(),
 ]

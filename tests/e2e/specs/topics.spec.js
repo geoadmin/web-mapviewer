@@ -205,4 +205,27 @@ describe('Topics', () => {
             })
         })
     })
+    context('Topic URL param', () => {
+        it('adds default topic URL param after startup when nothing was specified', () => {
+            cy.goToMapView()
+            cy.url().should('contain', 'topic=ech')
+        })
+        it('switches to the topic specified in the URL after startup', () => {
+            cy.fixture('topics.fixture').then((fakeTopics) => {
+                const testTopicWithActiveLayers = fakeTopics.topics[2]
+                cy.goToMapView('en', {
+                    topic: testTopicWithActiveLayers.id,
+                })
+                cy.readStoreValue('state.topics.current').then((currentTopic) => {
+                    expect(currentTopic).to.be.an('Object')
+                    expect(currentTopic.id).to.eq(testTopicWithActiveLayers.id)
+                })
+                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                    expect(activeLayers)
+                        .to.be.an('Array')
+                        .lengthOf(testTopicWithActiveLayers.activatedLayers.length)
+                })
+            })
+        })
+    })
 })
