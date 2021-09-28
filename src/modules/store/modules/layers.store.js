@@ -114,7 +114,13 @@ const actions = {
             }
         })
     },
-    setBackground: ({ commit }, bgLayerId) => commit('setBackground', bgLayerId),
+    setBackground: ({ commit }, bgLayerId) => {
+        if (bgLayerId === 'void') {
+            commit('setBackground', null)
+        } else {
+            commit('setBackground', bgLayerId)
+        }
+    },
     setLayerOpacity: ({ commit, state }, payload) => {
         if ('opacity' in payload && 'layerId' in payload) {
             const layer = state.activeLayers.find((layer) => layer.getID() === payload.layerId)

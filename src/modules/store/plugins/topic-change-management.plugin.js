@@ -31,10 +31,15 @@ const topicChangeManagementPlugin = (store) => {
                 store.dispatch('hideOverlay')
             }
             const currentTopic = state.topics.current
-            if (currentTopic.defaultBackgroundLayer) {
-                store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
-            } else {
-                store.dispatch('setBackground', null)
+            // we only set background (from topic) after app startup
+            // otherwise, the URL param bgLayer is ignored/overwritten by the setTopic
+            // we set it anyway if the URL doesn't contain a bgLayer URL param
+            if (!isFirstSetTopic || window.location.href.indexOf('bgLayer=') === -1) {
+                if (currentTopic.defaultBackgroundLayer) {
+                    store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
+                } else {
+                    store.dispatch('setBackground', null)
+                }
             }
             // we only set/clear layers after the first setTopic has occurred (after app init)
             if (!isFirstSetTopic) {

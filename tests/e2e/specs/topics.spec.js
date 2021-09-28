@@ -166,6 +166,17 @@ describe('Topics', () => {
             selectTopicWithId('test-topic-standard')
             cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
         })
+        it('switches the background to the topic background', () => {
+            cy.goToMapView('en', {
+                bgLayer: 'void',
+            })
+            const topicWithActiveLayers = mockupTopics.topics[2]
+            selectTopicWithId(topicWithActiveLayers.id)
+            cy.readStoreValue('state.layers.backgroundLayerId').should(
+                'eq',
+                topicWithActiveLayers.defaultBackground
+            )
+        })
     })
     context('Layer selection in the topic tree', () => {
         beforeEach(() => {
