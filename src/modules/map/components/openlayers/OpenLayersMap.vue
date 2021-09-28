@@ -29,6 +29,13 @@
             :marker-style="markerStyles.BALLOON"
             :z-index="zIndexDroppedPinned"
         />
+        <!-- Showing cross hair if needed-->
+        <OpenLayersMarker
+            v-if="crossHairStyle"
+            :position="initialCenter"
+            :marker-style="crossHairStyle"
+            :z-index="zIndexCrossHair"
+        />
         <!-- Adding highlighted features -->
         <OpenLayersHighlightedFeature
             v-for="(feature, index) in highlightedFeatures"
@@ -74,6 +81,7 @@ import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
 import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition'
 import VisibleLayersCopyrights from '@/modules/map/components/openlayers/VisibleLayersCopyrights'
+import { CrossHairs } from '@/modules/store/modules/position.store'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -106,6 +114,8 @@ export default {
             // exposing marker styles to the template
             markerStyles,
             isMobile,
+            /** Keeping trace of the starting center in order to place the cross hair */
+            initialCenter: null,
         }
     },
     computed: {
@@ -118,6 +128,7 @@ export default {
             geolocationActive: (state) => state.geolocation.active,
             geolocationPosition: (state) => state.geolocation.position,
             geolocationAccuracy: (state) => state.geolocation.accuracy,
+            crossHair: (state) => state.position.crossHair,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -126,6 +137,23 @@ export default {
             'resolution',
             'isCurrentlyDrawing',
         ]),
+        crossHairStyle: function () {
+            if (this.crossHair) {
+                switch (this.crossHair) {
+                    case CrossHairs.point:
+                        return this.markerStyles.POINT
+                    case CrossHairs.cross:
+                        return this.markerStyles.CROSS
+                    case CrossHairs.bowl:
+                        return this.markerStyles.BOWL
+                    case CrossHairs.marker:
+                        return this.markerStyles.BALLOON
+                    case CrossHairs.circle:
+                        return this.markerStyles.CIRCLE
+                }
+            }
+            return null
+        },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers: function () {
             return this.currentBackgroundLayer ? 1 : 0
@@ -133,8 +161,11 @@ export default {
         zIndexDroppedPinned: function () {
             return this.startingZIndexForVisibleLayers + this.visibleLayers.length
         },
-        startingZIndexForHighlightedFeatures: function () {
+        zIndexCrossHair: function () {
             return this.zIndexDroppedPinned + (this.pinnedLocation ? 1 : 0)
+        },
+        startingZIndexForHighlightedFeatures: function () {
+            return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)
         },
         zIndexAccuracyCircle: function () {
             return this.startingZIndexForHighlightedFeatures + this.highlightedFeatures.length
@@ -178,6 +209,9 @@ export default {
                 }
             })
         },
+    },
+    created() {
+        this.initialCenter = [...this.center]
     },
     mounted() {
         // register any custom projection in OpenLayers
