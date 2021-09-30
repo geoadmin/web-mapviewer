@@ -37,6 +37,8 @@ export default class AggregateLayer extends GeoAdminLayer {
      * @param {String} name The name of this layer in the given lang
      * @param {String} id The unique ID of this layer in GeoAdmin's backends
      * @param {Number} opacity The opacity to be applied to this layer
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {LayerTimeConfig} timeConfig Time series config (if available)
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
@@ -48,6 +50,8 @@ export default class AggregateLayer extends GeoAdminLayer {
         name,
         id,
         opacity,
+        attributionName,
+        attributionUrl,
         timeConfig,
         isHighlightable = false,
         hasTooltip = false,
@@ -58,6 +62,8 @@ export default class AggregateLayer extends GeoAdminLayer {
             LayerTypes.AGGREGATE,
             id,
             opacity,
+            attributionName,
+            attributionUrl,
             false,
             null,
             isHighlightable,

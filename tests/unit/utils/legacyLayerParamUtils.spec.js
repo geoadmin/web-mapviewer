@@ -11,6 +11,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 'Test layer WMS',
                 'test.wms.layer',
                 0.8,
+                'attribution.test.wms.layer',
+                null,
                 'https://base-url/',
                 'png',
                 new LayerTimeConfig()
@@ -20,6 +22,8 @@ describe('Test parsing of legacy URL param into new params', () => {
                 'Test timed layer WMTS',
                 'test.timed.wmts.layer',
                 0.8,
+                'attribution.test.timed.wmts.layer',
+                null,
                 'png',
                 new LayerTimeConfig('123', ['123', '456', '789'])
             ),

@@ -2,13 +2,12 @@
   "test.wms.layer": {
     "opacity": 0.75,
     "wmsLayers": "test.wms.layer",
-    "attribution": "attribution.wms",
+    "attribution": "attribution.test.wms.layer",
     "background": false,
     "searchable": false,
     "format": "png",
     "topics": "ech,test-topic-standard",
     "wmsUrl": "https://wms.geo.admin.ch",
-    "attributionUrl": "https://api3.geo.admin.ch/",
     "tooltip": true,
     "timeEnabled": false,
     "singleTile": false,
@@ -21,7 +20,7 @@
   },
   "test.wmts.layer": {
     "opacity": 1.0,
-    "attribution": "attribution_wmts",
+    "attribution": "attribution.test.wmts.layer",
     "background": false,
     "searchable": true,
     "format": "png",
@@ -45,7 +44,7 @@
   },
   "test.timeenabled.wmts.layer": {
     "opacity": 0.7,
-    "attribution": "attribution_wmts",
+    "attribution": "attribution.timeenabled.wmts.layer",
     "background": false,
     "searchable": true,
     "format": "png",
@@ -54,7 +53,7 @@
       "name"
     ],
     "topics": "ech,test-topic-standard",
-    "attributionUrl": "https://api3.geo.admin.ch/",
+    "attributionUrl": "THIS_IS_NOT_A_VALID_URL",
     "tooltip": true,
     "highlightable": true,
     "chargeable": false,
@@ -95,7 +94,7 @@
     "serverLayerName": "test.background.layer"
   },
   "test.background.layer2": {
-    "attribution": "attribution_background2",
+    "attribution": "attribution.test.wmts.layer",
     "searchable": false,
     "serverLayerName": "test.background.layer2",
     "format": "jpeg",

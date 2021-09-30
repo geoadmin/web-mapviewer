@@ -303,4 +303,55 @@ describe('Test of layer handling', () => {
             })
         })
     })
+    context('Copyrights/attributions of layers', () => {
+        it('hides the copyrights zone when no layer is visible', () => {
+            cy.goToMapView('en', {
+                bgLayer: 'void',
+            })
+            cy.get('[data-cy="layers-copyrights"]').should('be.empty')
+        })
+        it('shows the copyright as a link when an attribution URL is available', () => {
+            cy.fixture('layers.fixture').then((fakeLayers) => {
+                const layerWithAttributionUrl = fakeLayers['test.wmts.layer']
+                cy.goToMapView('en', {
+                    layers: layerWithAttributionUrl.serverLayerName,
+                })
+                cy.get(`a[data-cy="layer-copyright-${layerWithAttributionUrl.attribution}"]`)
+                    .should('be.visible')
+                    .should('contain', layerWithAttributionUrl.attribution)
+                    .should('have.attr', 'href', layerWithAttributionUrl.attributionUrl)
+            })
+        })
+        it('shows a simple text with data owner name when no attribution URL is available', () => {
+            cy.fixture('layers.fixture').then((fakeLayers) => {
+                const layerWithoutAttributionUrl = fakeLayers['test.wms.layer']
+                cy.goToMapView('en', {
+                    layers: layerWithoutAttributionUrl.serverLayerName,
+                })
+                cy.get(`span[data-cy="layer-copyright-${layerWithoutAttributionUrl.attribution}"]`)
+                    .should('be.visible')
+                    .should('contain', layerWithoutAttributionUrl.attribution)
+            })
+        })
+        it('renders a simple text when the attribution URL is a malformed', () => {
+            cy.fixture('layers.fixture').then((fakeLayers) => {
+                const layerWithMalformedAttributionUrl = fakeLayers['test.timeenabled.wmts.layer']
+                cy.goToMapView('en', {
+                    layers: layerWithMalformedAttributionUrl.serverLayerName,
+                })
+                cy.get(
+                    `span[data-cy="layer-copyright-${layerWithMalformedAttributionUrl.attribution}"]`
+                )
+                    .should('be.visible')
+                    .should('contain', layerWithMalformedAttributionUrl.attribution)
+            })
+        })
+        it('only show once each data owner (attribution) even when multiple layers with the same are shown', () => {
+            cy.goToMapView('en', {
+                bgLayer: 'test.background.layer2',
+                layers: 'test.wmts.layer',
+            })
+            cy.get('[data-cy="layers-copyrights"]').should('have.length', 1)
+        })
+    })
 })
