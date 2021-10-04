@@ -1,5 +1,5 @@
 <template>
-    <div class="swiss-confederation-text">
+    <div class="swiss-confederation-text" @click="$emit('click', $event)">
         <div class="multi-lang-title"></div>
         <div
             class="i18n-partnership-text mt-1"
@@ -9,13 +9,12 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 export default {
-    computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-        }),
+    props: {
+        currentLang: {
+            type: String,
+            default: 'en',
+        },
     },
 }
 </script>

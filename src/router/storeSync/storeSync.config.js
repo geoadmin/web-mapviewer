@@ -10,6 +10,14 @@ import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlPa
  */
 const storeSyncConfig = [
     new SimpleUrlParamConfig(
+        'lang',
+        'setLang',
+        'setLang',
+        (store) => store.state.i18n.lang,
+        false,
+        String
+    ),
+    new SimpleUrlParamConfig(
         'lat',
         'setCenter',
         'setLatitude',

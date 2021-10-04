@@ -1,5 +1,5 @@
 <template>
-    <img class="swiss-flag" :src="swissFlagIcon" alt="swiss-flag" />
+    <img class="swiss-flag" :src="swissFlagIcon" alt="swiss-flag" @click="$emit('click', $event)" />
 </template>
 
 <script>
