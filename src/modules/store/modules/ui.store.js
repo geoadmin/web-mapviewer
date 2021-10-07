@@ -1,3 +1,16 @@
+import { isMobile } from 'mobile-device-detect'
+
+/**
+ * Describes the different mode the UI can have. Either desktop (menu is always shown, info box is a
+ * side tray) or touch (menu has to be opened with a button, info box is a swipeable element)
+ *
+ * @type enum
+ */
+export const UIModes = {
+    DESKTOP: 'DESKTOP',
+    TOUCH: 'TOUCH',
+}
+
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -60,6 +73,14 @@ export default {
          * @type Boolean
          */
         showDrawingOverlay: false,
+        /**
+         * Current UI mode of the application, dictates how the menu interaction is made (for touch
+         * the menu has to be opened through a button, for desktop it is always shown) and how the
+         * information about a selected feature are shown.
+         *
+         * @type UIModes
+         */
+        mode: isMobile ? UIModes.TOUCH : UIModes.DESKTOP,
     },
     getters: {
         screenDensity: (state) => {
@@ -86,6 +107,11 @@ export default {
             commit('setShowZoomGeolocationButtons', !state.showZoomGeolocationButtons),
         toggleDrawingOverlay: ({ commit, state }) =>
             commit('setShowDrawingOverlay', !state.showDrawingOverlay),
+        setUiMode: ({ commit }, mode) => {
+            if (mode in UIModes) {
+                commit('setUiMode', mode)
+            }
+        },
     },
     mutations: {
         setSize: (state, { height, width }) => {
@@ -100,5 +126,6 @@ export default {
         setShowZoomGeolocationButtons: (state, flagValue) =>
             (state.showZoomGeolocationButtons = flagValue),
         setShowDrawingOverlay: (state, flagValue) => (state.showDrawingOverlay = flagValue),
+        setUiMode: (state, mode) => (state.mode = mode),
     },
 }

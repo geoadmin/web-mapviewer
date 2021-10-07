@@ -24,13 +24,14 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
-    computed: {
-        ...mapState({
-            highlightedFeatures: (state) => state.map.highlightedFeatures,
-        }),
+    props: {
+        highlightedFeatures: {
+            type: Array,
+            required: true,
+        },
     },
     methods: {
         ...mapActions(['clearHighlightedFeatures']),

@@ -1,8 +1,8 @@
-import { isMobile } from 'mobile-device-detect'
 import { identify } from '@/api/features.api'
 import { ClickType } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import log from '@/utils/logging'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 /**
  * Identifies feature under the mouse cursor
@@ -62,7 +62,7 @@ const clickOnMapManagementPlugin = (store) => {
             // we only react to left click, right clicks are handled by the LocationPopup component
             if (state.map.clickInfo && state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
                 // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
-                if (isMobile) {
+                if (state.ui.mode === UIModes.TOUCH) {
                     if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
                         store.dispatch('toggleHeader')
                         store.dispatch('toggleFooter')

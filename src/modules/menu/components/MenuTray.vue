@@ -20,7 +20,7 @@
                 :show-content="false"
                 data-cy="menu-settings-section"
             >
-                <MenuSettings />
+                <MenuSettings :current-ui-mode="currentUiMode" @changeUiMode="setUiMode" />
             </MenuSection>
         </div>
     </transition>
@@ -45,13 +45,14 @@ export default {
             showMenuTray: (state) => state.ui.showMenuTray,
             isDrawing: (state) => state.ui.showDrawingOverlay,
             activeLayers: (state) => state.layers.activeLayers,
+            currentUiMode: (state) => state.ui.mode,
         }),
         showLayerList: function () {
             return this.activeLayers.length > 0
         },
     },
     methods: {
-        ...mapActions(['toggleDrawingOverlay']),
+        ...mapActions(['toggleDrawingOverlay', 'setUiMode']),
         onShowDrawingOverlay: function () {
             this.toggleDrawingOverlay()
         },
