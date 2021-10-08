@@ -60,7 +60,7 @@ const clickOnMapManagementPlugin = (store) => {
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             // we only react to left click, right clicks are handled by the LocationPopup component
-            if (state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
+            if (state.map.clickInfo && state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
                 // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
                 if (isMobile) {
                     if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {

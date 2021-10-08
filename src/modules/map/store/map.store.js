@@ -92,6 +92,7 @@ export default {
          * @param {ClickInfo} clickInfo
          */
         click: ({ commit }, clickInfo) => commit('setClickInfo', clickInfo),
+        clearClick: ({ commit }) => commit('setClickInfo', null),
         mapStartBeingDragged: ({ commit }) => commit('mapStartBeingDragged'),
         mapStoppedBeingDragged: ({ commit }) => commit('mapStoppedBeingDragged'),
         /**
