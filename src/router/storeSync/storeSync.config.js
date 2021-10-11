@@ -40,6 +40,21 @@ const storeSyncConfig = [
         false,
         Boolean
     ),
+    new SimpleUrlParamConfig(
+        'bgLayer',
+        'setBackground',
+        'setBackground',
+        (store) => {
+            const backgroundLayerId = store.state.layers.backgroundLayerId
+            // if background layer ID is null (no background) we write 'void' in the URL
+            if (backgroundLayerId === null) {
+                return 'void'
+            }
+            return backgroundLayerId
+        },
+        false,
+        String
+    ),
     new LayerParamConfig(),
     new AdminLayerParamConfig(),
 ]

@@ -103,6 +103,27 @@ describe('Test of layer handling', () => {
             })
         })
     })
+    context('Background layer in URL at app startup', () => {
+        it('sets the background to the topic default if none is defined in the URL', () => {
+            cy.fixture('topics.fixture').then((topicFixtures) => {
+                const [defaultTopic] = topicFixtures.topics
+                cy.goToMapView()
+                cy.readStoreValue('state.layers.backgroundLayerId').should(
+                    'eq',
+                    defaultTopic.defaultBackground
+                )
+            })
+        })
+        it('sets the background according to the URL param if present at startup', () => {
+            cy.goToMapView('en', {
+                bgLayer: 'test.background.layer2',
+            })
+            cy.readStoreValue('state.layers.backgroundLayerId').should(
+                'eq',
+                'test.background.layer2'
+            )
+        })
+    })
     context('Layer settings in menu', () => {
         const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
         beforeEach(() => {
