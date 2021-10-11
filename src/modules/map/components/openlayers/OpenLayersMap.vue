@@ -7,6 +7,7 @@
             <div v-if="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </portal>
         <OpenLayersMousePosition v-if="!isMobile" />
+        <VisibleLayersCopyrights :layers="backgroundAndVisibleLayers" />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -72,6 +73,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
 import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition'
+import VisibleLayersCopyrights from '@/modules/map/components/openlayers/VisibleLayersCopyrights'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -83,6 +85,7 @@ import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLay
  */
 export default {
     components: {
+        VisibleLayersCopyrights,
         OpenLayersMousePosition,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
@@ -138,6 +141,16 @@ export default {
         },
         visibleGeoJsonLayers: function () {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
+        },
+        backgroundAndVisibleLayers: function () {
+            const layers = []
+            if (this.currentBackgroundLayer) {
+                layers.push(this.currentBackgroundLayer)
+            }
+            if (this.visibleLayers.length > 0) {
+                layers.push(...this.visibleLayers)
+            }
+            return layers
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing

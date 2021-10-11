@@ -11,6 +11,8 @@ export default class WMSLayer extends GeoAdminLayer {
      * @param {String} name The name of this layer (lang specific)
      * @param {String} id The unique ID of this layer in the GeoAdmin backends
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {String} baseURL The backend to call for tiles
      * @param {String} format In which image format the backend must be requested
      * @param {LayerTimeConfig} timeConfig Settings telling which year has to be used when request
@@ -29,6 +31,8 @@ export default class WMSLayer extends GeoAdminLayer {
         name,
         id,
         opacity,
+        attributionName,
+        attributionUrl,
         baseURL,
         format,
         timeConfig,
@@ -43,6 +47,8 @@ export default class WMSLayer extends GeoAdminLayer {
             LayerTypes.WMS,
             id,
             opacity,
+            attributionName,
+            attributionUrl,
             false,
             baseURL,
             isHighlightable,

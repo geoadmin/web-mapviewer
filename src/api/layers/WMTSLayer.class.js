@@ -7,6 +7,8 @@ export default class WMTSLayer extends GeoAdminLayer {
      * @param {String} name Layer name (internationalized)
      * @param {String} id Unique layer ID used in our backend
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {String} format Image format for this WMTS layer (jpeg or png)
      * @param {LayerTimeConfig} timeConfig Settings telling which timestamp has to be used when
      *   request tiles to the backend
@@ -23,6 +25,8 @@ export default class WMTSLayer extends GeoAdminLayer {
         name = '',
         id = '',
         opacity = 1.0,
+        attributionName,
+        attributionUrl,
         format = 'png',
         timeConfig = null,
         isBackground = false,
@@ -36,6 +40,8 @@ export default class WMTSLayer extends GeoAdminLayer {
             LayerTypes.WMTS,
             id,
             opacity,
+            attributionName,
+            attributionUrl,
             isBackground,
             baseURL,
             isHighlightable,

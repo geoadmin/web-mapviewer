@@ -14,6 +14,8 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   different backends of map.geo.admin.ch
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {Boolean} isBackground If this layer is to be used as a background layer or not
      *   (background layer are stored in the background wheel on the side of the UI)
      * @param {String} baseURL What's the backend base URL to use when requesting tiles/image for
@@ -30,6 +32,8 @@ export default class GeoAdminLayer extends AbstractLayer {
         type = null,
         geoAdminID = '',
         opacity = 1.0,
+        attributionName = null,
+        attributionUrl = null,
         isBackground = false,
         baseURL = null,
         isHighlightable = false,
@@ -46,6 +50,8 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.isSpecificFor3D = geoAdminID.toLowerCase().endsWith('_3d')
+        this.attributionName = attributionName
+        this.attributionUrl = attributionUrl
     }
 
     getID() {

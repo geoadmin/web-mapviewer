@@ -21,7 +21,19 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             background,
             highlightable: isHighlightable,
             tooltip: hasTooltip,
+            attribution: attributionName,
+            attributionUrl: potentialAttributionUrl,
         } = layerConfig
+        // checking if attributionUrl is a well formed URL, otherwise we drop it
+        let attributionUrl = null
+        try {
+            new URL(potentialAttributionUrl)
+            // if we are here, no error has been raised by the URL construction
+            // meaning we have a valid URL in potentialAttributionUrl
+            attributionUrl = potentialAttributionUrl
+        } catch (_) {
+            // this is not a well formed URL, we do nothing with it
+        }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         switch (type.toLowerCase()) {
@@ -30,6 +42,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     name,
                     id,
                     opacity,
+                    attributionName,
+                    attributionUrl,
                     format,
                     timeConfig,
                     !!background,
@@ -44,6 +58,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     name,
                     id,
                     opacity,
+                    attributionName,
+                    attributionUrl,
                     layerConfig.wmsUrl,
                     format,
                     timeConfig,
@@ -59,6 +75,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     name,
                     id,
                     opacity,
+                    attributionName,
+                    attributionUrl,
                     layerConfig.geojsonUrl,
                     layerConfig.styleUrl
                 )
@@ -88,6 +106,8 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     name,
                     id,
                     opacity,
+                    attributionName,
+                    attributionUrl,
                     timeConfig,
                     isHighlightable,
                     hasTooltip,
