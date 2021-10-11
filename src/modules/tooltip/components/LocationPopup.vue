@@ -28,7 +28,12 @@
                     <a :href="$t('contextpopup_wgs84_url')" target="_blank">WGS 84 (lat/lon)</a>
                 </div>
                 <div>
-                    {{ clickCoordinatesWGS84 }}
+                    <div>
+                        {{ clickCoordinatesPlainWGS84 }}
+                    </div>
+                    <div>
+                        {{ clickCoordinatesWGS84 }}
+                    </div>
                 </div>
                 <div>
                     <a :href="$t('contextpopup_utm_url')" target="_blank">UTM</a>
@@ -36,17 +41,20 @@
                 <div>
                     {{ clickCoordinatesUTM }}
                 </div>
-                <div>
-                    <a :href="$t('contextpopup_mgrs_url')" target="_blank">MGRS</a>
-                </div>
+                <div>{{ 'MGRS' }}</div>
                 <div>
                     {{ clickCoordinatesMGRS }}
                 </div>
                 <div>
                     <a :href="$t('contextpopup_what3words_url')" target="_blank">what3words</a>
                 </div>
-                <div></div>
+                <div>
+                    <span v-show="clickWhat3Words">{{ clickWhat3Words }}</span>
+                </div>
                 <div>{{ $t('elevation') }}</div>
+                <div>
+                    <span v-show="height">{{ height }} m</span>
+                </div>
             </div>
         </div>
     </div>
@@ -58,12 +66,22 @@ import { mapState, mapActions } from 'vuex'
 import { ClickType } from '@/modules/map/store/map.store'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import { registerWhat3WordsLocation } from '@/api/what3words.api'
+import { requestHeight } from '@/api/height.api'
+import { round } from '@/utils/numberUtils'
 
 export default {
     components: { ButtonWithIcon },
+    data: function () {
+        return {
+            clickWhat3Words: null,
+            height: null,
+        }
+    },
     computed: {
         ...mapState({
             clickInfo: (state) => state.map.clickInfo,
+            currentLang: (state) => state.i18n.lang,
         }),
         clickCoordinates: function () {
             return this.clickInfo && this.clickInfo.coordinate
@@ -79,6 +97,10 @@ export default {
                 this.reprojectClickCoordinates('EPSG:21781'),
                 CoordinateSystems.LV03
             )
+        },
+        clickCoordinatesPlainWGS84: function () {
+            const wgsMetric = this.reprojectClickCoordinates('EPSG:4326')
+            return `${round(wgsMetric[1], 5)}, ${round(wgsMetric[0], 5)}`
         },
         clickCoordinatesWGS84: function () {
             return printHumanReadableCoordinates(
@@ -108,6 +130,15 @@ export default {
             }
         },
     },
+    watch: {
+        clickCoordinates: function () {
+            this.requestWhat3WordBackend()
+            this.registerHeigthFromBackend()
+        },
+        currentLang: function () {
+            this.requestWhat3WordBackend()
+        },
+    },
     methods: {
         ...mapActions(['clearClick']),
         onClose: function () {
@@ -115,6 +146,22 @@ export default {
         },
         reprojectClickCoordinates: function (targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
+        },
+        requestWhat3WordBackend: function () {
+            if (this.clickCoordinates) {
+                registerWhat3WordsLocation(this.clickCoordinates, this.currentLang).then(
+                    (what3word) => {
+                        this.clickWhat3Words = what3word
+                    }
+                )
+            }
+        },
+        registerHeigthFromBackend: function () {
+            if (this.clickCoordinates) {
+                requestHeight(this.clickCoordinates).then((height) => {
+                    this.height = height
+                })
+            }
         },
     },
 }
@@ -131,7 +178,7 @@ export default {
 
     .coordinates-list {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 2fr;
         grid-column-gap: 5px;
         grid-row-gap: 5px;
     }
