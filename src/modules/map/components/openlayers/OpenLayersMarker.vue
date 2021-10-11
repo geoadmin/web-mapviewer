@@ -13,25 +13,6 @@ import { Point } from 'ol/geom'
 import { randomIntBetween } from '@/utils/numberUtils'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
-const markerBalloonStyle = new Style({
-    image: new IconStyle({
-        anchor: [0.5, 1],
-        src: require('@/modules/map/assets/marker.png'),
-    }),
-})
-// style for geolocation point
-const markerPositionStyle = new Style({
-    image: new CircleStyle({
-        radius: 5,
-        fill: new Fill({
-            color: [255, 0, 0, 0.9],
-        }),
-        stroke: new Stroke({
-            color: [255, 255, 255, 1],
-            width: 3,
-        }),
-    }),
-})
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
 export const highlightedFill = new Fill({
     color: [255, 255, 0, 0.75],
@@ -48,16 +29,16 @@ export const highlightPointStyle = new Style({
     }),
 })
 
-const markerHiddenStyle = new Style({
-    visible: false,
-})
-
 /** @enum */
 export const markerStyles = {
     BALLOON: 'balloon',
     POSITION: 'position',
     FEATURE: 'feature',
     HIDDEN: 'hidden',
+    BOWL: 'bowl',
+    CIRCLE: 'circle',
+    CROSS: 'cross',
+    POINT: 'point',
 }
 
 /** Renders a marker on the map (different styling are available) */
@@ -92,14 +73,45 @@ export default {
         style: function () {
             switch (this.markerStyle) {
                 case markerStyles.POSITION:
-                    return markerPositionStyle
+                    // style for geolocation point
+                    return new Style({
+                        image: new CircleStyle({
+                            radius: 5,
+                            fill: new Fill({
+                                color: [255, 0, 0, 0.9],
+                            }),
+                            stroke: new Stroke({
+                                color: [255, 255, 255, 1],
+                                width: 3,
+                            }),
+                        }),
+                    })
                 case markerStyles.BALLOON:
-                    return markerBalloonStyle
+                    return new Style({
+                        image: new IconStyle({
+                            anchor: [0.5, 1],
+                            src: require('@/modules/map/assets/marker.png'),
+                        }),
+                    })
+                case markerStyles.BOWL:
+                case markerStyles.CIRCLE:
+                case markerStyles.CROSS:
+                case markerStyles.POINT:
+                    return new Style({
+                        image: new IconStyle({
+                            anchor: [0.5, 0.5],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                            src: require(`@/modules/map/assets/${this.markerStyle}.png`),
+                        }),
+                    })
                 case markerStyles.FEATURE:
                     return highlightPointStyle
                 case markerStyles.HIDDEN:
                 default:
-                    return markerHiddenStyle
+                    return new Style({
+                        visible: false,
+                    })
             }
         },
     },

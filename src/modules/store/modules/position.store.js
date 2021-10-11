@@ -10,6 +10,15 @@ const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0
 const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
 const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
+/** @enum */
+export const CrossHairs = {
+    cross: 'cross',
+    circle: 'circle',
+    bowl: 'bowl',
+    point: 'point',
+    marker: 'marker',
+}
+
 const state = {
     /**
      * The map zoom level, which define the resolution of the view
@@ -23,6 +32,8 @@ const state = {
      * @type Array<Number>
      */
     center: [915602.81, 5911929.47], // default value is the center of LV:95 projection's extent (from https://epsg.io/2056) reprojected in EPSG:3857
+    /** @type CrossHairs */
+    crossHair: null,
 }
 
 /**
@@ -185,11 +196,20 @@ const actions = {
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
     decreaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) - 1),
+    /** @param {CrossHairs | String | null} crossHair */
+    setCrossHair: ({ commit }, crossHair) => {
+        if (crossHair === null) {
+            commit('setCrossHair', crossHair)
+        } else if (crossHair in CrossHairs) {
+            commit('setCrossHair', CrossHairs[crossHair])
+        }
+    },
 }
 
 const mutations = {
     setZoom: (state, zoom) => (state.zoom = zoom),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
+    setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
 }
 
 export default {

@@ -77,6 +77,14 @@ const storeSyncConfig = [
         false,
         String
     ),
+    new SimpleUrlParamConfig(
+        'crosshair',
+        'setCrossHair',
+        'setCrossHair',
+        (store) => store.state.position.crossHair,
+        false,
+        String
+    ),
     new LayerParamConfig(),
     new AdminLayerParamConfig(),
 ]
