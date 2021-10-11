@@ -1,6 +1,7 @@
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import AdminLayerParamConfig from '@/router/storeSync/AdminLayerParamConfig.class'
+import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and vice-versa)
@@ -60,6 +61,19 @@ const storeSyncConfig = [
         'changeTopic',
         'setTopicById',
         (store) => store.getters.currentTopicId,
+        false,
+        String
+    ),
+    // as the setSearchQuery action requires an object as payload, we need
+    // to customize a bit the dispatch to this action (in order to build a correct payload)
+    new CustomDispatchUrlParamConfig(
+        'swisssearch',
+        'setSearchQuery',
+        (store, urlValue) =>
+            store.dispatch('setSearchQuery', {
+                query: urlValue,
+            }),
+        (store) => store.state.search.query,
         false,
         String
     ),

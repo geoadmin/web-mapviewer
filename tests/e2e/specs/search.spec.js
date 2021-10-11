@@ -6,19 +6,29 @@ import setupProj4 from '../../../src/utils/setupProj4'
 setupProj4()
 
 const searchbarSelector = '[data-cy="searchbar"]'
-const searchbarClearSelector = '[data-cy="searchbar-clear"]'
-const searchResultEntriesSelector = '[data-cy="search-result-entry"]'
 
 describe('Test the search bar', () => {
-    beforeEach(() => {
-        cy.goToMapView()
-    })
-
-    it('find the searchbar in the UI', () => {
-        cy.get(searchbarSelector).should('be.visible')
-    })
-
     context('Testing coordinates typing in search bar', () => {
+        before(() => {
+            cy.goToMapView()
+        })
+        beforeEach(() => {
+            // emptying any potential search query
+            cy.readStoreValue('state.search.query').then((searchQuery) => {
+                if (searchQuery && searchQuery.length > 0) {
+                    cy.get('[data-cy="searchbar-clear"]').click()
+                    // replacing the view somewhere else in order to check that
+                    // subsequent coordinate search will place the view at the correct location
+                    cy.window()
+                        .its('store')
+                        .then((store) => {
+                            store.dispatch('setZoom', 10)
+                            store.dispatch('setCenter', [46.5, 8])
+                        })
+                }
+            })
+        })
+
         // using the same values as coordinateUtils.spec.js (in Unit tests)
         const coordEpsg3857 = [773900, 5976445]
         const WGS84 = [47.2101583, 6.952062]
@@ -116,6 +126,21 @@ describe('Test the search bar', () => {
             }
         }
 
+        it('find the searchbar in the UI', () => {
+            cy.get(searchbarSelector).should('be.visible')
+        })
+        it('Remove the dropped pin when the search bar is cleared', () => {
+            cy.get(searchbarSelector).paste(`${LV95[0]} ${LV95[1]}`)
+            checkCenterInStore()
+            checkZoomLevelInStore()
+            checkThatCoordinateAreHighlighted()
+            cy.get('[data-cy="searchbar-clear"]').click()
+            // checking that search bar has been emptied
+            cy.readStoreValue('state.search.query').should('be.empty')
+            // checking that the dropped pin has been removed
+            cy.readStoreValue('state.map.pinnedLocation').should('be.null')
+        })
+
         context('EPSG:4326 (Web-Mercator) inputs', () => {
             // the search bar only supports input in lat/lon format, so X is lat
             const WGS84_DM = ["47°12.6095'", "6°57.12372'"]
@@ -141,15 +166,12 @@ describe('Test the search bar', () => {
                 'inverted DMS format with cardinal point'
             )
         })
-
         context('EPSG:2056 (LV95) inputs', () => {
             tryAllInputPossibilities(LV95[0], LV95[1], 'LV95', 0.0, true, true)
         })
-
         context('EPSG:21781 (LV03) inputs', () => {
             tryAllInputPossibilities(LV03[0], LV03[1], 'LV03', 0.1, true, true)
         })
-
         context('What3Words input', () => {
             const what3words = 'bisher.meiste.einerseits'
             // creating a what3words response stub
@@ -175,7 +197,6 @@ describe('Test the search bar', () => {
                 checkThatCoordinateAreHighlighted(1)
             })
         })
-
         context('MGRS input', () => {
             const MGRS = '32TLT 44918 30553'
             // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
@@ -188,22 +209,38 @@ describe('Test the search bar', () => {
                 checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)
             })
         })
-
-        it('Remove the dropped pin when the search bar is cleared', () => {
-            cy.get(searchbarSelector).paste(`${LV95[0]} ${LV95[1]}`)
-            checkCenterInStore()
-            checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted()
-            cy.get(searchbarClearSelector).click()
-            // checking that search bar has been emptied
-            cy.readStoreValue('state.search.query').should('be.empty')
-            // checking that the dropped pin has been removed
-            cy.readStoreValue('state.map.pinnedLocation').should('be.null')
-        })
     })
-
     context('Search result handling', () => {
         const acceptedDelta = 0.1
+        const expectedLabel = '<b>Expected result</b>'
+        const expectedCenterEpsg4326 = [7.0, 47.0] // lon/lat
+        const expectedCenterEpsg3857 = proj4(proj4.WGS84, 'EPSG:3857', expectedCenterEpsg4326)
+        const response = {
+            results: [
+                {
+                    id: 1234,
+                    weight: 1,
+                    attrs: {
+                        x: expectedCenterEpsg3857[0],
+                        y: expectedCenterEpsg3857[1],
+                        rank: 1,
+                        // we create an extent of 1km around the center
+                        geom_st_box2d: `BOX(${expectedCenterEpsg3857[0] - 500} ${
+                            expectedCenterEpsg3857[1] - 500
+                        },${expectedCenterEpsg3857[0] + 500} ${expectedCenterEpsg3857[1] + 500})`,
+                        label: expectedLabel,
+                    },
+                },
+            ],
+        }
+        // setting width and height value for the viewport to ease resolution calculation
+        const widthAndHeight = 500
+        // reverting formula resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
+        // => zoomlevel = log2(156543.03 meters/pixel * cos(latitude) / resolution)
+        // resolution in this case is 1000m divided by 500px, so 2m/px
+        const expectedZoomLevel = Math.log2(
+            (156543.03 * Math.abs(Math.cos((expectedCenterEpsg4326[1] * Math.PI) / 180))) / 2
+        )
         const checkLocation = (expected, result) => {
             expect(result).to.be.an('Array')
             expect(result.length).to.eq(2)
@@ -211,61 +248,23 @@ describe('Test the search bar', () => {
             expect(result[1]).to.approximately(expected[1], acceptedDelta)
         }
 
-        const mockupServerResponse = (
-            aliasName,
-            wantedResponseLocations = [],
-            wantedResponseLayers = []
-        ) => {
-            cy.mockupBackendResponse(
-                'rest/services/ech/SearchServer*?type=layers*',
-                wantedResponseLayers,
-                aliasName
-            )
+        beforeEach(() => {
+            // setting viewport size so that resolution calculation made above is correct
+            cy.viewport(widthAndHeight, widthAndHeight)
+            // mocking up all possible search backend response
+            cy.mockupBackendResponse('rest/services/ech/SearchServer*?type=layers*', {}, 'search')
             cy.mockupBackendResponse(
                 'rest/services/ech/SearchServer*?type=locations*',
-                wantedResponseLocations,
-                aliasName
+                response,
+                'search'
             )
-        }
+        })
 
         it('handles search result thoroughly (zoom, center, pin)', () => {
-            const expectedLabel = '<b>Expected result</b>'
-            const expectedCenterEpsg4326 = [7.0, 47.0] // lon/lat
-            const expectedCenterEpsg3857 = proj4(proj4.WGS84, 'EPSG:3857', expectedCenterEpsg4326)
-            const response = {
-                results: [
-                    {
-                        id: 1234,
-                        weight: 1,
-                        attrs: {
-                            x: expectedCenterEpsg3857[0],
-                            y: expectedCenterEpsg3857[1],
-                            rank: 1,
-                            // we create an extent of 1km around the center
-                            geom_st_box2d: `BOX(${expectedCenterEpsg3857[0] - 500} ${
-                                expectedCenterEpsg3857[1] - 500
-                            },${expectedCenterEpsg3857[0] + 500} ${
-                                expectedCenterEpsg3857[1] + 500
-                            })`,
-                            label: expectedLabel,
-                        },
-                    },
-                ],
-            }
-            // setting width and height value for the viewport to ease resolution calculation
-            const widthAndHeight = 500
-            // reverting formula resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-            // => zoomlevel = log2(156543.03 meters/pixel * cos(latitude) / resolution)
-            // resolution in this case is 1000m divided by 500px, so 2m/px
-            const expectedZoomLevel = Math.log2(
-                (156543.03 * Math.abs(Math.cos((expectedCenterEpsg4326[1] * Math.PI) / 180))) / 2
-            )
-            cy.viewport(widthAndHeight, widthAndHeight)
-            const aliasName = 'search'
-            mockupServerResponse(aliasName, response)
+            cy.goToMapView()
             cy.get(searchbarSelector).paste('test')
-            cy.wait(`@${aliasName}`)
-            cy.get(searchResultEntriesSelector)
+            cy.wait(`@search`)
+            cy.get('[data-cy="search-result-entry"]')
                 .then((entries) => {
                     expect(entries.length).to.eq(1)
                     const entry = entries[0]
@@ -284,6 +283,19 @@ describe('Test the search bar', () => {
             cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
                 checkLocation(expectedCenterEpsg3857, pinnedLocation)
             )
+        })
+        it('adds the search query as swisssearch URL param', () => {
+            cy.goToMapView()
+            cy.get(searchbarSelector).paste('test')
+            cy.url().should('contain', 'swisssearch=test')
+        })
+        it('reads the swisssearch URL param at startup and launch a search with its content', () => {
+            cy.goToMapView('en', {
+                swisssearch: 'Test',
+            })
+            cy.wait('@search')
+            cy.readStoreValue('state.search.query').should('eq', 'Test')
+            cy.get('[data-cy="search-result-entry"]').should('be.visible')
         })
     })
 })
