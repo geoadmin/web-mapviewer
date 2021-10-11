@@ -1,9 +1,9 @@
 import proj4 from 'proj4'
 
-import { round } from '@/utils/numberUtils'
-
-import { toPoint as mgrsToWGS84 } from './militaryGridProjection'
-import log from '@/utils/logging'
+import { formatThousand, round } from './numberUtils'
+import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
+import log from './logging'
+import { toStringHDMS, toStringXY } from 'ol/coordinate'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
@@ -59,13 +59,18 @@ const LV03_BOUNDS = {
 const isInBounds = (x, y, bounds) =>
     x > bounds.x.lower && x < bounds.x.upper && y > bounds.y.lower && y < bounds.y.upper
 
-const numericalExtractor = (regexMatches) => {
-    // removing thousand separators
-    const x = Number(regexMatches[1].replace(/[' ]/g, ''))
-    const y = Number(regexMatches[2].replace(/[' ]/g, ''))
-    if (Number.isNaN(x) || Number.isNaN(y)) {
-        return undefined
-    }
+/**
+ * Attempts to re-project given coordinates to WebMercator (WGS84). Will return a tuple containing
+ * [lat, lon] even if input is given as [lon, lat] (as this is what OpenLayers wants to be fed.
+ *
+ * This function supports input from LV95, LV03 or WebMercator input (no other projection supported)
+ *
+ * @param x {Number} X part of the coordinate (Easting/Longitude)
+ * @param y {Number} Y part of the coordinate (Northing/Latitude)
+ * @returns {Number[]} Re-projected coordinate as [lat, lon], or undefined if the input was not
+ *   convertible to WebMercator
+ */
+export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
     // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
     // checking LV95 bounds
     if (isInBounds(x, y, LV95_BOUNDS)) {
@@ -80,14 +85,27 @@ const numericalExtractor = (regexMatches) => {
     } else if (isInBounds(y, x, LV03_BOUNDS)) {
         return proj4('EPSG:21781', proj4.WGS84, [y, x])
         // checking for WGS84 bounds
-    } else if (isInBounds(y, x, WGS84_BOUNDS)) {
+    } else if (isInBounds(x, y, WGS84_BOUNDS)) {
         // we inverse lat/lon to lon/lat as user inputs support lat/lon but the app behind function with lon/lat
         // coordinates, especially proj4js
         return [y, x]
+    } else if (isInBounds(y, x, WGS84_BOUNDS)) {
+        // if it's already a lat/lon we return it as is
+        return [x, y]
     } else {
         log('debug', `Unknown coordinate type [${x}, ${y}]`)
         return undefined
     }
+}
+
+const numericalExtractor = (regexMatches) => {
+    // removing thousand separators
+    const x = Number(regexMatches[1].replace(/[' ]/g, ''))
+    const y = Number(regexMatches[2].replace(/[' ]/g, ''))
+    if (Number.isNaN(x) || Number.isNaN(y)) {
+        return undefined
+    }
+    return reprojectUnknownSrsCoordsToWebMercator(x, y)
 }
 
 const webmercatorExtractor = (regexMatches) => {
@@ -254,4 +272,62 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
             )
         })
         .find((result) => Array.isArray(result)) // returning the first value that is a coordinate array (will return undefined if nothing is found)
+}
+
+/** @enum */
+export const CoordinateSystems = {
+    LV95: {
+        id: 'LV95',
+        epsg: 'EPSG:2056',
+        label: 'CH1903+ / LV95',
+        format: function (coordinate) {
+            return toStringXY(coordinate, 2)
+        },
+    },
+    LV03: {
+        id: 'LV03',
+        epsg: 'EPSG:21781',
+        label: 'CH1903 / LV03',
+        format: function (coordinate) {
+            return toStringXY(coordinate, 2)
+        },
+    },
+    WGS84: {
+        id: 'WGS84',
+        epsg: 'EPSG:4326',
+        label: 'WGS84',
+        format: function (coordinate) {
+            return toStringHDMS(coordinate, 2)
+        },
+    },
+    UTM: {
+        id: 'UTM',
+        epsg: 'EPSG:4326',
+        label: 'UTM',
+        format: function (coordinate) {
+            let c = LLtoUTM({ lat: coordinate[1], lon: coordinate[0] })
+            return `${c.zoneNumber}${c.zoneLetter} ${formatThousand(c.easting)}
+                        ${formatThousand(c.northing)}`
+        },
+    },
+    MGRS: {
+        id: 'MGRS',
+        epsg: 'EPSG:4326',
+        label: 'MGRS',
+        format: function (coordinate) {
+            return LLtoMGRS(coordinate, 5)
+        },
+    },
+}
+
+/**
+ * @param coordinates {Number[]}
+ * @param coordinateSystem {CoordinateSystems}
+ * @returns {string}
+ */
+export const printHumanReadableCoordinates = (
+    coordinates,
+    coordinateSystem = CoordinateSystems.LV95
+) => {
+    return coordinateSystem.format(coordinates)
 }

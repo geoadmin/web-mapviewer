@@ -9,7 +9,7 @@
 export default {}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/bootstrap-theme';
 $loading-element-width: 40rem;
 $loading-bar-animation-duration: 2s;

@@ -144,6 +144,6 @@ export default {
     },
 }
 </script>
-<style>
+<style scoped>
 @import '~tippy.js/dist/svg-arrow.css';
 </style>

@@ -20,7 +20,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .multi-lang-title,
 .i18n-partnership-text {
     background: url('../../assets/text.png') no-repeat top left;

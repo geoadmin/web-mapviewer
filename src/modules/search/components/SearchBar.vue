@@ -52,7 +52,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/bootstrap-theme';
 #clear-search-button {
     margin-left: -40px;

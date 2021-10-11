@@ -55,7 +55,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .slide-leave-active,
 .slide-enter-active {
     transition: 0.2s;

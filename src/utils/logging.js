@@ -1,4 +1,4 @@
-import { DEBUG } from '@/config'
+import { DEBUG } from '../config'
 
 /**
  * Logs something if the env is not PROD, otherwise does nothing

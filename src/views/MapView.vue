@@ -40,7 +40,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #map-view {
     position: absolute;
     width: 100%;

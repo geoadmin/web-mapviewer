@@ -50,9 +50,3 @@ export default {
     },
 }
 </script>
-
-<style>
-.button-drawing {
-    margin: 0 0.1rem;
-}
-</style>

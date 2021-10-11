@@ -3,8 +3,10 @@
     <div id="ol-map" ref="map" oncontextmenu="return false">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
-        <div v-if="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
-        <OpenLayersMousePosition />
+        <portal to="footer" :order="1">
+            <div v-if="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
+        </portal>
+        <OpenLayersMousePosition v-if="!isMobile" />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -58,6 +60,7 @@ import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import ScaleLine from 'ol/control/ScaleLine'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import { isMobile } from 'mobile-device-detect'
 
 import { round } from '@/utils/numberUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
@@ -99,6 +102,7 @@ export default {
             view: null,
             // exposing marker styles to the template
             markerStyles,
+            isMobile,
         }
     },
     computed: {
@@ -174,10 +178,17 @@ export default {
         this.map.setView(this.view)
 
         // adding scale line
-        const scaleLine = new ScaleLine({
-            target: this.$refs.scaleLine,
+        // see https://portal-vue.linusb.org/guide/caveats.html#refs
+        // for the reason this double $nextTick is here
+        this.$nextTick().then(() => {
+            this.$nextTick(() => {
+                const scaleLine = new ScaleLine({
+                    target: this.$refs.scaleLine,
+                    className: 'scale-line',
+                })
+                this.map.addControl(scaleLine)
+            })
         })
-        this.map.addControl(scaleLine)
 
         // Click management
         let pointerDownStart = null
@@ -274,29 +285,28 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/scss/bootstrap-theme';
+// style is unscoped so that it may reach scale-line outside of itself
+// as it was transported in the footer by vue-portal
 #ol-map {
     width: 100%;
     height: 100%;
 }
 #scale-line {
-    position: absolute;
     // placing Map Scale over the footer to free some map screen space
-    bottom: 0;
     height: 1rem;
     width: 150px;
-    z-index: $zindex-map;
 
-    .ol-scale-line {
+    .scale-line {
         text-align: center;
         font-weight: bold;
         bottom: 0;
         left: 0;
         background: rgba(255, 255, 255, 0.6);
-        .ol-scale-line-inner {
-            color: $black;
-            border: 2px solid $black;
+        .scale-line-inner {
+            color: #000;
+            border: 2px solid #000;
             border-top: none;
+            max-width: 150px;
         }
     }
 }

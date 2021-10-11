@@ -81,7 +81,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .ga-share {
     width: 100%;
     text-align: start;

@@ -41,7 +41,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/variables';
 .layer-legend {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
