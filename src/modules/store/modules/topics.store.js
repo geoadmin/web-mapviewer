@@ -1,3 +1,5 @@
+import log from '@/utils/logging'
+
 export const CHANGE_TOPIC_MUTATION = 'changeTopic'
 
 const state = {
@@ -26,17 +28,19 @@ const getters = {
     isDefaultTopic: (state) => {
         return state.current && state.current.id === 'ech'
     },
+    /** Returns the current topic's id, or `ech` if no topic is selected */
+    currentTopicId: (state) => {
+        if (state.current) {
+            return state.current.id
+        }
+        return 'ech'
+    },
 }
 
 const actions = {
-    setTopics: ({ commit, state }, topics) => {
+    setTopics: ({ commit }, topics) => {
         if (Array.isArray(topics)) {
             commit('setTopicConfig', topics)
-            // if there's no current topic and topics contains the 'ech' topic, it becomes the default one
-            const echTopic = topics.find((topic) => topic.id === 'ech')
-            if (!state.current && echTopic) {
-                commit(CHANGE_TOPIC_MUTATION, echTopic)
-            }
         }
     },
     setTopicTree: ({ commit }, tree) => {
@@ -46,6 +50,14 @@ const actions = {
     },
     changeTopic: ({ commit }, topic) => {
         commit(CHANGE_TOPIC_MUTATION, topic)
+    },
+    setTopicById: ({ commit, state }, topicId) => {
+        const topic = state.config.find((topic) => topic.id === topicId)
+        if (topic) {
+            commit(CHANGE_TOPIC_MUTATION, topic)
+        } else {
+            log.error('No topic found with ID', topicId)
+        }
     },
 }
 const mutations = {
