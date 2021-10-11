@@ -61,4 +61,67 @@ describe('Test functions for the header / search bar', () => {
             cy.get(menuSettingsContentSelector).should('be.hidden')
         })
     })
+
+    context('Click on Swiss flag / Confederation text (app reset)', () => {
+        const clickOnLogo = () => {
+            cy.get('[data-cy="menu-swiss-flag"]').click()
+            // waiting for page reload
+            cy.wait('@layers')
+            cy.wait('@topics')
+        }
+        const clickOnConfederationText = () => {
+            cy.get('[data-cy="menu-swiss-confederation-text"]').click()
+            // waiting for page reload
+            cy.wait('@layers')
+            cy.wait('@topics')
+        }
+        const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
+            cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
+            cy.readStoreValue('state.topics.current').then((currentTopic) => {
+                expect(currentTopic).to.not.be.undefined
+                expect(currentTopic.id).to.eq(expectedTopicId)
+            })
+        }
+        const selectTopicStandardAndAddLayerFromTopicTree = () => {
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="change-topic-button"]').click()
+            cy.get('[data-cy="change-to-topic-test-topic-standard"]').click()
+            cy.get('[data-cy="topic-tree-item-2"]').click()
+            cy.get('[data-cy="topic-tree-item-5"]').click()
+            cy.get('[data-cy="topic-tree-item-test.wms.layer"]').click()
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        }
+        it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
+            cy.goToMapView('fr', {
+                topic: 'test-topic-standard',
+            })
+            clickOnLogo()
+            // checking that topic and lang are still the same
+            checkLangAndTopic('fr', 'test-topic-standard')
+        })
+        it('reloads the app the same way as above when click on the confederation text', () => {
+            cy.goToMapView('fr', {
+                topic: 'test-topic-standard',
+            })
+            clickOnConfederationText()
+            // checking that topic and lang are still the same
+            checkLangAndTopic('fr', 'test-topic-standard')
+        })
+        it("resets layers added to the default topic's layers when clicking on the logo", () => {
+            cy.goToMapView()
+            selectTopicStandardAndAddLayerFromTopicTree()
+            // now clicking on the swiss flag, this should reload the page without the active layer
+            // we just selected (so only the topic and lang must be carried over)
+            clickOnLogo()
+            checkLangAndTopic('en', 'test-topic-standard')
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        })
+        it('reloads the app the same way as above when click on the confederation text', () => {
+            cy.goToMapView()
+            selectTopicStandardAndAddLayerFromTopicTree()
+            clickOnConfederationText()
+            checkLangAndTopic('en', 'test-topic-standard')
+            cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        })
+    })
 })

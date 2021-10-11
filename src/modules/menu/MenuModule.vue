@@ -3,9 +3,19 @@
         <div v-show="showHeader" class="header">
             <HeaderLoadingBar v-if="showLoadingBar" />
             <div class="header-content align-items-center p-1 flex-fill">
-                <SwissFlag class="swiss-flag ml-1 mr-2" />
-                <HeaderSwissConfederationText class="d-none d-sm-block" />
-                <!-- we then let whatever was given in the slot be rendered here, that's where we expect to receive the search module from MapView.vue -->
+                <SwissFlag
+                    class="swiss-flag ms-1 me-2 cursor-pointer"
+                    data-cy="menu-swiss-flag"
+                    @click="resetApp"
+                />
+                <HeaderSwissConfederationText
+                    :current-lang="currentLang"
+                    class="d-none d-sm-block me-2 cursor-pointer"
+                    data-cy="menu-swiss-confederation-text"
+                    @click="resetApp"
+                />
+                <!-- we then let whatever was given in the slot be rendered here,
+                     that's where we expect to receive the search module from MapView.vue -->
                 <slot />
                 <HeaderMenuButton />
                 <MenuTray class="menu-tray" />
@@ -36,7 +46,15 @@ export default {
         ...mapState({
             showHeader: (state) => state.ui.showHeader,
             showLoadingBar: (state) => state.ui.showLoadingBar,
+            currentLang: (state) => state.i18n.lang,
+            currentTopic: (state) => state.topics.current,
         }),
+    },
+    methods: {
+        resetApp: function () {
+            // an app reset means we keep the lang and the current topic but everything else is thrown away
+            window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopic.id}`
+        },
     },
 }
 </script>
