@@ -1,5 +1,10 @@
 <template>
-    <div id="visible-layers-copyrights" class="d-flex p-1" data-cy="layers-copyrights">
+    <div
+        id="visible-layers-copyrights"
+        class="d-flex p-1"
+        :class="{ 'footer-visible': isFooterVisible }"
+        data-cy="layers-copyrights"
+    >
         <div v-if="copyrights.length > 0">{{ $t('copyright_data') }}</div>
         <div v-for="(copyright, index) in copyrights" :key="copyright.attributionName">
             <a
@@ -28,6 +33,10 @@ export default {
         layers: {
             type: Array,
             required: true,
+        },
+        isFooterVisible: {
+            type: Boolean,
+            default: true,
         },
     },
     computed: {
@@ -61,11 +70,13 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 #visible-layers-copyrights {
     position: absolute;
-    bottom: $footer-height;
+    bottom: 0;
     right: 0;
     z-index: $zindex-map + 1;
     font-size: 0.7rem;
-
+    &.footer-visible {
+        bottom: $footer-height;
+    }
     .copyright {
         color: $black;
         text-decoration: none;

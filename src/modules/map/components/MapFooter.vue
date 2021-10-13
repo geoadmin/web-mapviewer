@@ -1,6 +1,6 @@
 <template>
-    <div id="footer" class="d-flex align-items-center">
-        <portal-target multiple name="footer" />
+    <div id="footer" class="align-items-center">
+        <portal-target multiple class="flex-grow-1 d-flex align-items-center" name="footer" />
         <div v-if="showAppVersion" class="mx-3 app-version small">v{{ appVersion }}</div>
         <a
             class="copyright align-self-center"
@@ -42,7 +42,7 @@ export default {
     font-size: 0.6rem;
     padding: 0 0.2rem;
     background: $white;
-
+    display: flex;
     .app-version {
         color: $gray-400;
     }

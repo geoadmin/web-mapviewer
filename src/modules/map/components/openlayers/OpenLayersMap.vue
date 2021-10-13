@@ -10,8 +10,11 @@
             -->
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </portal>
-        <OpenLayersMousePosition v-if="!isMobile" />
-        <VisibleLayersCopyrights :layers="backgroundAndVisibleLayers" />
+        <OpenLayersMousePosition v-if="isUIinDesktopMode" />
+        <VisibleLayersCopyrights
+            :layers="backgroundAndVisibleLayers"
+            :is-footer-visible="isFooterVisible"
+        />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -130,6 +133,7 @@ export default {
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
             uiMode: (state) => state.ui.mode,
+            isFooterVisible: (state) => state.ui.showFooter,
         }),
         ...mapGetters([
             'visibleLayers',

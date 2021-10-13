@@ -34,9 +34,12 @@ export default {
          * Flag telling if the menu tray (where the layer options, layer tree and other stuff is)
          * should be open
          *
+         * By default, on desktop mode, the menu is shown as a side menu. On mobile/touch it is
+         * hidden as it requires a click on a button to be shown (in order to clear up screen space)
+         *
          * @type Boolean
          */
-        showMenuTray: false,
+        showMenuTray: !isMobile,
         /**
          * Flag telling if the header bar should be visible (so that we can go map fullscreen)
          *
@@ -110,6 +113,18 @@ export default {
         setUiMode: ({ commit }, mode) => {
             if (mode in UIModes) {
                 commit('setUiMode', mode)
+                switch (mode) {
+                    case UIModes.TOUCH:
+                        // if going to mobile/touch, we hide the menu tray
+                        commit('setShowMenuTray', false)
+                        break
+                    case UIModes.DESKTOP:
+                        // if going desktop, the menu should be visible by default
+                        commit('setShowMenuTray', true)
+                        // no need of the overlay in desktop (the menu is always shown)
+                        // TODO: hide overlay
+                        break
+                }
             }
         },
     },

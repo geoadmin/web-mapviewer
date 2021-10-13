@@ -1,5 +1,5 @@
 <template>
-    <div class="zoom d-none d-md-block d-print-none">
+    <div class="zoom d-print-none">
         <a
             class="zoom-button zoom-in mb-1"
             data-cy="zoom-in"

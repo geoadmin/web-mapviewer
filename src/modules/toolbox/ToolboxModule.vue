@@ -1,11 +1,13 @@
 <template>
-    <div id="toolbox">
-        <div v-if="showZoomGeolocationButtons" id="right-toolbox">
-            <ZoomButtons id="toolbox-zoom-buttons" />
-            <GeolocButton id="geoloc-button" />
-        </div>
+    <div id="toolbox" :class="{ desktop: isCurrentUiModeDesktop }">
+        <transition name="slide-right">
+            <div v-if="showZoomGeolocationButtons" class="right-toolbox">
+                <ZoomButtons v-if="isCurrentUiModeDesktop" class="toolbox-zoom-buttons" />
+                <GeolocButton class="geoloc-button" />
+            </div>
+        </transition>
         <transition name="slide-left">
-            <BackgroundSelectorButton v-if="showBgWheel" id="toolbox-bg-buttons" />
+            <BackgroundSelectorButton v-if="showBgWheel" class="toolbox-bg-buttons" />
         </transition>
     </div>
 </template>
@@ -15,6 +17,7 @@ import ZoomButtons from './components/ZoomButtons.vue'
 import BackgroundSelectorButton from './components/BackgroundSelectorButton.vue'
 import { mapState } from 'vuex'
 import GeolocButton from './components/GeolocButton.vue'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 export default {
     components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
@@ -22,7 +25,11 @@ export default {
         ...mapState({
             showBgWheel: (state) => state.ui.showBackgroundWheel,
             showZoomGeolocationButtons: (state) => state.ui.showZoomGeolocationButtons,
+            uiMode: (state) => state.ui.mode,
         }),
+        isCurrentUiModeDesktop: function () {
+            return this.uiMode === UIModes.DESKTOP
+        },
     },
 }
 </script>
@@ -31,24 +38,33 @@ export default {
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
 
-#right-toolbox,
-#toolbox-bg-buttons {
-    position: absolute;
-    z-index: $zindex-map + 1;
-}
-#right-toolbox {
-    top: $header-height + $screen-padding-for-ui-elements;
-    right: $screen-padding-for-ui-elements;
-    #toolbox-zoom-buttons {
-        position: relative;
+#toolbox {
+    .right-toolbox,
+    .toolbox-bg-buttons {
+        position: absolute;
+        z-index: $zindex-map + 1;
+    }
+    .right-toolbox {
+        top: $header-height + $screen-padding-for-ui-elements;
+        right: $screen-padding-for-ui-elements;
+        .toolbox-zoom-buttons {
+            position: relative;
+        }
+    }
+    .toolbox-bg-buttons {
+        left: $screen-padding-for-ui-elements;
+        bottom: $footer-height + $screen-padding-for-ui-elements;
+    }
+    &.desktop {
+        .right-toolbox {
+            top: 2 * $header-height + $screen-padding-for-ui-elements;
+        }
     }
 }
-#toolbox-bg-buttons {
-    left: $screen-padding-for-ui-elements;
-    bottom: $footer-height + $screen-padding-for-ui-elements;
-}
 .slide-left-leave-active,
-.slide-left-enter-active {
+.slide-left-enter-active,
+.slide-right-leave-active,
+.slide-right-enter-active {
     transition: 0.2s;
 }
 .slide-left-enter {
@@ -57,10 +73,10 @@ export default {
 .slide-left-leave-to {
     transform: translate(-100%, 0);
 }
-
-@include respond-above(sm) {
-    #right-toolbox {
-        top: 2 * $header-height + $screen-padding-for-ui-elements;
-    }
+.slide-right-enter {
+    transform: translate(100%, 0);
+}
+.slide-right-leave-to {
+    transform: translate(100%, 0);
 }
 </style>

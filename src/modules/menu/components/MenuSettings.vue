@@ -1,5 +1,5 @@
 <template>
-    <div id="menu-settings" data-cy="menu-settings-content">
+    <div id="menu-settings" class="pb-1" data-cy="menu-settings-content">
         <div id="menu-lang-selector">
             <LangSwitchToolbar />
         </div>

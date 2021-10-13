@@ -60,6 +60,7 @@ export default {
         },
         hideOverlayIgnoringCallbacks(state) {
             state.show = false
+            state.callbacksOnClose = []
         },
     },
     actions: {

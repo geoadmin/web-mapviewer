@@ -67,6 +67,7 @@ const clickOnMapManagementPlugin = (store) => {
                         store.dispatch('toggleHeader')
                         store.dispatch('toggleFooter')
                         store.dispatch('toggleBackgroundWheel')
+                        store.dispatch('toggleZoomGeolocationButtons')
                     } else {
                         runIdentify(
                             store,

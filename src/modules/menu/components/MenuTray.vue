@@ -1,6 +1,6 @@
 <template>
     <transition name="slide">
-        <div v-show="showMenuTray" data-cy="menu-tray" class="bg-white pt-2">
+        <div v-show="showMenuTray" data-cy="menu-tray" class="bg-white pt-1">
             <MenuSection
                 :title="$t('draw_panel_title')"
                 :show-content="isDrawing"
