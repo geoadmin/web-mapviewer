@@ -2,14 +2,17 @@
     <div class="wrapper">
         <div
             ref="card"
-            class="card"
-            :data-state="isMoving ? 'MOVING' : state"
-            :style="{ top: `calc(${isMoving ? y : calcY()}px + 1rem)` }"
+            class="card swipe-element"
+            :class="{
+                moving: isMoving,
+                state,
+            }"
+            :style="swipeStyle"
         >
-            <div ref="pan" class="pan-area">
+            <div ref="pan" class="pan-area py-3">
                 <div ref="bar" class="bar" />
             </div>
-            <div class="contents p-1 mt-3">
+            <div class="contents p-1" :style="contentStyle">
                 <slot />
             </div>
         </div>
@@ -18,34 +21,33 @@
 
 <script>
 import Hammer from 'hammerjs'
-import { mapActions } from 'vuex'
 
-const SWIPE_STATE = {
-    CLOSE: 'CLOSE',
-    ONLY_HEAD: 'ONLY_HEAD',
-    HALF: 'HALF',
-    OPEN: 'OPEN',
+const SwipeState = {
+    Close: 'close',
+    OnlyHead: 'only-head',
+    Half: 'half',
+    Open: 'open',
 }
+const PAN_AREA_HEIGHT = 40
 const BIG_SWIPE_THRESHOLD = 120
 const SMALL_SWIPE_THRESHOLD = 50
 
+const PERCENT_OF_SCREEN_COVERED_WHEN_OPEN = 80
+const PERCENT_OF_SCREEN_COVERED_WHEN_HALF_OPEN = 20
+
 export default {
     props: {
-        openY: {
-            type: Number,
-            default: 0.2,
+        startsOpen: {
+            type: Boolean,
+            default: false,
         },
-        halfY: {
+        screenHeight: {
             type: Number,
-            default: 0.8,
+            required: true,
         },
-        headY: {
+        footerHeight: {
             type: Number,
-            default: 0.95,
-        },
-        defaultState: {
-            type: String,
-            default: SWIPE_STATE.ONLY_HEAD,
+            default: 0,
         },
     },
     data() {
@@ -54,32 +56,82 @@ export default {
             y: 0,
             startY: 0,
             isMoving: false,
-            state: this.defaultState,
-            rect: {},
+            state: this.startsOpen ? SwipeState.Open : SwipeState.OnlyHead,
+            contentHeight: 0,
         }
     },
     computed: {
-        maxY: function () {
-            return this.rect.height * this.openY
+        minTopValue: function () {
+            return this.screenHeight * (1 - PERCENT_OF_SCREEN_COVERED_WHEN_OPEN / 100.0)
         },
-        minY: function () {
-            return this.rect.height - 70
+        minTopValueToFitContent: function () {
+            // we don't want the container to be bigger (on screen) than its content
+            // so if the top value for the current state would mean blank space at the bottom, we lower it to a value
+            // where it perfectly fits the content
+            const perfectContentFit = this.maxTopValue - this.contentHeight
+            if (this.minTopValue < perfectContentFit) {
+                return perfectContentFit
+            }
+            return this.minTopValue
+        },
+        maxTopValue: function () {
+            // here we want to keep the pan area above the bottom line of the screen
+            // so the max top value is the size of the screen (everything hidden at the bottom) minus the size of the pan area (and margin)
+            return this.screenHeight - PAN_AREA_HEIGHT - this.footerHeight
+        },
+        swipeStyle: function () {
+            return { top: `${this.topValue}px` }
+        },
+        contentStyle: function () {
+            return {
+                height: `${this.maxTopValue - this.topValue}px`,
+            }
+        },
+        topValue() {
+            if (this.isMoving) {
+                return this.y
+            }
+            if (this.state === SwipeState.Close) {
+                return this.screenHeight
+            }
+            if (this.state === SwipeState.OnlyHead) {
+                return this.maxTopValue
+            }
+            if (this.state === SwipeState.Half) {
+                const halfTopValue =
+                    this.screenHeight * (1.0 - PERCENT_OF_SCREEN_COVERED_WHEN_HALF_OPEN / 100.0)
+                if (halfTopValue < this.minTopValueToFitContent) {
+                    return this.minTopValueToFitContent
+                }
+                return halfTopValue
+            }
+            if (this.state === SwipeState.Open) {
+                return this.minTopValueToFitContent
+            }
+            return 0
         },
     },
     mounted() {
         window.onresize = () => {
-            this.rect = this.$refs.card.getBoundingClientRect()
+            this.calculateContentHeight()
         }
-        this.rect = this.$refs.card.getBoundingClientRect()
+        this.calculateContentHeight()
+        // we need to listen to changes in the slot in order to recalculate the content height
+        this.slotObserver = new MutationObserver(this.calculateContentHeight)
+        this.slotObserver.observe(this.$slots['default'][0].elm, {
+            childList: true,
+            subtree: true,
+        })
+
         this.mc = new Hammer(this.$refs.pan)
         this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL })
 
         this.mc.on('panup pandown', (evt) => {
-            const newY = evt.center.y - 16
-            if (newY > this.rect.height * this.openY) {
+            const newY = evt.center.y - PAN_AREA_HEIGHT
+            if (newY > this.minTopValue) {
                 this.y = newY
             } else {
-                this.y = this.maxY
+                this.y = this.minTopValue
             }
         })
 
@@ -92,105 +144,79 @@ export default {
             this.isMoving = false
             const deltaY = this.startY - evt.center.y
             switch (this.state) {
-                case SWIPE_STATE.ONLY_HEAD:
+                case SwipeState.OnlyHead:
                     if (deltaY > BIG_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.OPEN
+                        this.state = SwipeState.Open
                     } else if (deltaY > SMALL_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.HALF
+                        this.state = SwipeState.Half
                     }
                     break
-                case SWIPE_STATE.HALF:
+                case SwipeState.Half:
                     if (deltaY > BIG_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.OPEN
+                        this.state = SwipeState.Open
                     } else if (deltaY < -SMALL_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.ONLY_HEAD
+                        this.state = SwipeState.OnlyHead
                     }
                     break
-                case SWIPE_STATE.OPEN:
+                case SwipeState.Open:
                     if (deltaY < 2 * -BIG_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.ONLY_HEAD
+                        this.state = SwipeState.OnlyHead
                     } else if (deltaY < -SMALL_SWIPE_THRESHOLD) {
-                        this.state = SWIPE_STATE.HALF
+                        this.state = SwipeState.Half
                     }
                     break
             }
         })
     },
     beforeUnmount() {
+        this.slotObserver.disconnect()
         this.mc.destroy()
         window.onresize = null
     },
     methods: {
-        calcY() {
-            let y = 0
-            switch (this.state) {
-                case SWIPE_STATE.CLOSE:
-                    y = this.rect.height
-                    break
-                case SWIPE_STATE.ONLY_HEAD:
-                    y = this.rect.height * this.headY
-                    if (y > this.minY) {
-                        y = this.minY
-                    }
-                    break
-                case SWIPE_STATE.OPEN:
-                    y = this.rect.height * this.openY
-                    break
-                case SWIPE_STATE.HALF:
-                    y = this.rect.height * this.halfY
-                    break
-                default:
-                    y = this.y
-            }
-            return y
+        open() {
+            this.state = SwipeState.Open
         },
-        setState(state) {
-            this.state = state
+        calculateContentHeight() {
+            this.contentHeight = this.$slots['default'][0].elm.clientHeight
         },
-        ...mapActions(['']),
     },
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.card {
+.swipe-element {
     width: 100%;
     height: 100%;
     position: fixed;
     background: $white;
+    z-index: $zindex-swipable-element;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 -3px 4px rgba(0, 0, 0, 0.1);
     left: 0;
-}
-.card[data-state='HALF'],
-.card[data-state='OPEN'],
-.card[data-state='CLOSE'],
-.card[data-state='ONLY_HEAD'] {
-    transition: top 0.3s ease-out;
-}
-.card[data-state='CLOSE'] {
-    box-shadow: none;
-}
-.bar {
-    width: 45px;
-    height: 8px;
-    border-radius: 14px;
-    background: $red;
-    margin: 0 auto;
-    cursor: pointer;
-}
-.pan-area,
-.contents {
-    touch-action: none;
-}
-.pan-area {
-    padding: 12px 0;
-}
-.contents {
-    overflow-y: scroll;
-    max-height: 100%;
-    padding-bottom: calc(100% * 0.2);
-    box-sizing: border-box;
+    transition: top 0.2s ease-out;
+    &.close {
+        box-shadow: none;
+    }
+    .bar {
+        width: 45px;
+        height: 8px;
+        border-radius: 14px;
+        background: $red;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+    .pan-area,
+    .contents {
+        touch-action: none;
+    }
+    .contents {
+        overflow-y: auto;
+        box-sizing: border-box;
+        iframe {
+            pointer-events: none;
+        }
+    }
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
     <div id="footer" class="align-items-center">
         <portal-target multiple class="flex-grow-1 d-flex align-items-center" name="footer" />
-        <div v-if="showAppVersion" class="mx-3 app-version small">v{{ appVersion }}</div>
+        <div v-if="showAppVersion" class="mx-3 app-version small pe-none">v{{ appVersion }}</div>
         <a
-            class="copyright align-self-center"
+            class="copyright align-self-center user-select-none"
             :href="`https://www.geo.admin.ch/${$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`"
             target="_blank"
         >

@@ -42,7 +42,7 @@ export default {
     .right-toolbox,
     .toolbox-bg-buttons {
         position: absolute;
-        z-index: $zindex-map + 1;
+        z-index: $zindex-footer;
     }
     .right-toolbox {
         top: $header-height + $screen-padding-for-ui-elements;

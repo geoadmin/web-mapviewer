@@ -7,6 +7,8 @@
             v-if="!isDesktopMode && highlightedFeatures.length"
             ref="swipe"
             starts-open
+            :screen-height="screenHeight"
+            :footer-height="footerHeight"
         >
             <HighlightedFeatureList :highlighted-features="highlightedFeatures" />
         </SwipableBottomSheet>
@@ -30,15 +32,25 @@ export default {
         ...mapState({
             uiMode: (state) => state.ui.mode,
             highlightedFeatures: (state) => state.map.highlightedFeatures,
+            screenHeight: (state) => state.ui.height,
+            isFooterVisible: (state) => state.ui.showFooter,
         }),
         isDesktopMode: function () {
             return this.uiMode === UIModes.DESKTOP
+        },
+        footerHeight: function () {
+            // if the footer is visible, we add 40px of margin to the swipeable component so that its content
+            // can't be hidden behind the footer
+            if (this.isFooterVisible) {
+                return 24 // 1.5rem, as in variable.scss, is about 24px
+            }
+            return 0
         },
     },
     watch: {
         highlightedFeatures: function (newHighlightedFeatures) {
             if (this.$refs.swipe && newHighlightedFeatures && newHighlightedFeatures.length > 0) {
-                this.$refs.swipe.showHalf()
+                this.$refs.swipe.open()
             }
         },
     },

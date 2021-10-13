@@ -72,7 +72,7 @@ export default {
     position: absolute;
     bottom: 0;
     right: 0;
-    z-index: $zindex-map + 1;
+    z-index: $zindex-copyrights;
     font-size: 0.7rem;
     &.footer-visible {
         bottom: $footer-height;
