@@ -178,9 +178,11 @@ export default {
         feature: function (newFeature) {
             if (newFeature) {
                 const featureTextScale = newFeature.get('textScale')
-                this.setCurrentTextSize(
-                    this.sizes.find((size) => size.textScale === featureTextScale)
-                )
+                if (featureTextScale) {
+                    this.setCurrentTextSize(
+                        this.sizes.find((size) => size.textScale === featureTextScale)
+                    )
+                }
             }
         },
     },

@@ -24,12 +24,14 @@ const drawingAddLayerWhenDrawingDonePlugin = (store) => {
             if (!kmlLayer && state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
                 kmlLayer = generateKmlLayer(store.getters.getDrawingPublicFileUrl)
             }
-            if (state.ui.showDrawingOverlay) {
-                // we remove the drawing layer (the KML) so that it can be edited in the drawing
-                // module, without having a duplicate in the layer stack
-                store.dispatch('removeLayer', kmlLayer)
-            } else {
-                store.dispatch('addLayer', kmlLayer)
+            if (kmlLayer) {
+                if (state.ui.showDrawingOverlay) {
+                    // we remove the drawing layer (the KML) so that it can be edited in the drawing
+                    // module, without having a duplicate in the layer stack
+                    store.dispatch('removeLayer', kmlLayer)
+                } else {
+                    store.dispatch('addLayer', kmlLayer)
+                }
             }
         }
     })
