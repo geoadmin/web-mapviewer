@@ -53,7 +53,15 @@
                 </div>
                 <div>{{ $t('elevation') }}</div>
                 <div>
-                    <span v-show="height">{{ height }} m</span>
+                    <span v-show="height">
+                        {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
+                    </span>
+                </div>
+                <div></div>
+                <div>
+                    <a :href="shareLinkUrl" target="_blank">
+                        {{ $t('link_bowl_crosshair') }}
+                    </a>
                 </div>
             </div>
         </div>
@@ -129,6 +137,9 @@ export default {
                 left: `${this.clickInfo.pixelCoordinate[0] - 150}px`,
             }
         },
+        shareLinkUrl: function () {
+            return `${window.location}&crosshair=marker`
+        },
     },
     watch: {
         clickCoordinates: function () {
@@ -163,6 +174,11 @@ export default {
                 })
             }
         },
+        // drawLocationOnMapp: function () {
+        //     if (this.clickCoordinates) {
+
+        //     }
+        // }
     },
 }
 </script>

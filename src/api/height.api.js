@@ -1,13 +1,28 @@
 import axios from 'axios'
 import proj4 from 'proj4'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 import { API_BASE_URL } from '@/config'
+
+export const meterToFeetFactor = 3.28084
+
+export class HeightForPosition {
+    /**
+     * @param {Number[]} coordinates Lat/lon, the position for which the height was requested
+     * @param {Number} heightInMeter The height for the position given by our backend
+     */
+    constructor(coordinates, heightInMeter) {
+        this.coordinates = coordinates
+        this.heightInMeter = heightInMeter
+        this.heightInFeet = round(heightInMeter * meterToFeetFactor, 1)
+    }
+}
 
 /**
  * Get the height of the given coordinate from the backend
  *
  * @param {Number[]} coordinates Lat/lon coordinates expressed in EPSG:3857
- * @returns {Promise<Number>} The height for the given coordinate
+ * @returns {Promise<HeightForPosition>} The height for the given coordinate
  */
 export const requestHeight = (coordinates) => {
     return new Promise((resolve, reject) => {
@@ -21,7 +36,7 @@ export const requestHeight = (coordinates) => {
                     },
                 })
                 .then((heightResponse) => {
-                    resolve(heightResponse.data.height)
+                    resolve(new HeightForPosition(coordinates, heightResponse.data.height))
                 })
                 .catch((error) => {
                     log.error('Error while retrieving height for', coordinates, error)
