@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isRightClick" class="location-popup" :style="computedStyle">
+    <div v-if="isRightClick" class="location-popup">
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -53,7 +53,7 @@
                 </div>
                 <div>{{ $t('elevation') }}</div>
                 <div>
-                    <span v-show="height">
+                    <span v-if="height">
                         {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
                     </span>
                 </div>
@@ -72,18 +72,28 @@
 import proj4 from 'proj4'
 import { mapState, mapActions } from 'vuex'
 import { ClickType } from '@/modules/map/store/map.store'
+import Overlay from 'ol/Overlay'
+import OverlayPositioning from 'ol/OverlayPositioning'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import ButtonWithIcon from '@/utils/ButtonWithIcon'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
+import { generateQrCode } from '@/api/qrcode.api'
 import { round } from '@/utils/numberUtils'
 
 export default {
     components: { ButtonWithIcon },
+    inject: ['getMap'],
     data: function () {
         return {
             clickWhat3Words: null,
             height: null,
+            qrCodeImage: null,
+            overlay: new Overlay({
+                offset: [0, 15],
+                positioning: OverlayPositioning.TOP_CENTER,
+                className: 'location-popup-overlay',
+            }),
         }
     },
     computed: {
@@ -131,24 +141,30 @@ export default {
         isRightClick: function () {
             return this.clickInfo && this.clickInfo.clickType === ClickType.RIGHT_CLICK
         },
-        computedStyle: function () {
-            return {
-                top: `${this.clickInfo.pixelCoordinate[1] + 25}px`,
-                left: `${this.clickInfo.pixelCoordinate[0] - 150}px`,
-            }
-        },
         shareLinkUrl: function () {
             return `${window.location}&crosshair=marker`
         },
     },
     watch: {
-        clickCoordinates: function () {
+        clickCoordinates: function (newClickCoordinates) {
             this.requestWhat3WordBackend()
             this.registerHeigthFromBackend()
+            this.generateQrCodeFromBackend()
+            if (newClickCoordinates) {
+                this.overlay.setPosition(newClickCoordinates)
+            }
         },
         currentLang: function () {
             this.requestWhat3WordBackend()
+            this.generateQrCodeFromBackend()
         },
+    },
+    mounted() {
+        const olMap = this.getMap()
+        if (olMap) {
+            this.overlay.setElement(this.$el)
+            olMap.addOverlay(this.overlay)
+        }
     },
     methods: {
         ...mapActions(['clearClick']),
@@ -174,11 +190,13 @@ export default {
                 })
             }
         },
-        // drawLocationOnMapp: function () {
-        //     if (this.clickCoordinates) {
-
-        //     }
-        // }
+        generateQrCodeFromBackend: function () {
+            if (this.clickCoordinates) {
+                generateQrCode(window.location).then((qrCode) => {
+                    console.log('yay!', qrCode)
+                })
+            }
+        },
     },
 }
 </script>
@@ -186,10 +204,8 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/bootstrap-theme';
 .location-popup {
-    position: absolute;
-    z-index: $zindex-map + 1;
     width: auto;
-    max-width: 400px;
+    max-width: 450px;
     height: auto;
 
     .coordinates-list {

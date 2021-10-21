@@ -3,6 +3,7 @@
         <OpenLayersMap>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
+            <LocationPopup />
         </OpenLayersMap>
         <transition name="slide-down">
             <Footer v-show="showFooter" />
@@ -13,10 +14,11 @@
 <script>
 import { mapState } from 'vuex'
 import OpenLayersMap from './components/openlayers/OpenLayersMap'
+import LocationPopup from './components/LocationPopup'
 import Footer from './components/Footer'
 
 export default {
-    components: { OpenLayersMap, Footer },
+    components: { OpenLayersMap, LocationPopup, Footer },
     computed: {
         ...mapState({
             showFooter: (state) => state.ui.showFooter,

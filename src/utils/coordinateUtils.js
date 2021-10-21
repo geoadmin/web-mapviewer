@@ -318,7 +318,7 @@ export const CoordinateSystems = {
         epsg: 'EPSG:4326',
         label: 'MGRS',
         format: function (coordinate) {
-            return LLtoMGRS(coordinate, 5)
+            return LLtoMGRS(coordinate, 5).replace(/(.{5})/g, '$1 ')
         },
     },
 }
