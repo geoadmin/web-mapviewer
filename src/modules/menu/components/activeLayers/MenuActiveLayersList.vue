@@ -1,33 +1,36 @@
 <template>
-    <div
-        v-show="activeLayers.length > 0"
-        data-cy="menu-section-active-layers"
-        class="menu-layer-list"
-    >
-        <MenuActiveLayersListItem
-            v-for="layer in activeLayers"
-            :id="layer.getID()"
-            :key="layer.getID()"
-            :visible="layer.visible"
-            :opacity="layer.opacity"
-            :name="layer.name"
-            :time-config="layer.timeConfig"
-            :show-details="showLayerDetailsForId === layer.getID()"
-            :is-first-layer="isFirstLayer(layer.getID())"
-            :is-last-layer="isLastLayer(layer.getID())"
-            @removeLayer="onRemoveLayer"
-            @toggleLayerVisibility="onToggleLayerVisibility"
-            @toggleLayerDetails="onToggleLayerDetails"
-            @opacityChange="onOpacityChange"
-            @orderChange="onOrderChange"
-            @timestampChange="onTimestampChange"
-            @showLayerLegendPopup="showLayerLegendForId = layer.getID()"
-        />
-        <MenuActiveLayersLegendPopup
-            v-if="showLayerLegendForId"
-            :layer-id="showLayerLegendForId"
-            @close="showLayerLegendForId = null"
-        />
+    <div>
+        <div
+            v-show="activeLayers.length > 0"
+            data-cy="menu-section-active-layers"
+            class="menu-layer-list"
+        >
+            <MenuActiveLayersListItem
+                v-for="layer in activeLayers"
+                :id="layer.getID()"
+                :key="layer.getID()"
+                :visible="layer.visible"
+                :opacity="layer.opacity"
+                :name="layer.name"
+                :time-config="layer.timeConfig"
+                :show-details="showLayerDetailsForId === layer.getID()"
+                :is-first-layer="isFirstLayer(layer.getID())"
+                :is-last-layer="isLastLayer(layer.getID())"
+                @removeLayer="onRemoveLayer"
+                @toggleLayerVisibility="onToggleLayerVisibility"
+                @toggleLayerDetails="onToggleLayerDetails"
+                @opacityChange="onOpacityChange"
+                @orderChange="onOrderChange"
+                @timestampChange="onTimestampChange"
+                @showLayerLegendPopup="showLayerLegendForId = layer.getID()"
+            />
+            <MenuActiveLayersLegendPopup
+                v-if="showLayerLegendForId"
+                :layer-id="showLayerLegendForId"
+                @close="showLayerLegendForId = null"
+            />
+        </div>
+        <div v-show="activeLayers.length === 0">-</div>
     </div>
 </template>
 
