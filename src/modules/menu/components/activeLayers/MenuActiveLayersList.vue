@@ -30,7 +30,7 @@
                 @close="showLayerLegendForId = null"
             />
         </div>
-        <div v-show="activeLayers.length === 0">-</div>
+        <div v-show="activeLayers.length === 0" data-cy="menu-section-no-layers">-</div>
     </div>
 </template>
 
