@@ -1,6 +1,5 @@
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
-import AdminLayerParamConfig from '@/router/storeSync/AdminLayerParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 
 /**
@@ -94,7 +93,6 @@ const storeSyncConfig = [
         String
     ),
     new LayerParamConfig(),
-    new AdminLayerParamConfig(),
 ]
 
 export default storeSyncConfig

@@ -29,7 +29,7 @@ const createAPoint = (kind, x = 0, y = 0, xx = 915602.81, yy = 5911929.47) => {
             expect(coos).to.eql([xx, yy], `bad: ${JSON.stringify(coos)}`)
         })
         cy.wait('@post-kml').then((interception) =>
-            cy.checkKMLFileResponse(interception, ['Placemark'], true)
+            cy.checkKMLRequest(interception, ['Placemark'], true)
         )
     })
 }

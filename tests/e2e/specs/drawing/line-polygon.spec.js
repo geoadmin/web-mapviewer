@@ -14,7 +14,7 @@ describe('Line/Polygon tool', () => {
         cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@post-kml').then((interception) =>
-            cy.checkKMLFileResponse(
+            cy.checkKMLRequest(
                 interception,
                 ['line', '<Data name="color"><value>#ff0000</value>'],
                 true
@@ -31,7 +31,7 @@ describe('Line/Polygon tool', () => {
         cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
         cy.wait('@post-kml').then((interception) =>
-            cy.checkKMLFileResponse(
+            cy.checkKMLRequest(
                 interception,
                 ['line', '<Data name="color"><value>#ff0000</value>'],
                 true

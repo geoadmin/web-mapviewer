@@ -558,7 +558,7 @@ export default class DrawingManager extends Observable {
     }
 
     async addKmlLayer(layer) {
-        const kml = await getKml(layer.kmlFileUrl)
+        const kml = await getKml(layer.fileId)
         const features = this.kmlFormat.readFeatures(kml, {
             featureProjection: layer.projection,
         })

@@ -110,14 +110,15 @@ Cypress.Commands.add('checkDrawnGeoJsonPropertyContains', (key, expected) => {
         })
 })
 
-Cypress.Commands.add('checkKMLFileResponse', (interception, data, create = false) => {
+Cypress.Commands.add('checkKMLRequest', (interception, data, create = false) => {
+    // Check request
     if (!create) {
         const urlArray = interception.request.url.split('/')
         const id = urlArray[urlArray.length - 1]
-        expect(id).to.be.eq('1234_adminId')
+        expect(id).to.be.eq('1234_fileId')
     }
-    expect(interception.request.headers['content-type']).to.be.eq(
-        'application/vnd.google-earth.kml+xml'
+    expect(interception.request.headers['content-type']).to.contain(
+        'multipart/form-data; boundary='
     )
     expect(interception.request.body).to.contain('</kml>')
     data.forEach((text) => expect(interception.request.body).to.contain(text))

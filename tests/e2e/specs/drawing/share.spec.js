@@ -14,7 +14,7 @@ describe('Drawing toolbox actions', () => {
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.contain(`/${ids.fileId}`)
-                expect(clipboardText).to.not.contain(`/${ids.adminId}`)
+                expect(clipboardText).to.not.contain(`@adminId=${ids.adminId}`)
             })
         })
     })
@@ -23,8 +23,8 @@ describe('Drawing toolbox actions', () => {
         cy.get('[data-cy="drawing-share-admin-link"]').click()
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
             cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.not.contain(`/${ids.fileId}`)
-                expect(clipboardText).to.contain(`drawingAdminFileId=${ids.adminId}`)
+                expect(clipboardText).to.contain(`/${ids.fileId}`)
+                expect(clipboardText).to.contain(`@adminId=${ids.adminId}`)
             })
         })
     })
