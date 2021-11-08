@@ -5,6 +5,7 @@ on:
     types:
       - opened
       - edited
+  push:
 
 jobs:
   pr-labeler:
