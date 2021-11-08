@@ -102,6 +102,27 @@ describe('Test of layer handling', () => {
                 })
             })
         })
+        it('Shows a hyphen when no layer is selected', () => {
+            cy.goToMapView()
+            // clicking on the menu button
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-active-layers"]').click()
+            cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+        })
+        it('Shows no hyphen when a layer is selected', () => {
+            const visibleLayerIds = [
+                'test.wms.layer',
+                'test.wmts.layer',
+                'test.timeenabled.wmts.layer',
+            ]
+            cy.goToMapView('en', {
+                layers: visibleLayerIds.join(';'),
+            })
+            // clicking on the menu button
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-active-layers"]').click()
+            cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
+        })
     })
     context('Background layer in URL at app startup', () => {
         it('sets the background to the topic default if none is defined in the URL', () => {
