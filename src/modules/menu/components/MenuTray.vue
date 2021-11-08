@@ -8,7 +8,11 @@
                 @showBody="onShowDrawingOverlay"
             />
             <MenuTopicSection class="border-bottom-0" />
-            <MenuSection :title="$t('layers_displayed')" :show-content="showLayerList">
+            <MenuSection
+                :title="$t('layers_displayed')"
+                :show-content="showLayerList"
+                data-cy="menu-active-layers"
+            >
                 <MenuActiveLayersList />
             </MenuSection>
             <MenuSection

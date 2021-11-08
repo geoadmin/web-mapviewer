@@ -106,6 +106,7 @@ describe('Test of layer handling', () => {
             cy.goToMapView()
             // clicking on the menu button
             cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-active-layers"]').click()
             cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
         })
         it('Shows no hyphen when a layer is selected', () => {
@@ -119,6 +120,7 @@ describe('Test of layer handling', () => {
             })
             // clicking on the menu button
             cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-active-layers"]').click()
             cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
         })
     })
