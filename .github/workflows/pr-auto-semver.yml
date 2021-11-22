@@ -1,0 +1,13 @@
+name: PR New SemVer Release Auto Title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+jobs:
+  pr-edit:
+    uses: geoadmin/.github/.github/workflows/pr-auto-semver.yml@master
