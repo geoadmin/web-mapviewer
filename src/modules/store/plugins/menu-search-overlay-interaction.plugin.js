@@ -46,7 +46,6 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = (store) => {
                 if (state.ui.showMenuTray) {
                     // only showing the overlay in Touch UI mode
                     if (state.ui.mode === UIModes.TOUCH) {
-                        console.log('touch, showing overlay')
                         showOverlayIfHidden()
                     }
                     hideSearchResultsIfShown()

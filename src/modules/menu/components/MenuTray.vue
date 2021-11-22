@@ -1,29 +1,30 @@
 <template>
-    <transition name="slide">
-        <div v-show="showMenuTray" data-cy="menu-tray" class="bg-white pt-1">
-            <MenuSection
-                :title="$t('draw_panel_title')"
-                :show-content="isDrawing"
-                data-cy="menu-tray-drawing-section"
-                @showBody="onShowDrawingOverlay"
-            />
-            <MenuTopicSection class="border-bottom-0" />
-            <MenuSection
-                :title="$t('layers_displayed')"
-                :show-content="showLayerList"
-                data-cy="menu-active-layers"
-            >
-                <MenuActiveLayersList />
-            </MenuSection>
-            <MenuSection
-                :title="$t('settings')"
-                :show-content="false"
-                data-cy="menu-settings-section"
-            >
-                <MenuSettings :current-ui-mode="currentUiMode" @changeUiMode="setUiMode" />
-            </MenuSection>
-        </div>
-    </transition>
+    <div data-cy="menu-tray" class="bg-white" :class="{ compact: compact }">
+        <MenuSection
+            :title="$t('settings')"
+            :show-content="false"
+            secondary
+            data-cy="menu-settings-section"
+        >
+            <MenuSettings :current-ui-mode="currentUiMode" @changeUiMode="setUiMode" />
+        </MenuSection>
+        <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
+        <MenuSection
+            :title="$t('draw_panel_title')"
+            :always-keep-closed="true"
+            secondary
+            data-cy="menu-tray-drawing-section"
+            @click="onShowDrawingOverlay"
+        />
+        <MenuTopicSection :compact="compact" class="border-bottom-0" />
+        <MenuSection
+            :title="$t('layers_displayed')"
+            :show-content="showLayerList"
+            data-cy="menu-active-layers"
+        >
+            <MenuActiveLayersList :compact="compact" />
+        </MenuSection>
+    </div>
 </template>
 
 <script>
@@ -40,10 +41,14 @@ export default {
         MenuActiveLayersList,
         MenuSettings,
     },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+    },
     computed: {
         ...mapState({
-            showMenuTray: (state) => state.ui.showMenuTray,
-            isDrawing: (state) => state.ui.showDrawingOverlay,
             activeLayers: (state) => state.layers.activeLayers,
             currentUiMode: (state) => state.ui.mode,
         }),
@@ -61,16 +66,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.slide-leave-active,
-.slide-enter-active {
-    transition: 0.2s;
-}
-
-.slide-enter-from {
-    transform: translate(100%, 0);
-}
-
-.slide-leave-to {
-    transform: translate(100%, 0);
+.compact {
+    font-size: 0.825rem;
 }
 </style>

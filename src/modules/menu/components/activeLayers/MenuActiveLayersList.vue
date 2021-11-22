@@ -16,6 +16,7 @@
                 :show-details="showLayerDetailsForId === layer.getID()"
                 :is-first-layer="isFirstLayer(layer.getID())"
                 :is-last-layer="isLastLayer(layer.getID())"
+                :compact="compact"
                 @removeLayer="onRemoveLayer"
                 @toggleLayerVisibility="onToggleLayerVisibility"
                 @toggleLayerDetails="onToggleLayerDetails"
@@ -45,6 +46,12 @@ import LayerLegendPopup from '@/modules/overlay/components/LayerLegendPopup.vue'
  */
 export default {
     components: { LayerLegendPopup, MenuActiveLayersListItem },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             showLayerLegendForId: null,

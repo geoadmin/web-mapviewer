@@ -113,18 +113,6 @@ export default {
         setUiMode: ({ commit }, mode) => {
             if (mode in UIModes) {
                 commit('setUiMode', mode)
-                switch (mode) {
-                    case UIModes.TOUCH:
-                        // if going to mobile/touch, we hide the menu tray
-                        commit('setShowMenuTray', false)
-                        break
-                    case UIModes.DESKTOP:
-                        // if going desktop, the menu should be visible by default
-                        commit('setShowMenuTray', true)
-                        // no need of the overlay in desktop (the menu is always shown)
-                        // TODO: hide overlay
-                        break
-                }
             }
         },
     },

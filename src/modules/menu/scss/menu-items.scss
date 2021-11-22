@@ -22,4 +22,9 @@
       cursor: pointer;
     }
   }
+  &.compact {
+    .menu-list-item-title {
+      height: 2.2rem;
+    }
+  }
 }

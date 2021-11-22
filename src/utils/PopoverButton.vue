@@ -5,6 +5,7 @@
             :button-title="buttonTitle"
             :button-font-awesome-icon="buttonFontAwesomeIcon"
             :primary="primary"
+            :small="small"
             :danger="danger"
         ></ButtonWithIcon>
         <div
@@ -31,7 +32,7 @@
                         @click="hidePopover"
                     />
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <slot />
                 </div>
             </div>
@@ -82,6 +83,11 @@ export default {
         },
         /** Flag telling if the button should harbor bootstrap's danger color */
         danger: {
+            type: Boolean,
+            default: false,
+        },
+        /** Flag telling if the main button should be smaller */
+        small: {
             type: Boolean,
             default: false,
         },

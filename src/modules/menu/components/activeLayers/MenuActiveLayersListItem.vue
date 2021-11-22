@@ -1,20 +1,20 @@
 <template>
-    <div class="menu-layer-list-item">
+    <div class="menu-layer-list-item" :class="{ compact: compact }">
         <div class="menu-list-item-title">
-            <button
-                class="btn btn-default"
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'times-circle']"
                 :data-cy="`button-remove-layer-${id}`"
+                :large="!compact"
+                transparent
                 @click="onRemoveLayer"
-            >
-                <font-awesome-icon size="lg" :icon="['fas', 'times-circle']" />
-            </button>
-            <button
-                class="btn btn-default"
+            />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['far', checkboxIcon]"
                 :data-cy="`button-toggle-visibility-layer-${id}`"
+                :large="!compact"
+                transparent
                 @click="onToggleLayerVisibility"
-            >
-                <font-awesome-icon size="lg" :icon="['far', checkboxIcon]" />
-            </button>
+            />
             <span
                 class="menu-item-name"
                 :data-cy="`visible-layer-name-${id}`"
@@ -25,16 +25,18 @@
                 v-if="timeConfig"
                 :data-cy="`time-selector-${id}`"
                 :time-config="timeConfig"
+                :compact="compact"
                 @timestampChange="onTimestampChange"
             />
-            <button
-                class="btn btn-default"
-                :class="{ 'text-danger': showDetails }"
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'cog']"
+                class="menu-layer-settings-button px-1"
+                :class="{ 'text-danger': showDetails, flip: showLayerDetails }"
+                transparent
                 :data-cy="`button-open-visible-layer-settings-${id}`"
+                :large="!compact"
                 @click="onToggleLayerDetails"
-            >
-                <font-awesome-icon size="lg" :icon="['fas', 'cog']" />
-            </button>
+            />
         </div>
         <div
             v-show="showDetails"
@@ -55,29 +57,29 @@
                 />
             </div>
             <div class="menu-layer-list-item-details-order">
-                <button
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fas', 'arrow-up']"
                     :disabled="isFirstLayer"
-                    class="btn btn-default"
                     :data-cy="`button-raise-order-layer-${id}`"
+                    :large="!compact"
+                    transparent
                     @click="onOrderChange(1)"
-                >
-                    <font-awesome-icon size="lg" :icon="['fas', 'arrow-up']" />
-                </button>
-                <button
+                />
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fas', 'arrow-down']"
                     :disabled="isLastLayer"
-                    class="btn btn-default"
                     :data-cy="`button-lower-order-layer-${id}`"
+                    :large="!compact"
+                    transparent
                     @click="onOrderChange(-1)"
-                >
-                    <font-awesome-icon size="lg" :icon="['fas', 'arrow-down']" />
-                </button>
-                <button
-                    class="btn btn-default"
+                />
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fas', 'info-circle']"
                     :data-cy="`button-show-legend-layer-${id}`"
+                    :large="!compact"
+                    transparent
                     @click="showLayerLegendPopup"
-                >
-                    <font-awesome-icon size="lg" :icon="['fas', 'info-circle']" />
-                </button>
+                />
             </div>
         </div>
     </div>
@@ -86,13 +88,14 @@
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)
  */
 export default {
-    components: { MenuActiveLayersListItemTimeSelector },
+    components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector },
     props: {
         id: {
             type: String,
@@ -126,6 +129,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        compact: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: [
         'toggleLayerDetails',
@@ -136,6 +143,11 @@ export default {
         'showLayerLegendPopup',
         'timestampChange',
     ],
+    data() {
+        return {
+            showLayerDetails: false,
+        }
+    },
     computed: {
         checkboxIcon: function () {
             if (this.visible) {
@@ -155,6 +167,7 @@ export default {
     },
     methods: {
         onToggleLayerDetails: function () {
+            this.showLayerDetails = !this.showLayerDetails
             this.$emit('toggleLayerDetails', this.id)
         },
         onRemoveLayer: function () {
@@ -190,13 +203,23 @@ export default {
             display: flex;
             flex-grow: 1;
             .transparency-title {
-                font-size: 0.9rem;
+                font-size: 90%;
             }
             .transparency-slider {
                 display: flex;
                 flex-grow: 1;
                 cursor: pointer;
             }
+        }
+    }
+    .menu-layer-settings-button {
+        transition: 0.2s;
+        &.flip {
+            transform: rotate(180deg);
+        }
+        &:focus {
+            outline: none;
+            box-shadow: none;
         }
     }
 }

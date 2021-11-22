@@ -7,6 +7,7 @@ import {
     faArrowUp,
     faArrowDown,
     faCaretRight,
+    faCaretUp,
     faCaretDown,
     faPlusCircle,
     faPlus,
@@ -47,6 +48,7 @@ library.add(faArrowUp)
 library.add(faArrowsAltH)
 library.add(faArrowDown)
 library.add(faCaretRight)
+library.add(faCaretUp)
 library.add(faCaretDown)
 library.add(faPlusCircle)
 library.add(faPlus)

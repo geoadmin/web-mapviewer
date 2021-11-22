@@ -4,6 +4,7 @@ $zindex-copyrights: $zindex-map + 1;
 $zindex-swipable-element: $zindex-copyrights + 1;
 $zindex-footer: $zindex-swipable-element + 1;
 $zindex-overlay-default: 200;
+$zindex-menu: $zindex-overlay-default + 1;
 $zindex-overlay-front: 300;
 
 $header-height: 3rem;

@@ -23,7 +23,31 @@
                 </div>
             </div>
         </transition>
-        <MenuTray class="menu-tray" :class="{ 'desktop-mode': !isUiInTouchMode }" />
+        <transition :name="isUiInTouchMode ? 'slide-up' : 'slide-left'">
+            <div
+                v-if="showMenuTray"
+                class="menu-tray"
+                :class="{
+                    'desktop-mode': !isUiInTouchMode,
+                    'desktop-menu-closed': !isUiInTouchMode && closeMenuDesktopMode,
+                }"
+            >
+                <MenuTray :compact="!isUiInTouchMode" />
+                <ButtonWithIcon
+                    v-if="!isUiInTouchMode"
+                    class="menu-tray-desktop-close-button"
+                    :button-font-awesome-icon="[
+                        'fas',
+                        closeMenuDesktopMode ? 'caret-down' : 'caret-up',
+                    ]"
+                    :button-title="$t(closeMenuDesktopMode ? 'open_menu' : 'close_menu')"
+                    icons-before-text
+                    dark
+                    @click="closeMenuDesktopMode = !closeMenuDesktopMode"
+                >
+                </ButtonWithIcon>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -37,25 +61,41 @@ import HeaderSwissConfederationText from './components/header/HeaderSwissConfede
 import MenuTray from './components/MenuTray.vue'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
 
 export default {
     components: {
+        ButtonWithIcon,
         HeaderLoadingBar,
         HeaderSwissConfederationText,
         HeaderMenuButton,
         SwissFlag,
         MenuTray,
     },
+    data() {
+        return {
+            closeMenuDesktopMode: false,
+        }
+    },
     computed: {
         ...mapState({
             showHeader: (state) => state.ui.showHeader,
             showLoadingBar: (state) => state.ui.showLoadingBar,
+            stateShowMenuTray: (state) => state.ui.showMenuTray,
             currentLang: (state) => state.i18n.lang,
             currentTopic: (state) => state.topics.current,
             currentUiMode: (state) => state.ui.mode,
+            isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
         }),
         isUiInTouchMode: function () {
             return this.currentUiMode === UIModes.TOUCH
+        },
+        showMenuTray: function () {
+            if (this.isUiInTouchMode) {
+                return this.stateShowMenuTray && !this.isCurrentlyDrawing
+            } else {
+                return !this.isCurrentlyDrawing
+            }
         },
     },
     methods: {
@@ -107,24 +147,32 @@ export default {
 }
 .menu-tray {
     position: absolute;
-    z-index: $zindex-overlay-default + 1;
+    z-index: $zindex-menu;
     top: $header-height;
-    right: 0;
-    background: $white;
-    width: 95%;
-    max-width: 30rem;
+    left: 0;
+    width: 100vh;
+    max-width: 100vw;
+    transition: 0.3s;
     &.desktop-mode {
-        left: 0;
         top: 2 * $header-height;
+        max-width: 22rem;
+    }
+    &.desktop-menu-closed {
+        transform: translate(0px, calc(-100% + 2.5rem));
     }
 }
+// transition definitions
+.slide-left-leave-active,
+.slide-left-enter-active,
 .slide-up-leave-active,
 .slide-up-enter-active {
     transition: 0.2s;
 }
-.slide-up-enter {
-    transform: translate(0, -100%);
+.slide-left-enter,
+.slide-left-leave-to {
+    transform: translate(-100%, 0);
 }
+.slide-up-enter,
 .slide-up-leave-to {
     transform: translate(0, -100%);
 }

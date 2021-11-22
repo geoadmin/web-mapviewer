@@ -1,29 +1,34 @@
 <template>
-    <div class="menu-topic-tree-item" :class="{ active: isActive }">
+    <div class="menu-topic-tree-item" :class="{ active: isActive, compact: compact }">
         <div
             class="menu-list-item-title"
             :class="`menu-tree-item-${item.type.toLowerCase()}`"
             :data-cy="`topic-tree-item-${item.id}`"
             @click="onClick"
         >
-            <button class="btn btn-default" :class="{ 'text-danger': isActive }">
-                <font-awesome-icon size="lg" :icon="showHideIcon" />
+            <button class="btn btn-default" :class="{ 'text-danger': isActive || isHidden }">
+                <font-awesome-icon :size="compact ? null : 'lg'" :icon="showHideIcon" />
             </button>
             <span class="menu-item-name">{{ item.name }}</span>
         </div>
-        <div v-show="showChildren" class="menu-tree-children pl-2">
-            <MenuTopicTreeItem
-                v-for="child in item.children"
-                :key="`${child.id}-${child.name}`"
-                :item="child"
-                :is-active-function="isActiveFunction"
-                @clickOnLayerTopicItem="(layerId) => bubbleEventToParent(layerId)"
-            />
-        </div>
+        <CollapseTransition :duration="200">
+            <div v-show="showChildren" class="menu-tree-children" :class="`ps-${2 + 2 * depth}`">
+                <MenuTopicTreeItem
+                    v-for="child in item.children"
+                    :key="`${child.id}-${child.name}`"
+                    :item="child"
+                    :active-layers="activeLayers"
+                    :depth="depth + 1"
+                    :compact="compact"
+                    @clickOnLayerTopicItem="(layerId) => bubbleEventToParent(layerId)"
+                />
+            </div>
+        </CollapseTransition>
     </div>
 </template>
 
 <script>
+import { CollapseTransition } from '@ivanv/vue-collapse-transition'
 import { topicTypes } from '@/api/topics.api'
 
 /**
@@ -33,14 +38,25 @@ import { topicTypes } from '@/api/topics.api'
  */
 export default {
     name: 'MenuTopicTreeItem',
+    components: {
+        CollapseTransition,
+    },
     props: {
         item: {
             type: Object,
             required: true,
         },
-        isActiveFunction: {
-            type: Function,
+        activeLayers: {
+            type: Array,
             required: true,
+        },
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+        depth: {
+            type: Number,
+            default: 0,
         },
     },
     emits: ['clickOnLayerTopicItem'],
@@ -58,7 +74,7 @@ export default {
                     return ['fas', 'plus-circle']
                 }
             } else {
-                if (this.isActive) {
+                if (this.isActive && !this.isHidden) {
                     return ['far', 'check-square']
                 } else {
                     return ['far', 'square']
@@ -66,7 +82,18 @@ export default {
             }
         },
         isActive: function () {
-            return this.item.type === topicTypes.LAYER && this.isActiveFunction(this.item)
+            return (
+                this.item.type === topicTypes.LAYER &&
+                this.activeLayers.find((layer) => layer.getID() === this.item.layerId)
+            )
+        },
+        isHidden: function () {
+            return (
+                this.isActive &&
+                this.activeLayers.find(
+                    (layer) => layer.getID() === this.item.layerId && !layer.visible
+                )
+            )
         },
     },
     methods: {

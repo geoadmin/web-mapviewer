@@ -4,18 +4,14 @@
             <LangSwitchToolbar />
         </div>
         <div id="ui-mode-selector">
-            <button
+            <ButtonWithIcon
                 v-for="mode in UIModes"
                 :key="mode"
-                class="btn"
-                :class="{
-                    'btn-danger': currentUiMode === mode,
-                    'btn-default': currentUiMode !== mode,
-                }"
+                :danger="currentUiMode === mode"
+                :button-title="$t(getI18nKeyForUiMode(mode))"
+                :small="currentUiMode === UIModes.DESKTOP"
                 @click="changeUiMode(mode)"
-            >
-                {{ $t(getI18nKeyForUiMode(mode)) }}
-            </button>
+            />
         </div>
     </div>
 </template>
@@ -23,9 +19,11 @@
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon'
 
 export default {
     components: {
+        ButtonWithIcon,
         LangSwitchToolbar,
     },
     props: {
