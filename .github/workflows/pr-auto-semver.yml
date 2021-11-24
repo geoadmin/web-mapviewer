@@ -1,4 +1,4 @@
-name: PR New SemVer Release Auto Title
+name: on-pr
 
 on:
   pull_request:

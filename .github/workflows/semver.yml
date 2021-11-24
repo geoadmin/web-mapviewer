@@ -1,4 +1,4 @@
-name: Bump SemVer Version
+name: on-push
 
 on:
   push:
