@@ -98,6 +98,13 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </button>
                     </div>
+                    <div class="d-block">
+                        {{ $t('drawing_disclaimer_part1')
+                        }}<a _target="blank" :href="$t('drawing_disclaimer_url')">{{
+                            $t('drawing_disclaimer_link_text')
+                        }}</a>
+                        {{ $t('drawing_disclaimer_ending') }}
+                    </div>
                 </div>
             </div>
         </div>
