@@ -1,28 +1,28 @@
 const olSelector = '.ol-viewport'
 
 const addIconSetsFixtureAndIntercept = () => {
-    cy.intercept(`**/v4/icons/sets`, {
+    cy.intercept(`**/api/icons/sets`, {
         fixture: 'service-icons/sets.fixture.json',
     }).as('iconSets')
 }
 
 const addDefaultIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/v4/icons/sets/default/icons`, {
+    cy.intercept(`**/api/icons/sets/default/icons`, {
         fixture: 'service-icons/set-default.fixture.json',
     }).as('iconSet-default')
 }
 
 const addSecondIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/v4/icons/sets/second/icons`, {
+    cy.intercept(`**/api/icons/sets/second/icons`, {
         fixture: 'service-icons/set-second.fixture.json',
     }).as('iconSet-second')
 }
 
 const addIconFixtureAndIntercept = () => {
-    cy.intercept(`**/v4/icons/sets/default/icons/**@1x-255,0,0.png`, {
+    cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/v4/icons/sets/second/icons/**@1x.png`, {
+    cy.intercept(`**/api/icons/sets/second/icons/**@1x.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-second')
 }

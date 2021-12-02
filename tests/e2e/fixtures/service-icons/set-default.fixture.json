@@ -3,176 +3,176 @@
     {
       "icon_set": "default",
       "name": "001-marker",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/001-marker-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/001-marker-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "002-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/002-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/002-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "003-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/003-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/003-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "004-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/004-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/004-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "005-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/005-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/005-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "006-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/006-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/006-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "007-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/007-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/007-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "008-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/008-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/008-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "009-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/009-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/009-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "010-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/010-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/010-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "011-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/011-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/011-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "012-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/012-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/012-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "013-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/013-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/013-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "014-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/014-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/014-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "015-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/015-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/015-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "016-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/016-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/016-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "017-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/017-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/017-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "018-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/018-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/018-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "019-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/019-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/019-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "020-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/020-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/020-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "021-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/021-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/021-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "022-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/022-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/022-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "023-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/023-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/023-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "024-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/024-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/024-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "025-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/025-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/025-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "026-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/026-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/026-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "027-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/027-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/027-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "028-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/028-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/028-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     },
     {
       "icon_set": "default",
       "name": "029-placeholder",
-      "url": "http://localhost:8080/v4/icons/sets/default/icons/029-placeholder-255,0,0.png",
-      "template_url": "http://localhost:8080/v4/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
+      "url": "http://localhost:8080/api/icons/sets/default/icons/029-placeholder-255,0,0.png",
+      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
     }
   ],
   "success": true

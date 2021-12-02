@@ -59,8 +59,8 @@ export const API_PUBLIC_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_PU
  *
  * @type String
  */
-export const API_SERVICE_ICON_BASE_URL = enforceEndingSlashInUrl(
-    process.env.VUE_APP_API_SERVICE_ICON_BASE_URL
+export const API_SERVICES_BASE_URL = enforceEndingSlashInUrl(
+    process.env.VUE_APP_API_SERVICES_BASE_URL
 )
 
 /**
