@@ -33,7 +33,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { API_SERVICE_ICON_BASE_URL, IS_TESTING_WITH_CYPRESS } from '@/config'
+import { API_SERVICES_BASE_URL, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
@@ -130,7 +130,7 @@ export default {
                     properties: {
                         color: RED.fill,
                         font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICE_ICON_BASE_URL}icons/sets/default/icons/001-marker@1x-255,0,0.png`,
+                        icon: `${API_SERVICES_BASE_URL}icons/sets/default/icons/001-marker@1x-255,0,0.png`,
                         anchor: [0.5, 0.9],
                         text: '',
                         description: '',

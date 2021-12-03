@@ -1,4 +1,4 @@
-import { API_SERVICE_ICON_BASE_URL } from '@/config'
+import { API_SERVICES_BASE_URL } from '@/config'
 import axios from 'axios'
 import log from '@/utils/logging'
 
@@ -48,7 +48,7 @@ export class Icon {
  * @returns {Promise<IconSet[]>}
  */
 export async function getAllIconSets() {
-    const rawSets = (await axios.get(`${API_SERVICE_ICON_BASE_URL}icons/sets`)).data.items
+    const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
     const sets = []
     for (const rawSet of rawSets) {
         const iconSet = new IconSet(

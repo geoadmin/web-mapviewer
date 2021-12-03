@@ -59,7 +59,7 @@ const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
     event.clientX = position.left + x + position.width / 2
     event.clientY = position.top + y + position.height / 2
     event.shiftKey = shiftKey
-    event.preventDefault = function () {}
+    event.preventDefault = function () { }
     event.pointerType = 'mouse'
     event.pointerId = opt_pointerId
     event.isPrimary = true
@@ -140,7 +140,7 @@ describe('Drawing marker/points', () => {
 
         context('color change', () => {
             beforeEach(() => {
-                cy.intercept(`**/v4/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
+                cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
                     fixture: 'service-icons/placeholder.png',
                 }).as('icon-default-green')
             })
@@ -187,7 +187,7 @@ describe('Drawing marker/points', () => {
                 createMarkerAndOpenIconStylePopup()
                 cy.wait('@icon-default')
                     .its('request.url')
-                    .should('include', '/v4/icons/sets/default/icons/')
+                    .should('include', '/api/icons/sets/default/icons/')
                     .should('include', `${RED.rgbString}.png`)
             })
             it('Shows all available icon sets in the selector', () => {
@@ -208,7 +208,7 @@ describe('Drawing marker/points', () => {
                 cy.wait('@iconSet-second')
                 cy.wait('@icon-second')
                     .its('request.url')
-                    .should('include', '/v4/icons/sets/second/icons/')
+                    .should('include', '/api/icons/sets/second/icons/')
                     .should('include', '.png')
                 // as second icon set is not colorable, the color box should have disappeared
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleColorBox}`).should('not.exist')
@@ -226,12 +226,12 @@ describe('Drawing marker/points', () => {
                     ).click()
                     cy.checkDrawnGeoJsonPropertyContains(
                         'icon',
-                        `v4/icons/sets/default/icons/${fourthIcon.name}`
+                        `api/icons/sets/default/icons/${fourthIcon.name}`
                     )
                     cy.wait('@update-kml').then((interception) =>
                         expect(interception.request.body).to.match(
                             RegExp(
-                                `<Data name="icon"><value>.*v4/icons/sets/default/icons/${fourthIcon.name}.*</value>`
+                                `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
                             )
                         )
                     )
@@ -244,33 +244,33 @@ describe('Drawing marker/points', () => {
         it('creates a text', () => {
             createAPoint('text', 0, -200, 915602.81, 6156527.960512564)
         })
-        ;['marker', 'text'].forEach((drawingMode) => {
-            it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
-                createAPoint(drawingMode, 0, -200, 915602.81, 6156527.960512564)
+            ;['marker', 'text'].forEach((drawingMode) => {
+                it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
+                    createAPoint(drawingMode, 0, -200, 915602.81, 6156527.960512564)
 
-                // Opening text popup
-                cy.get(drawingStyleTextButton).click()
-                cy.get(drawingStyleTextPopup).should('be.visible')
+                    // Opening text popup
+                    cy.get(drawingStyleTextButton).click()
+                    cy.get(drawingStyleTextPopup).should('be.visible')
 
-                cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click()
-                cy.get(
-                    `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
-                ).click()
-                cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
+                    cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click()
+                    cy.get(
+                        `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
+                    ).click()
+                    cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
 
-                cy.get(
-                    `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
-                ).click()
-                cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
+                    cy.get(
+                        `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
+                    ).click()
+                    cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
 
-                // Closing the popup
-                cy.get(drawingStyleTextButton).click()
-                cy.get(drawingStyleTextPopup).should('not.exist')
+                    // Closing the popup
+                    cy.get(drawingStyleTextButton).click()
+                    cy.get(drawingStyleTextPopup).should('not.exist')
 
-                // Opening again the popup
-                cy.get(drawingStyleTextButton).click()
-                cy.get(drawingStyleTextPopup).should('be.visible')
+                    // Opening again the popup
+                    cy.get(drawingStyleTextButton).click()
+                    cy.get(drawingStyleTextPopup).should('be.visible')
+                })
             })
-        })
     })
 })
