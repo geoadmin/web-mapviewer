@@ -226,12 +226,12 @@ describe('Drawing marker/points', () => {
                     ).click()
                     cy.checkDrawnGeoJsonPropertyContains(
                         'icon',
-                        `v4/icons/sets/default/icons/${fourthIcon.name}`
+                        `api/icons/sets/default/icons/${fourthIcon.name}`
                     )
                     cy.wait('@update-kml').then((interception) =>
                         expect(interception.request.body).to.match(
                             RegExp(
-                                `<Data name="icon"><value>.*v4/icons/sets/default/icons/${fourthIcon.name}.*</value>`
+                                `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
                             )
                         )
                     )
