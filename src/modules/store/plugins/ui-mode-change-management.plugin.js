@@ -6,14 +6,16 @@ const uiModeChangeManagementPlugin = (store) => {
         if (mutation.type === 'setUiMode') {
             switch (state.ui.mode) {
                 case UIModes.TOUCH:
-                    // we show the overlay under the menu whenever we go mobile
-                    store.dispatch('showOverlay', () => {
-                        // hiding the menu tray whenever the user clicks on the overlay
-                        if (state.ui.showMenuTray) {
-                            store.dispatch('toggleMenuTray')
-                        }
-                        return false
-                    })
+                    // we need to show the overlay if the menu is shown
+                    if (state.ui.showMenuTray) {
+                        store.dispatch('showOverlay', () => {
+                            // hiding the menu tray whenever the user clicks on the overlay
+                            if (state.ui.showMenuTray) {
+                                store.dispatch('toggleMenuTray')
+                            }
+                            return false
+                        })
+                    }
                     break
                 case UIModes.DESKTOP:
                     // we need to hide the overlay if it is shown

@@ -1,5 +1,5 @@
 <template>
-    <div id="toolbox" :class="{ desktop: isCurrentUiModeDesktop }">
+    <div id="toolbox">
         <transition name="slide-right">
             <div v-if="showZoomGeolocationButtons" class="right-toolbox">
                 <ZoomButtons v-if="isCurrentUiModeDesktop" class="toolbox-zoom-buttons" />
@@ -55,7 +55,9 @@ export default {
         left: $screen-padding-for-ui-elements;
         bottom: $footer-height + $screen-padding-for-ui-elements;
     }
-    &.desktop {
+}
+@include respond-above(md) {
+    #toolbox {
         .right-toolbox {
             top: 2 * $header-height + $screen-padding-for-ui-elements;
         }

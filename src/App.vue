@@ -5,7 +5,9 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+import bootstrapVariable from '@/scss/webmapviewer-bootstrap-theme.scss'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 /**
  * Main component of the App.
@@ -14,6 +16,16 @@ import { mapActions } from 'vuex'
  */
 export default {
     name: 'App',
+    data() {
+        return {
+            widthThresholdForMobileMode: parseInt(bootstrapVariable.sm.replace('px', '')),
+        }
+    },
+    computed: {
+        ...mapState({
+            currentUiMode: (state) => state.ui.mode,
+        }),
+    },
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
@@ -22,12 +34,21 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setSize']),
+        ...mapActions(['setSize', 'setUiMode']),
         setScreenSizeFromWindowSize: function () {
             this.setSize({
                 width: window.innerWidth,
                 height: window.innerHeight,
             })
+            // we check if the screen width has changed enough to justify a UI
+            // mode change (if the menu has to be shrunk, etc...)
+            const wantedUiMode =
+                window.innerWidth >= this.widthThresholdForMobileMode
+                    ? UIModes.DESKTOP
+                    : UIModes.TOUCH
+            if (wantedUiMode !== this.currentUiMode) {
+                this.setUiMode(wantedUiMode)
+            }
         },
     },
 }

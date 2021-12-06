@@ -1,5 +1,5 @@
 <template>
-    <div class="lang-switch-toolbar p-1">
+    <div class="lang-switch-toolbar p-1 btn-group">
         <ButtonWithIcon
             v-for="lang in languages"
             :key="lang"

@@ -3,7 +3,7 @@
         <div id="menu-lang-selector">
             <LangSwitchToolbar />
         </div>
-        <div id="ui-mode-selector">
+        <div id="ui-mode-selector" class="btn-group">
             <ButtonWithIcon
                 v-for="mode in UIModes"
                 :key="mode"

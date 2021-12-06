@@ -1,10 +1,12 @@
 <template>
-    <button class="btn" :class="buttonClasses" @click="forwardClickEvent">
+    <button class="button-with-icon d-flex btn" :class="buttonClasses" @click="forwardClickEvent">
         <font-awesome-icon
             v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
-        {{ buttonTitle }}
+        <span :class="{ 'ms-1': iconsBeforeText }">
+            {{ buttonTitle }}
+        </span>
         <font-awesome-icon
             v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
@@ -94,8 +96,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.btn.btn-no-style {
-    background: none;
-    border: none;
+.button-with-icon {
+    align-items: center;
+    &.btn-no-style {
+        background: none;
+        border: none;
+    }
 }
 </style>

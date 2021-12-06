@@ -15,7 +15,7 @@
         >
             <span class="float-start" :class="{ 'fw-bold': showBody }">
                 <font-awesome-icon :icon="['fas', titleCaretIcon]" />
-                <span class="menu-section-head-title">{{ title }}</span>
+                <span class="menu-section-head-title px-2">{{ title }}</span>
             </span>
             <span class="extra-button float-end text-end" @click.prevent="toggleShowBody">
                 <slot name="extra-button" />
@@ -102,8 +102,6 @@ export default {
     .menu-section-head-title {
         width: 100%;
         text-align: left;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
     }
     .extra-button:hover {
         text-decoration: underline;

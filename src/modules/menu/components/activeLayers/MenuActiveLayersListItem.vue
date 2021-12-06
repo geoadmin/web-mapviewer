@@ -199,8 +199,11 @@ export default {
     @extend .menu-list-item;
     .menu-layer-list-item-details {
         border-left: 3px solid #666;
-        .menu-layer-list-item-details-transparency {
+        .menu-layer-list-item-details-transparency,
+        .menu-layer-list-item-details-order {
             display: flex;
+        }
+        .menu-layer-list-item-details-transparency {
             flex-grow: 1;
             .transparency-title {
                 font-size: 90%;

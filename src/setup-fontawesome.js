@@ -22,6 +22,7 @@ import {
     faFont,
     faPaintBrush,
     faArrowsAltV,
+    faSearch,
     faSortAmountUpAlt,
     faSortAmountDownAlt,
     faChevronUp,
@@ -62,6 +63,7 @@ library.add(faCheckSquare)
 library.add(faSquare)
 library.add(faFont)
 library.add(faArrowsAltV)
+library.add(faSearch)
 library.add(faSortAmountUpAlt)
 library.add(faSortAmountDownAlt)
 library.add(faChevronUp)
