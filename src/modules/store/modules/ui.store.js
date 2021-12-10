@@ -7,8 +7,8 @@ import { isMobile } from 'mobile-device-detect'
  * @type enum
  */
 export const UIModes = {
-    DESKTOP: 'DESKTOP',
-    TOUCH: 'TOUCH',
+    MENU_ALWAYS_OPEN: 'MENU_ALWAYS_OPEN',
+    MENU_OPENED_THROUGH_BUTTON: 'MENU_OPENED_THROUGH_BUTTON',
 }
 
 /**
@@ -41,35 +41,21 @@ export default {
          */
         showMenuTray: !isMobile,
         /**
-         * Flag telling if the header bar should be visible (so that we can go map fullscreen)
+         * Flag telling if the app should be shown in fullscreen mode, meaning that :
+         *
+         * - The header bar should be hidden
+         * - The footer should be hidden
+         * - Tool buttons (background wheel, zoom, geolocation) should be hidden
          *
          * @type Boolean
          */
-        showHeader: true,
-        /**
-         * Flag telling if the footer should be visible (so that we can go map fullscreen)
-         *
-         * @type Boolean
-         */
-        showFooter: true,
-        /**
-         * Flag telling if the background wheel button should be visible
-         *
-         * @type Boolean
-         */
-        showBackgroundWheel: true,
+        fullscreenMode: false,
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *
          * @type Boolean
          */
         showLoadingBar: true,
-        /**
-         * Flag telling if the zoom and the geolocation buttons should be visible
-         *
-         * @type Boolean
-         */
-        showZoomGeolocationButtons: true,
         /**
          * Flag telling if the drawing toolkit / overlay should be visible
          *
@@ -83,7 +69,7 @@ export default {
          *
          * @type UIModes
          */
-        mode: isMobile ? UIModes.TOUCH : UIModes.DESKTOP,
+        mode: isMobile ? UIModes.MENU_OPENED_THROUGH_BUTTON : UIModes.MENU_ALWAYS_OPEN,
     },
     getters: {
         screenDensity: (state) => {
@@ -101,13 +87,9 @@ export default {
             })
         },
         toggleMenuTray: ({ commit, state }) => commit('setShowMenuTray', !state.showMenuTray),
-        toggleHeader: ({ commit, state }) => commit('setShowHeader', !state.showHeader),
-        toggleFooter: ({ commit, state }) => commit('setShowFooter', !state.showFooter),
-        toggleBackgroundWheel: ({ commit, state }) =>
-            commit('setShowBackgroundWheel', !state.showBackgroundWheel),
+        toggleFullscreenMode: ({ commit, state }) =>
+            commit('setFullscreenMode', !state.fullscreenMode),
         toggleLoadingBar: ({ commit, state }) => commit('setShowLoadingBar', !state.showLoadingBar),
-        toggleZoomGeolocationButtons: ({ commit, state }) =>
-            commit('setShowZoomGeolocationButtons', !state.showZoomGeolocationButtons),
         toggleDrawingOverlay: ({ commit, state }) =>
             commit('setShowDrawingOverlay', !state.showDrawingOverlay),
         setUiMode: ({ commit }, mode) => {
@@ -122,12 +104,8 @@ export default {
             state.width = width
         },
         setShowMenuTray: (state, flagValue) => (state.showMenuTray = flagValue),
-        setShowHeader: (state, flagValue) => (state.showHeader = flagValue),
-        setShowFooter: (state, flagValue) => (state.showFooter = flagValue),
-        setShowBackgroundWheel: (state, flagValue) => (state.showBackgroundWheel = flagValue),
+        setFullscreenMode: (state, flagValue) => (state.fullscreenMode = flagValue),
         setShowLoadingBar: (state, flagValue) => (state.showLoadingBar = flagValue),
-        setShowZoomGeolocationButtons: (state, flagValue) =>
-            (state.showZoomGeolocationButtons = flagValue),
         setShowDrawingOverlay: (state, flagValue) => (state.showDrawingOverlay = flagValue),
         setUiMode: (state, mode) => (state.mode = mode),
     },

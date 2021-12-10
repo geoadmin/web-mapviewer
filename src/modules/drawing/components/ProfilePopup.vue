@@ -106,7 +106,7 @@ export default {
         },
         uiMode: {
             type: String,
-            default: UIModes.DESKTOP,
+            default: UIModes.MENU_ALWAYS_OPEN,
         },
     },
     emits: ['close', 'delete'],
@@ -121,7 +121,7 @@ export default {
             },
             showTooltip: false,
             profileInfo: null,
-            minimized: this.uiMode === UIModes.TOUCH,
+            minimized: this.uiMode === UIModes.MENU_OPENED_THROUGH_BUTTON,
         }
     },
     computed: {

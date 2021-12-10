@@ -9,7 +9,7 @@
                 :key="mode"
                 :danger="currentUiMode === mode"
                 :button-title="$t(getI18nKeyForUiMode(mode))"
-                :small="currentUiMode === UIModes.DESKTOP"
+                :small="currentUiMode === UIModes.MENU_ALWAYS_OPEN"
                 @click="changeUiMode(mode)"
             />
         </div>
@@ -43,9 +43,9 @@ export default {
         },
         getI18nKeyForUiMode: function (mode) {
             switch (mode) {
-                case UIModes.DESKTOP:
+                case UIModes.MENU_ALWAYS_OPEN:
                     return 'desktop_redirect'
-                case UIModes.TOUCH:
+                case UIModes.MENU_OPENED_THROUGH_BUTTON:
                     return 'mobile_redirect'
             }
             return null

@@ -20,7 +20,7 @@
                     <!-- we then let whatever was given in the slot be rendered here,
                      that's where we expect to receive the search module from MapView.vue -->
                     <slot />
-                    <HeaderMenuButton v-if="isUiInTouchMode" />
+                    <HeaderMenuButton v-if="!shouldMenuTrayAlwaysBeVisible" />
                 </div>
             </div>
         </transition>
@@ -29,13 +29,14 @@
                 v-if="showMenuTray"
                 class="menu-tray"
                 :class="{
-                    'desktop-mode': !isUiInTouchMode,
-                    'desktop-menu-closed': !isUiInTouchMode && closeMenuDesktopMode,
+                    'desktop-mode': shouldMenuTrayAlwaysBeVisible,
+                    'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && closeMenuDesktopMode,
                 }"
             >
-                <MenuTray class="menu-tray-content" :compact="!isUiInTouchMode" />
+                <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
                 <ButtonWithIcon
-                    class="d-none d-sm-block m-auto"
+                    v-if="shouldMenuTrayAlwaysBeVisible"
+                    class="m-auto"
                     :button-font-awesome-icon="[
                         'fas',
                         closeMenuDesktopMode ? 'caret-down' : 'caret-up',
@@ -79,22 +80,29 @@ export default {
     },
     computed: {
         ...mapState({
-            showHeader: (state) => state.ui.showHeader,
             showLoadingBar: (state) => state.ui.showLoadingBar,
             stateShowMenuTray: (state) => state.ui.showMenuTray,
+            isFullscreenMode: (state) => state.ui.fullscreenMode,
             currentLang: (state) => state.i18n.lang,
             currentTopic: (state) => state.topics.current,
             currentUiMode: (state) => state.ui.mode,
             isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
         }),
-        isUiInTouchMode: function () {
-            return this.currentUiMode === UIModes.TOUCH
+        shouldMenuTrayAlwaysBeVisible: function () {
+            return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
+        },
+        showHeader: function () {
+            return !this.isFullscreenMode && !this.isCurrentlyDrawing
         },
         showMenuTray: function () {
-            if (this.isUiInTouchMode) {
-                return this.stateShowMenuTray && !this.isCurrentlyDrawing
+            if (this.isFullscreenMode) {
+                return false
             } else {
-                return !this.isCurrentlyDrawing
+                if (this.shouldMenuTrayAlwaysBeVisible) {
+                    return !this.isCurrentlyDrawing
+                } else {
+                    return this.stateShowMenuTray && !this.isCurrentlyDrawing
+                }
             }
         },
     },
@@ -132,9 +140,9 @@ export default {
     z-index: $zindex-menu;
     top: $header-height;
     left: 0;
-    width: 100vh;
-    max-width: 100vw;
-    max-height: calc(100vh - #{$header-height + $footer-height});
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100% - #{$header-height});
     overflow-y: auto;
     transition: 0.3s;
     &.desktop-mode {

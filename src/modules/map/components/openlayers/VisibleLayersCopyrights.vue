@@ -74,6 +74,7 @@ export default {
     right: 0;
     z-index: $zindex-copyrights;
     font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.7);
     &.footer-visible {
         bottom: $footer-height;
     }

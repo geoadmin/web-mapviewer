@@ -45,21 +45,21 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = (store) => {
             case 'setShowMenuTray':
                 if (state.ui.showMenuTray) {
                     // only showing the overlay in Touch UI mode
-                    if (state.ui.mode === UIModes.TOUCH) {
+                    if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                         showOverlayIfHidden()
                     }
                     hideSearchResultsIfShown()
                 } else {
                     if (hideMenuTrayPending) {
                         hideMenuTrayPending = false
-                    } else if (state.ui.mode === UIModes.TOUCH) {
+                    } else if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                         hideOverlayIfShown()
                     }
                 }
                 break
             case 'showSearchResults':
                 hideMenuTrayIfShown()
-                if (state.ui.mode === UIModes.TOUCH) {
+                if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                     hideOverlayIfShown()
                 }
                 break

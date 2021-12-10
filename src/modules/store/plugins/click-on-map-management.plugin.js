@@ -64,10 +64,7 @@ const clickOnMapManagementPlugin = (store) => {
                 // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
                 if (state.ui.mode === UIModes.TOUCH) {
                     if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
-                        store.dispatch('toggleHeader')
-                        store.dispatch('toggleFooter')
-                        store.dispatch('toggleBackgroundWheel')
-                        store.dispatch('toggleZoomGeolocationButtons')
+                        store.dispatch('toggleFullscreenMode')
                     } else {
                         runIdentify(
                             store,

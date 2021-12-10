@@ -21,7 +21,7 @@ export default {
     components: { OpenLayersMap, LocationPopup, MapFooter },
     computed: {
         ...mapState({
-            showFooter: (state) => state.ui.showFooter,
+            showFooter: (state) => !state.ui.fullscreenMode,
         }),
     },
 }

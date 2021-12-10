@@ -33,10 +33,10 @@ export default {
             uiMode: (state) => state.ui.mode,
             highlightedFeatures: (state) => state.map.highlightedFeatures,
             screenHeight: (state) => state.ui.height,
-            isFooterVisible: (state) => state.ui.showFooter,
+            isFooterVisible: (state) => !state.ui.fullscreenMode,
         }),
         isDesktopMode: function () {
-            return this.uiMode === UIModes.DESKTOP
+            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
         },
         footerHeight: function () {
             // if the footer is visible, we add 40px of margin to the swipeable component so that its content

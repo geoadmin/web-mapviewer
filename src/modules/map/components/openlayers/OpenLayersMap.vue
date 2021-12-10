@@ -133,7 +133,7 @@ export default {
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
             uiMode: (state) => state.ui.mode,
-            isFooterVisible: (state) => state.ui.showFooter,
+            isFooterVisible: (state) => !state.ui.fullscreenMode,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -189,7 +189,7 @@ export default {
             return layers
         },
         isUIinDesktopMode: function () {
-            return this.uiMode === UIModes.DESKTOP
+            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing

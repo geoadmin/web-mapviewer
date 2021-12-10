@@ -7,10 +7,10 @@
                         class="position-absolute top-0 end-0"
                         data-cy="drawing-toolbox-close-button"
                         :button-font-awesome-icon="['fas', 'times']"
-                        outline-light
+                        transparent
                         @click="emitCloseEvent"
                     />
-                    <div class="d-block">
+                    <div class="d-flex justify-content-center">
                         <DrawingToolboxButton
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
@@ -21,7 +21,7 @@
                             @setDrawingMode="bubbleSetDrawingEventToParent"
                         />
                     </div>
-                    <div class="d-block">
+                    <div class="d-flex justify-content-center">
                         <ButtonWithIcon
                             :button-font-awesome-icon="['far', 'trash-alt']"
                             :disabled="!drawingNotEmpty"

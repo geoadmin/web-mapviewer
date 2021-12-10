@@ -33,7 +33,7 @@ export default {
             uiMode: (state) => state.ui.mode,
         }),
         isUIinDesktopMode: function () {
-            return this.uiMode === UIModes.DESKTOP
+            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
         },
     },
     methods: {

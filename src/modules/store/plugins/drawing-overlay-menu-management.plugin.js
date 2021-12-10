@@ -15,8 +15,8 @@ const drawingOverlayAndMenuManagementPlugin = (store) => {
                 // keep overlay's callback otherwise the menu will not know what to do later
                 // when it will be back on the screen and the user clicks on the overlay
                 store.dispatch('hideOverlayIgnoringCallbacks')
-            } else if (state.ui.mode === UIModes.TOUCH) {
-                store.dispatch('showOverlay')
+            } else if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
+                // store.dispatch('toggleMenuTray')
             }
         }
     })

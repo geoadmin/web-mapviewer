@@ -1,13 +1,17 @@
 <template>
     <div id="toolbox">
         <transition name="slide-right">
-            <div v-if="showZoomGeolocationButtons" class="right-toolbox">
-                <ZoomButtons v-if="isCurrentUiModeDesktop" class="toolbox-zoom-buttons" />
+            <div
+                v-if="showToolbox"
+                class="right-toolbox"
+                :class="{ 'currently-drawing': isCurrentlyDrawing }"
+            >
+                <ZoomButtons class="toolbox-zoom-buttons" />
                 <GeolocButton class="geoloc-button" />
             </div>
         </transition>
         <transition name="slide-left">
-            <BackgroundSelectorButton v-if="showBgWheel" class="toolbox-bg-buttons" />
+            <BackgroundSelectorButton v-if="showToolbox" class="toolbox-bg-buttons" />
         </transition>
     </div>
 </template>
@@ -23,13 +27,9 @@ export default {
     components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
     computed: {
         ...mapState({
-            showBgWheel: (state) => state.ui.showBackgroundWheel,
-            showZoomGeolocationButtons: (state) => state.ui.showZoomGeolocationButtons,
-            uiMode: (state) => state.ui.mode,
+            showToolbox: (state) => !state.ui.fullscreenMode,
+            isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
         }),
-        isCurrentUiModeDesktop: function () {
-            return this.uiMode === UIModes.DESKTOP
-        },
     },
 }
 </script>
@@ -47,6 +47,9 @@ export default {
     .right-toolbox {
         top: $header-height + $screen-padding-for-ui-elements;
         right: $screen-padding-for-ui-elements;
+        &.currently-drawing {
+            top: calc(124px + #{$screen-padding-for-ui-elements});
+        }
         .toolbox-zoom-buttons {
             position: relative;
         }
@@ -56,13 +59,25 @@ export default {
         bottom: $footer-height + $screen-padding-for-ui-elements;
     }
 }
-@include respond-above(md) {
+@include respond-above(lg) {
     #toolbox {
         .right-toolbox {
             top: 2 * $header-height + $screen-padding-for-ui-elements;
+            &.currently-drawing {
+                top: calc(124px + #{$screen-padding-for-ui-elements});
+            }
         }
     }
 }
+// when no hover capabilities is detected, it means we are on a touch device
+@media (hover: none) {
+    // no need to show the zoom buttons on a touch device, it uses screen real
+    // estate, and the user can zoom with a pinch gesture
+    .toolbox-zoom-buttons {
+        display: none;
+    }
+}
+// transition definition
 .slide-left-leave-active,
 .slide-left-enter-active,
 .slide-right-leave-active,
