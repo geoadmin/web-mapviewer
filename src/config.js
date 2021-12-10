@@ -86,17 +86,6 @@ export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
- * Base part of the URL to use when requesting QR-Codes.
- *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
- *
- * @type String
- */
-export const API_SERVICE_QRCODE_BASE_URL = enforceEndingSlashInUrl(
-    process.env.VUE_APP_API_SERVICE_QRCODE_BASE_URL
-)
-
-/**
  * Base part of the URL to use when requesting GeoJSON data (e.g. for prod https://data.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints

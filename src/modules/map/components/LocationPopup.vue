@@ -63,6 +63,9 @@
                         {{ $t('link_bowl_crosshair') }}
                     </a>
                 </div>
+                <div class="qrcode-container">
+                    <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" />
+                </div>
             </div>
         </div>
     </div>
@@ -88,7 +91,7 @@ export default {
         return {
             clickWhat3Words: null,
             height: null,
-            qrCodeImage: null,
+            qrCodeImageSrc: null,
             overlay: new Overlay({
                 offset: [0, 15],
                 positioning: OverlayPositioning.TOP_CENTER,
@@ -192,8 +195,9 @@ export default {
         },
         generateQrCodeFromBackend: function () {
             if (this.clickCoordinates) {
-                generateQrCode(window.location).then((qrCode) => {
+                generateQrCode(window.location.href).then((qrCode) => {
                     console.log('yay!', qrCode)
+                    this.qrCodeImageSrc = qrCode
                 })
             }
         },
@@ -213,6 +217,10 @@ export default {
         grid-template-columns: 1fr 2fr;
         grid-column-gap: 5px;
         grid-row-gap: 5px;
+    }
+    .qrcode-container {
+        grid-column: 1 / 3;
+        text-align: center;
     }
 }
 </style>

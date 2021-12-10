@@ -1,6 +1,6 @@
 import axios from 'axios'
 import log from '@/utils/logging'
-import { API_SERVICE_QRCODE_BASE_URL } from '@/config'
+import { API_SERVICES_BASE_URL } from '@/config'
 
 /**
  * Generates a QR Code that, when scanned by mobile devices, open the URL given in parameters
@@ -18,10 +18,11 @@ export const generateQrCode = (url) => {
             reject(errorMessage)
         }
         axios
-            .post(`${API_SERVICE_QRCODE_BASE_URL}/qrcode/generate`, {
-                body: {
+            .get(`${API_SERVICES_BASE_URL}qrcode/generate`, {
+                params: {
                     url: url,
                 },
+                responseType: 'arraybuffer',
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Headers': '*',
@@ -29,7 +30,8 @@ export const generateQrCode = (url) => {
                 },
             })
             .then((image) => {
-                resolve(image)
+                const imageData = Buffer.from(image.data, 'binary').toString('base64')
+                resolve('data:image/png;base64,'.concat(imageData))
             })
             .catch((error) => {
                 log('error', 'Error while retrieving qrCode for', url, error)
