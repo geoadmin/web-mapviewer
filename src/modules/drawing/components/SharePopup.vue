@@ -3,13 +3,20 @@
         <div class="form-group">
             <label>{{ $t('draw_share_user_link') }}:</label>
             <div class="input-group input-group-sm mb-3">
-                <input type="text" class="form-control" :value="fileUrl" disabled />
+                <input
+                    type="text"
+                    class="form-control"
+                    :value="fileUrl"
+                    readonly
+                    @focus="$event.target.select()"
+                    @click="copyUrl(false)"
+                />
                 <div class="input-group-append">
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
                         data-cy="drawing-share-normal-link"
-                        @click="copyUrl"
+                        @click="copyUrl(false)"
                     >
                         {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
                     </button>
@@ -19,13 +26,20 @@
         <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
             <div class="input-group input-group-sm mb-3">
-                <input type="text" class="form-control" :value="adminUrl" disabled />
+                <input
+                    type="text"
+                    class="form-control"
+                    :value="adminUrl"
+                    readonly
+                    @focus="$event.target.select()"
+                    @click="copyUrl(true)"
+                />
                 <div class="input-group-append">
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
                         data-cy="drawing-share-admin-link"
-                        @click="(e) => copyUrl(e, true)"
+                        @click="copyUrl(true)"
                     >
                         {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
                     </button>
@@ -72,7 +86,7 @@ export default {
         },
     },
     methods: {
-        copyUrl: async function (event, adminUrl = false) {
+        copyUrl: async function (adminUrl = false) {
             if (adminUrl) {
                 await navigator.clipboard.writeText(this.adminUrl)
                 this.adminUrlCopied = true
