@@ -64,6 +64,7 @@ export default {
         height: 2rem;
         border-radius: 1rem;
         border: 1px solid black;
+        cursor: pointer;
     }
 }
 </style>
