@@ -63,7 +63,9 @@ export default {
     },
     getters: {
         screenDensity: (state) => {
-            if (state.height === 0) return 0
+            if (state.height === 0) {
+                return 0
+            }
             return state.width / state.height
         },
     },

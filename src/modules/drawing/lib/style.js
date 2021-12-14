@@ -52,7 +52,9 @@ export function createEditingStyle() {
                     geometry: function (f) {
                         const geometry = f.getGeometry()
                         let coordinates = geometry.getCoordinates()
-                        if (geometry instanceof Polygon) coordinates = coordinates[0]
+                        if (geometry instanceof Polygon) {
+                            coordinates = coordinates[0]
+                        }
                         return new MultiPoint(coordinates)
                     },
                     zIndex: 30,
@@ -73,7 +75,9 @@ export function createEditingStyle() {
  */
 export function featureStyle(feature) {
     let color = feature.get('color')
-    if (!color) return
+    if (!color) {
+        return
+    }
     const type = feature.get('type')
     color = asArray(color)
     const stroke = feature.get('strokeColor')

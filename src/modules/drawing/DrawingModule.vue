@@ -203,7 +203,9 @@ export default {
             this.toggleDrawingOverlay()
         },
         changeDrawingMode: function (mode) {
-            if (mode === this.currentDrawingMode) mode = null
+            if (mode === this.currentDrawingMode) {
+                mode = null
+            }
             this.setDrawingMode(mode)
         },
         deleteSelectedFeature: function () {

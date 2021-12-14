@@ -328,14 +328,18 @@ export default {
             })
         },
         formatDistance: function (value) {
-            if (isNaN(value) || value === null) return '0.00m'
+            if (isNaN(value) || value === null) {
+                return '0.00m'
+            }
             if (value < 1000) {
                 return `${value.toFixed(2)}m`
             }
             return `${(value / 1000).toFixed(2)}km`
         },
         formatElevation: function (value) {
-            if (isNaN(value) || value === null) return '0.00m'
+            if (isNaN(value) || value === null) {
+                return '0.00m'
+            }
             if (value < 1000) {
                 return `${value.toFixed(2)}m`
             }

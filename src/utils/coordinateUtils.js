@@ -196,7 +196,10 @@ const executeAndReturn = (
     outputProjection,
     decimals
 ) => {
-    if (typeof text !== 'string') return undefined
+    if (typeof text !== 'string') {
+        return undefined
+    }
+
     const matches = regex.exec(text)
     if (matches) {
         const extractedCoordinates = extractor(matches)

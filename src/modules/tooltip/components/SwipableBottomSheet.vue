@@ -129,7 +129,9 @@ export default {
                     break
                 case SWIPE_STATE.ONLY_HEAD:
                     y = this.rect.height * this.headY
-                    if (y > this.minY) y = this.minY
+                    if (y > this.minY) {
+                        y = this.minY
+                    }
                     break
                 case SWIPE_STATE.OPEN:
                     y = this.rect.height * this.openY
