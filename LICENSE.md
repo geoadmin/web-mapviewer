@@ -3,7 +3,7 @@ as the 3-clause (or "modified") BSD license:
 
 ==============================
 
-Copyright (c) 2021, swisstopo
+Copyright (c) 2022, swisstopo
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
