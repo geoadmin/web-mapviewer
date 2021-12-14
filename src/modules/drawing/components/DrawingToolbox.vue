@@ -98,6 +98,8 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </button>
                     </div>
+                    <!-- eslint-disable-next-line -->
+                    <div class="d-block" v-html="$t('share_file_disclaimer')"></div>
                 </div>
             </div>
         </div>

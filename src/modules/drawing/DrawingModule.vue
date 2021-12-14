@@ -293,7 +293,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .tooltip-measure,
 .draw-measure-tmp,
 .draw-help-popup {
