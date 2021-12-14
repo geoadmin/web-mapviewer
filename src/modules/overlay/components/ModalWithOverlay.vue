@@ -2,7 +2,7 @@
     <portal to="modal-container">
         <div class="modal-popup">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header user-select-none">
                     <span v-if="title" class="float-start align-middle">{{ title }}</span>
                     <ButtonWithIcon
                         :button-font-awesome-icon="['fa', 'times']"
