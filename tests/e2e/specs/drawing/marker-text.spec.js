@@ -59,7 +59,7 @@ const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
     event.clientX = position.left + x + position.width / 2
     event.clientY = position.top + y + position.height / 2
     event.shiftKey = shiftKey
-    event.preventDefault = function () { }
+    event.preventDefault = function () {}
     event.pointerType = 'mouse'
     event.pointerId = opt_pointerId
     event.isPrimary = true
@@ -244,33 +244,33 @@ describe('Drawing marker/points', () => {
         it('creates a text', () => {
             createAPoint('text', 0, -200, 915602.81, 6156527.960512564)
         })
-            ;['marker', 'text'].forEach((drawingMode) => {
-                it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
-                    createAPoint(drawingMode, 0, -200, 915602.81, 6156527.960512564)
+        ;['marker', 'text'].forEach((drawingMode) => {
+            it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
+                createAPoint(drawingMode, 0, -200, 915602.81, 6156527.960512564)
 
-                    // Opening text popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('be.visible')
+                // Opening text popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('be.visible')
 
-                    cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click()
-                    cy.get(
-                        `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
-                    ).click()
-                    cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
+                cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click()
+                cy.get(
+                    `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
+                ).click()
+                cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
 
-                    cy.get(
-                        `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
-                    ).click()
-                    cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
+                cy.get(
+                    `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
+                ).click()
+                cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
 
-                    // Closing the popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('not.exist')
+                // Closing the popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('not.exist')
 
-                    // Opening again the popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('be.visible')
-                })
+                // Opening again the popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('be.visible')
             })
+        })
     })
 })

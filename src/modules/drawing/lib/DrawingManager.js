@@ -344,7 +344,9 @@ export default class DrawingManager extends Observable {
 
     onDrawStart_(event) {
         event.feature.set('isDrawing', true)
-        if (event.target.get('type') === 'MEASURE') this.measureManager.addOverlays(event.feature)
+        if (event.target.get('type') === 'MEASURE') {
+            this.measureManager.addOverlays(event.feature)
+        }
     }
 
     onDrawEnd_(event) {
@@ -352,8 +354,9 @@ export default class DrawingManager extends Observable {
         event.feature.setStyle((feature) => featureStyle(feature))
         this.source.once('addfeature', (event) => {
             this.polygonToLineString(event.feature)
-            if (event.feature.get('type') === 'MEASURE')
+            if (event.feature.get('type') === 'MEASURE') {
                 this.measureManager.addOverlays(event.feature)
+            }
             this.dispatchChangeEvent_(event.feature)
         })
 
@@ -565,7 +568,9 @@ export default class DrawingManager extends Observable {
         features.forEach((f) => {
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyle(feature))
-            if (f.get('type') === 'MEASURE') this.measureManager.addOverlays(f)
+            if (f.get('type') === 'MEASURE') {
+                this.measureManager.addOverlays(f)
+            }
         })
         this.source.addFeatures(features)
     }

@@ -54,13 +54,17 @@ export function geometryInfo(type, coordinates, epsg) {
  * @returns {string}
  */
 export function formatTime(minutes) {
-    if (isNaN(minutes) || minutes === null) return '-'
+    if (isNaN(minutes) || minutes === null) {
+        return '-'
+    }
     let result = ''
     if (minutes >= 60) {
         let hours = Math.floor(minutes / 60)
         minutes = minutes - hours * 60
         result += `${hours}h`
-        if (minutes > 0) result += ` ${minutes}min`
+        if (minutes > 0) {
+            result += ` ${minutes}min`
+        }
     } else {
         result += `${minutes}min`
     }

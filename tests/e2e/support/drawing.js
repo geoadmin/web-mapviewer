@@ -73,7 +73,9 @@ Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
             expect(features).to.have.length(1)
             const foundType = features[0].getGeometry().getType()
             expect(foundType).to.equal(type)
-            if (callback) callback(features)
+            if (callback) {
+                callback(features)
+            }
         })
 })
 

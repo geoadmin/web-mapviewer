@@ -299,10 +299,14 @@ export default {
             }
         })
         this.map.on('pointerdrag', () => {
-            if (!this.mapIsBeingDragged) this.mapStartBeingDragged()
+            if (!this.mapIsBeingDragged) {
+                this.mapStartBeingDragged()
+            }
         })
         this.map.on('moveend', () => {
-            if (this.mapIsBeingDragged) this.mapStoppedBeingDragged()
+            if (this.mapIsBeingDragged) {
+                this.mapStoppedBeingDragged()
+            }
             if (this.view) {
                 const [x, y] = this.view.getCenter()
                 if (x !== this.center[0] || y !== this.center[1]) {

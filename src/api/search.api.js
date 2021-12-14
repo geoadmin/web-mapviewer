@@ -159,7 +159,9 @@ const search = (queryString = '', lang = '') => {
                     if (responses[0].data && responses[0].data.results) {
                         responses[0].data.results.forEach((location) => {
                             // if the 'attrs' object is not present, we ignore the result (that's where all the juice is)
-                            if (!location.attrs) return
+                            if (!location.attrs) {
+                                return
+                            }
                             // reading the main values from the attrs
                             const { label: title, detail: description, featureId } = location.attrs
                             // reading coordinates (if defined)
@@ -211,7 +213,9 @@ const search = (queryString = '', lang = '') => {
                     if (responses[1].data && responses[1].data.results) {
                         responses[1].data.results.forEach((layer) => {
                             // if object 'attrs' is not defined, we ignore this result
-                            if (!layer.attrs) return
+                            if (!layer.attrs) {
+                                return
+                            }
                             // reading attrs
                             const {
                                 label: title,
