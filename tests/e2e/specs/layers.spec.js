@@ -123,6 +123,12 @@ describe('Test of layer handling', () => {
             cy.get('[data-cy="menu-active-layers"]').click()
             cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
         })
+
+        it('Shows the LocationPopUp when doing a right click', () => {
+            cy.goToMapView()
+            // doing a right click
+            cy.get('[data-cy="map"]').rightclick()
+        })
     })
     context('Background layer in URL at app startup', () => {
         it('sets the background to the topic default if none is defined in the URL', () => {

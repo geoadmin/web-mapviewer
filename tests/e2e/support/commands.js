@@ -65,6 +65,20 @@ const addCatalogFixtureAndIntercept = () => {
         })
     })
 }
+const addHeightFixtureAndIntercept = () => {
+    cy.intercept('**/rest/services/height**', {
+        fixture: 'height.fixture',
+    }).as('coordinates-for-height')
+}
+
+const addWhat3WordFixtureAndIntercept = () => {
+    cy.intercept('**/convert-to-3wa**', {
+        fixture: 'what3word.fixture',
+    }).as('convert-to-w3w')
+    cy.intercept('**/convert-to-coordinates**', {
+        fixture: 'what3word.fixture',
+    }).as('coordinates-for-w3w')
+}
 
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
 Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = false) => {
@@ -73,6 +87,8 @@ Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = f
     addLayerFixtureAndIntercept()
     addTopicFixtureAndIntercept()
     addCatalogFixtureAndIntercept()
+    addWhat3WordFixtureAndIntercept()
+    addHeightFixtureAndIntercept()
     let flattenedOtherParams = ''
     Object.keys(otherParams).forEach((key) => {
         flattenedOtherParams += `&${key}=${otherParams[key]}`

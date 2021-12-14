@@ -351,7 +351,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/scss/bootstrap-theme.scss';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 // style is unscoped so that it may reach scale-line outside of itself
 // as it was transported in the footer by vue-portal
 #ol-map {

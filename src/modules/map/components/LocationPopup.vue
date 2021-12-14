@@ -15,50 +15,52 @@
                 <div>
                     <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
                 </div>
-                <div>
+                <div data-cy="location-popup-coordinates-lv95">
                     {{ clickCoordinatesLV95 }}
                 </div>
                 <div>
                     <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
                 </div>
-                <div>
+                <div data-cy="location-popup-coordinates-lv03">
                     {{ clickCoordinatesLV03 }}
                 </div>
                 <div>
                     <a :href="$t('contextpopup_wgs84_url')" target="_blank">WGS 84 (lat/lon)</a>
                 </div>
                 <div>
-                    <div>
+                    <div data-cy="location-popup-coordinates-plain-wgs84">
                         {{ clickCoordinatesPlainWGS84 }}
                     </div>
-                    <div>
+                    <div data-cy="location-popup-coordinates-wgs84">
                         {{ clickCoordinatesWGS84 }}
                     </div>
                 </div>
                 <div>
                     <a :href="$t('contextpopup_utm_url')" target="_blank">UTM</a>
                 </div>
-                <div>
+                <div data-cy="location-popup-coordinates-utm">
                     {{ clickCoordinatesUTM }}
                 </div>
                 <div>{{ 'MGRS' }}</div>
-                <div>
+                <div data-cy="location-popup-coordinates-mgrs">
                     {{ clickCoordinatesMGRS }}
                 </div>
                 <div>
                     <a :href="$t('contextpopup_what3words_url')" target="_blank">what3words</a>
                 </div>
                 <div>
-                    <span v-show="clickWhat3Words">{{ clickWhat3Words }}</span>
+                    <span v-show="clickWhat3Words" data-cy="location-popup-w3w">{{
+                        clickWhat3Words
+                    }}</span>
                 </div>
                 <div>{{ $t('elevation') }}</div>
                 <div>
-                    <span v-if="height">
+                    <span v-if="height" data-cy="location-popup-height">
                         {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
                     </span>
                 </div>
                 <div></div>
-                <div>
+                <div data-cy="location-popup-link-bowl-crosshair">
                     <a :href="shareLinkUrl" target="_blank">
                         {{ $t('link_bowl_crosshair') }}
                     </a>
@@ -206,7 +208,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .location-popup {
     width: auto;
     max-width: 450px;
