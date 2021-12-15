@@ -33,7 +33,7 @@ export default class MeasureManager {
     }
 
     // Creates a new measure tooltip
-    createOverlay(cssClass, stopEvent = true) {
+    createOverlay(cssClass, stopEvent = false) {
         const tooltipElement = document.createElement('div')
         tooltipElement.className = cssClass || 'tooltip-measure'
         return new Overlay({
