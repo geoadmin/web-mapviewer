@@ -117,8 +117,8 @@ export const getKmlMetadataUrl = (id) => {
 /**
  * Publish KML on backend
  *
- * @param {string} kml
- * @returns {Promise<FilesResponse>}
+ * @param {string} kml KML content
+ * @returns {Promise<KmlMetadata>}
  */
 export const createKml = (kml) => {
     return new Promise((resolve, reject) => {
@@ -150,10 +150,10 @@ export const createKml = (kml) => {
 /**
  * Update KML on backend
  *
- * @param {string} id 'id' from FilesResponse
- * @param {string} adminId 'admin_id' from FilesResponse
- * @param {string} kml
- * @returns {Promise<FilesResponse>}
+ * @param {string} id KML ID
+ * @param {string} adminId KML admin ID
+ * @param {string} kml KML content
+ * @returns {Promise<KmlMetadata>}
  */
 export const updateKml = (id, adminId, kml) => {
     return new Promise((resolve, reject) => {
@@ -187,7 +187,7 @@ export const updateKml = (id, adminId, kml) => {
 /**
  * Get KML file
  *
- * @param {string} id From FilesResponse
+ * @param {string} id KML ID
  * @returns {Promise<string>} KML file content
  */
 export const getKml = (id) => {
