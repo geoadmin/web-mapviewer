@@ -1,4 +1,5 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { getKmlMetadataByAdminId } from '@/api/files.api'
 import i18n from '@/modules/i18n'
 
 function readUrlParamValue(url, paramName) {
@@ -124,4 +125,22 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
         }
     }
     return undefined
+}
+
+/**
+ * Returns a KML Layer from the legacy adminid url param.
+ *
+ * @param {String} adminId KML admin ID
+ * @returns {Promise<AbstractLayer>} KML Layer
+ */
+export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
+    const kmlMetaData = await getKmlMetadataByAdminId(adminId)
+
+    return new KMLLayer(
+        i18n.t('draw_layer_label'),
+        1.0,
+        kmlMetaData.links.kml,
+        kmlMetaData.id,
+        kmlMetaData.adminId
+    )
 }

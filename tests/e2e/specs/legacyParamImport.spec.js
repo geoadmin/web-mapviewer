@@ -88,7 +88,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            const fakeKMLFileURL = 'https//fake-service.geo.admin.ch/1234567890'
+            const fakeKMLFileURL = 'https//fake-service.geo.admin.ch/api/kml/files/1234567890'
             // serving a dummy KML so that we don't get a 404
             cy.intercept(fakeKMLFileURL, '<kml />')
             cy.goToMapView('en', {
@@ -101,6 +101,69 @@ describe('Test on legacy param import', () => {
                 const [kmlLayer] = activeLayers
                 expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
                 expect(kmlLayer.opacity).to.eq(0.6)
+                expect(kmlLayer.visible).to.be.true
+            })
+        })
+        it('is able to import an external KML from a legacy adminid query param', () => {
+            const adminId = '0987654321'
+            const kmlId = '1234567890'
+            const fakeKmlService = 'https//fake-service.geo.admin.ch/api/kml'
+            const fakeKMLFileURL = `${fakeKmlService}/files/${kmlId}`
+            // serving a dummy KML so that we don't get a 404
+            cy.intercept(fakeKMLFileURL, '<kml />').as('get-kml')
+            cy.intercept(`**/api/kml/admin?admin_id=${adminId}`, {
+                id: kmlId,
+                admin_id: adminId,
+                links: { self: `${fakeKmlService}/admin/${kmlId}`, kml: fakeKMLFileURL },
+                created: '',
+                updated: '',
+            }).as('get-kml-id')
+            cy.goToMapView('en', {
+                adminid: adminId,
+            })
+            cy.wait('@get-kml-id')
+            cy.wait('@get-kml')
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(1)
+                const [kmlLayer] = activeLayers
+                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.opacity).to.eq(1)
+                expect(kmlLayer.visible).to.be.true
+            })
+        })
+        it('is able to import an external KML from a legacy adminid query param with other layers', () => {
+            const adminId = '0987654321'
+            const kmlId = '1234567890'
+            const fakeKmlService = 'https//fake-service.geo.admin.ch/api/kml'
+            const fakeKMLFileURL = `${fakeKmlService}/files/${kmlId}`
+            // serving a dummy KML so that we don't get a 404
+            cy.intercept(fakeKMLFileURL, '<kml />').as('get-kml')
+            cy.intercept(`**/api/kml/admin?admin_id=${adminId}`, {
+                id: kmlId,
+                admin_id: adminId,
+                links: { self: `${fakeKmlService}/admin/${kmlId}`, kml: fakeKMLFileURL },
+                created: '',
+                updated: '',
+            }).as('get-kml-id')
+            cy.goToMapView('en', {
+                adminid: adminId,
+                layers: 'test.wms.layer,test.wmts.layer',
+                layers_opacity: '0.6,0.5',
+                layers_visibility: 'true,false',
+            })
+            cy.wait('@get-kml-id')
+            cy.wait('@get-kml')
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(3)
+                const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
+                expect(wmsLayer.getID()).to.eq('test.wms.layer')
+                expect(wmsLayer.opacity).to.eq(0.6)
+                expect(wmsLayer.visible).to.be.true
+                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
+                expect(wmtsLayer.opacity).to.eq(0.5)
+                expect(wmtsLayer.visible).to.be.false
+                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
             })
         })

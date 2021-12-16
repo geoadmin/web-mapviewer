@@ -210,3 +210,30 @@ export const getKml = (id) => {
             })
     })
 }
+
+/**
+ * Get KML metadata by adminId
+ *
+ * @param {string} adminId KML admin ID
+ * @returns {Promise<KmlMetadata>} KML metadata
+ */
+export const getKmlMetadataByAdminId = (adminId) => {
+    return new Promise((resolve, reject) => {
+        validateAdminId(adminId, reject)
+        axios
+            .get(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin?admin_id=${adminId}`)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(KmlMetadata.fromApiData(response.data))
+                } else {
+                    const msg = `Incorrect response while getting metadata for kml admin_id=${adminId}`
+                    log('error', msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log('error', `Error while getting metadata for kml admin_id=${adminId}`)
+                reject(error)
+            })
+    })
+}

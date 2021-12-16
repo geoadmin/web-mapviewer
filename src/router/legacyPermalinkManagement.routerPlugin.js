@@ -1,7 +1,11 @@
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
-import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
+import {
+    getLayersFromLegacyUrlParams,
+    isLayersUrlParamLegacy,
+    getKmlLayerFromLegacyAdminIdParam,
+} from '@/utils/legacyLayerParamUtils'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
 import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
 
@@ -57,6 +61,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
             // before the first request, we check out if we need to manage any legacy params (from the old viewer)
             isFirstRequest = false
             if (legacyParams) {
+                log('info', `Legacy permalink with param=`, legacyParams, ' to.query=', to.query)
                 // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
                 // we will also transform legacy zoom level here (see comment below)
                 const newQuery = { ...to.query }
@@ -110,6 +115,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         case 'layers_opacity':
                         case 'layers_visibility':
                         case 'layers_timestamp':
+                        case 'adminid':
                             // we ignore those params as they are now obsolete
                             // see adr/2021_03_16_url_param_structure.md
                             break
@@ -137,16 +143,45 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         newQuery[key] = value
                     }
                 })
+
                 // removing old query part (new ones will be added by vue-router after the /# part of the URL)
                 const urlWithoutQueryParam = window.location.href.substr(
                     0,
                     window.location.href.indexOf('?')
                 )
                 window.history.replaceState({}, document.title, urlWithoutQueryParam)
-                next({
-                    name: 'MapView',
-                    query: newQuery,
-                })
+
+                if ('adminid' in legacyParams) {
+                    log('debug', 'Transforming legacy kml adminid...')
+                    getKmlLayerFromLegacyAdminIdParam(legacyParams['adminid'])
+                        .then((kmlLayer) => {
+                            log('debug', 'Adding KML layer from legacy kml adminid')
+                            if (newQuery.layers) {
+                                newQuery.layers = `${newQuery.layers};${transformLayerIntoUrlString(
+                                    kmlLayer
+                                )}`
+                            } else {
+                                newQuery.layers = transformLayerIntoUrlString(kmlLayer)
+                            }
+
+                            next({
+                                name: 'MapView',
+                                query: newQuery,
+                            })
+                        })
+                        .catch((error) => {
+                            log('error', `Failed to retrieve KML from admin_id: ${error}`)
+                            next({
+                                name: 'MapView',
+                                query: newQuery,
+                            })
+                        })
+                } else {
+                    next({
+                        name: 'MapView',
+                        query: newQuery,
+                    })
+                }
             } else {
                 next()
             }
