@@ -47,13 +47,13 @@ const storeSyncRouterPlugin = (router, store) => {
         ) {
             // if the value in the store differs from the one in the URL
             if (isRoutePushNeeded(store, router.currentRoute)) {
-                routeChangeIsTriggeredByThisModule = true
                 const query = {}
                 // extracting all param from the store
                 storeSyncConfig.forEach((paramConfig) =>
                     paramConfig.populateQueryWithStoreValue(query, store)
                 )
                 log('debug', 'store has changed, rerouting app to query', query)
+                routeChangeIsTriggeredByThisModule = true
                 router
                     .replace({
                         name: 'MapView',
@@ -61,6 +61,7 @@ const storeSyncRouterPlugin = (router, store) => {
                     })
                     .catch((error) => {
                         log('info', 'Error while routing to', query, error)
+                        routeChangeIsTriggeredByThisModule = false
                     })
             }
         }
@@ -70,6 +71,7 @@ const storeSyncRouterPlugin = (router, store) => {
         if (routeChangeIsTriggeredByThisModule) {
             routeChangeIsTriggeredByThisModule = false
         } else if (store.state.app.isReady) {
+            log('debug', 'Sync the store with the new URL', to.query)
             // if the route change is not made by this module we need to check if a store change is needed
             storeSyncConfig.forEach((paramConfig) => {
                 const queryValue = paramConfig.readValueFromQuery(to.query)
