@@ -39,6 +39,12 @@ const cssGrabbing = 'cursor-grabbing'
 
 const nameInKml = 'Drawing'
 
+export class ClearEvent extends Event {
+    constructor() {
+        super('clear')
+    }
+}
+
 export class ChangeEvent extends Event {
     constructor() {
         super('change')
@@ -309,6 +315,10 @@ export default class DrawingManager extends Observable {
         return kmlString
     }
 
+    dispatchClearEvent_() {
+        this.dispatchEvent(new ClearEvent())
+    }
+
     dispatchChangeEvent_() {
         this.dispatchEvent(new ChangeEvent())
     }
@@ -557,7 +567,7 @@ export default class DrawingManager extends Observable {
     clearDrawing() {
         this.source.clear()
         this.deselect()
-        this.dispatchChangeEvent_()
+        this.dispatchClearEvent_()
     }
 
     async addKmlLayer(layer) {

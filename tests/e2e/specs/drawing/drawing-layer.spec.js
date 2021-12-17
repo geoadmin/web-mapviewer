@@ -12,3 +12,23 @@ describe('A drawing layer is added at the end of the drawing session', () => {
         })
     })
 })
+
+describe('A drawing is cleared on layer removal', () => {
+    it('clear the drawing when the drawing layer is removed', () => {
+        cy.goToDrawing()
+        cy.drawGeoms()
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.get(`[data-cy^="button-remove-layer-"]`).click()
+        cy.readStoreValue('state.layers.activeLayers').then((layers) => {
+            expect(layers).to.be.an('Array').lengthOf(0)
+        })
+        cy.readStoreValue('state.drawing').then((drawing) => {
+            expect(drawing.drawingKmlIds).to.be.null
+        })
+        cy.readWindowValue('drawingManager')
+            .then((manager) => manager.source.getFeatures())
+            .then((features) => {
+                expect(features).to.have.length(0)
+            })
+    })
+})
