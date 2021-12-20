@@ -10,7 +10,7 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 $loading-element-width: 40rem;
 $loading-bar-animation-duration: 2s;
 

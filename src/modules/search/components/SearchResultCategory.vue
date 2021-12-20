@@ -4,10 +4,10 @@
         class="search-category"
         :class="{ 'search-category-half-size': halfSize }"
     >
-        <div class="search-category-header">
+        <div class="search-category-header p-2 bg-light h5 mb-0 fw-bold">
             {{ title }}
         </div>
-        <div class="search-category-body">
+        <div class="search-category-body bg-white">
             <SearchResultListEntry
                 v-for="(entry, index) in entries"
                 :key="`${index}-${entry.getId()}`"
@@ -44,17 +44,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
 .search-category {
-    .search-category-header {
-        @extend .p-2;
-        @extend .bg-light;
-        @extend .h5;
-        @extend .mb-0;
-        @extend .fw-bold;
-    }
     .search-category-body {
-        @extend .bg-white;
         max-height: 15rem;
         overflow-y: scroll;
         font-size: 0.8rem;

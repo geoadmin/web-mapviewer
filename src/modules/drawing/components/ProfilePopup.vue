@@ -350,7 +350,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 
 .profile-popup {
     position: absolute;
@@ -405,7 +405,7 @@ export default {
             }
         }
         .profile-area {
-            fill: $red;
+            fill: $primary;
             fill-opacity: 0.5;
         }
         .profile-legend,

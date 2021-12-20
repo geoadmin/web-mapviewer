@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 #clear-search-button {
     margin-left: -40px;
     z-index: $zindex-map + 1;

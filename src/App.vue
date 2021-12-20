@@ -36,7 +36,10 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+// this import needs to happen only once, otherwise bootstrap is import/added
+// to the output CSS as many time as this file is imported
+@import 'node_modules/bootstrap/scss/bootstrap';
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
