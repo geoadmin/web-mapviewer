@@ -278,6 +278,36 @@ export const coordinateFromString = (text, toProjection = 'EPSG:3857', roundingT
 }
 
 /** @enum */
+export const getCentroid = function (...coordinates) {
+    const points = [...coordinates]
+    if (points.length < 2) {
+        return null
+    }
+    // adaptation of formula from https://en.wikipedia.org/wiki/Centroid#Of_a_polygon
+    const first = points[0]
+    const last = points[points.length - 1]
+    if (first[0] !== last[0] || first[1] !== last[1]) {
+        points.push(first)
+    }
+    let twiceArea = 0
+    let x = 0
+    let y = 0
+    let nPts = points.length
+    let p1
+    let p2
+    let f
+    for (let i = 0, j = nPts - 1; i < nPts; j = i++) {
+        p1 = points[i]
+        p2 = points[j]
+        f = p1[0] * p2[1] - p2[0] * p1[1]
+        twiceArea += f
+        x += (p1[0] + p2[0]) * f
+        y += (p1[1] + p2[1]) * f
+    }
+    f = twiceArea * 3
+    return [x / f, y / f]
+}
+
 export const CoordinateSystems = {
     LV95: {
         id: 'LV95',

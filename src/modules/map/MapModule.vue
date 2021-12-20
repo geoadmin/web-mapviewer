@@ -6,7 +6,7 @@
             <LocationPopup />
         </OpenLayersMap>
         <transition name="slide-down">
-            <Footer v-show="showFooter" />
+            <MapFooter v-show="showFooter" />
         </transition>
     </div>
 </template>
@@ -15,10 +15,10 @@
 import { mapState } from 'vuex'
 import OpenLayersMap from './components/openlayers/OpenLayersMap'
 import LocationPopup from './components/LocationPopup'
-import Footer from './components/Footer'
+import MapFooter from './components/MapFooter'
 
 export default {
-    components: { OpenLayersMap, LocationPopup, Footer },
+    components: { OpenLayersMap, LocationPopup, MapFooter },
     computed: {
         ...mapState({
             showFooter: (state) => state.ui.showFooter,

@@ -44,11 +44,7 @@
                                 id="toggle-export-dropdown-options"
                                 type="button"
                                 :disabled="!drawingNotEmpty"
-                                class="
-                                    btn btn-outline-light
-                                    text-dark
-                                    dropdown-toggle dropdown-toggle-split
-                                "
+                                class="btn btn-outline-light text-dark dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 data-cy="drawing-toolbox-choose-export-format-button"
