@@ -103,6 +103,14 @@ export default {
         currentDrawingMode: function (mode) {
             this.manager.toggleTool(mode)
         },
+        kmlIds: function (kmlIds) {
+            // When removing a Drawing layer, the kmlIds are cleared. In this case
+            // we also need to clear the drawing in the manager which still contain
+            // the last drawing.
+            if (!kmlIds) {
+                this.manager.clearDrawing()
+            }
+        },
     },
     mounted() {
         /** @type {import('ol/Map').default} */
@@ -172,6 +180,15 @@ export default {
         }
         this.manager.on('change', () => {
             this.triggerKMLUpdate()
+        })
+        this.manager.on('clear', () => {
+            // Only trigger the kml update if we have an active open drawing. The clear
+            // event also happens when removing a drawing layer when the drawing menu
+            // is closed and in this condition we don't want to re-created now a new KML
+            // until the menu is opened again.
+            if (this.show) {
+                this.triggerKMLUpdate()
+            }
         })
         this.manager.on('select', (event) => {
             /** @type {import('./lib/DrawingManager.js').SelectEvent} */

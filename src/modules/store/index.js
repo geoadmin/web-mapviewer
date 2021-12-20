@@ -23,7 +23,7 @@ import geolocationManagementPlugin from './plugins/geolocation-management.plugin
 import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-management.plugin'
 import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
 import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
-import drawingAddLayerWhenDrawingDonePlugin from '@/modules/store/plugins/drawing-add-layer-when-drawing-done.plugin'
+import drawingLayerManagementPlugin from '@/modules/store/plugins/drawing-layer-management.plugin'
 
 Vue.use(Vuex)
 
@@ -39,7 +39,7 @@ export default new Vuex.Store({
         topicChangeManagementPlugin,
         loadingBarManagementPlugin,
         drawingOverlayAndMenuManagementPlugin,
-        drawingAddLayerWhenDrawingDonePlugin,
+        drawingLayerManagementPlugin,
     ],
     modules: {
         app,
