@@ -48,15 +48,7 @@
             </div>
             <div v-if="profileInformation.length" class="d-flex p-2">
                 <div
-                    class="
-                        flex-grow-1
-                        profile-info-container
-                        d-flex
-                        border border-light
-                        ps-1
-                        pe-4
-                        py-1
-                    "
+                    class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
                     data-cy="profile-popup-info-container"
                 >
                     <span

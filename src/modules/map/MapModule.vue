@@ -5,7 +5,7 @@
             <slot />
         </OpenLayersMap>
         <transition name="slide-down">
-            <Footer v-show="showFooter" />
+            <MapFooter v-show="showFooter" />
         </transition>
     </div>
 </template>
@@ -13,10 +13,10 @@
 <script>
 import { mapState } from 'vuex'
 import OpenLayersMap from './components/openlayers/OpenLayersMap'
-import Footer from './components/Footer'
+import MapFooter from './components/MapFooter'
 
 export default {
-    components: { OpenLayersMap, Footer },
+    components: { OpenLayersMap, MapFooter },
     computed: {
         ...mapState({
             showFooter: (state) => state.ui.showFooter,
