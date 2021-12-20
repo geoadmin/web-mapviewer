@@ -14,7 +14,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .swiss-flag {
     height: 2em;
     width: 2em;

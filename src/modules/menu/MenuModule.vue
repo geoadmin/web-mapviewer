@@ -61,6 +61,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
 
 .header {
     position: fixed;

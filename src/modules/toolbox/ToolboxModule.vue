@@ -29,6 +29,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
 
 #right-toolbox,
 #toolbox-bg-buttons {

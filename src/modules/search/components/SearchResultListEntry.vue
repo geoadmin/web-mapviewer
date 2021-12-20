@@ -1,6 +1,6 @@
 <template>
     <div
-        class="search-category-entry"
+        class="search-category-entry p-2 ps-4 border-bottom border-light"
         data-cy="search-result-entry"
         @click="onClick"
         @mouseover="onMouseOver"
@@ -35,13 +35,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .search-category-entry {
-    @extend .p-2;
-    @extend .ps-4;
-    @extend .border-bottom;
-    @extend .border-light;
-
     @include media-breakpoint-up(sm) {
         &:hover {
             background-color: $dark;

@@ -1,5 +1,4 @@
 const fs = require('fs')
-const { DefinePlugin } = require('webpack')
 
 // loading external utility function to read git metadata
 const gitBranch = require('git-branch')
@@ -23,13 +22,13 @@ const version = packageJson.version || 0
 
 module.exports = {
     publicPath,
-    configureWebpack: {
-        plugins: [
-            new DefinePlugin({
-                'process.env': {
-                    PACKAGE_VERSION: '"' + version + '"',
-                },
-            }),
-        ],
+    chainWebpack: (config) => {
+        config
+            .plugin('define')
+            .tap((definitions) => {
+                definitions[0]['process.env']['PACKAGE_VERSION'] = `"${version}"`
+                return definitions
+            })
+            .end()
     },
 }

@@ -153,7 +153,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .card {
     width: 100%;
     height: 100%;

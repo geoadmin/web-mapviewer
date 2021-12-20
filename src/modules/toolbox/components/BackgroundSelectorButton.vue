@@ -74,7 +74,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 
 $bg-button-border-size: 8px;
 $bg-button-border-size-in-wheel: 3px;

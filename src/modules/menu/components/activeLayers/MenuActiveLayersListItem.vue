@@ -172,8 +172,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/bootstrap-theme';
-@import '../../scss/menu-items';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/modules/menu/scss/menu-items';
 .menu-layer-list-item {
     @extend .menu-list-item;
     .menu-layer-list-item-details {

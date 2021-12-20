@@ -1,6 +1,6 @@
 // from https://glennmccomb.com/articles/useful-sass-scss-media-query-mixins-for-bootstrap/
 
-@import "src/scss/bootstrap-theme";
+@import 'node_modules/bootstrap/scss/bootstrap-grid';
 
 // Respond above.
 @mixin respond-above($breakpoint) {
