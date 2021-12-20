@@ -117,8 +117,8 @@ export const getKmlMetadataUrl = (id) => {
 /**
  * Publish KML on backend
  *
- * @param {string} kml
- * @returns {Promise<FilesResponse>}
+ * @param {string} kml KML content
+ * @returns {Promise<KmlMetadata>}
  */
 export const createKml = (kml) => {
     return new Promise((resolve, reject) => {
@@ -150,10 +150,10 @@ export const createKml = (kml) => {
 /**
  * Update KML on backend
  *
- * @param {string} id 'id' from FilesResponse
- * @param {string} adminId 'admin_id' from FilesResponse
- * @param {string} kml
- * @returns {Promise<FilesResponse>}
+ * @param {string} id KML ID
+ * @param {string} adminId KML admin ID
+ * @param {string} kml KML content
+ * @returns {Promise<KmlMetadata>}
  */
 export const updateKml = (id, adminId, kml) => {
     return new Promise((resolve, reject) => {
@@ -187,7 +187,7 @@ export const updateKml = (id, adminId, kml) => {
 /**
  * Get KML file
  *
- * @param {string} id From FilesResponse
+ * @param {string} id KML ID
  * @returns {Promise<string>} KML file content
  */
 export const getKml = (id) => {
@@ -206,6 +206,33 @@ export const getKml = (id) => {
             })
             .catch((error) => {
                 log('error', `Error while getting file with id=${id}`)
+                reject(error)
+            })
+    })
+}
+
+/**
+ * Get KML metadata by adminId
+ *
+ * @param {string} adminId KML admin ID
+ * @returns {Promise<KmlMetadata>} KML metadata
+ */
+export const getKmlMetadataByAdminId = (adminId) => {
+    return new Promise((resolve, reject) => {
+        validateAdminId(adminId, reject)
+        axios
+            .get(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin?admin_id=${adminId}`)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(KmlMetadata.fromApiData(response.data))
+                } else {
+                    const msg = `Incorrect response while getting metadata for kml admin_id=${adminId}`
+                    log('error', msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log('error', `Error while getting metadata for kml admin_id=${adminId}`)
                 reject(error)
             })
     })
