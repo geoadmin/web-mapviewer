@@ -60,6 +60,7 @@ export default {
     data: function () {
         return {
             selectedFeature: null,
+            drawingModes: Object.values(drawingModes),
         }
     },
     computed: {
@@ -71,11 +72,6 @@ export default {
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
         }),
-        drawingModes: function () {
-            const modes = []
-            Object.keys(drawingModes).forEach((key) => modes.push(key))
-            return modes
-        },
         drawingNotEmpty: function () {
             return (
                 this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
