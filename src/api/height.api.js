@@ -46,7 +46,6 @@ export const requestHeight = (coordinates) => {
             const errorMessage = 'Invalid coordinates, no height requested'
             log.error('Invalid coordinates, no height requested', coordinates)
             reject(errorMessage)
-            reject(errorMessage)
         }
     })
 }

@@ -1,7 +1,5 @@
 <template>
-    <div>
-        <TooltipBox />
-    </div>
+    <TooltipBox />
 </template>
 
 <script>

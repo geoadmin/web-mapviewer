@@ -60,6 +60,7 @@ describe('Test mouse position', () => {
             cy.goToMapView()
             // doing a right click
             cy.get('[data-cy="map"]').rightclick(200, 100)
+            cy.get('[data-cy="location-popup"]').should('be.visible')
         })
         it('Uses the what3words in the popup', () => {
             cy.goToMapView()

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isRightClick" class="location-popup">
+    <div v-if="isRightClick" class="location-popup" data-cy="location-popup">
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -86,6 +86,7 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { round } from '@/utils/numberUtils'
 
+/** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
     components: { ButtonWithIcon },
     inject: ['getMap'],
@@ -198,7 +199,6 @@ export default {
         generateQrCodeFromBackend: function () {
             if (this.clickCoordinates) {
                 generateQrCode(window.location.href).then((qrCode) => {
-                    console.log('yay!', qrCode)
                     this.qrCodeImageSrc = qrCode
                 })
             }
