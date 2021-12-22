@@ -61,6 +61,7 @@ export default {
         return {
             selectedFeature: null,
             drawingModes: Object.values(drawingModes),
+            drawingNotEmpty: false,
         }
     },
     computed: {
@@ -72,11 +73,6 @@ export default {
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
         }),
-        drawingNotEmpty: function () {
-            return (
-                this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
-            )
-        },
         deleteLastPointCallback: function () {
             return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
                 ? () => this.manager.activeInteraction.removeLastPoint()
@@ -175,9 +171,11 @@ export default {
             window.drawingManager = this.manager
         }
         this.manager.on('change', () => {
+            this.drawingNotEmpty = this.isDrawingEmpty()
             this.triggerKMLUpdate()
         })
         this.manager.on('clear', () => {
+            this.drawingNotEmpty = this.isDrawingEmpty()
             // Only trigger the kml update if we have an active open drawing. The clear
             // event also happens when removing a drawing layer when the drawing menu
             // is closed and in this condition we don't want to re-created now a new KML
@@ -226,6 +224,11 @@ export default {
         },
         deactivateFeature: function () {
             this.manager.deselect()
+        },
+        isDrawingEmpty: function () {
+            return (
+                this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
+            )
         },
         triggerKMLUpdate: function () {
             if (this.KMLUpdateTimeout) {
