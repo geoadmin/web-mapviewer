@@ -34,6 +34,12 @@ export default {
             availableProjections: CoordinateSystems,
         }
     },
+    watch: {
+        projection: function (newProj) {
+            this.mousePositionControl.setProjection(getProjection(newProj.epsg))
+            this.mousePositionControl.setCoordinateFormat(newProj.format)
+        },
+    },
     mounted() {
         const map = this.getMap()
         // see https://portal-vue.linusb.org/guide/caveats.html#refs

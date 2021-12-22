@@ -1,6 +1,6 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-    <div id="ol-map" ref="map" oncontextmenu="return false">
+    <div id="ol-map" ref="map" @contextmenu="showLocationPopup">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <portal to="footer" :order="1">
@@ -75,7 +75,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
-import { ClickInfo } from '@/modules/map/store/map.store'
+import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
@@ -331,11 +331,27 @@ export default {
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
         ]),
+        showLocationPopup: function (e) {
+            const screenCoordinates = [e.x, e.y]
+            this.click(
+                new ClickInfo(
+                    this.map.getCoordinateFromPixel(screenCoordinates),
+                    0,
+                    screenCoordinates,
+                    [],
+                    ClickType.RIGHT_CLICK
+                )
+            )
+            // we do not want the contextual menu to shows up, so we prevent the event propagation
+            e.preventDefault()
+            return false
+        },
     },
 }
 </script>
 
 <style lang="scss">
+@import 'src/scss/webmapviewer-bootstrap-theme';
 // style is unscoped so that it may reach scale-line outside of itself
 // as it was transported in the footer by vue-portal
 #ol-map {
@@ -354,8 +370,8 @@ export default {
         left: 0;
         background: rgba(255, 255, 255, 0.6);
         .scale-line-inner {
-            color: #000;
-            border: 2px solid #000;
+            color: $black;
+            border: 2px solid $black;
             border-top: none;
             max-width: 150px;
         }

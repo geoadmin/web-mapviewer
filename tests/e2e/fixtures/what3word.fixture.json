@@ -1,0 +1,10 @@
+{
+    "country": "CH",
+    "coordinates": {
+        "lat": 1234,
+        "lng": 5678
+    },
+    "words": "fake.what3words",
+    "language": "en",
+    "map": "https://w3w.co/what3words"
+}

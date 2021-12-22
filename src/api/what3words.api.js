@@ -59,9 +59,10 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
  * this coordinate
  *
  * @param location A location expressed in EPSG:3857 projection
+ * @param lang The ISO code for the language that should be used to build this w3w
  * @returns {Promise<String>} The what3words for this location
  */
-export const registerWhat3WordsLocation = (location) => {
+export const registerWhat3WordsLocation = (location, lang = 'en') => {
     return new Promise((resolve, reject) => {
         if (!Array.isArray(location) && location.length !== 2) {
             reject('Bad location, must be a coordinate array')
@@ -69,9 +70,13 @@ export const registerWhat3WordsLocation = (location) => {
             // transforming EPSG:3857 coordinates into EPGS:4326 (WGS84)
             const [lat, lon] = proj4('EPSG:3857', proj4.WGS84, location)
             axios
-                .get(
-                    `${WHAT_3_WORDS_API_BASE_URL}/convert-to-3wa/?coordinates=${lat},${lon}&key=${WHAT_3_WORDS_API_KEY}`
-                )
+                .get(`${WHAT_3_WORDS_API_BASE_URL}/convert-to-3wa`, {
+                    params: {
+                        coordinates: `${lat},${lon}`,
+                        language: lang,
+                        key: WHAT_3_WORDS_API_KEY,
+                    },
+                })
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-3wa
                 .then((response) => resolve(response.data.words))
                 .catch((error) => {
