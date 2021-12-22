@@ -2,7 +2,7 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import i18n from '@/modules/i18n'
 
 const generateKmlLayer = (kmlUrl, fileId, adminId) => {
-    return new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlUrl, fileId, adminId)
+    return new KMLLayer(i18n.global.t('draw_layer_label'), 1.0, kmlUrl, fileId, adminId)
 }
 
 /**

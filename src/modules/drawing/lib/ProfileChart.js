@@ -262,8 +262,8 @@ export default class ProfileChart {
     updateLabels() {
         this.group
             .select('text.profile-label-x')
-            .text(`${i18n.t(this.options.xLabel)} [${this.unitX}]`)
-        this.group.select('text.profile-label-y').text(`${i18n.t(this.options.yLabel)} [m]`)
+            .text(`${i18n.global.t(this.options.xLabel)} [${this.unitX}]`)
+        this.group.select('text.profile-label-y').text(`${i18n.global.t(this.options.yLabel)} [m]`)
     }
 
     getProfileInfo() {

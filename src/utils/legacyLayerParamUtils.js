@@ -77,7 +77,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                 }
                 if (layerId.startsWith('KML||')) {
                     const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                    layer = new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlLayerParts[1])
+                    layer = new KMLLayer(i18n.global.t('draw_layer_label'), 1.0, kmlLayerParts[1])
                 }
                 if (layer) {
                     // checking if visibility is set in URL
@@ -138,7 +138,7 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
     return new KMLLayer(
-        i18n.t('draw_layer_label'),
+        i18n.global.t('draw_layer_label'),
         1.0,
         kmlMetaData.links.kml,
         kmlMetaData.id,

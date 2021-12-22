@@ -51,7 +51,6 @@
 
 <script>
 import { getKmlUrl } from '@/api/files.api'
-import i18n from '@/modules/i18n'
 
 export default {
     props: {
@@ -71,7 +70,7 @@ export default {
             if (this.kmlIds && this.kmlIds.fileId) {
                 return `${location.origin}/#/map?layers=KML|${getKmlUrl(
                     this.kmlIds.fileId
-                )}|${i18n.t('draw_layer_label')}`
+                )}|${this.$t('draw_layer_label')}`
             }
             return ''
         },
@@ -79,7 +78,7 @@ export default {
             if (this.kmlIds && this.kmlIds.fileId && this.kmlIds.adminId) {
                 return `${location.origin}/#/map?layers=KML|${getKmlUrl(
                     this.kmlIds.fileId
-                )}|${i18n.t('draw_layer_label')}@adminId=${this.kmlIds.adminId}`
+                )}|${this.$t('draw_layer_label')}@adminId=${this.kmlIds.adminId}`
             }
             // if no adminID is availble don't show the edit share link.
             return null
