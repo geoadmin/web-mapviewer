@@ -122,18 +122,6 @@ export default {
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
             },
-            positionOnMap: new Point([0, 0]),
-            /** Additional overlay to display azimuth circle */
-            overlay: new VectorLayer({
-                source: new VectorSource({
-                    useSpatialIndex: false,
-                    features: [new Feature(this.positionOnMap)],
-                }),
-                style: sketchPointStyle,
-                updateWhileAnimating: true,
-                updateWhileInteracting: true,
-                zIndex: 2000,
-            }),
             showTooltip: false,
             profileInfo: null,
             minimized: isMobile,
@@ -201,6 +189,20 @@ export default {
         feature: function () {
             this.triggerProfileUpdate = true
         },
+    },
+    created() {
+        this.positionOnMap = new Point([0, 0])
+        /** Additional overlay to display azimuth circle */
+        this.overlay = new VectorLayer({
+            source: new VectorSource({
+                useSpatialIndex: false,
+                features: [new Feature(this.positionOnMap)],
+            }),
+            style: sketchPointStyle,
+            updateWhileAnimating: true,
+            updateWhileInteracting: true,
+            zIndex: 2000,
+        })
     },
     async mounted() {
         // listening to window.resize event so that we resize the SVG profile

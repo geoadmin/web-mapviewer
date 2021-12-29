@@ -95,11 +95,6 @@ export default {
             clickWhat3Words: null,
             height: null,
             qrCodeImageSrc: null,
-            overlay: new Overlay({
-                offset: [0, 15],
-                positioning: OverlayPositioning.TOP_CENTER,
-                className: 'location-popup-overlay',
-            }),
         }
     },
     computed: {
@@ -164,6 +159,13 @@ export default {
             this.requestWhat3WordBackend()
             this.generateQrCodeFromBackend()
         },
+    },
+    beforeCreate() {
+        this.overlay = new Overlay({
+            offset: [0, 15],
+            positioning: OverlayPositioning.TOP_CENTER,
+            className: 'location-popup-overlay',
+        })
     },
     mounted() {
         const olMap = this.getMap()
