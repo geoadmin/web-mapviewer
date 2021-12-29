@@ -177,7 +177,7 @@ export default {
     watch: {
         feature: function (newFeature) {
             if (newFeature) {
-                const featureTextScale = newFeature.get('textScale')
+                const featureTextScale = parseFloat(newFeature.get('textScale'))
                 if (featureTextScale) {
                     this.setCurrentTextSize(
                         this.sizes.find((size) => size.textScale === featureTextScale)
