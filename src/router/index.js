@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import MapView from '@/views/MapView'
 import LoadingView from '@/views/LoadingView'
@@ -15,7 +15,7 @@ import stringifyQuery from '@/router/stringifyQuery'
  * @type {Router}
  */
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes: [
         {
             path: '/',
