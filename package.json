@@ -30,7 +30,7 @@
         "animate.css": "^4.1.1",
         "axios": "^0.24.0",
         "bootstrap": "^5.1.3",
-        "core-js": "^3.20.0",
+        "core-js": "^3.20.2",
         "d3": "^7.2.1",
         "file-saver": "^2.0.5",
         "form-data": "^4.0.0",
@@ -38,7 +38,7 @@
         "jquery": "^3.6.0",
         "mobile-device-detect": "^0.4.3",
         "ol": "^6.9.0",
-        "portal-vue": "^3.0.0-beta.0",
+        "portal-vue": "next",
         "proj4": "^2.7.5",
         "register-service-worker": "^1.7.2",
         "reproject": "^1.2.6",
@@ -52,7 +52,7 @@
         "@cypress/vue": "next",
         "@cypress/webpack-preprocessor": "^5.11.0",
         "@vue/cli-plugin-babel": "next",
-        "@vue/cli-plugin-e2e-cypress": "5.0.0-beta.3",
+        "@vue/cli-plugin-e2e-cypress": "next",
         "@vue/cli-plugin-eslint": "next",
         "@vue/cli-plugin-pwa": "next",
         "@vue/cli-plugin-router": "next",
@@ -64,8 +64,9 @@
         "@vue/test-utils": "next",
         "aws-sdk": "^2.1046.0",
         "babel-eslint": "^10.1.0",
-        "caniuse-lite": "^1.0.30001291",
+        "caniuse-lite": "^1.0.30001295",
         "chai": "^4.3.4",
+        "cypress": "^9.2.0",
         "cypress-browser-permissions": "^1.1.0",
         "cypress-recurse": "^1.13.1",
         "eslint": "^7.32.0",
@@ -78,14 +79,14 @@
         "mime-types": "^2.1.34",
         "prettier": "^2.5.1",
         "prettier-plugin-jsdoc": "^0.3.30",
-        "sass": "^1.45.0",
+        "sass": "^1.45.2",
         "sass-loader": "^10.2.0",
         "vue-loader": "^17.0.0",
         "yargs": "^17.3.0"
     },
     "engines": {
-        "node": "12.*.*",
-        "npm": "7.*.*"
+        "node": "14.*.*",
+        "npm": "8.*.*"
     },
     "engineStrict": true
 }
