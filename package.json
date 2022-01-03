@@ -5,6 +5,7 @@
     "scripts": {
         "start": "npm run serve",
         "serve": "vue-cli-service serve",
+        "serve-prod": "vue-cli-service serve --mode=production",
         "test:unit": "vue-cli-service test:unit",
         "test:unit-watch": "vue-cli-service test:unit --watch",
         "test:e2e": "vue-cli-service test:e2e",
