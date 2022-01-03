@@ -51,15 +51,14 @@ const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
     cy.log(`simulating ${type} at [${x}, ${y}]`)
 
     var viewport = map.getViewport()
-    let position = viewport.getBoundingClientRect()
 
     // calculated in case body has top < 0 (test runner with small window)
     const shiftKey = opt_shiftKey !== undefined ? opt_shiftKey : false
     const event = {}
     event.type = type
     event.target = viewport.firstChild
-    event.clientX = position.left + x + position.width / 2
-    event.clientY = position.top + y + position.height / 2
+    event.clientX = viewport.clientLeft + x + viewport.clientWidth / 2
+    event.clientY = viewport.clientTop + y + viewport.clientHeight / 2
     event.shiftKey = shiftKey
     event.preventDefault = function () {}
     event.pointerType = 'mouse'
