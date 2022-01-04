@@ -121,7 +121,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
 
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
-    window.history.replaceState({}, document.title, urlWithoutQueryParam)
+    window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
 
     if ('adminid' in legacyParams) {
         // adminid legacy param cannot be handle above in the loop because it needs to add a layer
