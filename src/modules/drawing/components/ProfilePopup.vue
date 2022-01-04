@@ -202,7 +202,7 @@ export default {
         window.addEventListener('resize', this.onResize)
         await this.updateProfile()
     },
-    destroyed() {
+    unmounted() {
         window.removeEventListener('resize', this.onResize)
     },
     updated() {

@@ -56,7 +56,7 @@ export default {
             })
         })
     },
-    destroyed() {
+    unmounted() {
         const map = this.getMap()
         if (map) {
             map.removeControl(this.mousePositionControl)

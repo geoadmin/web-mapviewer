@@ -321,7 +321,7 @@ export default {
             }
         })
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.map = null
         this.view = null
     },

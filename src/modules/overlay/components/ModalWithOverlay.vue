@@ -67,7 +67,7 @@ export default {
         this.showOverlay(this.preventOverlayToClose)
         this.setOverlayShouldBeFront(true)
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.setOverlayShouldBeFront(false)
     },
     methods: {
