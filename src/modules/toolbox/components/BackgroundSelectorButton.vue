@@ -9,7 +9,7 @@
             @animationend="animateMainButton = false"
         />
         <div class="bg-selector-wheel">
-            <transition-group name="bg-slide-up">
+            <transition-group tag="span" name="bg-slide-up">
                 <div
                     v-for="(background, index) in backgroundLayersWithVoid"
                     v-show="showBgWheel"
@@ -43,7 +43,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer', 'getLayerForGeoAdminId']),
+        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer']),
         ...mapState({
             currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
         }),
