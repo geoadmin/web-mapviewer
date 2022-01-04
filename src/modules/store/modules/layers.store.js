@@ -102,7 +102,7 @@ const actions = {
         commit('clearLayers')
         commit('setLayerConfig', config)
         activedLayerBeforeConfigChange.forEach((layer) => {
-            commit('addLayer', layer.getID())
+            dispatch('addLayer', layer.getID())
             if (!layer.visible) {
                 commit('toggleLayerVisibility', layer.getID())
             }

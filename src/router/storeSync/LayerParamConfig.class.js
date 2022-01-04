@@ -47,8 +47,8 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 }
             } else {
                 // checking if this active layer's opacity matches the default opacity from the config
-                const configForThisLayer = store.getters.getLayerForId(activeLayer.getID())
-                if (configForThisLayer.opacity !== activeLayer.opacity) {
+                const configForThisLayer = store.getters.getLayerForGeoAdminId(activeLayer.getID())
+                if (configForThisLayer && configForThisLayer.opacity !== activeLayer.opacity) {
                     promisesForAllDispatch.push(
                         store.dispatch('setLayerOpacity', {
                             layerId: activeLayer.getID(),
@@ -136,7 +136,15 @@ export default class LayerParamConfig extends AbstractParamConfig {
     constructor() {
         super(
             'layers',
-            'toggleLayerVisibility,addLayer,removeLayer,moveActiveLayerFromIndexToIndex,setLayerOpacity,setLayerTimestamp',
+            [
+                'toggleLayerVisibility',
+                'addLayerWithConfig',
+                'removeLayerWithId',
+                'clearLayers',
+                'moveActiveLayerFromIndexToIndex',
+                'setLayerOpacity',
+                'setLayerTimestamp',
+            ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
             false,
