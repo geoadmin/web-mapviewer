@@ -1,6 +1,9 @@
 import log from '@/utils/logging'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
+const getActiveLayerById = (state, layerId) =>
+    state.activeLayers.find((layer) => layer.getID() === layerId)
+
 const state = {
     /**
      * Current background layer ID
@@ -51,28 +54,36 @@ const getters = {
         if (!state.backgroundLayerId) {
             return undefined
         } else {
-            return getters.getLayerForGeoAdminId(state.backgroundLayerId)
+            return getters.getLayerConfigById(state.backgroundLayerId)
         }
     },
     /**
-     * Retrieves a layer metadata defined by its unique ID
+     * Retrieves a layer config metadata defined by its unique ID
      *
      * @param state
      * @returns {GeoAdminLayer}
      */
-    getLayerForGeoAdminId: (state) => (geoAdminLayerId) =>
+    getLayerConfigById: (state) => (geoAdminLayerId) =>
         state.config.find((layer) => layer.getID() === geoAdminLayerId),
-    jointVisibleLayerIds: (state, getters) => {
-        const visibleLayerIds = getters.visibleLayers.map((layer) => layer.getID())
-        if (visibleLayerIds.length > 0) {
-            return visibleLayerIds.reduce((accumulator, layerId) => `${accumulator},${layerId}`)
-        }
-        return ''
-    },
+    /**
+     * Retrieves an active layer metadata defined by its unique ID
+     *
+     * @param state
+     * @returns {GeoAdminLayer}
+     */
+    getActiveLayerById: (state) => (geoAdminLayerId) =>
+        state.activeLayers.find((layer) => layer.getID() === geoAdminLayerId),
 }
 
 const actions = {
     toggleLayerVisibility: ({ commit }, layerId) => commit('toggleLayerVisibility', layerId),
+    setLayerVisibility({ commit }, payload) {
+        if ('visible' in payload && 'layerId' in payload) {
+            commit('setLayerVisibility', payload)
+        } else {
+            log('error', 'Failed to set layer visibility, invalid payload', payload)
+        }
+    },
     addLayer: ({ commit }, layerIdOrConfig) => {
         let layerConfig = null
         if (typeof layerIdOrConfig === 'string') {
@@ -185,6 +196,12 @@ const mutations = {
         const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
         if (layer) {
             layer.visible = !layer.visible
+        }
+    },
+    setLayerVisibility(state, { layerId, visible }) {
+        const activeLayer = getActiveLayerById(state, layerId)
+        if (activeLayer) {
+            activeLayer.visible = visible
         }
     },
     addLayerWithConfig: (state, config) => {

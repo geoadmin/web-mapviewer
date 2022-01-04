@@ -47,7 +47,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 }
             } else {
                 // checking if this active layer's opacity matches the default opacity from the config
-                const configForThisLayer = store.getters.getLayerForGeoAdminId(activeLayer.getID())
+                const configForThisLayer = store.getters.getLayerConfigById(activeLayer.getID())
                 if (configForThisLayer && configForThisLayer.opacity !== activeLayer.opacity) {
                     promisesForAllDispatch.push(
                         store.dispatch('setLayerOpacity', {
