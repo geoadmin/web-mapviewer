@@ -29,12 +29,6 @@ export default {
             availableProjections: CoordinateSystems,
         }
     },
-    watch: {
-        projection: function (newProj) {
-            this.mousePositionControl.setProjection(getProjection(newProj.epsg))
-            this.mousePositionControl.setCoordinateFormat(newProj.format)
-        },
-    },
     created() {
         // we start by showing LV95 coordinates
         this.mousePositionControl = new MousePosition({
