@@ -56,9 +56,10 @@ const topicChangeManagementPlugin = (store) => {
                     })
                     // if layer should be in the list of activated layers but not visible on the map
                     // we toggle its visibility
-                    if (!layer.visible) {
-                        store.dispatch('toggleLayerVisibility', layer.getID())
-                    }
+                    store.dispatch('setLayerVisibility', {
+                        layerId: layer.getID(),
+                        visible: layer.visible,
+                    })
                 })
             }
             // loading topic tree
