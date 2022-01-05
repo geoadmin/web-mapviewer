@@ -19,7 +19,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: { name: 'LoadingView' },
+            redirect: { name: 'MapView' },
         },
         {
             path: '/startup',
@@ -30,6 +30,9 @@ const router = createRouter({
             path: '/map',
             name: 'MapView',
             component: MapView,
+            meta: {
+                requiresAppReady: true,
+            },
         },
     ],
     // we add a custom stringifier so that the `layers=` param is left untouched by the URL encoder
