@@ -25,7 +25,7 @@
                     {{ clickCoordinatesLV03 }}
                 </div>
                 <div>
-                    <a :href="$t('contextpopup_wgs84_url')" target="_blank">WGS 84 (lat/lon)</a>
+                    <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
                 </div>
                 <div>
                     <div data-cy="location-popup-coordinates-plain-wgs84">
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div>
-                    <a :href="$t('contextpopup_utm_url')" target="_blank">UTM</a>
+                    <a href="https://epsg.io/32632" target="_blank">UTM</a>
                 </div>
                 <div data-cy="location-popup-coordinates-utm">
                     {{ clickCoordinatesUTM }}
@@ -46,7 +46,7 @@
                     {{ clickCoordinatesMGRS }}
                 </div>
                 <div>
-                    <a :href="$t('contextpopup_what3words_url')" target="_blank">what3words</a>
+                    <a href="http://what3words.com/" target="_blank">what3words</a>
                 </div>
                 <div>
                     <span v-show="clickWhat3Words" data-cy="location-popup-w3w">{{

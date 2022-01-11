@@ -30,8 +30,11 @@ export const generateQrCode = (url) => {
                 },
             })
             .then((image) => {
-                const imageData = Buffer.from(image.data, 'binary').toString('base64')
-                resolve('data:image/png;base64,'.concat(imageData))
+                resolve(
+                    'data:image/png;base64,'.concat(
+                        btoa(String.fromCharCode(...new Uint8Array(image.data)))
+                    )
+                )
             })
             .catch((error) => {
                 log('error', 'Error while retrieving qrCode for', url, error)
