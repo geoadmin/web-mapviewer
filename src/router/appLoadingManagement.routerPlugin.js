@@ -1,3 +1,5 @@
+import log from '@/utils/logging'
+
 /**
  * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers
  * change of route, going to the map view, telling the app it can show the map and all other
@@ -22,21 +24,18 @@ const appLoadingManagementRouterPlugin = (router, store) => {
         if (store.state.app.isReady) {
             next()
         } else {
-            if (to.name === 'LoadingView') {
-                if (!wantedDestination) {
-                    wantedDestination = {
-                        name: 'MapView',
-                        query: to.query,
-                    }
+            if (!wantedDestination) {
+                wantedDestination = {
+                    name: 'MapView',
+                    query: to.query,
                 }
-                next()
-            } else {
-                // if app is not ready, we redirect to loading screen while keeping track of the last wanted destination
-                wantedDestination = to
-                next({
-                    name: 'LoadingView',
-                })
+                log(
+                    'debug',
+                    "App is not yet ready\nstoring wanted destination's query for later use",
+                    to.query
+                )
             }
+            next()
         }
     })
 
@@ -47,6 +46,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             if (wantedDestination && wantedDestination.query) {
                 query = { ...wantedDestination.query }
             }
+            log('debug', 'App is ready\ngoing to MapView with query', query)
             router
                 .push({
                     name: 'MapView',
