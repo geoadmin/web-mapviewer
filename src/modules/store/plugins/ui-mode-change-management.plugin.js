@@ -1,5 +1,5 @@
 import { UIModes } from '@/modules/store/modules/ui.store'
-import bootstrapVariable from '@/scss/bootstrap-theme.scss'
+import bootstrapVariable from '@/scss/webmapviewer-bootstrap-theme.scss'
 
 const widthThresholdToAlwaysShowMenu = parseInt(bootstrapVariable.sm.replace('px', ''))
 const heightMinimumThresholdToAlwaysShowMenu = 500

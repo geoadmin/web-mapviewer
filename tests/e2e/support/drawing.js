@@ -49,13 +49,15 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', () => {
+Cypress.Commands.add('goToDrawing', (isMobileViewport = false) => {
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
     cy.goToMapView()
-    cy.get('[data-cy="menu-button"]').click()
+    if (isMobileViewport) {
+        cy.get('[data-cy="menu-button"]').click()
+    }
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
 })

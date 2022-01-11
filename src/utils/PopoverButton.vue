@@ -8,6 +8,7 @@
             :small="small"
             :danger="danger"
         ></ButtonWithIcon>
+        <!--        <portal to="modal-container">-->
         <div
             ref="popoverContent"
             class="popover-container"
@@ -37,6 +38,7 @@
                 </div>
             </div>
         </div>
+        <!--        </portal>-->
     </div>
 </template>
 <script>

@@ -19,3 +19,9 @@ import './drawing'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+export function forEachTestViewport(testFunction) {
+    ;['iphone-5', 'ipad-2', 'macbook-11'].forEach((viewport) => {
+        testFunction(viewport, viewport === 'iphone-5', viewport === 'ipad-2')
+    })
+}

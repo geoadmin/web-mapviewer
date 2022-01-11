@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { randomIntBetween } from '../../../src/utils/numberUtils'
+import { forEachTestViewport } from '../support'
 
 describe('Test of layer handling', () => {
     /**
@@ -102,27 +103,6 @@ describe('Test of layer handling', () => {
                 })
             })
         })
-        it('Shows a hyphen when no layer is selected', () => {
-            cy.goToMapView()
-            // clicking on the menu button
-            cy.get('[data-cy="menu-button"]').click()
-            cy.get('[data-cy="menu-active-layers"]').click()
-            cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
-        })
-        it('Shows no hyphen when a layer is selected', () => {
-            const visibleLayerIds = [
-                'test.wms.layer',
-                'test.wmts.layer',
-                'test.timeenabled.wmts.layer',
-            ]
-            cy.goToMapView('en', {
-                layers: visibleLayerIds.join(';'),
-            })
-            // clicking on the menu button
-            cy.get('[data-cy="menu-button"]').click()
-            cy.get('[data-cy="menu-active-layers"]').click()
-            cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
-        })
     })
     context('Background layer in URL at app startup', () => {
         it('sets the background to the topic default if none is defined in the URL', () => {
@@ -145,128 +125,70 @@ describe('Test of layer handling', () => {
             )
         })
     })
-    context('Layer settings in menu', () => {
-        const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
-        beforeEach(() => {
-            cy.goToMapView('en', {
-                layers: visibleLayerIds.join(';'),
-            })
-            // clicking on the menu button
-            cy.get('[data-cy="menu-button"]').click()
-        })
-        const openLayerSettings = (layerId) => {
-            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
-            cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`)
-                .should('be.visible')
-                .click()
-            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+    forEachTestViewport((viewport, isMobileViewport) => {
+        const clickOnMenuButtonIfMobile = () => {
+            if (isMobileViewport) {
+                // clicking on the menu button
+                cy.get('[data-cy="menu-button"]').click()
+            }
         }
-        it('shows a visible layer in the menu', () => {
-            visibleLayerIds.forEach((layerId) => {
-                cy.get(`[data-cy="visible-layer-name-${layerId}"]`).should('be.visible')
+        context(`Layer settings in menu (viewport: ${viewport})`, () => {
+            const visibleLayerIds = [
+                'test.wms.layer',
+                'test.wmts.layer',
+                'test.timeenabled.wmts.layer',
+            ]
+            beforeEach(() => {
+                cy.viewport(viewport)
+                cy.goToMapView('en', {
+                    layers: visibleLayerIds.join(';'),
+                })
+                clickOnMenuButtonIfMobile()
             })
-        })
-        it('removes a layer from the visible layers when the "times" button is pressed', () => {
-            // using the first layer to test this out
-            const layerId = visibleLayerIds[0]
-            cy.get(`[data-cy="button-remove-layer-${layerId}"]`).should('be.visible').click()
-            cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                expect(visibleLayers).to.be.an('Array')
-                expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
-                expect(visibleLayers[0].getID()).to.eq(visibleLayerIds[1])
-            })
-        })
-        it('changes the opacity of the layer when the slider for this property is used', () => {
-            // using the second layer for this test
-            const layerId = visibleLayerIds[1]
-            openLayerSettings(layerId)
-            // getting current layer opacity
-            let initialOpacity = 1.0
-            cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                initialOpacity = visibleLayers.find((layer) => layer.getID() === layerId).opacity
-            })
-            // using the keyboard to change slider's value
-            const step = 5
-            const repetitions = 6
-            const command = '{leftarrow}'.repeat(repetitions)
-            cy.get(`[data-cy="slider-opacity-layer-${layerId}"]`).should('be.visible').type(command)
-            // checking that the opacity has changed accordingly
-            cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                const layer = visibleLayers.find((layer) => layer.getID() === layerId)
-                expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
-            })
-        })
-        it('reorders visible layers when corresponding buttons are pressed', () => {
-            const [firstLayerId, secondLayerId] = visibleLayerIds
-            // lower the order of the first layer
-            openLayerSettings(firstLayerId)
-            cy.get(`[data-cy="button-lower-order-layer-${firstLayerId}"]`)
-                .should('be.visible')
-                .click()
-            // checking that the order has changed
-            cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                expect(visibleLayers[0].getID()).to.eq(secondLayerId)
-                expect(visibleLayers[1].getID()).to.eq(firstLayerId)
-            })
-            // using the other button
-            cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`)
-                .should('be.visible')
-                .click()
-            // re-checking the order that should be back to the starting values
-            cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                expect(visibleLayers[0].getID()).to.eq(firstLayerId)
-                expect(visibleLayers[1].getID()).to.eq(secondLayerId)
-            })
-        })
-        it('shows a layer legend when the "i" button is clicked (in layer settings)', () => {
-            // using the first layer to test this out
-            const layerId = visibleLayerIds[0]
-            // mocking up the backend response for the legend
-            const fakeHtmlResponse = '<div>Test</div>'
-            cy.intercept(`**/rest/services/all/MapServer/${layerId}/legend**`, fakeHtmlResponse).as(
-                'legend'
-            )
-            // opening layer settings
-            openLayerSettings(layerId)
-            // clicking on the layer info button
-            cy.get(`[data-cy="button-show-legend-layer-${layerId}"]`).should('be.visible').click()
-            // checking that the backend has been requested for this layer's legend
-            cy.wait('@legend')
-            // checking that the content of the popup is our mocked up content
-            cy.get('[data-cy="layer-legend"]').should('be.visible').contains('Test')
-        })
-        it('shows all possible timestamps in the timestamp popover', () => {
-            const timedLayerId = 'test.timeenabled.wmts.layer'
-            cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
-            cy.get('[data-cy="time-selection-popup"]').should('be.visible')
-            cy.fixture('layers.fixture.json').then((layers) => {
-                const timedLayerMetadata = layers[timedLayerId]
-                const defaultTimestamp = timedLayerMetadata.timeBehaviour
-                timedLayerMetadata.timestamps.forEach((timestamp) => {
-                    cy.get(`[data-cy="time-select-${timestamp}"]`)
-                        .should('be.visible')
-                        .then((timestampButton) => {
-                            if (timestamp === defaultTimestamp) {
-                                expect(timestampButton).to.have.class('btn-danger')
-                            }
-                        })
+            const openLayerSettings = (layerId) => {
+                cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+                cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`)
+                    .should('be.visible')
+                    .click()
+                cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            }
+            it('shows a visible layer in the menu', () => {
+                visibleLayerIds.forEach((layerId) => {
+                    cy.get(`[data-cy="visible-layer-name-${layerId}"]`).should('be.visible')
                 })
             })
-        })
-        it('changes the timestsamp of a layer when a time button is clicked', () => {
-            const timedLayerId = 'test.timeenabled.wmts.layer'
-            cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
-            cy.fixture('layers.fixture.json').then((layersMetadata) => {
-                const timedLayerMetadata = layersMetadata[timedLayerId]
-                const randomTimestamp = getRandomTimestampFromSeries(timedLayerMetadata)
-                cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click()
-                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                    expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
-                    activeLayers.forEach((layer) => {
-                        if (layer.getID() === timedLayerId) {
-                            expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
-                        }
-                    })
+            it('removes a layer from the visible layers when the "times" button is pressed', () => {
+                // using the first layer to test this out
+                const layerId = visibleLayerIds[0]
+                cy.get(`[data-cy="button-remove-layer-${layerId}"]`).should('be.visible').click()
+                cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                    expect(visibleLayers).to.be.an('Array')
+                    expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
+                    expect(visibleLayers[0].getID()).to.eq(visibleLayerIds[1])
+                })
+            })
+            it('changes the opacity of the layer when the slider for this property is used', () => {
+                // using the second layer for this test
+                const layerId = visibleLayerIds[1]
+                openLayerSettings(layerId)
+                // getting current layer opacity
+                let initialOpacity = 1.0
+                cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
+                    initialOpacity = visibleLayers.find(
+                        (layer) => layer.getID() === layerId
+                    ).opacity
+                })
+                // using the keyboard to change slider's value
+                const step = 5
+                const repetitions = 6
+                const command = '{leftarrow}'.repeat(repetitions)
+                cy.get(`[data-cy="slider-opacity-layer-${layerId}"]`)
+                    .should('be.visible')
+                    .type(command)
+                // checking that the opacity has changed accordingly
+                cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
+                    const layer = visibleLayers.find((layer) => layer.getID() === layerId)
+                    expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
                 })
             })
         })
@@ -302,58 +224,190 @@ describe('Test of layer handling', () => {
         })
         context('Re-ordering of layers', () => {
             const checkOrderButtons = (layerId, raiseShouldBeDisabled, lowerShouldBeDisabled) => {
+                openLayerSettings(layerId)
                 cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
                     .should('be.visible')
-                    .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                    .click()
+                // checking that the order has changed
+                cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
+                    expect(visibleLayers[0].getID()).to.eq(secondLayerId)
+                    expect(visibleLayers[1].getID()).to.eq(firstLayerId)
+                })
+                // using the other button
+                cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`)
                     .should('be.visible')
-                    .should(`${!lowerShouldBeDisabled ? 'not.' : ''}be.disabled`)
-            }
-            it('Disable the "Raise Order" arrow on the top layer', () => {
+                    .click()
+                // re-checking the order that should be back to the starting values
+                cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
+                    expect(visibleLayers[0].getID()).to.eq(firstLayerId)
+                    expect(visibleLayers[1].getID()).to.eq(secondLayerId)
+                })
+            })
+            it('shows a layer legend when the "i" button is clicked (in layer settings)', () => {
+                // using the first layer to test this out
                 const layerId = visibleLayerIds[0]
+                // mocking up the backend response for the legend
+                const fakeHtmlResponse = '<div>Test</div>'
+                cy.intercept(
+                    `**/rest/services/all/MapServer/${layerId}/legend**`,
+                    fakeHtmlResponse
+                ).as('legend')
+                // opening layer settings
                 openLayerSettings(layerId)
-                checkOrderButtons(layerId, true, false)
+                // clicking on the layer info button
+                cy.get(`[data-cy="button-show-legend-layer-${layerId}"]`)
+                    .should('be.visible')
+                    .click()
+                // checking that the backend has been requested for this layer's legend
+                cy.wait('@legend')
+                // checking that the content of the popup is our mocked up content
+                cy.get('[data-cy="layer-legend"]').should('be.visible').contains('Test')
             })
-            it('Disable the "Lower Order" arrow on the bottom layer', () => {
-                const layerId = visibleLayerIds[2]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, true)
+            it('shows all possible timestamps in the timestamp popover', () => {
+                const timedLayerId = 'test.timeenabled.wmts.layer'
+                cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
+                cy.get('[data-cy="time-selection-popup"]').should('be.visible')
+                cy.fixture('layers.fixture.json').then((layers) => {
+                    const timedLayerMetadata = layers[timedLayerId]
+                    const defaultTimestamp = timedLayerMetadata.timeBehaviour
+                    timedLayerMetadata.timestamps.forEach((timestamp) => {
+                        cy.get(`[data-cy="time-select-${timestamp}"]`)
+                            .should('be.visible')
+                            .then((timestampButton) => {
+                                if (timestamp === defaultTimestamp) {
+                                    expect(timestampButton).to.have.class('btn-danger')
+                                }
+                            })
+                    })
+                })
             })
-            it('enables both button for any other layer', () => {
-                const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
+            it('changes the timestsamp of a layer when a time button is clicked', () => {
+                const timedLayerId = 'test.timeenabled.wmts.layer'
+                cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
+                cy.fixture('layers.fixture.json').then((layersMetadata) => {
+                    const timedLayerMetadata = layersMetadata[timedLayerId]
+                    const randomTimestamp = getRandomTimestampFromSeries(timedLayerMetadata)
+                    cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click()
+                    cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                        expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
+                        activeLayers.forEach((layer) => {
+                            if (layer.getID() === timedLayerId) {
+                                expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
+                            }
+                        })
+                    })
+                })
             })
-            it('disable the "raise order" arrow on a layer which gets to the top layer', () => {
-                const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, true, false)
+            context('Re-ordering of layers', () => {
+                const checkOrderButtons = (
+                    layerId,
+                    raiseShouldBeDisabled,
+                    lowerShouldBeDisabled
+                ) => {
+                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
+                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${!lowerShouldBeDisabled ? 'not.' : ''}be.disabled`)
+                }
+                it('Disable the "Raise Order" arrow on the top layer', () => {
+                    const layerId = visibleLayerIds[0]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, true, false)
+                })
+                it('Disable the "Lower Order" arrow on the bottom layer', () => {
+                    const layerId = visibleLayerIds[2]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, false, true)
+                })
+                it('enables both button for any other layer', () => {
+                    const layerId = visibleLayerIds[1]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, false, false)
+                })
+                it('disable the "raise order" arrow on a layer which gets to the top layer', () => {
+                    const layerId = visibleLayerIds[1]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, false, false)
+                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
+                    checkOrderButtons(layerId, true, false)
+                })
+                it('disable the "lower order" arrow on a layer which gets to the bottom layer', () => {
+                    const layerId = visibleLayerIds[1]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, false, false)
+                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
+                    checkOrderButtons(layerId, false, true)
+                })
+                it('enable the "lower order" arrow on a layer which is raised from the bottom', () => {
+                    const layerId = visibleLayerIds[2]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, false, true)
+                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
+                    checkOrderButtons(layerId, false, false)
+                })
+                it('enable the "raise order" arrow on a layer which is lowered from the top', () => {
+                    const layerId = visibleLayerIds[0]
+                    openLayerSettings(layerId)
+                    checkOrderButtons(layerId, true, false)
+                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
+                    checkOrderButtons(layerId, false, false)
+                })
             })
-            it('disable the "lower order" arrow on a layer which gets to the bottom layer', () => {
-                const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, true)
+            it('Shows a hyphen when no layer is selected', () => {
+                cy.goToMapView()
+                clickOnMenuButtonIfMobile()
+                cy.get('[data-cy="menu-active-layers"]').click()
+                cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
-            it('enable the "lower order" arrow on a layer which is raised from the bottom', () => {
-                const layerId = visibleLayerIds[2]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, true)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, false)
+            it('Shows no hyphen when a layer is selected', () => {
+                const visibleLayerIds = [
+                    'test.wms.layer',
+                    'test.wmts.layer',
+                    'test.timeenabled.wmts.layer',
+                ]
+                cy.goToMapView('en', {
+                    layers: visibleLayerIds.join(';'),
+                })
+                clickOnMenuButtonIfMobile()
+                cy.get('[data-cy="menu-active-layers"]').click()
+                cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
             })
-            it('enable the "raise order" arrow on a layer which is lowered from the top', () => {
-                const layerId = visibleLayerIds[0]
-                openLayerSettings(layerId)
-                checkOrderButtons(layerId, true, false)
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, false)
+        })
+
+        context('Test layer menu show details button', () => {
+            it('Toggling layer details menu', () => {
+                cy.viewport(viewport)
+                cy.goToMapView('en', {
+                    layers: 'test.wms.layer;test.wmts.layer',
+                })
+                clickOnMenuButtonIfMobile()
+                // get and click the wms layer detail button
+                cy.get('[data-cy="button-open-visible-layer-settings-test.wms.layer"]')
+                    .as('wmsDetailsBtn')
+                    .click()
+                cy.get('[data-cy="div-layer-settings-test.wms.layer"]')
+                    .as('wmsLayerDetail')
+                    .should('be.visible')
+                // the other layer details should not be visible
+                cy.get('[data-cy="div-layer-settings-test.wmts.layer"]')
+                    .as('wmtsLayerDetail')
+                    .should('not.be.visible')
+                // click on the other layer detail
+                cy.get('[data-cy="button-open-visible-layer-settings-test.wmts.layer"]')
+                    .as('wmtsDetailBtn')
+                    .click()
+                cy.get('@wmsLayerDetail').should('not.be.visible')
+                cy.get('@wmtsLayerDetail').should('be.visible')
+                // toggle the current layer detail
+                cy.get('@wmtsDetailBtn').click()
+                cy.get('@wmsLayerDetail').should('not.be.visible')
+                cy.get('@wmtsLayerDetail').should('not.be.visible')
             })
         })
     })
+
     context('Copyrights/attributions of layers', () => {
         it('hides the copyrights zone when no layer is visible', () => {
             cy.goToMapView('en', {
