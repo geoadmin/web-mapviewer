@@ -4,7 +4,11 @@
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <portal to="footer" :order="1">
-            <div v-if="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
+            <!-- 
+                It is necessary to use `v-show` instead of `v-if`. Otherwise, 
+                the scale-line will never show if the initial zoom was too low. 
+            -->
+            <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </portal>
         <OpenLayersMousePosition v-if="!isMobile" />
         <VisibleLayersCopyrights :layers="backgroundAndVisibleLayers" />
