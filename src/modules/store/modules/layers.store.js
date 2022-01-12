@@ -246,7 +246,10 @@ const mutations = {
         state.backgroundLayerId = bgLayerId
     },
     setLayerOpacity(state, { layerId, opacity }) {
-        getActiveLayerById(state, layerId).opacity = opacity
+        const layerMatchingId = getActiveLayerById(state, layerId)
+        if (layerMatchingId) {
+            layerMatchingId.opacity = opacity
+        }
     },
     setLayerTimestamp(state, { layerId, timestamp }) {
         getActiveLayerById(state, layerId).timeConfig.currentTimestamp = timestamp
