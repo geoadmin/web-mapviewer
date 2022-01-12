@@ -120,7 +120,15 @@ const actions = {
         commit('setLayerConfig', config)
         activeLayerBeforeConfigChange.forEach((layer) => {
             const layerConfig = getters.getLayerConfigById(layer.getID())
-            commit('addLayerWithConfig', layerConfig)
+            if (layerConfig) {
+                // If we found a layer config we use as it might have change the i18n translation
+                commit('addLayerWithConfig', layerConfig)
+            } else {
+                // if the layer config is not found, reuse the before the config changes
+                // This is the case for KML layers.
+                // TODO regenerate the KML layer with the correct i18n translation
+                commit('addLayerWithConfig', layer)
+            }
             commit('setLayerVisibility', { layerId: layer.getID(), visible: layer.visible })
             commit('setLayerOpacity', { layerId: layer.getID(), opacity: layer.opacity })
             if (layer.timeConfig) {
