@@ -40,7 +40,7 @@ const router = createRouter({
 })
 
 appLoadingManagementRouterPlugin(router, store)
-storeSyncRouterPlugin(router, store)
 legacyPermalinkManagementRouterPlugin(router, store)
+storeSyncRouterPlugin(router, store)
 
 export default router
