@@ -93,9 +93,11 @@ Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = f
     Object.keys(otherParams).forEach((key) => {
         flattenedOtherParams += `&${key}=${otherParams[key]}`
     })
+    // see app.store.js
+    cy.intercept('**/tell-cypress-app-is-done-loading', {}).as('app-done-loading')
     cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`)
-    cy.wait('@layers')
-    cy.wait('@topics')
+    // waiting for the app to load
+    cy.wait('@app-done-loading')
     // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
     cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
 })
