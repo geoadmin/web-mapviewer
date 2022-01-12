@@ -348,8 +348,10 @@ export const CoordinateSystems = {
         epsg: 'EPSG:4326',
         label: 'MGRS',
         format: function (coordinate) {
-            // The replace is used to have a space petween the numbers
-            return LLtoMGRS(coordinate, 5).replace(/(.{5})/g, '$1 ')
+            // The replace is used to have a space between the numbers
+            return LLtoMGRS(coordinate, 5)
+                .replace(/(.{5})/g, '$1 ')
+                .trim()
         },
     },
 }
