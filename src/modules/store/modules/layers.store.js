@@ -123,19 +123,20 @@ const actions = {
             if (layerConfig) {
                 // If we found a layer config we use as it might have change the i18n translation
                 commit('addLayerWithConfig', layerConfig)
+                commit('setLayerVisibility', { layerId: layer.getID(), visible: layer.visible })
+                commit('setLayerOpacity', { layerId: layer.getID(), opacity: layer.opacity })
+                if (layer.timeConfig) {
+                    commit('setLayerTimestamp', {
+                        layerId: layer.getID(),
+                        timestamp: layer.timeConfig.currentTimestamp,
+                    })
+                }
             } else {
-                // if the layer config is not found, reuse the before the config changes
-                // This is the case for KML layers.
-                // TODO regenerate the KML layer with the correct i18n translation
+                // if no config is found, then it is a layer that is not managed, like for example
+                // the KML layers, in this case we take the old active configuration as fallback.
+                // For KML layers the configuration doesn't requires translation as they only have
+                // the layer name to be translated and it is done dynamically using a getter name()
                 commit('addLayerWithConfig', layer)
-            }
-            commit('setLayerVisibility', { layerId: layer.getID(), visible: layer.visible })
-            commit('setLayerOpacity', { layerId: layer.getID(), opacity: layer.opacity })
-            if (layer.timeConfig) {
-                commit('setLayerTimestamp', {
-                    layerId: layer.getID(),
-                    timestamp: layer.timeConfig.currentTimestamp,
-                })
             }
         })
     },

@@ -1,8 +1,7 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import i18n from '@/modules/i18n'
 
 const generateKmlLayer = (kmlUrl, fileId, adminId) => {
-    return new KMLLayer(i18n.global.t('draw_layer_label'), 1.0, kmlUrl, fileId, adminId)
+    return new KMLLayer(1.0, kmlUrl, fileId, adminId)
 }
 
 /**
@@ -20,32 +19,27 @@ const generateKmlLayer = (kmlUrl, fileId, adminId) => {
  * @param {Vuex.Store} store
  */
 const drawingLayerManagementPlugin = (store) => {
-    let kmlLayer = null
     store.subscribe((mutation, state) => {
-        if (mutation.type === 'setKmlIds') {
-            if (state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
-                kmlLayer = generateKmlLayer(
-                    store.getters.getDrawingPublicFileUrl,
-                    state.drawing.drawingKmlIds.fileId,
-                    state.drawing.drawingKmlIds.adminId
-                )
-            }
-        } else if (mutation.type === 'setShowDrawingOverlay') {
-            if (state.drawing.drawingKmlIds && state.drawing.drawingKmlIds.fileId) {
-                kmlLayer = generateKmlLayer(
-                    store.getters.getDrawingPublicFileUrl,
-                    state.drawing.drawingKmlIds.fileId,
-                    state.drawing.drawingKmlIds.adminId
-                )
-            }
-            if (kmlLayer) {
-                if (!state.ui.showDrawingOverlay) {
-                    store.dispatch('addLayer', kmlLayer)
-                }
-            }
+        if (
+            ['setKmlIds', 'setShowDrawingOverlay'].includes(mutation.type) &&
+            !state.ui.showDrawingOverlay &&
+            state.drawing.drawingKmlIds &&
+            state.drawing.drawingKmlIds.fileId
+        ) {
+            // if we have a KML layer and that the drawing menu is not open
+            //(!state.ui.showDrawingOverlay), then we need to add the KML layer to the active
+            //layers, otherwise the KML drawing manager is responsible to display the KML.
+            const kmlLayer = generateKmlLayer(
+                store.getters.getDrawingPublicFileUrl,
+                state.drawing.drawingKmlIds.fileId,
+                state.drawing.drawingKmlIds.adminId
+            )
+            store.dispatch('addLayer', kmlLayer)
         } else if (
             mutation.type == 'removeLayerWithId' &&
             !state.ui.showDrawingOverlay &&
+            state.drawing.drawingKmlIds &&
+            state.drawing.drawingKmlIds.fileId &&
             !state.layers.activeLayers.find(
                 (layer) => layer.kmlFileUrl === store.getters.getDrawingPublicFileUrl
             )
@@ -56,6 +50,7 @@ const drawingLayerManagementPlugin = (store) => {
             // start with a new empty KML.
             store.dispatch('setKmlIds', null)
         } else if (mutation.type == 'clearLayers' && !state.ui.showDrawingOverlay) {
+            // Same as for 'removeLayerWithId' mutation, see comment above
             store.dispatch('setKmlIds', null)
         }
     })

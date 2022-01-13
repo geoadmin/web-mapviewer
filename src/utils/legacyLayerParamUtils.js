@@ -1,6 +1,5 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getKmlMetadataByAdminId } from '@/api/files.api'
-import i18n from '@/modules/i18n'
 
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
@@ -80,11 +79,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                     }
                     if (layerId.startsWith('KML||')) {
                         const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                        layer = new KMLLayer(
-                            i18n.global.t('draw_layer_label'),
-                            1.0,
-                            kmlLayerParts[1]
-                        )
+                        layer = new KMLLayer(1.0, kmlLayerParts[1])
                     }
                     if (layer) {
                         // checking if visibility is set in URL
@@ -144,11 +139,5 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
-    return new KMLLayer(
-        i18n.global.t('draw_layer_label'),
-        1.0,
-        kmlMetaData.links.kml,
-        kmlMetaData.id,
-        kmlMetaData.adminId
-    )
+    return new KMLLayer(1.0, kmlMetaData.links.kml, kmlMetaData.id, kmlMetaData.adminId)
 }
