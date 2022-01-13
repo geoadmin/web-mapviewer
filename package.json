@@ -27,7 +27,6 @@
         "@fortawesome/free-solid-svg-icons": "^5.15.4",
         "@fortawesome/vue-fontawesome": "^3.0.0-5",
         "@popperjs/core": "^2.11.0",
-        "@turf/turf": "^6.5.0",
         "animate.css": "^4.1.1",
         "axios": "^0.24.0",
         "bootstrap": "^5.1.3",

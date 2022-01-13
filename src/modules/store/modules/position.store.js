@@ -1,7 +1,4 @@
 import proj4 from 'proj4'
-
-import center from '@turf/center'
-import { point, featureCollection } from '@turf/helpers'
 import { round } from '@/utils/numberUtils'
 import log from '@/utils/logging'
 import { MAP_CENTER } from '@/config'
@@ -143,14 +140,18 @@ const actions = {
     },
     zoomToExtent: ({ commit, getters, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
-            // calculating center of this extent
-            const centerOfExtentEpsg4326 = center(
-                featureCollection([
-                    point(proj4('EPSG:3857', proj4.WGS84, extent[0])),
-                    point(proj4('EPSG:3857', proj4.WGS84, extent[1])),
-                ])
-            ).geometry.coordinates
-            const centerOfExtent = proj4(proj4.WGS84, 'EPSG:3857', centerOfExtentEpsg4326)
+            // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
+            const points = [
+                proj4('EPSG:3857', proj4.WGS84, extent[0]),
+                proj4('EPSG:3857', proj4.WGS84, extent[1]),
+            ]
+            // Calculate center of extent and convert position back to EPSG:3857.
+            // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
+            const centerOfExtent = proj4(proj4.WGS84, 'EPSG:3857', [
+                (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
+                (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
+            ])
+
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
                 commit('setCenter', {
                     x: centerOfExtent[0],
