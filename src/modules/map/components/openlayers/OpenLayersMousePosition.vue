@@ -25,20 +25,16 @@ export default {
     inject: ['getMap'],
     data: function () {
         return {
-            // we start by showing LV95 coordinates
-            mousePositionControl: new MousePosition({
-                className: 'mouse-position',
-                undefinedHTML: '&nbsp;',
-            }),
             currentProjectionId: CoordinateSystems.LV95.id,
             availableProjections: CoordinateSystems,
         }
     },
-    watch: {
-        projection: function (newProj) {
-            this.mousePositionControl.setProjection(getProjection(newProj.epsg))
-            this.mousePositionControl.setCoordinateFormat(newProj.format)
-        },
+    created() {
+        // we start by showing LV95 coordinates
+        this.mousePositionControl = new MousePosition({
+            className: 'mouse-position',
+            undefinedHTML: '&nbsp;',
+        })
     },
     mounted() {
         const map = this.getMap()
@@ -54,7 +50,7 @@ export default {
             })
         })
     },
-    destroyed() {
+    unmounted() {
         const map = this.getMap()
         if (map) {
             map.removeControl(this.mousePositionControl)

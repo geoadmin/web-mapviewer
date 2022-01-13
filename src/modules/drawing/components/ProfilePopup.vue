@@ -48,15 +48,7 @@
             </div>
             <div v-if="profileInformation.length" class="d-flex p-2">
                 <div
-                    class="
-                        flex-grow-1
-                        profile-info-container
-                        d-flex
-                        border border-light
-                        ps-1
-                        pe-4
-                        py-1
-                    "
+                    class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
                     data-cy="profile-popup-info-container"
                 >
                     <span
@@ -113,6 +105,7 @@ export default {
             default: null,
         },
     },
+    emits: ['close', 'delete'],
     data: function () {
         return {
             options: {
@@ -122,18 +115,6 @@ export default {
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
             },
-            positionOnMap: new Point([0, 0]),
-            /** Additional overlay to display azimuth circle */
-            overlay: new VectorLayer({
-                source: new VectorSource({
-                    useSpatialIndex: false,
-                    features: [new Feature(this.positionOnMap)],
-                }),
-                style: sketchPointStyle,
-                updateWhileAnimating: true,
-                updateWhileInteracting: true,
-                zIndex: 2000,
-            }),
             showTooltip: false,
             profileInfo: null,
             minimized: isMobile,
@@ -202,12 +183,26 @@ export default {
             this.triggerProfileUpdate = true
         },
     },
+    created() {
+        this.positionOnMap = new Point([0, 0])
+        /** Additional overlay to display azimuth circle */
+        this.overlay = new VectorLayer({
+            source: new VectorSource({
+                useSpatialIndex: false,
+                features: [new Feature(this.positionOnMap)],
+            }),
+            style: sketchPointStyle,
+            updateWhileAnimating: true,
+            updateWhileInteracting: true,
+            zIndex: 2000,
+        })
+    },
     async mounted() {
         // listening to window.resize event so that we resize the SVG profile
         window.addEventListener('resize', this.onResize)
         await this.updateProfile()
     },
-    destroyed() {
+    unmounted() {
         window.removeEventListener('resize', this.onResize)
     },
     updated() {

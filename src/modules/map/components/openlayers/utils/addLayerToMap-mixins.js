@@ -16,16 +16,16 @@ const addLayerToMapMixin = {
     inject: ['getMap'],
     data() {
         return {
-            layer: null,
+            isPresentOnMap: false,
         }
     },
     mounted() {
-        if (this.layer) {
+        if (this.layer && !this.isPresentOnMap) {
             this.addLayerToMap(this.zIndex, this.layer)
         }
     },
-    destroyed() {
-        if (this.layer) {
+    unmounted() {
+        if (this.layer && this.isPresentOnMap) {
             this.removeLayerFromMap(this.layer)
         }
     },
@@ -37,23 +37,17 @@ const addLayerToMapMixin = {
                 } else {
                     this.getMap().getLayers().insertAt(zIndex, layer)
                 }
+                this.isPresentOnMap = true
             }
         },
         removeLayerFromMap: function (layer) {
             if (this.getMap()) {
                 this.getMap().removeLayer(layer)
             }
+            this.isPresentOnMap = false
         },
     },
     watch: {
-        layer: function (newLayer) {
-            if (this.layer) {
-                this.removeLayerFromMap(this.layer)
-            }
-            if (newLayer) {
-                this.addLayerToMap(this.zIndex, newLayer)
-            }
-        },
         zIndex: function (zIndex) {
             if (this.layer) {
                 this.removeLayerFromMap(this.layer)

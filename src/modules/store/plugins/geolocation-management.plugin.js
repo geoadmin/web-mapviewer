@@ -32,7 +32,7 @@ const handlePositionError = (error, store) => {
     switch (error.code) {
         case error.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', true)
-            alert(i18n.t('geoloc_permission_denied'))
+            alert(i18n.global.t('geoloc_permission_denied'))
             break
         default:
             if (IS_TESTING_WITH_CYPRESS && error.code === error.POSITION_UNAVAILABLE) {
@@ -42,7 +42,7 @@ const handlePositionError = (error, store) => {
                 // the position will be returned by a mocked up function by Cypress we can ignore this error
                 // we do nothing...
             } else {
-                alert(i18n.t('geoloc_unknown'))
+                alert(i18n.global.t('geoloc_unknown'))
             }
     }
 }

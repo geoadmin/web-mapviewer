@@ -42,12 +42,6 @@ export default {
             default: -1,
         },
     },
-    data() {
-        return {
-            accuracyCircle: null,
-            accuracyCircleFeature: null,
-        }
-    },
     watch: {
         position: function (newPosition) {
             this.accuracyCircle.setCenter(newPosition)

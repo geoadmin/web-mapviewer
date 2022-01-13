@@ -1,5 +1,5 @@
 <template>
-    <portal to="toolbox-container">
+    <teleport to="body">
         <div class="drawing-toolbox">
             <div class="card">
                 <div class="card-body position-relative">
@@ -44,11 +44,7 @@
                                 id="toggle-export-dropdown-options"
                                 type="button"
                                 :disabled="!drawingNotEmpty"
-                                class="
-                                    btn btn-outline-light
-                                    text-dark
-                                    dropdown-toggle dropdown-toggle-split
-                                "
+                                class="btn btn-outline-light text-dark dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 data-cy="drawing-toolbox-choose-export-format-button"
@@ -119,7 +115,7 @@
         >
             <share-form :kml-ids="kmlIds" />
         </ModalWithOverlay>
-    </portal>
+    </teleport>
 </template>
 
 <script>
@@ -157,6 +153,7 @@ export default {
             default: undefined,
         },
     },
+    emits: ['close', 'setDrawingMode', 'export', 'clearDrawing'],
     data: function () {
         return {
             showExportDropdown: false,

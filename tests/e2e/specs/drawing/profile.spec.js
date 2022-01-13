@@ -27,7 +27,7 @@ const testResponse = [
         northing: 1170234.128,
     },
 ]
-const testInfo = [' 0.00m ', ' 0.10m ', ' 0.10m ', " 1'342m ", " 1'342m ", ' 4.50m ', ' 4.51m ']
+const testInfo = ['0.00m', '0.10m', '0.10m', "1'342m", "1'342m", '4.50m', '4.51m']
 
 describe('Profile popup', () => {
     context('check how app behave with backend output', () => {
@@ -46,7 +46,7 @@ describe('Profile popup', () => {
             for (let i = 1; i < 8; i++) {
                 cy.get(
                     `[data-cy="profile-popup-info-container"] > :nth-child(${i}) [data-cy="profile-popup-info"]`
-                ).should('have.text', ' 0.00m ')
+                ).should('have.text', '0.00m')
             }
             cy.get('[data-cy="profile-popup-area"]').should('not.have.attr', 'd')
             cy.get('[data-cy="profile-popup-delete-button"]').click()

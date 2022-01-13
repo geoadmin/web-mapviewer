@@ -1,6 +1,8 @@
+import { MapBrowserEvent } from 'ol'
+
 import { SMALL, MEDIUM, LARGE } from '../../../../src/modules/drawing/lib/drawingStyleSizes'
 import { RED, GREEN, BLACK } from '../../../../src/modules/drawing/lib/drawingStyleColor'
-import { MapBrowserEvent } from 'ol'
+import { MAP_CENTER } from '../../../../src/config'
 
 const drawingStyleTitle = '[data-cy="drawing-style-feature-title"]'
 const drawingStyleDescription = '[data-cy="drawing-style-feature-description"]'
@@ -16,7 +18,7 @@ const drawingStyleTextPopup = '[data-cy="drawing-style-text-popup"]'
 const drawingStyleColorBox = '[data-cy="drawing-style-color-select-box"]'
 const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 
-const createAPoint = (kind, x = 0, y = 0, xx = 915602.81, yy = 5911929.47) => {
+const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
     cy.goToDrawing()
     cy.clickDrawingTool(kind)
     cy.readWindowValue('drawingMap').then((map) => {
@@ -49,15 +51,14 @@ const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
     cy.log(`simulating ${type} at [${x}, ${y}]`)
 
     var viewport = map.getViewport()
-    let position = viewport.getBoundingClientRect()
 
     // calculated in case body has top < 0 (test runner with small window)
     const shiftKey = opt_shiftKey !== undefined ? opt_shiftKey : false
     const event = {}
     event.type = type
     event.target = viewport.firstChild
-    event.clientX = position.left + x + position.width / 2
-    event.clientY = position.top + y + position.height / 2
+    event.clientX = viewport.clientLeft + x + viewport.clientWidth / 2
+    event.clientY = viewport.clientTop + y + viewport.clientHeight / 2
     event.shiftKey = shiftKey
     event.preventDefault = function () {}
     event.pointerType = 'mouse'
@@ -71,7 +72,7 @@ const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
-    createAPoint('marker', 0, -200, 915602.81, 6156527.960512564)
+    createAPoint('marker', 0, -200, MAP_CENTER[0], 6156527.960512564)
     cy.wait('@iconSets')
     cy.wait('@iconSet-default')
     cy.get(drawingStyleMarkerButton).click()
@@ -242,11 +243,11 @@ describe('Drawing marker/points', () => {
 
     context('text styling popup', () => {
         it('creates a text', () => {
-            createAPoint('text', 0, -200, 915602.81, 6156527.960512564)
+            createAPoint('text', 0, -200, MAP_CENTER[0], 6156527.960512564)
         })
         ;['marker', 'text'].forEach((drawingMode) => {
             it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
-                createAPoint(drawingMode, 0, -200, 915602.81, 6156527.960512564)
+                createAPoint(drawingMode, 0, -200, MAP_CENTER[0], 6156527.960512564)
 
                 // Opening text popup
                 cy.get(drawingStyleTextButton).click()

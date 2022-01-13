@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 
 import app from './modules/app.store'
 import layers from './modules/layers.store'
@@ -25,10 +24,9 @@ import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-mana
 import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
 import drawingLayerManagementPlugin from '@/modules/store/plugins/drawing-layer-management.plugin'
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
+export default createStore({
     strict: true,
+    state: {},
     plugins: [
         loadLayersConfigOnLangChange,
         redoSearchOnLangChange,

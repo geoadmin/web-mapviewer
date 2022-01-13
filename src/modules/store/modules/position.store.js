@@ -1,8 +1,10 @@
+import proj4 from 'proj4'
+
 import center from '@turf/center'
 import { point, featureCollection } from '@turf/helpers'
-import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
 import log from '@/utils/logging'
+import { MAP_CENTER } from '@/config'
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
@@ -31,7 +33,7 @@ const state = {
      *
      * @type Array<Number>
      */
-    center: [915602.81, 5911929.47], // default value is the center of LV:95 projection's extent (from https://epsg.io/2056) reprojected in EPSG:3857
+    center: MAP_CENTER,
     /** @type CrossHairs */
     crossHair: null,
 }
@@ -126,7 +128,7 @@ const actions = {
             (Array.isArray(center) && center.length !== 2) ||
             (!Array.isArray(center) && (!center.x || !center.y))
         ) {
-            log('debug', 'bad center received, ignoring', center)
+            log('warning', 'bad center received, ignoring', center)
             return
         }
         if (Array.isArray(center)) {

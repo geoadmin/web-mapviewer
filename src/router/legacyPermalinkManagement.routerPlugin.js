@@ -121,7 +121,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
 
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
-    window.history.replaceState({}, document.title, urlWithoutQueryParam)
+    window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
 
     if ('adminid' in legacyParams) {
         // adminid legacy param cannot be handle above in the loop because it needs to add a layer
@@ -170,8 +170,8 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
  *   EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to
  *   EPSG:4326 and relabel them lat and lon accordingly
  *
- * @param {VueRouter} router
- * @param {Vuex.Store} store
+ * @param {Router} router
+ * @param {Store} store
  */
 const legacyPermalinkManagementRouterPlugin = (router, store) => {
     let isFirstRequest = true

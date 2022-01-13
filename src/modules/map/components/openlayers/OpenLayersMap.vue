@@ -108,9 +108,6 @@ export default {
     },
     data: () => {
         return {
-            // we build the OL instance right away as it is required for "provide" below (otherwise children components will receive a null instance and won't ask for another one later on)
-            map: new Map({ controls: [] }),
-            view: null,
             // exposing marker styles to the template
             markerStyles,
             isMobile,
@@ -209,6 +206,11 @@ export default {
                 }
             })
         },
+    },
+    beforeCreate() {
+        // we build the OL instance right away as it is required for "provide" below (otherwise
+        // children components will receive a null instance and won't ask for another one later on)
+        this.map = new Map({ controls: [] })
     },
     created() {
         this.initialCenter = [...this.center]
@@ -319,7 +321,7 @@ export default {
             }
         })
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.map = null
         this.view = null
     },

@@ -13,7 +13,7 @@ const state = {
      *
      * @type String
      */
-    lang: i18n.locale,
+    lang: i18n.global.locale,
 }
 
 const getters = {}
@@ -28,7 +28,7 @@ const mutations = {}
 
 mutations[SET_LANG_MUTATION_KEY] = function (state, lang) {
     state.lang = lang
-    i18n.locale = lang
+    i18n.global.locale = lang
 }
 
 export default {

@@ -66,37 +66,45 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         }
 
         if (layerIdsUrlParam) {
-            layerIdsUrlParam.split(',').forEach((layerId, index) => {
-                let layer = layersConfig.find((layer) => layer.getID() === layerId)
-                // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
-                // to add it to the map
-                if (layer) {
-                    // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
-                    // in order to alter it before returning it
-                    layer = layer.clone()
-                } else if (layerId.startsWith(encodeURIComponent('KML||'))) {
-                    const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                    layer = new KMLLayer(i18n.t('draw_layer_label'), 1.0, kmlLayerParts[1])
-                }
-                if (layer) {
-                    // checking if visibility is set in URL
-                    if (layerVisibilities.length > index) {
-                        layer.visible = layerVisibilities[index] === 'true'
-                    } else {
-                        // if param layers_visibility is not present, it means all layers are visible
-                        layer.visible = true
+            layerIdsUrlParam
+                .split(',')
+                .map(decodeURI)
+                .forEach((layerId, index) => {
+                    let layer = layersConfig.find((layer) => layer.getID() === layerId)
+                    // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
+                    // to add it to the map
+                    if (layer) {
+                        // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
+                        // in order to alter it before returning it
+                        layer = layer.clone()
                     }
-                    // checking if opacity is set in the URL
-                    if (layerOpacities.length > index) {
-                        layer.opacity = Number(layerOpacities[index])
+                    if (layerId.startsWith('KML||')) {
+                        const kmlLayerParts = decodeURIComponent(layerId).split('||')
+                        layer = new KMLLayer(
+                            i18n.global.t('draw_layer_label'),
+                            1.0,
+                            kmlLayerParts[1]
+                        )
                     }
-                    // checking if a timestamp is defined for this layer
-                    if (layerTimestamps.length > index && layerTimestamps[index]) {
-                        layer.timeConfig.currentTimestamp = layerTimestamps[index]
+                    if (layer) {
+                        // checking if visibility is set in URL
+                        if (layerVisibilities.length > index) {
+                            layer.visible = layerVisibilities[index] === 'true'
+                        } else {
+                            // if param layers_visibility is not present, it means all layers are visible
+                            layer.visible = true
+                        }
+                        // checking if opacity is set in the URL
+                        if (layerOpacities.length > index) {
+                            layer.opacity = Number(layerOpacities[index])
+                        }
+                        // checking if a timestamp is defined for this layer
+                        if (layerTimestamps.length > index && layerTimestamps[index]) {
+                            layer.timeConfig.currentTimestamp = layerTimestamps[index]
+                        }
+                        layersToBeActivated.push(layer)
                     }
-                    layersToBeActivated.push(layer)
-                }
-            })
+                })
         }
     }
     return layersToBeActivated
@@ -137,7 +145,7 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
     return new KMLLayer(
-        i18n.t('draw_layer_label'),
+        i18n.global.t('draw_layer_label'),
         1.0,
         kmlMetaData.links.kml,
         kmlMetaData.id,

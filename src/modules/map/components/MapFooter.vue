@@ -1,6 +1,6 @@
 <template>
     <div id="footer" class="d-flex align-items-center">
-        <portal-target multiple class="flex-grow-1 d-flex align-items-center" name="footer" />
+        <portal-target multiple name="footer" />
         <div v-if="showAppVersion" class="mx-3 app-version small">v{{ appVersion }}</div>
         <a
             class="copyright align-self-center"

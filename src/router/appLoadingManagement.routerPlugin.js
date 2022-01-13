@@ -1,3 +1,5 @@
+import log from '@/utils/logging'
+
 /**
  * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers
  * change of route, going to the map view, telling the app it can show the map and all other
@@ -10,51 +12,26 @@
  *
  * See the Vuex "sister" plugin {@link appReadinessPlugin} for more information
  *
- * @param {VueRouter} router
- * @param {Vuex.Store} store
+ * @param {Router} router
+ * @param {Store} store
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
-    let wantedDestination = null
-    // Checking if app is ready.
-    // If not, keeping track of the first destination and redirect to loading splashscreen
-    router.beforeEach((to, from, next) => {
-        // if app is ready we keep the route going
-        if (store.state.app.isReady) {
-            next()
-        } else {
-            if (to.name === 'LoadingView') {
-                if (!wantedDestination) {
-                    wantedDestination = {
-                        name: 'MapView',
-                        query: to.query,
-                    }
-                }
-                next()
-            } else {
-                // if app is not ready, we redirect to loading screen while keeping track of the last wanted destination
-                wantedDestination = to
-                next({
-                    name: 'LoadingView',
-                })
-            }
+    const unRegisterRouterHook = router.beforeEach((to) => {
+        if (to.meta.requiresAppReady && !store.state.app.isReady) {
+            log('debug', `App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
+            return { name: 'LoadingView', query: { redirect: to.fullPath }, replace: true }
         }
+        return
     })
 
-    store.subscribe((mutation) => {
+    const unSubscribeStore = store.subscribe((mutation) => {
         // listening to the store for the "Go" when the app is ready
         if (mutation.type === 'setAppIsReady') {
-            let query = {}
-            if (wantedDestination && wantedDestination.query) {
-                query = { ...wantedDestination.query }
-            }
-            router
-                .push({
-                    name: 'MapView',
-                    query,
-                })
-                .then(() => {
-                    wantedDestination = null
-                })
+            unRegisterRouterHook()
+            unSubscribeStore()
+            const redirect = router.currentRoute.value.query.redirect || '/map'
+            log('info', 'App is ready redirect to ', redirect)
+            router.replace(redirect)
         }
     })
 }

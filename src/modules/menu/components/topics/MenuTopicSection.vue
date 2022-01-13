@@ -49,7 +49,7 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
         }),
-        ...mapGetters(['visibleLayers', 'getLayerForGeoAdminId', 'isDefaultTopic']),
+        ...mapGetters(['visibleLayers', 'getActiveLayerById', 'isDefaultTopic']),
         showTopicTree: function () {
             // We only want the topic tree open whenever the user has chosen a different topic
             // than the default one (it can be opened by the user by a click on it, but by default it's closed)
@@ -57,7 +57,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['addLayer', 'toggleLayerVisibility', 'changeTopic']),
+        ...mapActions(['addLayer', 'toggleLayerVisibility', 'setLayerVisibility', 'changeTopic']),
         setShowTopicSelectionPopup: function () {
             this.showTopicSelectionPopup = true
         },
@@ -68,11 +68,13 @@ export default {
             )
         },
         onClickOnLayerTopicItem: function (layerId) {
-            const layer = this.getLayerForGeoAdminId(layerId)
-            if (layer.visible) {
+            const layer = this.getActiveLayerById(layerId)
+            if (layer) {
                 this.toggleLayerVisibility(layerId)
             } else {
-                this.addLayer(layerId)
+                this.addLayer(layerId).then(() =>
+                    this.setLayerVisibility({ layerId, visible: true })
+                )
             }
         },
         selectTopic: function (topic) {

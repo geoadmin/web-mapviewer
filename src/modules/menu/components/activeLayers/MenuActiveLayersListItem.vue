@@ -28,8 +28,7 @@
                 @timestampChange="onTimestampChange"
             />
             <button
-                v-animate-css.click="'pulse'"
-                class="btn btn-default animate__animated animate__faster"
+                class="btn btn-default"
                 :class="{ 'text-danger': showDetails }"
                 :data-cy="`button-open-visible-layer-settings-${id}`"
                 @click="onToggleLayerDetails"
@@ -128,6 +127,15 @@ export default {
             default: false,
         },
     },
+    emits: [
+        'toggleLayerDetails',
+        'removeLayer',
+        'toggleLayerVisibility',
+        'opacityChange',
+        'orderChange',
+        'showLayerLegendPopup',
+        'timestampChange',
+    ],
     computed: {
         checkboxIcon: function () {
             if (this.visible) {
