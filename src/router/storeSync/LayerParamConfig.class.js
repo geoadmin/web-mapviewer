@@ -76,7 +76,6 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             if (layer.id.startsWith('KML|') && layer.id.split('|').length === 3) {
                 const splittedLayerId = layer.id.split('|')
                 const kmlLayer = new KMLLayer(
-                    splittedLayerId[2],
                     layer.opacity,
                     splittedLayerId[1],
                     null,

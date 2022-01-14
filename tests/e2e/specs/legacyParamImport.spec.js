@@ -3,6 +3,8 @@
 // can't use @ notation with Cypress (Vue's webpack config is not shared with it)
 import { round } from '../../../src/utils/numberUtils'
 
+const kmlServiceBaseUrl = `${Cypress.env('VUE_APP_API_SERVICE_KML_BASE_URL')}api/kml`
+
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
         it('transfers valid params to the hash part without changing them', () => {
@@ -88,18 +90,18 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            const fakeKMLFileURL = 'https://fake-service.geo.admin.ch/api/kml/files/1234567890'
+            const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/1234567890`
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(fakeKMLFileURL, '<kml />')
+            cy.intercept(kmlServiceFileUrl, '<kml />')
             cy.goToMapView('en', {
-                layers: encodeURIComponent(`KML||${fakeKMLFileURL}`),
+                layers: encodeURIComponent(`KML||${kmlServiceFileUrl}`),
                 layers_opacity: '0.6',
                 layers_visibility: 'true',
             })
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.visible).to.be.true
             })
@@ -107,16 +109,18 @@ describe('Test on legacy param import', () => {
         it('is able to import an external KML from a legacy adminid query param', () => {
             const adminId = '0987654321'
             const kmlId = '1234567890'
-            const fakeKmlService = 'https//fake-service.geo.admin.ch/api/kml'
-            const fakeKMLFileURL = `${fakeKmlService}/files/${kmlId}`
+            const kmlServiceAdminUrl = `${kmlServiceBaseUrl}/admin`
+            const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/${kmlId}`
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(fakeKMLFileURL, '<kml />').as('get-kml')
-            cy.intercept(`**/api/kml/admin?admin_id=${adminId}`, {
-                id: kmlId,
-                admin_id: adminId,
-                links: { self: `${fakeKmlService}/admin/${kmlId}`, kml: fakeKMLFileURL },
-                created: '',
-                updated: '',
+            cy.intercept(kmlServiceFileUrl, '<kml />').as('get-kml')
+            cy.intercept(`${kmlServiceAdminUrl}?admin_id=${adminId}`, (request) => {
+                request.reply({
+                    id: kmlId,
+                    admin_id: adminId,
+                    links: { self: `${request.url}/${kmlId}`, kml: kmlServiceFileUrl },
+                    created: '',
+                    updated: '',
+                })
             }).as('get-kml-id')
             cy.goToMapView('en', {
                 adminid: adminId,
@@ -126,7 +130,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
             })
@@ -134,16 +138,19 @@ describe('Test on legacy param import', () => {
         it('is able to import an external KML from a legacy adminid query param with other layers', () => {
             const adminId = '0987654321'
             const kmlId = '1234567890'
-            const fakeKmlService = 'https//fake-service.geo.admin.ch/api/kml'
-            const fakeKMLFileURL = `${fakeKmlService}/files/${kmlId}`
+            const kmlServiceBaseUrl = `${Cypress.env('VUE_APP_API_SERVICE_KML_BASE_URL')}api/kml`
+            const kmlServiceAdminUrl = `${kmlServiceBaseUrl}/admin`
+            const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/${kmlId}`
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(fakeKMLFileURL, '<kml />').as('get-kml')
-            cy.intercept(`**/api/kml/admin?admin_id=${adminId}`, {
-                id: kmlId,
-                admin_id: adminId,
-                links: { self: `${fakeKmlService}/admin/${kmlId}`, kml: fakeKMLFileURL },
-                created: '',
-                updated: '',
+            cy.intercept(kmlServiceFileUrl, '<kml />').as('get-kml')
+            cy.intercept(`${kmlServiceAdminUrl}?admin_id=${adminId}`, (request) => {
+                request.reply({
+                    id: kmlId,
+                    admin_id: adminId,
+                    links: { self: `${request.url}/${kmlId}`, kml: kmlServiceFileUrl },
+                    created: '',
+                    updated: '',
+                })
             }).as('get-kml-id')
             cy.goToMapView('en', {
                 adminid: adminId,
@@ -162,7 +169,7 @@ describe('Test on legacy param import', () => {
                 expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
-                expect(kmlLayer.getURL()).to.eq(fakeKMLFileURL)
+                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
             })

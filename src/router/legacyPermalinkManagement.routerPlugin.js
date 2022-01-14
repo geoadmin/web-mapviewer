@@ -43,7 +43,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
 }
 
 const handleLegacyParams = (legacyParams, store, to, next) => {
-    log('info', `Legacy permalink with param=`, legacyParams, ' to.query=', to.query)
+    log('info', `Legacy permalink with param=`, legacyParams)
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = { ...to.query }
@@ -175,14 +175,18 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
  */
 const legacyPermalinkManagementRouterPlugin = (router, store) => {
     let isFirstRequest = true
+    // We need to take the legacy params from the window.location.search, because the Vue Router
+    // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams =
         window.location && window.location.search ? parseLegacyParams(window.location.search) : null
 
     router.beforeEach((to, from, next) => {
-        // waiting for the app to be ready before dealing with legacy param
-        // as we need information from the layers' config
-        if (isFirstRequest && store.state.app.isReady) {
-            // before the first request, we check out if we need to manage any legacy params (from the old viewer)
+        // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
+        // the storeSync plugin might overwrite some parameters. To handle legacy param we also
+        // need the app to be ready because some data are required (e.g. the layer config)
+        if (isFirstRequest && to.name == 'MapView') {
+            // before the first request, we check out if we need to manage any legacy params
+            // (from the old viewer)
             isFirstRequest = false
             if (legacyParams) {
                 handleLegacyParams(legacyParams, store, to, next)
