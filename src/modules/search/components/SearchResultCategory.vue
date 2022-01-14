@@ -12,20 +12,28 @@
                 v-for="(entry, index) in entries"
                 :key="`${index}-${entry.getId()}`"
                 :entry="entry"
+                @showLayerLegendPopup="showLayerLegendPopup"
             />
         </div>
+
+        <LayerLegendPopup
+            v-if="showLayerLegendForId"
+            :layer-id="showLayerLegendForId"
+            @close="closeLayerLegendPopup"
+        />
     </div>
 </template>
 
 <script>
 import SearchResultListEntry from './SearchResultListEntry.vue'
+import LayerLegendPopup from '@/modules/overlay/components/LayerLegendPopup.vue'
 
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this
  * component is there to show one of those category at a time
  */
 export default {
-    components: { SearchResultListEntry },
+    components: { SearchResultListEntry, LayerLegendPopup },
     props: {
         entries: {
             type: Array,
@@ -38,6 +46,19 @@ export default {
         halfSize: {
             type: Boolean,
             default: false,
+        },
+    },
+    data() {
+        return {
+            showLayerLegendForId: null,
+        }
+    },
+    methods: {
+        showLayerLegendPopup(id) {
+            this.showLayerLegendForId = id
+        },
+        closeLayerLegendPopup() {
+            this.showLayerLegendForId = null
         },
     },
 }
