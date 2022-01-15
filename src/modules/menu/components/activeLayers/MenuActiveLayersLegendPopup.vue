@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
+import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
 import { getLayerLegend } from '@/api/layers/layers.api'
 
 export default {

@@ -17,14 +17,14 @@
 </template>
 
 <script>
-import OverlayModule from '@/modules/overlay/OverlayModule'
-import MapModule from '@/modules/map/MapModule'
-import MenuModule from '@/modules/menu/MenuModule'
-import SearchModule from '@/modules/search/SearchModule'
-import ToolboxModule from '@/modules/toolbox/ToolboxModule'
-import I18nModule from '@/modules/i18n/I18nModule'
-import TooltipModule from '@/modules/tooltip/TooltipModule'
-import DrawingModule from '@/modules/drawing/DrawingModule'
+import OverlayModule from '@/modules/overlay/OverlayModule.vue'
+import MapModule from '@/modules/map/MapModule.vue'
+import MenuModule from '@/modules/menu/MenuModule.vue'
+import SearchModule from '@/modules/search/SearchModule.vue'
+import ToolboxModule from '@/modules/toolbox/ToolboxModule.vue'
+import I18nModule from '@/modules/i18n/I18nModule.vue'
+import TooltipModule from '@/modules/tooltip/TooltipModule.vue'
+import DrawingModule from '@/modules/drawing/DrawingModule.vue'
 
 export default {
     components: {

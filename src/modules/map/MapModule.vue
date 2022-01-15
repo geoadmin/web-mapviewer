@@ -13,9 +13,9 @@
 
 <script>
 import { mapState } from 'vuex'
-import OpenLayersMap from './components/openlayers/OpenLayersMap'
-import LocationPopup from './components/LocationPopup'
-import MapFooter from './components/MapFooter'
+import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
+import LocationPopup from './components/LocationPopup.vue'
+import MapFooter from './components/MapFooter.vue'
 
 export default {
     components: { OpenLayersMap, LocationPopup, MapFooter },

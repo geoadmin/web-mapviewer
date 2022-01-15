@@ -31,9 +31,9 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { topicTypes } from '@/api/topics.api'
-import MenuSection from '@/modules/menu/components/MenuSection'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem'
-import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup'
+import MenuSection from '@/modules/menu/components/MenuSection.vue'
+import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
+import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {

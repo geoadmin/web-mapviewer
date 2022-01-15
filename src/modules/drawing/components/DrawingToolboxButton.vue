@@ -11,7 +11,7 @@
 
 <script>
 import { drawingModes } from '@/modules/store/modules/drawing.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: { ButtonWithIcon },

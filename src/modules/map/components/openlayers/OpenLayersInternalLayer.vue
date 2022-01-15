@@ -50,10 +50,10 @@
 
 <script>
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer'
-import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer'
+import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
+import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
+import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 
 /** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {

@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import SearchResultListEntry from './SearchResultListEntry'
+import SearchResultListEntry from './SearchResultListEntry.vue'
 
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this

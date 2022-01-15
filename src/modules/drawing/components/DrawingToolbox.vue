@@ -119,10 +119,10 @@
 </template>
 
 <script>
-import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton'
-import ShareForm from '@/modules/drawing/components/SharePopup'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
+import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
+import ShareForm from '@/modules/drawing/components/SharePopup.vue'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
 
 export default {
     components: {

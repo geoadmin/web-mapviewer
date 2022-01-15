@@ -1,3 +1,3 @@
-import TooltipModule from './TooltipModule'
+import TooltipModule from './TooltipModule.vue'
 
 export default TooltipModule

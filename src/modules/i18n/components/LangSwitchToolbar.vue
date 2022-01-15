@@ -12,7 +12,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import LangSwitchButton from './LangSwitchButton'
+import LangSwitchButton from './LangSwitchButton.vue'
 import { languages } from '../index'
 import log from '@/utils/logging'
 

@@ -7,8 +7,8 @@
 </template>
 
 <script>
-import MenuModule from '@/modules/menu/MenuModule'
-import SearchModule from '@/modules/search/SearchModule'
+import MenuModule from '@/modules/menu/MenuModule.vue'
+import SearchModule from '@/modules/search/SearchModule.vue'
 export default {
     components: { SearchModule, MenuModule },
 }

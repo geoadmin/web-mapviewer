@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import TopicIcon from '@/modules/menu/components/topics/TopicIcon'
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay'
+import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
+import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
 export default {
     components: { TopicIcon, ModalWithOverlay },
     props: {
