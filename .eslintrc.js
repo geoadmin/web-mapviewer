@@ -9,6 +9,7 @@ module.exports = {
         'plugin:vue/recommended',
         'plugin:cypress/recommended',
         'eslint:recommended',
+        'plugin:import/recommended',
         'plugin:prettier-vue/recommended',
         'prettier',
     ],
@@ -19,6 +20,7 @@ module.exports = {
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         curly: 'error',
+        'import/extensions': ['error', { js: 'never', vue: 'always', json: 'always' }],
     },
     overrides: [
         {
@@ -29,5 +31,12 @@ module.exports = {
             },
         },
     ],
-    settings: {},
+    settings: {
+        'import/resolver': {
+            alias: {
+                map: [['@', './src']],
+                extensions: ['.vue', '.json', '.js'],
+            },
+        },
+    },
 }
