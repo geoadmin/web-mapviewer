@@ -20,7 +20,8 @@ export default class KMLLayer extends AbstractLayer {
             this.fileId = fileId
         } else {
             // Based on the service-kml API reference the KML file URL has the following structure
-            // /kml/files/{kml_id}
+            // <base-url>/kml/files/{kml_id}
+            // or <base-url>/{kml_id} for legacy files, those one are redirected to <base-url>/kml/files/{kml_id}
             this.fileId = kmlFileUrl.split('/').pop()
         }
     }
