@@ -85,7 +85,7 @@
 
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector'
+import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like

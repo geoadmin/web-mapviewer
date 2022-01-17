@@ -27,12 +27,12 @@
 <script>
 import { mapState } from 'vuex'
 
-import SwissFlag from './components/header/SwissFlag'
-import HeaderMenuButton from './components/header/HeaderMenuButton'
-import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText'
+import SwissFlag from './components/header/SwissFlag.vue'
+import HeaderMenuButton from './components/header/HeaderMenuButton.vue'
+import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText.vue'
 
-import MenuTray from './components/MenuTray'
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar'
+import MenuTray from './components/MenuTray.vue'
+import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 
 export default {
     components: {

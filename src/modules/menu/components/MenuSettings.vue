@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar'
+import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 
 export default {
     components: {

@@ -1,3 +1,3 @@
-import SearchModule from './SearchModule'
+import SearchModule from './SearchModule.vue'
 
 export default SearchModule

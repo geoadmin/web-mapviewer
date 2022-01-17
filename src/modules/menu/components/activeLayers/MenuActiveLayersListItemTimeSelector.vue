@@ -25,7 +25,7 @@
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { isNumber } from '@/utils/numberUtils'
-import PopoverButton from '@/utils/PopoverButton'
+import PopoverButton from '@/utils/PopoverButton.vue'
 
 export default {
     components: { PopoverButton },

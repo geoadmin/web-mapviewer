@@ -33,8 +33,7 @@
 </template>
 
 <script>
-import DrawingStyleSize from '@/modules/drawing/lib/drawingStyleSizes'
-import { drawingStyleSizes } from '@/modules/drawing/lib/drawingStyleSizes'
+import DrawingStyleSize, { drawingStyleSizes } from '@/modules/drawing/lib/drawingStyleSizes'
 
 export default {
     props: {

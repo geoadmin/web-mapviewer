@@ -1,3 +1,3 @@
-import MapModule from './MapModule'
+import MapModule from './MapModule.vue'
 
 export default MapModule

@@ -103,12 +103,12 @@
 import DrawingStyleFeatureMeasurements from '@/modules/drawing/components/styling/DrawingStyleFeatureMeasurements.vue'
 import { drawingStyleColors } from '@/modules/drawing/lib/drawingStyleColor'
 import { drawingStyleSizes, SMALL } from '@/modules/drawing/lib/drawingStyleSizes'
-import PopoverButton from '@/utils/PopoverButton'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
-import DrawingStyleColorSelector from '@/modules/drawing/components/styling/DrawingStyleColorSelector'
-import DrawingStyleIconSelector from '@/modules/drawing/components/styling/DrawingStyleIconSelector'
-import DrawingStyleSizeSelector from '@/modules/drawing/components/styling/DrawingStyleSizeSelector'
-import DrawingStyleTextColorSelector from '@/modules/drawing/components/styling/DrawingStyleTextColorSelector'
+import PopoverButton from '@/utils/PopoverButton.vue'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import DrawingStyleColorSelector from '@/modules/drawing/components/styling/DrawingStyleColorSelector.vue'
+import DrawingStyleIconSelector from '@/modules/drawing/components/styling/DrawingStyleIconSelector.vue'
+import DrawingStyleSizeSelector from '@/modules/drawing/components/styling/DrawingStyleSizeSelector.vue'
+import DrawingStyleTextColorSelector from '@/modules/drawing/components/styling/DrawingStyleTextColorSelector.vue'
 
 /**
  * Display a popup on the map when a drawing is selected.

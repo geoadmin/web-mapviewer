@@ -4,9 +4,9 @@
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <portal to="footer" :order="1">
-            <!-- 
-                It is necessary to use `v-show` instead of `v-if`. Otherwise, 
-                the scale-line will never show if the initial zoom was too low. 
+            <!--
+                It is necessary to use `v-show` instead of `v-if`. Otherwise,
+                the scale-line will never show if the initial zoom was too low.
             -->
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </portal>
@@ -75,16 +75,16 @@ import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { isMobile } from 'mobile-device-detect'
 
 import { round } from '@/utils/numberUtils'
-import OpenLayersMarker, { markerStyles } from './OpenLayersMarker'
-import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle'
-import OpenLayersInternalLayer from './OpenLayersInternalLayer'
-import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature'
+import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
+import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
+import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
-import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition'
-import VisibleLayersCopyrights from '@/modules/map/components/openlayers/VisibleLayersCopyrights'
+import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition.vue'
+import VisibleLayersCopyrights from '@/modules/map/components/openlayers/VisibleLayersCopyrights.vue'
 import { CrossHairs } from '@/modules/store/modules/position.store'
 
 /**

@@ -1,3 +1,3 @@
-import ToolboxModule from './ToolboxModule'
+import ToolboxModule from './ToolboxModule.vue'
 
 export default ToolboxModule

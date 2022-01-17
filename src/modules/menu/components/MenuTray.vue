@@ -29,9 +29,9 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import MenuSettings from '@/modules/menu/components/MenuSettings.vue'
-import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList'
-import MenuSection from '@/modules/menu/components/MenuSection'
-import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection'
+import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
+import MenuSection from '@/modules/menu/components/MenuSection.vue'
+import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 
 export default {
     components: {

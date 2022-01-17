@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import ZoomButtons from './components/ZoomButtons'
-import BackgroundSelectorButton from './components/BackgroundSelectorButton'
+import ZoomButtons from './components/ZoomButtons.vue'
+import BackgroundSelectorButton from './components/BackgroundSelectorButton.vue'
 import { mapState } from 'vuex'
-import GeolocButton from './components/GeolocButton'
+import GeolocButton from './components/GeolocButton.vue'
 
 export default {
     components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },

@@ -91,7 +91,7 @@ import { isMobile } from 'mobile-device-detect'
 
 import { profile } from '@/api/profile.api'
 import { format } from '@/utils/numberUtils'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import { sketchPointStyle } from '@/modules/drawing/lib/style'

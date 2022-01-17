@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import MapView from '@/views/MapView'
-import LoadingView from '@/views/LoadingView'
+import MapView from '@/views/MapView.vue'
+import LoadingView from '@/views/LoadingView.vue'
 import store from '@/modules/store'
 
 import appLoadingManagementRouterPlugin from './appLoadingManagement.routerPlugin'

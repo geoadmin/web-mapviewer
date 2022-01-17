@@ -43,7 +43,7 @@
 <script>
 import { mapActions } from 'vuex'
 import promptUserToPrintHtmlContent from '@/utils/print'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
 export default {

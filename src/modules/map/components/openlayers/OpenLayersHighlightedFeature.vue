@@ -21,7 +21,7 @@ import OpenLayersMarker, {
     highlightedStroke,
     highlightPointStyle,
     markerStyles,
-} from '@/modules/map/components/openlayers/OpenLayersMarker'
+} from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
 
 const geoJsonStyleFunction = (olFeature) => {
