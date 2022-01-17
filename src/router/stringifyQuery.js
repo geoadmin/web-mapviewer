@@ -56,6 +56,6 @@ const stringifyQuery = (query) => {
               .filter((x) => x.length > 0)
               .join('&')
         : null
-    return res ? `?${res}` : ''
+    return res ? res : ''
 }
 export default stringifyQuery
