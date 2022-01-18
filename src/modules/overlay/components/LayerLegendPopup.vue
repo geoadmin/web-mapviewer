@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
 import { getLayerLegend } from '@/api/layers/layers.api'
+import ModalWithOverlay from './ModalWithOverlay.vue'
 
 export default {
     components: { ModalWithOverlay },
@@ -35,7 +35,7 @@ export default {
         })
     },
     methods: {
-        onClose: function () {
+        onClose() {
             this.$emit('close', this.layerId)
         },
     },

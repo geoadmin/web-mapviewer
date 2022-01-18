@@ -7,12 +7,12 @@
     >
         <SearchResultCategory
             :title="$t('locations_results_header')"
-            :half-size="results.layerResults.length > 0"
+            :half-size="results.locationResults.length > 0"
             :entries="results.locationResults"
         />
         <SearchResultCategory
             :title="$t('layers_results_header')"
-            :half-size="results.locationResults.length > 0"
+            :half-size="results.layerResults.length > 0"
             :entries="results.layerResults"
         />
     </div>

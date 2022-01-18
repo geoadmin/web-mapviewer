@@ -24,7 +24,7 @@
                 @timestampChange="onTimestampChange"
                 @showLayerLegendPopup="showLayerLegendForId = layer.getID()"
             />
-            <MenuActiveLayersLegendPopup
+            <LayerLegendPopup
                 v-if="showLayerLegendForId"
                 :layer-id="showLayerLegendForId"
                 @close="showLayerLegendForId = null"
@@ -37,14 +37,14 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
-import MenuActiveLayersLegendPopup from '@/modules/menu/components/activeLayers/MenuActiveLayersLegendPopup.vue'
+import LayerLegendPopup from '@/modules/overlay/components/LayerLegendPopup.vue'
 
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
 export default {
-    components: { MenuActiveLayersLegendPopup, MenuActiveLayersListItem },
+    components: { LayerLegendPopup, MenuActiveLayersListItem },
     data() {
         return {
             showLayerLegendForId: null,
