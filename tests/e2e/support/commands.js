@@ -95,9 +95,12 @@ Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = f
     })
     // see app.store.js
     cy.intercept('**/tell-cypress-app-is-done-loading', {}).as('app-done-loading')
+    // Alias used to wait until layers have been updated after loading configuration.
+    cy.intercept('**/tell-cypress-layers-are-configured', {}).as('layers-configured')
     cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`)
-    // waiting for the app to load
+    // waiting for the app to load and layers to be configured.
     cy.wait('@app-done-loading')
+    cy.wait('@layers-configured')
     // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
     cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
 })
