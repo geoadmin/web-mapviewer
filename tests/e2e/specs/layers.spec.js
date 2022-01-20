@@ -270,6 +270,36 @@ describe('Test of layer handling', () => {
                 })
             })
         })
+        it('allows toggling layers from the topic menu', () => {
+            const testLayerId = 'test.wmts.layer'
+            const testLayerSelector = `[data-cy="topic-tree-item-${testLayerId}"]`
+            cy.get('[data-cy="menu-topic-section"]').click()
+            // Find the test layer and open the appropriate menu entries.
+            cy.get(testLayerSelector)
+                .parentsUntil('[data-cy="menu-topic-section"]')
+                .filter('.menu-topic-tree-item')
+                .then((menuItems) => {
+                    menuItems
+                        .toArray()
+                        // The first match is the layer itself which we'll handle separately.
+                        .slice(1)
+                        // We need to reverse the menu items as we started at the layer.
+                        .reverse()
+                        .forEach((menuItem) => cy.wrap(menuItem).click())
+                })
+            // Toggle (hide) the test layer.
+            cy.get(testLayerSelector).click()
+            cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                const visibleIds = visibleLayers.map((layer) => layer.getID())
+                expect(visibleIds).to.not.contain(testLayerId)
+            })
+            // Toggle (show) the test layer.
+            cy.get(testLayerSelector).click()
+            cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                const visibleIds = visibleLayers.map((layer) => layer.getID())
+                expect(visibleIds).to.contain(testLayerId)
+            })
+        })
         context('Re-ordering of layers', () => {
             const checkOrderButtons = (layerId, raiseShouldBeDisabled, lowerShouldBeDisabled) => {
                 cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
