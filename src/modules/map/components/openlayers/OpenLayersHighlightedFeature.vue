@@ -15,7 +15,7 @@ import { Vector as VectorSource } from 'ol/source'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import Style from 'ol/style/Style'
-import { Feature } from '@/api/features.api'
+import { LayerFeature } from '@/api/features.api'
 import OpenLayersMarker, {
     highlightedFill,
     highlightedStroke,
@@ -54,7 +54,7 @@ export default {
     mixins: [addLayerToMapMixin],
     props: {
         feature: {
-            type: Feature,
+            type: LayerFeature,
             required: true,
         },
         zIndex: {
