@@ -9,137 +9,143 @@ const menuSettingsSectionSelector =
     '[data-cy="menu-settings-section"] [data-cy="menu-section-header"]'
 
 describe('Test functions for the header / search bar', () => {
-    forEachTestViewport((viewport, isMobileViewport, isTabletViewport) => {
-        context(`viewport: (${viewport})`, () => {
-            beforeEach(() => {
-                cy.viewport(viewport)
-                cy.goToMapView()
-            })
-            const checkStoreOverlayValue = (value) => {
-                cy.readStoreValue('state.overlay.show').should('eq', value)
-            }
-            const checkMenuTrayValue = (value) => {
-                cy.readStoreValue('state.ui.showMenuTray').should('eq', value)
-            }
-
-            if (isMobileViewport) {
-                context('Menu mobile functionalities', () => {
-                    it("doesn't show the menu and overlay at app startup", () => {
-                        checkStoreOverlayValue(false)
-                        checkMenuTrayValue(false)
-                    })
-                    it('shows the menu and the overlay when the menu button is pressed', () => {
-                        cy.get(menuButtonSelector).click()
-                        checkStoreOverlayValue(true)
-                        checkMenuTrayValue(true)
-                    })
-                    it('hides the menu and the overlay if the menu button is clicked again', () => {
-                        cy.get(menuButtonSelector).click().click()
-                        checkStoreOverlayValue(false)
-                        checkMenuTrayValue(false)
-                    })
-                    it('hides the menu and the overlay when the overlay is clicked', () => {
-                        cy.get(menuButtonSelector).click()
-                        cy.get(overlaySelector).click()
-                        checkStoreOverlayValue(false)
-                        checkMenuTrayValue(false)
-                    })
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport, dimensions) => {
+        context(
+            `viewport: (${viewport})`,
+            {
+                viewportWidth: dimensions.width,
+                viewportHeight: dimensions.height,
+            },
+            () => {
+                beforeEach(() => {
+                    cy.goToMapView()
                 })
-            }
-
-            context('Settings Menu Section', () => {
-                it('does not show the settings sections on opening the menu', () => {
-                    if (isMobileViewport) {
-                        cy.get(menuButtonSelector).click()
-                    }
-                    cy.get(menuSettingsContentSelector).should('be.hidden')
-                })
-
-                it('shows the settings on clicking on the settings section', () => {
-                    if (isMobileViewport) {
-                        cy.get(menuButtonSelector).click()
-                    }
-                    cy.get(menuSettingsSectionSelector).click()
-                    cy.get(menuSettingsContentSelector).should('be.visible')
-                })
-
-                it('hides the settings section if clicked again', () => {
-                    if (isMobileViewport) {
-                        cy.get(menuButtonSelector).click()
-                    }
-                    cy.get(menuSettingsSectionSelector).click().click()
-                    cy.get(menuSettingsContentSelector).should('be.hidden')
-                })
-            })
-
-            context('Click on Swiss flag / Confederation text (app reset)', () => {
-                const clickOnLogo = () => {
-                    cy.get('[data-cy="menu-swiss-flag"]').click()
-                    // waiting for page reload
-                    cy.wait('@layers')
-                    cy.wait('@topics')
+                const checkStoreOverlayValue = (value) => {
+                    cy.readStoreValue('state.overlay.show').should('eq', value)
                 }
-                const clickOnConfederationText = () => {
-                    cy.get('[data-cy="menu-swiss-confederation-text"]').click()
-                    // waiting for page reload
-                    cy.wait('@layers')
-                    cy.wait('@topics')
+                const checkMenuTrayValue = (value) => {
+                    cy.readStoreValue('state.ui.showMenuTray').should('eq', value)
                 }
-                const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
-                    cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
-                    cy.readStoreValue('state.topics.current').then((currentTopic) => {
-                        expect(currentTopic).to.not.be.undefined
-                        expect(currentTopic.id).to.eq(expectedTopicId)
+
+                if (isMobileViewport) {
+                    context('Menu mobile functionalities', () => {
+                        it("doesn't show the menu and overlay at app startup", () => {
+                            checkStoreOverlayValue(false)
+                            checkMenuTrayValue(false)
+                        })
+                        it('shows the menu and the overlay when the menu button is pressed', () => {
+                            cy.get(menuButtonSelector).click()
+                            checkStoreOverlayValue(true)
+                            checkMenuTrayValue(true)
+                        })
+                        it('hides the menu and the overlay if the menu button is clicked again', () => {
+                            cy.get(menuButtonSelector).click().click()
+                            checkStoreOverlayValue(false)
+                            checkMenuTrayValue(false)
+                        })
+                        it('hides the menu and the overlay when the overlay is clicked', () => {
+                            cy.get(menuButtonSelector).click()
+                            cy.get(overlaySelector).click()
+                            checkStoreOverlayValue(false)
+                            checkMenuTrayValue(false)
+                        })
                     })
                 }
-                const selectTopicStandardAndAddLayerFromTopicTree = () => {
-                    if (isMobileViewport) {
-                        cy.get(menuButtonSelector).click()
-                    }
-                    cy.get('[data-cy="change-topic-button"]').click()
-                    cy.get('[data-cy="change-to-topic-test-topic-standard"]').click()
-                    cy.get('[data-cy="topic-tree-item-2"]').click()
-                    cy.get('[data-cy="topic-tree-item-5"]').click()
-                    cy.get('[data-cy="topic-tree-item-test.wms.layer"]').click()
-                    cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-                }
-                it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
-                    cy.goToMapView('fr', {
-                        topic: 'test-topic-standard',
+
+                context('Settings Menu Section', () => {
+                    it('does not show the settings sections on opening the menu', () => {
+                        if (isMobileViewport) {
+                            cy.get(menuButtonSelector).click()
+                        }
+                        cy.get(menuSettingsContentSelector).should('be.hidden')
                     })
-                    clickOnLogo()
-                    // checking that topic and lang are still the same
-                    checkLangAndTopic('fr', 'test-topic-standard')
+
+                    it('shows the settings on clicking on the settings section', () => {
+                        if (isMobileViewport) {
+                            cy.get(menuButtonSelector).click()
+                        }
+                        cy.get(menuSettingsSectionSelector).click()
+                        cy.get(menuSettingsContentSelector).should('be.visible')
+                    })
+
+                    it('hides the settings section if clicked again', () => {
+                        if (isMobileViewport) {
+                            cy.get(menuButtonSelector).click()
+                        }
+                        cy.get(menuSettingsSectionSelector).click().click()
+                        cy.get(menuSettingsContentSelector).should('be.hidden')
+                    })
                 })
-                if (!isMobileViewport && !isTabletViewport) {
-                    it('reloads the app the same way as above when click on the confederation text', () => {
+
+                context('Click on Swiss flag / Confederation text (app reset)', () => {
+                    const clickOnLogo = () => {
+                        cy.get('[data-cy="menu-swiss-flag"]').click()
+                        // waiting for page reload
+                        cy.wait('@layers')
+                        cy.wait('@topics')
+                    }
+                    const clickOnConfederationText = () => {
+                        cy.get('[data-cy="menu-swiss-confederation-text"]').click()
+                        // waiting for page reload
+                        cy.wait('@layers')
+                        cy.wait('@topics')
+                    }
+                    const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
+                        cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
+                        cy.readStoreValue('state.topics.current').then((currentTopic) => {
+                            expect(currentTopic).to.not.be.undefined
+                            expect(currentTopic.id).to.eq(expectedTopicId)
+                        })
+                    }
+                    const selectTopicStandardAndAddLayerFromTopicTree = () => {
+                        if (isMobileViewport) {
+                            cy.get(menuButtonSelector).click()
+                        }
+                        cy.get('[data-cy="change-topic-button"]').click()
+                        cy.get('[data-cy="change-to-topic-test-topic-standard"]').click()
+                        cy.get('[data-cy="topic-tree-item-2"]').click()
+                        cy.get('[data-cy="topic-tree-item-5"]').click()
+                        cy.get('[data-cy="topic-tree-item-test.wms.layer"]').click()
+                        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+                    }
+                    it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
                         cy.goToMapView('fr', {
                             topic: 'test-topic-standard',
                         })
-                        clickOnConfederationText()
+                        clickOnLogo()
                         // checking that topic and lang are still the same
                         checkLangAndTopic('fr', 'test-topic-standard')
                     })
-                }
-                it("resets layers added to the default topic's layers when clicking on the logo", () => {
-                    cy.goToMapView()
-                    selectTopicStandardAndAddLayerFromTopicTree()
-                    // now clicking on the swiss flag, this should reload the page without the active layer
-                    // we just selected (so only the topic and lang must be carried over)
-                    clickOnLogo()
-                    checkLangAndTopic('en', 'test-topic-standard')
-                    cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
-                })
-                if (!isMobileViewport && !isTabletViewport) {
-                    it('reloads the app the same way as above when click on the confederation text', () => {
+                    if (!isMobileViewport && !isTabletViewport) {
+                        it('reloads the app the same way as above when click on the confederation text', () => {
+                            cy.goToMapView('fr', {
+                                topic: 'test-topic-standard',
+                            })
+                            clickOnConfederationText()
+                            // checking that topic and lang are still the same
+                            checkLangAndTopic('fr', 'test-topic-standard')
+                        })
+                    }
+                    it("resets layers added to the default topic's layers when clicking on the logo", () => {
                         cy.goToMapView()
                         selectTopicStandardAndAddLayerFromTopicTree()
-                        clickOnConfederationText()
+                        // now clicking on the swiss flag, this should reload the page without the active layer
+                        // we just selected (so only the topic and lang must be carried over)
+                        clickOnLogo()
                         checkLangAndTopic('en', 'test-topic-standard')
                         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
                     })
-                }
-            })
-        })
+                    if (!isMobileViewport && !isTabletViewport) {
+                        it('reloads the app the same way as above when click on the confederation text', () => {
+                            cy.goToMapView()
+                            selectTopicStandardAndAddLayerFromTopicTree()
+                            clickOnConfederationText()
+                            checkLangAndTopic('en', 'test-topic-standard')
+                            cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+                        })
+                    }
+                })
+            }
+        )
     })
 })

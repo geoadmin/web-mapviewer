@@ -2,7 +2,7 @@
 
 import proj4 from 'proj4'
 import setupProj4 from '../../../../src/utils/setupProj4'
-import { round } from '../../../../src/utils/numberUtils'
+// import { round } from '../../../../src/utils/numberUtils'
 import { forEachTestViewport } from '../../support'
 
 setupProj4()
@@ -63,20 +63,20 @@ describe('Test the search bar result handling', () => {
                 // see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
                 // reverting formula resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
                 // => zoomlevel = log2(156543.03 meters/pixel * cos(latitude) / resolution)
-                const resolutionAtZoomLevelZero = 156543.03 // in m/px
-                const calculateExpectedZoom = (currentViewportWidth, currentViewPortHeight) => {
-                    // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
-                    // on the smaller value between width or height
-                    const resolution =
-                        1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
-                    const latitudeInRadians = (expectedCenterEpsg4326[1] * Math.PI) / 180.0
-                    return round(
-                        Math.log2(
-                            (resolutionAtZoomLevelZero * Math.cos(latitudeInRadians)) / resolution
-                        ),
-                        2
-                    )
-                }
+                // const resolutionAtZoomLevelZero = 156543.03 // in m/px
+                // const calculateExpectedZoom = (currentViewportWidth, currentViewPortHeight) => {
+                //     // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
+                //     // on the smaller value between width or height
+                //     const resolution =
+                //         1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
+                //     const latitudeInRadians = (expectedCenterEpsg4326[1] * Math.PI) / 180.0
+                //     return round(
+                //         Math.log2(
+                //             (resolutionAtZoomLevelZero * Math.cos(latitudeInRadians)) / resolution
+                //         ),
+                //         2
+                //     )
+                // }
                 const checkLocation = (expected, result) => {
                     expect(result).to.be.an('Array')
                     expect(result.length).to.eq(2)

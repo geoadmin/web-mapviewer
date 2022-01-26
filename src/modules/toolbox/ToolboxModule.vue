@@ -68,14 +68,6 @@ export default {
         }
     }
 }
-// when no hover capabilities is detected, it means we are on a touch device
-@media (hover: none) {
-    // no need to show the zoom buttons on a touch device, it uses screen real
-    // estate, and the user can zoom with a pinch gesture
-    .toolbox-zoom-buttons {
-        display: none;
-    }
-}
 // transition definition
 .slide-left-leave-active,
 .slide-left-enter-active,

@@ -1,3 +1,3 @@
-import TooltipModule from './InfoboxModule'
+import TooltipModule from './InfoboxModule.vue'
 
 export default TooltipModule

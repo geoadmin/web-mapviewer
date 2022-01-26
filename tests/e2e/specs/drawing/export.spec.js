@@ -1,5 +1,5 @@
 import { recurse } from 'cypress-recurse'
-import {forEachTestViewport} from "../../support";
+import { forEachTestViewport } from '../../support'
 
 const downloadsFolder = Cypress.config('downloadsFolder')
 
@@ -41,32 +41,38 @@ const checkGpxFile = (content) => {
 }
 
 describe('Drawing toolbox actions', () => {
-    forEachTestViewport((viewport, isMobileViewport) => {
-        context(`viewport: ${viewport}`, () => {
-            beforeEach(() => {
-                cy.task('deleteFolder', downloadsFolder)
-                cy.viewport(viewport)
-                cy.goToDrawing(isMobileViewport)
-                cy.drawGeoms()
-            })
-            context('Export KML', () => {
-                it('exports KML when clicking on the export button (without choosing format)', () => {
-                    cy.get(quickExportButton).click()
-                    checkFiles('kml', checkKmlFile)
+    forEachTestViewport((viewport, isMobileViewport, isTablet, dimensions) => {
+        context(
+            `viewport: ${viewport}`,
+            {
+                viewportWidth: dimensions.width,
+                viewportHeight: dimensions.height,
+            },
+            () => {
+                beforeEach(() => {
+                    cy.task('deleteFolder', downloadsFolder)
+                    cy.goToDrawing(isMobileViewport)
+                    cy.drawGeoms()
                 })
-                it('exports KML file through the "choose format" export menu', () => {
-                    cy.get(chooseExportFormatButton).click()
-                    cy.get(exportKmlButton).click()
-                    checkFiles('kml', checkKmlFile)
+                context('Export KML', () => {
+                    it('exports KML when clicking on the export button (without choosing format)', () => {
+                        cy.get(quickExportButton).click()
+                        checkFiles('kml', checkKmlFile)
+                    })
+                    it('exports KML file through the "choose format" export menu', () => {
+                        cy.get(chooseExportFormatButton).click()
+                        cy.get(exportKmlButton).click()
+                        checkFiles('kml', checkKmlFile)
+                    })
                 })
-            })
-            context('Export GPX', () => {
-                it('exports GPX file through the "choose format" export menu', () => {
-                    cy.get(chooseExportFormatButton).click()
-                    cy.get(exportGpxButton).click()
-                    checkFiles('gpx', checkGpxFile)
+                context('Export GPX', () => {
+                    it('exports GPX file through the "choose format" export menu', () => {
+                        cy.get(chooseExportFormatButton).click()
+                        cy.get(exportGpxButton).click()
+                        checkFiles('gpx', checkGpxFile)
+                    })
                 })
-            })
-        })
+            }
+        )
     })
 })
