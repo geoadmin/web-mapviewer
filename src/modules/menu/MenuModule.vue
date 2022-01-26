@@ -62,7 +62,7 @@ import HeaderSwissConfederationText from './components/header/HeaderSwissConfede
 import MenuTray from './components/MenuTray.vue'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: {

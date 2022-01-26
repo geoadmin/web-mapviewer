@@ -1,8 +1,5 @@
 import { UIModes } from '@/modules/store/modules/ui.store'
-import bootstrapVariable from '@/scss/webmapviewer-bootstrap-theme.scss'
-
-const widthThresholdToAlwaysShowMenu = parseInt(bootstrapVariable.sm.replace('px', ''))
-const heightMinimumThresholdToAlwaysShowMenu = 500
+import { screenThresholdToShowTheSideMenu } from '@/config'
 
 /** @param store */
 const uiModeChangeManagementPlugin = (store) => {
@@ -32,15 +29,14 @@ const uiModeChangeManagementPlugin = (store) => {
             // listening to screen size change to decide if we should switch UI mode too
             let wantedUiMode
             if (
-                state.ui.width >= widthThresholdToAlwaysShowMenu &&
-                state.ui.height > heightMinimumThresholdToAlwaysShowMenu
+                state.ui.width >= screenThresholdToShowTheSideMenu.width &&
+                state.ui.height > screenThresholdToShowTheSideMenu.height
             ) {
                 wantedUiMode = UIModes.MENU_ALWAYS_OPEN
             } else {
                 wantedUiMode = UIModes.MENU_OPENED_THROUGH_BUTTON
             }
             if (wantedUiMode !== state.ui.mode) {
-                console.log('switching to', wantedUiMode)
                 store.dispatch('setUiMode', wantedUiMode)
             }
         }

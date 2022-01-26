@@ -8,7 +8,7 @@
             <span v-html="entry.title"></span>
         </div>
 
-        <div v-if="resultType == 'layer'" class="search-category-entry-controls">
+        <div v-if="resultType === 'layer'" class="search-category-entry-controls">
             <button
                 class="btn btn-default"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"

@@ -4,7 +4,6 @@
         :class="{
             'bg-secondary text-white': secondary && !showBody,
         }"
-        @click="forwardClickEvent"
     >
         <div
             class="card-header menu-section-head d-block"
@@ -34,6 +33,7 @@
 </template>
 
 <script>
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
 export default {
@@ -87,9 +87,6 @@ export default {
             if (this.showBody) {
                 this.$emit('showBody')
             }
-        },
-        forwardClickEvent: function (clickEvent) {
-            this.$emit('click', clickEvent)
         },
     },
 }

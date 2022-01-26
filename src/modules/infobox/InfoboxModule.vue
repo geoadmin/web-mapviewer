@@ -16,11 +16,11 @@
 </template>
 
 <script>
-import TooltipBox from './components/TooltipBox'
 import { mapActions, mapState } from 'vuex'
-import SwipableBottomSheet from '@/modules/infobox/components/SwipableBottomSheet'
 import { UIModes } from '@/modules/store/modules/ui.store'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList'
+import TooltipBox from '@/modules/infobox/components/TooltipBox.vue'
+import SwipableBottomSheet from '@/modules/infobox/components/SwipableBottomSheet.vue'
+import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
 
 export default {
     components: {

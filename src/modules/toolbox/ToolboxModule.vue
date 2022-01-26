@@ -21,7 +21,6 @@ import ZoomButtons from './components/ZoomButtons.vue'
 import BackgroundSelectorButton from './components/BackgroundSelectorButton.vue'
 import { mapState } from 'vuex'
 import GeolocButton from './components/GeolocButton.vue'
-import { UIModes } from '@/modules/store/modules/ui.store'
 
 export default {
     components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },

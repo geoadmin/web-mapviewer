@@ -19,7 +19,7 @@
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: {
