@@ -402,7 +402,7 @@ describe('Test of layer handling', () => {
                     })
                 })
                 context('Language settings in menu', () => {
-                    it.only('keeps the layer settings when changing language', () => {
+                    it('keeps the layer settings when changing language', () => {
                         const langBefore = 'en'
                         const langAfter = 'de'
                         const visibleLayerIds = [
@@ -431,7 +431,7 @@ describe('Test of layer handling', () => {
                         })
 
                         // Open the menu and change the language.
-                        cy.get('[data-cy="menu-button"]').click()
+                        clickOnMenuButtonIfMobile()
                         cy.get('[data-cy="menu-settings-section"]').click()
                         cy.get(`[data-cy="menu-lang-${langAfter}"`).click()
 
