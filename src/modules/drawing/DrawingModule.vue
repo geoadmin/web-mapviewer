@@ -24,6 +24,7 @@
         <div ref="draw-help" class="draw-help-popup"></div>
         <ProfilePopup
             :feature="selectedFeature"
+            :ui-mode="uiMode"
             @delete="deleteSelectedFeature"
             @close="deactivateFeature"
         />
@@ -71,6 +72,7 @@ export default {
             kmlLayers: (state) =>
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
+            uiMode: (state) => state.ui.mode,
         }),
         deleteLastPointCallback: function () {
             return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'

@@ -7,6 +7,7 @@ import {
     faArrowUp,
     faArrowDown,
     faCaretRight,
+    faCaretUp,
     faCaretDown,
     faPlusCircle,
     faPlus,
@@ -21,6 +22,7 @@ import {
     faFont,
     faPaintBrush,
     faArrowsAltV,
+    faSearch,
     faSortAmountUpAlt,
     faSortAmountDownAlt,
     faChevronUp,
@@ -47,6 +49,7 @@ library.add(faArrowUp)
 library.add(faArrowsAltH)
 library.add(faArrowDown)
 library.add(faCaretRight)
+library.add(faCaretUp)
 library.add(faCaretDown)
 library.add(faPlusCircle)
 library.add(faPlus)
@@ -60,6 +63,7 @@ library.add(faCheckSquare)
 library.add(faSquare)
 library.add(faFont)
 library.add(faArrowsAltV)
+library.add(faSearch)
 library.add(faSortAmountUpAlt)
 library.add(faSortAmountDownAlt)
 library.add(faChevronUp)

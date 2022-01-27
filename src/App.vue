@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 /**
  * Main component of the App.
@@ -14,6 +14,11 @@ import { mapActions } from 'vuex'
  */
 export default {
     name: 'App',
+    computed: {
+        ...mapState({
+            currentUiMode: (state) => state.ui.mode,
+        }),
+    },
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
@@ -22,7 +27,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setSize']),
+        ...mapActions(['setSize', 'setUiMode']),
         setScreenSizeFromWindowSize: function () {
             this.setSize({
                 width: window.innerWidth,

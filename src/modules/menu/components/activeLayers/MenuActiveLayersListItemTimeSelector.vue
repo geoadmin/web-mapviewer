@@ -5,9 +5,10 @@
         :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
         danger
         :popover-title="$t('time_select_year')"
+        :small="compact"
         primary
     >
-        <div class="timestamps-popover-content" data-cy="time-selection-popup">
+        <div class="timestamps-popover-content p-2" data-cy="time-selection-popup">
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"
@@ -33,6 +34,10 @@ export default {
         timeConfig: {
             type: LayerTimeConfig,
             required: true,
+        },
+        compact: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ['timestampChange'],
@@ -82,7 +87,8 @@ export default {
 <style lang="scss" scoped>
 .timestamps-popover-content {
     display: grid;
-    max-height: 60vh;
+    height: 20rem;
+    max-height: 33vh;
     overflow-y: auto;
     background: white;
     grid-template-columns: 1fr 1fr 1fr;

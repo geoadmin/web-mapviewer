@@ -155,3 +155,16 @@ export const TILEGRID_RESOLUTIONS = [
  * {@link https://epsg.io/2056}) re-projected in EPSG:3857
  */
 export const MAP_CENTER = [915602.81, 5911929.47]
+
+/**
+ * Threshold to know when the side menu should switch to the mobile version (when bellow threshold)
+ *
+ * Height value is here to make sure that a landscape mobile device doesn't switch to the
+ * desktop/tablet layout.
+ *
+ * @type {{ width: number; height: number }}
+ */
+export const screenThresholdToShowTheSideMenu = {
+    width: 576, // sm breakpoint in bootstrap
+    height: 500,
+}

@@ -1,27 +1,55 @@
 <template>
-    <transition name="slide-up">
-        <div v-show="showHeader" class="header">
-            <HeaderLoadingBar v-if="showLoadingBar" />
-            <div class="header-content align-items-center p-1 flex-fill">
-                <SwissFlag
-                    class="swiss-flag ms-1 me-2 cursor-pointer"
-                    data-cy="menu-swiss-flag"
-                    @click="resetApp"
-                />
-                <HeaderSwissConfederationText
-                    :current-lang="currentLang"
-                    class="d-none d-sm-block me-2 cursor-pointer"
-                    data-cy="menu-swiss-confederation-text"
-                    @click="resetApp"
-                />
-                <!-- we then let whatever was given in the slot be rendered here,
+    <div>
+        <transition name="slide-up">
+            <div v-show="showHeader" class="header">
+                <HeaderLoadingBar v-if="showLoadingBar" />
+                <div class="header-content align-items-center p-1 d-flex justify-content-between">
+                    <div class="justify-content-start d-flex">
+                        <SwissFlag
+                            class="swiss-flag ms-1 me-2 cursor-pointer"
+                            data-cy="menu-swiss-flag"
+                            @click="resetApp"
+                        />
+                        <HeaderSwissConfederationText
+                            :current-lang="currentLang"
+                            class="me-2 cursor-pointer d-none d-lg-block"
+                            data-cy="menu-swiss-confederation-text"
+                            @click="resetApp"
+                        />
+                    </div>
+                    <!-- we then let whatever was given in the slot be rendered here,
                      that's where we expect to receive the search module from MapView.vue -->
-                <slot />
-                <HeaderMenuButton />
-                <MenuTray class="menu-tray" />
+                    <slot />
+                    <HeaderMenuButton v-if="!shouldMenuTrayAlwaysBeVisible" />
+                </div>
             </div>
-        </div>
-    </transition>
+        </transition>
+        <transition name="slide-up">
+            <div
+                v-if="showMenuTray"
+                class="menu-tray"
+                :class="{
+                    'desktop-mode': shouldMenuTrayAlwaysBeVisible,
+                    'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && closeMenuDesktopMode,
+                }"
+            >
+                <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
+                <ButtonWithIcon
+                    v-if="shouldMenuTrayAlwaysBeVisible"
+                    class="m-auto"
+                    :button-font-awesome-icon="[
+                        'fas',
+                        closeMenuDesktopMode ? 'caret-down' : 'caret-up',
+                    ]"
+                    :button-title="$t(closeMenuDesktopMode ? 'open_menu' : 'close_menu')"
+                    icons-before-text
+                    dark
+                    @click="closeMenuDesktopMode = !closeMenuDesktopMode"
+                >
+                </ButtonWithIcon>
+            </div>
+        </transition>
+    </div>
 </template>
 
 <script>
@@ -33,22 +61,50 @@ import HeaderSwissConfederationText from './components/header/HeaderSwissConfede
 
 import MenuTray from './components/MenuTray.vue'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
+import { UIModes } from '@/modules/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: {
+        ButtonWithIcon,
         HeaderLoadingBar,
         HeaderSwissConfederationText,
         HeaderMenuButton,
         SwissFlag,
         MenuTray,
     },
+    data() {
+        return {
+            closeMenuDesktopMode: false,
+        }
+    },
     computed: {
         ...mapState({
-            showHeader: (state) => state.ui.showHeader,
             showLoadingBar: (state) => state.ui.showLoadingBar,
+            stateShowMenuTray: (state) => state.ui.showMenuTray,
+            isFullscreenMode: (state) => state.ui.fullscreenMode,
             currentLang: (state) => state.i18n.lang,
             currentTopic: (state) => state.topics.current,
+            currentUiMode: (state) => state.ui.mode,
+            isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
         }),
+        shouldMenuTrayAlwaysBeVisible: function () {
+            return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
+        },
+        showHeader: function () {
+            return !this.isFullscreenMode && !this.isCurrentlyDrawing
+        },
+        showMenuTray: function () {
+            if (this.isFullscreenMode) {
+                return false
+            } else {
+                if (this.shouldMenuTrayAlwaysBeVisible) {
+                    return !this.isCurrentlyDrawing
+                } else {
+                    return this.stateShowMenuTray && !this.isCurrentlyDrawing
+                }
+            }
+        },
     },
     methods: {
         resetApp: function () {
@@ -68,41 +124,41 @@ export default {
     top: 0;
     left: 0;
     height: $header-height;
+    transition: height 0.3s;
     width: 100%;
-    background: $white;
+    background: rgba(255, 255, 255, 0.9);
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
     // so that the menu is above the map overlay
-    z-index: $zindex-overlay-default + 1;
+    z-index: $zindex-overlay-default + 2;
     .header-content {
-        display: flex;
+        transition: height 0.3s;
         height: $header-height;
-        .swiss-flag {
-            height: 2rem;
-            width: 2rem;
-            min-height: 2rem;
-            min-width: 2rem;
-        }
-        .menu-tray {
-            position: fixed;
-            top: $header-height;
-            right: 0;
-            background: $white;
-            width: 95%;
-            max-width: 40rem;
-        }
     }
 }
-.slide-up-leave-active,
-.slide-up-enter-active {
-    transition: 0.2s;
+.menu-tray {
+    position: absolute;
+    z-index: $zindex-menu;
+    top: $header-height;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100% - #{$header-height});
+    overflow-y: auto;
+    transition: 0.3s;
+    &.desktop-mode {
+        .menu-tray-content {
+            transition: opacity 0.3s;
+        }
+        max-width: 22rem;
+    }
+    &.desktop-menu-closed {
+        .menu-tray-content {
+            opacity: 0;
+        }
+        transform: translate(0px, calc(-100% + 2.5rem));
+    }
 }
-.slide-up-enter {
-    transform: translate(0, -100%);
-}
-.slide-up-leave-to {
-    transform: translate(0, -100%);
-}
-@include respond-above(sm) {
+@include respond-above(lg) {
     .header {
         height: 2 * $header-height;
         .header-content {
@@ -116,5 +172,17 @@ export default {
             }
         }
     }
+    .menu-tray {
+        top: 2 * $header-height;
+    }
+}
+// transition definitions
+.slide-up-leave-active,
+.slide-up-enter-active {
+    transition: 0.2s;
+}
+.slide-up-enter,
+.slide-up-leave-to {
+    transform: translate(0, -100%);
 }
 </style>

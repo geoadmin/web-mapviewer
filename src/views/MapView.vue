@@ -11,7 +11,7 @@
             <SearchModule />
         </MenuModule>
         <ToolboxModule />
-        <TooltipModule />
+        <InfoboxModule />
         <I18nModule />
     </div>
 </template>
@@ -23,13 +23,13 @@ import MenuModule from '@/modules/menu/MenuModule.vue'
 import SearchModule from '@/modules/search/SearchModule.vue'
 import ToolboxModule from '@/modules/toolbox/ToolboxModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
-import TooltipModule from '@/modules/tooltip/TooltipModule.vue'
+import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import DrawingModule from '@/modules/drawing/DrawingModule.vue'
 
 export default {
     components: {
         DrawingModule,
-        TooltipModule,
+        InfoboxModule,
         ToolboxModule,
         SearchModule,
         MenuModule,

@@ -21,7 +21,8 @@
                 v-for="item in currentTopicTree"
                 :key="item.name"
                 :item="item"
-                :is-active-function="isLayerTreeItemActive"
+                :active-layers="activeLayers"
+                :compact="compact"
                 @clickOnLayerTopicItem="onClickOnLayerTopicItem"
             />
         </div>
@@ -30,7 +31,6 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import { topicTypes } from '@/api/topics.api'
 import MenuSection from '@/modules/menu/components/MenuSection.vue'
 import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
@@ -38,6 +38,12 @@ import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicS
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
     components: { MenuTopicSelectionPopup, MenuTopicTreeItem, MenuSection },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             showTopicSelectionPopup: false,
@@ -48,6 +54,7 @@ export default {
             currentTopic: (state) => state.topics.current,
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
+            activeLayers: (state) => state.layers.activeLayers,
         }),
         ...mapGetters(['visibleLayers', 'getActiveLayerById', 'isDefaultTopic']),
         showTopicTree: function () {
@@ -60,12 +67,6 @@ export default {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'setLayerVisibility', 'changeTopic']),
         setShowTopicSelectionPopup: function () {
             this.showTopicSelectionPopup = true
-        },
-        isLayerTreeItemActive: function (item) {
-            return (
-                item.type === topicTypes.LAYER &&
-                this.visibleLayers.find((layer) => layer.getID() === item.layerId)
-            )
         },
         onClickOnLayerTopicItem: function (layerId) {
             const layer = this.getActiveLayerById(layerId)

@@ -1,11 +1,17 @@
 <template>
     <div id="toolbox">
-        <div v-if="showZoomGeolocationButtons" id="right-toolbox">
-            <ZoomButtons id="toolbox-zoom-buttons" />
-            <GeolocButton id="geoloc-button" />
-        </div>
+        <transition name="slide-right">
+            <div
+                v-if="showToolbox"
+                class="right-toolbox"
+                :class="{ 'currently-drawing': isCurrentlyDrawing }"
+            >
+                <ZoomButtons class="toolbox-zoom-buttons" />
+                <GeolocButton class="geoloc-button" />
+            </div>
+        </transition>
         <transition name="slide-left">
-            <BackgroundSelectorButton v-if="showBgWheel" id="toolbox-bg-buttons" />
+            <BackgroundSelectorButton v-if="showToolbox" class="toolbox-bg-buttons" />
         </transition>
     </div>
 </template>
@@ -20,8 +26,8 @@ export default {
     components: { GeolocButton, ZoomButtons, BackgroundSelectorButton },
     computed: {
         ...mapState({
-            showBgWheel: (state) => state.ui.showBackgroundWheel,
-            showZoomGeolocationButtons: (state) => state.ui.showZoomGeolocationButtons,
+            showToolbox: (state) => !state.ui.fullscreenMode,
+            isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
         }),
     },
 }
@@ -31,24 +37,42 @@ export default {
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
 
-#right-toolbox,
-#toolbox-bg-buttons {
-    position: absolute;
-    z-index: $zindex-map + 1;
-}
-#right-toolbox {
-    top: $header-height + $screen-padding-for-ui-elements;
-    right: $screen-padding-for-ui-elements;
-    #toolbox-zoom-buttons {
-        position: relative;
+#toolbox {
+    .right-toolbox,
+    .toolbox-bg-buttons {
+        position: absolute;
+        z-index: $zindex-footer;
+    }
+    .right-toolbox {
+        top: $header-height + $screen-padding-for-ui-elements;
+        right: $screen-padding-for-ui-elements;
+        &.currently-drawing {
+            top: calc(124px + #{$screen-padding-for-ui-elements});
+        }
+        .toolbox-zoom-buttons {
+            position: relative;
+        }
+    }
+    .toolbox-bg-buttons {
+        left: $screen-padding-for-ui-elements;
+        bottom: $footer-height + $screen-padding-for-ui-elements;
     }
 }
-#toolbox-bg-buttons {
-    left: $screen-padding-for-ui-elements;
-    bottom: $footer-height + $screen-padding-for-ui-elements;
+@include respond-above(lg) {
+    #toolbox {
+        .right-toolbox {
+            top: 2 * $header-height + $screen-padding-for-ui-elements;
+            &.currently-drawing {
+                top: calc(124px + #{$screen-padding-for-ui-elements});
+            }
+        }
+    }
 }
+// transition definition
 .slide-left-leave-active,
-.slide-left-enter-active {
+.slide-left-enter-active,
+.slide-right-leave-active,
+.slide-right-enter-active {
     transition: 0.2s;
 }
 .slide-left-enter {
@@ -57,10 +81,10 @@ export default {
 .slide-left-leave-to {
     transform: translate(-100%, 0);
 }
-
-@include respond-above(sm) {
-    #right-toolbox {
-        top: 2 * $header-height + $screen-padding-for-ui-elements;
-    }
+.slide-right-enter {
+    transform: translate(100%, 0);
+}
+.slide-right-leave-to {
+    transform: translate(100%, 0);
 }
 </style>

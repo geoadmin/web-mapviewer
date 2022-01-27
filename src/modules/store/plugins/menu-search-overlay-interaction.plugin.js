@@ -1,3 +1,5 @@
+import { UIModes } from '@/modules/store/modules/ui.store'
+
 /**
  * This plugin will orchestrate the UI interaction between components from the menu, the search bar
  * and the map overlay It will, for instance, show the overlay when the menu tray is shown, and then
@@ -42,19 +44,24 @@ const menuSearchBarAndOverlayInteractionManagementPlugin = (store) => {
         switch (mutation.type) {
             case 'setShowMenuTray':
                 if (state.ui.showMenuTray) {
-                    showOverlayIfHidden()
+                    // only showing the overlay in Touch UI mode
+                    if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
+                        showOverlayIfHidden()
+                    }
                     hideSearchResultsIfShown()
                 } else {
                     if (hideMenuTrayPending) {
                         hideMenuTrayPending = false
-                    } else {
+                    } else if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                         hideOverlayIfShown()
                     }
                 }
                 break
             case 'showSearchResults':
                 hideMenuTrayIfShown()
-                hideOverlayIfShown()
+                if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
+                    hideOverlayIfShown()
+                }
                 break
         }
     })

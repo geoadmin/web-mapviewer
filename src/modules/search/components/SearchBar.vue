@@ -1,5 +1,8 @@
 <template>
-    <div id="search-bar" class="d-flex flex-fill">
+    <div id="search-bar" class="d-flex flex-fill input-group">
+        <span class="input-group-text">
+            <font-awesome-icon :icon="['fas', 'search']" />
+        </span>
         <input
             ref="search"
             type="text"
@@ -12,9 +15,9 @@
             @input="updateSearchQuery"
             @focus="showSearchResultsIfExists"
         />
+        <!--        TODO: keep the time button inside-->
         <button
             v-show="searchQuery && searchQuery.length > 0"
-            id="clear-search-button"
             class="btn bg-transparent"
             data-cy="searchbar-clear"
             @click="clearSearchQuery"

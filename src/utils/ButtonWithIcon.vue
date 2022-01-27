@@ -1,8 +1,14 @@
 <template>
-    <button class="btn" :class="buttonClasses" @click="forwardClickEvent">
-        {{ buttonTitle }}
+    <button class="button-with-icon d-flex btn" :class="buttonClasses" @click="forwardClickEvent">
         <font-awesome-icon
-            v-if="buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
+            v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
+            :icon="buttonFontAwesomeIcon"
+        />
+        <span :class="{ 'ms-1': iconsBeforeText }">
+            {{ buttonTitle }}
+        </span>
+        <font-awesome-icon
+            v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
     </button>
@@ -17,6 +23,10 @@ export default {
         buttonFontAwesomeIcon: {
             type: Array,
             default: null,
+        },
+        iconsBeforeText: {
+            type: Boolean,
+            default: false,
         },
         small: {
             type: Boolean,
@@ -42,6 +52,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        dark: {
+            type: Boolean,
+            default: false,
+        },
+        transparent: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['click'],
     computed: {
@@ -60,6 +78,10 @@ export default {
                 classes.push('btn-outline-secondary')
             } else if (this.outlineLight) {
                 classes.push('btn-outline-light', 'text-dark')
+            } else if (this.dark) {
+                classes.push('btn-dark')
+            } else if (this.transparent) {
+                classes.push('btn-no-style')
             } else {
                 classes.push('btn-light')
             }
@@ -73,3 +95,12 @@ export default {
     },
 }
 </script>
+<style lang="scss" scoped>
+.button-with-icon {
+    align-items: center;
+    &.btn-no-style {
+        background: none;
+        border: none;
+    }
+}
+</style>

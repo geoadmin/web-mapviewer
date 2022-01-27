@@ -23,6 +23,7 @@ import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-ma
 import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
 import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
 import drawingLayerManagementPlugin from '@/modules/store/plugins/drawing-layer-management.plugin'
+import uiModeChangeManagementPlugin from '@/modules/store/plugins/ui-mode-change-management.plugin'
 
 export default createStore({
     strict: true,
@@ -38,6 +39,7 @@ export default createStore({
         loadingBarManagementPlugin,
         drawingOverlayAndMenuManagementPlugin,
         drawingLayerManagementPlugin,
+        uiModeChangeManagementPlugin,
     ],
     modules: {
         app,

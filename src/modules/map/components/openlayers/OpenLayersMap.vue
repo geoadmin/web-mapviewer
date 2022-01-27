@@ -10,8 +10,11 @@
             -->
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </portal>
-        <OpenLayersMousePosition v-if="!isMobile" />
-        <VisibleLayersCopyrights :layers="backgroundAndVisibleLayers" />
+        <OpenLayersMousePosition v-if="isUIinDesktopMode" />
+        <VisibleLayersCopyrights
+            :layers="backgroundAndVisibleLayers"
+            :is-footer-visible="isFooterVisible"
+        />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -72,7 +75,6 @@ import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import ScaleLine from 'ol/control/ScaleLine'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-import { isMobile } from 'mobile-device-detect'
 
 import { round } from '@/utils/numberUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
@@ -80,6 +82,7 @@ import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
+import { UIModes } from '@/modules/store/modules/ui.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
@@ -114,7 +117,6 @@ export default {
         return {
             // exposing marker styles to the template
             markerStyles,
-            isMobile,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
         }
@@ -130,6 +132,8 @@ export default {
             geolocationPosition: (state) => state.geolocation.position,
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
+            uiMode: (state) => state.ui.mode,
+            isFooterVisible: (state) => !state.ui.fullscreenMode,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -183,6 +187,9 @@ export default {
                 layers.push(...this.visibleLayers)
             }
             return layers
+        },
+        isUIinDesktopMode: function () {
+            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing

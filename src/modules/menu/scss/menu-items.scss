@@ -12,7 +12,6 @@
     padding-right: 0.2rem;
   }
   .menu-list-item-title {
-    height: 3rem;
     .menu-item-name {
       width: 100%;
       text-align: left;
@@ -20,6 +19,11 @@
       white-space: nowrap;
       overflow-x: hidden;
       cursor: pointer;
+    }
+  }
+  &.compact {
+    .menu-list-item-title {
+      height: 2.2rem;
     }
   }
 }

@@ -16,13 +16,17 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .swiss-flag {
-    height: 2em;
-    width: 2em;
+    height: 34px;
     :first-child {
         fill: $red;
     }
     :last-child {
         fill: $white;
+    }
+}
+@include media-breakpoint-down(md) {
+    .swiss-flag {
+        height: 21px;
     }
 }
 </style>

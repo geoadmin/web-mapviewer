@@ -5,8 +5,10 @@
             :button-title="buttonTitle"
             :button-font-awesome-icon="buttonFontAwesomeIcon"
             :primary="primary"
+            :small="small"
             :danger="danger"
         ></ButtonWithIcon>
+        <!--        <portal to="modal-container">-->
         <div
             ref="popoverContent"
             class="popover-container"
@@ -31,11 +33,12 @@
                         @click="hidePopover"
                     />
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <slot />
                 </div>
             </div>
         </div>
+        <!--        </portal>-->
     </div>
 </template>
 <script>
@@ -82,6 +85,11 @@ export default {
         },
         /** Flag telling if the button should harbor bootstrap's danger color */
         danger: {
+            type: Boolean,
+            default: false,
+        },
+        /** Flag telling if the main button should be smaller */
+        small: {
             type: Boolean,
             default: false,
         },

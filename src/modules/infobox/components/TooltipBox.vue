@@ -1,5 +1,5 @@
 <template>
-    <div v-show="highlightedFeatures.length > 0" class="tooltip-box">
+    <div class="tooltip-box">
         <div class="tooltip-header">
             <div class="tooltip-toolbox text-right">
                 <span class="mx-2" @click="printTooltip">
@@ -11,31 +11,17 @@
             </div>
         </div>
         <div ref="tooltipContent" class="tooltip-content">
-            <!-- eslint-disable vue/no-v-html-->
-            <div
-                v-for="(feature, index) in highlightedFeatures"
-                :key="`${feature.layer.id}-${feature.id ? feature.id : index}`"
-                class="tooltip-feature"
-                v-html="feature.htmlPopup"
-            />
-            <!-- eslint-enable vue/no-v-html-->
+            <slot />
         </div>
     </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
-    computed: {
-        ...mapState({
-            highlightedFeatures: (state) => state.map.highlightedFeatures,
-        }),
-    },
     methods: {
-        ...mapActions(['clearHighlightedFeatures']),
         closeTooltip: function () {
-            this.clearHighlightedFeatures()
+            this.$emit('close')
         },
         printTooltip: function () {
             promptUserToPrintHtmlContent(this.$refs.tooltipContent.outerHTML)
