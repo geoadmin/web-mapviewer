@@ -56,7 +56,7 @@ const actions = {
         if (topic) {
             commit(CHANGE_TOPIC_MUTATION, topic)
         } else {
-            log.error('No topic found with ID', topicId)
+            log('error', 'No topic found with ID', topicId)
         }
     },
 }

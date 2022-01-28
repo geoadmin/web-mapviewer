@@ -20,7 +20,7 @@ const log = function (level, ...message) {
                 console.debug(...message)
                 break
             default:
-                console.log(...message)
+                console.log(level, ...message)
         }
     }
     /* eslint-enable  no-console */
