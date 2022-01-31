@@ -14,7 +14,7 @@ module.exports = {
         'prettier',
     ],
     parserOptions: {
-        parser: 'babel-eslint',
+        parser: '@babel/eslint-parser',
     },
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

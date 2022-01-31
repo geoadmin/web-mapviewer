@@ -49,6 +49,8 @@
         "vuex": "^4.0.2"
     },
     "devDependencies": {
+        "@babel/eslint-parser": "^7.16.5",
+        "@babel/eslint-plugin": "^7.16.5",
         "@cypress/vue": "next",
         "@cypress/webpack-preprocessor": "^5.11.0",
         "@vue/cli-plugin-babel": "next",
@@ -63,7 +65,6 @@
         "@vue/compiler-sfc": "latest",
         "@vue/test-utils": "next",
         "aws-sdk": "^2.1046.0",
-        "babel-eslint": "^10.1.0",
         "caniuse-lite": "^1.0.30001295",
         "chai": "^4.3.4",
         "cypress": "^9.2.0",
