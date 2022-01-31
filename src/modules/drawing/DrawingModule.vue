@@ -33,7 +33,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { API_SERVICES_BASE_URL, IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
@@ -45,7 +45,7 @@ import OverlayPositioning from 'ol/OverlayPositioning'
 import { Point } from 'ol/geom'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
 import { saveAs } from 'file-saver'
-import { SMALL } from '@/modules/drawing/lib/drawingStyleSizes'
+import { SMALL, MEDIUM } from '@/modules/drawing/lib/drawingStyleSizes'
 import { RED } from '@/modules/drawing/lib/drawingStyleColor'
 
 const overlay = new Overlay({
@@ -128,14 +128,23 @@ export default {
                     drawOptions: {
                         type: 'Point',
                     },
-                    properties: {
-                        color: RED.fill,
-                        font: 'normal 16px Helvetica',
-                        icon: `${API_SERVICES_BASE_URL}icons/sets/default/icons/001-marker@1x-255,0,0.png`,
-                        anchor: [0.5, 0.9],
-                        text: '',
-                        description: '',
-                        textScale: SMALL.textScale,
+                    // These properties need to be evaluated later as the
+                    // availableIconSets aren't ready when this component is mounted.
+                    properties: () => {
+                        const defaultIconSet = this.availableIconSets.find(
+                            (set) => set.name === 'default'
+                        )
+                        const defaultIcon = defaultIconSet.icons[0]
+
+                        return {
+                            color: RED.fill,
+                            font: 'normal 16px Helvetica',
+                            icon: defaultIcon.generateURL(defaultIconSet.name, MEDIUM, RED),
+                            anchor: defaultIcon.anchor,
+                            text: '',
+                            description: '',
+                            textScale: SMALL.textScale,
+                        }
                     },
                 },
                 [drawingModes.MEASURE]: {

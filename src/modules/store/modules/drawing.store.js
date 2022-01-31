@@ -1,3 +1,5 @@
+import axios from 'axios'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { getAllIconSets } from '@/api/icon.api'
 import { getKmlUrl } from '@/api/files.api'
 
@@ -66,6 +68,12 @@ export default {
             getAllIconSets().then((iconSets) => {
                 if (iconSets && iconSets.length > 0) {
                     commit('setIconSets', iconSets)
+                }
+                // We have a race condition during testing where the icons are
+                // needed after being loaded from the backend but before being
+                // committed to the store. Intercept and wait are in goToDrawing.
+                if (IS_TESTING_WITH_CYPRESS) {
+                    axios.get('/tell-cypress-icon-sets-available')
                 }
             })
         },

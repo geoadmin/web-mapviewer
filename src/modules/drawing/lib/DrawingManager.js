@@ -107,12 +107,10 @@ export default class DrawingManager extends Observable {
         this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
             // use the default styling if no specific draw style is set
-            const drawOptions = Object.assign(
-                {
-                    style: (feature) => featureStyle(feature),
-                },
-                options.drawOptions
-            )
+            const drawOptions = {
+                style: (feature) => featureStyle(feature),
+                ...options.drawOptions,
+            }
             const tool = new DrawInteraction({
                 ...drawOptions,
                 source: this.source,
@@ -339,11 +337,13 @@ export default class DrawingManager extends Observable {
 
     onAddFeature_(event, properties) {
         const feature = event.feature
+        const props = typeof properties === 'function' ? properties() : properties
 
         feature.setId(getUid(feature))
-        feature.setProperties(
-            Object.assign({ type: this.activeInteraction.get('type') }, properties)
-        )
+        feature.setProperties({
+            type: this.activeInteraction.get('type'),
+            ...props,
+        })
 
         this.updateDrawHelpTooltip(feature)
     }

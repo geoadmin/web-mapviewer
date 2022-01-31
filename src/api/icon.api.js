@@ -13,10 +13,11 @@ export class IconSet {
 }
 
 export class Icon {
-    constructor(name, imageURL, imageTemplateURL) {
+    constructor(name, imageURL, imageTemplateURL, anchor) {
         this.name = name
         this.imageURL = imageURL
         this.imageTemplateURL = imageTemplateURL
+        this.anchor = anchor
     }
 
     /**
@@ -72,13 +73,12 @@ export async function getAllIconSets() {
 function getIcons(url) {
     return axios
         .get(url)
-        .then((rawIcons) => {
-            const icons = []
-            rawIcons.data.items.forEach((rawIcon) => {
-                icons.push(new Icon(rawIcon.name, rawIcon.url, rawIcon.template_url))
-            })
-            return icons
-        })
+        .then((rawIcons) =>
+            rawIcons.data.items.map(
+                (rawIcon) =>
+                    new Icon(rawIcon.name, rawIcon.url, rawIcon.template_url, rawIcon.anchor)
+            )
+        )
         .catch((error) => {
             log('error', 'Error getting icons', url)
             return Promise.reject(error)
