@@ -1,25 +1,24 @@
 <template>
     <div class="zoom d-print-none">
-        <a class="zoom-button zoom-in mb-1" data-cy="zoom-in" title="Zoom in" @click="increaseZoom">
+        <a class="zoom-button zoom-in mb-1" data-cy="zoom-in" title="Zoom in" @click="onZoomIn">
             <font-awesome-icon size="lg" :icon="['fas', 'plus-circle']" />
         </a>
-        <a
-            class="zoom-button zoom-out mb-1"
-            data-cy="zoom-out"
-            title="Zoom out"
-            @click="decreaseZoom"
-        >
+        <a class="zoom-button zoom-out mb-1" data-cy="zoom-out" title="Zoom out" @click="onZoomOut">
             <font-awesome-icon size="lg" :icon="['fas', 'minus-circle']" />
         </a>
     </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-
 export default {
+    emits: ['zoom-in', 'zoom-out'],
     methods: {
-        ...mapActions(['increaseZoom', 'decreaseZoom']),
+        onZoomIn: function () {
+            this.$emit('zoom-in')
+        },
+        onZoomOut: function () {
+            this.$emit('zoom-out')
+        },
     },
 }
 </script>

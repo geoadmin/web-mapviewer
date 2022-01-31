@@ -24,6 +24,15 @@
                 </div>
             </div>
         </transition>
+        <div class="toolbox-right">
+            <GeolocButton
+                class="mb-1"
+                :is-active="isGeolocationActive"
+                :is-denied="isGeolocationDenied"
+                @click="toggleGeolocation"
+            />
+            <ZoomButtons @zoom-in="increaseZoom" @zoom-out="decreaseZoom" />
+        </div>
         <transition name="slide-up">
             <div
                 v-show="showMenuTray"
@@ -49,11 +58,14 @@
                 </ButtonWithIcon>
             </div>
         </transition>
+        <div class="toolbox-bottom">
+            <BackgroundSelectorButton />
+        </div>
     </teleport>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 import SwissFlag from './components/header/SwissFlag.vue'
 import HeaderMenuButton from './components/header/HeaderMenuButton.vue'
@@ -63,9 +75,15 @@ import MenuTray from './components/menu/MenuTray.vue'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
+import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
+import BackgroundSelectorButton from '@/modules/menu/components/toolboxBottom/BackgroundSelectorButton.vue'
 
 export default {
     components: {
+        BackgroundSelectorButton,
+        ZoomButtons,
+        GeolocButton,
         ButtonWithIcon,
         HeaderLoadingBar,
         HeaderSwissConfederationText,
@@ -87,6 +105,8 @@ export default {
             currentTopic: (state) => state.topics.current,
             currentUiMode: (state) => state.ui.mode,
             isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
+            isGeolocationActive: (state) => state.geolocation.active,
+            isGeolocationDenied: (state) => state.geolocation.denied,
         }),
         shouldMenuTrayAlwaysBeVisible: function () {
             return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
@@ -107,6 +127,7 @@ export default {
         },
     },
     methods: {
+        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom']),
         resetApp: function () {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopic.id}`
@@ -132,6 +153,16 @@ export default {
         transition: height 0.3s;
         height: $header-height;
     }
+}
+.toolbox-right {
+    float: right;
+    position: relative;
+    margin: $screen-padding-for-ui-elements;
+}
+.toolbox-bottom {
+    position: absolute;
+    left: $screen-padding-for-ui-elements;
+    bottom: $footer-height + $screen-padding-for-ui-elements;
 }
 .menu-tray {
     position: absolute;
@@ -182,5 +213,23 @@ export default {
 .slide-up-enter-from,
 .slide-up-leave-to {
     transform: translate(0, -100%);
+}
+.slide-left-leave-active,
+.slide-left-enter-active,
+.slide-right-leave-active,
+.slide-right-enter-active {
+    transition: 0.2s;
+}
+.slide-left-enter-from {
+    transform: translate(-100%, 0);
+}
+.slide-left-leave-to {
+    transform: translate(-100%, 0);
+}
+.slide-right-enter-from {
+    transform: translate(100%, 0);
+}
+.slide-right-leave-to {
+    transform: translate(100%, 0);
 }
 </style>

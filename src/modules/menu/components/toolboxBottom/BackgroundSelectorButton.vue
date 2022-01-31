@@ -86,7 +86,7 @@ $bg-button-border-size-in-wheel: 3px;
     position: relative;
     height: $map-button-diameter;
     width: $map-button-diameter;
-    background-image: url('../assets/backgrounds_mobile.png');
+    background-image: url('../../assets/backgrounds_mobile.png');
     background-repeat: no-repeat;
     background-size: initial;
     border-radius: $map-button-diameter * 0.5;
@@ -101,7 +101,7 @@ $bg-button-border-size-in-wheel: 3px;
         margin-top: 0.5rem;
 
         &.bg-void {
-            background: $white url('../../../assets/grid.png');
+            background: $white url('../../../../assets/grid.png');
         }
         &.bg-ch-swisstopo-pixelkarte-farbe {
             background-position: -80px 0;
