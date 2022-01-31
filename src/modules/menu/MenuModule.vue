@@ -26,7 +26,7 @@
         </transition>
         <transition name="slide-up">
             <div
-                v-if="showMenuTray"
+                v-show="showMenuTray"
                 class="menu-tray"
                 :class="{
                     'desktop-mode': shouldMenuTrayAlwaysBeVisible,
@@ -179,7 +179,7 @@ export default {
 .slide-up-enter-active {
     transition: 0.2s;
 }
-.slide-up-enter,
+.slide-up-enter-from,
 .slide-up-leave-to {
     transform: translate(0, -100%);
 }

@@ -118,7 +118,7 @@ $bg-button-border-size-in-wheel: 3px;
 .bg-slide-up-enter-active {
     transition: 0.3s;
 }
-.bg-slide-up-enter,
+.bg-slide-up-enter-from,
 .bg-slide-up-leave-to {
     opacity: 0;
     &.bg-index-0 {
