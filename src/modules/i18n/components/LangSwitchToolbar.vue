@@ -8,6 +8,7 @@
             :transparent="lang !== currentLang"
             :button-title="lang.toUpperCase()"
             :small="isUIinDesktopMode"
+            :data-cy="'menu-lang-' + lang"
             @click="changeLang(lang)"
         />
     </div>

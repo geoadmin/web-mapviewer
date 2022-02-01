@@ -25,6 +25,15 @@ describe('Test of layer handling', () => {
         } while (randomTimestampFromLayer === defaultTimestamp)
         return randomTimestampFromLayer
     }
+    /**
+     * This function is used as a parameter to `JSON.stringify` to remove all properties with the name `lang`.
+     *
+     * @param {String} key The current property name.
+     * @param {any} value The current value to stringify.
+     * @returns {String} The string representation of the object.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
+     */
+    const stringifyWithoutLang = (key, value) => (key === 'lang' ? undefined : value)
 
     forEachTestViewport((viewport, isMobile, isTablet, dimensions) => {
         context(
@@ -389,6 +398,59 @@ describe('Test of layer handling', () => {
                             checkOrderButtons(layerId, true, false)
                             cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
                             checkOrderButtons(layerId, false, false)
+                        })
+                    })
+                })
+                context('Language settings in menu', () => {
+                    it('keeps the layer settings when changing language', () => {
+                        const langBefore = 'en'
+                        const langAfter = 'de'
+                        const visibleLayerIds = [
+                            'test.wms.layer',
+                            'test.wmts.layer',
+                            'test.timeenabled.wmts.layer',
+                        ]
+                        let activeLayersConfigBefore
+
+                        cy.goToMapView(langBefore, {
+                            layers: visibleLayerIds.map((layer) => `${layer},f,0.1`).join(';'),
+                        })
+
+                        // CHECK before
+                        cy.readStoreValue('state').then((state) => {
+                            // Check the language before the switch.
+                            expect(state.i18n.lang).to.eq(langBefore)
+                            state.layers.activeLayers
+                                .filter((layer) => 'lang' in layer)
+                                .forEach((layer) => expect(layer.lang).to.eq(langBefore))
+                            // Save the layer configuration before the switch.
+                            activeLayersConfigBefore = JSON.stringify(
+                                state.layers.activeLayers,
+                                stringifyWithoutLang
+                            )
+                        })
+
+                        // Open the menu and change the language.
+                        clickOnMenuButtonIfMobile()
+                        cy.get('[data-cy="menu-settings-section"]').click()
+                        cy.get(`[data-cy="menu-lang-${langAfter}"`).click()
+
+                        // Wait until the layers fully configured with the new configuration.
+                        cy.wait('@layers-configured')
+
+                        // CHECK after
+                        cy.readStoreValue('state').then((state) => {
+                            // Check the language after the switch.
+                            expect(state.i18n.lang).to.eq(langAfter)
+                            state.layers.activeLayers
+                                .filter((layer) => 'lang' in layer)
+                                .forEach((layer) => expect(layer.lang).to.eq(langAfter))
+                            // Compare the layer configuration (except the language)
+                            const activeLayersConfigAfter = JSON.stringify(
+                                state.layers.activeLayers,
+                                stringifyWithoutLang
+                            )
+                            expect(activeLayersConfigAfter).to.eq(activeLayersConfigBefore)
                         })
                     })
                 })
