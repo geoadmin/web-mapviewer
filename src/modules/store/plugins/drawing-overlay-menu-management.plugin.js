@@ -5,16 +5,13 @@ import { UIModes } from '@/modules/store/modules/ui.store'
  *
  * @param {Vuex.Store} store
  */
-
 const drawingOverlayAndMenuManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
         if (mutation.type === 'setShowDrawingOverlay') {
-            store.dispatch('toggleHeader')
-            store.dispatch('toggleZoomGeolocationButtons')
             if (state.ui.showDrawingOverlay) {
                 // keep overlay's callback otherwise the menu will not know what to do later
                 // when it will be back on the screen and the user clicks on the overlay
-                store.dispatch('hideOverlayIgnoringCallbacks')
+                // store.dispatch('hideOverlayIgnoringCallbacks')
             } else if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                 // store.dispatch('toggleMenuTray')
             }

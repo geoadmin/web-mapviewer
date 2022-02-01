@@ -1,3 +1,3 @@
-import HeaderModule from './MenuModule.vue'
+import MenuModule from './MenuModule.vue'
 
-export default HeaderModule
+export default MenuModule

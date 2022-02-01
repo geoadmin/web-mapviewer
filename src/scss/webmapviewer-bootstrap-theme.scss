@@ -11,4 +11,5 @@ $primary: $red;
   @each $key, $value in $grid-breakpoints {
     #{unquote($key)}: $value;
   }
+  test: $red;
 }

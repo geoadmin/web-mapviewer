@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <teleport to="#toolbox">
         <transition name="slide-up">
             <div v-show="showHeader" class="header">
                 <HeaderLoadingBar v-if="showLoadingBar" />
@@ -49,7 +49,7 @@
                 </ButtonWithIcon>
             </div>
         </transition>
-    </div>
+    </teleport>
 </template>
 
 <script>
@@ -59,7 +59,7 @@ import SwissFlag from './components/header/SwissFlag.vue'
 import HeaderMenuButton from './components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText.vue'
 
-import MenuTray from './components/MenuTray.vue'
+import MenuTray from './components/menu/MenuTray.vue'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
@@ -120,14 +120,12 @@ export default {
 @import 'src/scss/variables';
 
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
     height: $header-height;
     transition: height 0.3s;
     width: 100%;
     background: rgba($white, 0.9);
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
+    position: relative;
     // so that the menu is above the map overlay
     z-index: $zindex-overlay-default + 2;
     .header-content {

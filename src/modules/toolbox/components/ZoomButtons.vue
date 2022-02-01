@@ -1,18 +1,13 @@
 <template>
     <div class="zoom d-print-none">
-        <a
-            class="zoom-button zoom-in mb-1"
-            data-cy="zoom-in"
-            title="Zoom in"
-            @click="increaseZoom()"
-        >
+        <a class="zoom-button zoom-in mb-1" data-cy="zoom-in" title="Zoom in" @click="increaseZoom">
             <font-awesome-icon size="lg" :icon="['fas', 'plus-circle']" />
         </a>
         <a
             class="zoom-button zoom-out mb-1"
             data-cy="zoom-out"
             title="Zoom out"
-            @click="decreaseZoom()"
+            @click="decreaseZoom"
         >
             <font-awesome-icon size="lg" :icon="['fas', 'minus-circle']" />
         </a>
@@ -49,7 +44,7 @@ $disabled-color: $gray-300;
         stroke: $white;
         fill: $normal-color;
     }
-    svg {
+    .svg-inline--fa {
         overflow: initial;
         position: relative;
         top: 7px;

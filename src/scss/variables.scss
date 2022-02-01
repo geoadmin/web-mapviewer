@@ -1,6 +1,7 @@
 
 $zindex-map: 1;
-$zindex-copyrights: $zindex-map + 1;
+$zindex-toolbox: $zindex-map + 1;
+$zindex-copyrights: $zindex-toolbox + 1;
 $zindex-swipable-element: $zindex-copyrights + 1;
 $zindex-footer: $zindex-swipable-element + 1;
 $zindex-overlay-default: 200;

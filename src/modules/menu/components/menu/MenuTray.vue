@@ -14,7 +14,7 @@
             :always-keep-closed="true"
             secondary
             data-cy="menu-tray-drawing-section"
-            @click="onShowDrawingOverlay"
+            @click="toggleDrawingOverlay"
         />
         <MenuTopicSection :compact="compact" class="border-bottom-0" />
         <MenuSection
@@ -29,9 +29,9 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import MenuSettings from '@/modules/menu/components/MenuSettings.vue'
+import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
-import MenuSection from '@/modules/menu/components/MenuSection.vue'
+import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 
 export default {
@@ -58,9 +58,6 @@ export default {
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay', 'setUiMode']),
-        onShowDrawingOverlay: function () {
-            this.toggleDrawingOverlay()
-        },
     },
 }
 </script>

@@ -5,18 +5,18 @@
                 <div class="card-header d-flex align-middle">
                     <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
                     <ButtonWithIcon
-                        :button-font-awesome-icon="['fa', 'times']"
-                        small
-                        class="float-end"
-                        data-cy="modal-close-button"
-                        @click="onClose(false)"
-                    />
-                    <ButtonWithIcon
                         v-if="allowPrint"
                         small
                         :button-font-awesome-icon="['fa', 'print']"
                         data-cy="modal-print-button"
                         @click="printModalContent"
+                    />
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['fa', 'times']"
+                        small
+                        class="float-end"
+                        data-cy="modal-close-button"
+                        @click="onClose(false)"
                     />
                 </div>
                 <div ref="modalContent" class="card-body p-2">

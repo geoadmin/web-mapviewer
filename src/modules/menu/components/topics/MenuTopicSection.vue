@@ -31,7 +31,7 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import MenuSection from '@/modules/menu/components/MenuSection.vue'
+import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
