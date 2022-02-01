@@ -133,6 +133,7 @@ export default {
                     this.currentIconColor
                 )
             )
+            this.feature.set('anchor', this.currentIcon.anchor)
             this.triggerChangeEvent()
         },
         setCurrentIconColor(color) {

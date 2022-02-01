@@ -25,6 +25,7 @@ import Feature from 'ol/Feature'
 import Style from 'ol/style/Style'
 import { GPX, KML, GeoJSON } from 'ol/format'
 import { getKml } from '@/api/files.api'
+import { serializeAnchor, deserializeAnchor } from '@/utils/featureAnchor'
 
 const typesInTranslation = {
     MARKER: 'marker',
@@ -107,12 +108,10 @@ export default class DrawingManager extends Observable {
         this.sketchPoints = 0
         for (let [type, options] of Object.entries(tools)) {
             // use the default styling if no specific draw style is set
-            const drawOptions = Object.assign(
-                {
-                    style: (feature) => featureStyle(feature),
-                },
-                options.drawOptions
-            )
+            const drawOptions = {
+                style: (feature) => featureStyle(feature),
+                ...options.drawOptions,
+            }
             const tool = new DrawInteraction({
                 ...drawOptions,
                 source: this.source,
@@ -268,6 +267,8 @@ export default class DrawingManager extends Observable {
         let exportFeatures = []
         this.source.forEachFeature(function (f) {
             const clone = f.clone()
+            // The following serialization is a hack. See @module comment in file.
+            serializeAnchor(clone)
             clone.set('type', clone.get('type').toLowerCase())
             clone.setId(f.getId())
             clone.getGeometry().setProperties(f.getGeometry().getProperties())
@@ -339,11 +340,13 @@ export default class DrawingManager extends Observable {
 
     onAddFeature_(event, properties) {
         const feature = event.feature
+        const props = typeof properties === 'function' ? properties() : properties
 
         feature.setId(getUid(feature))
-        feature.setProperties(
-            Object.assign({ type: this.activeInteraction.get('type') }, properties)
-        )
+        feature.setProperties({
+            type: this.activeInteraction.get('type'),
+            ...props,
+        })
 
         this.updateDrawHelpTooltip(feature)
     }
@@ -574,6 +577,8 @@ export default class DrawingManager extends Observable {
             featureProjection: layer.projection,
         })
         features.forEach((f) => {
+            // The following deserialization is a hack. See @module comment in file.
+            deserializeAnchor(f)
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyle(feature))
             if (f.get('type') === 'MEASURE') {

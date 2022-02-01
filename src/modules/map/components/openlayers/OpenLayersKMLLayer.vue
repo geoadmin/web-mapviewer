@@ -9,6 +9,7 @@ import VectorSource from 'ol/source/Vector'
 import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { featureStyle } from '@/modules/drawing/lib/style'
+import { deserializeAnchor } from '@/utils/featureAnchor'
 
 /** Renders a KML file on the map */
 export default {
@@ -53,6 +54,8 @@ export default {
         })
         this.layer.getSource().on('addfeature', (event) => {
             const f = event.feature
+            // The following deserialization is a hack. See @module comment in file.
+            deserializeAnchor(f)
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyle(feature))
         })
