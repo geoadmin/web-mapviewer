@@ -1,6 +1,7 @@
 version: 0.2
 
 env:
+  shell: bash
   variables:
     AWS_DEFAULT_REGION: eu-central-1
   parameter-store:
@@ -24,23 +25,18 @@ phases:
 
   post_build:
     commands:
-      # Reading git branch (the utility in the deploy script is unable to read it automatically on CodeBuild)
-      # see https://stackoverflow.com/questions/47657423/get-github-git-branch-for-aws-codebuild
-      - export CODEBUILD_GIT_BRANCH="$(git symbolic-ref HEAD --short 2>/dev/null)"
-      - if [ "$CODEBUILD_GIT_BRANCH" = "" ] ; then
-          CODEBUILD_GIT_BRANCH="$(git branch -a --contains HEAD | sed -n 2p | awk '{ printf $1 }')";
-          export CODEBUILD_GIT_BRANCH=${CODEBUILD_GIT_BRANCH#remotes/origin/};
-        fi
+      - echo "CODEBUILD_WEBHOOK_HEAD_REF=${CODEBUILD_WEBHOOK_HEAD_REF} CODEBUILD_WEBHOOK_BASE_REF=${CODEBUILD_WEBHOOK_BASE_REF}"
+      - export GITHUB_BRANCH="${CODEBUILD_WEBHOOK_HEAD_REF#refs/heads/}"
       # if this build has been triggered by a push on master (PR merge on master), we deploy on INT (otherwise everything goes to dev)
-      - export CODEBUILD_DEPLOY_TARGET="dev"
-      - if [ "$CODEBUILD_GIT_BRANCH" = "master" ] ; then
-          export CODEBUILD_DEPLOY_TARGET="int";
+      - export DEPLOY_TARGET="dev"
+      - if [ "${GITHUB_BRANCH}" = "master" ] ; then
+          export DEPLOY_TARGET="int";
         fi
       # if we are on DEV, we have to switch to the account "swisstopo-bgdi-dev", otherwise the account is "swisstopo-bgdi"
-      - export AWS_ACCOUNT_TO_USE="$AWS_SWISSTOPO_BGDI_DEV_ACCOUNT_ID:role/BgdiDevCodebuildAccess"
-      - if [ "$CODEBUILD_DEPLOY_TARGET" = "int" ] ; then
-          export AWS_ACCOUNT_TO_USE="$AWS_SWISSTOPO_BGDI_ACCOUNT_ID:role/BgdiCodebuildAccess";
+      - export AWS_ACCOUNT_TO_USE="${AWS_SWISSTOPO_BGDI_DEV_ACCOUNT_ID}:role/BgdiDevCodebuildAccess"
+      - if [ "${DEPLOY_TARGET}" = "int" ] ; then
+          export AWS_ACCOUNT_TO_USE="${AWS_SWISSTOPO_BGDI_ACCOUNT_ID}:role/BgdiCodebuildAccess";
         fi
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # the application will be built by the npm target before deploying
-      - npm run deploy:$CODEBUILD_DEPLOY_TARGET -- --role=arn:aws:iam::$AWS_ACCOUNT_TO_USE --branch=$CODEBUILD_GIT_BRANCH
+      - npm run deploy:${DEPLOY_TARGET} -- --role=arn:aws:iam::${AWS_ACCOUNT_TO_USE} --branch=${GITHUB_BRANCH}
