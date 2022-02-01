@@ -42,7 +42,7 @@ let routeChangeIsTriggeredByThisModule = false
  * @param {Router} router
  */
 function storeMutationWatcher(store, mutation, router) {
-    log('debug', 'Store mutation', mutation, 'Current route', router.currentRoute.value)
+    log.debug('Store mutation', mutation, 'Current route', router.currentRoute.value)
 
     // Ignore mutation that has been triggered by the router.beforeEach below.
     if (mutationNotTriggeredByModule(mutation) && mutationWatched(mutation)) {
@@ -53,7 +53,7 @@ function storeMutationWatcher(store, mutation, router) {
             storeSyncConfig.forEach((paramConfig) =>
                 paramConfig.populateQueryWithStoreValue(query, store)
             )
-            log('info', 'Store has changed, rerouting app to query', query)
+            log.info('Store has changed, rerouting app to query', query)
             routeChangeIsTriggeredByThisModule = true
             router
                 .push({
@@ -61,7 +61,7 @@ function storeMutationWatcher(store, mutation, router) {
                     query,
                 })
                 .catch((error) => {
-                    log('info', 'Error while routing to', query, error)
+                    log.info('Error while routing to', query, error)
                     routeChangeIsTriggeredByThisModule = false
                 })
         }
@@ -79,7 +79,7 @@ function storeMutationWatcher(store, mutation, router) {
  *   query changes), false to cancel the navigation or RouteLocationRaw to change url query parameter.
  */
 function urlQueryWatcher(store, to) {
-    log('debug', 'Url query watcher', routeChangeIsTriggeredByThisModule, to)
+    log.debug('Url query watcher', routeChangeIsTriggeredByThisModule, to)
     if (routeChangeIsTriggeredByThisModule) {
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
@@ -119,7 +119,7 @@ function urlQueryWatcher(store, to) {
         }
     })
     if (requireQueryUpdate) {
-        log('debug', 'Update URL query to', newQuery)
+        log.debug('Update URL query to', newQuery)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
         // stays on `/#/`. When manually chaning any query param it works though.
@@ -143,7 +143,7 @@ const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
         if (to.name === 'MapView' && from.name !== to.name) {
-            log('debug', 'Entering MapView, register store mutation watcher')
+            log.debug('Entering MapView, register store mutation watcher')
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) =>
                 storeMutationWatcher(store, mutation, router)

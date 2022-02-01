@@ -18,7 +18,7 @@ import log from '@/utils/logging'
 const appLoadingManagementRouterPlugin = (router, store) => {
     const unRegisterRouterHook = router.beforeEach((to) => {
         if (to.meta.requiresAppReady && !store.state.app.isReady) {
-            log('debug', `App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
+            log.debug(`App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
             return { name: 'LoadingView', query: { redirect: to.fullPath }, replace: true }
         }
         return
@@ -30,7 +30,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             unRegisterRouterHook()
             unSubscribeStore()
             const redirect = router.currentRoute.value.query.redirect || '/map'
-            log('info', 'App is ready redirect to ', redirect)
+            log.info('App is ready redirect to ', redirect)
             router.replace(redirect)
         }
     })

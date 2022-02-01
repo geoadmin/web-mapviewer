@@ -55,7 +55,7 @@ const actions = {
         if (Array.isArray(position) && position.length === 2) {
             commit('setGeolocationPosition', position)
         } else {
-            log('debug', 'Invalid geolocation position received, ignoring', position)
+            log.debug('Invalid geolocation position received, ignoring', position)
         }
     },
     setGeolocationAccuracy: ({ commit }, accuracy) => {

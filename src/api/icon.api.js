@@ -80,7 +80,7 @@ function getIcons(url) {
             )
         )
         .catch((error) => {
-            log('error', 'Error getting icons', url)
+            log.error('Error getting icons', url)
             return Promise.reject(error)
         })
 }

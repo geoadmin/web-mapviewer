@@ -39,12 +39,12 @@ export const requestHeight = (coordinates) => {
                     resolve(new HeightForPosition(coordinates, heightResponse.data.height))
                 })
                 .catch((error) => {
-                    log('error', 'Error while retrieving height for', coordinates, error)
+                    log.error('Error while retrieving height for', coordinates, error)
                     reject(error)
                 })
         } else {
             const errorMessage = 'Invalid coordinates, no height requested'
-            log('error', 'Invalid coordinates, no height requested', coordinates)
+            log.error('Invalid coordinates, no height requested', coordinates)
             reject(errorMessage)
         }
     })

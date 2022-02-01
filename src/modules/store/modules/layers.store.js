@@ -85,7 +85,7 @@ const actions = {
         if ('visible' in payload && 'layerId' in payload) {
             commit('setLayerVisibility', payload)
         } else {
-            log('error', 'Failed to set layer visibility, invalid payload', payload)
+            log.error('Failed to set layer visibility, invalid payload', payload)
         }
     },
     addLayer({ commit, getters }, layerIdOrConfig) {
@@ -98,7 +98,7 @@ const actions = {
         if (layerConfig) {
             commit('addLayerWithConfig', layerConfig)
         } else {
-            log('error', 'no layer found with ID', layerIdOrConfig)
+            log.error('no layer found with ID', layerIdOrConfig)
         }
     },
     addLocation({ commit }, coordsEPSG3857) {
@@ -110,7 +110,7 @@ const actions = {
         } else if (layerIdOrConfig instanceof AbstractLayer) {
             commit('removeLayerWithId', layerIdOrConfig.getID())
         } else {
-            log('error', 'Can not remove layer that is not yet added', layerIdOrConfig)
+            log.error('Can not remove layer that is not yet added', layerIdOrConfig)
         }
     },
     clearLayers({ commit }) {
@@ -162,7 +162,7 @@ const actions = {
                 opacity: Number(payload.opacity),
             })
         } else {
-            log('error', 'Cannot set layer opacity invalid payload', payload)
+            log.error('Cannot set layer opacity invalid payload', payload)
         }
     },
     setTimedLayerCurrentTimestamp({ commit, getters }, payload) {
@@ -189,7 +189,7 @@ const actions = {
                 )
             }
         } else {
-            log('error', 'Failed to set layer timestamp, invalid payload', payload)
+            log.error('Failed to set layer timestamp, invalid payload', payload)
         }
     },
     moveActiveLayerBack({ commit, state, getters }, layerId) {

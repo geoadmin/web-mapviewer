@@ -39,7 +39,7 @@ export default {
     },
     methods: {
         changeLang: function (lang) {
-            log('debug', 'switching locale', lang)
+            log.debug('switching locale', lang)
             this.setLang(lang)
         },
         ...mapActions(['setLang']),

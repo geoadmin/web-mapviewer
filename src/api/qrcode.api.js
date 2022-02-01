@@ -14,7 +14,7 @@ export const generateQrCode = (url) => {
             new URL(url)
         } catch (e) {
             const errorMessage = 'Invalid URL, no QR code generated'
-            log('error', errorMessage, url)
+            log.error(errorMessage, url)
             reject(errorMessage)
         }
         axios
@@ -37,7 +37,7 @@ export const generateQrCode = (url) => {
                 )
             })
             .catch((error) => {
-                log('error', 'Error while retrieving qrCode for', url, error)
+                log.error('Error while retrieving qrCode for', url, error)
                 reject(error)
             })
     })

@@ -300,7 +300,7 @@ export default {
                                     featureGeometry.flatCoordinates,
                                     featureGeometry.getExtent()
                                 )
-                                log('debug', 'GeoJSON feature found', geoJsonFeature)
+                                log.debug('GeoJSON feature found', geoJsonFeature)
                                 geoJsonFeatures.push(geoJsonFeature)
                             })
                     }

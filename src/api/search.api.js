@@ -131,12 +131,12 @@ const search = (queryString = '', lang = '') => {
     return new Promise((resolve, reject) => {
         if (!lang || lang.length !== 2) {
             const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
-            log('error', errorMessage)
+            log.error(errorMessage)
             reject(errorMessage)
         }
         if (!queryString || queryString.length < 2) {
             const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
-            log('error', errorMessage)
+            log.error(errorMessage)
             reject(errorMessage)
         }
         // if a request is currently pending, we cancel it to start the new one

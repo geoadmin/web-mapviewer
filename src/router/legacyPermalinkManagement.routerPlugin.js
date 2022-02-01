@@ -27,9 +27,9 @@ const parseLegacyParams = (search) => {
 }
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
-    log('debug', 'Transforming legacy kml adminid, get KML ID from adminId...')
+    log.debug('Transforming legacy kml adminid, get KML ID from adminId...')
     const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams['adminid'])
-    log('debug', 'Adding KML layer from legacy kml adminid')
+    log.debug('Adding KML layer from legacy kml adminid')
     if (newQuery.layers) {
         newQuery.layers = `${newQuery.layers};${transformLayerIntoUrlString(kmlLayer)}`
     } else {
@@ -43,7 +43,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
 }
 
 const handleLegacyParams = (legacyParams, store, to, next) => {
-    log('info', `Legacy permalink with param=`, legacyParams)
+    log.info(`Legacy permalink with param=`, legacyParams)
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = { ...to.query }
@@ -86,7 +86,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                         window.location.search
                     )
                     value = layers.map((layer) => transformLayerIntoUrlString(layer)).join(';')
-                    log('debug', 'Importing legacy layers as', value)
+                    log.debug('Importing legacy layers as', value)
                 } else {
                     // if not legacy, we let it go as it is
                     value = legacyParams[param]
@@ -134,7 +134,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                 })
             })
             .catch((error) => {
-                log('error', `Failed to retrieve KML from admin_id: ${error}`)
+                log.error(`Failed to retrieve KML from admin_id: ${error}`)
                 // make sure to remove the adminid from the query
                 delete newQuery.adminid
                 next({
