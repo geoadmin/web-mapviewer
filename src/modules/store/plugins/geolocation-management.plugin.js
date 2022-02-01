@@ -28,7 +28,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
  * @param {Vuex.Store} store
  */
 const handlePositionError = (error, store) => {
-    log('error', 'Geolocation activation failed', error)
+    log.error('Geolocation activation failed', error)
     switch (error.code) {
         case error.PERMISSION_DENIED:
             store.dispatch('setGeolocationDenied', true)

@@ -93,7 +93,7 @@ export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
         // if it's already a lat/lon we return it as is
         return [x, y]
     } else {
-        log('debug', `Unknown coordinate type [${x}, ${y}]`)
+        log.debug(`Unknown coordinate type [${x}, ${y}]`)
         return undefined
     }
 }

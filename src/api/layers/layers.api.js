@@ -138,7 +138,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
 
                 break
             default:
-                log('error', 'Unknown layer type', type)
+                log.error('Unknown layer type', type)
         }
     }
     return layer
@@ -157,7 +157,7 @@ export const getLayerLegend = (lang, layerId) => {
             .get(`${API_BASE_URL}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`)
             .then((response) => resolve(response.data))
             .catch((error) => {
-                log('error', 'Error while retrieving the legend for the layer', layerId, error)
+                log.error('Error while retrieving the legend for the layer', layerId, error)
                 reject(error)
             })
     })
@@ -199,7 +199,7 @@ export const loadLayersConfigFromBackend = (lang) => {
                 })
                 .catch((error) => {
                     const message = 'Error while loading layers config from backend'
-                    log('error', message, error)
+                    log.error(message, error)
                     reject(message)
                 })
         }

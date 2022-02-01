@@ -65,7 +65,7 @@ const urlPrefix = 'api/kml/'
 function validateId(id, reject) {
     if (!id) {
         const errorMessage = `Needs a valid kml ID`
-        log('error', errorMessage)
+        log.error(errorMessage)
         reject(errorMessage)
     }
 }
@@ -73,7 +73,7 @@ function validateId(id, reject) {
 function validateAdminId(adminId, reject) {
     if (!adminId) {
         const errorMessage = `Needs a valid kml adminId`
-        log('error', errorMessage)
+        log.error(errorMessage)
         reject(errorMessage)
     }
 }
@@ -81,7 +81,7 @@ function validateAdminId(adminId, reject) {
 function validateKml(kml, reject) {
     if (!kml || !kml.length) {
         const errorMessage = `Needs a valid KML`
-        log('error', errorMessage)
+        log.error(errorMessage)
         reject(errorMessage)
     }
 }
@@ -136,12 +136,12 @@ export const createKml = (kml) => {
                     resolve(KmlMetadata.fromApiData(response.data))
                 } else {
                     const msg = 'Incorrect response while creating a file'
-                    log('error', msg, response)
+                    log.error(msg, response)
                     reject(msg)
                 }
             })
             .catch((error) => {
-                log('error', 'Error while creating a file', kml)
+                log.error('Error while creating a file', kml)
                 reject(error)
             })
     })
@@ -173,12 +173,12 @@ export const updateKml = (id, adminId, kml) => {
                     resolve(KmlMetadata.fromApiData(response.data))
                 } else {
                     const msg = `Incorrect response while updating file with id=${id}`
-                    log('error', msg, response)
+                    log.error(msg, response)
                     reject(msg)
                 }
             })
             .catch((error) => {
-                log('error', `Error while updating file with id=${id}`, kml)
+                log.error(`Error while updating file with id=${id}`, kml)
                 reject(error)
             })
     })
@@ -200,12 +200,12 @@ export const getKml = (id) => {
                     resolve(response.data)
                 } else {
                     const msg = `Incorrect response while getting file with id=${id}`
-                    log('error', msg, response)
+                    log.error(msg, response)
                     reject(msg)
                 }
             })
             .catch((error) => {
-                log('error', `Error while getting file with id=${id}`)
+                log.error(`Error while getting file with id=${id}`)
                 reject(error)
             })
     })
@@ -227,12 +227,12 @@ export const getKmlMetadataByAdminId = (adminId) => {
                     resolve(KmlMetadata.fromApiData(response.data))
                 } else {
                     const msg = `Incorrect response while getting metadata for kml admin_id=${adminId}`
-                    log('error', msg, response)
+                    log.error(msg, response)
                     reject(msg)
                 }
             })
             .catch((error) => {
-                log('error', `Error while getting metadata for kml admin_id=${adminId}`)
+                log.error(`Error while getting metadata for kml admin_id=${adminId}`)
                 reject(error)
             })
     })

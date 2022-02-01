@@ -47,7 +47,7 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                     ])
                 })
                 .catch((error) => {
-                    log('error', 'Error while fetching What3Words location', error)
+                    log.error('Error while fetching What3Words location', error)
                     reject(error)
                 })
         }
@@ -80,7 +80,7 @@ export const registerWhat3WordsLocation = (location, lang = 'en') => {
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-3wa
                 .then((response) => resolve(response.data.words))
                 .catch((error) => {
-                    log('error', 'Error while saving location as a What3words', error)
+                    log.error('Error while saving location as a What3words', error)
                     reject(error)
                 })
         }

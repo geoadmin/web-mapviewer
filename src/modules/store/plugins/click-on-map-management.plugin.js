@@ -33,7 +33,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
                     )
                 )
             } else {
-                log('debug', 'ignoring layer', layer, 'no tooltip')
+                log.debug('ignoring layer', layer, 'no tooltip')
             }
         })
         Promise.all(allRequests).then((values) => {

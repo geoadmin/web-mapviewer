@@ -40,7 +40,7 @@ export const profile = (data) => {
     return new Promise((resolve, reject) => {
         if (!data || !data.geom) {
             const errorMessage = `Geom not provided`
-            log('error', errorMessage)
+            log.error(errorMessage)
             reject(errorMessage)
         }
         const params = new URLSearchParams(data)
@@ -53,12 +53,12 @@ export const profile = (data) => {
                     resolve(response.data)
                 } else {
                     const msg = 'Incorrect response while getting profile'
-                    log('error', msg, response)
+                    log.error(msg, response)
                     reject(msg)
                 }
             })
             .catch((error) => {
-                log('error', 'Error while getting profile', data)
+                log.error('Error while getting profile', data)
                 reject(error)
             })
     })
