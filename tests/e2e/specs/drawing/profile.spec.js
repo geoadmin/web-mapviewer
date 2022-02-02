@@ -121,7 +121,9 @@ describe('Profile popup', () => {
         })
         it('closes the profile popup, while minimized, when the user clicks on the X button', () => {
             cy.get('[data-cy="profile-popup-minimize-button"]').click()
-            cy.get('[data-cy="profile-popup-close-button"]').click()
+            // TODO: find a way to place the profile popup's close button out of the layers copyrights (and then remove the { force: true })
+            // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2170
+            cy.get('[data-cy="profile-popup-close-button"]').click({ force: true })
             cy.get('[data-cy="profile-popup-header"]').should('not.exist')
             cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
         })

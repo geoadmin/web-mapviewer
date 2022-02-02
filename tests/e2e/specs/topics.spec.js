@@ -161,24 +161,12 @@ describe('Topics', () => {
                         )
                     })
                     if (isMobileViewport) {
-                        it('keeps the menu and overlay open/visible after a topic is selected', () => {
+                        it('keeps the menu open/visible after a topic is selected', () => {
                             cy.goToMapView()
                             // clicking on topic standard
                             const topicStandard = mockupTopics.topics[1]
                             selectTopicWithId(topicStandard.id)
                             cy.readStoreValue('state.ui.showMenuTray').should('eq', true)
-                            cy.readStoreValue('state.overlay.show').should('eq', true)
-                        })
-                        it('close overlay correctly after a topic switch when we click on the menu button again', () => {
-                            cy.goToMapView()
-                            // clicking on topic standard
-                            const topicStandard = mockupTopics.topics[1]
-                            selectTopicWithId(topicStandard.id)
-                            if (isMobileViewport) {
-                                cy.get('[data-cy="menu-button"]').click()
-                            }
-                            cy.readStoreValue('state.ui.showMenuTray').should('eq', false)
-                            cy.readStoreValue('state.overlay.show').should('eq', false)
                         })
                     }
                     it('open active layers section in menu when a topic with active layers is selected', () => {
@@ -217,7 +205,7 @@ describe('Topics', () => {
                     })
                     it('does not open the first elements of the tree by default', () => {
                         cy.get('[data-cy="topic-tree-item-2"]').should('be.visible')
-                        cy.get('[data-cy="topic-tree-item-3"]').should('be.hidden')
+                        cy.get('[data-cy="topic-tree-item-3"]').should('not.exist')
                     })
                     it("shows a topic tree item's children when we click on it", () => {
                         cy.get('[data-cy="topic-tree-item-2"]').click()

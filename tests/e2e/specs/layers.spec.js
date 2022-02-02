@@ -298,6 +298,9 @@ describe('Test of layer handling', () => {
                         const testLayerId = 'test.wmts.layer'
                         const testLayerSelector = `[data-cy="topic-tree-item-${testLayerId}"]`
                         cy.get('[data-cy="menu-topic-section"]').click()
+                        // opening up layer parents in the topic tree
+                        cy.get('[data-cy="topic-tree-item-2"]').click()
+                        cy.get('[data-cy="topic-tree-item-3"]').click()
                         // Find the test layer and open the appropriate menu entries.
                         cy.get(testLayerSelector)
                             .parentsUntil('[data-cy="menu-topic-section"]')
