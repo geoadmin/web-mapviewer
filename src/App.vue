@@ -1,7 +1,6 @@
 <template>
     <div id="main-component">
         <router-view />
-        <div id="toolbox"></div>
     </div>
 </template>
 
@@ -40,6 +39,8 @@ export default {
 </script>
 
 <style lang="scss">
+// this style is not scoped in order to enable the distribution of bootstrap's
+// CSS rules to the whole app (otherwise it would be limited to this component)
 @import 'src/scss/webmapviewer-bootstrap-theme';
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
@@ -50,15 +51,5 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-}
-#toolbox {
-    position: absolute;
-    z-index: $zindex-toolbox;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    & > * {
-        pointer-events: all;
-    }
 }
 </style>

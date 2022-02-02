@@ -20,9 +20,9 @@ export default {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: $zindex-overlay-default;
+    z-index: $zindex-backdrop-default;
     &.front {
-        z-index: $zindex-overlay-front;
+        z-index: $zindex-backdrop-front;
     }
 }
 </style>

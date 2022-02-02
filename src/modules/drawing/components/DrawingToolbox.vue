@@ -1,5 +1,5 @@
 <template>
-    <teleport to="#toolbox">
+    <teleport to=".drawing-toolbox-in-menu">
         <div class="drawing-toolbox">
             <div class="card">
                 <div class="card-body position-relative">
