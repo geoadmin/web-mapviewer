@@ -1,5 +1,11 @@
 <template>
-    <teleport to="#toolbox">
+    <div class="menu">
+        <transition name="fade-in-out">
+            <BlackBackdrop
+                v-if="!shouldMenuTrayAlwaysBeVisible && showMenuTray"
+                @click="toggleMenuTray"
+            />
+        </transition>
         <transition name="slide-up">
             <div v-show="showHeader" class="header">
                 <HeaderLoadingBar v-if="showLoadingBar" />
@@ -61,7 +67,7 @@
         <div class="toolbox-bottom">
             <BackgroundSelectorButton />
         </div>
-    </teleport>
+    </div>
 </template>
 
 <script>
@@ -78,9 +84,11 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import BackgroundSelectorButton from '@/modules/menu/components/toolboxBottom/BackgroundSelectorButton.vue'
+import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 
 export default {
     components: {
+        BlackBackdrop,
         BackgroundSelectorButton,
         ZoomButtons,
         GeolocButton,
@@ -127,7 +135,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom']),
+        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenuTray']),
         resetApp: function () {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopic.id}`
@@ -139,73 +147,96 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
-
-.header {
-    height: $header-height;
-    transition: height 0.3s;
-    width: 100%;
-    background: rgba($white, 0.9);
-    box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
-    position: relative;
-    // so that the menu is above the map overlay
-    z-index: $zindex-overlay-default + 2;
-    .header-content {
-        transition: height 0.3s;
-        height: $header-height;
-    }
-}
-.toolbox-right {
-    float: right;
-    position: relative;
-    margin: $screen-padding-for-ui-elements;
-}
-.toolbox-bottom {
-    position: absolute;
-    left: $screen-padding-for-ui-elements;
-    bottom: $footer-height + $screen-padding-for-ui-elements;
-}
-.menu-tray {
+.menu {
     position: absolute;
     z-index: $zindex-menu;
-    top: $header-height;
+    top: 0;
     left: 0;
     width: 100%;
-    max-width: 100%;
-    max-height: calc(100% - #{$header-height});
-    overflow-y: auto;
-    transition: 0.3s;
-    &.desktop-mode {
-        .menu-tray-content {
-            transition: opacity 0.3s;
-        }
-        max-width: 22rem;
+    height: 100%;
+    // so that the user can click through this element (and we don't block interaction with the map)
+    pointer-events: none;
+    & > * {
+        // re-activate interaction with all children of the menu
+        pointer-events: all;
     }
-    &.desktop-menu-closed {
-        .menu-tray-content {
-            opacity: 0;
+    .header {
+        height: $header-height;
+        transition: height 0.3s;
+        width: 100%;
+        background: rgba($white, 0.9);
+        box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
+        position: relative;
+        // so that the menu is above the map overlay
+        z-index: $zindex-overlay-default + 2;
+        .header-content {
+            transition: height 0.3s;
+            height: $header-height;
         }
-        transform: translate(0px, calc(-100% + 2.5rem));
+    }
+    .toolbox-right {
+        float: right;
+        position: relative;
+        margin: $screen-padding-for-ui-elements;
+    }
+    .toolbox-bottom {
+        position: absolute;
+        left: $screen-padding-for-ui-elements;
+        bottom: $footer-height + $screen-padding-for-ui-elements;
+    }
+    .menu-tray {
+        position: absolute;
+        z-index: $zindex-menu;
+        top: $header-height;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100% - #{$header-height});
+        overflow-y: auto;
+        transition: 0.3s;
+        &.desktop-mode {
+            .menu-tray-content {
+                transition: opacity 0.3s;
+            }
+            max-width: 22rem;
+        }
+        &.desktop-menu-closed {
+            .menu-tray-content {
+                opacity: 0;
+            }
+            transform: translate(0px, calc(-100% + 2.5rem));
+        }
     }
 }
 @include respond-above(lg) {
-    .header {
-        height: 2 * $header-height;
-        .header-content {
+    .menu {
+        .header {
             height: 2 * $header-height;
-            .swiss-flag {
-                margin-top: 0.4rem;
-                align-self: flex-start;
-            }
-            .menu-tray {
-                top: 2 * $header-height;
+            .header-content {
+                height: 2 * $header-height;
+                .swiss-flag {
+                    margin-top: 0.4rem;
+                    align-self: flex-start;
+                }
+                .menu-tray {
+                    top: 2 * $header-height;
+                }
             }
         }
-    }
-    .menu-tray {
-        top: 2 * $header-height;
+        .menu-tray {
+            top: 2 * $header-height;
+        }
     }
 }
 // transition definitions
+.fade-in-out-enter-active,
+.fade-in-out-leave-active {
+    transition: opacity 0.5s;
+}
+.fade-in-out-enter-from,
+.fade-in-out-leave-to {
+    opacity: 0;
+}
 .slide-up-leave-active,
 .slide-up-enter-active {
     transition: 0.2s;

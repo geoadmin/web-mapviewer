@@ -36,7 +36,7 @@ const drawingLayerManagementPlugin = (store) => {
             )
             store.dispatch('addLayer', kmlLayer)
         } else if (
-            mutation.type == 'removeLayerWithId' &&
+            mutation.type === 'removeLayerWithId' &&
             !state.ui.showDrawingOverlay &&
             state.drawing.drawingKmlIds &&
             state.drawing.drawingKmlIds.fileId &&
@@ -49,7 +49,7 @@ const drawingLayerManagementPlugin = (store) => {
             // kml drawing manager, this way when opening the drawing menu again we
             // start with a new empty KML.
             store.dispatch('setKmlIds', null)
-        } else if (mutation.type == 'clearLayers' && !state.ui.showDrawingOverlay) {
+        } else if (mutation.type === 'clearLayers' && !state.ui.showDrawingOverlay) {
             // Same as for 'removeLayerWithId' mutation, see comment above
             store.dispatch('setKmlIds', null)
         }

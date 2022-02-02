@@ -9,13 +9,12 @@ import ui from './modules/ui.store'
 import drawing from './modules/drawing.store'
 
 import map from '../map/store'
-import overlay from '../overlay/store'
 import search from '../search/store'
 import i18n from '../i18n/store'
 
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
 import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
-import menuSearchBarAndOverlayInteractionManagementPlugin from './plugins/menu-search-overlay-interaction.plugin'
+import menuSearchBarInteractionManagementPlugin from './plugins/menu-search-interaction.plugin'
 import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin'
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
@@ -23,7 +22,7 @@ import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-ma
 import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
 import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
 import drawingLayerManagementPlugin from '@/modules/store/plugins/drawing-layer-management.plugin'
-import uiModeChangeManagementPlugin from '@/modules/store/plugins/ui-mode-change-management.plugin'
+import screenSizeManagementPlugin from '@/modules/store/plugins/screen-size-management.plugin'
 
 export default createStore({
     strict: true,
@@ -31,7 +30,7 @@ export default createStore({
     plugins: [
         loadLayersConfigOnLangChange,
         redoSearchOnLangChange,
-        menuSearchBarAndOverlayInteractionManagementPlugin,
+        menuSearchBarInteractionManagementPlugin,
         clickOnMapManagementPlugin,
         appReadinessPlugin,
         geolocationManagementPlugin,
@@ -39,7 +38,7 @@ export default createStore({
         loadingBarManagementPlugin,
         drawingOverlayAndMenuManagementPlugin,
         drawingLayerManagementPlugin,
-        uiModeChangeManagementPlugin,
+        screenSizeManagementPlugin,
     ],
     modules: {
         app,
@@ -50,7 +49,6 @@ export default createStore({
         ui,
         drawing,
         map,
-        overlay,
         search,
         i18n,
     },

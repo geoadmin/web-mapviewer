@@ -1,5 +1,5 @@
 <template>
-    <teleport to="body">
+    <teleport to="#toolbox">
         <div class="drawing-toolbox">
             <div class="card">
                 <div class="card-body position-relative">
@@ -99,22 +99,22 @@
                 </div>
             </div>
         </div>
-        <ModalWithOverlay
+        <ModalWithBackdrop
             v-if="showClearConfirmationModal"
             show-confirmation-buttons
             data-cy="drawing-toolbox-delete-confirmation-modal"
             @close="onCloseClearConfirmation"
         >
             {{ $t('confirm_remove_all_features') }}
-        </ModalWithOverlay>
-        <ModalWithOverlay
+        </ModalWithBackdrop>
+        <ModalWithBackdrop
             v-if="showShareModal"
             :title="$t('share')"
             data-cy="drawing-toolbox-share-modal"
             @close="onCloseShare"
         >
             <share-form :kml-ids="kmlIds" />
-        </ModalWithOverlay>
+        </ModalWithBackdrop>
     </teleport>
 </template>
 
@@ -122,11 +122,11 @@
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 export default {
     components: {
-        ModalWithOverlay,
+        ModalWithBackdrop,
         ButtonWithIcon,
         DrawingToolboxButton,
         ShareForm,

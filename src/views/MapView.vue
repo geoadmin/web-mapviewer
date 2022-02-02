@@ -1,6 +1,5 @@
 <template>
     <div id="map-view">
-        <OverlayModule />
         <MapModule>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule />
@@ -16,7 +15,6 @@
 </template>
 
 <script>
-import OverlayModule from '@/modules/overlay/OverlayModule.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import SearchModule from '@/modules/search/SearchModule.vue'
@@ -31,7 +29,6 @@ export default {
         SearchModule,
         MenuModule,
         MapModule,
-        OverlayModule,
         I18nModule,
     },
 }

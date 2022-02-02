@@ -1,5 +1,5 @@
 <template>
-    <ModalWithOverlay :title="$t('choose_theme')" @close="onClose">
+    <ModalWithBackdrop :title="$t('choose_theme')" @close="onClose">
         <div class="menu-topic-selector-popup p-4">
             <div
                 v-for="topic in topics"
@@ -12,14 +12,14 @@
                 <TopicIcon :topic-id="topic.id" />
             </div>
         </div>
-    </ModalWithOverlay>
+    </ModalWithBackdrop>
 </template>
 
 <script>
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
-import ModalWithOverlay from '@/modules/overlay/components/ModalWithOverlay.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 export default {
-    components: { TopicIcon, ModalWithOverlay },
+    components: { TopicIcon, ModalWithBackdrop },
     props: {
         topics: {
             type: Array,

@@ -7,6 +7,7 @@ $zindex-footer: $zindex-swipable-element + 1;
 $zindex-overlay-default: 200;
 $zindex-menu: $zindex-overlay-default + 1;
 $zindex-overlay-front: 300;
+$zindex-modal: $zindex-overlay-front + 1;
 
 $header-height: 3rem;
 $footer-height: 1.5rem;
