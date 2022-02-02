@@ -8,9 +8,9 @@ import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 import drawing from './modules/drawing.store'
 
-import map from '../map/store'
-import search from '../search/store'
-import i18n from '../i18n/store'
+import map from '@/modules/map/store'
+import search from '@/modules/menu/store'
+import i18n from '@/modules/i18n/store'
 
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
 import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'

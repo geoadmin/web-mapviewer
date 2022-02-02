@@ -9,28 +9,14 @@
                 @click="toggleMenuTray"
             />
         </transition>
-        <div v-show="showHeader" class="header">
-            <HeaderLoadingBar v-if="showLoadingBar" />
-            <div class="header-content align-items-center p-1 d-flex justify-content-between">
-                <div class="justify-content-start d-flex">
-                    <SwissFlag
-                        class="swiss-flag ms-1 me-2 cursor-pointer"
-                        data-cy="menu-swiss-flag"
-                        @click="resetApp"
-                    />
-                    <HeaderSwissConfederationText
-                        :current-lang="currentLang"
-                        class="me-2 cursor-pointer d-none d-lg-block"
-                        data-cy="menu-swiss-confederation-text"
-                        @click="resetApp"
-                    />
-                </div>
-                <!-- we then let whatever was given in the slot be rendered here,
-                 that's where we expect to receive the search module from MapView.vue -->
-                <slot />
-                <HeaderMenuButton v-if="!shouldMenuTrayAlwaysBeVisible" />
-            </div>
-        </div>
+        <HeaderWithSearch
+            v-show="showHeader"
+            class="header"
+            :show-loading-bar="showLoadingBar"
+            :show-menu-button="!shouldMenuTrayAlwaysBeVisible"
+            :current-lang="currentLang"
+            :current-topic-id="currentTopic && currentTopic.id"
+        />
         <div class="toolbox-right">
             <GeolocButton
                 class="mb-1"
@@ -72,14 +58,10 @@
 </template>
 
 <script>
+import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import { mapActions, mapState } from 'vuex'
 
-import SwissFlag from './components/header/SwissFlag.vue'
-import HeaderMenuButton from './components/header/HeaderMenuButton.vue'
-import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText.vue'
-
 import MenuTray from './components/menu/MenuTray.vue'
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
@@ -89,15 +71,12 @@ import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 
 export default {
     components: {
+        HeaderWithSearch,
         BlackBackdrop,
         BackgroundSelectorButton,
         ZoomButtons,
         GeolocButton,
         ButtonWithIcon,
-        HeaderLoadingBar,
-        HeaderSwissConfederationText,
-        HeaderMenuButton,
-        SwissFlag,
         MenuTray,
     },
     data() {
@@ -137,10 +116,6 @@ export default {
     },
     methods: {
         ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenuTray']),
-        resetApp: function () {
-            // an app reset means we keep the lang and the current topic but everything else is thrown away
-            window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopic.id}`
-        },
     },
 }
 </script>
@@ -169,7 +144,6 @@ $animation-time: 0.5s;
         z-index: $zindex-drawing-toolbox;
     }
     .header {
-        height: $header-height;
         transition: height $animation-time;
         width: 100%;
         background: rgba($white, 0.9);
@@ -178,7 +152,6 @@ $animation-time: 0.5s;
         z-index: $zindex-menu;
         .header-content {
             transition: height $animation-time;
-            height: $header-height;
         }
     }
     .toolbox-right {
@@ -217,19 +190,6 @@ $animation-time: 0.5s;
 }
 @include respond-above(lg) {
     .menu {
-        .header {
-            height: 2 * $header-height;
-            .header-content {
-                height: 2 * $header-height;
-                .swiss-flag {
-                    margin-top: 0.4rem;
-                    align-self: flex-start;
-                }
-                .menu-tray {
-                    top: 2 * $header-height;
-                }
-            }
-        }
         .menu-tray {
             top: 2 * $header-height;
         }

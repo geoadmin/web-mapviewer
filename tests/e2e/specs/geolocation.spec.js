@@ -5,8 +5,7 @@ import { forEachTestViewport } from '../support'
 const geolocationButtonSelector = '[data-cy="geolocation-button"]'
 
 function getGeolocationButtonAndClickIt() {
-    cy.get(geolocationButtonSelector).should('be.visible')
-    cy.get(geolocationButtonSelector).click()
+    cy.get(geolocationButtonSelector).should('be.visible').click()
 }
 
 describe('Geolocation tests', () => {

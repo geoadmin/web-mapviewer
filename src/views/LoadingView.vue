@@ -1,16 +1,13 @@
 <template>
     <div id="splashscreen">
-        <MenuModule>
-            <SearchModule />
-        </MenuModule>
+        <MenuModule />
     </div>
 </template>
 
 <script>
 import MenuModule from '@/modules/menu/MenuModule.vue'
-import SearchModule from '@/modules/search/SearchModule.vue'
 export default {
-    components: { SearchModule, MenuModule },
+    components: { MenuModule },
 }
 </script>
 
