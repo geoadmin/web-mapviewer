@@ -20,7 +20,6 @@ import appReadinessPlugin from './plugins/app-readiness.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
 import topicChangeManagementPlugin from '@/modules/store/plugins/topic-change-management.plugin'
 import loadingBarManagementPlugin from '@/modules/store/plugins/loading-bar-management.plugin'
-import drawingOverlayAndMenuManagementPlugin from '@/modules/store/plugins/drawing-overlay-menu-management.plugin'
 import drawingLayerManagementPlugin from '@/modules/store/plugins/drawing-layer-management.plugin'
 import screenSizeManagementPlugin from '@/modules/store/plugins/screen-size-management.plugin'
 
@@ -36,7 +35,6 @@ export default createStore({
         geolocationManagementPlugin,
         topicChangeManagementPlugin,
         loadingBarManagementPlugin,
-        drawingOverlayAndMenuManagementPlugin,
         drawingLayerManagementPlugin,
         screenSizeManagementPlugin,
     ],
