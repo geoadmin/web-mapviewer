@@ -39,7 +39,6 @@
         "jquery": "^3.6.0",
         "mobile-device-detect": "^0.4.3",
         "ol": "^6.10.0",
-        "portal-vue": "next",
         "proj4": "^2.7.5",
         "register-service-worker": "^1.7.2",
         "reproject": "^1.2.6",

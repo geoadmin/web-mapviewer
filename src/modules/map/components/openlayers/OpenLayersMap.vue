@@ -3,13 +3,13 @@
     <div id="ol-map" ref="map" @contextmenu="showLocationPopup">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
-        <portal to="footer" :order="1">
+        <teleport v-if="readyForTeleport" to="#footer-target-scale">
             <!--
                 It is necessary to use `v-show` instead of `v-if`. Otherwise,
                 the scale-line will never show if the initial zoom was too low.
             -->
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
-        </portal>
+        </teleport>
         <OpenLayersMousePosition v-if="isUIinDesktopMode" />
         <VisibleLayersCopyrights
             :layers="backgroundAndVisibleLayers"
@@ -119,6 +119,8 @@ export default {
             markerStyles,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
+            /** Delay teleport until view is rendered. Updated in mounted-hook. */
+            readyForTeleport: false,
         }
     },
     computed: {
@@ -241,6 +243,8 @@ export default {
         // see https://portal-vue.linusb.org/guide/caveats.html#refs
         // for the reason this double $nextTick is here
         this.$nextTick().then(() => {
+            // We can enable the teleport after the view has been rendered.
+            this.readyForTeleport = true
             this.$nextTick(() => {
                 const scaleLine = new ScaleLine({
                     target: this.$refs.scaleLine,
