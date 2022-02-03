@@ -10,7 +10,7 @@ const drawingStyleDescription = '[data-cy="drawing-style-feature-description"]'
 
 const drawingStyleMarkerButton = '[data-cy="drawing-style-marker-button"]'
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
-// const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
+const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
 const drawingStyleMarkerIconSetSelector = '[data-cy="drawing-style-icon-set-button"]'
 
 const drawingStyleTextButton = '[data-cy="drawing-style-text-button"]'
@@ -49,25 +49,25 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
  * @param {number} [opt_pointerId] Pointer id.
  * @returns {MapBrowserEvent} The simulated event.
  */
-const simulateEvent = (map, type, x, y, opt_shiftKey, opt_pointerId = 0) => {
+const simulateEvent = (map, type, x, y, opt_shiftKey = false, opt_pointerId = 0) => {
     cy.log(`simulating ${type} at [${x}, ${y}]`)
 
-    var viewport = map.getViewport()
+    const viewport = map.getViewport()
 
     // calculated in case body has top < 0 (test runner with small window)
-    const shiftKey = opt_shiftKey !== undefined ? opt_shiftKey : false
-    const event = {}
-    event.type = type
-    event.target = viewport.firstChild
-    event.clientX = viewport.clientLeft + x + viewport.clientWidth / 2
-    event.clientY = viewport.clientTop + y + viewport.clientHeight / 2
-    event.shiftKey = shiftKey
-    event.preventDefault = function () {}
-    event.pointerType = 'mouse'
-    event.pointerId = opt_pointerId
-    event.isPrimary = true
-    event.button = 0
-    // @ts-ignore
+    const event = {
+        type,
+        target: viewport.firstChild,
+        clientX: viewport.clientLeft + x + viewport.clientWidth / 2,
+        clientY: viewport.clientTop + y + viewport.clientHeight / 2,
+        shiftKey: opt_shiftKey,
+        preventDefault() {},
+        pointerType: 'mouse',
+        pointerId: opt_pointerId,
+        isPrimary: true,
+        button: 0,
+    }
+
     const simulatedEvent = new MapBrowserEvent(type, map, event)
     map.handleMapBrowserEvent(simulatedEvent)
     return simulatedEvent
@@ -81,12 +81,12 @@ const createMarkerAndOpenIconStylePopup = () => {
 }
 
 /** @param {DrawingStyleColor} color */
-// const clickOnAColor = (color) => {
-//     cy.get(
-//         `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
-//     ).click()
-//     cy.checkDrawnGeoJsonPropertyContains('icon', `-${color.rgbString}.png`)
-// }
+const clickOnAColor = (color) => {
+    cy.get(
+        `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
+    ).click()
+    cy.checkDrawnGeoJsonPropertyContains('icon', `-${color.rgbString}.png`)
+}
 
 /** @param {DrawingStyleSize} size */
 const changeIconSize = (size) => {
@@ -115,9 +115,8 @@ describe('Drawing marker/points', () => {
                     })
                     it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
                         createMarkerAndOpenIconStylePopup()
-                        // TODO: see why the colors are not loaded during the test (and so it fails), see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                        // clickOnAColor(GREEN)
-                        // cy.wait('@icon-default-green')
+                        clickOnAColor(GREEN)
+                        cy.wait('@icon-default-green')
                     })
                     context('simple interaction with a marker', () => {
                         it('toggles the marker symbol popup when clicking button', () => {
@@ -160,35 +159,31 @@ describe('Drawing marker/points', () => {
                     })
 
                     context('marker styling popup', () => {
-                        // const checkIconInKml = (expectedIconUrl) => {
-                        //     cy.wait('@update-kml').then((interception) => {
-                        //         const body = interception.request.body
-                        //         let icon = body.substr(body.indexOf('<Data name="icon">'))
-                        //         icon = icon.substr(0, icon.indexOf('</Data>'))
-                        //         expect(icon).to.contain(expectedIconUrl)
-                        //     })
-                        // }
+                        const checkIconInKml = (expectedIconUrl) => {
+                            cy.wait('@update-kml').then((interception) => {
+                                const body = interception.request.body
+                                let icon = body.substr(body.indexOf('<Data name="icon">'))
+                                icon = icon.substr(0, icon.indexOf('</Data>'))
+                                expect(icon).to.contain(expectedIconUrl)
+                            })
+                        }
 
                         context('color change', () => {
                             beforeEach(() => {
                                 cy.intercept(
                                     `**/v4/icons/sets/default/icons/**${GREEN.rgbString}.png`,
-                                    {
-                                        fixture: 'service-icons/placeholder.png',
-                                    }
+                                    { fixture: 'service-icons/placeholder.png' }
                                 ).as('icon-default-green')
                             })
                             it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
                                 createMarkerAndOpenIconStylePopup()
-                                // TODO: see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                                // clickOnAColor(GREEN)
-                                // cy.wait('@icon-default-green')
+                                clickOnAColor(GREEN)
+                                cy.wait('@icon-default-green')
                             })
                             it('Modify the KML file whenever the color of the icon changes', () => {
                                 createMarkerAndOpenIconStylePopup()
-                                // TODO: see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                                // clickOnAColor(GREEN)
-                                // checkIconInKml(`-${GREEN.rgbString}.png`)
+                                clickOnAColor(GREEN)
+                                checkIconInKml(`-${GREEN.rgbString}.png`)
                             })
                         })
 
@@ -196,15 +191,12 @@ describe('Drawing marker/points', () => {
                             beforeEach(() => {
                                 cy.intercept(
                                     `**/icons/**@${LARGE.iconScale}x-${RED.rgbString}.png`,
-                                    {
-                                        fixture: 'service-icons/placeholder.png',
-                                    }
+                                    { fixture: 'service-icons/placeholder.png' }
                                 ).as('large-icon')
+
                                 cy.intercept(
                                     `**/icons/**@${SMALL.iconScale}x-${RED.rgbString}.png`,
-                                    {
-                                        fixture: 'service-icons/placeholder.png',
-                                    }
+                                    { fixture: 'service-icons/placeholder.png' }
                                 ).as('small-icon')
                             })
                             it('uses medium as its default size', () => {
@@ -214,15 +206,13 @@ describe('Drawing marker/points', () => {
                             it('changes the GeoJSON size when changed on the UI', () => {
                                 createMarkerAndOpenIconStylePopup()
                                 changeIconSize(LARGE)
-                                // TODO: see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                                // cy.wait('@large-icon')
+                                cy.wait('@large-icon')
                             })
                             it('Updates the KML with the new icon size whenever it changes in the UI', () => {
                                 createMarkerAndOpenIconStylePopup()
                                 changeIconSize(SMALL)
-                                // TODO: see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                                // cy.wait('@small-icon')
-                                // checkIconInKml(`@${SMALL.iconScale}x-${RED.rgbString}`)
+                                cy.wait('@small-icon')
+                                checkIconInKml(`@${SMALL.iconScale}x-${RED.rgbString}`)
                             })
                         })
 
@@ -263,30 +253,29 @@ describe('Drawing marker/points', () => {
                                 createMarkerAndOpenIconStylePopup()
                                 cy.get(drawingStyleMarkerIconSetSelector).click()
                                 // showing all icons of this sets so that we may choose a new one
-                                // TODO: see https://jira.swisstopo.ch/browse/BGDIINF_SB-2157
-                                // cy.get(
-                                //     `${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`
-                                // ).click()
-                                // cy.fixture('service-icons/set-default.fixture.json').then(
-                                //     (defaultIconSet) => {
-                                //         // picking up the 4th icon of the set
-                                //         const fourthIcon = defaultIconSet.items[3]
-                                //         cy.get(
-                                //             `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                                //         ).click()
-                                //         cy.checkDrawnGeoJsonPropertyContains(
-                                //             'icon',
-                                //             `api/icons/sets/default/icons/${fourthIcon.name}`
-                                //         )
-                                //         cy.wait('@update-kml').then((interception) =>
-                                //             expect(interception.request.body).to.match(
-                                //                 RegExp(
-                                //                     `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
-                                //                 )
-                                //             )
-                                //         )
-                                //     }
-                                // )
+                                cy.get(
+                                    `${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`
+                                ).click()
+                                cy.fixture('service-icons/set-default.fixture.json').then(
+                                    (defaultIconSet) => {
+                                        // picking up the 4th icon of the set
+                                        const fourthIcon = defaultIconSet.items[3]
+                                        cy.get(
+                                            `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
+                                        ).click()
+                                        cy.checkDrawnGeoJsonPropertyContains(
+                                            'icon',
+                                            `api/icons/sets/default/icons/${fourthIcon.name}`
+                                        )
+                                        cy.wait('@update-kml').then((interception) =>
+                                            expect(interception.request.body).to.match(
+                                                RegExp(
+                                                    `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
+                                                )
+                                            )
+                                        )
+                                    }
+                                )
                             })
                         })
                     })
