@@ -58,7 +58,7 @@ describe('Geolocation tests', () => {
                             y = 6024072.12
 
                         beforeEach(() => {
-                            cy.goToMapViewWithMockGeolocation(lat, lon)
+                            cy.goToMapView('en', {}, false, { latitude: lat, longitude: lon })
                             getGeolocationButtonAndClickIt()
                         })
 
