@@ -352,10 +352,6 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .profile-popup {
-    position: absolute;
-    z-index: $zindex-map + 2; // so that we are above the map toolbox (background wheel, zoom buttons, etc...)
-    top: auto;
-    bottom: $footer-height;
     width: 100%;
     max-height: 380px;
 

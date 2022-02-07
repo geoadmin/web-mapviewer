@@ -11,10 +11,12 @@
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </teleport>
         <OpenLayersMousePosition v-if="isUIinDesktopMode" />
-        <VisibleLayersCopyrights
-            :layers="backgroundAndVisibleLayers"
-            :is-footer-visible="isFooterVisible"
-        />
+        <div id="map-target-profile">
+            <VisibleLayersCopyrights
+                :layers="backgroundAndVisibleLayers"
+                :is-footer-visible="isFooterVisible"
+            />
+        </div>
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -393,5 +395,16 @@ export default {
             max-width: 150px;
         }
     }
+}
+#map-target-profile {
+    position: absolute;
+    right: 0;
+    bottom: $footer-height;
+    left: 0;
+    z-index: $zindex-copyrights;
+
+    display: flex;
+    flex-direction: column;
+    align-items: end;
 }
 </style>

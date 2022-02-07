@@ -69,10 +69,6 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 #visible-layers-copyrights {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    z-index: $zindex-copyrights;
     font-size: 0.7rem;
     background: rgba($white, 0.7);
     &.footer-visible {
