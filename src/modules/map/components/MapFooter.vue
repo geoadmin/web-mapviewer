@@ -41,7 +41,7 @@ export default {
     height: $footer-height;
     font-size: 0.6rem;
     padding: 0 0.2rem;
-    background: $white;
+    background: rgba($white, 0.9);
     display: flex;
     .app-version {
         color: $gray-400;

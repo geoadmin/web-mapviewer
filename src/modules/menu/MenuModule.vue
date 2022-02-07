@@ -126,7 +126,7 @@ export default {
     height: $header-height;
     transition: height 0.3s;
     width: 100%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba($white, 0.9);
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
     // so that the menu is above the map overlay
     z-index: $zindex-overlay-default + 2;
