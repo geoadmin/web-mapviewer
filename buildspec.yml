@@ -14,6 +14,9 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
+      # updating npm to version 8.x.x (it is not done automatically by settings env to nodejs v14)
+      # see package.json for version requirements
+      - npm install -g npm@8.4.1
       # npm ci reads only the package-lock.json file (not the package.json) to be sure to have exactly the same libraries
       # that were used last time npm install was done on the developer's device.
       - npm ci
