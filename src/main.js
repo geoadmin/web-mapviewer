@@ -3,7 +3,6 @@ import 'bootstrap'
 import 'animate.css'
 
 import { createApp } from 'vue'
-import PortalVuePlugin from 'portal-vue'
 
 import App from './App.vue'
 import store from '@/modules/store'
@@ -21,7 +20,6 @@ const app = createApp(App)
 app.use(router)
 app.use(i18n)
 app.use(store)
-app.use(PortalVuePlugin)
 
 // setting up font awesome vue component
 require('./setup-fontawesome')

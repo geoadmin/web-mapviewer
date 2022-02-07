@@ -8,7 +8,6 @@
             :small="small"
             :danger="danger"
         ></ButtonWithIcon>
-        <!--        <portal to="modal-container">-->
         <div
             ref="popoverContent"
             class="popover-container"
@@ -38,9 +37,9 @@
                 </div>
             </div>
         </div>
-        <!--        </portal>-->
     </div>
 </template>
+
 <script>
 import tippy from 'tippy.js'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
@@ -152,6 +151,7 @@ export default {
     },
 }
 </script>
+
 <style scoped>
 @import '~tippy.js/dist/svg-arrow.css';
 </style>

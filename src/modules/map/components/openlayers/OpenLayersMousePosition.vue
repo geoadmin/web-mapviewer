@@ -1,5 +1,5 @@
 <template>
-    <portal to="footer" :order="2">
+    <teleport v-if="readyForTeleport" to="#footer-target-mouse">
         <div ref="mousePosition" class="d-flex align-items-center" data-cy="mouse-position">
             <select
                 v-model="currentProjectionId"
@@ -13,7 +13,7 @@
             </select>
             <!-- Here OpenLayers will inject a div with the class mouse-position -->
         </div>
-    </portal>
+    </teleport>
 </template>
 
 <script>
@@ -27,6 +27,8 @@ export default {
         return {
             currentProjectionId: CoordinateSystems.LV95.id,
             availableProjections: CoordinateSystems,
+            /** Delay teleport until view is rendered. Updated in mounted-hook. */
+            readyForTeleport: false,
         }
     },
     created() {
@@ -40,6 +42,8 @@ export default {
         const map = this.getMap()
         // see https://portal-vue.linusb.org/guide/caveats.html#refs
         this.$nextTick().then(() => {
+            // We can enable the teleport after the view has been rendered.
+            this.readyForTeleport = true
             this.$nextTick(() => {
                 this.mousePositionControl.setTarget(this.$refs.mousePosition)
                 this.mousePositionControl.setCoordinateFormat(CoordinateSystems.LV95.format)
