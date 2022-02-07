@@ -3,7 +3,6 @@
         class="geoloc-button"
         :class="{ active: isActive, disabled: isDenied }"
         data-cy="geolocation-button"
-        @click="toggleGeolocation"
     >
         <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
             <ellipse class="geoloc-button-inner-circle" rx="8" ry="8" stroke-width="9" />
@@ -12,16 +11,16 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
 export default {
-    computed: {
-        ...mapState({
-            isActive: (state) => state.geolocation.active,
-            isDenied: (state) => state.geolocation.denied,
-        }),
-    },
-    methods: {
-        ...mapActions(['toggleGeolocation']),
+    props: {
+        isActive: {
+            type: Boolean,
+            required: true,
+        },
+        isDenied: {
+            type: Boolean,
+            required: true,
+        },
     },
 }
 </script>

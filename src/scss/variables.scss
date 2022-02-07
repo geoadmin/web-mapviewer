@@ -1,11 +1,18 @@
 
 $zindex-map: 1;
-$zindex-copyrights: $zindex-map + 1;
+$zindex-toolbox: $zindex-map + 1;
+$zindex-copyrights: $zindex-toolbox + 1;
 $zindex-swipable-element: $zindex-copyrights + 1;
 $zindex-footer: $zindex-swipable-element + 1;
-$zindex-overlay-default: 200;
-$zindex-menu: $zindex-overlay-default + 1;
-$zindex-overlay-front: 300;
+$zindex-backdrop-default: 200;
+// the menu is above the map backdrop (but the menu tray is one step behind the rest of the menu so that it can slip behind when closed)
+$zindex-menu-tray: $zindex-backdrop-default + 1;
+$zindex-menu: $zindex-menu-tray + 1;
+// in order to have the header slip behind the drawing toolbox when the hiding animation occurs
+$zindex-drawing-toolbox: $zindex-menu + 1;
+$zindex-backdrop-front: 300;
+// so that the modal is above the menu (and its backdrop)
+$zindex-modal: $zindex-backdrop-front + 1;
 
 $header-height: 3rem;
 $footer-height: 1.5rem;

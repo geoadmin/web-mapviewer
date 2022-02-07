@@ -1,5 +1,3 @@
-import { isMobile } from 'mobile-device-detect'
-
 /**
  * Describes the different mode the UI can have. Either desktop (menu is always shown, info box is a
  * side tray) or touch (menu has to be opened with a button, info box is a swipeable element)
@@ -39,7 +37,7 @@ export default {
          *
          * @type Boolean
          */
-        showMenuTray: !isMobile,
+        showMenuTray: false,
         /**
          * Flag telling if the app should be shown in fullscreen mode, meaning that :
          *
@@ -69,7 +67,7 @@ export default {
          *
          * @type UIModes
          */
-        mode: isMobile ? UIModes.MENU_OPENED_THROUGH_BUTTON : UIModes.MENU_ALWAYS_OPEN,
+        mode: UIModes.MENU_OPENED_THROUGH_BUTTON,
     },
     getters: {
         screenDensity: (state) => {

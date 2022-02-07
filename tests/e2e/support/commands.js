@@ -18,7 +18,7 @@ const addFileAPIFixtureAndIntercept = () => {
     cy.intercept(
         {
             method: 'POST',
-            url: '/api/kml/admin',
+            url: '**/api/kml/admin',
         },
         {
             statusCode: 201,
@@ -28,7 +28,7 @@ const addFileAPIFixtureAndIntercept = () => {
     cy.intercept(
         {
             method: 'PUT',
-            url: '/api/kml/admin/**',
+            url: '**/api/kml/admin/**',
         },
         {
             statusCode: 200,
@@ -81,48 +81,50 @@ const addWhat3WordFixtureAndIntercept = () => {
 }
 
 // Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
-Cypress.Commands.add('goToMapView', (lang = 'en', otherParams = {}, withHash = false) => {
-    addLayerTileFixture()
-    addFileAPIFixtureAndIntercept()
-    addLayerFixtureAndIntercept()
-    addTopicFixtureAndIntercept()
-    addCatalogFixtureAndIntercept()
-    addWhat3WordFixtureAndIntercept()
-    addHeightFixtureAndIntercept()
-    let flattenedOtherParams = ''
-    Object.keys(otherParams).forEach((key) => {
-        flattenedOtherParams += `&${key}=${otherParams[key]}`
-    })
-    // see app.store.js
-    cy.intercept('**/tell-cypress-app-is-done-loading', {}).as('app-done-loading')
-    // Alias used to wait until layers have been updated after loading configuration.
-    cy.intercept('**/tell-cypress-layers-are-configured', {}).as('layers-configured')
-    cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`)
-    // waiting for the app to load and layers to be configured.
-    cy.wait('@app-done-loading')
-    cy.wait('@layers-configured')
-    // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
-    cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
-})
-// from https://github.com/cypress-io/cypress/issues/2671
 Cypress.Commands.add(
-    'goToMapViewWithMockGeolocation',
-    (latitude = 47, longitude = 7, lang = 'en') => {
+    'goToMapView',
+    (
+        lang = 'en',
+        otherParams = {},
+        withHash = false,
+        geolocationMockupOptions = { latitude: 47, longitude: 7 }
+    ) => {
         addLayerTileFixture()
+        addFileAPIFixtureAndIntercept()
         addLayerFixtureAndIntercept()
         addTopicFixtureAndIntercept()
+        addCatalogFixtureAndIntercept()
+        addWhat3WordFixtureAndIntercept()
+        addHeightFixtureAndIntercept()
+        let flattenedOtherParams = ''
+        Object.keys(otherParams).forEach((key) => {
+            flattenedOtherParams += `&${key}=${otherParams[key]}`
+        })
+        // see app.store.js
+        cy.intercept('**/tell-cypress-app-is-done-loading', {}).as('app-done-loading')
+        // Alias used to wait until layers have been updated after loading configuration.
+        cy.intercept('**/tell-cypress-layers-are-configured', {}).as('layers-configured')
+
+        // geolocation mockup from https://github.com/cypress-io/cypress/issues/2671
         const mockGeolocation = (win, latitude, longitude) => {
             cy.stub(win.navigator.geolocation, 'getCurrentPosition', (callback) => {
                 return callback({ coords: { latitude, longitude } })
             })
         }
-        cy.visit(`/?lang=${lang}`, {
+        cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`, {
             onBeforeLoad: (win) => {
-                mockGeolocation(win, latitude, longitude)
+                mockGeolocation(
+                    win,
+                    geolocationMockupOptions.latitude,
+                    geolocationMockupOptions.longitude
+                )
             },
         })
-        cy.wait('@layers')
-        cy.wait('@topics')
+        // waiting for the app to load and layers to be configured.
+        cy.wait('@app-done-loading')
+        cy.wait('@layers-configured')
+        // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
+        cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
     }
 )
 

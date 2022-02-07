@@ -12,7 +12,7 @@
             <span class="menu-item-name">{{ item.name }}</span>
         </div>
         <CollapseTransition :duration="200">
-            <div v-show="showChildren" class="menu-tree-children" :class="`ps-${2 + 2 * depth}`">
+            <div v-if="showChildren" class="menu-tree-children" :class="`ps-${2 + 2 * depth}`">
                 <MenuTopicTreeItem
                     v-for="child in item.children"
                     :key="`${child.id}-${child.name}`"

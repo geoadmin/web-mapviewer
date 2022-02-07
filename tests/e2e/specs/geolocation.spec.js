@@ -5,8 +5,7 @@ import { forEachTestViewport } from '../support'
 const geolocationButtonSelector = '[data-cy="geolocation-button"]'
 
 function getGeolocationButtonAndClickIt() {
-    cy.get(geolocationButtonSelector).should('be.visible')
-    cy.get(geolocationButtonSelector).click()
+    cy.get(geolocationButtonSelector).should('be.visible').click()
 }
 
 describe('Geolocation tests', () => {
@@ -59,7 +58,7 @@ describe('Geolocation tests', () => {
                             y = 6024072.12
 
                         beforeEach(() => {
-                            cy.goToMapViewWithMockGeolocation(lat, lon)
+                            cy.goToMapView('en', {}, false, { latitude: lat, longitude: lon })
                             getGeolocationButtonAndClickIt()
                         })
 

@@ -5,10 +5,3 @@ $primary: $red;
 @import 'node_modules/bootstrap/scss/functions';
 @import 'node_modules/bootstrap/scss/variables';
 @import 'node_modules/bootstrap/scss/mixins';
-
-// exporting screen breakpoints so that they are available in the Javascript
-:export {
-  @each $key, $value in $grid-breakpoints {
-    #{unquote($key)}: $value;
-  }
-}

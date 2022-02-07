@@ -1,5 +1,5 @@
 <template>
-    <ModalWithOverlay :title="$t('metadata_window_title')" :allow-print="true" @close="onClose">
+    <ModalWithBackdrop :title="$t('metadata_window_title')" :allow-print="true" @close="onClose">
         <div class="layer-legend">
             <h4 v-if="!content" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
@@ -8,15 +8,15 @@
             <div v-else data-cy="layer-legend" v-html="content"></div>
             <!-- eslint-enable vue/no-v-html-->
         </div>
-    </ModalWithOverlay>
+    </ModalWithBackdrop>
 </template>
 
 <script>
 import { getLayerLegend } from '@/api/layers/layers.api'
-import ModalWithOverlay from './ModalWithOverlay.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 export default {
-    components: { ModalWithOverlay },
+    components: { ModalWithBackdrop },
     props: {
         layerId: {
             type: String,

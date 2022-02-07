@@ -26,10 +26,6 @@ const topicChangeManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
         // we listen to the "change topic" mutation
         if (mutation.type === CHANGE_TOPIC_MUTATION) {
-            // closing overlay if it's still visible after menu close
-            if (state.overlay.show) {
-                store.dispatch('hideOverlay')
-            }
             const currentTopic = state.topics.current
             // we only set background (from topic) after app startup
             // otherwise, the URL param bgLayer is ignored/overwritten by the setTopic

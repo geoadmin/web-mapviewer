@@ -1,22 +1,23 @@
 <template>
     <teleport to="body">
+        <BlackBackdrop front @click="onClose(false)" />
         <div class="modal-popup">
             <div class="card">
                 <div class="card-header d-flex align-middle">
                     <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
-                    <ButtonWithIcon
-                        :button-font-awesome-icon="['fa', 'times']"
-                        small
-                        class="float-end"
-                        data-cy="modal-close-button"
-                        @click="onClose(false)"
-                    />
                     <ButtonWithIcon
                         v-if="allowPrint"
                         small
                         :button-font-awesome-icon="['fa', 'print']"
                         data-cy="modal-print-button"
                         @click="printModalContent"
+                    />
+                    <ButtonWithIcon
+                        :button-font-awesome-icon="['fa', 'times']"
+                        small
+                        class="float-end"
+                        data-cy="modal-close-button"
+                        @click="onClose(false)"
                     />
                 </div>
                 <div ref="modalContent" class="card-body p-2">
@@ -42,13 +43,13 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
 export default {
-    components: { ButtonWithIcon },
+    components: { BlackBackdrop, ButtonWithIcon },
     props: {
         title: {
             type: String,
@@ -64,24 +65,9 @@ export default {
         },
     },
     emits: ['close'],
-    mounted() {
-        this.showOverlay(this.preventOverlayToClose)
-        this.setOverlayShouldBeFront(true)
-    },
-    beforeUnmount() {
-        this.setOverlayShouldBeFront(false)
-    },
     methods: {
-        ...mapActions(['showOverlay', 'setOverlayShouldBeFront', 'hideOverlay']),
-        // will be used as a callback for the overlay
-        preventOverlayToClose: function () {
-            this.$emit('close', false)
-            // stopping the overlay from closing and processing the callbacks after the one for this modal
-            return true
-        },
         onClose: function (withConfirmation) {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
-            this.hideOverlay()
             this.$emit('close', withConfirmation)
         },
         printModalContent: function () {
@@ -100,7 +86,7 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: $zindex-overlay-front + 1;
+    z-index: $zindex-modal;
     min-width: 75vw;
     max-width: 90vw;
     max-height: 90vh;

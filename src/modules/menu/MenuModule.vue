@@ -1,32 +1,34 @@
 <template>
-    <div>
-        <transition name="slide-up">
-            <div v-show="showHeader" class="header">
-                <HeaderLoadingBar v-if="showLoadingBar" />
-                <div class="header-content align-items-center p-1 d-flex justify-content-between">
-                    <div class="justify-content-start d-flex">
-                        <SwissFlag
-                            class="swiss-flag ms-1 me-2 cursor-pointer"
-                            data-cy="menu-swiss-flag"
-                            @click="resetApp"
-                        />
-                        <HeaderSwissConfederationText
-                            :current-lang="currentLang"
-                            class="me-2 cursor-pointer d-none d-lg-block"
-                            data-cy="menu-swiss-confederation-text"
-                            @click="resetApp"
-                        />
-                    </div>
-                    <!-- we then let whatever was given in the slot be rendered here,
-                     that's where we expect to receive the search module from MapView.vue -->
-                    <slot />
-                    <HeaderMenuButton v-if="!shouldMenuTrayAlwaysBeVisible" />
-                </div>
-            </div>
+    <div class="menu">
+        <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
+             we place here an empty div that will then receive the HTML from the drawing toolbox. -->
+        <div class="drawing-toolbox-in-menu"></div>
+        <transition name="fade-in-out">
+            <BlackBackdrop
+                v-if="!shouldMenuTrayAlwaysBeVisible && showMenuTray"
+                @click="toggleMenuTray"
+            />
         </transition>
+        <HeaderWithSearch
+            v-show="showHeader"
+            class="header"
+            :show-loading-bar="showLoadingBar"
+            :show-menu-button="!shouldMenuTrayAlwaysBeVisible"
+            :current-lang="currentLang"
+            :current-topic-id="currentTopic && currentTopic.id"
+        />
+        <div class="toolbox-right">
+            <GeolocButton
+                class="mb-1"
+                :is-active="isGeolocationActive"
+                :is-denied="isGeolocationDenied"
+                @click="toggleGeolocation"
+            />
+            <ZoomButtons @zoom-in="increaseZoom" @zoom-out="decreaseZoom" />
+        </div>
         <transition name="slide-up">
             <div
-                v-if="showMenuTray"
+                v-show="showMenuTray"
                 class="menu-tray"
                 :class="{
                     'desktop-mode': shouldMenuTrayAlwaysBeVisible,
@@ -49,28 +51,32 @@
                 </ButtonWithIcon>
             </div>
         </transition>
+        <div class="toolbox-bottom">
+            <BackgroundSelectorButton />
+        </div>
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import { mapActions, mapState } from 'vuex'
 
-import SwissFlag from './components/header/SwissFlag.vue'
-import HeaderMenuButton from './components/header/HeaderMenuButton.vue'
-import HeaderSwissConfederationText from './components/header/HeaderSwissConfederationText.vue'
-
-import MenuTray from './components/MenuTray.vue'
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
+import MenuTray from './components/menu/MenuTray.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
+import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
+import BackgroundSelectorButton from '@/modules/menu/components/toolboxBottom/BackgroundSelectorButton.vue'
+import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 
 export default {
     components: {
+        HeaderWithSearch,
+        BlackBackdrop,
+        BackgroundSelectorButton,
+        ZoomButtons,
+        GeolocButton,
         ButtonWithIcon,
-        HeaderLoadingBar,
-        HeaderSwissConfederationText,
-        HeaderMenuButton,
-        SwissFlag,
         MenuTray,
     },
     data() {
@@ -87,6 +93,8 @@ export default {
             currentTopic: (state) => state.topics.current,
             currentUiMode: (state) => state.ui.mode,
             isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
+            isGeolocationActive: (state) => state.geolocation.active,
+            isGeolocationDenied: (state) => state.geolocation.denied,
         }),
         shouldMenuTrayAlwaysBeVisible: function () {
             return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
@@ -107,10 +115,7 @@ export default {
         },
     },
     methods: {
-        resetApp: function () {
-            // an app reset means we keep the lang and the current topic but everything else is thrown away
-            window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopic.id}`
-        },
+        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenuTray']),
     },
 }
 </script>
@@ -119,70 +124,110 @@ export default {
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
 
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: $header-height;
-    transition: height 0.3s;
-    width: 100%;
-    background: rgba($white, 0.9);
-    box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
-    // so that the menu is above the map overlay
-    z-index: $zindex-overlay-default + 2;
-    .header-content {
-        transition: height 0.3s;
-        height: $header-height;
-    }
-}
-.menu-tray {
+$animation-time: 0.5s;
+
+.menu {
     position: absolute;
     z-index: $zindex-menu;
-    top: $header-height;
+    top: 0;
     left: 0;
     width: 100%;
-    max-width: 100%;
-    max-height: calc(100% - #{$header-height});
-    overflow-y: auto;
-    transition: 0.3s;
-    &.desktop-mode {
-        .menu-tray-content {
-            transition: opacity 0.3s;
-        }
-        max-width: 22rem;
+    height: 100%;
+    // so that the user can click through this element (and we don't block interaction with the map)
+    pointer-events: none;
+    & > * {
+        // re-activate interaction with all children of the menu
+        pointer-events: all;
     }
-    &.desktop-menu-closed {
-        .menu-tray-content {
-            opacity: 0;
+    .drawing-toolbox-in-menu {
+        position: relative;
+        z-index: $zindex-drawing-toolbox;
+    }
+    .header {
+        transition: height $animation-time;
+        width: 100%;
+        background: rgba($white, 0.9);
+        box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
+        position: relative;
+        z-index: $zindex-menu;
+        .header-content {
+            transition: height $animation-time;
         }
-        transform: translate(0px, calc(-100% + 2.5rem));
+    }
+    .toolbox-right {
+        float: right;
+        position: relative;
+        margin: $screen-padding-for-ui-elements;
+    }
+    .toolbox-bottom {
+        position: absolute;
+        left: $screen-padding-for-ui-elements;
+        bottom: $footer-height + $screen-padding-for-ui-elements;
+    }
+    .menu-tray {
+        position: absolute;
+        z-index: $zindex-menu-tray;
+        top: $header-height;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100% - #{$header-height});
+        overflow-y: auto;
+        transition: $animation-time;
+        &.desktop-mode {
+            .menu-tray-content {
+                transition: opacity $animation-time;
+            }
+            max-width: 22rem;
+        }
+        &.desktop-menu-closed {
+            .menu-tray-content {
+                opacity: 0;
+            }
+            transform: translate(0px, calc(-100% + 2.5rem));
+        }
     }
 }
 @include respond-above(lg) {
-    .header {
-        height: 2 * $header-height;
-        .header-content {
-            height: 2 * $header-height;
-            .swiss-flag {
-                margin-top: 0.4rem;
-                align-self: flex-start;
-            }
-            .menu-tray {
-                top: 2 * $header-height;
-            }
+    .menu {
+        .menu-tray {
+            top: 2 * $header-height;
         }
-    }
-    .menu-tray {
-        top: 2 * $header-height;
     }
 }
 // transition definitions
+.fade-in-out-enter-active,
+.fade-in-out-leave-active {
+    transition: opacity $animation-time;
+}
+.fade-in-out-enter-from,
+.fade-in-out-leave-to {
+    opacity: 0;
+}
 .slide-up-leave-active,
 .slide-up-enter-active {
-    transition: 0.2s;
+    transition: $animation-time;
 }
-.slide-up-enter,
+.slide-up-enter-from,
 .slide-up-leave-to {
     transform: translate(0, -100%);
+}
+.slide-left-leave-active,
+.slide-left-enter-active,
+.slide-right-leave-active,
+.slide-right-enter-active {
+    transition: $animation-time;
+}
+.slide-left-enter-from {
+    transform: translate(-100%, 0);
+}
+.slide-left-leave-to {
+    transform: translate(-100%, 0);
+}
+.slide-right-enter-from {
+    transform: translate(100%, 0);
+}
+.slide-right-leave-to {
+    transform: translate(100%, 0);
 }
 </style>

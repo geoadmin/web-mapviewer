@@ -26,7 +26,7 @@
 
 <script>
 import SearchResultListEntry from './SearchResultListEntry.vue'
-import LayerLegendPopup from '@/modules/overlay/components/LayerLegendPopup.vue'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this

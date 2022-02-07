@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="main-component">
         <router-view />
     </div>
 </template>
@@ -39,11 +39,13 @@ export default {
 </script>
 
 <style lang="scss">
+// this style is not scoped in order to enable the distribution of bootstrap's
+// CSS rules to the whole app (otherwise it would be limited to this component)
 @import 'src/scss/webmapviewer-bootstrap-theme';
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'node_modules/bootstrap/scss/bootstrap';
-#app {
+#main-component {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
