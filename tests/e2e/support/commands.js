@@ -18,7 +18,7 @@ const addFileAPIFixtureAndIntercept = () => {
     cy.intercept(
         {
             method: 'POST',
-            url: '/api/kml/admin',
+            url: '**/api/kml/admin',
         },
         {
             statusCode: 201,
@@ -28,7 +28,7 @@ const addFileAPIFixtureAndIntercept = () => {
     cy.intercept(
         {
             method: 'PUT',
-            url: '/api/kml/admin/**',
+            url: '**/api/kml/admin/**',
         },
         {
             statusCode: 200,
