@@ -11,11 +11,8 @@
             <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
         </teleport>
         <OpenLayersMousePosition v-if="isUIinDesktopMode" />
-        <div id="map-target-profile">
-            <VisibleLayersCopyrights
-                :layers="backgroundAndVisibleLayers"
-                :is-footer-visible="isFooterVisible"
-            />
+        <div id="map-target-profile" :class="{ 'footer-visible': isFooterVisible }">
+            <VisibleLayersCopyrights />
         </div>
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
@@ -181,16 +178,6 @@ export default {
         },
         visibleGeoJsonLayers: function () {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
-        },
-        backgroundAndVisibleLayers: function () {
-            const layers = []
-            if (this.currentBackgroundLayer) {
-                layers.push(this.currentBackgroundLayer)
-            }
-            if (this.visibleLayers.length > 0) {
-                layers.push(...this.visibleLayers)
-            }
-            return layers
         },
         isUIinDesktopMode: function () {
             return this.uiMode === UIModes.MENU_ALWAYS_OPEN
@@ -399,12 +386,15 @@ export default {
 #map-target-profile {
     position: absolute;
     right: 0;
-    bottom: $footer-height;
     left: 0;
     z-index: $zindex-copyrights;
 
     display: flex;
     flex-direction: column;
     align-items: end;
+
+    &.footer-visible {
+        bottom: $footer-height;
+    }
 }
 </style>
