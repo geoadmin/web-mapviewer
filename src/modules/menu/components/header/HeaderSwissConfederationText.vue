@@ -16,6 +16,7 @@ export default {
             default: 'en',
         },
     },
+    emits: ['click'],
 }
 </script>
 

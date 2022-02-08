@@ -4,6 +4,7 @@ import {
     getLayersFromLegacyUrlParams,
     getBackgroundLayerFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
+import log from '@/utils/logging'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export class Topic {
@@ -90,7 +91,7 @@ const readTopicTreeRecursive = (node) => {
     } else if (node.category === 'layer') {
         return new TopicTreeLayer(node.layerBodId, node.label)
     } else {
-        console.error('unknown topic node type', node.category)
+        log.error('unknown topic node type', node.category)
         return null
     }
 }
@@ -203,7 +204,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                 })
                 .catch((error) => {
                     const message = 'Error while loading topics config from backend'
-                    console.error(message, error)
+                    log.error(message, error)
                     reject(message)
                 })
         }

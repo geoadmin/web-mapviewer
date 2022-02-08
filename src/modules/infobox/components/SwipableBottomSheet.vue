@@ -118,7 +118,7 @@ export default {
         this.calculateContentHeight()
         // we need to listen to changes in the slot in order to recalculate the content height
         this.slotObserver = new MutationObserver(this.calculateContentHeight)
-        this.slotObserver.observe(this.$slots['default'][0].elm, {
+        this.slotObserver.observe(this.$slots.default()[0].elm, {
             childList: true,
             subtree: true,
         })
@@ -178,7 +178,7 @@ export default {
             this.state = SwipeState.Open
         },
         calculateContentHeight() {
-            this.contentHeight = this.$slots['default'][0].elm.clientHeight
+            this.contentHeight = this.$slots.default()[0].elm.clientHeight
         },
     },
 }

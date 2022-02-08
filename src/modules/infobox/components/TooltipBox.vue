@@ -19,6 +19,7 @@
 <script>
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
+    emits: ['close'],
     methods: {
         closeTooltip: function () {
             this.$emit('close')

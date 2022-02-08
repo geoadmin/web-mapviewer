@@ -10,7 +10,7 @@ const drawingStyleDescription = '[data-cy="drawing-style-feature-description"]'
 
 const drawingStyleMarkerButton = '[data-cy="drawing-style-marker-button"]'
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
-const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
+// const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
 const drawingStyleMarkerIconSetSelector = '[data-cy="drawing-style-icon-set-button"]'
 
 const drawingStyleTextButton = '[data-cy="drawing-style-text-button"]'

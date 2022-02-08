@@ -391,8 +391,7 @@ export default class DrawingManager extends Observable {
         const features = event.features.getArray()
         const [feature] = features
 
-        if (feature) {
-            console.assert(features.length === 1)
+        if (feature && feature.length === 1) {
             this.dispatchSelectEvent_(feature, true)
             this.map.getTarget().classList.add(cssGrabbing)
         }
@@ -406,8 +405,7 @@ export default class DrawingManager extends Observable {
         const features = event.features.getArray()
         const [feature] = features
 
-        if (feature) {
-            console.assert(features.length === 1)
+        if (feature && features.length === 1) {
             this.dispatchSelectEvent_(feature, false)
             this.dispatchChangeEvent_(feature)
             this.map.getTarget().classList.remove(cssGrabbing)
@@ -435,7 +433,7 @@ export default class DrawingManager extends Observable {
     // transform a Polygon to a LineString if the geometry was not closed by a click on the first point
     polygonToLineString(feature) {
         const geometry = feature.getGeometry()
-        if (geometry.getType() == 'Polygon' && !this.isFinishOnFirstPoint_) {
+        if (geometry.getType() === 'Polygon' && !this.isFinishOnFirstPoint_) {
             const coordinates = geometry.getLinearRing().getCoordinates()
             coordinates.pop()
             feature.setGeometry(new LineString(coordinates))

@@ -22,7 +22,7 @@
                     :active-layers="activeLayers"
                     :depth="depth + 1"
                     :compact="compact"
-                    @clickOnLayerTopicItem="(layerId) => bubbleEventToParent(layerId)"
+                    @click-on-layer-topic-item="(layerId) => bubbleEventToParent(layerId)"
                 />
             </ul>
         </CollapseTransition>

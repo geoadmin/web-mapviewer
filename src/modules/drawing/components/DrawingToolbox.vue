@@ -18,7 +18,7 @@
                             :is-active="currentDrawingMode === drawingMode"
                             :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
                             class="m-1"
-                            @setDrawingMode="bubbleSetDrawingEventToParent"
+                            @set-drawing-mode="bubbleSetDrawingEventToParent"
                         />
                     </div>
                     <div class="d-flex justify-content-center">
