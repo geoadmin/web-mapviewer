@@ -139,6 +139,9 @@ export default class DrawingManager extends Observable {
             features: selected,
             style: this.options.editingStyle,
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
+            // We need to consider the visible shape here as it is also considered
+            // by ol/Map#forEachFeatureAtPixel which we use to display to tooltip.
+            hitDetection: true,
         })
         this.modify.on('modifystart', (event) => this.onModifyStart_(event))
         this.modify.on('modifyend', (event) => this.onModifyEnd_(event))
@@ -386,22 +389,28 @@ export default class DrawingManager extends Observable {
 
     onModifyStart_(event) {
         const features = event.features.getArray()
-        if (features.length) {
-            console.assert(features.length == 1)
-            const feature = features[0]
+        const [feature] = features
+
+        if (feature) {
+            console.assert(features.length === 1)
             this.dispatchSelectEvent_(feature, true)
-            this.map.getTarget().classList.add('cursor-grabbing')
+            this.map.getTarget().classList.add(cssGrabbing)
         }
     }
 
     onModifyEnd_(event) {
-        if (event && event.features && event.features.getArray().length) {
-            const features = event.features.getArray()
-            console.assert(features.length == 1)
-            const feature = features[0]
+        if (!event.features) {
+            return
+        }
+
+        const features = event.features.getArray()
+        const [feature] = features
+
+        if (feature) {
+            console.assert(features.length === 1)
             this.dispatchSelectEvent_(feature, false)
             this.dispatchChangeEvent_(feature)
-            this.map.getTarget().classList.remove('cursor-grabbing')
+            this.map.getTarget().classList.remove(cssGrabbing)
         }
     }
 
@@ -410,6 +419,9 @@ export default class DrawingManager extends Observable {
             this.dispatchSelectEvent_(event.element, false)
         } else if (event.type === 'remove') {
             this.dispatchSelectEvent_(null, false)
+            // This property is never set to false internally. This is a problem
+            // with markers when we switch directly from one feature to the next.
+            this.modify.snappedToVertex_ = false
         }
     }
 
@@ -497,11 +509,11 @@ export default class DrawingManager extends Observable {
         if (!this.tooltipOverlay) {
             return
         }
+
         type = typesInTranslation[type]
-        let helpMsgId = 'modify_new_vertex_'
-        if (onExistingVertex) {
-            helpMsgId = 'modify_existing_vertex_'
-        }
+        // There are no "new" vertices for markers and annotations.
+        const existing = onExistingVertex || ['marker', 'annotation'].includes(type)
+        const helpMsgId = existing ? 'modify_existing_vertex_' : 'modify_new_vertex_'
         this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId + type)
     }
 
@@ -512,56 +524,62 @@ export default class DrawingManager extends Observable {
         }
 
         type = typesInTranslation[type]
-        let helpMsgId = 'select_no_feature'
-        if (type) {
-            helpMsgId = 'select_feature_' + type
-        }
+        const helpMsgId = type ? 'select_feature_' + type : 'select_no_feature'
         this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId)
     }
 
-    updateCursorAndTooltips(evt) {
+    updateCursorAndTooltips(event) {
         const mapDiv = this.map.getTarget()
 
         if (mapDiv.classList.contains(cssGrabbing)) {
             mapDiv.classList.remove(cssGrab)
             return
         }
-        let hoverSelectableFeature = false
-        // todo find way to not use private
-        let hoverVertex = this.modify.snappedToVertex_
-        const hoverNewVertex = this.select.getFeatures().getLength() > 0
-        let selectableFeature
-        const selectFeatures = this.select.getFeatures()
 
-        this.map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
-            if (layer && !selectableFeature) {
-                selectableFeature = feature
-                hoverSelectableFeature = true
-            } else if (
-                selectFeatures.getLength() > 0 &&
-                selectFeatures.item(0).getId() === feature.getId() &&
-                selectableFeature
-            ) {
-                selectableFeature = feature
+        const hoveringVertex = this.modify.snappedToVertex_
+        let hoveringSelectableFeature = false
+        let hoveringSelectedFeature = false
+
+        const hasFeatureSelected = this.select.getFeatures().getLength() > 0
+        const selectedFeatureId = this.select.getFeatures().item(0)?.getId()
+        let featureUnderCursor
+
+        this.map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+            if (!layer) {
+                return
+            }
+
+            const isSelectedFeature = hasFeatureSelected && selectedFeatureId === feature.getId()
+
+            hoveringSelectableFeature = true
+            hoveringSelectedFeature = hoveringSelectedFeature || isSelectedFeature
+
+            if (!featureUnderCursor || isSelectedFeature) {
+                featureUnderCursor = feature
             }
         })
 
-        if (!hoverSelectableFeature) {
-            // If the cursor is not hover a selectable feature.
+        // We suppress the "selected" state for the areas of polygons
+        // as there are no interactions with a polygon via its area.
+        if (
+            featureUnderCursor?.getGeometry() instanceof Polygon &&
+            this.modify.vertexFeature_ === null
+        ) {
+            hoveringSelectedFeature = false
+        }
+
+        if (hoveringSelectedFeature) {
+            mapDiv.classList.add(cssGrab)
+            mapDiv.classList.remove(cssPointer)
+            this.updateModifyHelpTooltip(featureUnderCursor.get('type'), hoveringVertex)
+        } else if (hoveringSelectableFeature) {
+            mapDiv.classList.add(cssPointer)
+            mapDiv.classList.remove(cssGrab)
+            this.updateSelectHelpTooltip(featureUnderCursor.get('type'))
+        } else {
             mapDiv.classList.remove(cssPointer)
             mapDiv.classList.remove(cssGrab)
             this.updateSelectHelpTooltip()
-        } else if (hoverSelectableFeature && !hoverNewVertex && !hoverVertex) {
-            // If the cursor is hover a selectable feature.
-            mapDiv.classList.add(cssPointer)
-            mapDiv.classList.remove(cssGrab)
-            this.updateSelectHelpTooltip(selectableFeature.get('type'))
-        } else if (hoverNewVertex || hoverVertex) {
-            // If a feature is selected and if the cursor is hover a draggable
-            // vertex.
-            mapDiv.classList.remove(cssPointer)
-            mapDiv.classList.add(cssGrab)
-            this.updateModifyHelpTooltip(selectableFeature.get('type'), hoverVertex)
         }
     }
 
