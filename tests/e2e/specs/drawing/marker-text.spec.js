@@ -85,7 +85,7 @@ const clickOnAColor = (color) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
     ).click()
-    cy.checkDrawnGeoJsonPropertyContains('icon', `-${color.rgbString}.png`)
+    cy.checkDrawnGeoJsonProperty('icon', `-${color.rgbString}.png`, true)
 }
 
 /** @param {DrawingStyleSize} size */
@@ -263,9 +263,10 @@ describe('Drawing marker/points', () => {
                                         cy.get(
                                             `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
                                         ).click()
-                                        cy.checkDrawnGeoJsonPropertyContains(
+                                        cy.checkDrawnGeoJsonProperty(
                                             'icon',
-                                            `api/icons/sets/default/icons/${fourthIcon.name}`
+                                            `api/icons/sets/default/icons/${fourthIcon.name}`,
+                                            true
                                         )
                                         cy.wait('@update-kml').then((interception) =>
                                             expect(interception.request.body).to.match(
