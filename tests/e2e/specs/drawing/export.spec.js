@@ -18,12 +18,11 @@ const checkFiles = (extension, callback) => {
         isNonEmptyString,
         {
             delay: 100,
-            timeout: 10000,
         }
     ).then((files) => {
         const fileName = `${downloadsFolder}/${files[files.length - 1]}`
         expect(fileName).to.contains(`map.geo.admin.ch_${extension.toUpperCase()}_`)
-        cy.readFile(fileName, { timeout: 15000 }).should('have.length.gt', 50).then(callback)
+        cy.readFile(fileName).should('have.length.gt', 50).then(callback)
     })
 }
 
