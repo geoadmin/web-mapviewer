@@ -139,6 +139,24 @@ describe('Test of layer handling', () => {
                             )
                         })
                     })
+                    it('sets the background to the topic default if none is defined in the URL, even if a layer (out of topic scope) is defined in it', () => {
+                        cy.fixture('topics.fixture').then((topicFixtures) => {
+                            const [defaultTopic] = topicFixtures.topics
+                            cy.goToMapView('en', {
+                                layers: 'test.timeenabled.wmts.layer',
+                            })
+                            cy.readStoreValue('state.layers.backgroundLayerId').should(
+                                'eq',
+                                defaultTopic.defaultBackground
+                            )
+                            cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                                expect(layers).to.be.an('Array')
+                                expect(layers.length).to.eq(1)
+                                expect(layers[0]).to.be.an('Object')
+                                expect(layers[0].getID()).to.eq('test.timeenabled.wmts.layer')
+                            })
+                        })
+                    })
                     it('sets the background according to the URL param if present at startup', () => {
                         cy.goToMapView('en', {
                             bgLayer: 'test.background.layer2',
