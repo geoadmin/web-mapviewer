@@ -3,7 +3,7 @@
         v-if="currentTopic"
         :title="$t(currentTopic.id)"
         :show-content="showTopicTree"
-        data-cy="menu-topic"
+        data-cy="menu-topic-section"
     >
         <template #extra-button>
             <button

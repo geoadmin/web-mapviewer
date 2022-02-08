@@ -5,6 +5,7 @@
             `menu-topic-item-${item.type.toLowerCase()}`,
             { 'menu-topic-item-active': isActive, compact: compact },
         ]"
+        data-cy="topic-tree-item"
     >
         <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
             <button class="btn btn-default" :class="{ 'text-danger': isActive || isHidden }">

@@ -304,7 +304,7 @@ describe('Test of layer handling', () => {
                         // Find the test layer and open the appropriate menu entries.
                         cy.get(testLayerSelector)
                             .parentsUntil('[data-cy="menu-topic-section"]')
-                            .filter('.menu-topic-tree-item')
+                            .filter('[data-cy="topic-tree-item"]')
                             .then((menuItems) => {
                                 menuItems
                                     .toArray()
