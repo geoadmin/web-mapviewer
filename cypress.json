@@ -1,5 +1,7 @@
 {
   "pluginsFile": "tests/e2e/plugins/index.js",
   "downloadsFolder": "tests/e2e/downloads",
-  "video": false
+  "video": false,
+  "defaultCommandTimeout": 10000,
+  "requestTimeout": 15000
 }

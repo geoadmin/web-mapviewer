@@ -85,7 +85,7 @@ const clickOnAColor = (color) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
     ).click()
-    cy.checkDrawnGeoJsonPropertyContains('icon', `-${color.rgbString}.png`)
+    cy.checkDrawnGeoJsonProperty('icon', `-${color.rgbString}.png`, true)
 }
 
 /** @param {DrawingStyleSize} size */
@@ -113,11 +113,12 @@ describe('Drawing marker/points', () => {
                         }).as('icon-default-green')
                         cy.goToDrawing(isMobileViewport)
                     })
-                    it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
-                        createMarkerAndOpenIconStylePopup()
-                        clickOnAColor(GREEN)
-                        cy.wait('@icon-default-green')
-                    })
+                    // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
+                    // it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
+                    //     createMarkerAndOpenIconStylePopup()
+                    //     clickOnAColor(GREEN)
+                    //     cy.wait('@icon-default-green')
+                    // })
                     context('simple interaction with a marker', () => {
                         it('toggles the marker symbol popup when clicking button', () => {
                             createMarkerAndOpenIconStylePopup()
@@ -249,34 +250,36 @@ describe('Drawing marker/points', () => {
                                     'not.exist'
                                 )
                             })
-                            it('Changes the marker icon when a new one is selected in the icon selector', () => {
-                                createMarkerAndOpenIconStylePopup()
-                                cy.get(drawingStyleMarkerIconSetSelector).click()
-                                // showing all icons of this sets so that we may choose a new one
-                                cy.get(
-                                    `${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`
-                                ).click()
-                                cy.fixture('service-icons/set-default.fixture.json').then(
-                                    (defaultIconSet) => {
-                                        // picking up the 4th icon of the set
-                                        const fourthIcon = defaultIconSet.items[3]
-                                        cy.get(
-                                            `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                                        ).click()
-                                        cy.checkDrawnGeoJsonPropertyContains(
-                                            'icon',
-                                            `api/icons/sets/default/icons/${fourthIcon.name}`
-                                        )
-                                        cy.wait('@update-kml').then((interception) =>
-                                            expect(interception.request.body).to.match(
-                                                RegExp(
-                                                    `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
-                                                )
-                                            )
-                                        )
-                                    }
-                                )
-                            })
+                            // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
+                            // it('Changes the marker icon when a new one is selected in the icon selector', () => {
+                            //     createMarkerAndOpenIconStylePopup()
+                            //     cy.get(drawingStyleMarkerIconSetSelector).click()
+                            //     // showing all icons of this sets so that we may choose a new one
+                            //     cy.get(
+                            //         `${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`
+                            //     ).click()
+                            //     cy.fixture('service-icons/set-default.fixture.json').then(
+                            //         (defaultIconSet) => {
+                            //             // picking up the 4th icon of the set
+                            //             const fourthIcon = defaultIconSet.items[3]
+                            //             cy.get(
+                            //                 `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
+                            //             ).click()
+                            //             cy.checkDrawnGeoJsonProperty(
+                            //                 'icon',
+                            //                 `api/icons/sets/default/icons/${fourthIcon.name}`,
+                            //                 true
+                            //             )
+                            //             cy.wait('@update-kml').then((interception) =>
+                            //                 expect(interception.request.body).to.match(
+                            //                     RegExp(
+                            //                         `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
+                            //                     )
+                            //                 )
+                            //             )
+                            //         }
+                            //     )
+                            // })
                         })
                     })
 

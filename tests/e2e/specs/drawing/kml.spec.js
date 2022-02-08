@@ -18,8 +18,7 @@ describe('Drawing saving KML', () => {
                 it('saves a KML on draw end', () => {
                     cy.clickDrawingTool('marker')
                     cy.get(olSelector).click('center')
-                    // this can take a long time on the CI, we extend the timeout duration
-                    cy.wait('@post-kml', { timeout: 15000 }).then((interception) =>
+                    cy.wait('@post-kml').then((interception) =>
                         cy.checkKMLRequest(interception, ['marker'], true)
                     )
                     cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
@@ -31,22 +30,19 @@ describe('Drawing saving KML', () => {
                     // drawing a marker and waiting for the KML to be posted (created)
                     cy.clickDrawingTool('marker')
                     cy.get(olSelector).click('center')
-                    // this can take a long time on the CI, we extend the timeout duration
-                    cy.wait('@post-kml', { timeout: 15000 })
+                    cy.wait('@post-kml')
                     // adding another marker and wait for the update
                     cy.clickDrawingTool('marker')
                     // clicking just on the side of the first marker
                     cy.get(olSelector).click(dimensions.width / 2.0 + 50, dimensions.height / 2.0)
-                    // this can take a long time on the CI, we extend the timeout duration
-                    cy.wait('@update-kml', { timeout: 15000 }).then((interception) =>
+                    cy.wait('@update-kml').then((interception) =>
                         cy.checkKMLRequest(interception, ['marker'])
                     )
                     // adding a line and checking that the KML is updated again
                     cy.clickDrawingTool('line')
                     cy.get(olSelector).click(100, 200)
                     cy.get(olSelector).dblclick(150, 200)
-                    // this can take a long time on the CI, we extend the timeout duration
-                    cy.wait('@update-kml', { timeout: 15000 }).then((interception) =>
+                    cy.wait('@update-kml').then((interception) =>
                         cy.checkKMLRequest(interception, ['marker', 'line'])
                     )
                     // verifying that we still have the same KML file/admin ID from the backend

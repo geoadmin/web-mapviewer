@@ -73,49 +73,42 @@ Cypress.Commands.add('clickDrawingTool', (name) => {
 })
 
 Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
-    cy.readWindowValue('drawingManager')
-        .then((manager) => manager.source.getFeatures())
-        .then((features) => {
-            expect(features).to.have.length(1)
-            const foundType = features[0].getGeometry().getType()
-            expect(foundType).to.equal(type)
-            if (callback) {
-                callback(features)
-            }
-        })
+    cy.readWindowValue('drawingManager').then((manager) => {
+        const features = manager.source.getFeatures()
+        expect(features).to.have.lengthOf(1, 'no feature found in the drawing manager')
+        const foundType = features[0].getGeometry().getType()
+        expect(foundType).to.equal(type)
+        if (callback) {
+            callback(features)
+        }
+    })
 })
 
-Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected) => {
-    cy.readWindowValue('drawingManager')
-        .then((manager) => manager.source.getFeatures())
-        .then((features) => {
-            expect(features).to.have.length(1)
-            const v = features[0].get(key)
-            expect(v).to.equal(
+Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContains = false) => {
+    cy.readWindowValue('drawingManager').then((manager) => {
+        const features = manager.source.getFeatures()
+        expect(features).to.have.lengthOf(1, 'no feature found in the drawing manager')
+        const firstFeature = features[0]
+        if (checkIfContains) {
+            expect(firstFeature.get(key)).to.contain(
                 expected,
-                `${v} != ${expected} Properties are ${JSON.stringify(
-                    features[0].getProperties(),
+                `${firstFeature} != ${expected} Properties are ${JSON.stringify(
+                    firstFeature.getProperties(),
                     null,
                     2
                 )}`
             )
-        })
-})
-Cypress.Commands.add('checkDrawnGeoJsonPropertyContains', (key, expected) => {
-    cy.readWindowValue('drawingManager')
-        .then((manager) => manager.source.getFeatures())
-        .then((features) => {
-            expect(features).to.have.length(1)
-            const v = features[0].get(key)
-            expect(v).to.contain(
+        } else {
+            expect(firstFeature.get(key)).to.equal(
                 expected,
-                `${v} != ${expected} Properties are ${JSON.stringify(
-                    features[0].getProperties(),
+                `${firstFeature} != ${expected} Properties are ${JSON.stringify(
+                    firstFeature,
                     null,
                     2
                 )}`
             )
-        })
+        }
+    })
 })
 
 Cypress.Commands.add('checkKMLRequest', (interception, data, create = false) => {

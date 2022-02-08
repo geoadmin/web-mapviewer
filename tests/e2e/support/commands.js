@@ -123,8 +123,7 @@ Cypress.Commands.add(
         // waiting for the app to load and layers to be configured.
         cy.wait('@app-done-loading')
         cy.wait('@layers-configured')
-        // we leave some room for the CI to catch the DOM element (can be a bit slow depending on the CPU power of CI's VM)
-        cy.get('[data-cy="map"]', { timeout: 10000 }).should('be.visible')
+        cy.get('[data-cy="map"]').should('be.visible')
     }
 )
 
