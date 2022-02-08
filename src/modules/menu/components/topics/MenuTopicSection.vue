@@ -3,12 +3,16 @@
         v-if="currentTopic"
         :title="$t(currentTopic.id)"
         :show-content="showTopicTree"
-        data-cy="menu-topic-section"
+        data-cy="menu-topic"
     >
         <template #extra-button>
-            <span data-cy="change-topic-button" @click="setShowTopicSelectionPopup">
+            <button
+                class="menu-topic-switch"
+                data-cy="change-topic-button"
+                @click.stop="setShowTopicSelectionPopup"
+            >
                 {{ $t('choose_theme') }}
-            </span>
+            </button>
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
                 :topics="allTopics"
@@ -16,7 +20,7 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <div class="menu-topic-tree" data-cy="menu-topic-tree">
+        <ul class="menu-topic-list" data-cy="menu-topic-tree">
             <MenuTopicTreeItem
                 v-for="item in currentTopicTree"
                 :key="item.name"
@@ -25,7 +29,7 @@
                 :compact="compact"
                 @clickOnLayerTopicItem="onClickOnLayerTopicItem"
             />
-        </div>
+        </ul>
     </MenuSection>
 </template>
 
@@ -87,8 +91,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.menu-topic-tree {
+@import 'src/modules/menu/scss/menu-items';
+
+.menu-topic-list {
+    @extend .menu-list;
     max-height: 50vh;
     overflow-y: auto;
+}
+.menu-topic-switch {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    outline: inherit;
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+    }
 }
 </style>

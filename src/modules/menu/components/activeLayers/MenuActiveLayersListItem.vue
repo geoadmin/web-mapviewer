@@ -1,6 +1,6 @@
 <template>
-    <div class="menu-layer-list-item" :class="{ compact: compact }">
-        <div class="menu-list-item-title">
+    <div class="menu-layer-item" :class="{ compact: compact }">
+        <div class="menu-layer-item-title">
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'times-circle']"
                 :data-cy="`button-remove-layer-${id}`"
@@ -16,7 +16,7 @@
                 @click="onToggleLayerVisibility"
             />
             <span
-                class="menu-item-name"
+                class="menu-layer-item-name"
                 :data-cy="`visible-layer-name-${id}`"
                 @click="onToggleLayerVisibility"
                 >{{ name }}</span
@@ -30,7 +30,7 @@
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
-                class="menu-layer-settings-button px-1"
+                class="menu-layer-item-details-toggle"
                 :class="{ 'text-danger': showDetails, flip: showLayerDetails }"
                 transparent
                 :data-cy="`button-open-visible-layer-settings-${id}`"
@@ -40,47 +40,46 @@
         </div>
         <div
             v-show="showDetails"
-            class="menu-layer-list-item-details"
+            class="menu-layer-item-details"
             :data-cy="`div-layer-settings-${id}`"
         >
-            <div class="menu-layer-list-item-details-transparency">
-                <span class="transparency-title">{{ $t('transparency') }}</span>
-                <input
-                    class="transparency-slider"
-                    type="range"
-                    min="0.0"
-                    max="1.0"
-                    step="0.01"
-                    :value="opacity"
-                    :data-cy="`slider-opacity-layer-${id}`"
-                    @change="onOpacityChange"
-                />
-            </div>
-            <div class="menu-layer-list-item-details-order">
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fas', 'arrow-up']"
-                    :disabled="isFirstLayer"
-                    :data-cy="`button-raise-order-layer-${id}`"
-                    :large="!compact"
-                    transparent
-                    @click="onOrderChange(1)"
-                />
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fas', 'arrow-down']"
-                    :disabled="isLastLayer"
-                    :data-cy="`button-lower-order-layer-${id}`"
-                    :large="!compact"
-                    transparent
-                    @click="onOrderChange(-1)"
-                />
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fas', 'info-circle']"
-                    :data-cy="`button-show-legend-layer-${id}`"
-                    :large="!compact"
-                    transparent
-                    @click="showLayerLegendPopup"
-                />
-            </div>
+            <label :for="`transparency-${id}`" class="menu-layer-transparency-title">
+                {{ $t('transparency') }}
+            </label>
+            <input
+                :id="`transparency-${id}`"
+                class="menu-layer-transparency-slider"
+                type="range"
+                min="0.0"
+                max="1.0"
+                step="0.01"
+                :value="opacity"
+                :data-cy="`slider-opacity-layer-${id}`"
+                @change="onOpacityChange"
+            />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'arrow-up']"
+                :disabled="isFirstLayer"
+                :data-cy="`button-raise-order-layer-${id}`"
+                :large="!compact"
+                transparent
+                @click="onOrderChange(1)"
+            />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'arrow-down']"
+                :disabled="isLastLayer"
+                :data-cy="`button-lower-order-layer-${id}`"
+                :large="!compact"
+                transparent
+                @click="onOrderChange(-1)"
+            />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'info-circle']"
+                :data-cy="`button-show-legend-layer-${id}`"
+                :large="!compact"
+                transparent
+                @click="showLayerLegendPopup"
+            />
         </div>
     </div>
 </template>
@@ -195,35 +194,27 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
-.menu-layer-list-item {
-    @extend .menu-list-item;
-    .menu-layer-list-item-details {
-        border-left: 3px solid #666;
-        .menu-layer-list-item-details-transparency,
-        .menu-layer-list-item-details-order {
-            display: flex;
-        }
-        .menu-layer-list-item-details-transparency {
-            flex-grow: 1;
-            .transparency-title {
-                font-size: 90%;
-            }
-            .transparency-slider {
-                display: flex;
-                flex-grow: 1;
-                cursor: pointer;
-            }
-        }
-    }
-    .menu-layer-settings-button {
-        transition: 0.2s;
-        &.flip {
-            transform: rotate(180deg);
-        }
-        &:focus {
-            outline: none;
-            box-shadow: none;
-        }
-    }
+
+.menu-layer-item {
+    border-bottom: 1px solid $gray-400;
+}
+.menu-layer-item-title {
+    @extend .menu-title;
+}
+.menu-layer-item-name {
+    @extend .menu-name;
+    cursor: pointer;
+}
+.menu-layer-item-details {
+    @extend .menu-title;
+    padding-bottom: 0.4rem;
+}
+.menu-layer-transparency-title {
+    font-size: 0.9em;
+}
+.menu-layer-transparency-slider {
+    display: flex;
+    flex-grow: 1;
+    cursor: pointer;
 }
 </style>

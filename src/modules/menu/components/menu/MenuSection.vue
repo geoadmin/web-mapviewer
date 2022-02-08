@@ -1,31 +1,28 @@
 <template>
     <div
-        class="card menu-section rounded-0 border-0 border-light border-bottom"
+        class="menu-section"
         :class="{
-            'bg-secondary text-white': secondary && !showBody,
+            'menu-section-secondary': secondary && !showBody,
+            'menu-section-open': showBody,
         }"
     >
         <div
-            class="card-header menu-section-head d-block"
-            :class="{ 'bg-white': showBody }"
+            class="menu-section-header"
             data-cy="menu-section-header"
             data-toggle="collapse"
             @click="toggleShowBody"
         >
-            <span class="float-start" :class="{ 'fw-bold': showBody }">
-                <font-awesome-icon :icon="['fas', titleCaretIcon]" />
-                <span class="menu-section-head-title px-2">{{ title }}</span>
+            <span class="menu-section-title">
+                <button class="btn menu-section-title-icon" type="button">
+                    <font-awesome-icon :icon="['fas', titleCaretIcon]" />
+                </button>
+                <span class="menu-section-title-text">{{ title }}</span>
             </span>
-            <span class="extra-button float-end text-end" @click.prevent="toggleShowBody">
-                <slot name="extra-button" />
-            </span>
+
+            <slot name="extra-button" />
         </div>
         <CollapseTransition :duration="200">
-            <div
-                v-show="showBody"
-                ref="sectionBody"
-                class="card-body p-0 bg-white menu-section-body"
-            >
+            <div v-show="showBody" ref="sectionBody" class="menu-section-body">
                 <slot />
             </div>
         </CollapseTransition>
@@ -93,15 +90,47 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.menu-section-head {
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.menu-section {
+    border: 0;
+}
+.menu-section-header {
     display: flex;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid $gray-400;
+    background-color: $light;
     cursor: pointer;
-    .menu-section-head-title {
-        width: 100%;
-        text-align: left;
+    .menu-section-secondary & {
+        color: $white;
+        background-color: $secondary;
+        border-color: $gray-400;
     }
-    .extra-button:hover {
-        text-decoration: underline;
+    .menu-section-open & {
+        background-color: $white;
     }
+}
+.menu-section-title {
+    flex-grow: 1;
+    text-align: left;
+    &-icon {
+        width: 0.8rem;
+        text-align: center;
+        line-height: 1;
+        display: block;
+        float: left;
+        padding: 0;
+        color: inherit;
+    }
+    &-text {
+        padding: 0 0.5rem;
+        .menu-section-open & {
+            font-weight: bold;
+        }
+    }
+}
+.menu-section-body {
+    padding: 0;
+    background-color: $white;
 }
 </style>
