@@ -22,12 +22,14 @@
             @change="triggerKMLUpdate"
         />
         <div ref="draw-help" class="draw-help-popup"></div>
-        <ProfilePopup
-            :feature="selectedFeature"
-            :ui-mode="uiMode"
-            @delete="deleteSelectedFeature"
-            @close="deactivateFeature"
-        />
+        <teleport v-if="readyForTeleport" to="#map-target-profile">
+            <ProfilePopup
+                :feature="selectedFeature"
+                :ui-mode="uiMode"
+                @delete="deleteSelectedFeature"
+                @close="deactivateFeature"
+            />
+        </teleport>
     </div>
 </template>
 
@@ -62,6 +64,8 @@ export default {
             selectedFeature: null,
             drawingModes: Object.values(drawingModes),
             drawingNotEmpty: false,
+            /** Delay teleport until view is rendered. Updated in mounted-hook. */
+            readyForTeleport: false,
         }
     },
     computed: {
@@ -185,6 +189,11 @@ export default {
         this.manager.on('select', this.onSelect)
         this.manager.on('drawEnd', () => {
             this.setDrawingMode(null)
+        })
+
+        // We can enable the teleport after the view has been rendered.
+        this.$nextTick(() => {
+            this.readyForTeleport = true
         })
     },
     methods: {
