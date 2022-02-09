@@ -1,5 +1,5 @@
 <template>
-    <div data-cy="menu-tray" class="bg-white" :class="{ compact: compact }">
+    <div data-cy="menu-tray" :class="{ 'menu-tray-compact': compact }">
         <MenuSection
             :title="$t('settings')"
             :show-content="false"
@@ -16,7 +16,7 @@
             data-cy="menu-tray-drawing-section"
             @click="toggleDrawingOverlay"
         />
-        <MenuTopicSection :compact="compact" class="border-bottom-0" />
+        <MenuTopicSection :compact="compact" />
         <MenuSection
             :title="$t('layers_displayed')"
             :show-content="showLayerList"
@@ -63,7 +63,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.compact {
+.menu-tray-compact {
     font-size: 0.825rem;
 }
 </style>

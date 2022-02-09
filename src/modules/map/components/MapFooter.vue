@@ -1,5 +1,5 @@
 <template>
-    <div id="footer" class="align-items-center">
+    <div id="footer" class="map-footer">
         <div id="footer-target-scale"></div>
         <div id="footer-target-mouse" class="flex-grow-1"></div>
         <div v-if="showAppVersion" class="mx-3 app-version small pe-none">v{{ appVersion }}</div>
@@ -32,7 +32,7 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-#footer {
+.map-footer {
     position: absolute;
     bottom: 0;
     left: 0;

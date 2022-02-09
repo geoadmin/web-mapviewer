@@ -95,12 +95,19 @@ export default {
     },
 }
 </script>
+
 <style lang="scss" scoped>
 .button-with-icon {
     align-items: center;
     &.btn-no-style {
         background: none;
         border: none;
+    }
+}
+svg {
+    transition: transform 0.2s, color 0.2s;
+    .flip & {
+        transform: rotate(180deg);
     }
 }
 </style>

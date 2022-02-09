@@ -1,18 +1,20 @@
 <template>
-    <div class="menu-topic-tree-item" :class="{ active: isActive, compact: compact }">
-        <div
-            class="menu-list-item-title"
-            :class="`menu-tree-item-${item.type.toLowerCase()}`"
-            :data-cy="`topic-tree-item-${item.id}`"
-            @click="onClick"
-        >
+    <li
+        class="menu-topic-item"
+        :class="[
+            `menu-topic-item-${item.type.toLowerCase()}`,
+            { 'menu-topic-item-active': isActive, compact: compact },
+        ]"
+        data-cy="topic-tree-item"
+    >
+        <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
             <button class="btn btn-default" :class="{ 'text-danger': isActive || isHidden }">
                 <font-awesome-icon :size="compact ? null : 'lg'" :icon="showHideIcon" />
             </button>
-            <span class="menu-item-name">{{ item.name }}</span>
+            <span class="menu-topic-item-name">{{ item.name }}</span>
         </div>
         <CollapseTransition :duration="200">
-            <div v-if="showChildren" class="menu-tree-children" :class="`ps-${2 + 2 * depth}`">
+            <ul v-if="showChildren" class="menu-topic-item-children" :class="`ps-${2 + 2 * depth}`">
                 <MenuTopicTreeItem
                     v-for="child in item.children"
                     :key="`${child.id}-${child.name}`"
@@ -22,9 +24,9 @@
                     :compact="compact"
                     @clickOnLayerTopicItem="(layerId) => bubbleEventToParent(layerId)"
                 />
-            </div>
+            </ul>
         </CollapseTransition>
-    </div>
+    </li>
 </template>
 
 <script>
@@ -122,21 +124,27 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
-.menu-topic-tree-item {
-    @extend .menu-list-item;
+
+.menu-topic-item {
     border-bottom: none;
+}
+.menu-topic-item-title {
+    @extend .menu-title;
     cursor: pointer;
-    &.active {
+    .menu-topic-item-active & {
         color: $red;
     }
-    .menu-tree-item-theme {
-        border-bottom: 1px solid #e9e9e9;
+    .menu-topic-item-theme & {
+        border-bottom: 1px solid $gray-400;
     }
-    .menu-tree-item-layer {
-        border-bottom: 1px dashed #e9e9e9;
+    .menu-topic-item-layer & {
+        border-bottom: 1px dashed $gray-400;
     }
-    .menu-tree-children {
-        display: block;
-    }
+}
+.menu-topic-item-name {
+    @extend .menu-name;
+}
+.menu-topic-item-children {
+    @extend .menu-list;
 }
 </style>

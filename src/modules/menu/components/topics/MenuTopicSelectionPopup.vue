@@ -1,14 +1,14 @@
 <template>
     <ModalWithBackdrop :title="$t('choose_theme')" @close="onClose">
-        <div class="menu-topic-selector-popup p-4">
+        <div class="menu-topic-popup">
             <div
                 v-for="topic in topics"
                 :key="topic.id"
-                class="topic"
+                class="menu-topic-popup-topic"
                 :data-cy="`change-to-topic-${topic.id}`"
                 @click="selectTopic(topic)"
             >
-                <span class="topic-title">{{ $t(topic.id) }}</span>
+                {{ $t(topic.id) }}
                 <TopicIcon :topic-id="topic.id" />
             </div>
         </div>
@@ -39,21 +39,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables';
-.menu-topic-selector-popup {
-    * {
-        text-align: left;
-    }
+.menu-topic-popup {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 1rem 0.5rem;
+    padding: 1.5rem;
     cursor: pointer;
-    .topic {
-        text-align: center;
-        align-self: end;
-    }
-    .topic:last-child {
-        padding-bottom: 1rem;
-    }
+}
+.menu-topic-popup-topic {
+    text-align: center;
+    align-self: end;
 }
 </style>
