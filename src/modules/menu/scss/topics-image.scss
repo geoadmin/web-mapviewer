@@ -1,3 +1,36 @@
+$topics: (
+  (key: blw,           position: 0 0),
+  (key: kgs,           position: 0 -60px),
+  (key: sachplan,      position: 0 -120px),
+  (key: vu,            position: 0 -180px),
+  (key: ech,           position: 0 -240px),
+  (key: schneesport,   position: 0 -300px),
+  (key: emapis,        position: 0 -360px),
+  (key: notruf,        position: 0 -420px),
+  (key: are,           position: -110px 0),
+  (key: funksender,    position: -110px -60px),
+  (key: geol,          position: -110px -120px),
+  (key: aviation,      position: -110px -180px),
+  (key: verteidigung,  position: -110px -240px),
+  (key: energie,       position: -110px -300px),
+  (key: geodesy,       position: -110px -360px),
+  (key: schule,        position: -110px -420px),
+  (key: bafu,          position: -220px 0),
+  (key: nga,           position: -220px -60px),
+  (key: luftbilder,    position: -220px -120px),
+  (key: gewiss,        position: -220px -180px),
+  (key: dev,           position: -220px -240px),
+  (key: cadastre,      position: -220px -300px),
+  (key: meteoschweiz,  position: -220px -360px),
+  (key: swisstopo,     position: -330px 0),
+  (key: ivs,           position: -330px -60px),
+  (key: wildruhezonen, position: -330px -120px),
+  (key: inspire,       position: -330px -180px),
+  (key: geothermie,    position: -330px -240px),
+  (key: astra,         position: -330px -300px),
+  (key: bfs,           position: -330px -360px),
+);
+
 .topics-sprite {
   margin-left: auto;
   margin-right: auto;
@@ -6,96 +39,9 @@
   background: url(../../assets/topics.png);
   cursor: pointer;
 }
-.topics-sprite-blw {
-  background-position: 0 0;
-}
-.topics-sprite-kgs {
-  background-position: 0 -60px;
-}
-.topics-sprite-sachplan {
-  background-position: 0 -120px;
-}
-.topics-sprite-vu {
-  background-position: 0 -180px;
-}
-.topics-sprite-ech {
-  background-position: 0 -240px;
-}
-.topics-sprite-schneesport {
-  background-position: 0 -300px;
-}
-.topics-sprite-emapis {
-  background-position: 0 -360px;
-}
-.topics-sprite-notruf {
-  background-position: 0 -420px;
-}
 
-.topics-sprite-are {
-  background-position: -110px 0;
-}
-.topics-sprite-funksender {
-  background-position: -110px -60px;
-}
-.topics-sprite-geol {
-  background-position: -110px -120px;
-}
-.topics-sprite-aviation {
-  background-position: -110px -180px;
-}
-.topics-sprite-verteidigung {
-  background-position: -110px -240px;
-}
-.topics-sprite-energie {
-  background-position: -110px -300px;
-}
-.topics-sprite-geodesy {
-  background-position: -110px -360px;
-}
-.topics-sprite-schule {
-  background-position: -110px -420px;
-}
-
-.topics-sprite-bafu {
-  background-position: -220px 0;
-}
-.topics-sprite-nga {
-  background-position: -220px -60px;
-}
-.topics-sprite-luftbilder {
-  background-position: -220px -120px;
-}
-.topics-sprite-gewiss {
-  background-position: -220px -180px;
-}
-.topics-sprite-dev {
-  background-position: -220px -240px;
-}
-.topics-sprite-cadastre {
-  background-position: -220px -300px;
-}
-.topics-sprite-meteoschweiz {
-  background-position: -220px -360px;
-}
-
-.topics-sprite-swisstopo {
-  background-position: -330px 0;
-}
-.topics-sprite-ivs {
-  background-position: -330px -60px;
-}
-.topics-sprite-wildruhezonen {
-  background-position: -330px -120px;
-}
-.topics-sprite-inspire {
-  background-position: -330px -180px;
-}
-.topics-sprite-geothermie {
-  background-position: -330px -240px;
-}
-.topics-sprite-astra {
-  background-position: -330px -300px;
-}
-.topics-sprite-bfs {
-  background-position: -330px -360px;
+@each $topic in $topics {
+  .topics-sprite-#{map-get($topic, 'key')} {
+    background-position: map-get($topic, 'position');
+  }
 }
