@@ -43,6 +43,7 @@ export default {
     left: 5%;
     width: 90%;
     max-height: calc(75vh - 3rem);
+    text-align: center;
 }
 @include respond-above(sm) {
     #search-results {
