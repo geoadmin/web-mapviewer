@@ -5,7 +5,6 @@ describe('Test the deploy script', () => {
 
     const checkResult = (result, expected) => {
         const { stderr, stdout, code } = result
-        console.log(result)
         const {
             firstLine: expectedFirstLine,
             contains: expectContains,

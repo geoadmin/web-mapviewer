@@ -32,6 +32,7 @@ export default {
             required: true,
         },
     },
+    emits: ['changeUiMode'],
     data: function () {
         return {
             UIModes,

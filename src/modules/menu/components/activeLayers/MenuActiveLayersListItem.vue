@@ -26,7 +26,7 @@
                 :data-cy="`time-selector-${id}`"
                 :time-config="timeConfig"
                 :compact="compact"
-                @timestampChange="onTimestampChange"
+                @timestamp-change="onTimestampChange"
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"

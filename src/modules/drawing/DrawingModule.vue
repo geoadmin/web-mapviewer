@@ -8,9 +8,9 @@
             :drawing-not-empty="drawingNotEmpty"
             :kml-ids="kmlIds"
             @close="hideDrawingOverlay"
-            @setDrawingMode="changeDrawingMode"
+            @set-drawing-mode="changeDrawingMode"
             @export="exportDrawing"
-            @clearDrawing="clearDrawing"
+            @clear-drawing="clearDrawing"
         />
         <DrawingStylePopup
             v-show="show && selectedFeature"

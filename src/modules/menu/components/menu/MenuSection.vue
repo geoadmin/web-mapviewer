@@ -55,6 +55,7 @@ export default {
             default: false,
         },
     },
+    emits: ['showBody'],
     data() {
         return {
             showBody: this.showContent,

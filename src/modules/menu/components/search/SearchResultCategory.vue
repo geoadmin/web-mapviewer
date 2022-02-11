@@ -12,7 +12,7 @@
                 v-for="(entry, index) in entries"
                 :key="`${index}-${entry.getId()}`"
                 :entry="entry"
-                @showLayerLegendPopup="showLayerLegendPopup"
+                @show-layer-legend-popup="showLayerLegendPopup"
             />
         </div>
 

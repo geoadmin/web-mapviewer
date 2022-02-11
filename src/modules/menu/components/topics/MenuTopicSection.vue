@@ -16,7 +16,7 @@
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
                 :topics="allTopics"
-                @selectTopic="selectTopic"
+                @select-topic="selectTopic"
                 @close="showTopicSelectionPopup = false"
             />
         </template>
@@ -27,7 +27,7 @@
                 :item="item"
                 :active-layers="activeLayers"
                 :compact="compact"
-                @clickOnLayerTopicItem="onClickOnLayerTopicItem"
+                @click-on-layer-topic-item="onClickOnLayerTopicItem"
             />
         </ul>
     </MenuSection>

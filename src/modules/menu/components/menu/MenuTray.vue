@@ -6,7 +6,7 @@
             secondary
             data-cy="menu-settings-section"
         >
-            <MenuSettings :current-ui-mode="currentUiMode" @changeUiMode="setUiMode" />
+            <MenuSettings :current-ui-mode="currentUiMode" @change-ui-mode="setUiMode" />
         </MenuSection>
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <MenuSection

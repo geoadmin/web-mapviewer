@@ -25,11 +25,13 @@ module.exports = (on, config) => {
             })
         },
         deleteFolder(folderName) {
+            // eslint-disable-next-line no-console
             console.log('deleting folder %s', folderName)
 
             return new Promise((resolve, reject) => {
                 fs.rmdir(folderName, { maxRetries: 10, recursive: true }, (err) => {
                     if (err) {
+                        // eslint-disable-next-line no-console
                         console.error(err)
 
                         return reject(err)
