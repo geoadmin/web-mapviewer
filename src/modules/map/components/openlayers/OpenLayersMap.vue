@@ -3,17 +3,6 @@
     <div id="ol-map" ref="map" @contextmenu="showLocationPopup">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
-        <teleport v-if="readyForTeleport" to="#footer-target-scale">
-            <!--
-                It is necessary to use `v-show` instead of `v-if`. Otherwise,
-                the scale-line will never show if the initial zoom was too low.
-            -->
-            <div v-show="zoom >= 9" id="scale-line" ref="scaleLine" data-cy="scaleline" />
-        </teleport>
-        <OpenLayersMousePosition v-if="isUIinDesktopMode" />
-        <div id="map-target-profile" :class="{ 'footer-visible': isFooterVisible }">
-            <VisibleLayersCopyrights />
-        </div>
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -72,7 +61,6 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { Map, View } from 'ol'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-import ScaleLine from 'ol/control/ScaleLine'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 
 import { round } from '@/utils/numberUtils'
@@ -85,8 +73,6 @@ import { UIModes } from '@/modules/store/modules/ui.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
 import log from '@/utils/logging'
-import OpenLayersMousePosition from '@/modules/map/components/openlayers/OpenLayersMousePosition.vue'
-import VisibleLayersCopyrights from '@/modules/map/components/openlayers/VisibleLayersCopyrights.vue'
 import { CrossHairs } from '@/modules/store/modules/position.store'
 
 /**
@@ -99,8 +85,6 @@ import { CrossHairs } from '@/modules/store/modules/position.store'
  */
 export default {
     components: {
-        VisibleLayersCopyrights,
-        OpenLayersMousePosition,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersAccuracyCircle,
@@ -118,8 +102,6 @@ export default {
             markerStyles,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
-            /** Delay teleport until view is rendered. Updated in mounted-hook. */
-            readyForTeleport: false,
         }
     },
     computed: {
@@ -213,6 +195,8 @@ export default {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
         this.map = new Map({ controls: [] })
+        // To enable non-child components to interact with the map we store the instance in Vuex.
+        this.$store.commit('setMapInstance', this.map)
     },
     created() {
         this.initialCenter = [...this.center]
@@ -227,21 +211,6 @@ export default {
             zoom: this.zoom,
         })
         this.map.setView(this.view)
-
-        // adding scale line
-        // see https://portal-vue.linusb.org/guide/caveats.html#refs
-        // for the reason this double $nextTick is here
-        this.$nextTick().then(() => {
-            // We can enable the teleport after the view has been rendered.
-            this.readyForTeleport = true
-            this.$nextTick(() => {
-                const scaleLine = new ScaleLine({
-                    target: this.$refs.scaleLine,
-                    className: 'scale-line',
-                })
-                this.map.addControl(scaleLine)
-            })
-        })
 
         // Click management
         let pointerDownStart = null
@@ -283,13 +252,13 @@ export default {
                                     geoJsonLayer,
                                     feature.get('id') || feature.getId(),
                                     `<div class="htmlpopup-container">
-                                  <div class="htmlpopup-header">
-                                      <span>${geoJsonLayer.name}</span>
-                                  </div>
-                                  <div class="htmlpopup-content">
-                                      ${feature.get('description')}
-                                  </div>
-                               </div>`,
+                                        <div class="htmlpopup-header">
+                                            <span>${geoJsonLayer.name}</span>
+                                        </div>
+                                        <div class="htmlpopup-content">
+                                            ${feature.get('description')}
+                                        </div>
+                                    </div>`,
                                     featureGeometry.flatCoordinates,
                                     featureGeometry.getExtent()
                                 )
@@ -328,6 +297,7 @@ export default {
     beforeUnmount() {
         this.map = null
         this.view = null
+        this.$store.commit('setMapInstance', this.map)
     },
     methods: {
         ...mapActions([
@@ -337,8 +307,8 @@ export default {
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
         ]),
-        showLocationPopup: function (e) {
-            const screenCoordinates = [e.x, e.y]
+        showLocationPopup(event) {
+            const screenCoordinates = [event.x, event.y]
             this.click(
                 new ClickInfo(
                     this.map.getCoordinateFromPixel(screenCoordinates),
@@ -349,52 +319,18 @@ export default {
                 )
             )
             // we do not want the contextual menu to shows up, so we prevent the event propagation
-            e.preventDefault()
+            event.preventDefault()
             return false
         },
     },
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-// style is unscoped so that it may reach scale-line outside of itself
-// as it was transported in the footer by vue-portal
+
 #ol-map {
     width: 100%;
     height: 100%;
-}
-#scale-line {
-    // placing Map Scale over the footer to free some map screen space
-    height: 1rem;
-    width: 150px;
-
-    .scale-line {
-        text-align: center;
-        font-weight: bold;
-        bottom: 0;
-        left: 0;
-        background: rgba(255, 255, 255, 0.6);
-        .scale-line-inner {
-            color: $black;
-            border: 2px solid $black;
-            border-top: none;
-            max-width: 150px;
-        }
-    }
-}
-#map-target-profile {
-    position: absolute;
-    right: 0;
-    left: 0;
-    z-index: $zindex-copyrights;
-
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-
-    &.footer-visible {
-        bottom: $footer-height;
-    }
 }
 </style>

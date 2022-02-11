@@ -51,9 +51,6 @@
                 </ButtonWithIcon>
             </div>
         </transition>
-        <div class="toolbox-bottom">
-            <BackgroundSelectorButton />
-        </div>
     </div>
 </template>
 
@@ -66,14 +63,12 @@ import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-import BackgroundSelectorButton from '@/modules/menu/components/toolboxBottom/BackgroundSelectorButton.vue'
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 
 export default {
     components: {
         HeaderWithSearch,
         BlackBackdrop,
-        BackgroundSelectorButton,
         ZoomButtons,
         GeolocButton,
         ButtonWithIcon,
@@ -158,11 +153,6 @@ $animation-time: 0.5s;
         float: right;
         position: relative;
         margin: $screen-padding-for-ui-elements;
-    }
-    .toolbox-bottom {
-        position: absolute;
-        left: $screen-padding-for-ui-elements;
-        bottom: $footer-height + $screen-padding-for-ui-elements;
     }
     .menu-tray {
         position: absolute;

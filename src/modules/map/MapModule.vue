@@ -5,25 +5,17 @@
             <slot />
             <LocationPopup />
         </OpenLayersMap>
-        <transition name="slide-down">
-            <MapFooter v-show="showFooter" />
-        </transition>
+        <MapFooter />
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import LocationPopup from './components/LocationPopup.vue'
-import MapFooter from './components/MapFooter.vue'
+import MapFooter from './components/footer/MapFooter.vue'
 
 export default {
     components: { OpenLayersMap, LocationPopup, MapFooter },
-    computed: {
-        ...mapState({
-            showFooter: (state) => !state.ui.fullscreenMode,
-        }),
-    },
 }
 </script>
 

@@ -1,3 +1,5 @@
+import { CoordinateSystems } from '@/utils/coordinateUtils'
+
 /** @enum */
 export const ClickType = {
     RIGHT_CLICK: 'RIGHT_CLICK',
@@ -60,6 +62,18 @@ export default {
          *   null, no pin will be shown.
          */
         pinnedLocation: null,
+        /**
+         * A reference to the OpenLayers map instance.
+         *
+         * @type {ol/Map}
+         */
+        instance: null,
+        /**
+         * The ID of the currently applied map projection.
+         *
+         * @type {String}
+         */
+        projectionId: CoordinateSystems.LV95.id,
     },
     getters: {},
     actions: {
@@ -116,5 +130,17 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
+        setMapInstance: (state, instance) => (state.instance = instance),
+        setMapProjection: (state, projectionId) => (state.projectionId = projectionId),
+        addMapControl: (state, control) => {
+            if (state.instance) {
+                state.instance.addControl(control)
+            }
+        },
+        removeMapControl: (state, control) => {
+            if (state.instance) {
+                state.instance.removeControl(control)
+            }
+        },
     },
 }
