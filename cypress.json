@@ -3,5 +3,9 @@
   "downloadsFolder": "tests/e2e/downloads",
   "video": false,
   "defaultCommandTimeout": 10000,
-  "requestTimeout": 15000
+  "requestTimeout": 15000,
+  "retries": {
+    "runMode": 5,
+    "openMode": 0
+  }
 }
