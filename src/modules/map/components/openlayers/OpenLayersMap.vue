@@ -195,8 +195,6 @@ export default {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
         this.map = new Map({ controls: [] })
-        // To enable non-child components to interact with the map we store the instance in Vuex.
-        this.$store.commit('setMapInstance', this.map)
     },
     created() {
         this.initialCenter = [...this.center]
@@ -297,7 +295,6 @@ export default {
     beforeUnmount() {
         this.map = null
         this.view = null
-        this.$store.commit('setMapInstance', this.map)
     },
     methods: {
         ...mapActions([

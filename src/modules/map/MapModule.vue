@@ -5,17 +5,15 @@
             <slot />
             <LocationPopup />
         </OpenLayersMap>
-        <MapFooter />
     </div>
 </template>
 
 <script>
 import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import LocationPopup from './components/LocationPopup.vue'
-import MapFooter from './components/footer/MapFooter.vue'
 
 export default {
-    components: { OpenLayersMap, LocationPopup, MapFooter },
+    components: { OpenLayersMap, LocationPopup },
 }
 </script>
 

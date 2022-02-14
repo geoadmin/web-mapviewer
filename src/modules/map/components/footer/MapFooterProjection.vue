@@ -20,6 +20,7 @@ import { mapState } from 'vuex'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export default {
+    inject: ['getMap'],
     data() {
         return {
             availableProjections: CoordinateSystems,

@@ -9,6 +9,7 @@ import { mapState } from 'vuex'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export default {
+    inject: ['getMap'],
     computed: {
         ...mapState({
             mapProjectionId: (state) => state.map.projectionId,
@@ -24,7 +25,7 @@ export default {
         this.mousePositionControl.setTarget(this.$refs.mousePosition)
         this.setProjection()
 
-        this.$store.commit('addMapControl', this.mousePositionControl)
+        this.getMap().addControl(this.mousePositionControl)
 
         this.unsubscribeProjection = this.$store.subscribe((mutation) => {
             if (mutation.type === 'setMapProjection') {
@@ -33,7 +34,7 @@ export default {
         })
     },
     unmounted() {
-        this.$store.commit('removeMapControl', this.mousePositionControl)
+        this.getMap().removeControl(this.mousePositionControl)
         this.unsubscribeProjection()
     },
     methods: {

@@ -67,6 +67,7 @@ $flex-gap: 1em;
     left: 0;
     bottom: 0;
     right: 0;
+    z-index: $zindex-menu + 1;
 
     transition: transform $transition-duration;
     pointer-events: none;

@@ -3,6 +3,7 @@
         <MapModule>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule />
+            <MapFooter />
         </MapModule>
         <MenuModule />
         <InfoboxModule />
@@ -16,6 +17,7 @@ import MenuModule from '@/modules/menu/MenuModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import DrawingModule from '@/modules/drawing/DrawingModule.vue'
+import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 
 export default {
     components: {
@@ -23,6 +25,7 @@ export default {
         InfoboxModule,
         MenuModule,
         MapModule,
+        MapFooter,
         I18nModule,
     },
 }

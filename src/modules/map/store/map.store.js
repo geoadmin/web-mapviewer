@@ -63,12 +63,6 @@ export default {
          */
         pinnedLocation: null,
         /**
-         * A reference to the OpenLayers map instance.
-         *
-         * @type {ol/Map}
-         */
-        instance: null,
-        /**
          * The ID of the currently applied map projection.
          *
          * @type {String}
@@ -130,17 +124,6 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
-        setMapInstance: (state, instance) => (state.instance = instance),
         setMapProjection: (state, projectionId) => (state.projectionId = projectionId),
-        addMapControl: (state, control) => {
-            if (state.instance) {
-                state.instance.addControl(control)
-            }
-        },
-        removeMapControl: (state, control) => {
-            if (state.instance) {
-                state.instance.removeControl(control)
-            }
-        },
     },
 }

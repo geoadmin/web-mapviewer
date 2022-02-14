@@ -8,6 +8,7 @@ import ScaleLine from 'ol/control/ScaleLine'
 import { mapState } from 'vuex'
 
 export default {
+    inject: ['getMap'],
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
@@ -21,10 +22,10 @@ export default {
     },
     mounted() {
         this.scaleLine.setTarget(this.$refs.scaleLine)
-        this.$store.commit('addMapControl', this.scaleLine)
+        this.getMap().addControl(this.scaleLine)
     },
     unmounted() {
-        this.$store.commit('removeMapControl', this.scaleLine)
+        this.getMap().removeControl(this.scaleLine)
     },
 }
 </script>
