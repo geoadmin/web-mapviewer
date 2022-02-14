@@ -1,3 +1,5 @@
+import { CoordinateSystems } from '@/utils/coordinateUtils'
+
 /** @enum */
 export const ClickType = {
     RIGHT_CLICK: 'RIGHT_CLICK',
@@ -60,6 +62,12 @@ export default {
          *   null, no pin will be shown.
          */
         pinnedLocation: null,
+        /**
+         * The ID of the currently applied map projection.
+         *
+         * @type {String}
+         */
+        projectionId: CoordinateSystems.LV95.id,
     },
     getters: {},
     actions: {
@@ -116,5 +124,6 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
+        setMapProjection: (state, projectionId) => (state.projectionId = projectionId),
     },
 }

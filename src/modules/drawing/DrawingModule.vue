@@ -22,7 +22,7 @@
             @change="triggerKMLUpdate"
         />
         <div ref="draw-help" class="draw-help-popup"></div>
-        <teleport v-if="readyForTeleport" to="#map-target-profile">
+        <teleport v-if="readyForTeleport" to="#map-footer-middle">
             <ProfilePopup
                 :feature="selectedFeature"
                 :ui-mode="uiMode"

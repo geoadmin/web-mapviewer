@@ -62,7 +62,7 @@ const clickOnMapManagementPlugin = (store) => {
             // we only react to left click, right clicks are handled by the LocationPopup component
             if (state.map.clickInfo && state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
                 // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
-                if (state.ui.mode === UIModes.TOUCH) {
+                if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
                     if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
                         store.dispatch('toggleFullscreenMode')
                     } else {

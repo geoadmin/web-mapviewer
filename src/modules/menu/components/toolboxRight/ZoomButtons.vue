@@ -36,6 +36,7 @@ $disabled-color: $gray-300;
     overflow: hidden;
     cursor: pointer;
     background-color: $normal-color;
+    text-align: center;
     &:hover {
         background-color: $gray-700;
     }

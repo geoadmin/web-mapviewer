@@ -5,7 +5,7 @@ module.exports = {
         mocha: true,
     },
     extends: [
-        'plugin:vue/essential',
+        'plugin:vue/vue3-essential',
         'plugin:vue/vue3-recommended',
         'plugin:cypress/recommended',
         'eslint:recommended',

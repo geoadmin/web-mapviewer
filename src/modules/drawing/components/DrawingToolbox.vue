@@ -1,7 +1,7 @@
 <template>
     <teleport to=".drawing-toolbox-in-menu">
         <div class="drawing-toolbox">
-            <div class="card">
+            <div class="card text-center">
                 <div class="card-body position-relative">
                     <ButtonWithIcon
                         class="position-absolute top-0 end-0"
