@@ -5,15 +5,20 @@
 <script>
 import MousePosition from 'ol/control/MousePosition'
 import { get as getProjection } from 'ol/proj'
-import { mapState } from 'vuex'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export default {
     inject: ['getMap'],
-    computed: {
-        ...mapState({
-            mapProjectionId: (state) => state.map.projectionId,
-        }),
+    props: {
+        displayedProjectionId: {
+            type: String,
+            required: true,
+        },
+    },
+    watch: {
+        displayedProjectionId: function () {
+            this.setProjection()
+        },
     },
     created() {
         this.mousePositionControl = new MousePosition({
@@ -23,23 +28,19 @@ export default {
     },
     mounted() {
         this.mousePositionControl.setTarget(this.$refs.mousePosition)
-        this.setProjection()
-
         this.getMap().addControl(this.mousePositionControl)
-
-        this.unsubscribeProjection = this.$store.subscribe((mutation) => {
-            if (mutation.type === 'setMapProjection') {
-                this.setProjection()
-            }
+        // we wait for the next cycle to set the projection, otherwise the info can
+        // sometimes be lost (and we end up with a different projection in the position display)
+        this.$nextTick(() => {
+            this.setProjection()
         })
     },
     unmounted() {
         this.getMap().removeControl(this.mousePositionControl)
-        this.unsubscribeProjection()
     },
     methods: {
         setProjection() {
-            const { format, epsg } = CoordinateSystems[this.mapProjectionId]
+            const { format, epsg } = CoordinateSystems[this.displayedProjectionId]
 
             this.mousePositionControl.setCoordinateFormat(format)
             this.mousePositionControl.setProjection(getProjection(epsg))

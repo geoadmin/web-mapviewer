@@ -63,11 +63,12 @@ export default {
          */
         pinnedLocation: null,
         /**
-         * The ID of the currently applied map projection.
+         * The current applied map projection for anything displayed to the user (footer mouse
+         * position for instance)
          *
-         * @type {String}
+         * @type {CoordinateSystems}
          */
-        projectionId: CoordinateSystems.LV95.id,
+        displayedProjection: CoordinateSystems.LV95,
     },
     getters: {},
     actions: {
@@ -116,6 +117,11 @@ export default {
                 commit('setPinnedLocation', null)
             }
         },
+        setDisplayedProjectionWithId({ commit }, projectionId) {
+            if (projectionId && CoordinateSystems[projectionId]) {
+                commit('setDisplayedProjection', CoordinateSystems[projectionId])
+            }
+        },
     },
     mutations: {
         setHighlightedLayer: (state, layer) => (state.highlightedLayer = layer),
@@ -124,6 +130,6 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
-        setMapProjection: (state, projectionId) => (state.projectionId = projectionId),
+        setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
     },
 }

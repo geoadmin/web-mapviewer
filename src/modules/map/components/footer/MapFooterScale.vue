@@ -1,19 +1,18 @@
 <template>
     <!-- The initialization will fail with `v-if` if initial zoom is too low. -->
-    <div v-show="zoom >= 9" ref="scaleLine" data-cy="scaleline" />
+    <div v-show="currentZoom >= 9" ref="scaleLine" data-cy="scaleline" />
 </template>
 
 <script>
 import ScaleLine from 'ol/control/ScaleLine'
-import { mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
-    computed: {
-        ...mapState({
-            zoom: (state) => state.position.zoom,
-            mapInstance: (state) => state.map.instance,
-        }),
+    props: {
+        currentZoom: {
+            type: Number,
+            required: true,
+        },
     },
     created() {
         this.scaleLine = new ScaleLine({

@@ -308,6 +308,11 @@ export const getCentroid = function (...coordinates) {
     return [x / f, y / f]
 }
 
+/**
+ * Representation of many different (available in this app) projection systems
+ *
+ * @enum
+ */
 export const CoordinateSystems = {
     LV95: {
         id: 'LV95',

@@ -18,18 +18,12 @@ const defaultCenter = [47.5, 7.5]
 
 function checkMousePositionStringValue(coordStr = `${defaultCenter[0]}, ${defaultCenter[1]}`) {
     cy.get('[data-cy="map"]').click()
-    // here we have to use a non data-cy selector as we have no control on this generated part
-    // of the HTML by OpenLayers
-    cy.get('[data-cy="mouse-position"] .mouse-position')
-        .invoke('text')
-        .then((text) => {
-            expect(text).to.equal(coordStr)
-        })
+    cy.get('[data-cy="mouse-position"]').should('contain.text', coordStr)
 }
 
 function checkMousePositionNumberValue(expectedX = defaultCenter[0], expectedY = defaultCenter[1]) {
     cy.get('[data-cy="map"]').click()
-    cy.get('[data-cy="mouse-position"] .mouse-position')
+    cy.get('[data-cy="mouse-position"]')
         .invoke('text')
         .then((text) => {
             const [x, y] = text.split(',').map((textValue) => parseFloat(textValue))
