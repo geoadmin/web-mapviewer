@@ -1,13 +1,13 @@
 <template>
     <button class="button-with-icon d-flex btn" :class="buttonClasses" @click="forwardClickEvent">
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
         <span :class="{ 'ms-1': iconsBeforeText }">
             {{ buttonTitle }}
         </span>
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />

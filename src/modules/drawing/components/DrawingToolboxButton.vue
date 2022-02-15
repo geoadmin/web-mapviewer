@@ -36,10 +36,7 @@ export default {
                 case drawingModes.MEASURE:
                     return ['fa', 'ruler']
                 case drawingModes.TEXT:
-                    // TODO: Redo a T+ logo somehow (T text sign is only included in pro version)
-                    // so either go pro, and stack icons to achieve this or go the old way :
-                    // it was injected as a custom FA icon in the old viewer
-                    return ['fa', 'plus']
+                    return ['fa', 't']
             }
             return null
         },
