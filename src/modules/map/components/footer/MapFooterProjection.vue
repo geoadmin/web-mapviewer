@@ -1,7 +1,7 @@
 <template>
     <select
         class="form-control-xs"
-        :value="currentProjectionId"
+        :value="displayedProjectionId"
         data-cy="mouse-position-select"
         @change="onProjectionChange"
     >
@@ -16,24 +16,25 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export default {
     inject: ['getMap'],
+    props: {
+        displayedProjectionId: {
+            type: String,
+            required: true,
+        },
+    },
+    emits: ['projectionChange'],
     data() {
         return {
             availableProjections: CoordinateSystems,
         }
     },
-    computed: {
-        ...mapState({
-            currentProjectionId: (state) => state.map.projectionId,
-        }),
-    },
     methods: {
         onProjectionChange(event) {
-            this.$store.commit('setMapProjection', event.target.value)
+            this.$emit('projectionChange', event.target.value)
         },
     },
 }

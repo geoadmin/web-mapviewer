@@ -13,11 +13,14 @@
         </div>
         <div class="map-footer-bottom">
             <div class="map-footer-bottom-left">
-                <MapFooterScale />
-                <MapFooterProjection />
+                <MapFooterScale :current-zoom="zoom" />
+                <MapFooterProjection
+                    :displayed-projection-id="displayedProjectionId"
+                    @projection-change="setDisplayedProjectionWithId"
+                />
             </div>
             <div class="map-footer-bottom-right">
-                <MapFooterMousePosition />
+                <MapFooterMousePosition :displayed-projection-id="displayedProjectionId" />
                 <MapFooterAppVersion />
                 <MapFooterAppCopyright />
             </div>
@@ -26,7 +29,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
 import MapFooterAttribution from './MapFooterAttribution.vue'
@@ -47,8 +50,13 @@ export default {
     },
     computed: {
         ...mapState({
+            zoom: (state) => state.position.zoom,
             isFullscreenMode: (state) => state.ui.fullscreenMode,
+            displayedProjectionId: (state) => state.map.displayedProjection.id,
         }),
+    },
+    methods: {
+        ...mapActions(['setDisplayedProjectionWithId']),
     },
 }
 </script>
