@@ -4,7 +4,7 @@
             v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
-        <span :class="{ 'ms-1': iconsBeforeText }">
+        <span v-if="buttonTitle" :class="labelClasses">
             {{ buttonTitle }}
         </span>
         <FontAwesomeIcon
@@ -13,6 +13,7 @@
         />
     </button>
 </template>
+
 <script>
 export default {
     props: {
@@ -27,6 +28,13 @@ export default {
         iconsBeforeText: {
             type: Boolean,
             default: false,
+        },
+        direction: {
+            type: String,
+            default: 'row',
+            validator(value) {
+                return ['row', 'column'].includes(value)
+            },
         },
         small: {
             type: Boolean,
@@ -63,7 +71,7 @@ export default {
     },
     emits: ['click'],
     computed: {
-        buttonClasses: function () {
+        buttonClasses() {
             const classes = []
             if (this.small) {
                 classes.push('btn-sm')
@@ -85,11 +93,31 @@ export default {
             } else {
                 classes.push('btn-light')
             }
+            if (this.direction === 'column') {
+                classes.push('flex-column')
+            }
             return classes
+        },
+        labelClasses() {
+            let className
+            if (this.direction === 'column') {
+                if (this.iconsBeforeText) {
+                    className = 'mt-1'
+                } else {
+                    className = 'mb-1'
+                }
+            } else {
+                if (this.iconsBeforeText) {
+                    className = 'ms-1'
+                } else {
+                    className = 'me-1'
+                }
+            }
+            return className
         },
     },
     methods: {
-        forwardClickEvent: function (event) {
+        forwardClickEvent(event) {
             this.$emit('click', event)
         },
     },
