@@ -1,73 +1,73 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
-    faTimes,
-    faTimesCircle,
-    faSpinner,
-    faCog,
-    faArrowUp,
     faArrowDown,
+    faArrowUp,
+    faArrowsAltH,
+    faArrowsAltV,
+    faCaretDown,
     faCaretRight,
     faCaretUp,
-    faCaretDown,
-    faPlusCircle,
-    faPlus,
-    faMinusCircle,
-    faInfoCircle,
-    faPrint,
-    faMapMarkerAlt,
+    faChevronDown,
+    faChevronUp,
+    faCog,
     faDrawPolygon,
-    faRuler,
-    faArrowsAltH,
-    faSquareFull,
     faFont,
+    faInfoCircle,
+    faMapMarkerAlt,
+    faMinusCircle,
     faPaintBrush,
-    faArrowsAltV,
+    faPlusCircle,
+    faPrint,
+    faRuler,
     faSearch,
     faSortAmountUpAlt,
     faSortAmountDownAlt,
-    faChevronUp,
-    faChevronDown,
+    faSpinner,
+    faSquareFull,
+    faT,
+    faTimes,
+    faTimesCircle,
     faWindowMinimize,
 } from '@fortawesome/free-solid-svg-icons'
 import {
     faCheckSquare,
+    faClock,
+    faEye,
     faSquare,
     faTrashAlt,
-    faEye,
-    faClock,
 } from '@fortawesome/free-regular-svg-icons'
 
-library.add(faPaintBrush)
-library.add(faSquare)
-library.add(faSquareFull)
-library.add(faTrashAlt)
-library.add(faTimes)
-library.add(faTimesCircle)
-library.add(faSpinner)
-library.add(faCog)
+library.add(faArrowDown)
 library.add(faArrowUp)
 library.add(faArrowsAltH)
-library.add(faArrowDown)
+library.add(faArrowsAltV)
+library.add(faCaretDown)
 library.add(faCaretRight)
 library.add(faCaretUp)
-library.add(faCaretDown)
-library.add(faPlusCircle)
-library.add(faPlus)
-library.add(faMinusCircle)
-library.add(faInfoCircle)
-library.add(faPrint)
-library.add(faMapMarkerAlt)
+library.add(faChevronDown)
+library.add(faChevronUp)
+library.add(faCog)
 library.add(faDrawPolygon)
-library.add(faRuler)
-library.add(faCheckSquare)
-library.add(faSquare)
 library.add(faFont)
-library.add(faArrowsAltV)
+library.add(faInfoCircle)
+library.add(faMapMarkerAlt)
+library.add(faMinusCircle)
+library.add(faPaintBrush)
+library.add(faPlusCircle)
+library.add(faPrint)
+library.add(faRuler)
 library.add(faSearch)
 library.add(faSortAmountUpAlt)
 library.add(faSortAmountDownAlt)
-library.add(faChevronUp)
-library.add(faChevronDown)
-library.add(faEye)
-library.add(faClock)
+library.add(faSpinner)
+library.add(faSquareFull)
+library.add(faT)
+library.add(faTimes)
+library.add(faTimesCircle)
 library.add(faWindowMinimize)
+
+library.add(faCheckSquare)
+library.add(faClock)
+library.add(faEye)
+library.add(faSquare)
+library.add(faTrashAlt)

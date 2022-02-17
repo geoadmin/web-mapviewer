@@ -16,6 +16,7 @@
                             :key="drawingMode"
                             :drawing-mode="drawingMode"
                             :is-active="currentDrawingMode === drawingMode"
+                            :ui-mode="uiMode"
                             :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
                             class="m-1"
                             @set-drawing-mode="bubbleSetDrawingEventToParent"
@@ -123,6 +124,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 export default {
     components: {
@@ -151,6 +153,10 @@ export default {
         deleteLastPointCallback: {
             type: Function,
             default: undefined,
+        },
+        uiMode: {
+            type: String,
+            default: UIModes.MENU_ALWAYS_OPEN,
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing'],

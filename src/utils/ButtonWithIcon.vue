@@ -1,18 +1,19 @@
 <template>
     <button class="button-with-icon d-flex btn" :class="buttonClasses" @click="forwardClickEvent">
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
-        <span :class="{ 'ms-1': iconsBeforeText }">
+        <span v-if="buttonTitle" :class="labelClasses">
             {{ buttonTitle }}
         </span>
-        <font-awesome-icon
+        <FontAwesomeIcon
             v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
         />
     </button>
 </template>
+
 <script>
 export default {
     props: {
@@ -27,6 +28,13 @@ export default {
         iconsBeforeText: {
             type: Boolean,
             default: false,
+        },
+        direction: {
+            type: String,
+            default: 'row',
+            validator(value) {
+                return ['row', 'column'].includes(value)
+            },
         },
         small: {
             type: Boolean,
@@ -63,7 +71,7 @@ export default {
     },
     emits: ['click'],
     computed: {
-        buttonClasses: function () {
+        buttonClasses() {
             const classes = []
             if (this.small) {
                 classes.push('btn-sm')
@@ -85,11 +93,23 @@ export default {
             } else {
                 classes.push('btn-light')
             }
+            if (this.direction === 'column') {
+                classes.push('flex-column')
+            }
             return classes
+        },
+        labelClasses() {
+            let className
+            if (this.direction === 'column') {
+                className = this.iconsBeforeText ? 'mt-1' : 'mb-1'
+            } else {
+                className = this.iconsBeforeText ? 'ms-1' : 'me-1'
+            }
+            return className
         },
     },
     methods: {
-        forwardClickEvent: function (event) {
+        forwardClickEvent(event) {
             this.$emit('click', event)
         },
     },
