@@ -2,19 +2,18 @@
     <ButtonWithIcon
         small
         outline-light
-        :button-title="drawingModeToLabel(drawingMode)"
+        :button-title="buttonLabel"
         :danger="isActive"
         :button-font-awesome-icon="buttonIcon"
         :icons-before-text="true"
         direction="column"
-        :style="buttonStyle"
+        :class="buttonClasses"
         :data-cy="`drawing-${drawingMode.toLowerCase()}`"
         @click="emitSetDrawingMode"
     />
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import { drawingModes } from '@/modules/store/modules/drawing.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { UIModes } from '@/modules/store/modules/ui.store'
@@ -30,12 +29,13 @@ export default {
             type: Boolean,
             default: false,
         },
+        uiMode: {
+            type: String,
+            default: UIModes.MENU_ALWAYS_OPEN,
+        },
     },
     emits: ['setDrawingMode'],
     computed: {
-        ...mapState({
-            uiMode: (state) => state.ui.mode,
-        }),
         buttonIcon() {
             switch (this.drawingMode) {
                 case drawingModes.LINE:
@@ -49,23 +49,24 @@ export default {
             }
             return null
         },
-        buttonStyle() {
-            return {
-                // The buttons having different/dynamic widths looks unintentional.
-                // While inline styles are bad, there is no Bootstrap class we can
-                // apply to the component and this width is too use-case specific
-                // to be added as a class in the ButtonWithIcon component.
-                width: this.uiMode === 'MENU_ALWAYS_OPEN' ? '4.5em' : '',
+        buttonLabel() {
+            // Don't show a label on small viewports.
+            if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
+                return this.$t(`draw_${this.drawingMode.toLowerCase()}`)
+            } else {
+                return undefined
+            }
+        },
+        buttonClasses() {
+            // Set a fixed width on large viewports for a consistent look.
+            if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
+                return 'button-with-icon-w5'
+            } else {
+                return undefined
             }
         },
     },
     methods: {
-        drawingModeToLabel(mode) {
-            // Don't show a label on small viewports.
-            if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
-                return this.$t(`draw_${mode.toLowerCase()}`)
-            }
-        },
         emitSetDrawingMode() {
             this.$emit('setDrawingMode', this.drawingMode)
         },

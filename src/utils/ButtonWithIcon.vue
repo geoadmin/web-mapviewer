@@ -101,17 +101,9 @@ export default {
         labelClasses() {
             let className
             if (this.direction === 'column') {
-                if (this.iconsBeforeText) {
-                    className = 'mt-1'
-                } else {
-                    className = 'mb-1'
-                }
+                className = this.iconsBeforeText ? 'mt-1' : 'mb-1'
             } else {
-                if (this.iconsBeforeText) {
-                    className = 'ms-1'
-                } else {
-                    className = 'me-1'
-                }
+                className = this.iconsBeforeText ? 'ms-1' : 'me-1'
             }
             return className
         },
@@ -130,6 +122,9 @@ export default {
     &.btn-no-style {
         background: none;
         border: none;
+    }
+    &-w5 {
+        width: 5em;
     }
 }
 svg {

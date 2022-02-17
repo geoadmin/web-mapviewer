@@ -7,6 +7,7 @@
             :delete-last-point-callback="deleteLastPointCallback"
             :drawing-not-empty="drawingNotEmpty"
             :kml-ids="kmlIds"
+            :ui-mode="uiMode"
             @close="hideDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @export="exportDrawing"
