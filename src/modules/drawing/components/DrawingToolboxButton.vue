@@ -60,7 +60,7 @@ export default {
         buttonClasses() {
             // Set a fixed width on large viewports for a consistent look.
             if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
-                return 'button-with-icon-w5'
+                return 'button-with-icon-uniform'
             } else {
                 return undefined
             }
@@ -73,3 +73,9 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.button-with-icon-uniform {
+    width: 5em;
+}
+</style>

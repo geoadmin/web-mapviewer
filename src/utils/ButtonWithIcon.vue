@@ -123,9 +123,6 @@ export default {
         background: none;
         border: none;
     }
-    &-w5 {
-        width: 5em;
-    }
 }
 svg {
     transition: transform 0.2s, color 0.2s;
