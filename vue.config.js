@@ -18,9 +18,19 @@ if (process.env.DEPLOY && branch !== 'master' && branch !== 'develop') {
 const packageJson = JSON.parse(fs.readFileSync('./package.json'))
 const version = packageJson.version || 0
 
+// Mapping between deployment environment and Webpack optimizations.
+// https://webpack.js.org/configuration/mode/
+const modes = {
+    development: 'development',
+    integration: 'production',
+    production: 'production',
+    [undefined]: 'none', // "test" mode
+}
+
 module.exports = {
     publicPath,
     chainWebpack: (config) => {
+        config.mode(modes[process.env.VUE_APP_ENVIRONMENT])
         config
             .plugin('define')
             .tap((definitions) => {

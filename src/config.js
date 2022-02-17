@@ -8,6 +8,14 @@
 export const DEBUG = process.env.VUE_APP_DEBUG
 
 /**
+ * Enum that tells for which (deployment) environment the app has been built.
+ *
+ * @type {'development' | 'integration' | 'production'}
+ * @see {@link https://en.wikipedia.org/wiki/Deployment_environment}
+ */
+export const ENVIRONMENT = process.env.VUE_APP_ENVIRONMENT
+
+/**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
  *
  * @type Boolean

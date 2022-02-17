@@ -39,7 +39,7 @@ export default {
 
 #search-results {
     position: absolute;
-    top: 3rem;
+    top: 100%;
     left: 5%;
     width: 90%;
     max-height: calc(75vh - 3rem);
@@ -47,7 +47,6 @@ export default {
 }
 @include respond-above(sm) {
     #search-results {
-        top: 6rem;
         max-height: calc(75vh - 6rem);
     }
 }

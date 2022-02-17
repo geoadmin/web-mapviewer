@@ -89,7 +89,7 @@ $flex-gap: 1em;
 
     &-top {
         display: flex;
-        align-items: end;
+        align-items: flex-end;
         flex-direction: row;
         justify-content: space-between;
 
@@ -106,7 +106,7 @@ $flex-gap: 1em;
             // Elements are stacked vertically, bottom to top.
             display: flex;
             flex-direction: column-reverse;
-            align-items: end;
+            align-items: flex-end;
         }
     }
 

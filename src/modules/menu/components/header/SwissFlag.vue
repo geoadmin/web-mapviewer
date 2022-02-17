@@ -1,14 +1,22 @@
 <template>
-    <img class="swiss-flag" :src="swissFlagIcon" alt="swiss-flag" @click="$emit('click', $event)" />
+    <img
+        class="swiss-flag"
+        :class="{ 'dev-site': devSiteWarning }"
+        :src="swissFlagIcon"
+        alt="swiss-flag"
+        @click="$emit('click', $event)"
+    />
 </template>
 
 <script>
 import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
+import { ENVIRONMENT } from '@/config'
 export default {
     emits: ['click'],
     data() {
         return {
             swissFlagIcon,
+            devSiteWarning: ENVIRONMENT !== 'production',
         }
     },
 }
@@ -23,6 +31,9 @@ export default {
     }
     :last-child {
         fill: $white;
+    }
+    &.dev-site {
+        filter: hue-rotate(225deg);
     }
 }
 @include media-breakpoint-down(md) {

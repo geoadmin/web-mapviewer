@@ -1,4 +1,4 @@
-import { DEBUG } from '../config'
+import { ENVIRONMENT } from '../config'
 
 /**
  * A log level reference that can be passed as first parameter to the log function. The levels
@@ -24,7 +24,7 @@ export const LogLevel = {
  */
 export default function log(level, ...message) {
     // In production we only log errors.
-    if (!DEBUG && level !== LogLevel.ERROR) {
+    if (ENVIRONMENT === 'production' && level !== LogLevel.ERROR) {
         return
     }
 

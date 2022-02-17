@@ -3,18 +3,14 @@
 </template>
 
 <script>
-import { APP_VERSION, DEBUG } from '@/config'
+import { APP_VERSION, ENVIRONMENT } from '@/config'
 
 export default {
     data() {
         return {
             appVersion: APP_VERSION,
+            showAppVersion: ENVIRONMENT !== 'production',
         }
-    },
-    computed: {
-        showAppVersion() {
-            return DEBUG
-        },
     },
 }
 </script>

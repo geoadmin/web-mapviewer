@@ -15,16 +15,25 @@
                     @click="resetApp"
                 />
             </div>
-            <div class="mx-2 flex-grow-1">
+            <div class="mx-2 flex-grow-1 position-relative">
                 <span class="float-start d-none d-lg-block">{{ $t('search_title') }}</span>
                 <SearchBar class="search-bar" />
+                <!-- eslint-disable vue/no-v-html-->
+                <div
+                    v-if="devSiteWarning"
+                    class="header-warning-dev"
+                    v-html="$t('test_host_warning')"
+                ></div>
+                <!-- eslint-enable vue/no-v-html-->
                 <SearchResultList />
             </div>
             <HeaderMenuButton v-if="showMenuButton" />
         </div>
     </div>
 </template>
+
 <script>
+import { ENVIRONMENT } from '@/config'
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
@@ -59,14 +68,20 @@ export default {
             default: 'ech',
         },
     },
+    data() {
+        return {
+            devSiteWarning: ENVIRONMENT !== 'production',
+        }
+    },
     methods: {
-        resetApp: function () {
+        resetApp() {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopicId}`
         },
     },
 }
 </script>
+
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
@@ -79,6 +94,31 @@ export default {
     z-index: $zindex-menu;
     .header-content {
         height: $header-height;
+    }
+    &-warning-dev {
+        border-radius: 0.25rem;
+        background-color: $danger;
+        color: $white;
+        text-align: center;
+        font-weight: bold;
+        // Position element below its parent.
+        position: absolute;
+        top: 100%;
+        left: 0;
+        // Set width and cut off overflowing text with ellipsis.
+        width: 40em;
+        max-width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        // (line-)height and padding work together to cut off the second line.
+        padding: 0.2em 0.5em;
+        height: 1.5em;
+        line-height: 1.2;
+        &:hover {
+            height: auto;
+            white-space: normal;
+        }
     }
 }
 @include respond-above(lg) {
