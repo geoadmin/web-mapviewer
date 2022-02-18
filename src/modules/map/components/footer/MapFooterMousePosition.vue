@@ -40,9 +40,13 @@ export default {
     },
     methods: {
         setProjection() {
-            const { format, epsg } = CoordinateSystems[this.displayedProjectionId]
+            const { id, format, epsg } = CoordinateSystems[this.displayedProjectionId]
 
-            this.mousePositionControl.setCoordinateFormat(format)
+            const displayFormat = id.startsWith('LV')
+                ? (coordinate) => `${this.$t('coordinates_label')} ${format(coordinate)}`
+                : format
+
+            this.mousePositionControl.setCoordinateFormat(displayFormat)
             this.mousePositionControl.setProjection(getProjection(epsg))
         },
     },

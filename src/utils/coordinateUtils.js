@@ -3,7 +3,7 @@ import proj4 from 'proj4'
 import { formatThousand, round } from './numberUtils'
 import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
 import log from './logging'
-import { toStringHDMS, toStringXY } from 'ol/coordinate'
+import { toStringHDMS, format } from 'ol/coordinate'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
@@ -309,6 +309,22 @@ export const getCentroid = function (...coordinates) {
 }
 
 /**
+ * Returns rounded coordinate with thousand separator and comma.
+ *
+ * @param {[Number, Number]} coordinate The raw coordinate as array.
+ * @param {Number} digit Decimal digits to round to.
+ * @returns {String} Formatted coordinate.
+ * @see {@link https://stackoverflow.com/a/2901298/4840446}
+ */
+export function toStringCH(coordinate, digits) {
+    return coordinate
+        .map((value) => value.toFixed(digits))
+        .map((value) => formatThousand(value))
+        .join(', ')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, "'")
+}
+
+/**
  * Representation of many different (available in this app) projection systems
  *
  * @enum
@@ -318,41 +334,44 @@ export const CoordinateSystems = {
         id: 'LV95',
         epsg: 'EPSG:2056',
         label: 'CH1903+ / LV95',
-        format: function (coordinate) {
-            return toStringXY(coordinate, 2)
+        format(coordinate) {
+            return toStringCH(coordinate, 1)
         },
     },
     LV03: {
         id: 'LV03',
         epsg: 'EPSG:21781',
         label: 'CH1903 / LV03',
-        format: function (coordinate) {
-            return toStringXY(coordinate, 2)
+        format(coordinate) {
+            return toStringCH(coordinate, 1)
         },
     },
     WGS84: {
         id: 'WGS84',
         epsg: 'EPSG:4326',
         label: 'WGS84',
-        format: function (coordinate) {
-            return toStringHDMS(coordinate, 2)
+        format(coordinate) {
+            return `${toStringHDMS(coordinate, 2)} (${format(coordinate, '{y}, {x}', 5)})`
         },
     },
     UTM: {
         id: 'UTM',
         epsg: 'EPSG:4326',
         label: 'UTM',
-        format: function (coordinate) {
+        format(coordinate) {
             let c = LLtoUTM({ lat: coordinate[1], lon: coordinate[0] })
-            return `${c.zoneNumber}${c.zoneLetter} ${formatThousand(c.easting)}
-                        ${formatThousand(c.northing)}`
+            return [
+                formatThousand(c.easting),
+                formatThousand(c.northing),
+                `(${c.zoneNumber}${c.zoneLetter})`,
+            ].join(' ')
         },
     },
     MGRS: {
         id: 'MGRS',
         epsg: 'EPSG:4326',
         label: 'MGRS',
-        format: function (coordinate) {
+        format(coordinate) {
             // The replace is used to have a space between the numbers
             return LLtoMGRS(coordinate, 5)
                 .replace(/(.{5})/g, '$1 ')
