@@ -164,7 +164,9 @@ export default {
         this.overlay = new Overlay({
             offset: [0, 15],
             positioning: OverlayPositioning.TOP_CENTER,
-            className: 'location-popup-overlay',
+            // Selection of overlay content was broken in OL v4.1 so we need an extra class.
+            // https://github.com/openlayers/openlayers/pull/6741
+            className: 'location-popup-overlay ol-selectable',
         })
     },
     mounted() {
