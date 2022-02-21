@@ -14,9 +14,10 @@
         "test:ci": "npm run test:unit && npm run test:headless",
         "lint": "vue-cli-service lint",
         "build:dev": "vue-cli-service build --mode=development",
+        "build:int": "vue-cli-service build --mode=integration",
         "build:prod": "vue-cli-service build",
         "deploy:dev": "DEPLOY=true npm run build:dev && node scripts/deploy.js dev",
-        "deploy:int": "DEPLOY=true npm run build:prod && node scripts/deploy.js int",
+        "deploy:int": "DEPLOY=true npm run build:int && node scripts/deploy.js int",
         "update:translations": "node scripts/generate-i18n-files.js",
         "update:browserlist": "npx browserslist@latest --update-db"
     },

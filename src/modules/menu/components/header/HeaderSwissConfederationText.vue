@@ -1,5 +1,9 @@
 <template>
-    <div class="swiss-confederation-text" @click="$emit('click', $event)">
+    <div
+        class="swiss-confederation-text"
+        :class="{ 'dev-site': devSiteWarning }"
+        @click="$emit('click', $event)"
+    >
         <div class="multi-lang-title"></div>
         <div
             class="i18n-partnership-text mt-1"
@@ -9,6 +13,7 @@
 </template>
 
 <script>
+import { ENVIRONMENT } from '@/config'
 export default {
     props: {
         currentLang: {
@@ -17,6 +22,11 @@ export default {
         },
     },
     emits: ['click'],
+    data() {
+        return {
+            devSiteWarning: ENVIRONMENT !== 'production',
+        }
+    },
 }
 </script>
 
@@ -25,6 +35,10 @@ export default {
 .i18n-partnership-text {
     background: url('../../assets/text.png') no-repeat top left;
     background-size: 187px 135px;
+
+    .dev-site & {
+        background-image: url('../../assets/text-dev.png');
+    }
 }
 .multi-lang-title {
     width: 185px;
