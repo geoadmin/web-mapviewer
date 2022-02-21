@@ -1,5 +1,4 @@
 <template>
-    <!-- Stop right click propagation to allow the user to interact with the popup. -->
     <div v-if="isRightClick" class="location-popup" data-cy="location-popup" @contextmenu.stop>
         <div class="card">
             <div class="card-header d-flex">
