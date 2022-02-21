@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isRightClick" class="location-popup" data-cy="location-popup">
+    <div v-if="isRightClick" class="location-popup" data-cy="location-popup" @contextmenu.stop>
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -164,7 +164,9 @@ export default {
         this.overlay = new Overlay({
             offset: [0, 15],
             positioning: OverlayPositioning.TOP_CENTER,
-            className: 'location-popup-overlay',
+            // Selection of overlay content was broken in OL v4.1 so we need an extra class.
+            // https://github.com/openlayers/openlayers/pull/6741
+            className: 'location-popup-overlay ol-selectable',
         })
     },
     mounted() {
@@ -215,7 +217,17 @@ export default {
     width: auto;
     max-width: 450px;
     height: auto;
-
+    &::before {
+        $arrow-height: 15px;
+        position: absolute;
+        top: -($arrow-height * 2);
+        left: 50%;
+        margin-left: -$arrow-height;
+        border: $arrow-height solid transparent;
+        border-bottom-color: $light;
+        pointer-events: none;
+        content: '';
+    }
     .coordinates-list {
         display: grid;
         grid-template-columns: 1fr 2fr;
