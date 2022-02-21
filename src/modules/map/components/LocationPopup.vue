@@ -1,5 +1,6 @@
 <template>
-    <div v-if="isRightClick" class="location-popup" data-cy="location-popup">
+    <!-- Stop right click propagation to allow the user to interact with the popup. -->
+    <div v-if="isRightClick" class="location-popup" data-cy="location-popup" @contextmenu.stop>
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -217,7 +218,17 @@ export default {
     width: auto;
     max-width: 450px;
     height: auto;
-
+    &::before {
+        $arrow-height: 15px;
+        position: absolute;
+        top: -($arrow-height * 2);
+        left: 50%;
+        margin-left: -$arrow-height;
+        border: $arrow-height solid transparent;
+        border-bottom-color: $light;
+        pointer-events: none;
+        content: '';
+    }
     .coordinates-list {
         display: grid;
         grid-template-columns: 1fr 2fr;
