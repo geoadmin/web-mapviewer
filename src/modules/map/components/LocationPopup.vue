@@ -90,6 +90,7 @@ import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { round } from '@/utils/numberUtils'
+import stringifyQuery from '@/router/stringifyQuery'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
@@ -148,7 +149,14 @@ export default {
             return this.clickInfo && this.clickInfo.clickType === ClickType.RIGHT_CLICK
         },
         shareLinkUrl: function () {
-            return `${window.location}&crosshair=marker`
+            let [lon, lat] = this.reprojectClickCoordinates('EPSG:4326')
+            let query = {
+                ...this.$route.query,
+                crosshair: 'marker',
+                lat,
+                lon,
+            }
+            return `${location.origin}/#/map?${stringifyQuery(query)}`
         },
     },
     watch: {

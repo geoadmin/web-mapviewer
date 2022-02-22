@@ -144,11 +144,14 @@ describe('Test mouse position', () => {
             it('Uses the coordination system MGRS in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
-            it('Test the link with bowl crosshair gives the right coordinates', () => {
-                cy.get('[data-cy="location-popup-link-bowl-crosshair"] a').then((link) => {
-                    expect(link[0].href).to.contains(`lat=${lat}`)
-                    expect(link[0].href).to.contains(`lon=${lon}`)
-                })
+            it.only('Test the link with bowl crosshair gives the right coordinates', () => {
+                cy.get('[data-cy="location-popup-link-bowl-crosshair"] a')
+                    .then((link) => {
+                        const search = link[0].href.split('?')[1]
+                        const params = new URLSearchParams(search)
+                        return [parseFloat(params.get('lat')), parseFloat(params.get('lon'))]
+                    })
+                    .then(checkXY(lat, lon))
             })
         })
     })
