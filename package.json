@@ -69,6 +69,7 @@
         "cypress": "^9.4.1",
         "cypress-browser-permissions": "^1.1.0",
         "cypress-recurse": "^1.13.1",
+        "cypress-wait-until": "^1.7.2",
         "eslint": "^7.32.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-import-resolver-alias": "^1.1.2",

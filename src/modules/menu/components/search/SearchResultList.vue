@@ -10,11 +10,13 @@
             :title="$t('locations_results_header')"
             :half-size="results.locationResults.length > 0"
             :entries="results.locationResults"
+            data-cy="search-results-locations"
         />
         <SearchResultCategory
             :title="$t('layers_results_header')"
             :half-size="results.layerResults.length > 0"
             :entries="results.layerResults"
+            data-cy="search-results-layers"
         />
     </div>
 </template>

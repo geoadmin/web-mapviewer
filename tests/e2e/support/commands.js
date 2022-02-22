@@ -1,3 +1,5 @@
+import 'cypress-wait-until';
+
 // ***********************************************
 // For more comprehensive examples of custom
 // commands please read more here:

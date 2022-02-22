@@ -8,6 +8,38 @@ import { forEachTestViewport } from '../../support'
 setupProj4()
 
 const searchbarSelector = '[data-cy="searchbar"]'
+const locationsSelector = '[data-cy="search-results-locations"]'
+const layersSelector = '[data-cy="search-results-layers"]'
+
+/**
+ * Configurable `.then` callback to check element index among siblings.
+ *
+ * @param {Number} expected The expected index of the tested element.
+ * @param {String} [message] The error message in case of failure.
+ * @returns {Function} Callback function for `.then`.
+ */
+function checkSiblingIndex(expected, message) {
+    return function ($element) {
+        const $siblings = $element.parent().children()
+        expect($siblings.index($element), message).to.equal(expected)
+        return $element
+    }
+}
+
+/**
+ * Configurable `.then` callback to check element's ancestor.
+ *
+ * @param {String | jQuery | Element} selector The ancestor to look for.
+ * @param {String} [message] The error message in case of failure.
+ * @returns {Function} Callback function for `.then`.
+ */
+function checkDescendantOf(selector, message) {
+    return function ($element) {
+        const $ancestor = $element.closest(selector)
+        expect($ancestor, message).to.have.length(1)
+        return $element
+    }
+}
 
 describe('Test the search bar result handling', () => {
     forEachTestViewport((viewport, isMobile, isTablet, dimensions) => {
@@ -46,6 +78,8 @@ describe('Test the search bar result handling', () => {
                                 label: expectedLocationLabel,
                             },
                         },
+                        { attrs: { label: 'Test location #2' } },
+                        { attrs: { label: 'Test location #3' } },
                     ],
                 }
                 const layerResponse = {
@@ -58,6 +92,8 @@ describe('Test the search bar result handling', () => {
                                 layer: 'ch.swisstopo.test',
                             },
                         },
+                        { attrs: { label: 'Test layer #2' } },
+                        { attrs: { label: 'Test layer #3' } },
                     ],
                 }
                 // see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
@@ -103,6 +139,7 @@ describe('Test the search bar result handling', () => {
                     cy.get(searchbarSelector).paste('test')
                     cy.wait(`@search-locations`)
                     cy.get('[data-cy="search-result-entry-location"]')
+                        .first()
                         .then((entries) => {
                             expect(entries.length).to.eq(1)
                             const entry = entries[0]
@@ -173,6 +210,73 @@ describe('Test the search bar result handling', () => {
                         .then(([legend]) => {
                             expect(legend.innerHTML).to.contain(expectedLegendContent)
                         })
+                })
+                it('allows navigating the results by keyboard', () => {
+                    cy.goToMapView()
+                    cy.get(searchbarSelector).paste('test')
+                    cy.wait(`@search-locations`)
+
+                    cy.get(searchbarSelector).trigger('keydown', { key: 'Escape' })
+                    cy.get('[data-cy="search-results"]').should('not.be.visible')
+
+                    cy.get(searchbarSelector).trigger('keydown', { key: 'ArrowDown' })
+                    cy.get('[data-cy="search-results"]').should('be.visible')
+
+                    // Locations
+                    cy.waitUntil(() =>
+                        cy.focused().then(($element) => $element.prop('tagName') === 'LI')
+                    )
+
+                    cy.focused()
+                        .then(checkDescendantOf(locationsSelector, 'Child of locations'))
+                        .then(checkSiblingIndex(0, 'First location'))
+
+                    cy.focused().trigger('keydown', { key: 'ArrowDown' })
+                    cy.focused().then(checkSiblingIndex(1, 'Second location'))
+                    cy.focused().trigger('keydown', { key: 'ArrowDown' })
+                    cy.focused().then(checkSiblingIndex(2, 'Third location'))
+
+                    cy.focused().trigger('keydown', { key: 'ArrowUp' })
+                    cy.focused().then(checkSiblingIndex(1, 'Second location'))
+                    cy.focused().trigger('keydown', { key: 'ArrowUp' })
+                    cy.focused().then(checkSiblingIndex(0, 'First location'))
+
+                    cy.focused().trigger('keydown', { key: 'End' })
+                    cy.focused().then(checkSiblingIndex(2, 'Last location'))
+
+                    cy.focused().trigger('keydown', { key: 'Home' })
+                    cy.focused().then(checkSiblingIndex(0, 'First location'))
+
+                    // Layers
+                    cy.get('[data-cy="search-results-layers"] [tabindex="0"').focus()
+                    cy.focused()
+                        .then(checkDescendantOf(layersSelector, 'Child of layers'))
+                        .then(checkSiblingIndex(0, 'First layer'))
+
+                    cy.focused().trigger('keydown', { key: 'ArrowDown' })
+                    cy.focused().then(checkSiblingIndex(1, 'Second layer'))
+                    cy.focused().trigger('keydown', { key: 'ArrowDown' })
+                    cy.focused().then(checkSiblingIndex(2, 'Third layer'))
+
+                    cy.focused().trigger('keydown', { key: 'ArrowUp' })
+                    cy.focused().then(checkSiblingIndex(1, 'Second layer'))
+                    cy.focused().trigger('keydown', { key: 'ArrowUp' })
+                    cy.focused().then(checkSiblingIndex(0, 'First layer'))
+
+                    cy.focused().trigger('keydown', { key: 'End' })
+                    cy.focused().then(checkSiblingIndex(2, 'Last layer'))
+
+                    cy.focused().trigger('keydown', { key: 'Home' })
+                    cy.focused().then(checkSiblingIndex(0, 'First layer'))
+
+                    // Enter should select the focused entry.
+                    cy.get(searchbarSelector).focus()
+                    cy.focused().trigger('keydown', { key: 'ArrowDown' })
+                    cy.focused().trigger('keypress', { key: 'Enter' })
+
+                    cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
+                        checkLocation(expectedCenterEpsg3857, pinnedLocation)
+                    )
                 })
             }
         )
