@@ -17,7 +17,7 @@
             </div>
             <div class="mx-2 flex-grow-1 position-relative">
                 <span class="float-start d-none d-lg-block">{{ $t('search_title') }}</span>
-                <SearchBar class="search-bar" />
+                <SearchBar />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
                     v-if="devSiteWarning"
@@ -25,7 +25,6 @@
                     v-html="$t('test_host_warning')"
                 ></div>
                 <!-- eslint-enable vue/no-v-html-->
-                <SearchResultList />
             </div>
             <HeaderMenuButton v-if="showMenuButton" />
         </div>
@@ -39,12 +38,10 @@ import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
 
 export default {
     components: {
         SearchBar,
-        SearchResultList,
         HeaderMenuButton,
         HeaderSwissConfederationText,
         SwissFlag,
