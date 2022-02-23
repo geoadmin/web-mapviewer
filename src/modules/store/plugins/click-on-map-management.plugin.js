@@ -41,7 +41,7 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
             const allFeatures = values.flat()
             // dispatching all features by going through them in order to keep only one time each of them (no double)
             store.dispatch(
-                'setHighlightedFeatures',
+                'setSelectedFeatures',
                 allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
             )
         })

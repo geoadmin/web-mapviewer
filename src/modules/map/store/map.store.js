@@ -81,20 +81,6 @@ export default {
          */
         highlightLayer: ({ commit }, layer) => commit('setHighlightedFeature', layer),
         /**
-         * Tells the map to highlight a list of features (place a round marker at their location).
-         * Those features are currently shown by the tooltip.
-         *
-         * @param commit
-         * @param {Feature[]} features A list of feature we want to highlight on the map
-         */
-        setHighlightedFeatures: ({ commit }, features) => {
-            if (Array.isArray(features)) {
-                commit('setHighlightedFeatures', features)
-            }
-        },
-        /** Removes all highlighted features from the map */
-        clearHighlightedFeatures: ({ commit }) => commit('setHighlightedFeatures', []),
-        /**
          * Sets all information about the last click that occurred on the map
          *
          * @param commit
@@ -125,7 +111,6 @@ export default {
     },
     mutations: {
         setHighlightedLayer: (state, layer) => (state.highlightedLayer = layer),
-        setHighlightedFeatures: (state, features) => (state.highlightedFeatures = features),
         setClickInfo: (state, clickInfo) => (state.clickInfo = clickInfo),
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),

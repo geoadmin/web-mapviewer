@@ -1,17 +1,13 @@
 <template>
-    <div v-if="isRightClick" class="location-popup" data-cy="location-popup" @contextmenu.stop>
-        <div class="card">
-            <div class="card-header d-flex">
-                <span class="flex-grow-1 align-self-center">
-                    {{ $t('position') }}
-                </span>
-                <ButtonWithIcon
-                    data-cy="profile-popup-close-button"
-                    :button-font-awesome-icon="['fa', 'times']"
-                    @click="onClose"
-                />
-            </div>
-            <div class="card-body coordinates-list text-start">
+    <div v-if="isRightClick" class="location-popup" @contextmenu.stop>
+        <OpenLayersPopover
+            v-if="clickCoordinates"
+            data-cy="location-popup"
+            :title="$t('position')"
+            :coordinates="clickCoordinates"
+            @close="clearClick"
+        >
+            <div class="coordinates-list text-start">
                 <div>
                     <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
                 </div>
@@ -78,27 +74,28 @@
                     />
                 </div>
             </div>
-        </div>
+        </OpenLayersPopover>
     </div>
 </template>
 
 <script>
 import proj4 from 'proj4'
 import { mapState, mapActions } from 'vuex'
-import { ClickType } from '@/modules/map/store/map.store'
 import Overlay from 'ol/Overlay'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
+import { ClickType } from '@/modules/map/store/map.store'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import stringifyQuery from '@/router/stringifyQuery'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
-    components: { ButtonWithIcon },
+    components: { OpenLayersPopover },
     inject: ['getMap'],
     data() {
         return {
@@ -231,30 +228,26 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.location-popup {
-    width: auto;
+.location-popup::before {
+    $arrow-height: 15px;
+    position: absolute;
+    top: -($arrow-height * 2);
+    left: 50%;
+    margin-left: -$arrow-height;
+    border: $arrow-height solid transparent;
+    border-bottom-color: $light;
+    pointer-events: none;
+    content: '';
+}
+.coordinates-list {
     max-width: 450px;
-    height: auto;
-    &::before {
-        $arrow-height: 15px;
-        position: absolute;
-        top: -($arrow-height * 2);
-        left: 50%;
-        margin-left: -$arrow-height;
-        border: $arrow-height solid transparent;
-        border-bottom-color: $light;
-        pointer-events: none;
-        content: '';
-    }
-    .coordinates-list {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        grid-column-gap: 5px;
-        grid-row-gap: 5px;
-    }
-    .qrcode-container {
-        grid-column: 1 / 3;
-        text-align: center;
-    }
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+}
+.qrcode-container {
+    grid-column: 1 / 3;
+    text-align: center;
 }
 </style>

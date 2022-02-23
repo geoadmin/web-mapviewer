@@ -68,9 +68,16 @@ export default {
          * @type UIModes
          */
         mode: UIModes.MENU_OPENED_THROUGH_BUTTON,
+        /**
+         * Flag telling if the tooltip should be displayed over the map, floating and positioned at
+         * the feature's coordinates. If false, the tooltip will be displayed in the footer
+         *
+         * @type Boolean
+         */
+        floatingTooltip: true,
     },
     getters: {
-        screenDensity: (state) => {
+        screenDensity(state) {
             if (state.height === 0) {
                 return 0
             }
@@ -78,33 +85,55 @@ export default {
         },
     },
     actions: {
-        setSize: ({ commit }, { width, height }) => {
+        setSize({ commit }, { width, height }) {
             commit('setSize', {
                 height,
                 width,
             })
         },
-        toggleMenuTray: ({ commit, state }) => commit('setShowMenuTray', !state.showMenuTray),
-        toggleFullscreenMode: ({ commit, state }) =>
-            commit('setFullscreenMode', !state.fullscreenMode),
-        toggleLoadingBar: ({ commit, state }) => commit('setShowLoadingBar', !state.showLoadingBar),
-        toggleDrawingOverlay: ({ commit, state }) =>
-            commit('setShowDrawingOverlay', !state.showDrawingOverlay),
-        setUiMode: ({ commit }, mode) => {
+        toggleMenuTray({ commit, state }) {
+            commit('setShowMenuTray', !state.showMenuTray)
+        },
+        toggleFullscreenMode({ commit, state }) {
+            commit('setFullscreenMode', !state.fullscreenMode)
+        },
+        toggleLoadingBar({ commit, state }) {
+            commit('setShowLoadingBar', !state.showLoadingBar)
+        },
+        toggleDrawingOverlay({ commit, state }) {
+            commit('setShowDrawingOverlay', !state.showDrawingOverlay)
+        },
+        toggleFloatingTooltip({ commit, state }) {
+            commit('setFloatingTooltip', !state.floatingTooltip)
+        },
+        setUiMode({ commit }, mode) {
             if (mode in UIModes) {
                 commit('setUiMode', mode)
             }
         },
     },
     mutations: {
-        setSize: (state, { height, width }) => {
+        setSize(state, { height, width }) {
             state.height = height
             state.width = width
         },
-        setShowMenuTray: (state, flagValue) => (state.showMenuTray = flagValue),
-        setFullscreenMode: (state, flagValue) => (state.fullscreenMode = flagValue),
-        setShowLoadingBar: (state, flagValue) => (state.showLoadingBar = flagValue),
-        setShowDrawingOverlay: (state, flagValue) => (state.showDrawingOverlay = flagValue),
-        setUiMode: (state, mode) => (state.mode = mode),
+        setShowMenuTray(state, flagValue) {
+            state.showMenuTray = flagValue
+        },
+        setFullscreenMode(state, flagValue) {
+            state.fullscreenMode = flagValue
+        },
+        setShowLoadingBar(state, flagValue) {
+            state.showLoadingBar = flagValue
+        },
+        setShowDrawingOverlay(state, flagValue) {
+            state.showDrawingOverlay = flagValue
+        },
+        setFloatingTooltip(state, flagValue) {
+            state.floatingTooltip = flagValue
+        },
+        setUiMode(state, mode) {
+            state.mode = mode
+        },
     },
 }

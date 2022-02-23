@@ -96,7 +96,7 @@
                         </button>
                     </div>
                     <!-- eslint-disable-next-line -->
-                    <div class="d-none d-sm-block" v-html="$t('share_file_disclaimer')"></div>
+                    <small class="d-none d-sm-block text-center text-muted" v-html="$t('share_file_disclaimer')"></small>
                 </div>
             </div>
         </div>

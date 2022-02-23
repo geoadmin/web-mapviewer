@@ -33,11 +33,25 @@
         />
         <!-- Adding highlighted features -->
         <OpenLayersHighlightedFeature
-            v-for="(feature, index) in highlightedFeatures"
-            :key="`${index}-${feature.id}`"
+            v-for="(feature, index) in selectedFeatures"
+            :key="feature.id"
             :feature="feature"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
+        <OpenLayersPopover
+            v-if="showFeaturesPopover"
+            :coordinates="selectedFeatures[0].coordinate"
+            authorize-print
+            @close="clearSelectedFeatures"
+        >
+            <template #extra-buttons>
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fa', 'caret-down']"
+                    @click="toggleFloatingTooltip"
+                />
+            </template>
+            <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+        </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
             v-if="geolocationActive"
@@ -68,12 +82,14 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
-import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
-import { UIModes } from '@/modules/store/modules/ui.store'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { Feature } from '@/api/features.api'
-import log from '@/utils/logging'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
 import { CrossHairs } from '@/modules/store/modules/position.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import log from '@/utils/logging'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -85,6 +101,9 @@ import { CrossHairs } from '@/modules/store/modules/position.store'
  */
 export default {
     components: {
+        ButtonWithIcon,
+        HighlightedFeatureList,
+        OpenLayersPopover,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersAccuracyCircle,
@@ -108,7 +127,7 @@ export default {
         ...mapState({
             zoom: (state) => state.position.zoom,
             center: (state) => state.position.center,
-            highlightedFeatures: (state) => state.map.highlightedFeatures,
+            selectedFeatures: (state) => state.feature.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,
@@ -117,6 +136,7 @@ export default {
             crossHair: (state) => state.position.crossHair,
             uiMode: (state) => state.ui.mode,
             isFooterVisible: (state) => !state.ui.fullscreenMode,
+            isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -156,13 +176,13 @@ export default {
             return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)
         },
         zIndexAccuracyCircle: function () {
-            return this.startingZIndexForHighlightedFeatures + this.highlightedFeatures.length
+            return this.startingZIndexForHighlightedFeatures + this.selectedFeatures.length
         },
         visibleGeoJsonLayers: function () {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
-        isUIinDesktopMode: function () {
-            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
+        showFeaturesPopover: function () {
+            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
@@ -303,6 +323,8 @@ export default {
             'click',
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
+            'toggleFloatingTooltip',
+            'clearSelectedFeatures',
         ]),
         showLocationPopup(event) {
             const screenCoordinates = [event.x, event.y]
