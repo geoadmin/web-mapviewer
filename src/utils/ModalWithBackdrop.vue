@@ -72,7 +72,7 @@ export default {
         },
         printModalContent: function () {
             if (this.$refs.modalContent) {
-                promptUserToPrintHtmlContent(this.$refs.modalContent.outerHTML)
+                promptUserToPrintHtmlContent(this.$refs.modalContent)
             }
         },
     },
