@@ -1,13 +1,9 @@
 import printJS from 'print-js'
 /**
- * Creates a new window (popup) with the content given in param. It will copy all the <style> tags
- * from the app in this popup and then trigger a print request to the browser (waiting for any image
- * to finish loading before doing so)
+ * Prints the content of the given HTML element through the browser print prompt. The user can then
+ * decide to export that as a PDF or print it physically.
  *
- * The popup will be automatically closed after printing (also closed if the user cancels the print)
- * so that the user may never se the little popup
- *
- * @param {HTMLElement} htmlContent Some HTML, as String, to be added as content for the print popup
+ * @param {HTMLElement} htmlContent Some HTML, to be printed separately (no app GUI)
  */
 const promptUserToPrintHtmlContent = (htmlContent) => {
     printJS({
