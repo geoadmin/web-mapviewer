@@ -96,7 +96,7 @@ import stringifyQuery from '@/router/stringifyQuery'
 export default {
     components: { ButtonWithIcon },
     inject: ['getMap'],
-    data: function () {
+    data() {
         return {
             clickWhat3Words: null,
             height: null,
@@ -108,44 +108,47 @@ export default {
             clickInfo: (state) => state.map.clickInfo,
             currentLang: (state) => state.i18n.lang,
         }),
-        clickCoordinates: function () {
-            return this.clickInfo && this.clickInfo.coordinate
+        clickCoordinates() {
+            return this.clickInfo?.coordinate
         },
-        clickCoordinatesLV95: function () {
+        clickCoordinatesLV95() {
             return printHumanReadableCoordinates(
                 this.reprojectClickCoordinates('EPSG:2056'),
                 CoordinateSystems.LV95
             )
         },
-        clickCoordinatesLV03: function () {
+        clickCoordinatesLV03() {
             return printHumanReadableCoordinates(
                 this.reprojectClickCoordinates('EPSG:21781'),
                 CoordinateSystems.LV03
             )
         },
-        clickCoordinatesPlainWGS84: function () {
+        clickCoordinatesPlainWGS84() {
             const wgsMetric = this.reprojectClickCoordinates('EPSG:4326')
             return `${round(wgsMetric[1], 5)}, ${round(wgsMetric[0], 5)}`
         },
-        clickCoordinatesWGS84: function () {
-            return printHumanReadableCoordinates(
+        clickCoordinatesWGS84() {
+            const complete = printHumanReadableCoordinates(
                 this.reprojectClickCoordinates('EPSG:4326'),
                 CoordinateSystems.WGS84
             )
+            // Only return the first (HDMS) part here. The other part is in:
+            // this.clickCoordinatesPlainWGS84
+            return complete.split(' (')[0]
         },
-        clickCoordinatesUTM: function () {
+        clickCoordinatesUTM() {
             return printHumanReadableCoordinates(
                 this.reprojectClickCoordinates('EPSG:4326'),
                 CoordinateSystems.UTM
             )
         },
-        clickCoordinatesMGRS: function () {
+        clickCoordinatesMGRS() {
             return printHumanReadableCoordinates(
                 this.reprojectClickCoordinates('EPSG:4326'),
                 CoordinateSystems.MGRS
             )
         },
-        isRightClick: function () {
+        isRightClick() {
             return this.clickInfo && this.clickInfo.clickType === ClickType.RIGHT_CLICK
         },
         shareLinkUrl: function () {
@@ -160,7 +163,7 @@ export default {
         },
     },
     watch: {
-        clickCoordinates: function (newClickCoordinates) {
+        clickCoordinates(newClickCoordinates) {
             this.requestWhat3WordBackend()
             this.registerHeigthFromBackend()
             this.generateQrCodeFromBackend()
@@ -168,7 +171,7 @@ export default {
                 this.overlay.setPosition(newClickCoordinates)
             }
         },
-        currentLang: function () {
+        currentLang() {
             this.requestWhat3WordBackend()
             this.generateQrCodeFromBackend()
         },
@@ -191,13 +194,13 @@ export default {
     },
     methods: {
         ...mapActions(['clearClick']),
-        onClose: function () {
+        onClose() {
             this.clearClick()
         },
-        reprojectClickCoordinates: function (targetEpsg) {
+        reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
         },
-        requestWhat3WordBackend: function () {
+        requestWhat3WordBackend() {
             if (this.clickCoordinates) {
                 registerWhat3WordsLocation(this.clickCoordinates, this.currentLang).then(
                     (what3word) => {
@@ -206,18 +209,16 @@ export default {
                 )
             }
         },
-        registerHeigthFromBackend: function () {
+        registerHeigthFromBackend() {
             if (this.clickCoordinates) {
                 requestHeight(this.clickCoordinates).then((height) => {
                     this.height = height
                 })
             }
         },
-        generateQrCodeFromBackend: function () {
+        async generateQrCodeFromBackend() {
             if (this.clickCoordinates) {
-                generateQrCode(window.location.href).then((qrCode) => {
-                    this.qrCodeImageSrc = qrCode
-                })
+                this.qrCodeImageSrc = await generateQrCode(this.shareLinkUrl)
             }
         },
     },
