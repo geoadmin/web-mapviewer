@@ -68,7 +68,7 @@ export const registerWhat3WordsLocation = (location, lang = 'en') => {
             reject('Bad location, must be a coordinate array')
         } else {
             // transforming EPSG:3857 coordinates into EPGS:4326 (WGS84)
-            const [lat, lon] = proj4('EPSG:3857', proj4.WGS84, location)
+            const [lon, lat] = proj4('EPSG:3857', proj4.WGS84, location)
             axios
                 .get(`${WHAT_3_WORDS_API_BASE_URL}/convert-to-3wa`, {
                     params: {

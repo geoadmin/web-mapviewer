@@ -49,9 +49,14 @@
                     <a href="http://what3words.com/" target="_blank">what3words</a>
                 </div>
                 <div>
-                    <span v-show="clickWhat3Words" data-cy="location-popup-w3w">{{
-                        clickWhat3Words
-                    }}</span>
+                    <a
+                        v-show="clickWhat3Words"
+                        :href="`https://what3words.com/${clickWhat3Words}`"
+                        target="_blank"
+                        data-cy="location-popup-w3w"
+                    >
+                        {{ clickWhat3Words }}
+                    </a>
                 </div>
                 <div>{{ $t('elevation') }}</div>
                 <div>
