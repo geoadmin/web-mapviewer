@@ -25,7 +25,7 @@ export default {
             this.$emit('close')
         },
         printTooltip: function () {
-            promptUserToPrintHtmlContent(this.$refs.tooltipContent.outerHTML)
+            promptUserToPrintHtmlContent(this.$refs.tooltipContent)
         },
     },
 }
