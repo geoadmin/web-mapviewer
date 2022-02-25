@@ -78,7 +78,8 @@ describe('Test mouse position', () => {
         })
         it('switches to WebMercator when this SRS is selected in the UI', () => {
             getMousePositionAndSelect(CoordinateSystems.WGS84)
-            checkMousePositionStringValue('47° 30′ 00.00″ N 7° 30′ 00.00″ E (47.50000, 7.50000)')
+            let dd = defaultCenter.map((value) => value.toFixed(5)).join(', ')
+            checkMousePositionStringValue(`47° 30′ 00.00″ N 7° 30′ 00.00″ E (${dd})`)
         })
         it('goes back to LV95 display if selected again', () => {
             // Change display projection without moving the mouse
@@ -144,14 +145,14 @@ describe('Test mouse position', () => {
             it('Uses the coordination system MGRS in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
-            it.only('Test the link with bowl crosshair gives the right coordinates', () => {
+            it('Test the link with bowl crosshair gives the right coordinates', () => {
                 cy.get('[data-cy="location-popup-link-bowl-crosshair"] a')
                     .then((link) => {
                         const search = link[0].href.split('?')[1]
                         const params = new URLSearchParams(search)
-                        return [parseFloat(params.get('lat')), parseFloat(params.get('lon'))]
+                        return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
                     })
-                    .then(checkXY(lat, lon))
+                    .then(checkXY(lon, lat))
             })
         })
     })
