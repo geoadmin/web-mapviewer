@@ -12,18 +12,15 @@
             <!-- Infobox, Profile, ... -->
         </div>
         <div class="map-footer-bottom">
-            <div class="map-footer-bottom-left">
-                <MapFooterScale :current-zoom="zoom" />
-                <MapFooterProjection
-                    :displayed-projection-id="displayedProjectionId"
-                    @projection-change="setDisplayedProjectionWithId"
-                />
-            </div>
-            <div class="map-footer-bottom-right">
-                <MapFooterMousePosition :displayed-projection-id="displayedProjectionId" />
-                <MapFooterAppVersion />
-                <MapFooterAppCopyright />
-            </div>
+            <MapFooterScale :current-zoom="zoom" />
+            <MapFooterProjection
+                :displayed-projection-id="displayedProjectionId"
+                @projection-change="setDisplayedProjectionWithId"
+            />
+            <MapFooterMousePosition :displayed-projection-id="displayedProjectionId" />
+            <span class="map-footer-bottom-spacer" />
+            <MapFooterAppVersion />
+            <MapFooterAppCopyright />
         </div>
     </div>
 </template>
@@ -115,53 +112,28 @@ $flex-gap: 1em;
     }
 
     &-bottom {
-        height: $footer-height * 2;
-        padding: 0 0.6em;
+        width: 100%;
+        padding: 0.6em;
         background-color: rgba($white, 0.9);
         font-size: 0.6rem;
 
         display: flex;
-        justify-content: space-around;
-        flex-direction: column;
+        align-items: center;
+        gap: 0 $flex-gap;
+        flex-wrap: wrap;
 
-        &-left,
-        &-right {
-            display: flex;
-            align-items: center;
-            gap: $flex-gap;
+        &-spacer {
+            flex-grow: 1;
         }
     }
 }
 
 .map-footer-fullscreen {
-    transform: translateY($footer-height * 2);
+    transform: translateY(100%);
 
     .map-footer-top-left {
+        // Translation is needed if the background selection wheel is open.
         transform: translateX(-100%);
-    }
-}
-
-@include respond-above(sm) {
-    .map-footer {
-        &-fullscreen {
-            transform: translateY($footer-height);
-        }
-
-        &-top,
-        &-bottom {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        &-bottom {
-            height: $footer-height;
-            flex-direction: row;
-            gap: $flex-gap;
-
-            &-right {
-                flex-grow: 1;
-            }
-        }
     }
 }
 </style>
