@@ -62,7 +62,7 @@ export default {
     text-align: left;
     white-space: nowrap;
 }
-@include respond-above(lg) {
+@include respond-above(md) {
     .mouse-position {
         display: block;
     }

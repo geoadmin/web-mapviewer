@@ -1,6 +1,6 @@
 <template>
     <select
-        class="form-control-xs"
+        class="map-projection form-control-xs"
         :value="displayedProjectionId"
         data-cy="mouse-position-select"
         @change="onProjectionChange"
@@ -39,3 +39,16 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+
+.map-projection {
+    display: none;
+}
+@include respond-above(md) {
+    .map-projection {
+        display: block;
+    }
+}
+</style>
