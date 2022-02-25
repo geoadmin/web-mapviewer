@@ -17,11 +17,7 @@ const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
 
 export function isLayersUrlParamLegacy(layersParamValue) {
     const layers = layersParamValue.split(';')
-    let isNewSyntax = false
-    layers.forEach((layerUrlString) => {
-        isNewSyntax |= newLayerParamRegex.test(layerUrlString)
-    })
-    return !isNewSyntax
+    return !layers.some((layer) => newLayerParamRegex.test(layer))
 }
 
 /**

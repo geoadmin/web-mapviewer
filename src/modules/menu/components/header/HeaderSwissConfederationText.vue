@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { ENVIRONMENT } from '@/config'
+import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 export default {
     props: {
         currentLang: {
@@ -24,7 +24,7 @@ export default {
     emits: ['click'],
     data() {
         return {
-            devSiteWarning: ENVIRONMENT !== 'production',
+            devSiteWarning: !IS_TESTING_WITH_CYPRESS && ENVIRONMENT !== 'production',
         }
     },
 }

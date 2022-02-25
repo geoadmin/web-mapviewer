@@ -32,7 +32,8 @@
 </template>
 
 <script>
-import { ENVIRONMENT } from '@/config'
+import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
+
 import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
@@ -67,7 +68,7 @@ export default {
     },
     data() {
         return {
-            devSiteWarning: ENVIRONMENT !== 'production',
+            devSiteWarning: !IS_TESTING_WITH_CYPRESS && ENVIRONMENT !== 'production',
         }
     },
     methods: {

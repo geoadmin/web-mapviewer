@@ -1,5 +1,3 @@
-import axios from 'axios'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { getAllIconSets } from '@/api/icon.api'
 import { getKmlUrl } from '@/api/files.api'
 
@@ -45,37 +43,30 @@ export default {
         iconSets: [],
     },
     getters: {
-        getDrawingPublicFileUrl: (state) => {
+        getDrawingPublicFileUrl(state) {
             if (state.drawingKmlIds) {
                 return getKmlUrl(state.drawingKmlIds.fileId)
             }
             return null
         },
-        isCurrentlyDrawing: (state) => {
+        isCurrentlyDrawing(state) {
             return state.mode !== null
         },
     },
     actions: {
-        setDrawingMode: ({ commit }, mode) => {
+        setDrawingMode({ commit }, mode) {
             if (mode in drawingModes || mode === null) {
                 commit('setDrawingMode', mode)
             }
         },
-        setKmlIds: ({ commit }, drawingKmlIds) => {
+        setKmlIds({ commit }, drawingKmlIds) {
             commit('setKmlIds', drawingKmlIds)
         },
-        loadAvailableIconSets: ({ commit }) => {
-            getAllIconSets().then((iconSets) => {
-                if (iconSets && iconSets.length > 0) {
-                    commit('setIconSets', iconSets)
-                }
-                // We have a race condition during testing where the icons are
-                // needed after being loaded from the backend but before being
-                // committed to the store. Intercept and wait are in goToDrawing.
-                if (IS_TESTING_WITH_CYPRESS) {
-                    axios.get('/tell-cypress-icon-sets-available')
-                }
-            })
+        async loadAvailableIconSets({ commit }) {
+            const iconSets = await getAllIconSets()
+            if (iconSets?.length > 0) {
+                commit('setIconSets', iconSets)
+            }
         },
     },
     mutations: {

@@ -1,4 +1,4 @@
-import 'cypress-wait-until';
+import 'cypress-wait-until'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -102,10 +102,6 @@ Cypress.Commands.add(
         Object.keys(otherParams).forEach((key) => {
             flattenedOtherParams += `&${key}=${otherParams[key]}`
         })
-        // see app.store.js
-        cy.intercept('**/tell-cypress-app-is-done-loading', {}).as('app-done-loading')
-        // Alias used to wait until layers have been updated after loading configuration.
-        cy.intercept('**/tell-cypress-layers-are-configured', {}).as('layers-configured')
 
         // geolocation mockup from https://github.com/cypress-io/cypress/issues/2671
         const mockGeolocation = (win, latitude, longitude) => {
@@ -123,11 +119,35 @@ Cypress.Commands.add(
             },
         })
         // waiting for the app to load and layers to be configured.
-        cy.wait('@app-done-loading')
-        cy.wait('@layers-configured')
+        cy.waitUntilState((state) => state.app.isReady)
+        cy.waitUntilState((state) => {
+            const active = state.layers.activeLayers.length
+            // The required layers can be set via topic or manually.
+            const targetTopic = state.topics.current?.layersToActivate.length
+            const targetLayers =
+                'layers' in otherParams
+                    ? // Legacy layers come with an additional param. At least in our tests.
+                      'layers_opacity' in otherParams || 'layers_visibility' in otherParams
+                        ? otherParams.layers.split(',').length
+                        : otherParams.layers.split(';').length
+                    : 0
+            // There are situations where neither value is falsey.
+            // But the higher value seems to always be the right one.
+            let target = Math.max(targetTopic, targetLayers)
+            // If a layer has been set via adminid we just increment by one.
+            target += Boolean(otherParams.adminid)
+
+            return active === target
+        })
         cy.get('[data-cy="map"]').should('be.visible')
     }
 )
+
+// cypress-wait-until wrapper to wait for a specific store state.
+// cy.readStoreValue doesn't work as `.its` will prevent retries.
+Cypress.Commands.add('waitUntilState', (predicate) => {
+    cy.waitUntil(() => cy.window().then((win) => predicate(win.store.state)))
+})
 
 // Reads a value from the Vuex store
 // for state module value, the key should look like "state.{moduleName}.{valueName}" (e.g. "state.position.center")
