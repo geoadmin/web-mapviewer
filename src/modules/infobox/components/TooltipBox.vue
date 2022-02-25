@@ -1,26 +1,29 @@
 <template>
-    <div class="tooltip-box">
-        <div class="tooltip-header">
-            <div class="tooltip-toolbox text-right">
-                <span class="mx-2" @click="printTooltip">
-                    <font-awesome-icon :icon="['fa', 'print']" />
-                </span>
-                <span @click="closeTooltip">
-                    <font-awesome-icon :icon="['fa', 'times']" />
-                </span>
-            </div>
+    <div class="tooltip-box card">
+        <div class="tooltip-box-header card-header d-flex justify-content-end">
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fa', 'caret-up']"
+                @click="toggleTooltipInFooter"
+            />
+            <ButtonWithIcon :button-font-awesome-icon="['fa', 'print']" @click="printTooltip" />
+            <ButtonWithIcon :button-font-awesome-icon="['fa', 'times']" @click="closeTooltip" />
         </div>
-        <div ref="tooltipContent" class="tooltip-content">
+        <div ref="tooltipContent" class="tooltip-box-content card-body">
             <slot />
         </div>
     </div>
 </template>
 
 <script>
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
-    emits: ['close'],
+    components: { ButtonWithIcon },
+    emits: ['close', 'toggleTooltipInFooter'],
     methods: {
+        toggleTooltipInFooter: function () {
+            this.$emit('toggleTooltipInFooter')
+        },
         closeTooltip: function () {
             this.$emit('close')
         },
@@ -33,32 +36,23 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/variables';
+@import 'src/scss/media-query.mixin';
+
+// a typical html popup content is 314 per 230px on mf-geoadmin3 (public transport stops)
+$maxTooltipHeight: 230px;
+$maxTooltipWidth: 314px;
+
 .tooltip-box {
-    position: absolute;
-    z-index: $zindex-map + 1;
-    max-width: 450px;
     width: 100%;
-    bottom: 0;
-    right: 0;
-    overflow: hidden;
-    background: white;
-    .tooltip-header {
-        padding: 8px 14px;
-        margin: 0;
-        font-size: 14px;
-        background-color: #f7f7f7;
-        border-bottom: 1px solid #ebebeb;
-        border-radius: 5px 5px 0 0;
-        .tooltip-toolbox {
-            font-size: 20px;
-            font-weight: 400;
-            opacity: 0.3;
-        }
-    }
-    .tooltip-content {
-        max-height: 50vh;
+    &-content {
+        max-height: $maxTooltipHeight;
         overflow-y: auto;
         overflow-x: hidden;
+        display: grid;
+        // on mobile (default size) only one column
+        // see media query under for other screen sizes
+        grid-template-columns: 1fr;
+        grid-gap: 8px;
     }
     .tooltip-feature:not(:last-child) {
         border-bottom-style: solid;
@@ -84,6 +78,25 @@ export default {
                 border: 0;
             }
         }
+    }
+}
+
+@include respond-above(md) {
+    .tooltip-box-content {
+        // with screen larger than 768px we can afford to have two tooltip side by side
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@include respond-above(lg) {
+    .tooltip-box-content {
+        // with screen larger than 992px we can place 3 tooltips
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+@include respond-above(xl) {
+    .tooltip-box-content {
+        // anything above 1200px will have 4 tooltips in a row
+        grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 }
 </style>

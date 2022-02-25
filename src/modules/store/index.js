@@ -7,6 +7,7 @@ import position from './modules/position.store'
 import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 import drawing from './modules/drawing.store'
+import feature from './modules/feature.store'
 
 import map from '@/modules/map/store'
 import search from '@/modules/menu/store'
@@ -47,6 +48,7 @@ export default createStore({
         ui,
         drawing,
         map,
+        feature,
         search,
         i18n,
     },

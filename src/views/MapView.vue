@@ -3,6 +3,7 @@
         <MapModule>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule />
+            <!-- The footer also need to receive the map (for mouse position) -->
             <MapFooter />
         </MapModule>
         <MenuModule />

@@ -17,6 +17,18 @@ const screenSizeManagementPlugin = (store) => {
             }
             if (wantedUiMode !== state.ui.mode) {
                 store.dispatch('setUiMode', wantedUiMode)
+                // if the UI mode is set to "menu opened through a button" (mobile)
+                // and that the tooltip is still set to floating, we set it in the footer
+                // or
+                // if the UI mode is set to "menu always open" (desktop) and the
+                // tooltip is fixed at the bottom (in the footer) we set it to floating
+                if (
+                    (wantedUiMode === UIModes.MENU_OPENED_THROUGH_BUTTON &&
+                        state.ui.floatingTooltip) ||
+                    (wantedUiMode === UIModes.MENU_ALWAYS_OPEN && !state.ui.floatingTooltip)
+                ) {
+                    store.dispatch('toggleFloatingTooltip')
+                }
             }
         }
     })

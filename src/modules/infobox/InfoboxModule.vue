@@ -1,64 +1,51 @@
 <template>
     <div>
-        <TooltipBox v-if="isDesktopMode && highlightedFeatures.length > 0" @close="onClose">
-            <HighlightedFeatureList :highlighted-features="highlightedFeatures" />
-        </TooltipBox>
-        <SwipableBottomSheet
-            v-if="!isDesktopMode && highlightedFeatures.length"
-            ref="swipe"
-            starts-open
-            :screen-height="screenHeight"
-            :footer-height="footerHeight"
-        >
-            <HighlightedFeatureList :highlighted-features="highlightedFeatures" />
-        </SwipableBottomSheet>
+        <teleport v-if="readyForTeleport" to="#map-footer-middle">
+            <TooltipBox
+                v-if="tooltipInFooter && selectedFeatures.length > 0"
+                ref="tooltipBox"
+                @toggle-tooltip-in-footer="toggleFloatingTooltip"
+                @close="clearSelectedFeatures"
+            >
+                <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+            </TooltipBox>
+        </teleport>
     </div>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { UIModes } from '@/modules/store/modules/ui.store'
 import TooltipBox from '@/modules/infobox/components/TooltipBox.vue'
-import SwipableBottomSheet from '@/modules/infobox/components/SwipableBottomSheet.vue'
 import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
 
 export default {
     components: {
-        HighlightedFeatureList,
-        SwipableBottomSheet,
         TooltipBox,
+        HighlightedFeatureList,
+    },
+    data() {
+        return {
+            /** Delay teleport until view is rendered. Updated in mounted-hook. */
+            readyForTeleport: false,
+        }
     },
     computed: {
         ...mapState({
             uiMode: (state) => state.ui.mode,
-            highlightedFeatures: (state) => state.map.highlightedFeatures,
+            selectedFeatures: (state) => state.feature.selectedFeatures,
             screenHeight: (state) => state.ui.height,
             isFooterVisible: (state) => !state.ui.fullscreenMode,
+            tooltipInFooter: (state) => !state.ui.floatingTooltip,
         }),
-        isDesktopMode: function () {
-            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
-        },
-        footerHeight: function () {
-            // if the footer is visible, we add 40px of margin to the swipeable component so that its content
-            // can't be hidden behind the footer
-            if (this.isFooterVisible) {
-                return 24 // 1.5rem, as in variable.scss, is about 24px
-            }
-            return 0
-        },
     },
-    watch: {
-        highlightedFeatures: function (newHighlightedFeatures) {
-            if (this.$refs.swipe && newHighlightedFeatures && newHighlightedFeatures.length > 0) {
-                this.$refs.swipe.open()
-            }
-        },
+    mounted() {
+        // We can enable the teleport after the view has been rendered.
+        this.$nextTick(() => {
+            this.readyForTeleport = true
+        })
     },
     methods: {
-        ...mapActions(['clearHighlightedFeatures']),
-        onClose: function () {
-            this.clearHighlightedFeatures()
-        },
+        ...mapActions(['clearSelectedFeatures', 'toggleFloatingTooltip']),
     },
 }
 </script>
