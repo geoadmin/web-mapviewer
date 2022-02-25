@@ -456,8 +456,12 @@ describe('Test of layer handling', () => {
                         cy.get('[data-cy="menu-settings-section"]').click()
                         cy.get(`[data-cy="menu-lang-${langAfter}"`).click()
 
-                        // Wait until the layers fully configured with the new configuration.
-                        cy.wait('@layers-configured')
+                        // Wait until the active layers are updated.
+                        cy.waitUntilState((state) => {
+                            return state.layers.activeLayers.some(
+                                (layer) => layer.lang === langAfter
+                            )
+                        })
 
                         // CHECK after
                         cy.readStoreValue('state').then((state) => {

@@ -1,5 +1,3 @@
-import axios from 'axios'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import log from '@/utils/logging'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
@@ -141,12 +139,6 @@ const actions = {
                 commit('addLayerWithConfig', layer)
             }
         })
-        // In case we are testing with Cypress, we trigger a fake request to
-        // a localhost endpoint so that Cypress can intercept it and know the
-        // layers have been updated. Intercepted as @layers-configured in goToMapView.
-        if (IS_TESTING_WITH_CYPRESS) {
-            axios.get('/tell-cypress-layers-are-configured')
-        }
     },
     setBackground({ commit }, bgLayerId) {
         if (bgLayerId === 'void') {
@@ -181,8 +173,7 @@ const actions = {
                     })
                 }
             } else {
-                log(
-                    'error',
+                log.error(
                     'Failed to set layer timestamp, layer not found or has not time config',
                     layerId,
                     layer

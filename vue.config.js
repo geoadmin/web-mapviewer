@@ -18,8 +18,11 @@ if (process.env.DEPLOY && branch !== 'master' && branch !== 'develop') {
 const packageJson = JSON.parse(fs.readFileSync('./package.json'))
 const version = packageJson.version || 0
 
-// Mapping between deployment environment and Webpack optimizations.
-// https://webpack.js.org/configuration/mode/
+/**
+ * Mapping between deployment environment and Webpack optimizations.
+ *
+ * @see https://webpack.js.org/configuration/mode/
+ */
 const modes = {
     development: 'development',
     integration: 'production',

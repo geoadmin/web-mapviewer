@@ -50,9 +50,6 @@ Cypress.on('uncaught:exception', () => {
 })
 
 Cypress.Commands.add('goToDrawing', (isMobileViewport = false) => {
-    // see drawing.store.js (wait is at the end of this function)
-    cy.intercept('**/tell-cypress-icon-sets-available', {}).as('icon-sets-available')
-
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
@@ -63,7 +60,7 @@ Cypress.Commands.add('goToDrawing', (isMobileViewport = false) => {
     }
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
-    cy.wait('@icon-sets-available')
+    cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
 Cypress.Commands.add('clickDrawingTool', (name) => {
