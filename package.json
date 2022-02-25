@@ -54,6 +54,7 @@
         "@babel/eslint-plugin": "^7.16.5",
         "@cypress/vue": "next",
         "@cypress/webpack-preprocessor": "^5.11.0",
+        "@nuintun/qrcode": "^3.1.1",
         "@vue/cli-plugin-babel": "next",
         "@vue/cli-plugin-e2e-cypress": "next",
         "@vue/cli-plugin-eslint": "next",

@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import proj4 from 'proj4'
+import { Decoder } from '@nuintun/qrcode'
 
 import { CoordinateSystems } from '../../../src/utils/coordinateUtils'
 import setupProj4 from '../../../src/utils/setupProj4'
@@ -145,7 +146,7 @@ describe('Test mouse position', () => {
             it('Uses the coordination system MGRS in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
-            it('Test the link with bowl crosshair gives the right coordinates', () => {
+            it('Tests the link with bowl crosshair gives the right coordinates', () => {
                 cy.get('[data-cy="location-popup-link-bowl-crosshair"] a')
                     .then((link) => {
                         const search = link[0].href.split('?')[1]
@@ -153,6 +154,20 @@ describe('Test mouse position', () => {
                         return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
                     })
                     .then(checkXY(lon, lat))
+            })
+            it('The QR code points to the right coordinates and has a crosshair', () => {
+                const decoder = new Decoder()
+                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
+                    return decoder
+                        .scan($element.attr('src'))
+                        .then((result) => {
+                            const search = result.data.split('?')[1]
+                            const params = new URLSearchParams(search)
+                            expect(params.get('crosshair')).to.not.be.empty
+                            return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
+                        })
+                        .then(checkXY(lon, lat))
+                })
             })
         })
     })
