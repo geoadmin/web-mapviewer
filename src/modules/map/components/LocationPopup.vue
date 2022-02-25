@@ -71,7 +71,11 @@
                     </a>
                 </div>
                 <div class="qrcode-container">
-                    <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" />
+                    <img
+                        v-if="qrCodeImageSrc"
+                        :src="qrCodeImageSrc"
+                        data-cy="location-popup-qr-code"
+                    />
                 </div>
             </div>
         </div>
