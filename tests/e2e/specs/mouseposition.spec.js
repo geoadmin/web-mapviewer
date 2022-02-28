@@ -158,7 +158,7 @@ describe('Test mouse position', () => {
             it('The QR code points to the right coordinates and has a crosshair', () => {
                 const decoder = new Decoder()
                 cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    return decoder
+                    decoder
                         .scan($element.attr('src'))
                         .then((result) => {
                             const search = result.data.split('?')[1]
@@ -167,6 +167,21 @@ describe('Test mouse position', () => {
                             return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
                         })
                         .then(checkXY(lon, lat))
+                })
+            })
+            it('The QR code updates when the layer config changes', () => {
+                const decoder = new Decoder()
+                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
+                    decoder.scan($element.attr('src')).then((result) => {
+                        result.data.includes('bgLayer=ch.swisstopo.pixelkarte-farbe')
+                    })
+                })
+                cy.get('[data-cy="background-selector').click()
+                cy.get('[data-cy="background-selector-void').click()
+                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
+                    decoder.scan($element.attr('src')).then((result) => {
+                        result.data.includes('bgLayer=void')
+                    })
                 })
             })
         })
