@@ -1,5 +1,3 @@
-import { MapBrowserEvent } from 'ol'
-
 import { SMALL, MEDIUM, LARGE } from '../../../../src/modules/drawing/lib/drawingStyleSizes'
 import { RED, GREEN, BLACK } from '../../../../src/modules/drawing/lib/drawingStyleColor'
 import { MAP_CENTER } from '../../../../src/config'
@@ -22,11 +20,11 @@ const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
     cy.goToDrawing()
     cy.clickDrawingTool(kind)
-    cy.readWindowValue('drawingMap').then((map) => {
+    cy.readWindowValue('map').then((map) => {
         // Create a point, a geojson will appear in the store
-        simulateEvent(map, 'pointermove', x, y)
-        simulateEvent(map, 'pointerdown', x, y)
-        simulateEvent(map, 'pointerup', x, y)
+        cy.simulateEvent(map, 'pointermove', x, y)
+        cy.simulateEvent(map, 'pointerdown', x, y)
+        cy.simulateEvent(map, 'pointerup', x, y)
         cy.readDrawingFeatures('Point', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos[0]).to.be.closeTo(xx, 0.1, `bad: ${JSON.stringify(coos)}`)
@@ -36,41 +34,6 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
             cy.checkKMLRequest(interception, ['Placemark'], true)
         )
     })
-}
-
-/**
- * This function has been taken from the OL draw spec. Simulates a browser event on the map
- * viewport. The client x/y location will be adjusted as if the map were centered at 0,0.
- *
- * @param {string} type Event type.
- * @param {number} x Horizontal offset from map center.
- * @param {number} y Vertical offset from map center.
- * @param {boolean} [opt_shiftKey] Shift key is pressed.
- * @param {number} [opt_pointerId] Pointer id.
- * @returns {MapBrowserEvent} The simulated event.
- */
-const simulateEvent = (map, type, x, y, opt_shiftKey = false, opt_pointerId = 0) => {
-    cy.log(`simulating ${type} at [${x}, ${y}]`)
-
-    const viewport = map.getViewport()
-
-    // calculated in case body has top < 0 (test runner with small window)
-    const event = {
-        type,
-        target: viewport.firstChild,
-        clientX: viewport.clientLeft + x + viewport.clientWidth / 2,
-        clientY: viewport.clientTop + y + viewport.clientHeight / 2,
-        shiftKey: opt_shiftKey,
-        preventDefault() {},
-        pointerType: 'mouse',
-        pointerId: opt_pointerId,
-        isPrimary: true,
-        button: 0,
-    }
-
-    const simulatedEvent = new MapBrowserEvent(type, map, event)
-    map.handleMapBrowserEvent(simulatedEvent)
-    return simulatedEvent
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
@@ -127,11 +90,11 @@ describe('Drawing marker/points', () => {
                         it('can move a marker by drag&dropping', () => {
                             createAPoint('marker')
                             // Move it, the geojson geometry should move
-                            cy.readWindowValue('drawingMap').then((map) => {
-                                simulateEvent(map, 'pointerdown', 0, 0)
-                                simulateEvent(map, 'pointermove', 200, 140)
-                                simulateEvent(map, 'pointerdrag', 200, 140)
-                                simulateEvent(map, 'pointerup', 200, 140)
+                            cy.readWindowValue('map').then((map) => {
+                                cy.simulateEvent(map, 'pointerdown', 0, 0)
+                                cy.simulateEvent(map, 'pointermove', 200, 140)
+                                cy.simulateEvent(map, 'pointerdrag', 200, 140)
+                                cy.simulateEvent(map, 'pointerup', 200, 140)
                             })
                             cy.readDrawingFeatures('Point', (features) => {
                                 const coos = features[0].getGeometry().getCoordinates()

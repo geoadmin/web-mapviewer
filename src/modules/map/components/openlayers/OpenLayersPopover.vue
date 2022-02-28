@@ -1,5 +1,5 @@
 <template>
-    <div ref="mapPopover" class="map-popover">
+    <div ref="mapPopover" class="map-popover" data-cy="popover" @contextmenu.stop>
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -18,11 +18,12 @@
                 />
             </div>
             <div ref="mapPopoverContent" class="card-body">
-                <slot></slot>
+                <slot />
             </div>
         </div>
     </div>
 </template>
+
 <script>
 import Overlay from 'ol/Overlay'
 import OverlayPositioning from 'ol/OverlayPositioning'
@@ -53,8 +54,10 @@ export default {
     },
     emits: ['close'],
     watch: {
-        coordinates: function (newCoordinates) {
+        coordinates(newCoordinates) {
             this.overlay.setPosition(newCoordinates)
+            // Reset the container's scroll when the content changes.
+            this.$refs.mapPopoverContent.scrollTo(0, 0)
         },
     },
     beforeCreate() {
@@ -82,7 +85,7 @@ export default {
         onClose() {
             this.$emit('close')
         },
-        printContent: function () {
+        printContent() {
             promptUserToPrintHtmlContent(this.$refs.mapPopoverContent.outerHTML)
         },
     },
@@ -93,8 +96,12 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .map-popover {
     .card-body {
+        max-width: 400px;
         max-height: 400px;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
     &::before {
         $arrow-height: 15px;

@@ -1,81 +1,84 @@
 <template>
-    <div v-if="isRightClick" class="location-popup" @contextmenu.stop>
-        <OpenLayersPopover
-            v-if="clickCoordinates"
-            data-cy="location-popup"
-            :title="$t('position')"
-            :coordinates="clickCoordinates"
-            @close="clearClick"
-        >
-            <div class="coordinates-list text-start">
-                <div>
-                    <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
+    <OpenLayersPopover
+        v-if="isRightClick && clickCoordinates"
+        :title="$t('position')"
+        :coordinates="clickCoordinates"
+        class="location-popup"
+        data-cy="location-popup"
+        @close="clearClick"
+    >
+        <template #extra-buttons>
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'qrcode']"
+                data-cy="location-popup-toggle"
+                @click="toggleQrCode"
+            />
+        </template>
+
+        <div v-show="!showQrCode" class="coordinates-list text-start">
+            <div>
+                <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
+            </div>
+            <div data-cy="location-popup-coordinates-lv95">
+                {{ clickCoordinatesLV95 }}
+            </div>
+            <div>
+                <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
+            </div>
+            <div data-cy="location-popup-coordinates-lv03">
+                {{ clickCoordinatesLV03 }}
+            </div>
+            <div>
+                <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
+            </div>
+            <div>
+                <div data-cy="location-popup-coordinates-plain-wgs84">
+                    {{ clickCoordinatesPlainWGS84 }}
                 </div>
-                <div data-cy="location-popup-coordinates-lv95">
-                    {{ clickCoordinatesLV95 }}
-                </div>
-                <div>
-                    <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
-                </div>
-                <div data-cy="location-popup-coordinates-lv03">
-                    {{ clickCoordinatesLV03 }}
-                </div>
-                <div>
-                    <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
-                </div>
-                <div>
-                    <div data-cy="location-popup-coordinates-plain-wgs84">
-                        {{ clickCoordinatesPlainWGS84 }}
-                    </div>
-                    <div data-cy="location-popup-coordinates-wgs84">
-                        {{ clickCoordinatesWGS84 }}
-                    </div>
-                </div>
-                <div>
-                    <a href="https://epsg.io/32632" target="_blank">UTM</a>
-                </div>
-                <div data-cy="location-popup-coordinates-utm">
-                    {{ clickCoordinatesUTM }}
-                </div>
-                <div>{{ 'MGRS' }}</div>
-                <div data-cy="location-popup-coordinates-mgrs">
-                    {{ clickCoordinatesMGRS }}
-                </div>
-                <div>
-                    <a href="http://what3words.com/" target="_blank">what3words</a>
-                </div>
-                <div>
-                    <a
-                        v-show="clickWhat3Words"
-                        :href="`https://what3words.com/${clickWhat3Words}`"
-                        target="_blank"
-                        data-cy="location-popup-w3w"
-                    >
-                        {{ clickWhat3Words }}
-                    </a>
-                </div>
-                <div>{{ $t('elevation') }}</div>
-                <div>
-                    <span v-if="height" data-cy="location-popup-height">
-                        {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
-                    </span>
-                </div>
-                <div></div>
-                <div data-cy="location-popup-link-bowl-crosshair">
-                    <a :href="shareLinkUrl" target="_blank">
-                        {{ $t('link_bowl_crosshair') }}
-                    </a>
-                </div>
-                <div class="qrcode-container">
-                    <img
-                        v-if="qrCodeImageSrc"
-                        :src="qrCodeImageSrc"
-                        data-cy="location-popup-qr-code"
-                    />
+                <div data-cy="location-popup-coordinates-wgs84">
+                    {{ clickCoordinatesWGS84 }}
                 </div>
             </div>
-        </OpenLayersPopover>
-    </div>
+            <div>
+                <a href="https://epsg.io/32632" target="_blank">UTM</a>
+            </div>
+            <div data-cy="location-popup-coordinates-utm">
+                {{ clickCoordinatesUTM }}
+            </div>
+            <div>{{ 'MGRS' }}</div>
+            <div data-cy="location-popup-coordinates-mgrs">
+                {{ clickCoordinatesMGRS }}
+            </div>
+            <div>
+                <a href="http://what3words.com/" target="_blank">what3words</a>
+            </div>
+            <div>
+                <a
+                    v-show="clickWhat3Words"
+                    :href="`https://what3words.com/${clickWhat3Words}`"
+                    target="_blank"
+                    data-cy="location-popup-w3w"
+                >
+                    {{ clickWhat3Words }}
+                </a>
+            </div>
+            <div>{{ $t('elevation') }}</div>
+            <div>
+                <span v-if="height" data-cy="location-popup-height">
+                    {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
+                </span>
+            </div>
+            <div></div>
+            <div data-cy="location-popup-link-bowl-crosshair">
+                <a :href="shareLinkUrl" target="_blank">
+                    {{ $t('link_bowl_crosshair') }}
+                </a>
+            </div>
+        </div>
+        <div v-show="showQrCode" class="qrcode-container">
+            <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" data-cy="location-popup-qr-code" />
+        </div>
+    </OpenLayersPopover>
 </template>
 
 <script>
@@ -89,19 +92,21 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { ClickType } from '@/modules/map/store/map.store'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import stringifyQuery from '@/router/stringifyQuery'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
-    components: { OpenLayersPopover },
+    components: { OpenLayersPopover, ButtonWithIcon },
     inject: ['getMap'],
     data() {
         return {
             clickWhat3Words: null,
             height: null,
             qrCodeImageSrc: null,
+            showQrCode: false,
         }
     },
     computed: {
@@ -150,7 +155,7 @@ export default {
             )
         },
         isRightClick() {
-            return this.clickInfo && this.clickInfo.clickType === ClickType.RIGHT_CLICK
+            return this.clickInfo?.clickType === ClickType.RIGHT_CLICK
         },
         shareLinkUrl() {
             let [lon, lat] = this.reprojectClickCoordinates('EPSG:4326')
@@ -203,11 +208,14 @@ export default {
         onClose() {
             this.clearClick()
         },
+        toggleQrCode() {
+            this.showQrCode = !this.showQrCode
+        },
         reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
         },
         requestWhat3WordBackend() {
-            if (this.clickCoordinates) {
+            if (this.isRightClick && this.clickCoordinates) {
                 registerWhat3WordsLocation(this.clickCoordinates, this.currentLang).then(
                     (what3word) => {
                         this.clickWhat3Words = what3word
@@ -216,14 +224,14 @@ export default {
             }
         },
         registerHeigthFromBackend() {
-            if (this.clickCoordinates) {
+            if (this.isRightClick && this.clickCoordinates) {
                 requestHeight(this.clickCoordinates).then((height) => {
                     this.height = height
                 })
             }
         },
         async generateQrCodeFromBackend() {
-            if (this.clickCoordinates) {
+            if (this.isRightClick && this.clickCoordinates) {
                 this.qrCodeImageSrc = await generateQrCode(this.shareLinkUrl)
             }
         },
@@ -252,7 +260,6 @@ export default {
     grid-row-gap: 5px;
 }
 .qrcode-container {
-    grid-column: 1 / 3;
     text-align: center;
 }
 </style>

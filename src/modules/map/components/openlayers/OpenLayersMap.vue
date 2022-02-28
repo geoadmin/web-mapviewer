@@ -47,6 +47,7 @@
             <template #extra-buttons>
                 <ButtonWithIcon
                     :button-font-awesome-icon="['fa', 'caret-down']"
+                    data-cy="toggle-floating-off"
                     @click="toggleFloatingTooltip"
                 />
             </template>
@@ -77,6 +78,7 @@ import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { round } from '@/utils/numberUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
@@ -215,6 +217,10 @@ export default {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
         this.map = new Map({ controls: [] })
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.map = this.map
+        }
     },
     created() {
         this.initialCenter = [...this.center]
@@ -243,7 +249,7 @@ export default {
         })
         // using 'singleclick' event instead of 'click', otherwise a double click (for zooming) on mobile
         // will trigger two 'click' actions in a row
-        this.map.on('singleclick', (e) => {
+        this.map.on('singleclick', (event) => {
             // if no drawing is currently made
             if (!this.isCurrentlyDrawing) {
                 const geoJsonFeatures = []
@@ -253,11 +259,11 @@ export default {
                     const olLayer = this.map
                         .getLayers()
                         .getArray()
-                        .find((layer) => layer.get('id') === geoJsonLayer.id)
+                        .find((layer) => layer.get('id') === geoJsonLayer.getID())
                     if (olLayer) {
                         // looking at features for this specific layer under the mouse cursor
                         this.map
-                            .getFeaturesAtPixel(e.pixel, {
+                            .getFeaturesAtPixel(event.pixel, {
                                 // filtering other layers out
                                 layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
                             })
@@ -287,7 +293,12 @@ export default {
                 })
                 // publishing click event into the store
                 this.click(
-                    new ClickInfo(e.coordinate, lastClickTimeLength, e.pixel, geoJsonFeatures)
+                    new ClickInfo(
+                        event.coordinate,
+                        lastClickTimeLength,
+                        event.pixel,
+                        geoJsonFeatures
+                    )
                 )
             }
         })

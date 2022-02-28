@@ -30,7 +30,7 @@ const addLayerToMapMixin = {
         }
     },
     methods: {
-        addLayerToMap: function (zIndex, layer) {
+        addLayerToMap(zIndex, layer) {
             if (this.getMap()) {
                 if (zIndex < 0) {
                     this.getMap().addLayer(layer)
@@ -40,7 +40,7 @@ const addLayerToMapMixin = {
                 this.isPresentOnMap = true
             }
         },
-        removeLayerFromMap: function (layer) {
+        removeLayerFromMap(layer) {
             if (this.getMap()) {
                 this.getMap().removeLayer(layer)
             }
@@ -48,7 +48,7 @@ const addLayerToMapMixin = {
         },
     },
     watch: {
-        zIndex: function (zIndex) {
+        zIndex(zIndex) {
             if (this.layer) {
                 this.removeLayerFromMap(this.layer)
                 this.addLayerToMap(zIndex, this.layer)
