@@ -3,6 +3,7 @@
         v-if="backgroundLayers.length > 0"
         class="bg-selector"
         :class="{ 'bg-selector-open': showBgWheel }"
+        data-cy="background-selector"
     >
         <div class="bg-selector-wheel">
             <button
@@ -16,6 +17,7 @@
                 ]"
                 type="button"
                 :tabindex="showBgWheel ? 0 : -1"
+                :data-cy="`background-selector-${background.getID()}`"
                 @click="selectBackground(background, $event)"
             />
         </div>

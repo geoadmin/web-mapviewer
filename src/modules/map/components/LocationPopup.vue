@@ -152,7 +152,7 @@ export default {
         isRightClick() {
             return this.clickInfo && this.clickInfo.clickType === ClickType.RIGHT_CLICK
         },
-        shareLinkUrl: function () {
+        shareLinkUrl() {
             let [lon, lat] = this.reprojectClickCoordinates('EPSG:4326')
             let query = {
                 ...this.$route.query,
@@ -174,6 +174,11 @@ export default {
         },
         currentLang() {
             this.requestWhat3WordBackend()
+            this.generateQrCodeFromBackend()
+        },
+        // Watching shareLinkUrl breaks the component. But we need to react to
+        // changes in the layer config to update the QR code.
+        '$route.query'() {
             this.generateQrCodeFromBackend()
         },
     },
