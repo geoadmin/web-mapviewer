@@ -1,5 +1,6 @@
 import { API_SERVICE_KML_BASE_URL, API_SERVICE_KML_STORAGE_BASE_URL } from '@/config'
 import axios from 'axios'
+import pako from 'pako'
 import log from '@/utils/logging'
 import FormData from 'form-data'
 
@@ -89,7 +90,8 @@ function validateKml(kml, reject) {
 function buildKmlForm(kml, reject) {
     validateKml(kml, reject)
     const form = new FormData()
-    const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' })
+    const kmz = pako.gzip(kml)
+    const blob = new Blob([kmz], { type: 'application/vnd.google-earth.kml+xml' })
     form.append('kml', blob)
     return form
 }

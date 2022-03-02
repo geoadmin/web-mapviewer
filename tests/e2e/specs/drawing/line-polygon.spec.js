@@ -53,9 +53,9 @@ describe('Line/Polygon tool', () => {
                     cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click()
                     cy.checkDrawnGeoJsonProperty('color', '#000000')
                     cy.wait('@update-kml').then((interception) =>
-                        expect(interception.request.body).to.contain(
-                            '<Data name="color"><value>#000000</value>'
-                        )
+                        cy.checkKMLRequest(interception, [
+                            '<Data name="color"><value>#000000</value>',
+                        ])
                     )
                 })
                 it('creates a line with double click', () => {

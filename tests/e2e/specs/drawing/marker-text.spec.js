@@ -162,10 +162,11 @@ describe('Drawing marker/points', () => {
                     context('marker styling popup', () => {
                         const checkIconInKml = (expectedIconUrl) => {
                             cy.wait('@update-kml').then((interception) => {
-                                const body = interception.request.body
-                                let icon = body.substr(body.indexOf('<Data name="icon">'))
-                                icon = icon.substr(0, icon.indexOf('</Data>'))
-                                expect(icon).to.contain(expectedIconUrl)
+                                cy.checkKMLRequest(interception, [
+                                    new RegExp(
+                                        `<Data name="icon">.+?${expectedIconUrl}.+?<\\/Data>`
+                                    ),
+                                ])
                             })
                         }
 
