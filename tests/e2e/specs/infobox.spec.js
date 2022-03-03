@@ -2,7 +2,6 @@
 
 import { forEachTestViewport } from '../support'
 import features from '../fixtures/features.fixture.json'
-import { htmlPopupTable } from '../fixtures/html-popup.fixture'
 
 function longClickOnMap() {
     cy.readWindowValue('map').then((map) => {
@@ -25,7 +24,9 @@ describe('The infobox', () => {
                 beforeEach(() => {
                     const layer = 'test.wmts.layer'
                     cy.intercept('**/MapServer/identify**', features)
-                    cy.intercept('**/MapServer/**/htmlPopup**', htmlPopupTable)
+                    cy.intercept('**/MapServer/**/htmlPopup**', {
+                        fixture: 'html-popup.fixture.html',
+                    })
                     cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, features.results[0])
                     cy.goToMapView('en', { layers: layer })
                 })
