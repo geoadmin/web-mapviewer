@@ -20,7 +20,7 @@
         <SearchResultList ref="results" @close="closeSearchResults" />
         <button
             v-show="searchQuery?.length > 0"
-            class="btn bg-transparent"
+            class="btn btn-outline-secondary"
             data-cy="searchbar-clear"
             @click="clearSearchQuery"
         >

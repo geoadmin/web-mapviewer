@@ -11,11 +11,7 @@
         @keypress.enter.prevent="selectItem"
     >
         <!-- eslint-disable vue/no-v-html-->
-        <div
-            class="search-category-entry-main p-2 ps-4"
-            @click="selectItem"
-            v-html="entry.title"
-        ></div>
+        <div class="search-category-entry-main p-2" @click="selectItem" v-html="entry.title"></div>
 
         <div v-if="resultType === 'layer'" class="search-category-entry-controls">
             <button
@@ -88,11 +84,14 @@ export default {
 .search-category-entry {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 3rem;
     &-main {
         flex-grow: 1;
         cursor: pointer;
+    }
+    .btn {
+        padding-top: 0;
+        padding-bottom: 0;
+        line-height: 1;
     }
     @include media-breakpoint-up(sm) {
         &:hover {
