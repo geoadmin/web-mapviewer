@@ -1,3 +1,6 @@
+import pako from 'pako'
+import { parseInterception } from './multipart'
+
 const olSelector = '.ol-viewport'
 
 const addIconSetsFixtureAndIntercept = () => {
@@ -108,7 +111,7 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
     })
 })
 
-Cypress.Commands.add('checkKMLRequest', (interception, data, create = false) => {
+Cypress.Commands.add('checkKMLRequest', async (interception, data, create = false) => {
     // Check request
     if (!create) {
         const urlArray = interception.request.url.split('/')
@@ -118,6 +121,16 @@ Cypress.Commands.add('checkKMLRequest', (interception, data, create = false) => 
     expect(interception.request.headers['content-type']).to.contain(
         'multipart/form-data; boundary='
     )
-    expect(interception.request.body).to.contain('</kml>')
-    data.forEach((text) => expect(interception.request.body).to.contain(text))
+
+    const { kml } = parseInterception(interception)
+    const fileBuffer = await kml.blob.arrayBuffer()
+
+    const inflated = pako.ungzip(new Uint8Array(fileBuffer))
+    const decoded = new TextDecoder().decode(inflated)
+
+    expect(decoded).to.contain('</kml>')
+    data.forEach((test) => {
+        const condition = test instanceof RegExp ? 'match' : 'contain'
+        expect(decoded).to[condition](test)
+    })
 })
