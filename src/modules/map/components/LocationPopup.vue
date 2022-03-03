@@ -70,11 +70,21 @@
                     {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
                 </span>
             </div>
-            <div></div>
-            <div data-cy="location-popup-link-bowl-crosshair">
-                <a :href="shareLinkUrl" target="_blank">
-                    {{ $t('link_bowl_crosshair') }}
-                </a>
+            <div
+                class="input-group location-popup-link"
+                data-cy="location-popup-link-bowl-crosshair"
+            >
+                <input
+                    ref="shareLinkInput"
+                    class="form-control location-popup-link-input"
+                    type="text"
+                    :value="shareLinkUrl"
+                />
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['far', 'copy']"
+                    outline-secondary
+                    @click="shareLinkCopy"
+                />
             </div>
         </div>
         <div v-show="showQrCode" class="qrcode-container">
@@ -101,7 +111,10 @@ import stringifyQuery from '@/router/stringifyQuery'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
-    components: { OpenLayersPopover, ButtonWithIcon },
+    components: {
+        ButtonWithIcon,
+        OpenLayersPopover,
+    },
     inject: ['getMap'],
     data() {
         return {
@@ -214,6 +227,14 @@ export default {
         toggleQrCode() {
             this.showQrCode = !this.showQrCode
         },
+        shareLinkCopy() {
+            // Don't use the Clipboard API just yet. While execCommand might be
+            // deprecated, browser support for the new API is not sufficient and
+            // would require to keep execCommand as a fallback.
+            this.$refs.shareLinkInput.focus()
+            this.$refs.shareLinkInput.select()
+            document.execCommand('copy')
+        },
         reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
         },
@@ -244,16 +265,24 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.location-popup::before {
-    $arrow-height: 15px;
-    position: absolute;
-    top: -($arrow-height * 2);
-    left: 50%;
-    margin-left: -$arrow-height;
-    border: $arrow-height solid transparent;
-    border-bottom-color: $light;
-    pointer-events: none;
-    content: '';
+.location-popup {
+    &::before {
+        $arrow-height: 15px;
+        position: absolute;
+        top: -($arrow-height * 2);
+        left: 50%;
+        margin-left: -$arrow-height;
+        border: $arrow-height solid transparent;
+        border-bottom-color: $light;
+        pointer-events: none;
+        content: '';
+    }
+    &-link {
+        grid-column: 1 / 3;
+        &-input {
+            font-size: 0.8em;
+        }
+    }
 }
 .coordinates-list {
     max-width: 450px;

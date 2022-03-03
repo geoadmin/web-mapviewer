@@ -94,7 +94,7 @@ describe('Test mouse position', () => {
         const lon = 8
         beforeEach(() => {
             // Viewport set to see the whole popup
-            cy.viewport(500, 1500)
+            cy.viewport(320, 1000)
             cy.goToMapView('en', { lat, lon })
             cy.get('[data-cy="map"]').rightclick()
         })
@@ -163,9 +163,10 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
             it('Tests the link with bowl crosshair gives the right coordinates', () => {
-                cy.get('[data-cy="location-popup-link-bowl-crosshair"] a')
-                    .then((link) => {
-                        const search = link[0].href.split('?')[1]
+                cy.get('[data-cy="location-popup-link-bowl-crosshair"] input')
+                    .invoke('val')
+                    .then((value) => {
+                        const search = value.split('?')[1]
                         const params = new URLSearchParams(search)
                         return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
                     })

@@ -35,6 +35,7 @@ import {
 import {
     faCheckSquare,
     faClock,
+    faCopy,
     faEye,
     faSquare,
     faTrashAlt,
@@ -76,6 +77,7 @@ library.add(
     // Regular
     faCheckSquare,
     faClock,
+    faCopy,
     faEye,
     faSquare,
     faTrashAlt
