@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 import { forEachTestViewport } from '../support'
-import features from '../fixtures/features.fixture.json'
 
 function longClickOnMap() {
     cy.readWindowValue('map').then((map) => {
@@ -23,11 +22,16 @@ describe('The infobox', () => {
             () => {
                 beforeEach(() => {
                     const layer = 'test.wmts.layer'
-                    cy.intercept('**/MapServer/identify**', features)
+                    cy.fixture('features.fixture.json').then((features) => {
+                        cy.intercept('**/MapServer/identify**', features)
+                        cy.intercept(
+                            `**/MapServer/${layer}/**geometryFormat**`,
+                            features.results[0]
+                        )
+                    })
                     cy.intercept('**/MapServer/**/htmlPopup**', {
                         fixture: 'html-popup.fixture.html',
                     })
-                    cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, features.results[0])
                     cy.goToMapView('en', { layers: layer })
                 })
                 it.only('is visible if features selected', () => {
