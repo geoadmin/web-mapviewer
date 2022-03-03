@@ -2,6 +2,7 @@
 
 import { forEachTestViewport } from '../support'
 import features from '../fixtures/features.fixture.json'
+import { htmlPopupTable } from '../fixtures/html-popup.fixture'
 
 function longClickOnMap() {
     cy.readWindowValue('map').then((map) => {
@@ -24,7 +25,7 @@ describe('The infobox', () => {
                 beforeEach(() => {
                     const layer = 'test.wmts.layer'
                     cy.intercept('**/MapServer/identify**', features)
-                    cy.intercept('**/MapServer/**/htmlPopup**', htmlPopup)
+                    cy.intercept('**/MapServer/**/htmlPopup**', htmlPopupTable)
                     cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, features.results[0])
                     cy.goToMapView('en', { layers: layer })
                 })
@@ -67,7 +68,7 @@ describe('The infobox', () => {
                             .children()
                             .toArray()
                             .map((child) => child.offsetHeight)
-                            .reduce((max, child) => Math.max(max, child), 0)
+                            .reduce((max, height) => Math.max(max, height), 0)
 
                         expect($element.height()).to.be.equal(maxHeight)
                     })
@@ -76,32 +77,3 @@ describe('The infobox', () => {
         )
     })
 })
-
-var htmlPopup = `
-<div class="chbabskulturgueter htmlpopup-container">
-    <div class="htmlpopup-header">
-        <span>Protection of cultural property inventory with objects of national importance</span> (Federal Office for Civil Protection)
-    </div>
-    <div class="htmlpopup-content">
-        <table>
-            <tr><td class="cell-left">Description</td>  <td>Schweizerisches Literaturarchiv</td></tr>
-            <tr><td class="cell-left">Y-Coordinate</td> <td>2600847</td></tr>
-            <tr><td class="cell-left">X-Coordinate</td> <td>1198903</td></tr>
-            <tr><td class="cell-left">City</td>         <td>Bern</td></tr>
-            <tr><td class="cell-left">Canton</td>       <td>BE</td></tr>
-            <tr>
-                <td class="cell-left"></td>
-                <td>
-                    <a href="#">
-                        More info&nbsp;<img src="//mf-chsdi3.int.bgdi.ch/1639471066/static/images/ico_extern.gif" />
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td class="cell-left"></td>
-                <td><a href="#">Link to object</a></td>
-            </tr>
-        </table>
-    </div>
-</div>
-`

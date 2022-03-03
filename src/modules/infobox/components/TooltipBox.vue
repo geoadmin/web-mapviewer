@@ -39,13 +39,13 @@ export default {
         this.$nextTick(this.setMaxHeight)
     },
     methods: {
-        toggleTooltipInFooter: function () {
+        toggleTooltipInFooter() {
             this.$emit('toggleTooltipInFooter')
         },
-        closeTooltip: function () {
+        closeTooltip() {
             this.$emit('close')
         },
-        printTooltip: function () {
+        printTooltip() {
             promptUserToPrintHtmlContent(this.$refs.tooltipContent)
         },
         setMaxHeight() {
@@ -54,7 +54,7 @@ export default {
             const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
             const childHeight = Array.from(container.children)
                 .map((child) => parseInt(child.offsetHeight))
-                .reduce((max, child) => Math.max(max, child), 0)
+                .reduce((max, height) => Math.max(max, height), 0)
             // We set max-height because setting the height would influence the
             // height of the children which in turn breaks this calculation.
             container.style.maxHeight = `${verticalPadding + childHeight}px`
