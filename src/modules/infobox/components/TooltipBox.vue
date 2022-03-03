@@ -1,14 +1,15 @@
 <template>
-    <div class="tooltip-box card">
+    <div class="tooltip-box card" data-cy="tooltip">
         <div class="tooltip-box-header card-header d-flex justify-content-end">
             <ButtonWithIcon
                 :button-font-awesome-icon="['fa', 'caret-up']"
+                data-cy="toggle-floating-on"
                 @click="toggleTooltipInFooter"
             />
             <ButtonWithIcon :button-font-awesome-icon="['fa', 'print']" @click="printTooltip" />
             <ButtonWithIcon :button-font-awesome-icon="['fa', 'times']" @click="closeTooltip" />
         </div>
-        <div ref="tooltipContent" class="tooltip-box-content card-body">
+        <div ref="tooltipContent" class="tooltip-box-content card-body" data-cy="tooltip-content">
             <slot />
         </div>
     </div>
@@ -19,16 +20,44 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
     components: { ButtonWithIcon },
+    props: {
+        selectedFeatures: {
+            type: Array,
+            required: true,
+        },
+    },
     emits: ['close', 'toggleTooltipInFooter'],
+    watch: {
+        selectedFeatures() {
+            // Update maxHeight when the features change while the box is open.
+            this.$nextTick(this.setMaxHeight)
+            // Reset the container's scroll when the content changes.
+            this.$refs.tooltipContent.scrollTo(0, 0)
+        },
+    },
+    mounted() {
+        this.$nextTick(this.setMaxHeight)
+    },
     methods: {
-        toggleTooltipInFooter: function () {
+        toggleTooltipInFooter() {
             this.$emit('toggleTooltipInFooter')
         },
-        closeTooltip: function () {
+        closeTooltip() {
             this.$emit('close')
         },
-        printTooltip: function () {
+        printTooltip() {
             promptUserToPrintHtmlContent(this.$refs.tooltipContent)
+        },
+        setMaxHeight() {
+            const container = this.$refs.tooltipContent
+            const { paddingTop, paddingBottom } = getComputedStyle(container)
+            const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
+            const childHeight = Array.from(container.children)
+                .map((child) => parseInt(child.offsetHeight))
+                .reduce((max, height) => Math.max(max, height), 0)
+            // We set max-height because setting the height would influence the
+            // height of the children which in turn breaks this calculation.
+            container.style.maxHeight = `${verticalPadding + childHeight}px`
         },
     },
 }
@@ -38,14 +67,11 @@ export default {
 @import 'src/scss/variables';
 @import 'src/scss/media-query.mixin';
 
-// a typical html popup content is 314 per 230px on mf-geoadmin3 (public transport stops)
-$maxTooltipHeight: 230px;
-$maxTooltipWidth: 314px;
-
 .tooltip-box {
     width: 100%;
     &-content {
-        max-height: $maxTooltipHeight;
+        // The real max-height will be set dynamically. (setMaxHeight)
+        max-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
         display: grid;
@@ -53,31 +79,6 @@ $maxTooltipWidth: 314px;
         // see media query under for other screen sizes
         grid-template-columns: 1fr;
         grid-gap: 8px;
-    }
-    .tooltip-feature:not(:last-child) {
-        border-bottom-style: solid;
-        border-bottom-width: 1px;
-        border-bottom-color: #c7c7c7;
-    }
-    > *,
-    .htmlpopup-container {
-        width: 100%;
-        font-size: 11px;
-        text-align: start;
-        .htmlpopup-header {
-            background-color: #e9e9e9;
-            padding: 7px;
-            margin-bottom: 7px;
-            font-weight: 700;
-        }
-        > table,
-        .htmlpopup-content {
-            padding: 0 7px 7px;
-            table {
-                width: 100%;
-                border: 0;
-            }
-        }
     }
 }
 

@@ -47,6 +47,9 @@ export default {
         },
     },
     created() {
+        // The layers needs to be set immediately. Otherwise, addLayerToMapMixin will fail.
+        this.layer = new VectorLayer({ id: this.layerId, opacity: this.opacity })
+
         // loading the GeoJSON data and style with and wait for both the be loaded
         axios
             .all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
@@ -73,13 +76,11 @@ export default {
                     // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
                     reprojectedGeoJSON = reproject(geojsonData, proj4.WGS84, 'EPSG:3857')
                 }
-                this.layer = new VectorLayer({
-                    id: this.layerId,
-                    opacity: this.opacity,
-                    source: new VectorSource({
+                this.layer.setSource(
+                    new VectorSource({
                         features: new GeoJSON().readFeatures(reprojectedGeoJSON),
-                    }),
-                })
+                    })
+                )
                 this.layer.setStyle(function (feature, res) {
                     return style.getFeatureStyle(feature, res)
                 })

@@ -41,7 +41,7 @@ const viewports = {
 }
 
 export function forEachTestViewport(testFunction) {
-    Object.keys(viewports).forEach((viewport) => {
-        testFunction(viewport, viewport === 'iphone-5', viewport === 'ipad-2', viewports[viewport])
+    Object.entries(viewports).forEach(([name, dimensions]) => {
+        testFunction(name, name === 'iphone-5', name === 'ipad-2', dimensions)
     })
 }

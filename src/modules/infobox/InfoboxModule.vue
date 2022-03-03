@@ -4,6 +4,7 @@
             <TooltipBox
                 v-if="tooltipInFooter && selectedFeatures.length > 0"
                 ref="tooltipBox"
+                :selected-features="selectedFeatures"
                 @toggle-tooltip-in-footer="toggleFloatingTooltip"
                 @close="clearSelectedFeatures"
             >

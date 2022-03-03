@@ -113,6 +113,22 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
         })
+        it('Toggles between text info and QR code', () => {
+            const toggleSelector = '[data-cy="location-popup-toggle"'
+            const textinfoSelector = '[data-cy="location-popup-coordinates-lv95"]'
+            const qrcodeSelector = '[data-cy="location-popup-qr-code"]'
+            // Initial (text)
+            cy.get(textinfoSelector).should('be.visible')
+            cy.get(qrcodeSelector).should('not.be.visible')
+            // QR-code
+            cy.get(toggleSelector).click()
+            cy.get(textinfoSelector).should('not.be.visible')
+            cy.get(qrcodeSelector).should('be.visible')
+            // Text
+            cy.get(toggleSelector).click()
+            cy.get(textinfoSelector).should('be.visible')
+            cy.get(qrcodeSelector).should('not.be.visible')
+        })
         context('Coordinates system tests', () => {
             it('Uses the coordination system LV95 in the popup', () => {
                 const LV95cord = proj4(proj4.WGS84, 'EPSG:2056', [lon, lat])

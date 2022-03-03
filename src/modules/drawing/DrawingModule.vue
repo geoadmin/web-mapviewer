@@ -182,7 +182,6 @@ export default {
 
         // if we are testing with Cypress, we expose the map and drawing manager
         if (IS_TESTING_WITH_CYPRESS) {
-            window.drawingMap = map
             window.drawingManager = this.manager
         }
         this.manager.on('change', this.onChange)
