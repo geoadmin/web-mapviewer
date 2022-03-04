@@ -44,10 +44,9 @@ export default {
 #search-results {
     position: absolute;
     top: 100%;
-    left: 5%;
-    width: 90%;
+    left: 0%;
+    width: 100%;
     max-height: calc(75vh - 3rem);
-    text-align: center;
 }
 @include respond-above(lg) {
     #search-results {

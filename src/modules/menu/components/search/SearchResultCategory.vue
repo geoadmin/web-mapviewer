@@ -4,7 +4,7 @@
         class="search-category"
         :class="{ 'search-category-half-size': halfSize }"
     >
-        <div class="search-category-header p-2 bg-light h5 mb-0 fw-bold">
+        <div class="search-category-header p-2">
             {{ title }}
         </div>
         <ul class="search-category-body bg-white">
@@ -66,7 +66,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .search-category {
+    &-header {
+        font-size: 0.825rem;
+        font-weight: bold;
+        background-color: $input-group-addon-bg;
+    }
     &-body {
         margin: 0;
         padding: 0;
