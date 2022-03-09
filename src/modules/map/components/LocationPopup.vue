@@ -16,74 +16,72 @@
         </template>
 
         <div v-show="!showQrCode" class="coordinates-list text-start">
-            <div>
+            <div class="location-popup-th">
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
-            <div data-cy="location-popup-coordinates-lv95">
-                {{ clickCoordinatesLV95 }}
+            <div class="location-popup-td">
+                <span data-cy="location-popup-coordinates-lv95">
+                    {{ clickCoordinatesLV95 }}
+                </span>
             </div>
-            <div>
+            <div class="location-popup-th">
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
             </div>
-            <div data-cy="location-popup-coordinates-lv03">
-                {{ clickCoordinatesLV03 }}
+            <div class="location-popup-td">
+                <span data-cy="location-popup-coordinates-lv03">
+                    {{ clickCoordinatesLV03 }}
+                </span>
             </div>
-            <div>
+            <div class="location-popup-th">
                 <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
             </div>
-            <div>
-                <div data-cy="location-popup-coordinates-plain-wgs84">
+            <div class="location-popup-td">
+                <span data-cy="location-popup-coordinates-plain-wgs84">
                     {{ clickCoordinatesPlainWGS84 }}
-                </div>
-                <div data-cy="location-popup-coordinates-wgs84">
+                </span>
+                <br />
+                <span data-cy="location-popup-coordinates-wgs84">
                     {{ clickCoordinatesWGS84 }}
-                </div>
+                </span>
             </div>
-            <div>
+            <div class="location-popup-th">
                 <a href="https://epsg.io/32632" target="_blank">UTM</a>
             </div>
-            <div data-cy="location-popup-coordinates-utm">
-                {{ clickCoordinatesUTM }}
+            <div class="location-popup-td">
+                <span data-cy="location-popup-coordinates-utm">
+                    {{ clickCoordinatesUTM }}
+                </span>
             </div>
-            <div>{{ 'MGRS' }}</div>
-            <div data-cy="location-popup-coordinates-mgrs">
-                {{ clickCoordinatesMGRS }}
+            <div class="location-popup-th">
+                {{ 'MGRS' }}
             </div>
-            <div>
+            <div class="location-popup-td">
+                <span data-cy="location-popup-coordinates-mgrs">
+                    {{ clickCoordinatesMGRS }}
+                </span>
+            </div>
+            <div class="location-popup-th">
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div>
-                <a
-                    v-show="clickWhat3Words"
-                    :href="`https://what3words.com/${clickWhat3Words}`"
-                    target="_blank"
-                    data-cy="location-popup-w3w"
-                >
+            <div class="location-popup-td">
+                <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
                     {{ clickWhat3Words }}
-                </a>
+                </span>
             </div>
             <div>
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
-            <div>
-                <span v-if="height" data-cy="location-popup-height">
-                    {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
-                </span>
+            <div class="location-popup-td">
+                <span data-cy="location-popup-height">{{ height?.heightInMeter }} m</span> /
+                <span>{{ height?.heightInFeet }} ft</span>
             </div>
-            <div
-                class="input-group location-popup-link"
-                data-cy="location-popup-link-bowl-crosshair"
-            >
-                <input
-                    ref="shareLinkInput"
-                    class="form-control location-popup-link-input"
-                    type="text"
+            <div class="location-popup-th">
+                {{ $t('link_bowl_crosshair') }}
+            </div>
+            <div class="location-popup-td">
+                <LocationPopupCopy
                     :value="shareLinkUrl"
-                />
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['far', 'copy']"
-                    outline-secondary
-                    @click="shareLinkCopy"
+                    data-cy="location-popup-link-bowl-crosshair"
                 />
             </div>
         </div>
@@ -104,6 +102,7 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { ClickType } from '@/modules/map/store/map.store'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import LocationPopupCopy from '@/modules/map/components/LocationPopupCopy.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
@@ -113,6 +112,7 @@ import stringifyQuery from '@/router/stringifyQuery'
 export default {
     components: {
         ButtonWithIcon,
+        LocationPopupCopy,
         OpenLayersPopover,
     },
     inject: ['getMap'],
@@ -227,14 +227,6 @@ export default {
         toggleQrCode() {
             this.showQrCode = !this.showQrCode
         },
-        shareLinkCopy() {
-            // Don't use the Clipboard API just yet. While execCommand might be
-            // deprecated, browser support for the new API is not sufficient and
-            // would require to keep execCommand as a fallback.
-            this.$refs.shareLinkInput.focus()
-            this.$refs.shareLinkInput.select()
-            document.execCommand('copy')
-        },
         reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
         },
@@ -277,15 +269,11 @@ export default {
         pointer-events: none;
         content: '';
     }
-    &-link {
-        grid-column: 1 / 3;
-        &-input {
-            font-size: 0.8em;
-        }
+    &-td span {
+        user-select: all;
     }
 }
 .coordinates-list {
-    max-width: 450px;
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-column-gap: 5px;

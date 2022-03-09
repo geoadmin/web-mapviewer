@@ -163,7 +163,7 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
             it('Tests the link with bowl crosshair gives the right coordinates', () => {
-                cy.get('[data-cy="location-popup-link-bowl-crosshair"] input')
+                cy.get('[data-cy="location-popup-link-bowl-crosshair"]')
                     .invoke('val')
                     .then((value) => {
                         const search = value.split('?')[1]
