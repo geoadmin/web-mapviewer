@@ -21,18 +21,28 @@ phases:
       # that were used last time npm install was done on the developer's device.
       - npm ci
 
-  build:
+  pre_build:
     commands:
-      # will build the application in dev mode before testing
-      - npm run test:ci
-
-  post_build:
-    commands:
-      - echo "CODEBUILD_WEBHOOK_HEAD_REF=${CODEBUILD_WEBHOOK_HEAD_REF} CODEBUILD_WEBHOOK_BASE_REF=${CODEBUILD_WEBHOOK_BASE_REF}"
-      - export GITHUB_BRANCH="${CODEBUILD_WEBHOOK_HEAD_REF#refs/heads/}"
+      - echo "=========== Configuring stuff ==================================="
+      - export PULL_REQUEST=${CODEBUILD_WEBHOOK_TRIGGER#pr/*}
+      - export GIT_BRANCH="${CODEBUILD_WEBHOOK_HEAD_REF#refs/heads/}"
+      - export GIT_BASE_BRANCH="${CODEBUILD_WEBHOOK_BASE_REF#refs/heads/}"
+      - export GIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - export GIT_TAG="$(git describe --tags || echo 'unknown')"
+      - export GIT_DIRTY="$(git status --porcelain)"
+      # When build are manually triggered by a user, the CODEBUILD_WEBHOOK_HEAD_REF is not
+      # set resulting to an empty GIT_BRANCH. Usually Codebuild don't checkout the branch but
+      # the commit and is on a detached HEAD. Therefore we need to use `git describe --exact-match --all`
+      # that returns either the git tag of the detached HEAD if any or the branch if any or failed.
+      - |
+        if [[ -z "${GIT_BRANCH}" ]];
+        then
+          GIT_BRANCH=$(git describe --exact-match --all 2>/dev/null || echo "unknown")
+          export GIT_BRANCH=${GIT_BRANCH#heads/}
+        fi
       # if this build has been triggered by a push on master (PR merge on master), we deploy on INT (otherwise everything goes to dev)
       - export DEPLOY_TARGET="dev"
-      - if [ "${GITHUB_BRANCH}" = "master" ] ; then
+      - if [ "${GIT_BRANCH}" = "master" ] ; then
           export DEPLOY_TARGET="int";
         fi
       # if we are on DEV, we have to switch to the account "swisstopo-bgdi-dev", otherwise the account is "swisstopo-bgdi"
@@ -40,6 +50,34 @@ phases:
       - if [ "${DEPLOY_TARGET}" = "int" ] ; then
           export AWS_ACCOUNT_TO_USE="${AWS_SWISSTOPO_BGDI_ACCOUNT_ID}:role/BgdiCodebuildAccess";
         fi
+      - echo "=== Environment Variables ======================================="
+      - echo CODEBUILD_INITIATOR=${CODEBUILD_INITIATOR}
+      - echo CODEBUILD_RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION}
+      - echo CODEBUILD_SOURCE_VERSION=${CODEBUILD_SOURCE_VERSION}
+      - echo CODEBUILD_WEBHOOK_EVENT=${CODEBUILD_WEBHOOK_EVENT}
+      - echo CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID=${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID}
+      - echo CODEBUILD_WEBHOOK_BASE_REF=${CODEBUILD_WEBHOOK_BASE_REF}
+      - echo CODEBUILD_WEBHOOK_HEAD_REF=${CODEBUILD_WEBHOOK_HEAD_REF=}
+      - echo CODEBUILD_WEBHOOK_TRIGGER=${CODEBUILD_WEBHOOK_TRIGGER}
+      - echo CODEBUILD_WEBHOOK_MERGE_COMMIT=${CODEBUILD_WEBHOOK_MERGE_COMMIT}
+      - echo CODEBUILD_WEBHOOK_PREV_COMMIT=${CODEBUILD_WEBHOOK_PREV_COMMIT}
+      - echo CODEBUILD_BUILD_ID=${CODEBUILD_BUILD_ID}
+      - echo CODEBUILD_SOURCE_REPO_URL=${CODEBUILD_SOURCE_REPO_URL}
+      - echo PULL_REQUEST=${PULL_REQUEST}
+      - echo GIT_BRANCH=${GIT_BRANCH}
+      - echo GIT_HASH=${GIT_HASH}
+      - echo GIT_TAG=${GIT_TAG}
+      - echo GIT_DIRTY=${GIT_DIRTY}
+      - echo DEPLOY_TARGET=${DEPLOY_TARGET}
+      - echo AWS_ACCOUNT_TO_USE=${AWS_ACCOUNT_TO_USE}
+
+  build:
+    commands:
+      # will build the application in dev mode before testing
+      - npm run test:ci
+
+  post_build:
+    commands:
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # the application will be built by the npm target before deploying
-      - npm run deploy:${DEPLOY_TARGET} -- --role=arn:aws:iam::${AWS_ACCOUNT_TO_USE} --branch=${GITHUB_BRANCH}
+      - npm run deploy:${DEPLOY_TARGET} -- --role=arn:aws:iam::${AWS_ACCOUNT_TO_USE} --branch=${GIT_BRANCH}
