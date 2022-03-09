@@ -32,9 +32,9 @@ const argv = yargs
 
 // Declaring all possible buckets (keys are targets)
 const buckets = {
-    dev: 'web-mapviewer-dev',
-    int: 'web-mapviewer-int',
-    prod: 'web-mapviewer-prod',
+    dev: 'web-mapviewer-dev-swisstopo',
+    int: 'web-mapviewer-int-swisstopo',
+    prod: 'web-mapviewer-prod-swisstopo',
 }
 
 // checking that the target is valid
