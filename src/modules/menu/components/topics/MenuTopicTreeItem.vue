@@ -8,9 +8,11 @@
         data-cy="topic-tree-item"
     >
         <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
-            <button class="btn btn-default" :class="{ 'text-danger': isActive || isHidden }">
-                <font-awesome-icon :size="compact ? null : 'lg'" :icon="showHideIcon" />
-            </button>
+            <ButtonWithIcon
+                :button-font-awesome-icon="showHideIcon"
+                :class="{ 'text-danger': isActive || isHidden }"
+                :large="!compact"
+            />
             <span class="menu-topic-item-name">{{ item.name }}</span>
         </div>
         <CollapseTransition :duration="200">
@@ -33,6 +35,7 @@
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { topicTypes } from '@/api/topics.api'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /**
  * Node of the topic tree in the UI, rendering (and behavior) will differ if this is a theme or a
@@ -43,6 +46,7 @@ export default {
     name: 'MenuTopicTreeItem',
     components: {
         CollapseTransition,
+        ButtonWithIcon,
     },
     props: {
         item: {
@@ -72,9 +76,9 @@ export default {
         showHideIcon() {
             if (this.item.type === topicTypes.THEME) {
                 if (this.showChildren) {
-                    return ['fas', 'minus-circle']
+                    return ['fas', 'minus']
                 } else {
-                    return ['fas', 'plus-circle']
+                    return ['fas', 'plus']
                 }
             } else {
                 if (this.isActive && !this.isHidden) {
