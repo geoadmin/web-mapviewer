@@ -19,7 +19,7 @@ const state = {
 const getters = {}
 
 const actions = {
-    setLang: function ({ commit }, lang) {
+    setLang({ commit }, lang) {
         commit(SET_LANG_MUTATION_KEY, lang)
     },
 }

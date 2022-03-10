@@ -29,10 +29,10 @@ export default {
         },
     },
     computed: {
-        geometry: function () {
+        geometry() {
             return this.feature && this.feature.getGeometry()
         },
-        info: function () {
+        info() {
             if (this.geometry) {
                 return geometryInfo(
                     this.geometry.getType(),

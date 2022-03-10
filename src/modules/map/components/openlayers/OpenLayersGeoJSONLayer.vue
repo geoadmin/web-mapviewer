@@ -40,7 +40,7 @@ export default {
         },
     },
     watch: {
-        opacity: function (newOpacity) {
+        opacity(newOpacity) {
             if (this.layer) {
                 this.layer.setOpacity(newOpacity)
             }

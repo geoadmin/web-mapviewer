@@ -60,7 +60,7 @@ const overlay = new Overlay({
 export default {
     components: { DrawingToolbox, DrawingStylePopup, ProfilePopup },
     inject: ['getMap'],
-    data: function () {
+    data() {
         return {
             selectedFeature: null,
             drawingModes: Object.values(drawingModes),
@@ -79,14 +79,14 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
         }),
-        deleteLastPointCallback: function () {
+        deleteLastPointCallback() {
             return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
                 ? () => this.manager.activeInteraction.removeLastPoint()
                 : undefined
         },
     },
     watch: {
-        show: function (show) {
+        show(show) {
             if (show) {
                 this.addSavedKmlLayer()
                 this.manager.activate()
@@ -98,10 +98,10 @@ export default {
                 this.manager.deactivate()
             }
         },
-        currentDrawingMode: function (mode) {
+        currentDrawingMode(mode) {
             this.manager.toggleTool(mode)
         },
-        kmlIds: function (kmlIds) {
+        kmlIds(kmlIds) {
             // When removing a Drawing layer, the kmlIds are cleared. In this case
             // we also need to clear the drawing in the manager which still contain
             // the last drawing.
@@ -204,28 +204,28 @@ export default {
             'removeLayer',
             'loadAvailableIconSets',
         ]),
-        hideDrawingOverlay: function () {
+        hideDrawingOverlay() {
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
         },
-        changeDrawingMode: function (mode) {
+        changeDrawingMode(mode) {
             if (mode === this.currentDrawingMode) {
                 mode = null
             }
             this.setDrawingMode(mode)
         },
-        deleteSelectedFeature: function () {
+        deleteSelectedFeature() {
             this.manager.deleteSelected()
         },
-        deactivateFeature: function () {
+        deactivateFeature() {
             this.manager.deselect()
         },
-        isDrawingEmpty: function () {
+        isDrawingEmpty() {
             return (
                 this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
             )
         },
-        triggerKMLUpdate: function () {
+        triggerKMLUpdate() {
             if (this.KMLUpdateTimeout) {
                 clearTimeout(this.KMLUpdateTimeout)
                 this.KMLUpdateTimeout = 0
@@ -242,11 +242,11 @@ export default {
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
         },
-        onChange: function () {
+        onChange() {
             this.drawingNotEmpty = this.isDrawingEmpty()
             this.triggerKMLUpdate()
         },
-        onClear: function () {
+        onClear() {
             this.drawingNotEmpty = this.isDrawingEmpty()
             // Only trigger the kml update if we have an active open drawing. The clear
             // event also happens when removing a drawing layer when the drawing menu
@@ -256,7 +256,7 @@ export default {
                 this.triggerKMLUpdate()
             }
         },
-        onSelect: function (event) {
+        onSelect(event) {
             /** @type {import('./lib/DrawingManager.js').SelectEvent} */
             const selectEvent = event
             const feature = selectEvent.feature
@@ -269,7 +269,7 @@ export default {
             overlay.setPosition(xy)
             this.selectedFeature = showOverlay ? feature : null
         },
-        saveDrawing: async function (kml) {
+        async saveDrawing(kml) {
             let metadata
             if (!this.kmlIds || !this.kmlIds.adminId) {
                 // if we don't have an adminId then create a new KML File
@@ -281,7 +281,7 @@ export default {
                 this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }
         },
-        exportDrawing: function (gpx = false) {
+        exportDrawing(gpx = false) {
             const date = new Date()
                 .toISOString()
                 .split('.')[0]
@@ -302,11 +302,11 @@ export default {
             const blob = new Blob([content], { type: type })
             saveAs(blob, fileName)
         },
-        clearDrawing: function () {
+        clearDrawing() {
             this.manager.clearDrawing()
             this.triggerKMLUpdate()
         },
-        addSavedKmlLayer: function () {
+        addSavedKmlLayer() {
             if (!this.kmlLayers || !this.kmlLayers.length) {
                 return
             }

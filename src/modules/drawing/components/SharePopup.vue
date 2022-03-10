@@ -59,7 +59,7 @@ export default {
             default: null,
         },
     },
-    data: function () {
+    data() {
         return {
             adminUrlCopied: false,
             fileUrlCopied: false,
@@ -85,7 +85,7 @@ export default {
         },
     },
     methods: {
-        copyUrl: async function (adminUrl = false) {
+        async copyUrl(adminUrl = false) {
             if (adminUrl) {
                 await navigator.clipboard.writeText(this.adminUrl)
                 this.adminUrlCopied = true

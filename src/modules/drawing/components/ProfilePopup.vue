@@ -110,7 +110,7 @@ export default {
         },
     },
     emits: ['close', 'delete'],
-    data: function () {
+    data() {
         return {
             options: {
                 margin: { left: 60, right: 5, bottom: 35, top: 5 },
@@ -125,13 +125,13 @@ export default {
         }
     },
     computed: {
-        showProfile: function () {
+        showProfile() {
             return (
                 this.feature &&
                 (this.feature.get('type') === 'LINE' || this.feature.get('type') === 'MEASURE')
             )
         },
-        profileInformation: function () {
+        profileInformation() {
             if (!this.profileInfo) {
                 return []
             }
@@ -183,7 +183,7 @@ export default {
         },
     },
     watch: {
-        feature: function () {
+        feature() {
             this.triggerProfileUpdate = true
         },
     },
@@ -219,23 +219,23 @@ export default {
         })
     },
     methods: {
-        toggleMinimized: function () {
+        toggleMinimized() {
             this.minimized = !this.minimized
             this.triggerProfileUpdate = true
         },
-        onClose: function () {
+        onClose() {
             this.$emit('close')
         },
-        onDelete: function () {
+        onDelete() {
             this.$emit('delete')
         },
-        onResize: function () {
+        onResize() {
             if (!this.minimized) {
                 this.triggerProfileUpdate = true
                 this.updateProfile()
             }
         },
-        updateProfile: async function () {
+        async updateProfile() {
             const profileGraphEl = this.$refs['profile-graph']
             if (!profileGraphEl) {
                 return
@@ -257,25 +257,25 @@ export default {
                 profileGraphEl.appendChild(profileChartEl)
             }
         },
-        createProfileChart: async function () {
+        async createProfileChart() {
             const data = await this.getProfile(this.getCoordinates())
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             this.attachPathListeners(areaChartPath)
             return this.profileChart.element
         },
-        updateProfileChart: async function (size) {
+        async updateProfileChart(size) {
             const data = await this.getProfile(this.getCoordinates())
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
-        getCoordinates: function () {
+        getCoordinates() {
             const geometry = this.feature.getGeometry()
             return geometry instanceof Polygon
                 ? geometry.getCoordinates()[0]
                 : geometry.getCoordinates()
         },
-        getProfile: async function (coordinates) {
+        async getProfile(coordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
             return await profile({
                 geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
@@ -284,7 +284,7 @@ export default {
                 distinct_points: true,
             })
         },
-        attachPathListeners: function (areaChartPath) {
+        attachPathListeners(areaChartPath) {
             areaChartPath.on('mousemove', (evt) => {
                 const x = d3.pointer(evt)[0]
                 let pos = evt.target.getPointAtLength(x)
@@ -326,7 +326,7 @@ export default {
                 this.overlay.setMap(null)
             })
         },
-        formatDistance: function (value) {
+        formatDistance(value) {
             if (isNaN(value) || value === null) {
                 return '0.00m'
             }
@@ -335,7 +335,7 @@ export default {
             }
             return `${(value / 1000).toFixed(2)}km`
         },
-        formatElevation: function (value) {
+        formatElevation(value) {
             if (isNaN(value) || value === null) {
                 return '0.00m'
             }

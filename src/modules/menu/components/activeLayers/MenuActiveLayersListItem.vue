@@ -148,13 +148,13 @@ export default {
         }
     },
     computed: {
-        checkboxIcon: function () {
+        checkboxIcon() {
             if (this.visible) {
                 return 'check-square'
             }
             return 'square'
         },
-        clogTransformation: function () {
+        clogTransformation() {
             const transformation = {
                 rotate: 0,
             }
@@ -165,26 +165,26 @@ export default {
         },
     },
     methods: {
-        onToggleLayerDetails: function () {
+        onToggleLayerDetails() {
             this.showLayerDetails = !this.showLayerDetails
             this.$emit('toggleLayerDetails', this.id)
         },
-        onRemoveLayer: function () {
+        onRemoveLayer() {
             this.$emit('removeLayer', this.id)
         },
-        onToggleLayerVisibility: function () {
+        onToggleLayerVisibility() {
             this.$emit('toggleLayerVisibility', this.id)
         },
-        onOpacityChange: function (e) {
+        onOpacityChange(e) {
             this.$emit('opacityChange', this.id, e.target.value)
         },
-        onOrderChange: function (delta) {
+        onOrderChange(delta) {
             this.$emit('orderChange', this.id, delta)
         },
-        showLayerLegendPopup: function () {
+        showLayerLegendPopup() {
             this.$emit('showLayerLegendPopup', this.id)
         },
-        onTimestampChange: function (timestamp) {
+        onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
     },

@@ -33,12 +33,12 @@ export default {
             currentLang: (state) => state.i18n.lang,
             uiMode: (state) => state.ui.mode,
         }),
-        isUIinDesktopMode: function () {
+        isUIinDesktopMode() {
             return this.uiMode === UIModes.MENU_ALWAYS_OPEN
         },
     },
     methods: {
-        changeLang: function (lang) {
+        changeLang(lang) {
             log.debug('switching locale', lang)
             this.setLang(lang)
         },

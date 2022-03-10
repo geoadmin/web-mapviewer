@@ -66,11 +66,11 @@ export default {
     },
     emits: ['close'],
     methods: {
-        onClose: function (withConfirmation) {
+        onClose(withConfirmation) {
             // it will go through preventOverlayToClose first and only remove our callback from the stack
             this.$emit('close', withConfirmation)
         },
-        printModalContent: function () {
+        printModalContent() {
             if (this.$refs.modalContent) {
                 promptUserToPrintHtmlContent(this.$refs.modalContent)
             }

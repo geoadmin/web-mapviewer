@@ -28,7 +28,7 @@ export default {
     },
     methods: {
         ...mapActions(['setSize', 'setUiMode']),
-        setScreenSizeFromWindowSize: function () {
+        setScreenSizeFromWindowSize() {
             this.setSize({
                 width: window.innerWidth,
                 height: window.innerHeight,

@@ -43,10 +43,10 @@ export default {
         },
     },
     watch: {
-        position: function (newPosition) {
+        position(newPosition) {
             this.accuracyCircle.setCenter(newPosition)
         },
-        accuracy: function (newAccuracy) {
+        accuracy(newAccuracy) {
             this.accuracyCircle.setRadius(newAccuracy)
         },
     },

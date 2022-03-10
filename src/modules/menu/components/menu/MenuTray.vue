@@ -52,7 +52,7 @@ export default {
             activeLayers: (state) => state.layers.activeLayers,
             currentUiMode: (state) => state.ui.mode,
         }),
-        showLayerList: function () {
+        showLayerList() {
             return this.activeLayers.length > 0
         },
     },

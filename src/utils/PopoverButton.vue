@@ -121,7 +121,7 @@ export default {
         }
     },
     watch: {
-        popoverPosition: function (newValue) {
+        popoverPosition(newValue) {
             if (newValue in POPOVER_POSITION) {
                 this.popover.setProps({
                     placement: newValue,
@@ -145,7 +145,7 @@ export default {
     },
     methods: {
         /** Hides the popover container, can be called outside (by this component's parent) */
-        hidePopover: function () {
+        hidePopover() {
             this.popover.hide()
         },
     },

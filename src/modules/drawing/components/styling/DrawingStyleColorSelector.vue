@@ -36,10 +36,10 @@ export default {
         }
     },
     methods: {
-        onColorChange: function (color) {
+        onColorChange(color) {
             this.$emit('change', color)
         },
-        colorCircleStyle: function (color) {
+        colorCircleStyle(color) {
             return {
                 'background-color': color.name,
                 'border-color': color.border,

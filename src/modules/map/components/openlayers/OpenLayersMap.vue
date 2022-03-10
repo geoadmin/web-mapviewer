@@ -111,13 +111,13 @@ export default {
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
     },
-    provide: function () {
+    provide() {
         return {
             // sharing OL map object with children components
             getMap: () => this.map,
         }
     },
-    data: () => {
+    data() {
         return {
             // exposing marker styles to the template
             markerStyles,
@@ -147,7 +147,7 @@ export default {
             'resolution',
             'isCurrentlyDrawing',
         ]),
-        crossHairStyle: function () {
+        crossHairStyle() {
             if (this.crossHair) {
                 switch (this.crossHair) {
                     case CrossHairs.point:
@@ -165,43 +165,43 @@ export default {
             return null
         },
         // zIndex calculation conundrum...
-        startingZIndexForVisibleLayers: function () {
+        startingZIndexForVisibleLayers() {
             return this.currentBackgroundLayer ? 1 : 0
         },
-        zIndexDroppedPinned: function () {
+        zIndexDroppedPinned() {
             return this.startingZIndexForVisibleLayers + this.visibleLayers.length
         },
-        zIndexCrossHair: function () {
+        zIndexCrossHair() {
             return this.zIndexDroppedPinned + (this.pinnedLocation ? 1 : 0)
         },
-        startingZIndexForHighlightedFeatures: function () {
+        startingZIndexForHighlightedFeatures() {
             return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)
         },
-        zIndexAccuracyCircle: function () {
+        zIndexAccuracyCircle() {
             return this.startingZIndexForHighlightedFeatures + this.selectedFeatures.length
         },
-        visibleGeoJsonLayers: function () {
+        visibleGeoJsonLayers() {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
-        showFeaturesPopover: function () {
+        showFeaturesPopover() {
             return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
-        center: function () {
+        center() {
             this.view.animate({
                 center: this.center,
                 duration: 250,
             })
         },
-        zoom: function () {
+        zoom() {
             this.view.animate({
                 zoom: this.zoom,
                 duration: 250,
             })
         },
-        isCurrentlyDrawing: function (newValue) {
+        isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order
             // to enable/disable the "double click zoom" interaction while
             // a drawing is currently made (otherwise, when the user double

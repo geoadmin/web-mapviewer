@@ -41,10 +41,10 @@ export default {
         },
     },
     watch: {
-        url: function (newUrl) {
+        url(newUrl) {
             this.layer.getSource().setUrl(newUrl)
         },
-        opacity: function (newOpacity) {
+        opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
         },
     },

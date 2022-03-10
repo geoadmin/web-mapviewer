@@ -95,7 +95,7 @@ export default {
         },
     },
     emits: ['change'],
-    data: function () {
+    data() {
         return {
             showAllSymbols: false,
             currentIconColor: RED,

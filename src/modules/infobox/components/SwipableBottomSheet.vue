@@ -61,10 +61,10 @@ export default {
         }
     },
     computed: {
-        minTopValue: function () {
+        minTopValue() {
             return this.screenHeight * (1 - PERCENT_OF_SCREEN_COVERED_WHEN_OPEN / 100.0)
         },
-        minTopValueToFitContent: function () {
+        minTopValueToFitContent() {
             // we don't want the container to be bigger (on screen) than its content
             // so if the top value for the current state would mean blank space at the bottom, we lower it to a value
             // where it perfectly fits the content
@@ -74,15 +74,15 @@ export default {
             }
             return this.minTopValue
         },
-        maxTopValue: function () {
+        maxTopValue() {
             // here we want to keep the pan area above the bottom line of the screen
             // so the max top value is the size of the screen (everything hidden at the bottom) minus the size of the pan area (and margin)
             return this.screenHeight - PAN_AREA_HEIGHT - this.footerHeight
         },
-        swipeStyle: function () {
+        swipeStyle() {
             return { top: `${this.topValue}px` }
         },
-        contentStyle: function () {
+        contentStyle() {
             return {
                 height: `${this.maxTopValue - this.topValue}px`,
             }
