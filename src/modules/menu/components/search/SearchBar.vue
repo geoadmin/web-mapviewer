@@ -1,5 +1,5 @@
 <template>
-    <div class="search-bar input-group">
+    <div class="search-bar input-group" :class="{ 'search-bar-filled': searchQuery?.length > 0 }">
         <span class="input-group-text">
             <FontAwesomeIcon :icon="['fas', 'search']" />
         </span>
@@ -18,24 +18,26 @@
             @keydown.esc.prevent="closeSearchResults"
         />
         <SearchResultList ref="results" @close="closeSearchResults" />
-        <button
-            v-show="searchQuery?.length > 0"
-            class="btn btn-outline-secondary"
+        <ButtonWithIcon
+            v-if="searchQuery?.length > 0"
+            :button-font-awesome-icon="['fas', 'times-circle']"
+            class="search-bar-clear"
             data-cy="searchbar-clear"
+            transparent
             @click="clearSearchQuery"
-        >
-            <FontAwesomeIcon :icon="['fa', 'times']" />
-        </button>
+        />
     </div>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: {
         SearchResultList,
+        ButtonWithIcon,
     },
     computed: {
         ...mapState({
@@ -84,9 +86,20 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .search-bar {
-    position: static;
     display: flex;
     flex: 1 1 auto;
+
+    &-clear {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+    }
+
+    &-filled .form-control {
+        padding-right: 2.5rem;
+    }
 }
 #clear-search-button {
     margin-left: -40px;
