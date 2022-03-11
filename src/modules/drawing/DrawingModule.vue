@@ -196,6 +196,9 @@ export default {
             this.readyForTeleport = true
         })
     },
+    unmounted() {
+        clearTimeout(this.KMLUpdateTimeout)
+    },
     methods: {
         ...mapActions([
             'toggleDrawingOverlay',

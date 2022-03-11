@@ -52,7 +52,6 @@ export default {
     },
     data() {
         return {
-            mc: null,
             y: 0,
             startY: 0,
             isMoving: false,
@@ -112,10 +111,8 @@ export default {
         },
     },
     mounted() {
-        window.onresize = () => {
-            this.calculateContentHeight()
-        }
         this.calculateContentHeight()
+        window.addEventListener('resize', this.calculateContentHeight)
         // we need to listen to changes in the slot in order to recalculate the content height
         this.slotObserver = new MutationObserver(this.calculateContentHeight)
         this.slotObserver.observe(this.$slots.default()[0].elm, {
@@ -171,7 +168,7 @@ export default {
     beforeUnmount() {
         this.slotObserver.disconnect()
         this.mc.destroy()
-        window.onresize = null
+        window.removeEventListener('resize', this.calculateContentHeight)
     },
     methods: {
         open() {

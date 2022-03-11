@@ -115,11 +115,6 @@ export default {
             default: false,
         },
     },
-    data() {
-        return {
-            popover: null,
-        }
-    },
     watch: {
         popoverPosition(newValue) {
             if (newValue in POPOVER_POSITION) {
@@ -142,6 +137,9 @@ export default {
             arrow: true,
             trigger: 'click',
         })
+    },
+    beforeUnmount() {
+        this.popover.destroy()
     },
     methods: {
         /** Hides the popover container, can be called outside (by this component's parent) */

@@ -84,18 +84,22 @@ export default {
             return null
         },
     },
+    unmounted() {
+        clearTimeout(this.adminTimeout)
+        clearTimeout(this.fileTimeout)
+    },
     methods: {
         async copyUrl(adminUrl = false) {
             if (adminUrl) {
                 await navigator.clipboard.writeText(this.adminUrl)
                 this.adminUrlCopied = true
-                setTimeout(() => {
+                this.adminTimeout = setTimeout(() => {
                     this.adminUrlCopied = false
                 }, 5000)
             } else {
                 await navigator.clipboard.writeText(this.fileUrl)
                 this.fileUrlCopied = true
-                setTimeout(() => {
+                this.fileTimeout = setTimeout(() => {
                     this.fileUrlCopied = false
                 }, 5000)
             }

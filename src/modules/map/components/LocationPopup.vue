@@ -203,6 +203,10 @@ export default {
             olMap.addOverlay(this.overlay)
         }
     },
+    beforeUnmount() {
+        this.overlay.setElement(null)
+        this.getMap().removeOverlay(this.overlay)
+    },
     methods: {
         ...mapActions(['clearClick']),
         onClose() {
