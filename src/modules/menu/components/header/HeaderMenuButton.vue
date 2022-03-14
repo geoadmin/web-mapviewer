@@ -2,11 +2,11 @@
     <button
         type="button"
         data-cy="menu-button"
-        class="btn"
-        :class="{ 'btn-dark': isOpen }"
+        class="btn menu-button"
+        :class="{ 'menu-button-active': isOpen }"
         @click="toggleMenuTray"
     >
-        <strong>{{ $t(menuButtonText) }}</strong>
+        {{ $t(menuButtonText) }}
     </button>
 </template>
 
@@ -25,3 +25,14 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.menu-button {
+    font-weight: bold;
+
+    &-active {
+        background-color: #474949;
+        color: #fff;
+    }
+}
+</style>
