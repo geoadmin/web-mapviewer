@@ -205,7 +205,7 @@ describe('Topics', () => {
                     })
                     it('does not open the first elements of the tree by default', () => {
                         cy.get('[data-cy="topic-tree-item-2"]').should('be.visible')
-                        cy.get('[data-cy="topic-tree-item-3"]').should('not.exist')
+                        cy.get('[data-cy="topic-tree-item-3"]').should('not.be.visible')
                     })
                     it("shows a topic tree item's children when we click on it", () => {
                         cy.get('[data-cy="topic-tree-item-2"]').click()
@@ -221,6 +221,20 @@ describe('Topics', () => {
                             const [firstLayer] = activeLayers
                             expect(firstLayer.getID()).to.eq('test.wmts.layer')
                         })
+                    })
+                    it('opens the layer legend popup when clicking the info button', () => {
+                        const expectedContent = 'Test'
+                        cy.intercept(
+                            `**/rest/services/all/MapServer/*/legend**`,
+                            `<div>${expectedContent}</div>`
+                        ).as('legend')
+
+                        cy.get('[data-cy="topic-tree-item-2"]').click()
+                        cy.get('[data-cy="topic-tree-item-3"]').click()
+                        cy.get('[data-cy="topic-tree-item-info"]').first().click()
+                        cy.get('[data-cy="layer-legend-popup"]')
+                            .should('be.visible')
+                            .contains(expectedContent)
                     })
                 })
             }

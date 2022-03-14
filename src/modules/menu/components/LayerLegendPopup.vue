@@ -1,6 +1,6 @@
 <template>
     <ModalWithBackdrop :title="$t('metadata_window_title')" :allow-print="true" @close="onClose">
-        <div class="layer-legend">
+        <div class="layer-legend" data-cy="layer-legend-popup">
             <h4 v-if="!content" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
@@ -29,10 +29,8 @@ export default {
             content: null,
         }
     },
-    mounted() {
-        getLayerLegend(this.$i18n.lang, this.layerId).then((layerLegend) => {
-            this.content = layerLegend
-        })
+    async mounted() {
+        this.content = await getLayerLegend(this.$i18n.lang, this.layerId)
     },
     methods: {
         onClose() {
