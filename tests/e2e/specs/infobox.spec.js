@@ -34,7 +34,7 @@ describe('The infobox', () => {
                     })
                     cy.goToMapView('en', { layers: layer })
                 })
-                it.only('is visible if features selected', () => {
+                it('is visible if features selected', () => {
                     cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
                     longClickOnMap()
