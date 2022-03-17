@@ -1,6 +1,12 @@
 <template>
-    <button type="button" data-cy="menu-button" class="btn btn-default" @click="toggleMenuTray">
-        <strong>{{ $t(menuButtonText) }}</strong>
+    <button
+        type="button"
+        data-cy="menu-button"
+        class="btn menu-button"
+        :class="{ 'menu-button-active': isOpen }"
+        @click="toggleMenuTray"
+    >
+        {{ $t(menuButtonText) }}
     </button>
 </template>
 
@@ -11,6 +17,7 @@ export default {
     computed: {
         ...mapState({
             menuButtonText: (state) => (state.ui.showMenuTray ? 'close' : 'menu'),
+            isOpen: (state) => state.ui.showMenuTray,
         }),
     },
     methods: {
@@ -18,3 +25,14 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.menu-button {
+    font-weight: bold;
+
+    &-active {
+        background-color: #474949;
+        color: #fff;
+    }
+}
+</style>
