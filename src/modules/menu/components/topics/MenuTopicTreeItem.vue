@@ -10,8 +10,12 @@
         <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
             <ButtonWithIcon
                 :button-font-awesome-icon="showHideIcon"
-                :class="{ 'text-danger': isActive || isHidden }"
+                :class="{
+                    'text-danger': isActive || isHidden,
+                    'menu-topic-item-folder': isTheme,
+                }"
                 :large="!compact"
+                :square="isTheme"
             />
             <span class="menu-topic-item-name">{{ item.name }}</span>
         </div>
@@ -102,6 +106,9 @@ export default {
                 )
             )
         },
+        isTheme() {
+            return this.item.type === 'THEME'
+        },
     },
     methods: {
         onClick() {
@@ -144,6 +151,15 @@ export default {
     .menu-topic-item-layer & {
         border-bottom: 1px dashed $gray-400;
     }
+}
+.menu-topic-item-folder {
+    width: 1rem;
+    height: 1rem;
+    box-shadow: 0 0 2px #c7c7c7;
+    border: 1px solid #afafaf;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 0.625rem;
 }
 .menu-topic-item-name {
     @extend .menu-name;

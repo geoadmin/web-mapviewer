@@ -68,6 +68,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        square: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['click'],
     computed: {
@@ -95,6 +99,9 @@ export default {
             }
             if (this.direction === 'column') {
                 classes.push('flex-column')
+            }
+            if (this.square) {
+                classes.push('square')
             }
             return classes
         },
@@ -128,6 +135,10 @@ svg {
     transition: transform 0.2s, color 0.2s;
     .flip & {
         transform: rotate(180deg);
+    }
+    .square & {
+        width: 1em;
+        // height:1em is set by FontAwesome.
     }
 }
 </style>
