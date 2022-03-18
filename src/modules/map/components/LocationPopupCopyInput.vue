@@ -18,13 +18,15 @@
             aria-hidden="true"
         />
         <button ref="button" class="btn btn-secondary" type="button" @click="copyValue">
-            {{ buttonText }}
+            {{ $t(buttonText) }}
         </button>
     </span>
 </template>
 
 <script>
 import jQuery from 'jquery'
+import { mapState } from 'vuex'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 export default {
     inheritAttrs: false,
@@ -41,23 +43,28 @@ export default {
     data() {
         return {
             resetTimeout: null,
-            buttonText: this.$t('copy_url'),
+            buttonText: 'copy_url',
         }
+    },
+    computed: {
+        ...mapState({
+            showTooltip: (state) => state.ui.mode === UIModes.MENU_ALWAYS_OPEN,
+        }),
+    },
+    mounted() {
+        jQuery(this.$refs.inputVisible).tooltip({
+            trigger: 'focus',
+            placement: 'bottom',
+            title: () => (this.showTooltip ? this.$t('share_link_tooltip') : null),
+        })
     },
     beforeUnmount() {
         jQuery(this.$refs.inputVisible).tooltip('dispose')
         clearTimeout(this.resetTimeout)
     },
-    mounted() {
-        jQuery(this.$refs.inputVisible).tooltip({
-            title: this.$t('share_link_tooltip'),
-            trigger: 'focus', // focus only as hover doesn't make sense here.
-            placement: 'bottom',
-        })
-    },
     methods: {
         resetButton() {
-            this.buttonText = this.$t('copy_url')
+            this.buttonText = 'copy_url'
         },
         focusSelect(event) {
             event.target.select()
@@ -74,7 +81,7 @@ export default {
             this.$refs.button.focus()
 
             // Change button text and start the reset timer.
-            this.buttonText = this.$t('copy_success')
+            this.buttonText = 'copy_success'
             this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
         },
     },
@@ -82,6 +89,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.btn,
+.form-control {
+    font-size: inherit;
+}
 .input-hidden {
     position: absolute;
     left: -999999999px;

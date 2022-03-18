@@ -7,85 +7,92 @@
         data-cy="location-popup"
         @close="clearClick"
     >
-        <template #extra-buttons>
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'qrcode']"
-                data-cy="location-popup-toggle"
-                @click="toggleQrCode"
-            />
-        </template>
-
-        <div v-show="!showQrCode" class="coordinates-list text-start">
-            <div class="location-popup-th">
+        <div class="location-popup-coordinates ol-selectable">
+            <div>
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-coordinates-lv95">
-                    {{ clickCoordinatesLV95 }}
-                </span>
+            <div>
+                <LocationPopupCopySlot :value="clickCoordinatesLV95">
+                    <span data-cy="location-popup-coordinates-lv95">
+                        {{ clickCoordinatesLV95 }}
+                    </span>
+                </LocationPopupCopySlot>
             </div>
-            <div class="location-popup-th">
+            <div>
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-coordinates-lv03">
-                    {{ clickCoordinatesLV03 }}
-                </span>
+            <div>
+                <LocationPopupCopySlot :value="clickCoordinatesLV03">
+                    <span data-cy="location-popup-coordinates-lv03">
+                        {{ clickCoordinatesLV03 }}
+                    </span>
+                </LocationPopupCopySlot>
             </div>
-            <div class="location-popup-th">
+            <div>
                 <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-coordinates-plain-wgs84">
-                    {{ clickCoordinatesPlainWGS84 }}
-                </span>
+            <div>
+                <LocationPopupCopySlot :value="clickCoordinatesPlainWGS84">
+                    <span
+                        class="location-popup-coordinates-wgs84-plain"
+                        data-cy="location-popup-coordinates-plain-wgs84"
+                    >
+                        {{ clickCoordinatesPlainWGS84 }}
+                    </span>
+                </LocationPopupCopySlot>
                 <br />
                 <span data-cy="location-popup-coordinates-wgs84">
                     {{ clickCoordinatesWGS84 }}
                 </span>
             </div>
-            <div class="location-popup-th">
+            <div>
                 <a href="https://epsg.io/32632" target="_blank">UTM</a>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-coordinates-utm">
-                    {{ clickCoordinatesUTM }}
-                </span>
+            <div>
+                <LocationPopupCopySlot :value="clickCoordinatesUTM">
+                    <span data-cy="location-popup-coordinates-utm">
+                        {{ clickCoordinatesUTM }}
+                    </span>
+                </LocationPopupCopySlot>
             </div>
-            <div class="location-popup-th">
-                {{ 'MGRS' }}
+            <div>{{ 'MGRS' }}</div>
+            <div>
+                <LocationPopupCopySlot :value="clickCoordinatesMGRS">
+                    <span data-cy="location-popup-coordinates-mgrs">
+                        {{ clickCoordinatesMGRS }}
+                    </span>
+                </LocationPopupCopySlot>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-coordinates-mgrs">
-                    {{ clickCoordinatesMGRS }}
-                </span>
-            </div>
-            <div class="location-popup-th">
+            <div>
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div class="location-popup-td">
-                <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
-                    {{ clickWhat3Words }}
-                </span>
+            <div>
+                <LocationPopupCopySlot :value="clickWhat3Words">
+                    <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
+                        {{ clickWhat3Words }}
+                    </span>
+                </LocationPopupCopySlot>
             </div>
             <div>
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
-            <div class="location-popup-td">
-                <span data-cy="location-popup-height">{{ height?.heightInMeter }} m</span> /
-                <span>{{ height?.heightInFeet }} ft</span>
+            <div>
+                <LocationPopupCopySlot :value="height?.heightInMeter">
+                    <span data-cy="location-popup-height"> {{ height?.heightInMeter }} m</span> /
+                    <span>{{ height?.heightInFeet }} ft</span>
+                </LocationPopupCopySlot>
             </div>
-            <div class="location-popup-th">
+            <div class="location-popup-link">
                 {{ $t('link_bowl_crosshair') }}
             </div>
-            <div class="location-popup-td">
-                <LocationPopupCopy
+            <div class="location-popup-link">
+                <LocationPopupCopyInput
                     :value="shareLinkUrl"
                     data-cy="location-popup-link-bowl-crosshair"
                 />
             </div>
         </div>
-        <div v-show="showQrCode" class="qrcode-container">
+        <div class="location-popup-qrcode">
             <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" data-cy="location-popup-qr-code" />
         </div>
     </OpenLayersPopover>
@@ -94,16 +101,14 @@
 <script>
 import proj4 from 'proj4'
 import { mapState, mapActions } from 'vuex'
-import Overlay from 'ol/Overlay'
-import OverlayPositioning from 'ol/OverlayPositioning'
 
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { ClickType } from '@/modules/map/store/map.store'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import LocationPopupCopy from '@/modules/map/components/LocationPopupCopy.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
+import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import stringifyQuery from '@/router/stringifyQuery'
@@ -111,8 +116,8 @@ import stringifyQuery from '@/router/stringifyQuery'
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
     components: {
-        ButtonWithIcon,
-        LocationPopupCopy,
+        LocationPopupCopyInput,
+        LocationPopupCopySlot,
         OpenLayersPopover,
     },
     inject: ['getMap'],
@@ -184,13 +189,10 @@ export default {
         },
     },
     watch: {
-        clickCoordinates(newClickCoordinates) {
+        clickCoordinates() {
             this.requestWhat3WordBackend()
             this.registerHeigthFromBackend()
             this.generateQrCodeFromBackend()
-            if (newClickCoordinates) {
-                this.overlay.setPosition(newClickCoordinates)
-            }
         },
         currentLang() {
             this.requestWhat3WordBackend()
@@ -201,23 +203,6 @@ export default {
         '$route.query'() {
             this.generateQrCodeFromBackend()
         },
-    },
-    beforeCreate() {
-        this.overlay = new Overlay({
-            offset: [0, 15],
-            positioning: OverlayPositioning.TOP_CENTER,
-            // Selection of overlay content was broken in OL v4.1 so we need an extra class.
-            // https://github.com/openlayers/openlayers/pull/6741
-            className: 'location-popup-overlay ol-selectable',
-        })
-    },
-    mounted() {
-        this.overlay.setElement(this.$el)
-        this.getMap().addOverlay(this.overlay)
-    },
-    beforeUnmount() {
-        this.overlay.setElement(null)
-        this.getMap().removeOverlay(this.overlay)
     },
     methods: {
         ...mapActions(['clearClick']),
@@ -269,17 +254,28 @@ export default {
         pointer-events: none;
         content: '';
     }
-    &-td span {
-        user-select: all;
+    &-coordinates {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        font-size: 0.75rem;
+    }
+    &-link {
+        display: flex;
+        align-items: center;
+        padding-top: 0.5rem;
+    }
+    &-qrcode {
+        display: none;
+        text-align: center;
+    }
+    &-coordinates-wgs84-plain {
+        display: inline-block;
+        margin-bottom: 0.1rem;
     }
 }
-.coordinates-list {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    grid-column-gap: 5px;
-    grid-row-gap: 5px;
-}
-.qrcode-container {
-    text-align: center;
+@media (min-height: 650px) {
+    .location-popup-qrcode {
+        display: block;
+    }
 }
 </style>
