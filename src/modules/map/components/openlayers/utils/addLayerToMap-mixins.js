@@ -26,8 +26,15 @@ const addLayerToMapMixin = {
     },
     unmounted() {
         if (this.layer && this.isPresentOnMap) {
+            if (this.layer.getSource()?.clear) {
+                this.layer.getSource().clear()
+            }
+            this.layer.setSource(null)
+
             this.removeLayerFromMap(this.layer)
         }
+
+        delete this.layer
     },
     methods: {
         addLayerToMap(zIndex, layer) {

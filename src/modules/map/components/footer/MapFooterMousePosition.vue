@@ -16,7 +16,7 @@ export default {
         },
     },
     watch: {
-        displayedProjectionId: function () {
+        displayedProjectionId() {
             this.setProjection()
         },
     },

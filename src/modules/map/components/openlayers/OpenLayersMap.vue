@@ -111,13 +111,13 @@ export default {
         OpenLayersAccuracyCircle,
         OpenLayersMarker,
     },
-    provide: function () {
+    provide() {
         return {
             // sharing OL map object with children components
             getMap: () => this.map,
         }
     },
-    data: () => {
+    data() {
         return {
             // exposing marker styles to the template
             markerStyles,
@@ -147,7 +147,7 @@ export default {
             'resolution',
             'isCurrentlyDrawing',
         ]),
-        crossHairStyle: function () {
+        crossHairStyle() {
             if (this.crossHair) {
                 switch (this.crossHair) {
                     case CrossHairs.point:
@@ -165,43 +165,43 @@ export default {
             return null
         },
         // zIndex calculation conundrum...
-        startingZIndexForVisibleLayers: function () {
+        startingZIndexForVisibleLayers() {
             return this.currentBackgroundLayer ? 1 : 0
         },
-        zIndexDroppedPinned: function () {
+        zIndexDroppedPinned() {
             return this.startingZIndexForVisibleLayers + this.visibleLayers.length
         },
-        zIndexCrossHair: function () {
+        zIndexCrossHair() {
             return this.zIndexDroppedPinned + (this.pinnedLocation ? 1 : 0)
         },
-        startingZIndexForHighlightedFeatures: function () {
+        startingZIndexForHighlightedFeatures() {
             return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)
         },
-        zIndexAccuracyCircle: function () {
+        zIndexAccuracyCircle() {
             return this.startingZIndexForHighlightedFeatures + this.selectedFeatures.length
         },
-        visibleGeoJsonLayers: function () {
+        visibleGeoJsonLayers() {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
-        showFeaturesPopover: function () {
+        showFeaturesPopover() {
             return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
-        center: function () {
+        center() {
             this.view.animate({
                 center: this.center,
                 duration: 250,
             })
         },
-        zoom: function () {
+        zoom() {
             this.view.animate({
                 zoom: this.zoom,
                 duration: 250,
             })
         },
-        isCurrentlyDrawing: function (newValue) {
+        isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order
             // to enable/disable the "double click zoom" interaction while
             // a drawing is currently made (otherwise, when the user double
@@ -237,19 +237,46 @@ export default {
         this.map.setView(this.view)
 
         // Click management
-        let pointerDownStart = null
-        let lastClickTimeLength = 0
-        this.map.on('pointerdown', () => {
-            pointerDownStart = performance.now()
-        })
-        // TODO: trigger a click after pointer is down at (roughly) the same spot for longer than 1sec (no need to wait for the user to stop the click)
-        this.map.on('pointerup', () => {
-            lastClickTimeLength = performance.now() - pointerDownStart
-            pointerDownStart = null
-        })
-        // using 'singleclick' event instead of 'click', otherwise a double click (for zooming) on mobile
-        // will trigger two 'click' actions in a row
-        this.map.on('singleclick', (event) => {
+        this.map.on('pointerdown', this.onMapPointerDown)
+        // TODO: trigger a click after pointer is down at (roughly) the same spot
+        // for longer than 1sec (no need to wait for the user to stop the click)
+        this.map.on('pointerup', this.onMapPointerUp)
+        // using 'singleclick' event instead of 'click', otherwise a double click
+        // (for zooming) on mobile will trigger two 'click' actions in a row
+        this.map.on('singleclick', this.onMapSingleClick)
+        this.map.on('pointerdrag', this.onMapPointerDrag)
+        this.map.on('moveend', this.onMapMoveEnd)
+    },
+    unmounted() {
+        this.map.un('pointerdown', this.onMapPointerDown)
+        this.map.un('pointerup', this.onMapPointerUp)
+        this.map.un('singleclick', this.onMapSingleClick)
+        this.map.un('pointerdrag', this.onMapPointerDrag)
+        this.map.un('moveend', this.onMapMoveEnd)
+        this.map.setTarget(null)
+        this.map.setView(null)
+
+        delete this.map
+        delete this.view
+    },
+    methods: {
+        ...mapActions([
+            'setCenter',
+            'setZoom',
+            'click',
+            'mapStoppedBeingDragged',
+            'mapStartBeingDragged',
+            'toggleFloatingTooltip',
+            'clearSelectedFeatures',
+        ]),
+        onMapPointerDown() {
+            this.pointerDownStart = performance.now()
+        },
+        onMapPointerUp() {
+            this.lastClickTimeLength = performance.now() - this.pointerDownStart
+            this.pointerDownStart = null
+        },
+        onMapSingleClick(event) {
             // if no drawing is currently made
             if (!this.isCurrentlyDrawing) {
                 const geoJsonFeatures = []
@@ -295,19 +322,19 @@ export default {
                 this.click(
                     new ClickInfo(
                         event.coordinate,
-                        lastClickTimeLength,
+                        this.lastClickTimeLength,
                         event.pixel,
                         geoJsonFeatures
                     )
                 )
             }
-        })
-        this.map.on('pointerdrag', () => {
+        },
+        onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
                 this.mapStartBeingDragged()
             }
-        })
-        this.map.on('moveend', () => {
+        },
+        onMapMoveEnd() {
             if (this.mapIsBeingDragged) {
                 this.mapStoppedBeingDragged()
             }
@@ -321,22 +348,7 @@ export default {
                     this.setZoom(zoom)
                 }
             }
-        })
-    },
-    beforeUnmount() {
-        this.map = null
-        this.view = null
-    },
-    methods: {
-        ...mapActions([
-            'setCenter',
-            'setZoom',
-            'click',
-            'mapStoppedBeingDragged',
-            'mapStartBeingDragged',
-            'toggleFloatingTooltip',
-            'clearSelectedFeatures',
-        ]),
+        },
         showLocationPopup(event) {
             const screenCoordinates = [event.x, event.y]
             this.click(

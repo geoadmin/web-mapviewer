@@ -91,13 +91,13 @@ export default {
             isGeolocationActive: (state) => state.geolocation.active,
             isGeolocationDenied: (state) => state.geolocation.denied,
         }),
-        shouldMenuTrayAlwaysBeVisible: function () {
+        shouldMenuTrayAlwaysBeVisible() {
             return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
         },
-        showHeader: function () {
+        showHeader() {
             return !this.isFullscreenMode && !this.isCurrentlyDrawing
         },
-        showMenuTray: function () {
+        showMenuTray() {
             if (this.isFullscreenMode) {
                 return false
             } else {

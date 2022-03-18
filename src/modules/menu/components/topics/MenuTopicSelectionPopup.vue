@@ -28,10 +28,10 @@ export default {
     },
     emits: ['selectTopic', 'close'],
     methods: {
-        selectTopic: function (topic) {
+        selectTopic(topic) {
             this.$emit('selectTopic', topic)
         },
-        onClose: function () {
+        onClose() {
             this.$emit('close')
         },
     },

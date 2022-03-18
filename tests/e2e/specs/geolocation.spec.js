@@ -51,14 +51,14 @@ describe('Geolocation tests', () => {
                     },
                     () => {
                         // lon/lat to mock up the Geolocation API (see beforeEach)
-                        const lat = 47.5,
-                            lon = 6.8
+                        const latitude = 47.5
+                        const longitude = 6.8
                         // same position but in EPSG:3857 (that's what will be stored by our app)
-                        const x = 756972.54,
-                            y = 6024072.12
+                        const x = 756972.54
+                        const y = 6024072.12
 
                         beforeEach(() => {
-                            cy.goToMapView('en', {}, false, { latitude: lat, longitude: lon })
+                            cy.goToMapView('en', {}, false, { latitude, longitude })
                             getGeolocationButtonAndClickIt()
                         })
 

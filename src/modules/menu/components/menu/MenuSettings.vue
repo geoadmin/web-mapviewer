@@ -33,16 +33,16 @@ export default {
         },
     },
     emits: ['changeUiMode'],
-    data: function () {
+    data() {
         return {
             UIModes,
         }
     },
     methods: {
-        changeUiMode: function (mode) {
+        changeUiMode(mode) {
             this.$emit('changeUiMode', mode)
         },
-        getI18nKeyForUiMode: function (mode) {
+        getI18nKeyForUiMode(mode) {
             switch (mode) {
                 case UIModes.MENU_ALWAYS_OPEN:
                     return 'desktop_redirect'

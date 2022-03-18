@@ -13,10 +13,10 @@
 export default {
     emits: ['zoom-in', 'zoom-out'],
     methods: {
-        onZoomIn: function () {
+        onZoomIn() {
             this.$emit('zoom-in')
         },
-        onZoomOut: function () {
+        onZoomOut() {
             this.$emit('zoom-out')
         },
     },

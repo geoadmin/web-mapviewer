@@ -176,7 +176,7 @@ export default {
         },
     },
     watch: {
-        feature: function (newFeature) {
+        feature(newFeature) {
             if (newFeature) {
                 const featureTextScale = parseFloat(newFeature.get('textScale'))
                 if (featureTextScale) {
@@ -191,18 +191,18 @@ export default {
         triggerChangeEvent() {
             this.$emit('change')
         },
-        onClose: function () {
+        onClose() {
             this.$emit('close')
         },
-        onDelete: function () {
+        onDelete() {
             this.$emit('delete')
         },
-        setCurrentTextSize: function (size) {
+        setCurrentTextSize(size) {
             this.currentTextSize = size
             this.feature.set('textScale', size.textScale)
             this.triggerChangeEvent()
         },
-        changeFeatureColor: function (color) {
+        changeFeatureColor(color) {
             this.feature.set('color', color.fill)
             this.triggerChangeEvent()
         },

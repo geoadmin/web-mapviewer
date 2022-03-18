@@ -38,13 +38,13 @@ export default {
         },
     },
     watch: {
-        opacity: function (newOpacity) {
+        opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
         },
-        visible: function (newVisibility) {
+        visible(newVisibility) {
             this.layer.setVisible(newVisibility)
         },
-        url: function (newUrl) {
+        url(newUrl) {
             this.layer.getSource().setUrl(newUrl)
         },
     },

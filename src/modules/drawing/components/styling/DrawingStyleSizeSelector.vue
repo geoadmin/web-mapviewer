@@ -49,7 +49,7 @@ export default {
         }
     },
     computed: {
-        sizeLabel: function () {
+        sizeLabel() {
             if (!this.currentSize) {
                 return null
             }
@@ -57,7 +57,7 @@ export default {
         },
     },
     methods: {
-        onChange: function (size) {
+        onChange(size) {
             this.$emit('change', size)
         },
     },

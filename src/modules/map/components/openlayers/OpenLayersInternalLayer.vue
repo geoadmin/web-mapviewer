@@ -86,7 +86,7 @@ export default {
         }
     },
     methods: {
-        shouldAggregateSubLayerBeVisible: function (subLayer) {
+        shouldAggregateSubLayerBeVisible(subLayer) {
             // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
             // have to worry about checking their validity
             return (

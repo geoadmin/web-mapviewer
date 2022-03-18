@@ -22,13 +22,14 @@ export default {
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
-        window.onresize = () => {
-            this.setScreenSizeFromWindowSize()
-        }
+        window.addEventListener('resize', this.setScreenSizeFromWindowSize)
+    },
+    unmounted() {
+        window.removeEventListener('resize', this.setScreenSizeFromWindowSize)
     },
     methods: {
         ...mapActions(['setSize', 'setUiMode']),
-        setScreenSizeFromWindowSize: function () {
+        setScreenSizeFromWindowSize() {
             this.setSize({
                 width: window.innerWidth,
                 height: window.innerHeight,

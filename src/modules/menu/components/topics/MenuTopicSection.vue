@@ -61,7 +61,7 @@ export default {
             activeLayers: (state) => state.layers.activeLayers,
         }),
         ...mapGetters(['visibleLayers', 'getActiveLayerById', 'isDefaultTopic']),
-        showTopicTree: function () {
+        showTopicTree() {
             // We only want the topic tree open whenever the user has chosen a different topic
             // than the default one (it can be opened by the user by a click on it, but by default it's closed)
             return !this.isDefaultTopic
@@ -69,10 +69,10 @@ export default {
     },
     methods: {
         ...mapActions(['addLayer', 'toggleLayerVisibility', 'setLayerVisibility', 'changeTopic']),
-        setShowTopicSelectionPopup: function () {
+        setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
         },
-        onClickOnLayerTopicItem: function (layerId) {
+        onClickOnLayerTopicItem(layerId) {
             const layer = this.getActiveLayerById(layerId)
             if (layer) {
                 this.toggleLayerVisibility(layerId)
@@ -82,7 +82,7 @@ export default {
                 )
             }
         },
-        selectTopic: function (topic) {
+        selectTopic(topic) {
             this.changeTopic(topic)
             this.showTopicSelectionPopup = false
         },

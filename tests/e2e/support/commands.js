@@ -104,20 +104,20 @@ Cypress.Commands.add(
             flattenedOtherParams += `&${key}=${otherParams[key]}`
         })
 
-        // geolocation mockup from https://github.com/cypress-io/cypress/issues/2671
-        const mockGeolocation = (win, latitude, longitude) => {
-            cy.stub(win.navigator.geolocation, 'getCurrentPosition', (callback) => {
-                return callback({ coords: { latitude, longitude } })
-            })
+        /**
+         * Geolocation mockup
+         *
+         * @param {Cypress.AUTWindow} win A reference to the window object.
+         * @param {GeolocationCoordinates} coords The fake coordinates to pass along.
+         * @see https://github.com/cypress-io/cypress/issues/2671
+         */
+        const mockGeolocation = (win, coords) => {
+            const handler = (callback) => callback({ coords })
+            cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
+            cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
         }
         cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`, {
-            onBeforeLoad: (win) => {
-                mockGeolocation(
-                    win,
-                    geolocationMockupOptions.latitude,
-                    geolocationMockupOptions.longitude
-                )
-            },
+            onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
         cy.waitUntilState((state) => state.app.isReady)

@@ -160,7 +160,7 @@ export default {
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing'],
-    data: function () {
+    data() {
         return {
             showExportDropdown: false,
             showShareModal: false,
@@ -168,17 +168,17 @@ export default {
         }
     },
     methods: {
-        emitCloseEvent: function () {
+        emitCloseEvent() {
             this.$emit('close')
         },
-        bubbleSetDrawingEventToParent: function (drawingMode) {
+        bubbleSetDrawingEventToParent(drawingMode) {
             this.$emit('setDrawingMode', drawingMode)
         },
-        emitExportEvent: function (gpx = false) {
+        emitExportEvent(gpx = false) {
             this.showExportDropdown = false
             this.$emit('export', gpx)
         },
-        toggleExportDropdown: function () {
+        toggleExportDropdown() {
             this.showExportDropdown = !this.showExportDropdown
         },
         onCloseClearConfirmation(confirmed) {
@@ -191,10 +191,10 @@ export default {
         onCloseShare() {
             this.showShareModal = false
         },
-        openShare: function () {
+        openShare() {
             this.showShareModal = true
         },
-        showClearConfirmation: function () {
+        showClearConfirmation() {
             this.showClearConfirmationModal = true
         },
     },

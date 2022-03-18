@@ -69,7 +69,7 @@ export default {
         }
     },
     computed: {
-        showHideIcon: function () {
+        showHideIcon() {
             if (this.item.type === topicTypes.THEME) {
                 if (this.showChildren) {
                     return ['fas', 'minus-circle']
@@ -84,13 +84,13 @@ export default {
                 }
             }
         },
-        isActive: function () {
+        isActive() {
             return (
                 this.item.type === topicTypes.LAYER &&
                 this.activeLayers.find((layer) => layer.getID() === this.item.layerId)
             )
         },
-        isHidden: function () {
+        isHidden() {
             return (
                 this.isActive &&
                 this.activeLayers.find(
@@ -100,7 +100,7 @@ export default {
         },
     },
     methods: {
-        onClick: function () {
+        onClick() {
             if (this.item.type === topicTypes.THEME) {
                 this.showChildren = !this.showChildren
             } else {

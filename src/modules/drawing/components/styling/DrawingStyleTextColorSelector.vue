@@ -43,7 +43,7 @@ export default {
         }
     },
     computed: {
-        currentFont: function () {
+        currentFont() {
             if (!this.feature) {
                 return null
             }
@@ -51,7 +51,7 @@ export default {
         },
     },
     methods: {
-        onColorChange: function (color) {
+        onColorChange(color) {
             this.feature.set('color', color.fill)
             this.currentColor = color.fill
             this.feature.set('strokeColor', color.border)

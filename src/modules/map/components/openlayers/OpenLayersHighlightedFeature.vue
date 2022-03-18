@@ -69,10 +69,10 @@ export default {
         }
     },
     computed: {
-        doesFeatureHaveAGeometry: function () {
+        doesFeatureHaveAGeometry() {
             return this.feature && this.feature.geometry
         },
-        openLayersGeoJsonGeometry: function () {
+        openLayersGeoJsonGeometry() {
             if (this.doesFeatureHaveAGeometry) {
                 return new GeoJSON().readGeometry(this.feature.geometry, {
                     dataProject: 'EPSG:3857',

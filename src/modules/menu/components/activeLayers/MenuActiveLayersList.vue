@@ -64,7 +64,7 @@ export default {
         }),
     },
     methods: {
-        onToggleLayerDetails: function (layerId) {
+        onToggleLayerDetails(layerId) {
             if (this.showLayerDetailsForId === layerId) {
                 this.showLayerDetailsForId = null
             } else {
@@ -81,29 +81,29 @@ export default {
             'setOverlayShouldBeFront',
             'setTimedLayerCurrentTimestamp',
         ]),
-        onRemoveLayer: function (layerId) {
+        onRemoveLayer(layerId) {
             this.removeLayer(layerId)
         },
-        onToggleLayerVisibility: function (layerId) {
+        onToggleLayerVisibility(layerId) {
             this.toggleLayerVisibility(layerId)
         },
-        onOrderChange: function (layerId, delta) {
+        onOrderChange(layerId, delta) {
             if (delta === 1) {
                 this.moveActiveLayerBack(layerId)
             } else if (delta === -1) {
                 this.moveActiveLayerFront(layerId)
             }
         },
-        onOpacityChange: function (layerId, opacity) {
+        onOpacityChange(layerId, opacity) {
             this.setLayerOpacity({ layerId, opacity })
         },
-        onTimestampChange: function (layerId, timestamp) {
+        onTimestampChange(layerId, timestamp) {
             this.setTimedLayerCurrentTimestamp({ layerId, timestamp })
         },
-        isFirstLayer: function (layerId) {
+        isFirstLayer(layerId) {
             return this.activeLayers[0].getID() === layerId
         },
-        isLastLayer: function (layerId) {
+        isLastLayer(layerId) {
             return this.activeLayers[this.activeLayers.length - 1].getID() === layerId
         },
     },

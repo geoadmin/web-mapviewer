@@ -49,7 +49,7 @@ export function createEditingStyle() {
             styles.push(
                 new Style({
                     image: point,
-                    geometry: function (f) {
+                    geometry(f) {
                         const geometry = f.getGeometry()
                         let coordinates = geometry.getCoordinates()
                         if (geometry instanceof Polygon) {
@@ -178,7 +178,7 @@ export function drawMeasureStyle(sketch) {
 export function azimuthCircleStyle() {
     return new Style({
         stroke: redStroke,
-        geometry: function (feature) {
+        geometry(feature) {
             let lineString = feature.getGeometry()
             if (canShowAzimuthCircle(lineString)) {
                 const coords = lineString.getCoordinates()
@@ -197,7 +197,7 @@ export function measurePoints(isDrawing) {
                 color: [255, 0, 0, 1],
             }),
         }),
-        geometry: function (feature) {
+        geometry(feature) {
             let geom = feature.getGeometry()
             if (geom instanceof Polygon) {
                 let coords = geom.getCoordinates()[0]

@@ -70,7 +70,7 @@ export default {
         }
     },
     computed: {
-        style: function () {
+        style() {
             switch (this.markerStyle) {
                 case markerStyles.POSITION:
                     // style for geolocation point
@@ -116,10 +116,10 @@ export default {
         },
     },
     watch: {
-        position: function (newPosition) {
+        position(newPosition) {
             this.marker.getGeometry().setCoordinates(newPosition)
         },
-        markerStyle: function () {
+        markerStyle() {
             this.marker.setStyle(this.style)
         },
     },

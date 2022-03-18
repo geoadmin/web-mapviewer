@@ -42,13 +42,13 @@ export default {
     },
     emits: ['timestampChange'],
     computed: {
-        hasMultipleTimestamps: function () {
+        hasMultipleTimestamps() {
             return this.timeConfig.series.length > 1
         },
-        humanReadableCurrentTimestamp: function () {
+        humanReadableCurrentTimestamp() {
             return this.renderHumanReadableTimestamp(this.timeConfig.currentTimestamp)
         },
-        allTimestampsIncludingAllIfNeeded: function () {
+        allTimestampsIncludingAllIfNeeded() {
             const timestamps = [...this.timeConfig.series]
             if (this.timeConfig.behaviour === 'all') {
                 timestamps.splice(0, 0, 'all')
@@ -57,7 +57,7 @@ export default {
         },
     },
     methods: {
-        renderHumanReadableTimestamp: function (timestamp) {
+        renderHumanReadableTimestamp(timestamp) {
             if (!timestamp) {
                 return ''
             }
@@ -77,7 +77,7 @@ export default {
                 return this.$t(`time_${timestamp}`)
             }
         },
-        handleClickOnTimestamp: function (timestamp) {
+        handleClickOnTimestamp(timestamp) {
             this.$emit('timestampChange', timestamp)
         },
     },

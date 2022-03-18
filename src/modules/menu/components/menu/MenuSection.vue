@@ -62,23 +62,23 @@ export default {
         }
     },
     computed: {
-        titleCaretIcon: function () {
+        titleCaretIcon() {
             if (this.showBody) {
                 return 'caret-down'
             }
             return 'caret-right'
         },
-        computedBodyHeight: function () {
+        computedBodyHeight() {
             return this.$refs.sectionBody && this.$refs.sectionBody.clientHeight
         },
     },
     watch: {
-        showContent: function (showContent) {
+        showContent(showContent) {
             this.showBody = showContent
         },
     },
     methods: {
-        toggleShowBody: function () {
+        toggleShowBody() {
             if (!this.alwaysKeepClosed) {
                 this.showBody = !this.showBody
             }
