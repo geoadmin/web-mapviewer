@@ -62,7 +62,9 @@
                     {{ clickWhat3Words }}
                 </a>
             </div>
-            <div>{{ $t('elevation') }}</div>
+            <div>
+                <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
+            </div>
             <div>
                 <span v-if="height" data-cy="location-popup-height">
                     {{ height.heightInMeter }} m / {{ height.heightInFeet }} ft
