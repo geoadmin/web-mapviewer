@@ -7,7 +7,11 @@
         ]"
         data-cy="topic-tree-item"
     >
-        <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
+        <div
+            class="menu-topic-item-title"
+            :data-cy="`topic-tree-item-${item.id}`"
+            @click="onItemClick"
+        >
             <ButtonWithIcon
                 :button-font-awesome-icon="showHideIcon"
                 :class="{
@@ -18,9 +22,21 @@
                 :square="isTheme"
             />
             <span class="menu-topic-item-name">{{ item.name }}</span>
+            <ButtonWithIcon
+                v-if="isLayer"
+                data-cy="topic-tree-item-info"
+                :button-font-awesome-icon="['fas', 'info-circle']"
+                :large="!compact"
+                transparent
+                @click.stop="onInfoClick"
+            />
         </div>
         <CollapseTransition :duration="200">
-            <ul v-if="showChildren" class="menu-topic-item-children" :class="`ps-${2 + 2 * depth}`">
+            <ul
+                v-show="showChildren"
+                class="menu-topic-item-children"
+                :class="`ps-${2 + 2 * depth}`"
+            >
                 <MenuTopicTreeItem
                     v-for="child in item.children"
                     :key="`${child.id}-${child.name}`"
@@ -28,7 +44,8 @@
                     :active-layers="activeLayers"
                     :depth="depth + 1"
                     :compact="compact"
-                    @click-on-layer-topic-item="(layerId) => bubbleEventToParent(layerId)"
+                    @click-on-topic-item="bubbleToggleItemEvent"
+                    @click-on-layer-info="bubbleLayerInfoEvent"
                 />
             </ul>
         </CollapseTransition>
@@ -49,8 +66,8 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 export default {
     name: 'MenuTopicTreeItem',
     components: {
-        CollapseTransition,
         ButtonWithIcon,
+        CollapseTransition,
     },
     props: {
         item: {
@@ -70,7 +87,7 @@ export default {
             default: 0,
         },
     },
-    emits: ['clickOnLayerTopicItem'],
+    emits: ['clickOnTopicItem', 'clickOnLayerInfo'],
     data() {
         return {
             showChildren: false,
@@ -92,6 +109,9 @@ export default {
                 }
             }
         },
+        isLayer() {
+            return this.item.type === topicTypes.LAYER
+        },
         isActive() {
             return (
                 this.item.type === topicTypes.LAYER &&
@@ -111,12 +131,15 @@ export default {
         },
     },
     methods: {
-        onClick() {
+        onItemClick() {
             if (this.item.type === topicTypes.THEME) {
                 this.showChildren = !this.showChildren
             } else {
-                this.$emit('clickOnLayerTopicItem', this.item.layerId)
+                this.$emit('clickOnTopicItem', this.item.layerId)
             }
+        },
+        onInfoClick() {
+            this.$emit('clickOnLayerInfo', this.item.layerId)
         },
         /**
          * As we can have recursive component (see template), we have to bubble up user interaction
@@ -125,8 +148,11 @@ export default {
          *
          * @param {String} layerId The ID of the layer that has been clicked in the topic tree
          */
-        bubbleEventToParent: function (layerId) {
-            this.$emit('clickOnLayerTopicItem', layerId)
+        bubbleToggleItemEvent(layerId) {
+            this.$emit('clickOnTopicItem', layerId)
+        },
+        bubbleLayerInfoEvent(layerId) {
+            this.$emit('clickOnLayerInfo', layerId)
         },
     },
 }

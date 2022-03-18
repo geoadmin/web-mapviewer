@@ -27,21 +27,33 @@
                 :item="item"
                 :active-layers="activeLayers"
                 :compact="compact"
-                @click-on-layer-topic-item="onClickOnLayerTopicItem"
+                @click-on-topic-item="onClickTopicItem"
+                @click-on-layer-info="onClickLayerInfo"
             />
         </ul>
+        <LayerLegendPopup
+            v-if="showLayerInfoFor"
+            :layer-id="showLayerInfoFor"
+            @close="showLayerInfoFor = null"
+        />
     </MenuSection>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
-    components: { MenuTopicSelectionPopup, MenuTopicTreeItem, MenuSection },
+    components: {
+        LayerLegendPopup,
+        MenuTopicSelectionPopup,
+        MenuTopicTreeItem,
+        MenuSection,
+    },
     props: {
         compact: {
             type: Boolean,
@@ -50,6 +62,7 @@ export default {
     },
     data() {
         return {
+            showLayerInfoFor: null,
             showTopicSelectionPopup: false,
         }
     },
@@ -72,19 +85,21 @@ export default {
         setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
         },
-        onClickOnLayerTopicItem(layerId) {
+        selectTopic(topic) {
+            this.changeTopic(topic)
+            this.showTopicSelectionPopup = false
+        },
+        onClickTopicItem(layerId) {
             const layer = this.getActiveLayerById(layerId)
             if (layer) {
                 this.toggleLayerVisibility(layerId)
             } else {
-                this.addLayer(layerId).then(() =>
-                    this.setLayerVisibility({ layerId, visible: true })
-                )
+                this.addLayer(layerId)
+                this.setLayerVisibility({ layerId, visible: true })
             }
         },
-        selectTopic(topic) {
-            this.changeTopic(topic)
-            this.showTopicSelectionPopup = false
+        onClickLayerInfo(layerId) {
+            this.showLayerInfoFor = layerId
         },
     },
 }

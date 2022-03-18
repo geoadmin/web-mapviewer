@@ -1,5 +1,5 @@
 <template>
-    <div class="app-backdrop" :class="{ front: front }" data-cy="black-backdrop"></div>
+    <div class="app-backdrop" :class="{ front }" data-cy="black-backdrop"></div>
 </template>
 <script>
 export default {
