@@ -8,9 +8,15 @@
         data-cy="topic-tree-item"
     >
         <div class="menu-topic-item-title" :data-cy="`topic-tree-item-${item.id}`" @click="onClick">
-            <button class="btn btn-default" :class="{ 'text-danger': isActive || isHidden }">
-                <font-awesome-icon :size="compact ? null : 'lg'" :icon="showHideIcon" />
-            </button>
+            <ButtonWithIcon
+                :button-font-awesome-icon="showHideIcon"
+                :class="{
+                    'text-danger': isActive || isHidden,
+                    'menu-topic-item-folder': isTheme,
+                }"
+                :large="!compact"
+                :square="isTheme"
+            />
             <span class="menu-topic-item-name">{{ item.name }}</span>
         </div>
         <CollapseTransition :duration="200">
@@ -33,6 +39,7 @@
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { topicTypes } from '@/api/topics.api'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /**
  * Node of the topic tree in the UI, rendering (and behavior) will differ if this is a theme or a
@@ -43,6 +50,7 @@ export default {
     name: 'MenuTopicTreeItem',
     components: {
         CollapseTransition,
+        ButtonWithIcon,
     },
     props: {
         item: {
@@ -72,9 +80,9 @@ export default {
         showHideIcon() {
             if (this.item.type === topicTypes.THEME) {
                 if (this.showChildren) {
-                    return ['fas', 'minus-circle']
+                    return ['fas', 'minus']
                 } else {
-                    return ['fas', 'plus-circle']
+                    return ['fas', 'plus']
                 }
             } else {
                 if (this.isActive && !this.isHidden) {
@@ -97,6 +105,9 @@ export default {
                     (layer) => layer.getID() === this.item.layerId && !layer.visible
                 )
             )
+        },
+        isTheme() {
+            return this.item.type === 'THEME'
         },
     },
     methods: {
@@ -140,6 +151,15 @@ export default {
     .menu-topic-item-layer & {
         border-bottom: 1px dashed $gray-400;
     }
+}
+.menu-topic-item-folder {
+    width: 1rem;
+    height: 1rem;
+    box-shadow: 0 0 2px #c7c7c7;
+    border: 1px solid #afafaf;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 0.625rem;
 }
 .menu-topic-item-name {
     @extend .menu-name;
