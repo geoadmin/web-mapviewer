@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 import proj4 from 'proj4'
-import { Decoder } from '@nuintun/qrcode'
 
 import { CoordinateSystems } from '../../../src/utils/coordinateUtils'
 import setupProj4 from '../../../src/utils/setupProj4'
@@ -54,6 +53,17 @@ function checkMousePositionNumberValue(expectedX, expectedY, parser) {
         .invoke('text')
         .then(parser)
         .then(checkXY(expectedX, expectedY))
+}
+
+/**
+ * Extracts the target URL from a qrcode-service URL on a href attribute.
+ *
+ * @param {jQuery} $element The element found by `cy.get`.
+ * @returns {String} The extracted target URL.
+ */
+function extractQrInputUrl($element) {
+    const [, encodedUrl] = $element.attr('href').split('qrcode/generate?url=')
+    return decodeURIComponent(encodedUrl)
 }
 
 describe('Test mouse position', () => {
@@ -113,22 +123,6 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
         })
-        it('Toggles between text info and QR code', () => {
-            const toggleSelector = '[data-cy="location-popup-toggle"'
-            const textinfoSelector = '[data-cy="location-popup-coordinates-lv95"]'
-            const qrcodeSelector = '[data-cy="location-popup-qr-code"]'
-            // Initial (text)
-            cy.get(textinfoSelector).should('be.visible')
-            cy.get(qrcodeSelector).should('not.be.visible')
-            // QR-code
-            cy.get(toggleSelector).click()
-            cy.get(textinfoSelector).should('not.be.visible')
-            cy.get(qrcodeSelector).should('be.visible')
-            // Text
-            cy.get(toggleSelector).click()
-            cy.get(textinfoSelector).should('be.visible')
-            cy.get(qrcodeSelector).should('not.be.visible')
-        })
         context('Coordinates system tests', () => {
             it('Uses the coordination system LV95 in the popup', () => {
                 const LV95cord = proj4(proj4.WGS84, 'EPSG:2056', [lon, lat])
@@ -172,32 +166,28 @@ describe('Test mouse position', () => {
                     .then(checkXY(lon, lat))
             })
             it('The QR code points to the right coordinates and has a crosshair', () => {
-                const decoder = new Decoder()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder
-                        .scan($element.attr('src'))
-                        .then((result) => {
-                            const search = result.data.split('?')[1]
-                            const params = new URLSearchParams(search)
-                            expect(params.get('crosshair')).to.not.be.empty
-                            return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
-                        })
-                        .then(checkXY(lon, lat))
-                })
+                cy.get('[data-cy="location-popup-qrcode"')
+                    .then(($element) => {
+                        const url = extractQrInputUrl($element)
+                        const search = url.split('?')[1]
+                        const params = new URLSearchParams(search)
+                        expect(params.get('crosshair')).to.not.be.empty
+                        return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
+                    })
+                    .then(checkXY(lon, lat))
             })
             it('The QR code updates when the layer config changes', () => {
-                const decoder = new Decoder()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder.scan($element.attr('src')).then((result) => {
-                        result.data.includes('bgLayer=ch.swisstopo.pixelkarte-farbe')
-                    })
+                cy.get('[data-cy="location-popup-qrcode"').then(($element) => {
+                    const url = extractQrInputUrl($element)
+                    expect(url).contains('bgLayer=test.background.layer2')
                 })
+
                 cy.get('[data-cy="background-selector').click()
                 cy.get('[data-cy="background-selector-void').click()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder.scan($element.attr('src')).then((result) => {
-                        result.data.includes('bgLayer=void')
-                    })
+
+                cy.get('[data-cy="location-popup-qrcode"').then(($element) => {
+                    const url = extractQrInputUrl($element)
+                    expect(url).contains('bgLayer=void')
                 })
             })
         })

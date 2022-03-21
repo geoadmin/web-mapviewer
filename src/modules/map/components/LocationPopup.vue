@@ -7,15 +7,7 @@
         data-cy="location-popup"
         @close="clearClick"
     >
-        <template #extra-buttons>
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'qrcode']"
-                data-cy="location-popup-toggle"
-                @click="toggleQrCode"
-            />
-        </template>
-
-        <div v-show="!showQrCode" class="coordinates-list text-start">
+        <div class="coordinates-list text-start">
             <div>
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
@@ -77,8 +69,12 @@
                 </a>
             </div>
         </div>
-        <div v-show="showQrCode" class="qrcode-container">
-            <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" data-cy="location-popup-qr-code" />
+
+        <div class="qrcode-container">
+            <a :href="qrCodeUrl" target="_blank" data-cy="location-popup-qrcode">
+                <FontAwesomeIcon :icon="['fas', 'qrcode']" />
+                QR-Code anzeigen
+            </a>
         </div>
     </OpenLayersPopover>
 </template>
@@ -94,21 +90,20 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { ClickType } from '@/modules/map/store/map.store'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import stringifyQuery from '@/router/stringifyQuery'
+import { API_SERVICES_BASE_URL } from '@/config'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
-    components: { OpenLayersPopover, ButtonWithIcon },
+    components: { OpenLayersPopover },
     inject: ['getMap'],
     data() {
         return {
             clickWhat3Words: null,
             height: null,
             qrCodeImageSrc: null,
-            showQrCode: false,
         }
     },
     computed: {
@@ -169,6 +164,10 @@ export default {
             }
             return `${location.origin}/#/map?${stringifyQuery(query)}`
         },
+        qrCodeUrl() {
+            const url = encodeURIComponent(this.shareLinkUrl)
+            return `${API_SERVICES_BASE_URL}qrcode/generate?url=${url}`
+        },
     },
     watch: {
         clickCoordinates(newClickCoordinates) {
@@ -213,9 +212,6 @@ export default {
         ...mapActions(['clearClick']),
         onClose() {
             this.clearClick()
-        },
-        toggleQrCode() {
-            this.showQrCode = !this.showQrCode
         },
         reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
