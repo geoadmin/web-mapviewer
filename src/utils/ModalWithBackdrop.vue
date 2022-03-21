@@ -1,5 +1,6 @@
 <template>
-    <teleport to="body">
+    <teleport to="#main-component">
+        <!-- Must teleport inside main-component in order for dynamic outlines to work. -->
         <BlackBackdrop front @click="onClose(false)" />
         <div class="modal-popup">
             <div class="card">

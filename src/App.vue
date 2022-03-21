@@ -1,5 +1,10 @@
 <template>
-    <div id="main-component">
+    <div
+        id="main-component"
+        :class="{ outlines: showOutlines }"
+        @keydown="setOutlines(true)"
+        @pointerdown="setOutlines(false)"
+    >
         <router-view />
     </div>
 </template>
@@ -14,6 +19,11 @@ import { mapActions, mapState } from 'vuex'
  */
 export default {
     name: 'App',
+    data() {
+        return {
+            showOutlines: false,
+        }
+    },
     computed: {
         ...mapState({
             currentUiMode: (state) => state.ui.mode,
@@ -35,6 +45,9 @@ export default {
                 height: window.innerHeight,
             })
         },
+        setOutlines(state) {
+            this.showOutlines = state
+        },
     },
 }
 </script>
@@ -51,5 +64,12 @@ export default {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
+}
+:focus {
+    outline-style: none;
+    .outlines & {
+        outline-offset: 1px;
+        outline: $focus-outline;
+    }
 }
 </style>
