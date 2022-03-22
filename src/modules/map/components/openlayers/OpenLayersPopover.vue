@@ -68,18 +68,12 @@ export default {
         })
     },
     mounted() {
-        const olMap = this.getMap()
-        if (olMap) {
-            this.overlay.setElement(this.$refs.mapPopover)
-            olMap.addOverlay(this.overlay)
-            this.overlay.setPosition(this.coordinates)
-        }
+        this.overlay.setElement(this.$refs.mapPopover)
+        this.getMap().addOverlay(this.overlay)
+        this.overlay.setPosition(this.coordinates)
     },
     beforeUnmount() {
-        const olMap = this.getMap()
-        if (olMap) {
-            olMap.removeOverlay(this.overlay)
-        }
+        this.getMap().removeOverlay(this.overlay)
     },
     methods: {
         onClose() {

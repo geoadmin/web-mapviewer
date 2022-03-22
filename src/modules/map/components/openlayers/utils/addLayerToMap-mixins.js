@@ -38,19 +38,16 @@ const addLayerToMapMixin = {
     },
     methods: {
         addLayerToMap(zIndex, layer) {
-            if (this.getMap()) {
-                if (zIndex < 0) {
-                    this.getMap().addLayer(layer)
-                } else {
-                    this.getMap().getLayers().insertAt(zIndex, layer)
-                }
-                this.isPresentOnMap = true
+            const map = this.getMap()
+            if (zIndex < 0) {
+                map.addLayer(layer)
+            } else {
+                map.getLayers().insertAt(zIndex, layer)
             }
+            this.isPresentOnMap = true
         },
         removeLayerFromMap(layer) {
-            if (this.getMap()) {
-                this.getMap().removeLayer(layer)
-            }
+            this.getMap().removeLayer(layer)
             this.isPresentOnMap = false
         },
     },
