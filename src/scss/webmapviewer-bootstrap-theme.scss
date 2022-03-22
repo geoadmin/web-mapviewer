@@ -1,5 +1,3 @@
-$red: #dc3545 !default;
-$primary: $red;
 
 @import 'src/scss/variables';
 @import 'src/scss/variables-admin';
@@ -8,6 +6,7 @@ $component-active-bg: $malibu;
 // https://stackoverflow.com/a/49033912/4840446
 $input-btn-focus-box-shadow: none;
 $input-btn-focus-width: 0;
+$primary: $venetian-red;
 
 @import 'node_modules/bootstrap/scss/functions';
 @import 'node_modules/bootstrap/scss/variables';

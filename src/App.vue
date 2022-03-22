@@ -60,10 +60,10 @@ export default {
 // to the output CSS as many time as this file is imported
 @import 'node_modules/bootstrap/scss/bootstrap';
 #main-component {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: $frutiger;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #2c3e50;
+    color: $coal;
 }
 :focus {
     outline-style: none;
