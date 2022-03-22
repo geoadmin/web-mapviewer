@@ -3,6 +3,7 @@
         <slot />
     </div>
 </template>
+
 <script>
 import { Circle } from 'ol/geom'
 import Feature from 'ol/Feature'
