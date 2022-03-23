@@ -29,6 +29,7 @@
                 :compact="compact"
                 @click-on-topic-item="onClickTopicItem"
                 @click-on-layer-info="onClickLayerInfo"
+                @preview-layer="onPreviewLayer"
             />
         </ul>
         <LayerLegendPopup
@@ -73,7 +74,7 @@ export default {
             allTopics: (state) => state.topics.config,
             activeLayers: (state) => state.layers.activeLayers,
         }),
-        ...mapGetters(['visibleLayers', 'getActiveLayerById', 'isDefaultTopic']),
+        ...mapGetters(['getActiveLayerById', 'isDefaultTopic']),
         showTopicTree() {
             // We only want the topic tree open whenever the user has chosen a different topic
             // than the default one (it can be opened by the user by a click on it, but by default it's closed)
@@ -81,7 +82,14 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['addLayer', 'toggleLayerVisibility', 'setLayerVisibility', 'changeTopic']),
+        ...mapActions([
+            'addLayer',
+            'toggleLayerVisibility',
+            'setLayerVisibility',
+            'changeTopic',
+            'showLayerPreview',
+            'hideLayerPreview',
+        ]),
         setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
         },
@@ -100,6 +108,13 @@ export default {
         },
         onClickLayerInfo(layerId) {
             this.showLayerInfoFor = layerId
+        },
+        onPreviewLayer(layerId) {
+            if (layerId) {
+                this.showLayerPreview(layerId)
+            } else {
+                this.hideLayerPreview()
+            }
         },
     },
 }

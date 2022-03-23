@@ -23,6 +23,13 @@ const state = {
      * @type GeoAdminLayer[]
      */
     config: [],
+    /**
+     * A layer to show on the map when hovering a layer (catalog and search) but not in the list of
+     * active layers.
+     *
+     * @type AbstractLayer
+     */
+    previewLayer: null,
 }
 
 const getters = {
@@ -32,7 +39,10 @@ const getters = {
      * @param state
      * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
-    visibleLayers: (state) => state.activeLayers.filter((layer) => layer.visible),
+    visibleLayers: (state) =>
+        [...state.activeLayers.filter((layer) => layer.visible), state.previewLayer].filter(
+            (layer) => layer !== null
+        ),
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
@@ -211,6 +221,19 @@ const actions = {
             }
         }
     },
+    showLayerPreview({ commit, getters }, layerId) {
+        const layer = getters.getLayerConfigById(layerId)
+        if (layer) {
+            const cloned = layer.clone()
+            cloned.visible = true
+            commit('setPreviewLayer', cloned)
+        } else {
+            log.error(`Layer "${layerId} not found in configs.`)
+        }
+    },
+    hideLayerPreview({ commit }) {
+        commit('setPreviewLayer', null)
+    },
 }
 
 const mutations = {
@@ -265,6 +288,9 @@ const mutations = {
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)
         state.activeLayers.splice(endingIndex, 0, layer)
+    },
+    setPreviewLayer(state, layer) {
+        state.previewLayer = layer
     },
 }
 
