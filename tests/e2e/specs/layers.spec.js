@@ -333,13 +333,13 @@ describe('Test of layer handling', () => {
                                     .forEach((menuItem) => cy.wrap(menuItem).click())
                             })
                         // Toggle (hide) the test layer.
-                        cy.get(testLayerSelector).click()
+                        cy.get(testLayerSelector).click().trigger('mouseleave')
                         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                             const visibleIds = visibleLayers.map((layer) => layer.getID())
                             expect(visibleIds).to.not.contain(testLayerId)
                         })
                         // Toggle (show) the test layer.
-                        cy.get(testLayerSelector).click()
+                        cy.get(testLayerSelector).click().trigger('mouseleave')
                         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                             const visibleIds = visibleLayers.map((layer) => layer.getID())
                             expect(visibleIds).to.contain(testLayerId)

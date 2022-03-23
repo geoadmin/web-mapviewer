@@ -11,6 +11,8 @@
             class="menu-topic-item-title"
             :data-cy="`topic-tree-item-${item.id}`"
             @click="onItemClick"
+            @mouseenter="previewLayer(true)"
+            @mouseleave="previewLayer(false)"
         >
             <ButtonWithIcon
                 :button-font-awesome-icon="showHideIcon"
@@ -46,6 +48,7 @@
                     :compact="compact"
                     @click-on-topic-item="bubbleToggleItemEvent"
                     @click-on-layer-info="bubbleLayerInfoEvent"
+                    @preview-layer="bubblePreviewEvent"
                 />
             </ul>
         </CollapseTransition>
@@ -87,7 +90,7 @@ export default {
             default: 0,
         },
     },
-    emits: ['clickOnTopicItem', 'clickOnLayerInfo'],
+    emits: ['clickOnTopicItem', 'clickOnLayerInfo', 'previewLayer'],
     data() {
         return {
             showChildren: false,
@@ -141,6 +144,11 @@ export default {
         onInfoClick() {
             this.$emit('clickOnLayerInfo', this.item.layerId)
         },
+        previewLayer(show) {
+            if (this.item.type === topicTypes.LAYER) {
+                this.$emit('previewLayer', show ? this.item.layerId : null)
+            }
+        },
         /**
          * As we can have recursive component (see template), we have to bubble up user interaction
          * events, otherwise the event get stuck mid course and never reaches the parent that can
@@ -153,6 +161,9 @@ export default {
         },
         bubbleLayerInfoEvent(layerId) {
             this.$emit('clickOnLayerInfo', layerId)
+        },
+        bubblePreviewEvent(layerId) {
+            this.$emit('previewLayer', layerId)
         },
     },
 }
