@@ -51,7 +51,7 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+            <SelectedFeatureList />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
@@ -70,29 +70,29 @@
 </template>
 
 <script>
-import 'ol/ol.css'
-
-import { mapState, mapGetters, mapActions } from 'vuex'
-import { Map, View } from 'ol'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
-import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { round } from '@/utils/numberUtils'
-import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
-import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
-import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
-import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import { Feature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import SelectedFeatureList from '@/modules/infobox/components/SelectedFeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
+import { Map, View } from 'ol'
+import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import 'ol/ol.css'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+
+import { mapActions, mapGetters, mapState } from 'vuex'
+import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
+import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
+import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -105,7 +105,7 @@ import log from '@/utils/logging'
 export default {
     components: {
         ButtonWithIcon,
-        HighlightedFeatureList,
+        SelectedFeatureList,
         OpenLayersPopover,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
@@ -130,7 +130,7 @@ export default {
         ...mapState({
             zoom: (state) => state.position.zoom,
             center: (state) => state.position.center,
-            selectedFeatures: (state) => state.feature.selectedFeatures,
+            selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,

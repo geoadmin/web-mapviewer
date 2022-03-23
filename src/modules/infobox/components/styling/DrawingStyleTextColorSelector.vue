@@ -9,12 +9,12 @@
                 :key="color.name"
                 class="btn btn-sm"
                 :class="{
-                    'btn-light': currentColor !== color.fill,
-                    'btn-primary': currentColor === color.fill,
+                    'btn-light': currentColor !== color,
+                    'btn-primary': currentColor === color,
                 }"
                 :style="{
                     color: color.name,
-                    font: currentFont,
+                    font,
                     'text-shadow': color.textShadow,
                 }"
                 :data-cy="`drawing-style-text-color-${color.name}`"
@@ -26,35 +26,24 @@
     </div>
 </template>
 <script>
-import { drawingStyleColors } from '@/modules/drawing/lib/drawingStyleColor'
+import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
     props: {
-        feature: {
-            type: Object,
+        currentColor: {
+            type: FeatureStyleColor,
             required: true,
         },
     },
     emits: ['change'],
     data() {
         return {
-            colors: drawingStyleColors,
-            currentColor: this.feature.get('color'),
+            colors: allStylingColors,
+            font: MEDIUM.font,
         }
-    },
-    computed: {
-        currentFont() {
-            if (!this.feature) {
-                return null
-            }
-            return this.feature.get('font')
-        },
     },
     methods: {
         onColorChange(color) {
-            this.feature.set('color', color.fill)
-            this.currentColor = color.fill
-            this.feature.set('strokeColor', color.border)
             this.$emit('change', color)
         },
     },

@@ -7,6 +7,7 @@
         <span v-if="buttonTitle" :class="labelClasses">
             {{ buttonTitle }}
         </span>
+        <slot />
         <FontAwesomeIcon
             v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             :icon="buttonFontAwesomeIcon"
@@ -56,6 +57,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        outlineDanger: {
+            type: Boolean,
+            default: false,
+        },
         danger: {
             type: Boolean,
             default: false,
@@ -86,6 +91,8 @@ export default {
                 classes.push('btn-primary')
             } else if (this.danger) {
                 classes.push('btn-danger')
+            } else if (this.outlineDanger) {
+                classes.push('btn-outline-danger')
             } else if (this.outlineSecondary) {
                 classes.push('btn-outline-secondary')
             } else if (this.outlineLight) {

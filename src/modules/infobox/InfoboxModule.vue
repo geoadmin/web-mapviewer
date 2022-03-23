@@ -8,21 +8,21 @@
                 @toggle-tooltip-in-footer="toggleFloatingTooltip"
                 @close="clearSelectedFeatures"
             >
-                <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+                <SelectedFeatureList />
             </TooltipBox>
         </teleport>
     </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import SelectedFeatureList from '@/modules/infobox/components/SelectedFeatureList.vue'
 import TooltipBox from '@/modules/infobox/components/TooltipBox.vue'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     components: {
+        SelectedFeatureList,
         TooltipBox,
-        HighlightedFeatureList,
     },
     data() {
         return {
@@ -34,6 +34,7 @@ export default {
         ...mapState({
             selectedFeatures: (state) => state.feature.selectedFeatures,
             tooltipInFooter: (state) => !state.ui.floatingTooltip,
+            availableIconSets: (state) => state.drawing.iconSets,
         }),
     },
     mounted() {
