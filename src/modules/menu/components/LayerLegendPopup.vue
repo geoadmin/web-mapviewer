@@ -40,8 +40,10 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+// No scoping here as we need to apply styles to the markup we included with v-html.
 @import 'src/scss/variables';
+$spacing: 8px;
 .layer-legend {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-style: normal;
@@ -51,14 +53,24 @@ export default {
     line-break: auto;
     text-align: start;
     .legend-header {
+        // Negative margin to overcome padding from the parent.
+        // Removing the padding from the parent and adding the spacing on all
+        // possible child elements would be a mess.
+        margin: -0.5rem;
+        margin-bottom: 0;
+
+        padding: $spacing;
         background-color: #eee;
-        padding: 8px;
         .bod-title {
             color: red;
+            margin-bottom: $spacing;
+        }
+        .legend-abstract {
+            margin-bottom: 0;
         }
     }
     .legend-footer {
-        padding: 8px;
+        padding: $spacing;
         span {
             font-weight: 700;
         }
