@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { drawingStyleColors } from '@/modules/drawing/lib/drawingStyleColor'
+import { allStylingColors } from '@/utils/featureStyleUtils'
 
 /**
  * Component showing all available color for a feature and making it possible to switch from one
@@ -32,7 +32,7 @@ export default {
     emits: ['change'],
     data() {
         return {
-            colors: drawingStyleColors,
+            colors: allStylingColors,
         }
     },
     methods: {

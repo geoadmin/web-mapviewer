@@ -2,8 +2,8 @@
     <div class="d-block">
         <div class="d-flex mb-3">
             <DrawingStyleSizeSelector
-                :current-size="currentIconSize"
-                @change="setCurrentIconSize"
+                :current-size="feature.iconSize"
+                @change="onCurrentIconSizeChange"
             />
             <div class="ms-2">
                 <label class="form-label" for="drawing-style-icon-set-selector">
@@ -42,7 +42,7 @@
             v-if="currentIconSet && currentIconSet.isColorable"
             class="mb-3"
             inline
-            @change="setCurrentIconColor"
+            @change="onCurrentIconColorChange"
         />
 
         <div
@@ -64,11 +64,11 @@
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
                     :alt="icon.name"
-                    :src="generateColorizedURL(icon, defaultIconSize, currentIconColor)"
+                    :src="generateColorizedURL(icon)"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
                     class="marker-icon-image"
                     crossorigin="anonymous"
-                    @click="showAllSymbols && setCurrentIcon(icon)"
+                    @click="showAllSymbols && onCurrentIconChange(icon)"
                 />
             </div>
             <div class="transparent-overlay" @click="showAllSymbols = true" />
@@ -77,16 +77,16 @@
 </template>
 
 <script>
-import DrawingStyleSizeSelector from '@/modules/drawing/components/styling/DrawingStyleSizeSelector.vue'
-import DrawingStyleColorSelector from '@/modules/drawing/components/styling/DrawingStyleColorSelector.vue'
-import { RED } from '@/modules/drawing/lib/drawingStyleColor'
-import { MEDIUM } from '@/modules/drawing/lib/drawingStyleSizes'
+import { EditableFeature } from '@/api/features.api'
+import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
+import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
+import { MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
     components: { DrawingStyleSizeSelector, DrawingStyleColorSelector },
     props: {
         feature: {
-            type: Object,
+            type: EditableFeature,
             required: true,
         },
         iconSets: {
@@ -94,16 +94,12 @@ export default {
             required: true,
         },
     },
-    emits: ['change'],
-    data() {
+    emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
+    data: function () {
         return {
             showAllSymbols: false,
-            currentIconColor: RED,
             currentIconSet: null,
-            currentIcon: null,
-            // default icon size is 1.0
-            currentIconSize: MEDIUM,
-            // we store it a second time because we don't want the selection window's icon to change size
+            // we store it because we don't want the selection window's icon to change size
             // only the icon on the map should
             defaultIconSize: MEDIUM,
         }
@@ -114,39 +110,31 @@ export default {
         },
     },
     mounted() {
-        this.currentIconSet = this.iconSets.find((iconSet) => iconSet.name === 'default')
-        this.currentIcon = this.currentIconSet.icons[0]
+        const iconSetNameToLookup = this.feature?.icon ? this.feature.icon.iconSetName : 'default'
+        this.currentIconSet = this.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup)
     },
     methods: {
-        triggerChangeEvent() {
+        /**
+         * Generate an icon URL with medium size (so that the size doesn't change in the icon
+         * selector, even when the user selects a different size for the icon the map)
+         *
+         * @param {Icon} icon
+         * @returns {String} An icon URL
+         */
+        generateColorizedURL(icon) {
+            return icon.generateURL(MEDIUM, this.feature.fillColor)
+        },
+        onCurrentIconColorChange(color) {
+            this.$emit('change:iconColor', color)
             this.$emit('change')
         },
-        generateColorizedURL(icon, size, color) {
-            return icon.generateURL(this.currentIconSetName, size, color)
+        onCurrentIconChange(icon) {
+            this.$emit('change:icon', icon)
+            this.$emit('change')
         },
-        refreshFeatureIconUrl() {
-            this.feature.set(
-                'icon',
-                this.generateColorizedURL(
-                    this.currentIcon,
-                    this.currentIconSize,
-                    this.currentIconColor
-                )
-            )
-            this.feature.set('anchor', this.currentIcon.anchor)
-            this.triggerChangeEvent()
-        },
-        setCurrentIconColor(color) {
-            this.currentIconColor = color
-            this.refreshFeatureIconUrl()
-        },
-        setCurrentIcon(icon) {
-            this.currentIcon = icon
-            this.refreshFeatureIconUrl()
-        },
-        setCurrentIconSize(size) {
-            this.currentIconSize = size
-            this.refreshFeatureIconUrl()
+        onCurrentIconSizeChange(size) {
+            this.$emit('change:iconSize', size)
+            this.$emit('change')
         },
         setCurrentIconSet(iconSet) {
             this.currentIconSet = iconSet

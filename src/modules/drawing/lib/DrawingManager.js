@@ -5,40 +5,23 @@
 // FIXME: no zoom on double click
 // FIXME: right click to remove point while drawing ?
 
-import { noModifierKeys, singleClick } from 'ol/events/condition'
-import Event from 'ol/events/Event'
-import DrawInteraction from 'ol/interaction/Draw'
-import ModifyInteraction from 'ol/interaction/Modify'
-import SelectInteraction from 'ol/interaction/Select'
-import SnapInteraction from 'ol/interaction/Snap'
-import VectorLayer from 'ol/layer/Vector'
-import Observable from 'ol/Observable'
-import VectorSource from 'ol/source/Vector'
-import { getUid } from 'ol/util'
-import { featureStyle } from './style'
-import Overlay from 'ol/Overlay'
-import i18n from '@/modules/i18n'
-import { Polygon, LineString } from 'ol/geom'
-import MeasureManager from '@/modules/drawing/lib/MeasureManager'
-import { Circle, Icon } from 'ol/style'
-import Feature from 'ol/Feature'
-import Style from 'ol/style/Style'
-import { GPX, KML, GeoJSON } from 'ol/format'
 import { getKml } from '@/api/files.api'
-import { serializeAnchor, deserializeAnchor } from '@/utils/featureAnchor'
-
-const typesInTranslation = {
-    MARKER: 'marker',
-    TEXT: 'annotation',
-    LINE: 'linepolygon',
-    MEASURE: 'measure',
-}
+import MeasureManager from '@/modules/drawing/lib/MeasureManager'
+import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { deserializeAnchor } from '@/utils/featureAnchor'
+import { MEDIUM, RED } from '@/utils/featureStyleUtils'
+import Event from 'ol/events/Event'
+import { LineString, Polygon } from 'ol/geom'
+import GeometryType from 'ol/geom/GeometryType'
+import DrawInteraction from 'ol/interaction/Draw'
+import SnapInteraction from 'ol/interaction/Snap'
+import Observable from 'ol/Observable'
+import { getUid } from 'ol/util'
+import { drawLineStyle, drawMeasureStyle, featureStyle } from './style'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
 const cssGrabbing = 'cursor-grabbing'
-
-const nameInKml = 'Drawing'
 
 export class ClearEvent extends Event {
     constructor() {
@@ -72,6 +55,63 @@ export class DrawEndEvent extends Event {
     }
 }
 
+export const drawingConfig = [
+    {
+        drawingMode: DrawingModes.LINEPOLYGON,
+        geomType: GeometryType.POLYGON,
+        drawOptions: {
+            minPoints: 2,
+            style: drawLineStyle,
+        },
+        properties: {
+            color: RED.fill,
+            description: '',
+        },
+    },
+    {
+        drawingMode: DrawingModes.MARKER,
+        geomType: GeometryType.POINT,
+        // These properties need to be evaluated later as the
+        // availableIconSets aren't ready when this component is mounted.
+        properties: (availableIconSets) => {
+            const defaultIconSet = availableIconSets.find((set) => set.name === 'default')
+            const defaultIcon = defaultIconSet.icons[0]
+
+            return {
+                color: RED.fill,
+                font: MEDIUM.font,
+                icon: defaultIcon,
+                iconUrl: defaultIcon.generateURL(),
+                anchor: defaultIcon.anchor,
+                text: '',
+                description: '',
+                textScale: MEDIUM.textScale,
+            }
+        },
+    },
+    {
+        drawingMode: DrawingModes.MEASURE,
+        geomType: GeometryType.POLYGON,
+        drawOptions: {
+            minPoints: 2,
+            style: drawMeasureStyle,
+        },
+        properties: {
+            color: RED.fill,
+        },
+    },
+    {
+        drawingMode: DrawingModes.ANNOTATION,
+        geomType: GeometryType.POINT,
+        properties: {
+            color: RED.fill,
+            text: 'new text',
+            font: MEDIUM.font,
+            textScale: MEDIUM.textScale,
+        },
+    },
+]
+
 // Manages a list of drawing interaction on an Openlayers map.
 // In addition to the drawing tools, this class manages a select and snap interactions.
 // When a feature is drawn or modified, a `ChangeEvent` event is dispatched.
@@ -79,70 +119,43 @@ export class DrawEndEvent extends Event {
 export default class DrawingManager extends Observable {
     /**
      * @param {Map} map OpenLayers map instance
-     * @param {Object[]} tools Tools configuration
-     * @param {Object} Options
+     * @param {VectorLayer} drawingLayer The layer in which drawing will occur
+     * @param {SelectInteraction} selectInteraction
+     * @param {ModifyInteraction} modifyInteraction
      */
-    constructor(map, tools, options = {}) {
+    constructor(map, drawingLayer, selectInteraction, modifyInteraction) {
         super()
 
         this.map = map
 
-        this.geojsonFormat = new GeoJSON({
-            featureProjection: this.map.getView().getProjection(),
-        })
+        this.source = drawingLayer.getSource()
 
-        this.kmlFormat = new KML()
-
-        this.gpxFormat = new GPX()
-
-        this.options = options
-
-        this.layer = new VectorLayer({
-            source: new VectorSource({ useSpatialIndex: false }),
-        })
-        this.source = this.layer.getSource()
-
-        this.measureManager = new MeasureManager(this.map, this.layer)
+        this.measureManager = new MeasureManager(this.map, drawingLayer)
 
         this.tools = {}
-        this.sketchPoints = 0
-        for (let [type, options] of Object.entries(tools)) {
-            // use the default styling if no specific draw style is set
-            const drawOptions = {
-                style: (feature) => featureStyle(feature),
-                ...options.drawOptions,
-            }
+
+        for (const config of drawingConfig) {
             const tool = new DrawInteraction({
-                ...drawOptions,
+                style: featureStyle,
+                type: config.geomType,
                 source: this.source,
             })
-            tool.set('type', type)
             tool.setActive(false)
-            const overlaySource = tool.getOverlay().getSource()
-            overlaySource.on('addfeature', (event) => this.onAddFeature_(event, options.properties))
+            tool.getOverlay()
+                .getSource()
+                .on('addfeature', (event) => this.onAddFeature_(event, config.properties))
             tool.on('change:active', (event) => this.onDrawActiveChange_(event))
             tool.on('drawstart', (event) => this.onDrawStart_(event))
             tool.on('drawend', (event) => this.onDrawEnd_(event))
-            this.tools[type] = tool
+            this.tools[config.drawingMode] = tool
         }
 
-        this.select = new SelectInteraction({
-            style: this.options.editingStyle,
-            toggleCondition: () => false,
-            layers: [this.layer],
-        })
+        this.select = selectInteraction
         const selected = this.select.getFeatures()
         selected.on('add', (event) => this.onSelectChange_(event))
         selected.on('remove', (event) => this.onSelectChange_(event))
 
-        this.modify = new ModifyInteraction({
-            features: selected,
-            style: this.options.editingStyle,
-            deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
-            // We need to consider the visible shape here as it is also considered
-            // by ol/Map#forEachFeatureAtPixel which we use to display to tooltip.
-            hitDetection: true,
-        })
+        this.modify = modifyInteraction
         this.modify.on('modifystart', (event) => this.onModifyStart_(event))
         this.modify.on('modifyend', (event) => this.onModifyEnd_(event))
 
@@ -157,14 +170,6 @@ export default class DrawingManager extends Observable {
 
         this.onKeyUpFunction_ = this.onKeyUp_.bind(this)
         this.onPointerMoveFunction_ = this.onPointerMove_.bind(this)
-        this.tooltipOverlay = new Overlay({
-            element: this.options.helpPopupElement,
-            offset: [15, 15],
-            positioning: 'top-left',
-            // so that the tooltip is not on top of the style popup (and its children popup)
-            stopEvent: false,
-            insertFirst: true,
-        })
 
         /**
          * Whether the polygon was finished by a click on the first point of the geometry.
@@ -179,16 +184,10 @@ export default class DrawingManager extends Observable {
         for (const id in this.tools) {
             this.map.addInteraction(this.tools[id])
         }
-        if (!this.options.noModify) {
-            this.map.addInteraction(this.select)
-            this.map.addInteraction(this.modify)
-        }
-        this.map.addLayer(this.layer)
         this.map.addInteraction(this.snap)
 
         document.addEventListener('keyup', this.onKeyUpFunction_)
 
-        this.map.addOverlay(this.tooltipOverlay)
         this.map.on('pointermove', this.onPointerMoveFunction_)
     }
 
@@ -197,12 +196,8 @@ export default class DrawingManager extends Observable {
         for (const id in this.tools) {
             this.map.removeInteraction(this.tools[id])
         }
-        this.map.removeInteraction(this.select)
-        this.map.removeInteraction(this.modify)
         this.map.removeInteraction(this.snap)
-        this.map.removeLayer(this.layer)
         this.map.un('pointermove', this.onPointerMoveFunction_)
-        this.map.removeOverlay(this.tooltipOverlay)
 
         document.removeEventListener('keyup', this.onKeyUpFunction_)
     }
@@ -222,7 +217,6 @@ export default class DrawingManager extends Observable {
             if (this.activeInteraction) {
                 this.activeInteraction.setActive(true)
             }
-            this.updateHelpTooltip(tool, false)
         }
     }
 
@@ -237,86 +231,6 @@ export default class DrawingManager extends Observable {
         })
         this.deselect()
         this.dispatchChangeEvent_()
-    }
-
-    createGeoJSON() {
-        // todo Do we need overlays in geoJson? it makes loop during state update
-        const features = this.source.getFeatures().map((f) => {
-            const feature = f.clone()
-            feature.set('overlays', undefined)
-            return feature
-        })
-        return this.geojsonFormat.writeFeaturesObject(features)
-    }
-
-    createGPX() {
-        const features = this.source.getFeatures().map((feature) => {
-            const clone = feature.clone()
-            const geom = clone.getGeometry()
-            // convert polygon to line because gpx doesn't support polygons
-            if (geom instanceof Polygon) {
-                const coordinates = geom.getLinearRing().getCoordinates()
-                clone.setGeometry(new LineString(coordinates))
-            }
-            return clone
-        })
-        return this.gpxFormat.writeFeatures(features, {
-            featureProjection: this.map.getView().getProjection(),
-        })
-    }
-
-    createKML() {
-        let kmlString = '<kml></kml>'
-        let exportFeatures = []
-        this.source.forEachFeature(function (f) {
-            const clone = f.clone()
-            // The following serialization is a hack. See @module comment in file.
-            serializeAnchor(clone)
-            clone.set('type', clone.get('type').toLowerCase())
-            clone.setId(f.getId())
-            clone.getGeometry().setProperties(f.getGeometry().getProperties())
-            clone.getGeometry().transform('EPSG:3857', 'EPSG:4326')
-            let styles = clone.getStyleFunction() || this.layer.getStyleFunction()
-            styles = styles(clone)
-            const newStyle = {
-                fill: styles[0].getFill(),
-                stroke: styles[0].getStroke(),
-                text: styles[0].getText(),
-                image: styles[0].getImage(),
-                zIndex: styles[0].getZIndex(),
-            }
-            if (newStyle.image instanceof Circle) {
-                newStyle.image = null
-            }
-
-            // If only text is displayed we must specify an image style with scale=0
-            if (newStyle.text && !newStyle.image) {
-                newStyle.image = new Icon({
-                    src: 'noimage',
-                    scale: 0,
-                })
-            }
-
-            const myStyle = new Style(newStyle)
-            clone.setStyle(myStyle)
-            exportFeatures.push(clone)
-        })
-
-        if (exportFeatures.length > 0) {
-            if (exportFeatures.length === 1) {
-                // force the add of a <Document> node
-                exportFeatures.push(new Feature())
-            }
-            kmlString = this.kmlFormat.writeFeatures(exportFeatures)
-            // Remove no image hack
-            kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '')
-
-            // Remove empty placemark added to have <Document> tag
-            kmlString = kmlString.replace(/<Placemark\/>/g, '')
-
-            kmlString = kmlString.replace(/<Document>/, `<Document><name>${nameInKml}</name>`)
-        }
-        return kmlString
     }
 
     dispatchClearEvent_() {
@@ -343,22 +257,19 @@ export default class DrawingManager extends Observable {
 
     onAddFeature_(event, properties) {
         const feature = event.feature
-        const props = typeof properties === 'function' ? properties() : properties
+        const props =
+            typeof properties === 'function' ? properties(this.availableIconSets) : properties
+        console.log('add feature', feature, props)
 
         feature.setId(getUid(feature))
         feature.setProperties({
             type: this.activeInteraction.get('type'),
             ...props,
         })
-
-        this.updateDrawHelpTooltip(feature)
-    }
-
-    onDrawActiveChange_(event) {
-        this.select.setActive(!event.target.getActive())
     }
 
     onDrawStart_(event) {
+        console.log('draw start')
         event.feature.set('isDrawing', true)
         if (event.target.get('type') === 'MEASURE') {
             this.measureManager.addOverlays(event.feature)
@@ -366,6 +277,7 @@ export default class DrawingManager extends Observable {
     }
 
     onDrawEnd_(event) {
+        console.log('draw end')
         event.feature.unset('isDrawing')
         event.feature.setStyle((feature) => featureStyle(feature))
         this.source.once('addfeature', (event) => {
@@ -388,6 +300,7 @@ export default class DrawingManager extends Observable {
     }
 
     onModifyStart_(event) {
+        console.log('modify start')
         const features = event.features.getArray()
         const [feature] = features
 
@@ -424,8 +337,7 @@ export default class DrawingManager extends Observable {
     }
 
     onPointerMove_(event) {
-        this.tooltipOverlay.setPosition(event.coordinate)
-        if (this.select.get('active')) {
+        if (this.select.getActive()) {
             this.updateCursorAndTooltips(event)
         }
     }
@@ -440,92 +352,6 @@ export default class DrawingManager extends Observable {
         }
     }
 
-    // Display an help tooltip when drawing
-    updateHelpTooltip(type, drawStarted, hasMinNbPoints, onFirstPoint, onLastPoint) {
-        if (!this.tooltipOverlay) {
-            return
-        }
-        type = typesInTranslation[type]
-        let helpMsgId = 'draw_start_'
-        if (drawStarted) {
-            if (type !== 'marker' && type !== 'annotation') {
-                helpMsgId = 'draw_next_'
-            }
-            if (onLastPoint) {
-                helpMsgId = 'draw_snap_last_point_'
-            }
-            if (onFirstPoint) {
-                helpMsgId = 'draw_snap_first_point_'
-            }
-        }
-        let msg = i18n.global.t(helpMsgId + type)
-
-        if (drawStarted && hasMinNbPoints) {
-            msg += '<br/>' + i18n.global.t('draw_delete_last_point')
-        }
-        this.tooltipOverlay.getElement().innerHTML = msg
-    }
-
-    // Display an help tooltip when drawing
-    updateDrawHelpTooltip(feature) {
-        const type = this.activeInteraction.get('type')
-        const geom = feature.getGeometry()
-        if (geom instanceof Polygon) {
-            // The sketched polygon is always closed, so we remove the last coordinate.
-            const lineCoords = geom.getCoordinates()[0].slice(0, -1)
-            if (this.sketchPoints !== lineCoords.length) {
-                // A point is added or removed
-                this.sketchPoints = lineCoords.length
-            } else if (lineCoords.length > 1) {
-                const firstPoint = lineCoords[0]
-                const lastPoint = lineCoords[lineCoords.length - 1]
-                const sketchPoint = lineCoords[lineCoords.length - 2]
-
-                // Checks is snapped to first point of geom
-                const isSnapOnFirstPoint =
-                    lastPoint[0] === firstPoint[0] && lastPoint[1] === firstPoint[1]
-
-                // Checks is snapped to last point of geom
-                const isSnapOnLastPoint =
-                    lastPoint[0] === sketchPoint[0] && lastPoint[1] === sketchPoint[1]
-
-                this.isFinishOnFirstPoint_ = !isSnapOnLastPoint && isSnapOnFirstPoint
-
-                this.updateHelpTooltip(
-                    type,
-                    true,
-                    this.tools[type].minPoints_ < lineCoords.length,
-                    this.isFinishOnFirstPoint_,
-                    isSnapOnLastPoint
-                )
-            }
-        }
-    }
-
-    // Display an help tooltip when modifying
-    updateModifyHelpTooltip(type, onExistingVertex) {
-        if (!this.tooltipOverlay) {
-            return
-        }
-
-        type = typesInTranslation[type]
-        // There are no "new" vertices for markers and annotations.
-        const existing = onExistingVertex || ['marker', 'annotation'].includes(type)
-        const helpMsgId = existing ? 'modify_existing_vertex_' : 'modify_new_vertex_'
-        this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId + type)
-    }
-
-    // Display an help tooltip when selecting
-    updateSelectHelpTooltip(type) {
-        if (!this.tooltipOverlay) {
-            return
-        }
-
-        type = typesInTranslation[type]
-        const helpMsgId = type ? 'select_feature_' + type : 'select_no_feature'
-        this.tooltipOverlay.getElement().innerHTML = i18n.global.t(helpMsgId)
-    }
-
     updateCursorAndTooltips(event) {
         const mapDiv = this.map.getTarget()
 
@@ -534,7 +360,6 @@ export default class DrawingManager extends Observable {
             return
         }
 
-        const hoveringVertex = this.modify.snappedToVertex_
         let hoveringSelectableFeature = false
         let hoveringSelectedFeature = false
 
@@ -569,15 +394,12 @@ export default class DrawingManager extends Observable {
         if (hoveringSelectedFeature) {
             mapDiv.classList.add(cssGrab)
             mapDiv.classList.remove(cssPointer)
-            this.updateModifyHelpTooltip(featureUnderCursor.get('type'), hoveringVertex)
         } else if (hoveringSelectableFeature) {
             mapDiv.classList.add(cssPointer)
             mapDiv.classList.remove(cssGrab)
-            this.updateSelectHelpTooltip(featureUnderCursor.get('type'))
         } else {
             mapDiv.classList.remove(cssPointer)
             mapDiv.classList.remove(cssGrab)
-            this.updateSelectHelpTooltip()
         }
     }
 

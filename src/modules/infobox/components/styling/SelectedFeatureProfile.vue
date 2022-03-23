@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -24,15 +25,19 @@ export default {
     components: { FontAwesomeIcon },
     props: {
         feature: {
-            type: Object,
+            type: EditableFeature,
             default: null,
         },
     },
     computed: {
-        geometry() {
-            return this.feature && this.feature.getGeometry()
+        geometry: function () {
+            return (
+                this.feature &&
+                this.feature.featureType === EditableFeatureTypes.MEASURE &&
+                this.feature.geometry
+            )
         },
-        info() {
+        info: function () {
             if (this.geometry) {
                 return geometryInfo(
                     this.geometry.getType(),

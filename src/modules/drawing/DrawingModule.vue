@@ -2,69 +2,73 @@
     <div>
         <DrawingToolbox
             v-if="show"
-            :drawing-modes="drawingModes"
             :current-drawing-mode="currentDrawingMode"
-            :delete-last-point-callback="deleteLastPointCallback"
-            :drawing-not-empty="drawingNotEmpty"
+            :is-drawing-empty="isDrawingEmpty"
             :kml-ids="kmlIds"
             :ui-mode="uiMode"
             @close="hideDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
-            @export="exportDrawing"
             @clear-drawing="clearDrawing"
         />
-        <DrawingStylePopup
-            v-show="show && selectedFeature"
-            ref="overlay"
-            :feature="selectedFeature"
-            :available-icon-sets="availableIconSets"
-            @delete="deleteSelectedFeature"
-            @close="deactivateFeature"
-            @change="triggerKMLUpdate"
+        <DrawingTooltip
+            v-if="show"
+            :current-drawing-mode="currentDrawingMode"
+            :currently-edited-feature="currentlyEditedFeature"
         />
-        <div ref="draw-help" class="draw-help-popup"></div>
         <teleport v-if="readyForTeleport" to="#map-footer-middle">
             <ProfilePopup
-                :feature="selectedFeature"
+                :feature="currentlyEditedFeature"
                 :ui-mode="uiMode"
                 @delete="deleteSelectedFeature"
-                @close="deactivateFeature"
+                @close="clearSelectedFeatures"
             />
         </teleport>
     </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { drawingModes } from '@/modules/store/modules/drawing.store'
-import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
-import DrawingManager from '@/modules/drawing/lib/DrawingManager'
-import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'
-import DrawingStylePopup from '@/modules/drawing/components/styling/DrawingStylePopup.vue'
-import { Overlay } from 'ol'
+import { EditableFeature } from '@/api/features.api'
 import { createKml, updateKml } from '@/api/files.api'
-import OverlayPositioning from 'ol/OverlayPositioning'
-import { Point } from 'ol/geom'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
+import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
-import { saveAs } from 'file-saver'
-import { SMALL, MEDIUM } from '@/modules/drawing/lib/drawingStyleSizes'
-import { RED } from '@/modules/drawing/lib/drawingStyleColor'
+import { drawingConfig } from '@/modules/drawing/lib/DrawingManager'
+import { generateKmlString } from '@/modules/drawing/lib/export-utils'
+import MeasureManager from '@/modules/drawing/lib/MeasureManager'
+import { editingFeatureStyleFunction, featureStyle } from '@/modules/drawing/lib/style'
+import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { noModifierKeys, singleClick } from 'ol/events/condition'
+import { LineString } from 'ol/geom'
+import GeometryType from 'ol/geom/GeometryType'
+import DrawInteraction from 'ol/interaction/Draw'
+import ModifyInteraction from 'ol/interaction/Modify'
+import SelectInteraction from 'ol/interaction/Select'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { getUid } from 'ol/util'
+import { mapActions, mapState } from 'vuex'
 
-const overlay = new Overlay({
-    offset: [0, 15],
-    positioning: OverlayPositioning.TOP_CENTER,
-    className: 'drawing-style-overlay',
-})
+// const cursorPointerClass = 'cursor-pointer'
+// const cursorGrabClass = 'cursor-grab'
+const cursorGrabbingClass = 'cursor-grabbing'
 
 export default {
-    components: { DrawingToolbox, DrawingStylePopup, ProfilePopup },
+    components: { DrawingTooltip, DrawingToolbox, ProfilePopup },
     inject: ['getMap'],
+    provide() {
+        return {
+            // sharing OL stuff for children drawing components
+            getDrawingLayer: () => this.drawingLayer,
+            getSelectInteraction: () => this.selectInteraction,
+            getModifyInteraction: () => this.modifyInteraction,
+        }
+    },
     data() {
         return {
-            selectedFeature: null,
-            drawingModes: Object.values(drawingModes),
-            drawingNotEmpty: false,
+            currentlyEditedFeature: null,
+            drawingModes: Object.values(DrawingModes),
+            isDrawingEmpty: true,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
         }
@@ -78,118 +82,123 @@ export default {
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
+            selectedFeatures: (state) => state.features.selectedFeatures,
         }),
-        deleteLastPointCallback() {
-            return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
-                ? () => this.manager.activeInteraction.removeLastPoint()
-                : undefined
-        },
+        // deleteLastPointCallback: function () {
+        //     return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
+        //         ? () => this.manager.activeInteraction.removeLastPoint()
+        //         : undefined
+        // },
     },
     watch: {
         show(show) {
             if (show) {
                 this.addSavedKmlLayer()
-                this.manager.activate()
+                this.activateDrawing()
                 // if icons have not yet been loaded, we do so
                 if (this.availableIconSets.length === 0) {
                     this.loadAvailableIconSets()
                 }
             } else {
-                this.manager.deactivate()
+                this.disableDrawing()
             }
         },
-        currentDrawingMode(mode) {
-            this.manager.toggleTool(mode)
-        },
-        kmlIds(kmlIds) {
-            // When removing a Drawing layer, the kmlIds are cleared. In this case
-            // we also need to clear the drawing in the manager which still contain
-            // the last drawing.
-            if (!kmlIds) {
-                this.manager.clearDrawing()
+        currentDrawingMode: function (newDrawingMode) {
+            // switching interaction (or activating one if there was none yet)
+            if (this.currentDrawingInteraction) {
+                this.currentDrawingInteraction.setActive(false)
             }
+            if (newDrawingMode in DrawingModes) {
+                this.currentDrawingInteraction = this.interactionByDrawingMode[newDrawingMode]
+                this.currentDrawingInteraction.setActive(true)
+            } else {
+                this.currentDrawingInteraction = null
+            }
+        },
+        // kmlIds: function (kmlIds) {
+        //     // When removing as Drawing layer, the kmlIds are cleared. In this case
+        //     // we also need to clear the drawing in the manager which still contain
+        //     // the last drawing.
+        //     if (!kmlIds) {
+        //         this.manager.clearDrawing()
+        //     }
+        // },
+        currentlyEditedFeature: function (newSelectedFeature) {
+            // unbinding any store feature handler
+            this.selectedFeatures.forEach(this.unbindFeatureEvents)
+            // creating an editable feature with all the data from the drawing overlay
+            const featureForStore = new EditableFeature(
+                `drawing_feature_${newSelectedFeature.getId()}`,
+                newSelectedFeature.getGeometry().getCoordinates(),
+                newSelectedFeature.get('text'),
+                newSelectedFeature.get('description'),
+                newSelectedFeature.get('drawingMode'),
+                newSelectedFeature.get('textColor'),
+                newSelectedFeature.get('textSize'),
+                newSelectedFeature.get('fillColor'),
+                newSelectedFeature.get('icon'),
+                newSelectedFeature.get('iconSize')
+            )
+            this.bindFeatureEvents(featureForStore)
+            this.setSelectedFeatures([featureForStore])
         },
     },
-    mounted() {
-        /** @type {import('ol/Map').default} */
+    created() {
+        this.drawingLayer = new VectorLayer({
+            source: new VectorSource({ useSpatialIndex: false }),
+        })
+        this.selectInteraction = new SelectInteraction({
+            style: editingFeatureStyleFunction,
+            toggleCondition: () => false,
+            layers: [this.drawingLayer],
+        })
+        const selected = this.selectInteraction.getFeatures()
+        selected.on('add', this.onSelectChange)
+        selected.on('remove', this.onSelectChange)
+        this.modifyInteraction = new ModifyInteraction({
+            features: selected,
+            style: editingFeatureStyleFunction,
+            deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
+            // We need to consider the visible shape here as it is also considered
+            // by ol/Map#forEachFeatureAtPixel which we use to display to tooltip.
+            hitDetection: true,
+        })
+        this.modifyInteraction.on('modifystart', this.onModifyStart)
+        this.modifyInteraction.on('modifyend', this.onModifyEnd)
+
+        this.interactionByDrawingMode = {}
+
+        for (const config of drawingConfig) {
+            const interaction = new DrawInteraction({
+                style: featureStyle,
+                type: config.geomType,
+                source: this.drawingLayer.getSource(),
+            })
+            interaction.setActive(false)
+            interaction.set('drawingMode', config.drawingMode)
+            interaction
+                .getOverlay()
+                .getSource()
+                .on('addfeature', (event) =>
+                    this.onAddFeature(event, config.geomType, config.drawingMode, config.properties)
+                )
+            interaction.on('change:active', () =>
+                this.selectInteraction.setActive(interaction.getActive())
+            )
+            interaction.on('drawstart', (event) => this.onDrawStart(event))
+            interaction.on('drawend', (event) => this.onDrawEnd(event, interaction))
+            this.interactionByDrawingMode[config.drawingMode] = interaction
+        }
+
         const map = this.getMap()
-        overlay.setElement(this.$refs['overlay'].$el)
-        map.addOverlay(overlay)
-        this.manager = new DrawingManager(
-            map,
-            {
-                [drawingModes.LINE]: {
-                    drawOptions: {
-                        type: 'Polygon',
-                        minPoints: 2,
-                        style: drawLineStyle,
-                    },
-                    properties: {
-                        color: RED.fill,
-                        description: '',
-                    },
-                },
-                [drawingModes.MARKER]: {
-                    drawOptions: {
-                        type: 'Point',
-                    },
-                    // These properties need to be evaluated later as the
-                    // availableIconSets aren't ready when this component is mounted.
-                    properties: () => {
-                        const defaultIconSet = this.availableIconSets.find(
-                            (set) => set.name === 'default'
-                        )
-                        const defaultIcon = defaultIconSet.icons[0]
-
-                        return {
-                            color: RED.fill,
-                            font: 'normal 16px Helvetica',
-                            icon: defaultIcon.generateURL(defaultIconSet.name, MEDIUM, RED),
-                            anchor: defaultIcon.anchor,
-                            text: '',
-                            description: '',
-                            textScale: SMALL.textScale,
-                        }
-                    },
-                },
-                [drawingModes.MEASURE]: {
-                    drawOptions: {
-                        type: 'Polygon',
-                        minPoints: 2,
-                        style: drawMeasureStyle,
-                    },
-                    properties: {
-                        color: RED.fill,
-                    },
-                },
-                [drawingModes.TEXT]: {
-                    drawOptions: {
-                        type: 'Point',
-                    },
-                    properties: {
-                        color: RED.fill,
-                        text: 'new text',
-                        font: 'normal 16px Helvetica',
-                        textScale: SMALL.textScale,
-                    },
-                },
-            },
-            {
-                editingStyle: createEditingStyle(),
-                helpPopupElement: this.$refs['draw-help'],
-            }
-        )
-
-        // if we are testing with Cypress, we expose the map and drawing manager
+        this.measureManager = new MeasureManager(map, this.drawingLayer)
+    },
+    mounted() {
+        // if we are testing with Cypress, we expose the map (so that it's easier
+        // to simulate events to draw on it)
         if (IS_TESTING_WITH_CYPRESS) {
             window.drawingManager = this.manager
         }
-        this.manager.on('change', this.onChange)
-        this.manager.on('clear', this.onClear)
-        this.manager.on('select', this.onSelect)
-        this.manager.on('drawEnd', () => {
-            this.setDrawingMode(null)
-        })
 
         // We can enable the teleport after the view has been rendered.
         this.$nextTick(() => {
@@ -206,27 +215,24 @@ export default {
             'setKmlIds',
             'removeLayer',
             'loadAvailableIconSets',
+            'setSelectedFeatures',
+            'clearSelectedFeatures',
         ]),
         hideDrawingOverlay() {
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
         },
         changeDrawingMode(mode) {
+            // we de-activate the mode if the same button is pressed twice
+            // (if the current mode is equal to the one received)
             if (mode === this.currentDrawingMode) {
-                mode = null
+                this.setDrawingMode(null)
+            } else {
+                this.setDrawingMode(mode)
             }
-            this.setDrawingMode(mode)
         },
         deleteSelectedFeature() {
             this.manager.deleteSelected()
-        },
-        deactivateFeature() {
-            this.manager.deselect()
-        },
-        isDrawingEmpty() {
-            return (
-                this.manager && this.manager.source && this.manager.source.getFeatures().length > 0
-            )
         },
         triggerKMLUpdate() {
             if (this.KMLUpdateTimeout) {
@@ -235,7 +241,7 @@ export default {
             }
             this.KMLUpdateTimeout = setTimeout(
                 () => {
-                    const kml = this.manager.createKML()
+                    const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
                     if (kml && kml.length) {
                         this.saveDrawing(kml)
                     }
@@ -246,31 +252,89 @@ export default {
             )
         },
         onChange() {
-            this.drawingNotEmpty = this.isDrawingEmpty()
-            this.triggerKMLUpdate()
+            this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length > 0
+            // this.triggerKMLUpdate()
         },
         onClear() {
-            this.drawingNotEmpty = this.isDrawingEmpty()
             // Only trigger the kml update if we have an active open drawing. The clear
             // event also happens when removing a drawing layer when the drawing menu
             // is closed and in this condition we don't want to re-created now a new KML
             // until the menu is opened again.
-            if (this.show) {
-                this.triggerKMLUpdate()
+            // if (this.show) {
+            //     this.triggerKMLUpdate()
+            // }
+        },
+        onSelectChange(event) {
+            if (event.type === 'add') {
+                this.currentlyEditedFeature = event.element
+            } else if (event.type === 'remove') {
+                this.currentlyEditedFeature = null
+                // This property is never set to false internally. This is a problem
+                // with markers when we switch directly from one feature to the next.
+                this.modifyInteraction.snappedToVertex_ = false
             }
         },
-        onSelect(event) {
-            /** @type {import('./lib/DrawingManager.js').SelectEvent} */
-            const selectEvent = event
-            const feature = selectEvent.feature
-            let xy =
-                feature && feature.getGeometry() instanceof Point
-                    ? feature.getGeometry().getCoordinates()
-                    : selectEvent.coordinates
-            const showOverlay = feature && !selectEvent.modifying
-            overlay.setVisible(showOverlay)
-            overlay.setPosition(xy)
-            this.selectedFeature = showOverlay ? feature : null
+        onModifyStart(event) {
+            const features = event.features.getArray()
+            const [feature] = features
+            if (feature && feature.length === 1) {
+                this.currentlyEditedFeature = feature
+                this.getMap().getTarget().classList.add(cursorGrabbingClass)
+            }
+        },
+        onModifyEnd(event) {
+            if (!event.features) {
+                return
+            }
+            const features = event.features.getArray()
+            const [feature] = features
+            if (feature && features.length === 1) {
+                this.currentlyEditedFeature = feature
+                this.onChange(feature)
+                this.getMap().getTarget().classList.remove(cursorGrabbingClass)
+            }
+        },
+        onAddFeature(event, geometryType, drawingMode, properties) {
+            const feature = event.feature
+            const props =
+                typeof properties === 'function' ? properties(this.availableIconSets) : properties
+
+            feature.setId(getUid(feature))
+            feature.setProperties({
+                type: geometryType,
+                drawingMode,
+                ...props,
+            })
+        },
+        onDrawStart(event) {
+            event.feature.set('isDrawing', true)
+            if (event.target.get('drawingMode') === DrawingModes.MEASURE) {
+                this.measureManager.addOverlays(event.feature)
+            }
+        },
+        onDrawEnd(event, interaction) {
+            const feature = event.feature
+            feature.unset('isDrawing')
+            feature.setStyle(featureStyle)
+            this.drawingLayer.getSource().once('addfeature', (event) => {
+                this.polygonToLineString(event.feature)
+                if (event.feature.get('drawingMode') === DrawingModes.MEASURE) {
+                    this.measureManager.addOverlays(event.feature)
+                }
+                this.onChange(event.feature)
+            })
+
+            // deactivate drawing tool
+            interaction.setActive(false)
+            this.selectInteraction.getFeatures().push(feature)
+            this.sketchPoints = 0
+
+            // remove the area tooltip.
+            this.measureManager.removeOverlays(feature)
+            this.currentlyEditedFeature = feature
+
+            // de-selecting the current tool (drawing mode)
+            this.setDrawingMode(null)
         },
         async saveDrawing(kml) {
             let metadata
@@ -284,29 +348,9 @@ export default {
                 this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }
         },
-        exportDrawing(gpx = false) {
-            const date = new Date()
-                .toISOString()
-                .split('.')[0]
-                .replaceAll('-', '')
-                .replaceAll(':', '')
-                .replace('T', '')
-            let fileName = 'map.geo.admin.ch_'
-            let content, type
-            if (gpx) {
-                fileName += `GPX_${date}.gpx`
-                content = this.manager.createGPX()
-                type = 'application/gpx+xml;charset=UTF-8'
-            } else {
-                fileName += `KML_${date}.kml`
-                content = this.manager.createKML()
-                type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
-            }
-            const blob = new Blob([content], { type: type })
-            saveAs(blob, fileName)
-        },
-        clearDrawing() {
-            this.manager.clearDrawing()
+        clearDrawing: function () {
+            this.selectInteraction.getFeatures().clear()
+            this.drawingLayer.getSource().clear()
             this.triggerKMLUpdate()
         },
         addSavedKmlLayer() {
@@ -331,6 +375,89 @@ export default {
                     this.removeLayer(layer)
                 })
             }
+        },
+        /** Transform a Polygon to a LineString if the geometry was not closed by a click on the first point */
+        polygonToLineString(feature) {
+            const geometry = feature.getGeometry()
+            if (geometry.getType() === GeometryType.POLYGON && !this.isFinishOnFirstPoint_) {
+                const coordinates = geometry.getLinearRing().getCoordinates()
+                coordinates.pop()
+                feature.setGeometry(new LineString(coordinates))
+            }
+        },
+        activateDrawing() {
+            this.selectInteraction.setActive(true)
+            this.modifyInteraction.setActive(true)
+            const map = this.getMap()
+            if (map) {
+                map.addInteraction(this.selectInteraction)
+                map.addInteraction(this.modifyInteraction)
+                for (const interaction of Object.values(this.interactionByDrawingMode)) {
+                    map.addInteraction(interaction)
+                }
+                map.addLayer(this.drawingLayer)
+            }
+            // this.manager.activate()
+        },
+        disableDrawing() {
+            this.selectInteraction.setActive(false)
+            this.modifyInteraction.setActive(false)
+            const map = this.getMap()
+            if (map) {
+                map.removeLayer(this.drawingLayer)
+                for (const interaction of Object.values(this.interactionByDrawingMode)) {
+                    map.removeInteraction(interaction)
+                }
+                map.removeInteraction(this.modifyInteraction)
+                map.removeInteraction(this.selectInteraction)
+            }
+            // this.manager.deactivate()
+        },
+        //----------------------------------------------------------------------
+        // Bindings between the currently edited feature and the one stored in Vuex
+        //----------------------------------------------------------------------
+        bindFeatureEvents(feature) {
+            if (feature) {
+                feature.on('change:title', this.updateFeatureTitle)
+                feature.on('change:description', this.updateFeatureDescription)
+                feature.on('change:textColor', this.updateFeatureTextColor)
+                feature.on('change:textSize', this.updateFeatureTextSize)
+                feature.on('change:fillColor', this.updateFeatureFillColor)
+                feature.on('change:fillColor', this.updateFeatureIcon)
+                feature.on('change:icon', this.updateFeatureIcon)
+                feature.on('change:iconSize', this.updateFeatureIcon)
+            }
+        },
+        unbindFeatureEvents(feature) {
+            if (feature) {
+                feature.removeListener('change:title', this.updateFeatureTitle)
+                feature.removeListener('change:description', this.updateFeatureDescription)
+                feature.removeListener('change:textColor', this.updateFeatureTextColor)
+                feature.removeListener('change:textSize', this.updateFeatureTextSize)
+                feature.removeListener('change:fillColor', this.updateFeatureFillColor)
+                feature.removeListener('change:fillColor', this.updateFeatureIcon)
+                feature.removeListener('change:icon', this.updateFeatureIcon)
+                feature.removeListener('change:iconSize', this.updateFeatureIcon)
+            }
+        },
+        updateFeatureTitle(feature) {
+            this.currentlyEditedFeature?.set('text', feature.title)
+        },
+        updateFeatureDescription(feature) {
+            this.currentlyEditedFeature?.set('description', feature.title)
+        },
+        updateFeatureTextColor(feature) {
+            this.currentlyEditedFeature?.set('color', feature.textColor.fill)
+        },
+        updateFeatureTextSize(feature) {
+            this.currentlyEditedFeature?.set('font', feature.textSize.font)
+            this.currentlyEditedFeature?.set('textScale', feature.textSizeScale)
+        },
+        updateFeatureFillColor(feature) {
+            this.currentlyEditedFeature?.set('color', feature.fillColor.fill)
+        },
+        updateFeatureIcon(feature) {
+            this.currentlyEditedFeature?.set('iconUrl', feature.iconUrl)
         },
     },
 }

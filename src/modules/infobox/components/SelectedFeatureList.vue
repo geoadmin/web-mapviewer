@@ -1,0 +1,107 @@
+<template>
+    <div
+        v-for="(feature, index) in selectedFeatures"
+        :key="generateFeatureIdForList(feature, index)"
+        class="tooltip-feature"
+        data-cy="highlighted-features"
+    >
+        <!-- We do not show anything for an editable feature that is a measure 
+        (as the profile of the feature will be shown in a separate component) -->
+        <div v-if="feature.isEditable && !isFeatureMeasure(feature)">
+            <FeatureStyleEdit
+                :feature="feature"
+                :available-icon-sets="availableIconSets"
+                @change:title="(title) => onTitleChange(feature, title)"
+                @change:description="(description) => onDescriptionChange(feature, description)"
+                @change:text-size="(textSize) => onTextSizeChange(feature, textSize)"
+                @change:text-color="(textColor) => onTextColorChange(feature, textColor)"
+                @change:color="(color) => onColorChange(feature, color)"
+                @change:icon="(icon) => onIconChange(feature, icon)"
+                @change:icon-size="(iconSize) => onIconSizeChange(feature, iconSize)"
+            />
+        </div>
+        <!-- eslint-disable vue/no-v-html-->
+        <div v-if="!feature.isEditable" v-html="feature.htmlPopup" />
+        <!-- eslint-enable vue/no-v-html-->
+    </div>
+</template>
+<script>
+import { EditableFeatureTypes } from '@/api/features.api'
+import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
+import { mapActions, mapState } from 'vuex'
+
+export default {
+    components: { FeatureStyleEdit },
+    computed: {
+        ...mapState({
+            selectedFeatures: (state) => state.features.selectedFeatures,
+            availableIconSets: (state) => state.drawing.iconSets,
+        }),
+    },
+    methods: {
+        ...mapActions([
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
+        ]),
+        generateFeatureIdForList(feature, indexInList) {
+            const featureId = feature.id ? feature.id : indexInList
+            if (feature.layer) {
+                return `${feature.layer.id}-${featureId}`
+            }
+            return featureId
+        },
+        /**
+         * @param {EditableFeature} feature
+         * @returns {Boolean}
+         */
+        isFeatureMeasure(feature) {
+            return feature.featureType === EditableFeatureTypes.MEASURE
+        },
+        onTitleChange(feature, title) {
+            this.changeFeatureTitle({ feature, title })
+        },
+        onDescriptionChange(feature, description) {
+            this.changeFeatureDescription({ feature, description })
+        },
+        onTextSizeChange(feature, textSize) {
+            this.changeFeatureTextSize({ feature, textSize })
+        },
+        onTextColorChange(feature, textColor) {
+            this.changeFeatureTextColor({ feature, textColor })
+        },
+        onColorChange(feature, color) {
+            this.changeFeatureColor({ feature, color })
+        },
+        onIconChange(feature, icon) {
+            this.changeFeatureIcon({ feature, icon })
+        },
+        onIconSizeChange(feature, iconSize) {
+            this.changeFeatureIconSize({ feature, iconSize })
+        },
+    },
+}
+</script>
+
+<style lang="scss">
+.htmlpopup-container {
+    width: 100%;
+    font-size: 11px;
+    text-align: start;
+}
+.htmlpopup-header {
+    background-color: #e9e9e9;
+    padding: 7px;
+    margin-bottom: 7px;
+    font-weight: 700;
+}
+.htmlpopup-content table {
+    width: 100%;
+    border: 0;
+    margin: 0 7px;
+}
+</style>

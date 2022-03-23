@@ -1,7 +1,9 @@
-import { asArray } from 'ol/color'
-import { Fill, Icon, Stroke, Style, Text, Circle } from 'ol/style'
-import { MultiPoint, Polygon, Circle as CircleGeom, LineString } from 'ol/geom'
 import { canShowAzimuthCircle, getMeasureDelta, toLv95 } from '@/modules/drawing/lib/drawingUtils'
+import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { asArray } from 'ol/color'
+import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
+import GeometryType from 'ol/geom/GeometryType'
+import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
 const whiteSketchFill = new Fill({
     color: [255, 255, 255, 0.4],
@@ -18,55 +20,54 @@ const dashedRedStroke = new Stroke({
     lineDash: [8],
 })
 
-export function createEditingStyle() {
-    const pointStyle = {
-        radius: 7,
-        stroke: new Stroke({
-            color: [0, 0, 0, 1],
+const pointStyle = {
+    radius: 7,
+    stroke: new Stroke({
+        color: [0, 0, 0, 1],
+    }),
+}
+const point = new Circle({
+    ...pointStyle,
+    fill: new Fill({
+        color: [255, 255, 255, 1],
+    }),
+})
+const sketchPoint = new Circle({
+    ...pointStyle,
+    fill: whiteSketchFill,
+})
+
+export const editingFeatureStyleFunction = (feature) => {
+    const featureGeometries = feature.get('geometries')
+    const isLineOrMeasure = featureGeometries && featureGeometries[0] instanceof Polygon
+    const styles = [
+        new Style({
+            image: isLineOrMeasure ? sketchPoint : point,
+            zIndex: 30,
         }),
-    }
-    const point = new Circle({
-        ...pointStyle,
-        fill: new Fill({
-            color: [255, 255, 255, 1],
-        }),
-    })
-    const sketchPoint = new Circle({
-        ...pointStyle,
-        fill: whiteSketchFill,
-    })
-    return (feature) => {
-        const featureGeometries = feature.get('geometries')
-        const isLineOrMeasure = featureGeometries && featureGeometries[0] instanceof Polygon
-        const styles = [
+    ]
+    const geom = feature.getGeometry()
+    if (geom instanceof Polygon || geom instanceof LineString) {
+        styles.push(
             new Style({
-                image: isLineOrMeasure ? sketchPoint : point,
+                image: point,
+                geometry(f) {
+                    const geometry = f.getGeometry()
+                    let coordinates = geometry.getCoordinates()
+                    if (geometry instanceof Polygon) {
+                        coordinates = coordinates[0]
+                    }
+                    return new MultiPoint(coordinates)
+                },
                 zIndex: 30,
-            }),
-        ]
-        const geom = feature.getGeometry()
-        if (geom instanceof Polygon || geom instanceof LineString) {
-            styles.push(
-                new Style({
-                    image: point,
-                    geometry(f) {
-                        const geometry = f.getGeometry()
-                        let coordinates = geometry.getCoordinates()
-                        if (geometry instanceof Polygon) {
-                            coordinates = coordinates[0]
-                        }
-                        return new MultiPoint(coordinates)
-                    },
-                    zIndex: 30,
-                })
-            )
-        }
-        const defStyle = featureStyle(feature)
-        if (defStyle) {
-            styles.push(...defStyle)
-        }
-        return styles
+            })
+        )
     }
+    const defStyle = featureStyle(feature)
+    if (defStyle) {
+        styles.push(...defStyle)
+    }
+    return styles
 }
 
 /**
@@ -78,13 +79,12 @@ export function featureStyle(feature) {
     if (!color) {
         return
     }
-    const type = feature.get('type')
     color = asArray(color)
     const stroke = feature.get('strokeColor')
     const fillColor = [...color.slice(0, 3), 0.4]
     const text = feature.get('text')
-    const font = feature.get('font')
-    const icon = feature.get('icon')
+    const drawingMode = feature.get('drawingMode')
+    const icon = feature.get('iconUrl')
     const anchor = feature.get('anchor')
     const textScale = feature.get('textScale')
     let image = null
@@ -101,7 +101,7 @@ export function featureStyle(feature) {
             image: image,
             text: new Text({
                 text: text,
-                font: font,
+                font: textScale.font,
                 fill: new Fill({
                     color: color,
                 }),
@@ -112,7 +112,7 @@ export function featureStyle(feature) {
                 scale: textScale || 1,
             }),
             stroke:
-                type === 'MEASURE'
+                drawingMode === DrawingModes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
                           color: color,
@@ -123,7 +123,7 @@ export function featureStyle(feature) {
             }),
         }),
     ]
-    if (type === 'MEASURE') {
+    if (drawingMode === DrawingModes.MEASURE) {
         styles.push(azimuthCircleStyle(), measurePoints())
     }
     return styles
@@ -149,11 +149,11 @@ const sketchPolygonStyle = new Style({
 
 export function drawLineStyle(sketch) {
     const type = sketch.getGeometry().getType()
-    if (type === 'Point') {
+    if (type === GeometryType.POINT) {
         return sketchPointStyle
-    } else if (type === 'LineString') {
+    } else if (type === GeometryType.LINE_STRING) {
         return sketchLineStyle
-    } else if (type === 'Polygon') {
+    } else if (type === GeometryType.POLYGON) {
         return sketchPolygonStyle
     }
 }

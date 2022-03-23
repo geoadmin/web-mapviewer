@@ -1,7 +1,8 @@
 import { API_BASE_URL } from '@/config'
-import axios from 'axios'
-import log from '@/utils/logging'
 import EventEmitter from '@/utils/EventEmitter.class'
+import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
+import axios from 'axios'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -31,8 +32,17 @@ export class Feature extends EventEmitter {
         this._isEditable = !!isEditable
     }
 
-    emitChangeEvent() {
+    /**
+     * Emits a change event and, if changeType is defined, a change:changeType event
+     *
+     * @param {String} changeType So that the change event is more specific, for instance if
+     *   changeType is equal to 'title' a 'change' event and a 'change:title' event will be fired
+     */
+    emitChangeEvent(changeType = null) {
         this.emit('change', this)
+        if (changeType) {
+            this.emit(`change:${changeType}`, this)
+        }
     }
 
     get id() {
@@ -55,7 +65,7 @@ export class Feature extends EventEmitter {
     }
     set title(newTitle) {
         this._title = newTitle
-        this.emitChangeEvent()
+        this.emitChangeEvent('title')
     }
 
     get description() {
@@ -63,13 +73,21 @@ export class Feature extends EventEmitter {
     }
     set description(newDescription) {
         this._description = newDescription
-        this.emitChangeEvent()
+        this.emitChangeEvent('description')
     }
 
     get isEditable() {
         return this._isEditable
     }
     // isEditable is immutable, no setter
+}
+
+/** @enum */
+export const EditableFeatureTypes = {
+    MARKER: 'MARKER',
+    ANNOTATION: 'ANNOTATION',
+    LINEPOLYGON: 'LINEPOLYGON',
+    MEASURE: 'MEASURE',
 }
 
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
@@ -80,9 +98,111 @@ export class EditableFeature extends Feature {
      * @param {Number[]} coordinate [x,y] coordinates of this feature in EPSG:3857 (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only text)
+     * @param {EditableFeatureTypes} featureType Type of this editable feature
+     * @param {FeatureStyleColor} textColor Color for the text of this feature
+     * @param {FeatureStyleSize} textSize Size of the text for this feature
+     * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
+     * @param {Icon} icon Icon that will be covering this feature, can be null
+     * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this feature
      */
-    constructor(id, coordinate, title, description) {
+    constructor(
+        id,
+        coordinate,
+        title,
+        description,
+        featureType,
+        textColor = RED,
+        textSize = MEDIUM,
+        fillColor = RED,
+        icon = null,
+        iconSize = MEDIUM
+    ) {
         super(id, coordinate, title, description, true)
+        this._featureType = featureType
+        this._textColor = textColor
+        this._textSize = textSize
+        this._fillColor = fillColor
+        this._icon = icon
+        this._iconSize = iconSize
+    }
+
+    // getters and setters for all properties (with event emit for setters)
+    get featureType() {
+        return this._featureType
+    }
+    // no setter for featureType, immutable
+
+    /** @returns {FeatureStyleColor} */
+    get textColor() {
+        return this._textColor
+    }
+    /** @param newColor {FeatureStyleColor} */
+    set textColor(newColor) {
+        if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
+            this._textColor = newColor
+            this.emitChangeEvent('textColor')
+        }
+    }
+
+    /** @returns {FeatureStyleSize} */
+    get textSize() {
+        return this._textSize
+    }
+    /** @returns {Number} */
+    get textSizeScale() {
+        return this._textSize?.textScale
+    }
+    /** @param newSize {FeatureStyleSize} */
+    set textSize(newSize) {
+        if (newSize && allStylingSizes.find((size) => size.textScale === newSize.textScale)) {
+            this._textSize = newSize
+            this.emitChangeEvent('textSize')
+        }
+    }
+    get font() {
+        return this._textSize.font
+    }
+
+    /** @returns {Icon | null} */
+    get icon() {
+        return this._icon
+    }
+    /** @param newIcon {Icon} */
+    set icon(newIcon) {
+        this._icon = newIcon
+        this.emitChangeEvent('icon')
+    }
+    /** @returns {String} */
+    get iconUrl() {
+        return this._icon?.generateURL(this.iconSize, this.fillColor)
+    }
+
+    /** @returns {FeatureStyleColor} */
+    get fillColor() {
+        return this._fillColor
+    }
+    /** @param newColor {FeatureStyleColor} */
+    set fillColor(newColor) {
+        if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
+            this._fillColor = newColor
+            this.emitChangeEvent('fillColor')
+        }
+    }
+
+    /** @returns {FeatureStyleSize} */
+    get iconSize() {
+        return this._iconSize
+    }
+    /** @returns {Number} */
+    get iconSizeScale() {
+        return this._iconSize?.iconScale
+    }
+    /** @param newSize {FeatureStyleSize} */
+    set iconSize(newSize) {
+        if (newSize && allStylingSizes.find((size) => size.iconScale === newSize.iconScale)) {
+            this._iconSize = newSize
+            this.emitChangeEvent('iconSize')
+        }
     }
 }
 
@@ -100,22 +220,39 @@ export class LayerFeature extends Feature {
      */
     constructor(layer, id, name, htmlPopup, coordinate, extent, geometry = null) {
         super(id, coordinate, name, null, false)
-        this.layer = layer
+        this._layer = layer
         // for now the backend gives us the description of the feature as HTML
         // it would be good to change that to only data in the future
-        this.htmlPopup = htmlPopup
-        this.extent = extent
-        this.geometry = geometry
+        this._htmlPopup = htmlPopup
+        this._extent = extent
+        this._geometry = geometry
     }
 
     // overwriting get ID so that we use the layer ID with the feature ID
     get id() {
-        return `${this.layer.getID()}-${this._id}`
+        return `${this._layer.getID()}-${this._id}`
+    }
+
+    // getters for all attributes (no setters)
+    get layer() {
+        return this._layer
     }
 
     /** @returns {LayerTypes} */
     getLayerType() {
-        return this.layer && this.layer.type
+        return this._layer && this._layer.type
+    }
+
+    get htmlPopup() {
+        return this._htmlPopup
+    }
+
+    get extent() {
+        return this._extent
+    }
+
+    get geometry() {
+        return this._geometry
     }
 }
 
