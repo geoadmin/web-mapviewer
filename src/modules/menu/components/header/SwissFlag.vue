@@ -26,12 +26,6 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .swiss-flag {
     height: 34px;
-    :first-child {
-        fill: $red;
-    }
-    :last-child {
-        fill: $white;
-    }
     &.dev-site {
         filter: hue-rotate(225deg);
     }
