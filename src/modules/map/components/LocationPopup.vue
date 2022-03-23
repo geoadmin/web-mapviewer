@@ -199,11 +199,8 @@ export default {
         })
     },
     mounted() {
-        const olMap = this.getMap()
-        if (olMap) {
-            this.overlay.setElement(this.$el)
-            olMap.addOverlay(this.overlay)
-        }
+        this.overlay.setElement(this.$el)
+        this.getMap().addOverlay(this.overlay)
     },
     beforeUnmount() {
         this.overlay.setElement(null)

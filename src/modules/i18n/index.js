@@ -6,27 +6,18 @@ import fr from './locales/fr.json'
 import it from './locales/it.json'
 import rm from './locales/rm.json'
 
-export const languages = {
-    en: en,
-    de: de,
-    fr: fr,
-    it: it,
-    rm: rm,
-}
+export const languages = { en, de, fr, it, rm }
 
-// detecting navigator's locale as the default language (if it is a language served by this app)
-let matchingLang = null
+// detecting navigator's locale as the default language
+// (if it is a language served by this app)
+let matchedLanguage = null
 if (navigator.languages) {
-    navigator.languages.forEach((lang) => {
-        // we keep the first match we found
-        if (!matchingLang && lang in languages) {
-            matchingLang = lang
-        }
-    })
+    // we keep the first match we found
+    matchedLanguage = navigator.languages.find((lang) => lang in languages)
 }
 
 const i18n = createI18n({
-    locale: matchingLang ? matchingLang : 'en', // default locale
+    locale: matchedLanguage || 'en', // default locale
     messages: languages,
 })
 
