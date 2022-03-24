@@ -11,14 +11,16 @@
             :half-size="results.locationResults.length > 0"
             :entries="results.locationResults"
             data-cy="search-results-locations"
-            @preview="setPinnedLocation"
+            @preview-start="setPinnedLocation"
+            @preview-stop="clearPinnedLocation"
         />
         <SearchResultCategory
             :title="$t('layers_results_header')"
             :half-size="results.layerResults.length > 0"
             :entries="results.layerResults"
             data-cy="search-results-layers"
-            @preview="setPreviewLayer"
+            @preview-start="setPreviewLayer"
+            @preview-stop="clearPreviewLayer"
         />
     </div>
 </template>
@@ -38,7 +40,12 @@ export default {
         }),
     },
     methods: {
-        ...mapActions(['setPreviewLayer', 'setPinnedLocation']),
+        ...mapActions([
+            'setPinnedLocation',
+            'clearPinnedLocation',
+            'setPreviewLayer',
+            'clearPreviewLayer',
+        ]),
     },
 }
 </script>

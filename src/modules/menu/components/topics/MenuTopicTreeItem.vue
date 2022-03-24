@@ -11,8 +11,8 @@
             class="menu-topic-item-title"
             :data-cy="`topic-tree-item-${item.id}`"
             @click="onItemClick"
-            @mouseenter="previewLayer(true)"
-            @mouseleave="previewLayer(false)"
+            @mouseenter="startResultPreview"
+            @mouseleave="stopResultPreview"
         >
             <ButtonWithIcon
                 :button-font-awesome-icon="showHideIcon"
@@ -46,9 +46,10 @@
                     :active-layers="activeLayers"
                     :depth="depth + 1"
                     :compact="compact"
-                    @click-on-topic-item="bubbleToggleItemEvent"
-                    @click-on-layer-info="bubbleLayerInfoEvent"
-                    @preview="bubblePreviewEvent"
+                    @click-on-topic-item="bubbleEvent('clickOnTopicItem', $event)"
+                    @click-on-layer-info="bubbleEvent('clickOnLayerInfo', $event)"
+                    @preview-start="bubbleEvent('previewStart', $event)"
+                    @preview-stop="bubbleEvent('previewStop', $event)"
                 />
             </ul>
         </CollapseTransition>
@@ -90,7 +91,7 @@ export default {
             default: 0,
         },
     },
-    emits: ['clickOnTopicItem', 'clickOnLayerInfo', 'preview'],
+    emits: ['clickOnTopicItem', 'clickOnLayerInfo', 'previewStart', 'previewStop'],
     data() {
         return {
             showChildren: false,
@@ -117,7 +118,7 @@ export default {
         },
         isActive() {
             return (
-                this.item.type === topicTypes.LAYER &&
+                this.isLayer &&
                 this.activeLayers.find((layer) => layer.getID() === this.item.layerId)
             )
         },
@@ -144,26 +145,23 @@ export default {
         onInfoClick() {
             this.$emit('clickOnLayerInfo', this.item.layerId)
         },
-        previewLayer(show) {
+        startResultPreview() {
             if (this.isLayer) {
-                this.$emit('preview', show ? this.item.layerId : null)
+                this.$emit('previewStart', this.item.layerId)
+            }
+        },
+        stopResultPreview() {
+            if (this.isLayer) {
+                this.$emit('previewStop')
             }
         },
         /**
          * As we can have recursive component (see template), we have to bubble up user interaction
          * events, otherwise the event get stuck mid course and never reaches the parent that can
          * interact with the store
-         *
-         * @param {String} layerId The ID of the layer that has been clicked in the topic tree
          */
-        bubbleToggleItemEvent(layerId) {
-            this.$emit('clickOnTopicItem', layerId)
-        },
-        bubbleLayerInfoEvent(layerId) {
-            this.$emit('clickOnLayerInfo', layerId)
-        },
-        bubblePreviewEvent(layerId) {
-            this.$emit('preview', layerId)
+        bubbleEvent(type, payload) {
+            this.$emit(type, payload)
         },
     },
 }

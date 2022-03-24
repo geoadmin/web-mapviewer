@@ -14,7 +14,8 @@
                 :index="index"
                 :entry="entry"
                 @show-layer-legend-popup="showLayerLegendPopup"
-                @preview="bubblePreviewEvent"
+                @preview-start="bubbleEvent('previewStart', $event)"
+                @preview-stop="bubbleEvent('previewStop', $event)"
             />
         </ul>
 
@@ -63,8 +64,8 @@ export default {
         closeLayerLegendPopup() {
             this.showLayerLegendForId = null
         },
-        bubblePreviewEvent(data) {
-            this.$emit('preview', data)
+        bubbleEvent(type, payload) {
+            this.$emit(type, payload)
         },
     },
 }

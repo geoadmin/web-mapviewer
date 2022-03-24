@@ -9,8 +9,8 @@
         @keydown.home.prevent="goToFirst"
         @keydown.end.prevent="goToLast"
         @keypress.enter.prevent="selectItem"
-        @mouseenter="previewResult(true)"
-        @mouseleave="previewResult(false)"
+        @mouseenter="startResultPreview"
+        @mouseleave="stopResultPreview"
     >
         <!-- eslint-disable vue/no-v-html-->
         <div class="search-category-entry-main p-2" @click="selectItem" v-html="entry.title"></div>
@@ -44,7 +44,7 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup', 'preview'],
+    emits: ['showLayerLegendPopup', 'previewStart', 'previewStop'],
     computed: {
         resultType() {
             return this.entry.resultType.toLowerCase()
@@ -77,12 +77,15 @@ export default {
                 this.$refs.item.tabIndex = '-1'
             }
         },
-        previewResult(show) {
+        startResultPreview() {
             if (this.resultType === 'layer') {
-                this.$emit('preview', show ? this.entry.layerId : null)
+                this.$emit('previewStart', this.entry.layerId)
             } else {
-                this.$emit('preview', show ? this.entry.coordinates : null)
+                this.$emit('previewStart', this.entry.coordinates)
             }
+        },
+        stopResultPreview() {
+            this.$emit('previewStop')
         },
     },
 }
