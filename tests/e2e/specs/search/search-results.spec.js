@@ -60,6 +60,7 @@ describe('Test the search bar result handling', () => {
                     'EPSG:3857',
                     expectedCenterEpsg4326
                 )
+                const expectedLayerId = 'test.wmts.layer'
                 const locationResponse = {
                     results: [
                         {
@@ -89,7 +90,7 @@ describe('Test the search bar result handling', () => {
                             weight: 1,
                             attrs: {
                                 label: expectedLayerLabel,
-                                layer: 'ch.swisstopo.test',
+                                layer: expectedLayerId,
                             },
                         },
                         { attrs: { label: 'Test layer #2' } },
@@ -277,6 +278,40 @@ describe('Test the search bar result handling', () => {
                     cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
                         checkLocation(expectedCenterEpsg3857, pinnedLocation)
                     )
+                })
+                it('previews the location or layer on hover', () => {
+                    cy.goToMapView()
+                    cy.get(searchbarSelector).paste('test')
+                    cy.wait(`@search-locations`)
+
+                    const locationSelector =
+                        '[data-cy="search-result-entry-location"] .search-category-entry-main'
+                    const layerSelector =
+                        '[data-cy="search-result-entry-layer"] .search-category-entry-main'
+
+                    // Location - Enter
+                    cy.get(locationSelector).first().trigger('mouseenter')
+                    cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) => {
+                        checkLocation(expectedCenterEpsg3857, pinnedLocation)
+                    })
+                    // Location - Leave
+                    cy.get(locationSelector).first().trigger('mouseleave')
+                    cy.readStoreValue('state.map').then((map) => {
+                        expect(map.pinnedLocation).to.be.null
+                    })
+
+                    // Layer - Enter
+                    cy.get(layerSelector).first().trigger('mouseenter')
+                    cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                        const visibleIds = visibleLayers.map((layer) => layer.getID())
+                        expect(visibleIds).to.contain(expectedLayerId)
+                    })
+                    // Layer - Leave
+                    cy.get(layerSelector).first().trigger('mouseleave')
+                    cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                        const visibleIds = visibleLayers.map((layer) => layer.getID())
+                        expect(visibleIds).not.to.contain(expectedLayerId)
+                    })
                 })
             }
         )

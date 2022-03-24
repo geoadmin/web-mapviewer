@@ -236,6 +236,25 @@ describe('Topics', () => {
                             .should('be.visible')
                             .contains(expectedContent)
                     })
+                    it('previews the layer on hover', () => {
+                        const expectedLayerId = 'test.wmts.layer'
+                        const layerSelector = `[data-cy="topic-tree-item-${expectedLayerId}"]`
+
+                        cy.get('[data-cy="topic-tree-item-2"]').click()
+                        cy.get('[data-cy="topic-tree-item-3"]').click()
+
+                        cy.get(layerSelector).trigger('mouseenter')
+                        cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                            const visibleIds = visibleLayers.map((layer) => layer.getID())
+                            expect(visibleIds).to.contain(expectedLayerId)
+                        })
+
+                        cy.get(layerSelector).trigger('mouseleave')
+                        cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
+                            const visibleIds = visibleLayers.map((layer) => layer.getID())
+                            expect(visibleIds).not.to.contain(expectedLayerId)
+                        })
+                    })
                 })
             }
         )

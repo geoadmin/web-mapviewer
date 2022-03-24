@@ -48,7 +48,7 @@
                     :compact="compact"
                     @click-on-topic-item="bubbleToggleItemEvent"
                     @click-on-layer-info="bubbleLayerInfoEvent"
-                    @preview-layer="bubblePreviewEvent"
+                    @preview="bubblePreviewEvent"
                 />
             </ul>
         </CollapseTransition>
@@ -90,7 +90,7 @@ export default {
             default: 0,
         },
     },
-    emits: ['clickOnTopicItem', 'clickOnLayerInfo', 'previewLayer'],
+    emits: ['clickOnTopicItem', 'clickOnLayerInfo', 'preview'],
     data() {
         return {
             showChildren: false,
@@ -145,8 +145,8 @@ export default {
             this.$emit('clickOnLayerInfo', this.item.layerId)
         },
         previewLayer(show) {
-            if (this.item.type === topicTypes.LAYER) {
-                this.$emit('previewLayer', show ? this.item.layerId : null)
+            if (this.isLayer) {
+                this.$emit('preview', show ? this.item.layerId : null)
             }
         },
         /**
@@ -163,7 +163,7 @@ export default {
             this.$emit('clickOnLayerInfo', layerId)
         },
         bubblePreviewEvent(layerId) {
-            this.$emit('previewLayer', layerId)
+            this.$emit('preview', layerId)
         },
     },
 }

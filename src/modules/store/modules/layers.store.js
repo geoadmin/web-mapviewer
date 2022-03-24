@@ -39,10 +39,10 @@ const getters = {
      * @param state
      * @returns {AbstractLayer[]} All layers that are currently visible on the map
      */
-    visibleLayers: (state) =>
-        [...state.activeLayers.filter((layer) => layer.visible), state.previewLayer].filter(
-            (layer) => layer !== null
-        ),
+    visibleLayers: (state) => {
+        const activeVisible = state.activeLayers.filter((layer) => layer.visible)
+        return state.previewLayer === null ? activeVisible : [...activeVisible, state.previewLayer]
+    },
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
@@ -221,18 +221,19 @@ const actions = {
             }
         }
     },
-    showLayerPreview({ commit, getters }, layerId) {
-        const layer = getters.getLayerConfigById(layerId)
-        if (layer) {
-            const cloned = layer.clone()
-            cloned.visible = true
-            commit('setPreviewLayer', cloned)
+    setPreviewLayer({ commit, getters }, layerId) {
+        if (!layerId) {
+            commit('setPreviewLayer', null)
         } else {
-            log.error(`Layer "${layerId} not found in configs.`)
+            const layer = getters.getLayerConfigById(layerId)
+            if (layer) {
+                const cloned = layer.clone()
+                cloned.visible = true
+                commit('setPreviewLayer', cloned)
+            } else {
+                log.error(`Layer "${layerId} not found in configs.`)
+            }
         }
-    },
-    hideLayerPreview({ commit }) {
-        commit('setPreviewLayer', null)
     },
 }
 
