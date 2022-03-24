@@ -45,16 +45,38 @@ describe('Test functions for the header / search bar', () => {
                     })
                 }
 
+                if (isTabletViewport) {
+                    context('Menu on tablet', () => {
+                        it('should start closed', () => {
+                            cy.get('[data-cy="menu-tray"]').should(
+                                'have.class',
+                                'desktop-menu-closed'
+                            )
+                        })
+                    })
+                }
+
+                if (!isMobileViewport && !isTabletViewport) {
+                    context('Menu on Desktop', () => {
+                        it('should start open', () => {
+                            cy.get('[data-cy="menu-tray"]').should(
+                                'not.have.class',
+                                'desktop-menu-closed'
+                            )
+                        })
+                    })
+                }
+
                 context('Settings Menu Section', () => {
                     it('does not show the settings sections on opening the menu', () => {
-                        if (isMobileViewport) {
+                        if (isMobileViewport || isTabletViewport) {
                             cy.get(menuButtonSelector).click()
                         }
                         cy.get(menuSettingsContentSelector).should('be.hidden')
                     })
 
                     it('shows the settings on clicking on the settings section', () => {
-                        if (isMobileViewport) {
+                        if (isMobileViewport || isTabletViewport) {
                             cy.get(menuButtonSelector).click()
                         }
                         cy.get(menuSettingsSectionSelector).click()
@@ -62,7 +84,7 @@ describe('Test functions for the header / search bar', () => {
                     })
 
                     it('hides the settings section if clicked again', () => {
-                        if (isMobileViewport) {
+                        if (isMobileViewport || isTabletViewport) {
                             cy.get(menuButtonSelector).click()
                         }
                         cy.get(menuSettingsSectionSelector).click().click()
@@ -91,7 +113,7 @@ describe('Test functions for the header / search bar', () => {
                         })
                     }
                     const selectTopicStandardAndAddLayerFromTopicTree = () => {
-                        if (isMobileViewport) {
+                        if (isMobileViewport || isTabletViewport) {
                             cy.get(menuButtonSelector).click()
                         }
                         cy.get('[data-cy="change-topic-button"]').click()

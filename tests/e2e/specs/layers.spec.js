@@ -44,7 +44,7 @@ describe('Test of layer handling', () => {
             },
             () => {
                 const clickOnMenuButtonIfMobile = () => {
-                    if (isMobile) {
+                    if (isMobile || isTablet) {
                         // clicking on the menu button
                         cy.get('[data-cy="menu-button"]').click()
                     }

@@ -7,7 +7,7 @@ const drawingStyleLinePopup = '[data-cy="drawing-style-line-popup"]'
 const drawingDeleteLastPointButton = '[data-cy="drawing-delete-last-point-button"]'
 
 describe('Line/Polygon tool', () => {
-    forEachTestViewport((viewport, isMobileViewport, isTablet, dimensions) => {
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport, dimensions) => {
         context(
             `viewport: ${viewport}`,
             {
@@ -16,7 +16,7 @@ describe('Line/Polygon tool', () => {
             },
             () => {
                 beforeEach(() => {
-                    cy.goToDrawing(isMobileViewport)
+                    cy.goToDrawing(isMobileViewport || isTabletViewport)
 
                     cy.clickDrawingTool('line')
                     cy.get(olSelector).click(100, 200)

@@ -12,10 +12,13 @@ describe('Topics', () => {
                 // mimic the output of `/rest/services` endpoint
                 let mockupTopics = {}
                 const selectTopicWithId = (topicId) => {
-                    if (isMobileViewport) {
-                        cy.readStoreValue('state.ui.showMenuTray').then((showMenuTray) => {
+                    if (isMobileViewport || isTabletViewport) {
+                        cy.readStoreValue('state.ui').then((ui) => {
                             // only click on the menu button if the menu is not opened yet
-                            if (!showMenuTray) {
+                            if (
+                                (isMobileViewport && !ui.showMenuTray) ||
+                                (isTabletViewport && !ui.menuDesktopOpen)
+                            ) {
                                 cy.get('[data-cy="menu-button"]').click()
                             }
                         })
@@ -197,7 +200,7 @@ describe('Topics', () => {
                 context('Layer selection in the topic tree', () => {
                     beforeEach(() => {
                         cy.goToMapView()
-                        if (isMobileViewport) {
+                        if (isMobileViewport || isTabletViewport) {
                             cy.get('[data-cy="menu-button"]').click()
                         }
                         cy.get('[data-cy="menu-topic-section"]').click()

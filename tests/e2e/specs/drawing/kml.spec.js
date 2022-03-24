@@ -12,7 +12,7 @@ describe('Drawing saving KML', () => {
             },
             () => {
                 beforeEach(() => {
-                    cy.goToDrawing(isMobileViewport)
+                    cy.goToDrawing(isMobileViewport || isTabletViewport)
                 })
 
                 it('saves a KML on draw end', () => {

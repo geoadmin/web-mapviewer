@@ -52,13 +52,13 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', (isMobileViewport = false) => {
+Cypress.Commands.add('goToDrawing', (menuIsClosed = false) => {
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
     cy.goToMapView()
-    if (isMobileViewport) {
+    if (menuIsClosed) {
         cy.get('[data-cy="menu-button"]').click()
     }
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
