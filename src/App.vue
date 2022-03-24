@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 
 /**
  * Main component of the App.
@@ -24,11 +24,6 @@ export default {
             showOutlines: false,
         }
     },
-    computed: {
-        ...mapState({
-            currentUiMode: (state) => state.ui.mode,
-        }),
-    },
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
@@ -38,7 +33,7 @@ export default {
         window.removeEventListener('resize', this.setScreenSizeFromWindowSize)
     },
     methods: {
-        ...mapActions(['setSize', 'setUiMode']),
+        ...mapActions(['setSize']),
         setScreenSizeFromWindowSize() {
             this.setSize({
                 width: window.innerWidth,
