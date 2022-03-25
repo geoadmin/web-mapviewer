@@ -11,6 +11,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+import debounce from '@/utils/debounce'
 
 /**
  * Main component of the App.
@@ -27,10 +28,11 @@ export default {
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
-        window.addEventListener('resize', this.setScreenSizeFromWindowSize)
+        this.debouncedOnResize = debounce(this.setScreenSizeFromWindowSize, 300)
+        window.addEventListener('resize', this.debouncedOnResize, { passive: true })
     },
     unmounted() {
-        window.removeEventListener('resize', this.setScreenSizeFromWindowSize)
+        window.removeEventListener('resize', this.debouncedOnResize)
     },
     methods: {
         ...mapActions(['setSize']),
