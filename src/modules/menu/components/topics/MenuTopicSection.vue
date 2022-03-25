@@ -29,7 +29,8 @@
                 :compact="compact"
                 @click-on-topic-item="onClickTopicItem"
                 @click-on-layer-info="onClickLayerInfo"
-                @preview-layer="onPreviewLayer"
+                @preview-start="setPreviewLayer"
+                @preview-stop="clearPreviewLayer"
             />
         </ul>
         <LayerLegendPopup
@@ -87,8 +88,8 @@ export default {
             'toggleLayerVisibility',
             'setLayerVisibility',
             'changeTopic',
-            'showLayerPreview',
-            'hideLayerPreview',
+            'setPreviewLayer',
+            'clearPreviewLayer',
         ]),
         setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
@@ -108,13 +109,6 @@ export default {
         },
         onClickLayerInfo(layerId) {
             this.showLayerInfoFor = layerId
-        },
-        onPreviewLayer(layerId) {
-            if (layerId) {
-                this.showLayerPreview(layerId)
-            } else {
-                this.hideLayerPreview()
-            }
         },
     },
 }

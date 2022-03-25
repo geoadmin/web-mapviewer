@@ -70,7 +70,7 @@ const actions = {
                 })
             }
         } else if (query.length === 0) {
-            dispatch('setPinnedLocation', null)
+            dispatch('clearPinnedLocation')
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),

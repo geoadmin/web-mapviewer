@@ -97,11 +97,14 @@ export default {
          * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
          */
         setPinnedLocation: ({ commit }, coordinates) => {
-            if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
+            if (Array.isArray(coordinates) && coordinates.length === 2) {
                 commit('setPinnedLocation', coordinates)
             } else {
                 commit('setPinnedLocation', null)
             }
+        },
+        clearPinnedLocation({ commit }) {
+            commit('setPinnedLocation', null)
         },
         setDisplayedProjectionWithId({ commit }, projectionId) {
             if (projectionId && CoordinateSystems[projectionId]) {
