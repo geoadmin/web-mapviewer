@@ -20,12 +20,6 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 export default {
     components: { ButtonWithIcon },
-    props: {
-        selectedFeatures: {
-            type: Array,
-            required: true,
-        },
-    },
     emits: ['close', 'toggleTooltipInFooter'],
     watch: {
         selectedFeatures() {

@@ -80,29 +80,29 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
-import proj4 from 'proj4'
-import { Point } from 'ol/geom'
-import { Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
-import Polygon from 'ol/geom/Polygon'
-import { Feature } from 'ol'
-
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { profile } from '@/api/profile.api'
-import { format } from '@/utils/numberUtils'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import { sketchPointStyle } from '@/modules/drawing/lib/style'
 import { UIModes } from '@/modules/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { format } from '@/utils/numberUtils'
+import * as d3 from 'd3'
+import { Feature } from 'ol'
+import { Point } from 'ol/geom'
+import Polygon from 'ol/geom/Polygon'
+import { Vector as VectorLayer } from 'ol/layer'
+import { Vector as VectorSource } from 'ol/source'
+import proj4 from 'proj4'
 
 export default {
     components: { ButtonWithIcon },
     inject: ['getMap'],
     props: {
         feature: {
-            type: Object,
-            default: null,
+            type: EditableFeature,
+            required: true,
         },
         uiMode: {
             type: String,
@@ -128,7 +128,8 @@ export default {
         showProfile() {
             return (
                 this.feature &&
-                (this.feature.get('type') === 'LINE' || this.feature.get('type') === 'MEASURE')
+                this.feature.featureType in
+                    [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON]
             )
         },
         profileInformation() {

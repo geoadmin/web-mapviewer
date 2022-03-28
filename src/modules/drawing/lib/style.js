@@ -1,5 +1,6 @@
 import { canShowAzimuthCircle, getMeasureDelta, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { MEDIUM } from '@/utils/featureStyleUtils'
 import { asArray } from 'ol/color'
 import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
 import GeometryType from 'ol/geom/GeometryType'
@@ -38,8 +39,7 @@ const sketchPoint = new Circle({
 })
 
 export const editingFeatureStyleFunction = (feature) => {
-    const featureGeometries = feature.get('geometries')
-    const isLineOrMeasure = featureGeometries && featureGeometries[0] instanceof Polygon
+    const isLineOrMeasure = feature.get('type') === 'Polygon'
     const styles = [
         new Style({
             image: isLineOrMeasure ? sketchPoint : point,
@@ -86,7 +86,10 @@ export function featureStyle(feature) {
     const drawingMode = feature.get('drawingMode')
     const icon = feature.get('iconUrl')
     const anchor = feature.get('anchor')
-    const textScale = feature.get('textScale')
+    const textScale = feature.get('textScale') || MEDIUM
+    // Tells if we are drawing a polygon for the first time, in this case we want
+    // to fill this polygon with a transparent white (instead of red)
+    const isDrawing = feature.get('isDrawing')
     let image = null
     if (icon) {
         // this might be expensive
@@ -103,7 +106,7 @@ export function featureStyle(feature) {
                 text: text,
                 font: textScale.font,
                 fill: new Fill({
-                    color: color,
+                    color,
                 }),
                 stroke: new Stroke({
                     color: stroke ? asArray(stroke) : [255, 255, 255, 1.0],
@@ -115,12 +118,15 @@ export function featureStyle(feature) {
                 drawingMode === DrawingModes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
-                          color: color,
+                          color: stroke || color,
                           width: 3,
                       }),
-            fill: new Fill({
-                color: fillColor,
-            }),
+            // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
+            fill: isDrawing
+                ? whiteSketchFill
+                : new Fill({
+                      color: fillColor,
+                  }),
         }),
     ]
     if (drawingMode === DrawingModes.MEASURE) {

@@ -25,12 +25,46 @@ export default {
             }
         },
         /** Removes all selected features from the map */
-        clearSelectedFeatures({ commit }) {
+        clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
         },
+        /** Removes a specific feature from the selected features list */
+        removeSelectedFeature({ commit, state }, feature) {
+            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            if (selectedFeature) {
+                commit(
+                    'setSelectedFeatures',
+                    state.selectedFeatures.splice(
+                        state.selectedFeatures.indexOf(selectedFeature),
+                        1
+                    )
+                )
+            }
+        },
         /**
-         * Changes the title of the feature. Only change the title if the feature is editable, part
-         * of the currently selected features
+         * Changes the coordinates of the feature. Only change the coordinates if the feature is
+         * editable and part of the currently selected features
+         *
+         * Coordinates is an array of coordinate. Marker and text feature have only one entry in
+         * this array while line and measure store each points describing them in this coordinates array
+         *
+         * @param commit
+         * @param state
+         * @param {EditableFeature} feature
+         * @param {Number[][]} coordinates
+         */
+        changeFeatureCoordinates({ commit, state }, { feature, coordinates }) {
+            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable && Array.isArray(coordinates)) {
+                commit('changeFeatureCoordinates', {
+                    feature: selectedFeature,
+                    coordinates,
+                })
+            }
+        },
+        /**
+         * Changes the title of the feature. Only change the title if the feature is editable and
+         * part of the currently selected features
          *
          * @param commit
          * @param state
@@ -45,7 +79,7 @@ export default {
         },
         /**
          * Changes the description of the feature. Only change the description if the feature is
-         * editable, part of the currently selected features
+         * editable and part of the currently selected features
          *
          * @param commit
          * @param state
@@ -159,10 +193,22 @@ export default {
                 commit('changeFeatureIconSize', { feature: selectedFeature, iconSize: wantedSize })
             }
         },
+        changeFeatureIsDragged({ commit, state }, { feature, isDragged }) {
+            const selectedFeature = getSelectedFeatureWithId(state, feature.id)
+            if (selectedFeature && selectedFeature.isEditable) {
+                commit('changeFeatureIsDragged', {
+                    feature: selectedFeature,
+                    isDragged: !!isDragged,
+                })
+            }
+        },
     },
     mutations: {
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
+        },
+        changeFeatureCoordinates(state, { feature, coordinates }) {
+            feature.coordinates = coordinates
         },
         changeFeatureTitle(state, { feature, title }) {
             feature.title = title
@@ -184,6 +230,9 @@ export default {
         },
         changeFeatureIconSize(state, { feature, iconSize }) {
             feature.iconSize = iconSize
+        },
+        changeFeatureIsDragged(state, { feature, isDragged }) {
+            feature.isDragged = isDragged
         },
     },
 }

@@ -22,7 +22,6 @@
                 data-cy="drawing-style-feature-description"
                 class="form-control"
                 rows="2"
-                @change="onDescriptionChange"
             ></textarea>
         </div>
         <div class="d-flex justify-content-between align-items-center">
@@ -87,6 +86,7 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
@@ -102,6 +102,7 @@ import PopoverButton from '@/utils/PopoverButton.vue'
  */
 export default {
     components: {
+        DrawingStyleColorSelector,
         DrawingStyleTextColorSelector,
         DrawingStyleSizeSelector,
         DrawingStyleIconSelector,
@@ -175,9 +176,6 @@ export default {
         },
         onDelete() {
             this.$emit('delete')
-        },
-        onDescriptionChange(description) {
-            this.$emit('change:description', description)
         },
         changeTextSize(size) {
             this.$emit('change:textSize', size)
