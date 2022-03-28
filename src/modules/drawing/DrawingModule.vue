@@ -9,6 +9,7 @@
             @close="hideDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
+            @delete-last-point="deleteLastPoint"
         />
         <DrawingTooltip
             v-if="show"
@@ -20,7 +21,7 @@
                 :feature="currentlyEditedFeature"
                 :ui-mode="uiMode"
                 @delete="deleteSelectedFeature"
-                @close="clearSelectedFeatures"
+                @close="clearAllSelectedFeatures"
             />
         </teleport>
     </div>
@@ -33,7 +34,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
-import { drawingConfig } from '@/modules/drawing/lib/DrawingManager'
+import drawingConfig from '@/modules/drawing/lib/drawingConfig'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import MeasureManager from '@/modules/drawing/lib/MeasureManager'
 import { editingFeatureStyleFunction, featureStyle } from '@/modules/drawing/lib/style'
@@ -84,11 +85,6 @@ export default {
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
         }),
-        // deleteLastPointCallback: function () {
-        //     return this.currentDrawingMode === 'MEASURE' || this.currentDrawingMode === 'LINE'
-        //         ? () => this.manager.activeInteraction.removeLastPoint()
-        //         : undefined
-        // },
     },
     watch: {
         show(show) {
@@ -103,7 +99,7 @@ export default {
                 this.disableDrawing()
             }
         },
-        currentDrawingMode: function (newDrawingMode) {
+        currentDrawingMode(newDrawingMode) {
             // switching interaction (or activating one if there was none yet)
             if (this.currentDrawingInteraction) {
                 this.currentDrawingInteraction.setActive(false)
@@ -123,29 +119,39 @@ export default {
         //         this.manager.clearDrawing()
         //     }
         // },
-        currentlyEditedFeature: function (newSelectedFeature) {
-            // unbinding any store feature handler
-            this.selectedFeatures.forEach(this.unbindFeatureEvents)
-            // creating an editable feature with all the data from the drawing overlay
-            const featureForStore = new EditableFeature(
-                `drawing_feature_${newSelectedFeature.getId()}`,
-                newSelectedFeature.getGeometry().getCoordinates(),
-                newSelectedFeature.get('text'),
-                newSelectedFeature.get('description'),
-                newSelectedFeature.get('drawingMode'),
-                newSelectedFeature.get('textColor'),
-                newSelectedFeature.get('textSize'),
-                newSelectedFeature.get('fillColor'),
-                newSelectedFeature.get('icon'),
-                newSelectedFeature.get('iconSize')
-            )
-            this.bindFeatureEvents(featureForStore)
-            this.setSelectedFeatures([featureForStore])
+        currentlyEditedFeature(newSelectedFeature) {
+            this.selectInteraction.getFeatures().clear()
+            if (newSelectedFeature) {
+                // creating an editable feature with all the data from the drawing overlay
+                const featureForStore = new EditableFeature(
+                    `drawing_feature_${newSelectedFeature.getId()}`,
+                    this.extractFeatureCoordinates(newSelectedFeature),
+                    newSelectedFeature.get('text'),
+                    newSelectedFeature.get('description'),
+                    newSelectedFeature.get('drawingMode'),
+                    newSelectedFeature.get('textColor'),
+                    newSelectedFeature.get('textSize'),
+                    newSelectedFeature.get('fillColor'),
+                    newSelectedFeature.get('icon'),
+                    newSelectedFeature.get('iconSize')
+                )
+                // binding store feature change events to our handlers
+                this.bindFeatureEvents(featureForStore)
+                this.setSelectedFeatures([featureForStore])
+                this.selectInteraction.getFeatures().push(newSelectedFeature)
+            }
+        },
+        selectedFeatures(newSelectedFeatures) {
+            // if the store doesn't contain any more feature, we clear our local variable on that topic
+            if (!newSelectedFeatures || newSelectedFeatures.length === 0) {
+                this.currentlyEditedFeature = null
+            }
         },
     },
     created() {
         this.drawingLayer = new VectorLayer({
             source: new VectorSource({ useSpatialIndex: false }),
+            style: editingFeatureStyleFunction,
         })
         this.selectInteraction = new SelectInteraction({
             style: editingFeatureStyleFunction,
@@ -170,7 +176,7 @@ export default {
 
         for (const config of drawingConfig) {
             const interaction = new DrawInteraction({
-                style: featureStyle,
+                style: editingFeatureStyleFunction,
                 type: config.geomType,
                 source: this.drawingLayer.getSource(),
             })
@@ -182,9 +188,6 @@ export default {
                 .on('addfeature', (event) =>
                     this.onAddFeature(event, config.geomType, config.drawingMode, config.properties)
                 )
-            interaction.on('change:active', () =>
-                this.selectInteraction.setActive(interaction.getActive())
-            )
             interaction.on('drawstart', (event) => this.onDrawStart(event))
             interaction.on('drawend', (event) => this.onDrawEnd(event, interaction))
             this.interactionByDrawingMode[config.drawingMode] = interaction
@@ -216,7 +219,9 @@ export default {
             'removeLayer',
             'loadAvailableIconSets',
             'setSelectedFeatures',
-            'clearSelectedFeatures',
+            'clearAllSelectedFeatures',
+            'changeFeatureCoordinates',
+            'changeFeatureIsDragged',
         ]),
         hideDrawingOverlay() {
             this.setDrawingMode(null)
@@ -232,7 +237,16 @@ export default {
             }
         },
         deleteSelectedFeature() {
-            this.manager.deleteSelected()
+            this.deleteSelected()
+        },
+        deleteLastPoint() {
+            if (
+                this.currentDrawingMode === DrawingModes.MEASURE ||
+                this.currentDrawingMode === DrawingModes.LINEPOLYGON
+            ) {
+                this.interactionByDrawingMode[this.currentDrawingMode].removeLastPoint()
+                this.onChange()
+            }
         },
         triggerKMLUpdate() {
             if (this.KMLUpdateTimeout) {
@@ -252,7 +266,7 @@ export default {
             )
         },
         onChange() {
-            this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length > 0
+            this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
             // this.triggerKMLUpdate()
         },
         onClear() {
@@ -277,8 +291,15 @@ export default {
         onModifyStart(event) {
             const features = event.features.getArray()
             const [feature] = features
-            if (feature && feature.length === 1) {
-                this.currentlyEditedFeature = feature
+            if (feature) {
+                const correspondingStoreFeature =
+                    this.getStoreFeatureCorrespondingToOpenLayersFeature(feature)
+                if (correspondingStoreFeature) {
+                    this.changeFeatureIsDragged({
+                        feature: correspondingStoreFeature,
+                        isDragged: true,
+                    })
+                }
                 this.getMap().getTarget().classList.add(cursorGrabbingClass)
             }
         },
@@ -288,10 +309,21 @@ export default {
             }
             const features = event.features.getArray()
             const [feature] = features
-            if (feature && features.length === 1) {
-                this.currentlyEditedFeature = feature
-                this.onChange(feature)
+            if (feature) {
+                const correspondingStoreFeature =
+                    this.getStoreFeatureCorrespondingToOpenLayersFeature(feature)
+                if (correspondingStoreFeature) {
+                    this.changeFeatureIsDragged({
+                        feature: correspondingStoreFeature,
+                        isDragged: false,
+                    })
+                    this.changeFeatureCoordinates({
+                        feature: correspondingStoreFeature,
+                        coordinates: this.extractFeatureCoordinates(feature),
+                    })
+                }
                 this.getMap().getTarget().classList.remove(cursorGrabbingClass)
+                this.onChange()
             }
         },
         onAddFeature(event, geometryType, drawingMode, properties) {
@@ -317,7 +349,19 @@ export default {
             feature.unset('isDrawing')
             feature.setStyle(featureStyle)
             this.drawingLayer.getSource().once('addfeature', (event) => {
-                this.polygonToLineString(event.feature)
+                // checking if last point is the same as the first, if not so, we transform the polygon into a linestring
+                if (feature.get('type') === 'Polygon') {
+                    const coordinates = feature.getGeometry().getLinearRing().getCoordinates()
+                    if (coordinates.length > 1) {
+                        const firstPoint = coordinates[0]
+                        const lastPoint = coordinates[coordinates.length - 1]
+                        if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+                            // if not the same ending point, it is not a polygon (the user didn't finish drawing by closing it)
+                            // so we transform the drawn polygon into a linestring
+                            feature.setGeometry(new LineString(coordinates))
+                        }
+                    }
+                }
                 if (event.feature.get('drawingMode') === DrawingModes.MEASURE) {
                     this.measureManager.addOverlays(event.feature)
                 }
@@ -326,7 +370,6 @@ export default {
 
             // deactivate drawing tool
             interaction.setActive(false)
-            this.selectInteraction.getFeatures().push(feature)
             this.sketchPoints = 0
 
             // remove the area tooltip.
@@ -349,9 +392,10 @@ export default {
             }
         },
         clearDrawing: function () {
+            this.clearAllSelectedFeatures()
             this.selectInteraction.getFeatures().clear()
             this.drawingLayer.getSource().clear()
-            this.triggerKMLUpdate()
+            this.onChange()
         },
         addSavedKmlLayer() {
             if (!this.kmlLayers || !this.kmlLayers.length) {
@@ -379,7 +423,7 @@ export default {
         /** Transform a Polygon to a LineString if the geometry was not closed by a click on the first point */
         polygonToLineString(feature) {
             const geometry = feature.getGeometry()
-            if (geometry.getType() === GeometryType.POLYGON && !this.isFinishOnFirstPoint_) {
+            if (geometry.getType() === GeometryType.POLYGON) {
                 const coordinates = geometry.getLinearRing().getCoordinates()
                 coordinates.pop()
                 feature.setGeometry(new LineString(coordinates))
@@ -397,7 +441,6 @@ export default {
                 }
                 map.addLayer(this.drawingLayer)
             }
-            // this.manager.activate()
         },
         disableDrawing() {
             this.selectInteraction.setActive(false)
@@ -444,10 +487,11 @@ export default {
             this.currentlyEditedFeature?.set('text', feature.title)
         },
         updateFeatureDescription(feature) {
-            this.currentlyEditedFeature?.set('description', feature.title)
+            this.currentlyEditedFeature?.set('description', feature.description)
         },
         updateFeatureTextColor(feature) {
             this.currentlyEditedFeature?.set('color', feature.textColor.fill)
+            this.currentlyEditedFeature?.set('strokeColor', feature.textColor.border)
         },
         updateFeatureTextSize(feature) {
             this.currentlyEditedFeature?.set('font', feature.textSize.font)
@@ -458,6 +502,27 @@ export default {
         },
         updateFeatureIcon(feature) {
             this.currentlyEditedFeature?.set('iconUrl', feature.iconUrl)
+        },
+        getStoreFeatureCorrespondingToOpenLayersFeature(openLayersFeature) {
+            return this.selectedFeatures.find(
+                (feature) => feature.id === `drawing_feature_${openLayersFeature.getId()}`
+            )
+        },
+        extractFeatureCoordinates(feature) {
+            let coordinates = feature.getGeometry().getCoordinates()
+            if (feature.getGeometry().getType() === GeometryType.POLYGON) {
+                // in case of a polygon, the coordinates structure is
+                // [
+                //   [ (poly1)
+                //      [coord1],[coord2]
+                //   ],
+                //   [ (poly2) ...
+                // ]
+                // so as we will not have multipoly, we only keep what's defined as poly one
+                // (we remove the wrapping array that would enable us to have a second polygon)
+                coordinates = coordinates[0]
+            }
+            return coordinates
         },
     },
 }

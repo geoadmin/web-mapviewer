@@ -40,9 +40,9 @@
         />
         <OpenLayersPopover
             v-if="showFeaturesPopover"
-            :coordinates="selectedFeatures[0].coordinate"
+            :coordinates="popoverCoordinates"
             authorize-print
-            @close="clearSelectedFeatures"
+            @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
                 <ButtonWithIcon
@@ -124,6 +124,7 @@ export default {
             markerStyles,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
+            popoverCoordinates: [],
         }
     },
     computed: {
@@ -184,7 +185,12 @@ export default {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
         showFeaturesPopover() {
-            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+            if (this.isFeatureTooltipInFooter || this.selectedFeatures.length === 0) {
+                return false
+            }
+            // we hide the popover whenever the feature is being dragged
+            const [firstFeature] = this.selectedFeatures
+            return !firstFeature.isDragged
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
@@ -211,6 +217,18 @@ export default {
                     interaction.setActive(!newValue)
                 }
             })
+        },
+        selectedFeatures: {
+            // we need to deep watch this as otherwise we aren't triggered when
+            // coordinates are changed (but only when one feature is added/removed)
+            handler(newSelectedFeatures) {
+                if (newSelectedFeatures.length > 0) {
+                    const [firstFeature] = newSelectedFeatures
+                    this.popoverCoordinates =
+                        firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                }
+            },
+            deep: true,
         },
     },
     beforeCreate() {
@@ -267,7 +285,7 @@ export default {
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
             'toggleFloatingTooltip',
-            'clearSelectedFeatures',
+            'clearAllSelectedFeatures',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()

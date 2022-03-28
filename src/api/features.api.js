@@ -18,18 +18,21 @@ export class Feature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[]} coordinate [x,y] coordinates of this feature in EPSG:3857 (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature in EPSG:3857
+     *   (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only text)
      * @param {Boolean} isEditable Whether this feature is editable when selected (color, size, etc...)
      */
-    constructor(id, coordinate, title, description, isEditable = false) {
+    constructor(id, coordinates, title, description, isEditable = false) {
         super()
         this._id = id
-        this._coordinate = [...coordinate]
+        // using the setter for coordinate (see below)
+        this.coordinates = coordinates
         this._title = title
         this._description = description
         this._isEditable = !!isEditable
+        this._isDragged = false
     }
 
     /**
@@ -50,14 +53,26 @@ export class Feature extends EventEmitter {
     }
     // ID is immutable, no setter
 
-    get coordinate() {
-        return this._coordinate
+    get coordinates() {
+        return this._coordinates
     }
-    set coordinate(newCoordinate) {
-        if (Array.isArray(newCoordinate) && newCoordinate.length === 2) {
-            this._coordinate = newCoordinate
+    set coordinates(newCoordinates) {
+        if (Array.isArray(newCoordinates)) {
+            // checking if we have received a unique coordinate
+            if (
+                newCoordinates.length === 2 &&
+                newCoordinates.filter((coord) => Array.isArray(coord)).length === 0
+            ) {
+                // as we want an array of coordinates, we wrap the unique coordinate in an array
+                this._coordinates = [newCoordinates]
+            } else {
+                this._coordinates = newCoordinates
+            }
             this.emitChangeEvent()
         }
+    }
+    get lastCoordinate() {
+        return this._coordinates[this._coordinates.length - 1]
     }
 
     get title() {
@@ -80,6 +95,19 @@ export class Feature extends EventEmitter {
         return this._isEditable
     }
     // isEditable is immutable, no setter
+
+    /**
+     * Tells if the feature is currently being dragged (and later dropped) by the user
+     *
+     * @returns {boolean}
+     */
+    get isDragged() {
+        return this._isDragged
+    }
+    set isDragged(flag) {
+        this._isDragged = flag
+        this.emitChangeEvent('isDragged')
+    }
 }
 
 /** @enum */
@@ -95,7 +123,8 @@ export class EditableFeature extends Feature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[]} coordinate [x,y] coordinates of this feature in EPSG:3857 (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] coordinates of this feature in EPSG:3857
+     *   (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only text)
      * @param {EditableFeatureTypes} featureType Type of this editable feature
@@ -107,7 +136,7 @@ export class EditableFeature extends Feature {
      */
     constructor(
         id,
-        coordinate,
+        coordinates,
         title,
         description,
         featureType,
@@ -117,7 +146,7 @@ export class EditableFeature extends Feature {
         icon = null,
         iconSize = MEDIUM
     ) {
-        super(id, coordinate, title, description, true)
+        super(id, coordinates, title, description, true)
         this._featureType = featureType
         this._textColor = textColor
         this._textSize = textSize
@@ -213,13 +242,13 @@ export class LayerFeature extends Feature {
      * @param {Number | String} id The unique feature ID in the layer it is part of
      * @param {String} name The name (localized) of this feature
      * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
-     * @param {Number[]} coordinate [x,y] coordinate in EPSG:3857
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinate in EPSG:3857
      * @param {Number[]} extent Extent of the feature expressed with two point, bottom left and top
      *   right, in EPSG:3857
      * @param {Object} geometry GeoJSON geometry (if exists)
      */
-    constructor(layer, id, name, htmlPopup, coordinate, extent, geometry = null) {
-        super(id, coordinate, name, null, false)
+    constructor(layer, id, name, htmlPopup, coordinates, extent, geometry = null) {
+        super(id, coordinates, name, null, false)
         this._layer = layer
         // for now the backend gives us the description of the feature as HTML
         // it would be good to change that to only data in the future

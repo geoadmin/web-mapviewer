@@ -20,6 +20,7 @@
                 @change:icon-size="(iconSize) => onIconSizeChange(feature, iconSize)"
             />
         </div>
+        <ProfilePopup v-if="feature.isEditable && isFeatureMeasure(feature)" :feature="feature" />
         <!-- eslint-disable vue/no-v-html-->
         <div v-if="!feature.isEditable" v-html="feature.htmlPopup" />
         <!-- eslint-enable vue/no-v-html-->
@@ -27,11 +28,12 @@
 </template>
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
+import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { mapActions, mapState } from 'vuex'
 
 export default {
-    components: { FeatureStyleEdit },
+    components: { ProfilePopup, FeatureStyleEdit },
     computed: {
         ...mapState({
             selectedFeatures: (state) => state.features.selectedFeatures,

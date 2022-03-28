@@ -4,9 +4,8 @@
             <TooltipBox
                 v-if="tooltipInFooter && selectedFeatures.length > 0"
                 ref="tooltipBox"
-                :selected-features="selectedFeatures"
                 @toggle-tooltip-in-footer="toggleFloatingTooltip"
-                @close="clearSelectedFeatures"
+                @close="clearAllSelectedFeatures"
             >
                 <SelectedFeatureList />
             </TooltipBox>
@@ -44,7 +43,7 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['clearSelectedFeatures', 'toggleFloatingTooltip']),
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
     },
 }
 </script>

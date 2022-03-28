@@ -49,3 +49,10 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+#drawing-style-text-color-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+</style>
