@@ -1,4 +1,5 @@
 import { LineString, Polygon } from 'ol/geom'
+import GeometryType from 'ol/geom/GeometryType'
 import proj4 from 'proj4'
 import { format } from '@/utils/numberUtils'
 
@@ -135,4 +136,21 @@ export function getMeasureDelta(length) {
         delta = 1000 / length
     }
     return delta
+}
+
+export function extractOpenLayersFeatureCoordinates(feature) {
+    let coordinates = feature.getGeometry().getCoordinates()
+    if (feature.getGeometry().getType() === GeometryType.POLYGON) {
+        // in case of a polygon, the coordinates structure is
+        // [
+        //   [ (poly1)
+        //      [coord1],[coord2]
+        //   ],
+        //   [ (poly2) ...
+        // ]
+        // so as we will not have multipoly, we only keep what's defined as poly one
+        // (we remove the wrapping array that would enable us to have a second polygon)
+        coordinates = coordinates[0]
+    }
+    return coordinates
 }

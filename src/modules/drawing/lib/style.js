@@ -6,15 +6,18 @@ import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
 import GeometryType from 'ol/geom/GeometryType'
 import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
+/** Color for polygon area fill while drawing */
 const whiteSketchFill = new Fill({
     color: [255, 255, 255, 0.4],
 })
 
+/** Standard line styling */
 const redStroke = new Stroke({
     width: 3,
     color: [255, 0, 0],
 })
 
+/** Styling specific for measurement, with a dashed red line */
 const dashedRedStroke = new Stroke({
     color: [255, 0, 0],
     width: 3,
@@ -33,11 +36,19 @@ const point = new Circle({
         color: [255, 255, 255, 1],
     }),
 })
+/** Style for grabbing points when editing a feature */
 const sketchPoint = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
 })
 
+/**
+ * Style function (as OpenLayers needs it) that will style features while they are being drawn or
+ * edited by our drawing module.
+ *
+ * Note that the style differs when the feature is selected (or drawn for the first time) or when
+ * displayed without interaction (see {@link featureStyleFunction} for this case)
+ */
 export const editingFeatureStyleFunction = (feature) => {
     const isLineOrMeasure = feature.get('type') === 'Polygon'
     const styles = [
@@ -48,6 +59,8 @@ export const editingFeatureStyleFunction = (feature) => {
     ]
     const geom = feature.getGeometry()
     if (geom instanceof Polygon || geom instanceof LineString) {
+        // adding grabbing points at each edge so that the user can grab them and
+        // modify the shape of the features
         styles.push(
             new Style({
                 image: point,
@@ -63,7 +76,7 @@ export const editingFeatureStyleFunction = (feature) => {
             })
         )
     }
-    const defStyle = featureStyle(feature)
+    const defStyle = featureStyleFunction(feature)
     if (defStyle) {
         styles.push(...defStyle)
     }
@@ -71,10 +84,19 @@ export const editingFeatureStyleFunction = (feature) => {
 }
 
 /**
- * @param {Feature} feature
+ * OpenLayers style function that will style a feature that is not currently edited but loaded in
+ * the drawing layer.
+ *
+ * It can then be selected by the user, but this time the styling will be done by
+ * {@link editingFeatureStyleFunction}
+ *
+ * @param {Feature} feature OpenLayers feature to style
  * @returns {Style[]}
  */
-export function featureStyle(feature) {
+export function featureStyleFunction(feature) {
+    if (feature.get('drawingMode') === DrawingModes.MEASURE) {
+        return drawMeasureStyle(feature)
+    }
     let color = feature.get('color')
     if (!color) {
         return
@@ -135,6 +157,10 @@ export function featureStyle(feature) {
     return styles
 }
 
+/**
+ * Style mainly used to show the position of the profile on the line (when the user hovers over a
+ * portion of the profile, the position on the map is shown this way)
+ */
 export const sketchPointStyle = new Style({
     image: new Circle({
         radius: 4,
