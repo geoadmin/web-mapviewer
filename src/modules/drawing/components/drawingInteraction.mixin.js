@@ -108,6 +108,8 @@ const drawingInteractionMixin = {
             if (this.onDrawEnd) {
                 this.onDrawEnd(feature)
             }
+            // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
+            this.interaction.finishDrawing()
             this.$emit('drawEnd', feature)
         },
         removeLastPoint() {
