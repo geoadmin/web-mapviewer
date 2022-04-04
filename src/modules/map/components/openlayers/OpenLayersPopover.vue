@@ -92,7 +92,7 @@ export default {
     .card-body {
         width: 100%;
         max-width: $overlay-width;
-        max-height: 510px;
+        max-height: 350px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -108,6 +108,11 @@ export default {
         border-bottom-color: $light;
         pointer-events: none;
         content: '';
+    }
+}
+@media (min-height: 600px) {
+    .map-popover .card-body {
+        max-height: 510px;
     }
 }
 </style>

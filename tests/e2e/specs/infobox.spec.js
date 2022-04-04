@@ -53,7 +53,7 @@ describe('The infobox', () => {
                     cy.get('[data-cy="popover"]').should('be.visible')
                     cy.get('[data-cy="tooltip"]').should('not.exist')
 
-                    cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
+                    cy.get('[data-cy="toggle-floating-off"]').click()
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="tooltip"]').should('be.visible')
 
@@ -67,7 +67,7 @@ describe('The infobox', () => {
                         return state.feature.selectedFeatures.length > 0
                     })
 
-                    cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
+                    cy.get('[data-cy="toggle-floating-off"]').click()
                     cy.get('[data-cy="tooltip-content"]').then(($element) => {
                         const maxHeight = $element
                             .children()
