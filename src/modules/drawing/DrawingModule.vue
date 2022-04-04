@@ -222,10 +222,7 @@ export default {
             this.deleteSelected()
         },
         triggerKMLUpdate() {
-            if (this.KMLUpdateTimeout) {
-                clearTimeout(this.KMLUpdateTimeout)
-                this.KMLUpdateTimeout = 0
-            }
+            clearTimeout(this.KMLUpdateTimeout)
             this.KMLUpdateTimeout = setTimeout(
                 () => {
                     const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
