@@ -61,14 +61,14 @@ export class Feature extends EventEmitter {
             // checking if we have received a unique coordinate
             if (
                 newCoordinates.length === 2 &&
-                newCoordinates.filter((coord) => Array.isArray(coord)).length === 0
+                !newCoordinates.some((coord) => Array.isArray(coord))
             ) {
                 // as we want an array of coordinates, we wrap the unique coordinate in an array
                 this._coordinates = [newCoordinates]
             } else {
                 this._coordinates = newCoordinates
             }
-            this.emitChangeEvent()
+            this.emitChangeEvent('coordinates')
         }
     }
     get lastCoordinate() {
@@ -189,7 +189,7 @@ export class EditableFeature extends Feature {
         }
     }
     get font() {
-        return this._textSize.font
+        return this._textSize?.font
     }
 
     /** @returns {Icon | null} */
@@ -269,7 +269,7 @@ export class LayerFeature extends Feature {
 
     /** @returns {LayerTypes} */
     getLayerType() {
-        return this._layer && this._layer.type
+        return this._layer?.type
     }
 
     get htmlPopup() {
