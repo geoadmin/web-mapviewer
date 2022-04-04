@@ -33,11 +33,15 @@ const screenSizeManagementPlugin = (store) => {
                 }
             }
 
+            // Check if the viewport width passes the configured tablet threshold.
             if (state.ui.width > BREAKPOINT_TABLET && lastWidth <= BREAKPOINT_TABLET) {
+                // Open the menu if the viewport passes to desktop size.
                 store.commit('setMenuDesktopOpen', true)
             } else if (state.ui.width <= BREAKPOINT_TABLET && lastWidth > BREAKPOINT_TABLET) {
+                // Close the menu if the viewport passes to tablet size.
                 store.commit('setMenuDesktopOpen', false)
             }
+            // Update the last width for the next check.
             lastWidth = state.ui.width
         }
     })
