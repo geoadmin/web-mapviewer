@@ -10,7 +10,8 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
+import debounce from '@/utils/debounce'
 
 /**
  * Main component of the App.
@@ -24,21 +25,17 @@ export default {
             showOutlines: false,
         }
     },
-    computed: {
-        ...mapState({
-            currentUiMode: (state) => state.ui.mode,
-        }),
-    },
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
-        window.addEventListener('resize', this.setScreenSizeFromWindowSize)
+        this.debouncedOnResize = debounce(this.setScreenSizeFromWindowSize, 300)
+        window.addEventListener('resize', this.debouncedOnResize, { passive: true })
     },
     unmounted() {
-        window.removeEventListener('resize', this.setScreenSizeFromWindowSize)
+        window.removeEventListener('resize', this.debouncedOnResize)
     },
     methods: {
-        ...mapActions(['setSize', 'setUiMode']),
+        ...mapActions(['setSize']),
         setScreenSizeFromWindowSize() {
             this.setSize({
                 width: window.innerWidth,

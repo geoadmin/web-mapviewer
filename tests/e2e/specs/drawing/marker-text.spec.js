@@ -18,7 +18,6 @@ const drawingStyleColorBox = '[data-cy="drawing-style-color-select-box"]'
 const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 
 const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
-    cy.goToDrawing()
     cy.clickDrawingTool(kind)
     cy.readWindowValue('map').then((map) => {
         // Create a point, a geojson will appear in the store
@@ -60,7 +59,7 @@ const changeIconSize = (size) => {
 }
 
 describe('Drawing marker/points', () => {
-    forEachTestViewport((viewport, isMobileViewport, isTablet, dimensions) => {
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport, dimensions) => {
         // TODO : test layout for mobile
         if (!isMobileViewport) {
             context(
@@ -74,7 +73,7 @@ describe('Drawing marker/points', () => {
                         cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
                             fixture: 'service-icons/placeholder.png',
                         }).as('icon-default-green')
-                        cy.goToDrawing(isMobileViewport)
+                        cy.goToDrawing(isMobileViewport || isTabletViewport)
                     })
                     // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
                     // it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {

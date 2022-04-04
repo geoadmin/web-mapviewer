@@ -165,14 +165,23 @@ export const TILEGRID_RESOLUTIONS = [
 export const MAP_CENTER = [915602.81, 5911929.47]
 
 /**
- * Threshold to know when the side menu should switch to the mobile version (when bellow threshold)
+ * Horizontal threshold for the phone view. (max-width) This will change the menu and also some interactions.
  *
- * Height value is here to make sure that a landscape mobile device doesn't switch to the
- * desktop/tablet layout.
+ * The value is taken from the "sm" breakpoint from Bootstrap.
  *
- * @type {{ width: number; height: number }}
+ * @type {Number}
  */
-export const screenThresholdToShowTheSideMenu = {
-    width: 576, // sm breakpoint in bootstrap
-    height: 500,
-}
+export const BREAKPOINT_PHONE_WIDTH = 576
+/**
+ * Horizontal threshold for the phone view. (max-height) The height is needed to catch landscape
+ * view on mobile.
+ *
+ * @type {Number}
+ */
+export const BREAKPOINT_PHONE_HEIGHT = 500
+/**
+ * Horizontal threshold for the tablet view. (max-width)
+ *
+ * @type {Number}
+ */
+export const BREAKPOINT_TABLET = 768

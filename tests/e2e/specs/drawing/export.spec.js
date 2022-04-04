@@ -40,7 +40,7 @@ const checkGpxFile = (content) => {
 }
 
 describe('Drawing toolbox actions', () => {
-    forEachTestViewport((viewport, isMobileViewport, isTablet, dimensions) => {
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport, dimensions) => {
         context(
             `viewport: ${viewport}`,
             {
@@ -50,7 +50,7 @@ describe('Drawing toolbox actions', () => {
             () => {
                 beforeEach(() => {
                     cy.task('deleteFolder', downloadsFolder)
-                    cy.goToDrawing(isMobileViewport)
+                    cy.goToDrawing(isMobileViewport || isTabletViewport)
                     cy.drawGeoms()
                 })
                 context('Export KML', () => {

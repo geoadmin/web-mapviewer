@@ -3,10 +3,10 @@
 import { forEachTestViewport } from '../../support'
 
 describe('A drawing layer is added at the end of the drawing session', () => {
-    forEachTestViewport((viewport, isMobileViewport) => {
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport) => {
         it(`viewport: ${viewport} - creates a layers in the layer stack that contains the drawing`, () => {
             cy.viewport(viewport)
-            cy.goToDrawing(isMobileViewport)
+            cy.goToDrawing(isMobileViewport || isTabletViewport)
             cy.drawGeoms()
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {

@@ -1,3 +1,5 @@
+import { BREAKPOINT_TABLET } from '@/config'
+
 /**
  * Describes the different mode the UI can have. Either desktop (menu is always shown, info box is a
  * side tray) or touch (menu has to be opened with a button, info box is a swipeable element)
@@ -75,6 +77,12 @@ export default {
          * @type Boolean
          */
         floatingTooltip: true,
+        /**
+         * Flag telling if the menu in desktop mode (MENU_ALWAYS_OPEN) is open.
+         *
+         * @type Boolean
+         */
+        menuDesktopOpen: window.innerWidth > BREAKPOINT_TABLET,
     },
     getters: {
         screenDensity(state) {
@@ -111,6 +119,9 @@ export default {
                 commit('setUiMode', mode)
             }
         },
+        toggleMenuDesktopOpen({ commit, state }) {
+            commit('setMenuDesktopOpen', !state.menuDesktopOpen)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -134,6 +145,9 @@ export default {
         },
         setUiMode(state, mode) {
             state.mode = mode
+        },
+        setMenuDesktopOpen(state, flagValue) {
+            state.menuDesktopOpen = flagValue
         },
     },
 }

@@ -32,21 +32,20 @@
                 class="menu-tray"
                 :class="{
                     'desktop-mode': shouldMenuTrayAlwaysBeVisible,
-                    'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && closeMenuDesktopMode,
+                    'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && !menuDesktopOpen,
                 }"
+                data-cy="menu-tray"
             >
                 <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
                 <ButtonWithIcon
                     v-if="shouldMenuTrayAlwaysBeVisible"
                     class="m-auto"
-                    :button-font-awesome-icon="[
-                        'fas',
-                        closeMenuDesktopMode ? 'caret-down' : 'caret-up',
-                    ]"
-                    :button-title="$t(closeMenuDesktopMode ? 'open_menu' : 'close_menu')"
+                    data-cy="menu-button"
+                    :button-font-awesome-icon="['fas', menuDesktopOpen ? 'caret-up' : 'caret-down']"
+                    :button-title="$t(menuDesktopOpen ? 'close_menu' : 'open_menu')"
                     icons-before-text
                     dark
-                    @click="closeMenuDesktopMode = !closeMenuDesktopMode"
+                    @click="toggleMenuDesktopOpen"
                 >
                 </ButtonWithIcon>
             </div>
@@ -74,11 +73,6 @@ export default {
         ButtonWithIcon,
         MenuTray,
     },
-    data() {
-        return {
-            closeMenuDesktopMode: false,
-        }
-    },
     computed: {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
@@ -90,6 +84,7 @@ export default {
             isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
             isGeolocationActive: (state) => state.geolocation.active,
             isGeolocationDenied: (state) => state.geolocation.denied,
+            menuDesktopOpen: (state) => state.ui.menuDesktopOpen,
         }),
         shouldMenuTrayAlwaysBeVisible() {
             return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
@@ -110,7 +105,13 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenuTray']),
+        ...mapActions([
+            'toggleGeolocation',
+            'increaseZoom',
+            'decreaseZoom',
+            'toggleMenuTray',
+            'toggleMenuDesktopOpen',
+        ]),
     },
 }
 </script>

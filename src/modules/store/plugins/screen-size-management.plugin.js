@@ -1,15 +1,17 @@
 import { UIModes } from '@/modules/store/modules/ui.store'
-import { screenThresholdToShowTheSideMenu } from '@/config'
+import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_TABLET } from '@/config'
 
 /** @param store */
 const screenSizeManagementPlugin = (store) => {
+    let lastWidth = window.innerWidth
+
     store.subscribe((mutation, state) => {
         if (mutation.type === 'setSize') {
             // listening to screen size change to decide if we should switch UI mode too
             let wantedUiMode
             if (
-                state.ui.width >= screenThresholdToShowTheSideMenu.width &&
-                state.ui.height > screenThresholdToShowTheSideMenu.height
+                state.ui.width >= BREAKPOINT_PHONE_WIDTH &&
+                state.ui.height > BREAKPOINT_PHONE_HEIGHT
             ) {
                 wantedUiMode = UIModes.MENU_ALWAYS_OPEN
             } else {
@@ -30,6 +32,17 @@ const screenSizeManagementPlugin = (store) => {
                     store.dispatch('toggleFloatingTooltip')
                 }
             }
+
+            // Check if the viewport width passes the configured tablet threshold.
+            if (state.ui.width > BREAKPOINT_TABLET && lastWidth <= BREAKPOINT_TABLET) {
+                // Open the menu if the viewport passes to desktop size.
+                store.commit('setMenuDesktopOpen', true)
+            } else if (state.ui.width <= BREAKPOINT_TABLET && lastWidth > BREAKPOINT_TABLET) {
+                // Close the menu if the viewport passes to tablet size.
+                store.commit('setMenuDesktopOpen', false)
+            }
+            // Update the last width for the next check.
+            lastWidth = state.ui.width
         }
     })
 }

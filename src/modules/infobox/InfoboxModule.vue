@@ -32,10 +32,7 @@ export default {
     },
     computed: {
         ...mapState({
-            uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.feature.selectedFeatures,
-            screenHeight: (state) => state.ui.height,
-            isFooterVisible: (state) => !state.ui.fullscreenMode,
             tooltipInFooter: (state) => !state.ui.floatingTooltip,
         }),
     },

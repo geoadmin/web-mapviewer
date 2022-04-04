@@ -136,8 +136,6 @@ export default {
             geolocationPosition: (state) => state.geolocation.position,
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
-            uiMode: (state) => state.ui.mode,
-            isFooterVisible: (state) => !state.ui.fullscreenMode,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
         }),
         ...mapGetters([

@@ -6,10 +6,10 @@ const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format
 const shareButton = '[data-cy="drawing-toolbox-share-button"]'
 
 describe('Delete action in the drawing module', () => {
-    forEachTestViewport((viewport, isMobileViewport) => {
+    forEachTestViewport((viewport, isMobileViewport, isTabletViewport) => {
         it(`viewport: ${viewport} - deletes the drawing when confirming the delete modal`, () => {
             cy.viewport(viewport)
-            cy.goToDrawing(isMobileViewport)
+            cy.goToDrawing(isMobileViewport || isTabletViewport)
             cy.drawGeoms()
             cy.get(deleteButton).click()
             cy.get('[data-cy="modal-confirm-button"]').click()
