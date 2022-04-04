@@ -39,7 +39,7 @@ export default {
             required: true,
         },
     },
-    emits: ['featureSelect', 'featureUnselect'],
+    emits: ['featureSelect', 'featureUnselect', 'featureChange'],
     data() {
         return {
             /** OpenLayers feature currently selected */
@@ -122,6 +122,9 @@ export default {
         clearSelectedFeature() {
             this.selectInteraction.getFeatures().clear()
         },
+        emitFeatureChangeEvent(feature) {
+            this.$emit('featureChange', feature)
+        },
         //----------------------------------------------------------------------
         // Bindings between the currently edited feature and the one stored in Vuex
         //----------------------------------------------------------------------
@@ -151,23 +154,29 @@ export default {
         },
         updateFeatureTitle(feature) {
             this.currentlySelectedFeature?.set('text', feature.title)
+            this.emitFeatureChangeEvent(feature)
         },
         updateFeatureDescription(feature) {
             this.currentlySelectedFeature?.set('description', feature.description)
+            this.emitFeatureChangeEvent(feature)
         },
         updateFeatureTextColor(feature) {
             this.currentlySelectedFeature?.set('color', feature.textColor.fill)
             this.currentlySelectedFeature?.set('strokeColor', feature.textColor.border)
+            this.emitFeatureChangeEvent(feature)
         },
         updateFeatureTextSize(feature) {
             this.currentlySelectedFeature?.set('font', feature.textSize.font)
             this.currentlySelectedFeature?.set('textScale', feature.textSizeScale)
+            this.emitFeatureChangeEvent(feature)
         },
         updateFeatureFillColor(feature) {
             this.currentlySelectedFeature?.set('color', feature.fillColor.fill)
+            this.emitFeatureChangeEvent(feature)
         },
         updateFeatureIcon(feature) {
             this.currentlySelectedFeature?.set('iconUrl', feature.iconUrl)
+            this.emitFeatureChangeEvent(feature)
         },
     },
 }

@@ -29,6 +29,7 @@
             :selected-features="selectedFeatures"
             @feature-select="onFeatureSelect"
             @feature-unselect="onFeatureUnselect"
+            @feature-change="onChange"
         >
             <!-- As modify interaction needs access to the selected features we embed it into
             the select interaction component, this component will share its feature
@@ -65,7 +66,7 @@
 </template>
 
 <script>
-import { createKml, updateKml } from '@/api/files.api'
+import { createKml, getKml, updateKml } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
@@ -77,7 +78,10 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { deserializeAnchor } from '@/utils/featureAnchor'
+import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapState } from 'vuex'
@@ -206,6 +210,7 @@ export default {
             'changeFeatureIsDragged',
         ]),
         hideDrawingOverlay() {
+            this.clearAllSelectedFeatures()
             this.setDrawingMode(null)
             this.toggleDrawingOverlay()
         },
@@ -236,22 +241,25 @@ export default {
             )
         },
         onChange() {
-            this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
-            // this.triggerKMLUpdate()
+            this.$nextTick(() => {
+                this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
+                this.triggerKMLUpdate()
+            })
         },
         onClear() {
             // Only trigger the kml update if we have an active open drawing. The clear
             // event also happens when removing a drawing layer when the drawing menu
             // is closed and in this condition we don't want to re-created now a new KML
             // until the menu is opened again.
-            // if (this.show) {
-            //     this.triggerKMLUpdate()
-            // }
+            if (this.show) {
+                this.triggerKMLUpdate()
+            }
         },
         onDrawEnd(feature) {
             this.$refs.selectInteraction.selectFeature(feature)
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
+            this.onChange()
         },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDragged(feature) {
@@ -259,6 +267,7 @@ export default {
                 feature: feature,
                 isDragged: true,
             })
+            this.onChange()
         },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDropped({ feature, coordinates }) {
@@ -270,6 +279,7 @@ export default {
                 feature: feature,
                 coordinates: coordinates,
             })
+            this.onChange()
         },
         /** See {@link DrawingSelectInteraction} events */
         onFeatureSelect(feature) {
@@ -322,7 +332,7 @@ export default {
             }
             // If KML layer exists add to drawing manager
             if (layer) {
-                this.manager.addKmlLayer(layer).then(() => {
+                this.addKmlLayer(layer).then(() => {
                     if (!this.kmlIds) {
                         this.triggerKMLUpdate()
                     }
@@ -331,6 +341,21 @@ export default {
                     this.removeLayer(layer)
                 })
             }
+        },
+        async addKmlLayer(layer) {
+            const kml = await getKml(layer.fileId)
+            const features = new KML().readFeatures(kml, {
+                featureProjection: layer.projection,
+            })
+            features.forEach((feature) => {
+                // The following deserialization is a hack. See @module comment in file.
+                deserializeAnchor(feature)
+                feature.setStyle(featureStyleFunction)
+                if (feature.get('drawingMode') === DrawingModes.MEASURE) {
+                    this.measureManager.addOverlays(feature)
+                }
+            })
+            this.drawingLayer.getSource().addFeatures(features)
         },
     },
 }
