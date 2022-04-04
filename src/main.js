@@ -1,6 +1,11 @@
-// importing styling CSS libraries
-import 'bootstrap'
-import 'animate.css'
+import jQuery from 'jquery'
+window.$ = window.jQuery = jQuery
+
+// Importing styling CSS libraries
+// Must be require() as import will be done before window.jQuery = jQuery.
+// If window.jQuery is not set before Bootstrap the plugins will not be loaded.
+require('bootstrap/dist/js/bootstrap.bundle')
+require('animate.css')
 
 import { createApp } from 'vue'
 

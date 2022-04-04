@@ -94,7 +94,7 @@ describe('Test mouse position', () => {
         const lon = 8
         beforeEach(() => {
             // Viewport set to see the whole popup
-            cy.viewport(500, 1500)
+            cy.viewport(320, 1000)
             cy.goToMapView('en', { lat, lon })
             cy.get('[data-cy="map"]').rightclick()
         })
@@ -112,22 +112,6 @@ describe('Test mouse position', () => {
             cy.fixture('height.fixture').then((fakeheight) => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
-        })
-        it('Toggles between text info and QR code', () => {
-            const toggleSelector = '[data-cy="location-popup-toggle"'
-            const textinfoSelector = '[data-cy="location-popup-coordinates-lv95"]'
-            const qrcodeSelector = '[data-cy="location-popup-qr-code"]'
-            // Initial (text)
-            cy.get(textinfoSelector).should('be.visible')
-            cy.get(qrcodeSelector).should('not.be.visible')
-            // QR-code
-            cy.get(toggleSelector).click()
-            cy.get(textinfoSelector).should('not.be.visible')
-            cy.get(qrcodeSelector).should('be.visible')
-            // Text
-            cy.get(toggleSelector).click()
-            cy.get(textinfoSelector).should('be.visible')
-            cy.get(qrcodeSelector).should('not.be.visible')
         })
         context('Coordinates system tests', () => {
             it('Uses the coordination system LV95 in the popup', () => {
@@ -163,9 +147,10 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
             it('Tests the link with bowl crosshair gives the right coordinates', () => {
-                cy.get('[data-cy="location-popup-link-bowl-crosshair"] a')
-                    .then((link) => {
-                        const search = link[0].href.split('?')[1]
+                cy.get('[data-cy="location-popup-link-bowl-crosshair"]')
+                    .invoke('val')
+                    .then((value) => {
+                        const search = value.split('?')[1]
                         const params = new URLSearchParams(search)
                         return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
                     })
