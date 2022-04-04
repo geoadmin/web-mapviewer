@@ -110,6 +110,9 @@ const drawingInteractionMixin = {
             }
             this.$emit('drawEnd', feature)
         },
+        removeLastPoint() {
+            this.interaction.removeLastPoint()
+        },
     },
 }
 

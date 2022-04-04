@@ -42,6 +42,7 @@
                             {{ $t('share') }}
                         </button>
                         <ButtonWithIcon
+                            v-if="isDrawingLineOrMeasure"
                             data-cy="drawing-delete-last-point-button"
                             class="m-1"
                             outline-danger
@@ -121,6 +122,14 @@ export default {
             showClearConfirmationModal: false,
             readyForTeleport: false,
         }
+    },
+    computed: {
+        isDrawingLineOrMeasure() {
+            return (
+                this.currentDrawingMode === DrawingModes.LINEPOLYGON ||
+                this.currentDrawingMode === DrawingModes.MEASURE
+            )
+        },
     },
     mounted() {
         this.$nextTick(() => {

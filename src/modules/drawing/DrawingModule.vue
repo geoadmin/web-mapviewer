@@ -9,7 +9,7 @@
             @close="hideDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
-            @delete-last-point="deleteLastPoint"
+            @delete-last-point="removeLastPoint"
         />
         <DrawingTooltip
             v-if="show"
@@ -42,12 +42,25 @@
         </DrawingSelectInteraction>
         <DrawingMarkerInteraction
             v-if="show && isDrawingModeMarker"
+            ref="markerInteraction"
             :available-icon-sets="availableIconSets"
             @draw-end="onDrawEnd"
         />
-        <DrawingTextInteraction v-if="show && isDrawingModeAnnotation" @draw-end="onDrawEnd" />
-        <DrawingLineInteraction v-if="show && isDrawingModeLine" @draw-end="onDrawEnd" />
-        <DrawingMeasureInteraction v-if="show && isDrawingModeMeasure" @draw-end="onDrawEnd" />
+        <DrawingTextInteraction
+            v-if="show && isDrawingModeAnnotation"
+            ref="textInteraction"
+            @draw-end="onDrawEnd"
+        />
+        <DrawingLineInteraction
+            v-if="show && isDrawingModeLine"
+            ref="lineInteraction"
+            @draw-end="onDrawEnd"
+        />
+        <DrawingMeasureInteraction
+            v-if="show && isDrawingModeMeasure"
+            ref="measureInteraction"
+            @draw-end="onDrawEnd"
+        />
     </div>
 </template>
 
@@ -119,6 +132,25 @@ export default {
         isDrawingModeMeasure() {
             return this.currentDrawingMode === DrawingModes.MEASURE
         },
+        currentlySelectedFeature() {
+            // there can only be one drawing feature edited at the same time
+            if (this.selectedFeatures.length === 1) {
+                return this.selectedFeatures[0]
+            }
+            return null
+        },
+        currentInteraction() {
+            if (this.isDrawingModeAnnotation) {
+                return this.$refs.textInteraction
+            } else if (this.isDrawingModeMeasure) {
+                return this.$refs.measureInteraction
+            } else if (this.isDrawingModeLine) {
+                return this.$refs.lineInteraction
+            } else if (this.isDrawingModeMarker) {
+                return this.$refs.markerInteraction
+            }
+            return null
+        },
     },
     watch: {
         show(show) {
@@ -154,8 +186,11 @@ export default {
         this.$nextTick(() => {
             this.readyForTeleport = true
         })
+        // listening for "Delete" keystroke (in order to remove last point when drawing lines or measure)
+        document.addEventListener('keyup', this.onKeyUp)
     },
     unmounted() {
+        document.removeEventListener('keyup', this.onKeyUp)
         clearTimeout(this.KMLUpdateTimeout)
     },
     methods: {
@@ -186,15 +221,6 @@ export default {
         deleteSelectedFeature() {
             this.deleteSelected()
         },
-        // deleteLastPoint() {
-        //     if (
-        //         this.currentDrawingMode === DrawingModes.MEASURE ||
-        //         this.currentDrawingMode === DrawingModes.LINEPOLYGON
-        //     ) {
-        //         this.interactionByDrawingMode[this.currentDrawingMode].removeLastPoint()
-        //         this.onChange()
-        //     }
-        // },
         triggerKMLUpdate() {
             if (this.KMLUpdateTimeout) {
                 clearTimeout(this.KMLUpdateTimeout)
@@ -256,6 +282,17 @@ export default {
         onFeatureUnselect() {
             // emptying selected features in the store
             this.clearAllSelectedFeatures()
+        },
+        onKeyUp(event) {
+            if (event.key === 'Delete') {
+                // drawing modes will be checked by the function itself (no need to double-check)
+                this.removeLastPoint()
+            }
+        },
+        removeLastPoint() {
+            if (this.isDrawingModeMeasure || this.isDrawingModeLine) {
+                this.currentInteraction.removeLastPoint()
+            }
         },
         async saveDrawing(kml) {
             let metadata
