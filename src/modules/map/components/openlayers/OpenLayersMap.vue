@@ -1,6 +1,6 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-    <div id="ol-map" ref="map" @contextmenu="showLocationPopup">
+    <div id="ol-map" ref="map" @contextmenu="onContextMenu">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <!-- Adding background layer -->
@@ -80,7 +80,6 @@ import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { round } from '@/utils/numberUtils'
-import { checkCoordinatesEqualRounded } from '@/utils/coordinateUtils'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
@@ -93,6 +92,7 @@ import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -282,16 +282,6 @@ export default {
                 return
             }
 
-            // Safari (on iOS) triggers the singleclick after the context-menu.
-            // So, we ignore singleclick events if the last event was a right
-            // click on the same position as the new event.
-            if (
-                this.clickInfo?.clickType === ClickType.RIGHT_CLICK &&
-                checkCoordinatesEqualRounded(event.pixel, this.clickInfo.pixelCoordinate)
-            ) {
-                return
-            }
-
             const geoJsonFeatures = []
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
             this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
@@ -362,20 +352,22 @@ export default {
                 }
             }
         },
-        showLocationPopup(event) {
-            const screenCoordinates = [event.x, event.y]
-            this.click(
-                new ClickInfo(
-                    this.map.getCoordinateFromPixel(screenCoordinates),
-                    0,
-                    screenCoordinates,
-                    [],
-                    ClickType.RIGHT_CLICK
+        onContextMenu(event) {
+            if (UIModes.MENU_OPENED_THROUGH_BUTTON) {
+                const screenCoordinates = [event.x, event.y]
+                this.click(
+                    new ClickInfo(
+                        this.map.getCoordinateFromPixel(screenCoordinates),
+                        0,
+                        screenCoordinates,
+                        [],
+                        ClickType.RIGHT_CLICK
+                    )
                 )
-            )
-            // we do not want the contextual menu to shows up, so we prevent the event propagation
-            event.preventDefault()
-            return false
+                // we do not want the contextual menu to shows up, so we prevent the event propagation
+                event.preventDefault()
+                return false
+            }
         },
     },
 }

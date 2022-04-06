@@ -1,4 +1,5 @@
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { UIModes } from '@/modules/store/modules/ui.store'
 
 /** @enum */
 export const ClickType = {
@@ -70,7 +71,15 @@ export default {
          */
         displayedProjection: CoordinateSystems.LV95,
     },
-    getters: {},
+    getters: {
+        displayLocationPopup(state, getters, rootState) {
+            return (
+                rootState.ui.mode !== UIModes.MENU_OPENED_THROUGH_BUTTON &&
+                state.clickInfo?.clickType === ClickType.RIGHT_CLICK &&
+                Array.isArray(state.clickInfo?.coordinate)
+            )
+        },
+    },
     actions: {
         /**
          * Tells the map to show a layer that is not (yet) in the visible layers on the map. This is

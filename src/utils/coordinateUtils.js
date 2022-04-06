@@ -391,16 +391,3 @@ export const printHumanReadableCoordinates = (
 ) => {
     return coordinateSystem.format(coordinates)
 }
-
-/**
- * Checks if two coordinates are equal if the values are rounded.
- *
- * @param {Number[]} a The first coordinate to compare.
- * @param {Number[]} b The second coordinate to compare.
- * @returns {Boolean}
- */
-export function checkCoordinatesEqualRounded(a, b) {
-    const roundedA = a.map(Math.round)
-    const roundedB = b.map(Math.round)
-    return roundedA[0] === roundedB[0] && roundedA[1] === roundedB[1]
-}
