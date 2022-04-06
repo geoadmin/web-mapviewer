@@ -1,7 +1,8 @@
 import { API_BASE_URL } from '@/config'
-import axios from 'axios'
-import log from '@/utils/logging'
 import EventEmitter from '@/utils/EventEmitter.class'
+import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
+import axios from 'axios'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -17,22 +18,34 @@ export class Feature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[]} coordinate [x,y] coordinates of this feature in EPSG:3857 (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature in EPSG:3857
+     *   (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only text)
      * @param {Boolean} isEditable Whether this feature is editable when selected (color, size, etc...)
      */
-    constructor(id, coordinate, title, description, isEditable = false) {
+    constructor(id, coordinates, title, description, isEditable = false) {
         super()
         this._id = id
-        this._coordinate = [...coordinate]
+        // using the setter for coordinate (see below)
+        this.coordinates = coordinates
         this._title = title
         this._description = description
         this._isEditable = !!isEditable
+        this._isDragged = false
     }
 
-    emitChangeEvent() {
+    /**
+     * Emits a change event and, if changeType is defined, a change:changeType event
+     *
+     * @param {String} changeType So that the change event is more specific, for instance if
+     *   changeType is equal to 'title' a 'change' event and a 'change:title' event will be fired
+     */
+    emitChangeEvent(changeType = null) {
         this.emit('change', this)
+        if (changeType) {
+            this.emit(`change:${changeType}`, this)
+        }
     }
 
     get id() {
@@ -40,14 +53,26 @@ export class Feature extends EventEmitter {
     }
     // ID is immutable, no setter
 
-    get coordinate() {
-        return this._coordinate
+    get coordinates() {
+        return this._coordinates
     }
-    set coordinate(newCoordinate) {
-        if (Array.isArray(newCoordinate) && newCoordinate.length === 2) {
-            this._coordinate = newCoordinate
-            this.emitChangeEvent()
+    set coordinates(newCoordinates) {
+        if (Array.isArray(newCoordinates)) {
+            // checking if we have received a unique coordinate
+            if (
+                newCoordinates.length === 2 &&
+                !newCoordinates.some((coord) => Array.isArray(coord))
+            ) {
+                // as we want an array of coordinates, we wrap the unique coordinate in an array
+                this._coordinates = [newCoordinates]
+            } else {
+                this._coordinates = newCoordinates
+            }
+            this.emitChangeEvent('coordinates')
         }
+    }
+    get lastCoordinate() {
+        return this._coordinates[this._coordinates.length - 1]
     }
 
     get title() {
@@ -55,7 +80,7 @@ export class Feature extends EventEmitter {
     }
     set title(newTitle) {
         this._title = newTitle
-        this.emitChangeEvent()
+        this.emitChangeEvent('title')
     }
 
     get description() {
@@ -63,13 +88,34 @@ export class Feature extends EventEmitter {
     }
     set description(newDescription) {
         this._description = newDescription
-        this.emitChangeEvent()
+        this.emitChangeEvent('description')
     }
 
     get isEditable() {
         return this._isEditable
     }
     // isEditable is immutable, no setter
+
+    /**
+     * Tells if the feature is currently being dragged (and later dropped) by the user
+     *
+     * @returns {boolean}
+     */
+    get isDragged() {
+        return this._isDragged
+    }
+    set isDragged(flag) {
+        this._isDragged = flag
+        this.emitChangeEvent('isDragged')
+    }
+}
+
+/** @enum */
+export const EditableFeatureTypes = {
+    MARKER: 'MARKER',
+    ANNOTATION: 'ANNOTATION',
+    LINEPOLYGON: 'LINEPOLYGON',
+    MEASURE: 'MEASURE',
 }
 
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
@@ -77,12 +123,115 @@ export class EditableFeature extends Feature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[]} coordinate [x,y] coordinates of this feature in EPSG:3857 (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] coordinates of this feature in EPSG:3857
+     *   (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only text)
+     * @param {EditableFeatureTypes} featureType Type of this editable feature
+     * @param {FeatureStyleColor} textColor Color for the text of this feature
+     * @param {FeatureStyleSize} textSize Size of the text for this feature
+     * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
+     * @param {Icon} icon Icon that will be covering this feature, can be null
+     * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this feature
      */
-    constructor(id, coordinate, title, description) {
-        super(id, coordinate, title, description, true)
+    constructor(
+        id,
+        coordinates,
+        title,
+        description,
+        featureType,
+        textColor = RED,
+        textSize = MEDIUM,
+        fillColor = RED,
+        icon = null,
+        iconSize = MEDIUM
+    ) {
+        super(id, coordinates, title, description, true)
+        this._featureType = featureType
+        this._textColor = textColor
+        this._textSize = textSize
+        this._fillColor = fillColor
+        this._icon = icon
+        this._iconSize = iconSize
+    }
+
+    // getters and setters for all properties (with event emit for setters)
+    get featureType() {
+        return this._featureType
+    }
+    // no setter for featureType, immutable
+
+    /** @returns {FeatureStyleColor} */
+    get textColor() {
+        return this._textColor
+    }
+    /** @param newColor {FeatureStyleColor} */
+    set textColor(newColor) {
+        if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
+            this._textColor = newColor
+            this.emitChangeEvent('textColor')
+        }
+    }
+
+    /** @returns {FeatureStyleSize} */
+    get textSize() {
+        return this._textSize
+    }
+    /** @returns {Number} */
+    get textSizeScale() {
+        return this._textSize?.textScale
+    }
+    /** @param newSize {FeatureStyleSize} */
+    set textSize(newSize) {
+        if (newSize && allStylingSizes.find((size) => size.textScale === newSize.textScale)) {
+            this._textSize = newSize
+            this.emitChangeEvent('textSize')
+        }
+    }
+    get font() {
+        return this._textSize?.font
+    }
+
+    /** @returns {Icon | null} */
+    get icon() {
+        return this._icon
+    }
+    /** @param newIcon {Icon} */
+    set icon(newIcon) {
+        this._icon = newIcon
+        this.emitChangeEvent('icon')
+    }
+    /** @returns {String} */
+    get iconUrl() {
+        return this._icon?.generateURL(this.iconSize, this.fillColor)
+    }
+
+    /** @returns {FeatureStyleColor} */
+    get fillColor() {
+        return this._fillColor
+    }
+    /** @param newColor {FeatureStyleColor} */
+    set fillColor(newColor) {
+        if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
+            this._fillColor = newColor
+            this.emitChangeEvent('fillColor')
+        }
+    }
+
+    /** @returns {FeatureStyleSize} */
+    get iconSize() {
+        return this._iconSize
+    }
+    /** @returns {Number} */
+    get iconSizeScale() {
+        return this._iconSize?.iconScale
+    }
+    /** @param newSize {FeatureStyleSize} */
+    set iconSize(newSize) {
+        if (newSize && allStylingSizes.find((size) => size.iconScale === newSize.iconScale)) {
+            this._iconSize = newSize
+            this.emitChangeEvent('iconSize')
+        }
     }
 }
 
@@ -93,29 +242,46 @@ export class LayerFeature extends Feature {
      * @param {Number | String} id The unique feature ID in the layer it is part of
      * @param {String} name The name (localized) of this feature
      * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
-     * @param {Number[]} coordinate [x,y] coordinate in EPSG:3857
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinate in EPSG:3857
      * @param {Number[]} extent Extent of the feature expressed with two point, bottom left and top
      *   right, in EPSG:3857
      * @param {Object} geometry GeoJSON geometry (if exists)
      */
-    constructor(layer, id, name, htmlPopup, coordinate, extent, geometry = null) {
-        super(id, coordinate, name, null, false)
-        this.layer = layer
+    constructor(layer, id, name, htmlPopup, coordinates, extent, geometry = null) {
+        super(id, coordinates, name, null, false)
+        this._layer = layer
         // for now the backend gives us the description of the feature as HTML
         // it would be good to change that to only data in the future
-        this.htmlPopup = htmlPopup
-        this.extent = extent
-        this.geometry = geometry
+        this._htmlPopup = htmlPopup
+        this._extent = extent
+        this._geometry = geometry
     }
 
     // overwriting get ID so that we use the layer ID with the feature ID
     get id() {
-        return `${this.layer.getID()}-${this._id}`
+        return `${this._layer.getID()}-${this._id}`
+    }
+
+    // getters for all attributes (no setters)
+    get layer() {
+        return this._layer
     }
 
     /** @returns {LayerTypes} */
     getLayerType() {
-        return this.layer && this.layer.type
+        return this._layer?.type
+    }
+
+    get htmlPopup() {
+        return this._htmlPopup
+    }
+
+    get extent() {
+        return this._extent
+    }
+
+    get geometry() {
+        return this._geometry
     }
 }
 

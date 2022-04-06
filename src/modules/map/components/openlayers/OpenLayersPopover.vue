@@ -56,8 +56,6 @@ export default {
     watch: {
         coordinates(newCoordinates) {
             this.overlay.setPosition(newCoordinates)
-            // Reset the container's scroll when the content changes.
-            this.$refs.mapPopoverContent.scrollTo(0, 0)
         },
     },
     beforeCreate() {

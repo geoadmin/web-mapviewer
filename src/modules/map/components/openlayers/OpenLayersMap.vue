@@ -40,9 +40,9 @@
         />
         <OpenLayersPopover
             v-if="showFeaturesPopover"
-            :coordinates="selectedFeatures[0].coordinate"
+            :coordinates="popoverCoordinates"
             authorize-print
-            @close="clearSelectedFeatures"
+            @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
                 <ButtonWithIcon
@@ -51,7 +51,7 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+            <SelectedFeatureList />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
@@ -70,28 +70,28 @@
 </template>
 
 <script>
-import 'ol/ol.css'
-
-import { mapState, mapGetters, mapActions } from 'vuex'
-import { Map, View } from 'ol'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
-import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { round } from '@/utils/numberUtils'
-import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
-import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
-import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
-import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import { Feature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import SelectedFeatureList from '@/modules/infobox/components/SelectedFeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/modules/map/store/map.store'
 import { CrossHairs } from '@/modules/store/modules/position.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
+import { Map, View } from 'ol'
+import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import 'ol/ol.css'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+
+import { mapActions, mapGetters, mapState } from 'vuex'
+import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
+import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
+import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -104,7 +104,7 @@ import log from '@/utils/logging'
 export default {
     components: {
         ButtonWithIcon,
-        HighlightedFeatureList,
+        SelectedFeatureList,
         OpenLayersPopover,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
@@ -123,13 +123,14 @@ export default {
             markerStyles,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
+            popoverCoordinates: [],
         }
     },
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
             center: (state) => state.position.center,
-            selectedFeatures: (state) => state.feature.selectedFeatures,
+            selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,
@@ -182,7 +183,12 @@ export default {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
         showFeaturesPopover() {
-            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+            if (this.isFeatureTooltipInFooter || this.selectedFeatures.length === 0) {
+                return false
+            }
+            // we hide the popover whenever the feature is being dragged
+            const [firstFeature] = this.selectedFeatures
+            return !firstFeature.isDragged
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
@@ -209,6 +215,18 @@ export default {
                     interaction.setActive(!newValue)
                 }
             })
+        },
+        selectedFeatures: {
+            // we need to deep watch this as otherwise we aren't triggered when
+            // coordinates are changed (but only when one feature is added/removed)
+            handler(newSelectedFeatures) {
+                if (newSelectedFeatures.length > 0) {
+                    const [firstFeature] = newSelectedFeatures
+                    this.popoverCoordinates =
+                        firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                }
+            },
+            deep: true,
         },
     },
     beforeCreate() {
@@ -265,7 +283,7 @@ export default {
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
             'toggleFloatingTooltip',
-            'clearSelectedFeatures',
+            'clearAllSelectedFeatures',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()

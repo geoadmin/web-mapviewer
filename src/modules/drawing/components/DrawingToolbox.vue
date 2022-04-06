@@ -1,5 +1,5 @@
 <template>
-    <teleport to=".drawing-toolbox-in-menu">
+    <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
         <div class="drawing-toolbox">
             <div class="card text-center">
                 <div class="card-body position-relative">
@@ -25,78 +25,38 @@
                     <div class="d-flex justify-content-center">
                         <ButtonWithIcon
                             :button-font-awesome-icon="['far', 'trash-alt']"
-                            :disabled="!drawingNotEmpty"
+                            :disabled="isDrawingEmpty"
                             outline-light
                             class="m-1"
                             data-cy="drawing-toolbox-delete-button"
                             @click="showClearConfirmation"
                         />
-                        <div class="btn-group m-1">
-                            <button
-                                :disabled="!drawingNotEmpty"
-                                type="button"
-                                class="btn btn-outline-light text-dark"
-                                data-cy="drawing-toolbox-quick-export-button"
-                                @click="emitExportEvent(false)"
-                            >
-                                {{ $t('export_kml') }}
-                            </button>
-                            <button
-                                id="toggle-export-dropdown-options"
-                                type="button"
-                                :disabled="!drawingNotEmpty"
-                                class="btn btn-outline-light text-dark dropdown-toggle dropdown-toggle-split"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                                data-cy="drawing-toolbox-choose-export-format-button"
-                            >
-                                <span class="visually-hidden">Toggle Dropdown</span>
-                            </button>
-                            <ul
-                                class="dropdown-menu"
-                                aria-labelledby="toggle-export-dropdown-options"
-                            >
-                                <li>
-                                    <button
-                                        class="dropdown-item"
-                                        data-cy="drawing-toolbox-export-kml-button"
-                                        @click="emitExportEvent(false)"
-                                    >
-                                        KML
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        class="dropdown-item"
-                                        data-cy="drawing-toolbox-export-gpx-button"
-                                        @click="emitExportEvent(true)"
-                                    >
-                                        GPX
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                        <DrawingExporter />
                         <button
                             type="button"
                             class="btn btn-outline-light text-dark m-1"
-                            :disabled="!drawingNotEmpty || !kmlIds"
+                            :disabled="isDrawingEmpty || !kmlIds"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"
                         >
                             {{ $t('share') }}
                         </button>
-                        <button
-                            v-if="deleteLastPointCallback"
-                            type="button"
+                        <ButtonWithIcon
+                            v-if="isDrawingLineOrMeasure"
                             data-cy="drawing-delete-last-point-button"
-                            class="btn btn-outline-danger m-1"
-                            @click="deleteLastPointCallback"
+                            class="m-1"
+                            outline-danger
+                            @click="$emit('deleteLastPoint')"
                         >
                             {{ $t('draw_button_delete_last_point') }}
-                        </button>
+                        </ButtonWithIcon>
                     </div>
-                    <!-- eslint-disable-next-line -->
-                    <small class="d-none d-sm-block text-center text-muted" v-html="$t('share_file_disclaimer')"></small>
+                    <!-- eslint-disable vue/no-v-html-->
+                    <small
+                        class="d-none d-sm-block text-center text-muted"
+                        v-html="$t('share_file_disclaimer')"
+                    ></small>
+                    <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
         </div>
@@ -114,30 +74,29 @@
             data-cy="drawing-toolbox-share-modal"
             @close="onCloseShare"
         >
-            <share-form :kml-ids="kmlIds" />
+            <ShareForm :kml-ids="kmlIds" />
         </ModalWithBackdrop>
     </teleport>
 </template>
 
 <script>
+import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
+import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import { UIModes } from '@/modules/store/modules/ui.store'
 
 export default {
     components: {
+        DrawingExporter,
         ModalWithBackdrop,
         ButtonWithIcon,
         DrawingToolboxButton,
         ShareForm,
     },
     props: {
-        drawingModes: {
-            type: Array,
-            required: true,
-        },
         kmlIds: {
             type: Object,
             default: null,
@@ -146,26 +105,36 @@ export default {
             type: String,
             default: null,
         },
-        drawingNotEmpty: {
+        isDrawingEmpty: {
             type: Boolean,
             default: false,
-        },
-        deleteLastPointCallback: {
-            type: Function,
-            default: undefined,
         },
         uiMode: {
             type: String,
             default: UIModes.MENU_ALWAYS_OPEN,
         },
     },
-    emits: ['close', 'setDrawingMode', 'export', 'clearDrawing'],
+    emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
     data() {
         return {
-            showExportDropdown: false,
+            drawingModes: Object.values(DrawingModes),
             showShareModal: false,
             showClearConfirmationModal: false,
+            readyForTeleport: false,
         }
+    },
+    computed: {
+        isDrawingLineOrMeasure() {
+            return (
+                this.currentDrawingMode === DrawingModes.LINEPOLYGON ||
+                this.currentDrawingMode === DrawingModes.MEASURE
+            )
+        },
+    },
+    mounted() {
+        this.$nextTick(() => {
+            this.readyForTeleport = true
+        })
     },
     methods: {
         emitCloseEvent() {
@@ -173,13 +142,6 @@ export default {
         },
         bubbleSetDrawingEventToParent(drawingMode) {
             this.$emit('setDrawingMode', drawingMode)
-        },
-        emitExportEvent(gpx = false) {
-            this.showExportDropdown = false
-            this.$emit('export', gpx)
-        },
-        toggleExportDropdown() {
-            this.showExportDropdown = !this.showExportDropdown
         },
         onCloseClearConfirmation(confirmed) {
             this.showClearConfirmationModal = false

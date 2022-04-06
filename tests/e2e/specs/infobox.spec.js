@@ -39,7 +39,7 @@ describe('The infobox', () => {
 
                     longClickOnMap()
                     cy.waitUntilState((state) => {
-                        return state.feature.selectedFeatures.length > 0
+                        return state.features.selectedFeatures.length > 0
                     })
 
                     cy.get('[data-cy="highlighted-features"]').should('be.visible')
@@ -47,7 +47,7 @@ describe('The infobox', () => {
                 it('can float or stick to the bottom', () => {
                     longClickOnMap()
                     cy.waitUntilState((state) => {
-                        return state.feature.selectedFeatures.length > 0
+                        return state.features.selectedFeatures.length > 0
                     })
 
                     cy.get('[data-cy="popover"]').should('be.visible')
@@ -64,7 +64,7 @@ describe('The infobox', () => {
                 it('sets its height dynamically if at the bottom', () => {
                     longClickOnMap()
                     cy.waitUntilState((state) => {
-                        return state.feature.selectedFeatures.length > 0
+                        return state.features.selectedFeatures.length > 0
                     })
 
                     cy.get('[data-cy="toggle-floating-off"]').click()
