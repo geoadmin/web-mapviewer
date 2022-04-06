@@ -41,6 +41,7 @@ export default {
         }
     },
     beforeUnmount() {
+        this.tooltipOverlay.setElement(null)
         const map = this.getMap()
         if (map) {
             map.removeOverlay(this.tooltipOverlay)
@@ -80,7 +81,9 @@ export default {
                     hoveringSelectableFeature = true
 
                     const isSelectedFeature =
-                        hasFeatureSelected && selectedFeatureId === feature.getId()
+                        hasFeatureSelected &&
+                        selectedFeatureId === `drawing_feature_${feature.getId()}`
+
                     hoveringSelectedFeature = hoveringSelectedFeature || isSelectedFeature
                     // subsequent features will be ignored as featureUnderCursor will already be set
                     if (!featureUnderCursor || isSelectedFeature) {

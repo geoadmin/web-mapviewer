@@ -5,7 +5,7 @@
         class="tooltip-feature"
         data-cy="highlighted-features"
     >
-        <!-- We do not show anything for an editable feature that is a measure 
+        <!-- We do not show anything for an editable feature that is a measure
         (as the profile of the feature will be shown in a separate component) -->
         <div v-if="feature.isEditable && !isFeatureMeasure(feature)">
             <FeatureStyleEdit
@@ -90,6 +90,9 @@ export default {
 </script>
 
 <style lang="scss">
+.tooltip-feature {
+    overflow: hidden;
+}
 .htmlpopup-container {
     width: 100%;
     font-size: 11px;
