@@ -1,80 +1,52 @@
 <template>
-    <div
-        v-if="showProfile"
-        data-cy="profile-popup"
-        class="card profile-popup"
-        :class="{ minimized: minimized }"
-    >
+    <div v-if="showProfile" data-cy="profile-popup" class="profile-popup">
+        <div ref="profile-graph" class="profile-graph"></div>
         <div
-            class="card-header d-flex align-content-center"
-            data-cy="profile-popup-header"
-            @click="toggleMinimized"
+            v-show="showTooltip"
+            ref="profile-tooltip"
+            class="profile-tooltip"
+            data-cy="profile-popup-tooltip"
         >
-            <span class="popover-title flex-grow-1 align-self-center text-start">
-                {{ $t('draw_popup_title_measure') }}
-            </span>
-            <ButtonWithIcon
-                v-if="!minimized"
-                data-cy="profile-popup-minimize-button"
-                small
-                :button-font-awesome-icon="['fa', 'window-minimize']"
-            />
-            <ButtonWithIcon
-                data-cy="profile-popup-close-button"
-                small
-                :button-font-awesome-icon="['fa', 'times']"
-                @click="onClose"
-            />
+            <div class="profile-tooltip-inner p-2">
+                <div>
+                    <strong>Distance: </strong>
+                    <span class="distance"></span>
+                </div>
+                <div>
+                    <strong>Elevation: </strong>
+                    <span class="elevation"></span>
+                </div>
+            </div>
+            <div class="profile-tooltip-arrow"></div>
         </div>
-        <div v-if="!minimized" data-cy="profile-popup-content" class="card-body p-2">
-            <div ref="profile-graph" class="profile-graph"></div>
+        <div v-if="profileInformation.length" class="d-flex">
             <div
-                v-show="showTooltip"
-                ref="profile-tooltip"
-                class="profile-tooltip"
-                data-cy="profile-popup-tooltip"
+                class="flex-grow-1 profile-info-container d-flex"
+                data-cy="profile-popup-info-container"
             >
-                <div class="profile-tooltip-inner p-2">
-                    <div>
-                        <strong>Distance: </strong>
-                        <span class="distance"></span>
-                    </div>
-                    <div>
-                        <strong>Elevation: </strong>
-                        <span class="elevation"></span>
-                    </div>
-                </div>
-                <div class="profile-tooltip-arrow"></div>
-            </div>
-            <div v-if="profileInformation.length" class="d-flex p-2">
-                <div
-                    class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
-                    data-cy="profile-popup-info-container"
+                <span
+                    v-for="info in profileInformation"
+                    :key="info.title"
+                    :title="$t(info.title)"
+                    class="mx-2 text-nowrap d-flex align-content-center align-self-center"
                 >
-                    <span
-                        v-for="info in profileInformation"
-                        :key="info.title"
-                        :title="$t(info.title)"
-                        class="mx-2 text-nowrap d-flex align-content-center align-self-center"
-                    >
-                        <font-awesome-icon
-                            v-for="(icon, index) in info.icons"
-                            :key="`${info.title}-${index}`"
-                            :icon="icon"
-                            class="me-1 align-self-center"
-                        />
-                        &nbsp;
-                        <span data-cy="profile-popup-info">
-                            {{ info.value }}
-                        </span>
+                    <font-awesome-icon
+                        v-for="(icon, index) in info.icons"
+                        :key="`${info.title}-${index}`"
+                        :icon="icon"
+                        class="me-1 align-self-center"
+                    />
+                    &nbsp;
+                    <span data-cy="profile-popup-info">
+                        {{ info.value }}
                     </span>
-                </div>
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['far', 'trash-alt']"
-                    data-cy="profile-popup-delete-button"
-                    @click="onDelete"
-                />
+                </span>
             </div>
+            <ButtonWithIcon
+                :button-font-awesome-icon="['far', 'trash-alt']"
+                data-cy="profile-popup-delete-button"
+                @click="onDelete"
+            />
         </div>
     </div>
 </template>
@@ -91,7 +63,6 @@ import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
 import { Feature } from 'ol'
 import { Point } from 'ol/geom'
-import Polygon from 'ol/geom/Polygon'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import proj4 from 'proj4'
@@ -113,7 +84,7 @@ export default {
     data() {
         return {
             options: {
-                margin: { left: 60, right: 5, bottom: 35, top: 5 },
+                margin: { left: 50, right: 0, bottom: 35, top: 5 },
                 width: 0,
                 height: 0,
                 xLabel: 'profile_x_label',
@@ -121,15 +92,15 @@ export default {
             },
             showTooltip: false,
             profileInfo: null,
-            minimized: this.uiMode === UIModes.MENU_OPENED_THROUGH_BUTTON,
         }
     },
     computed: {
         showProfile() {
             return (
                 this.feature &&
-                this.feature.featureType in
-                    [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON]
+                [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
+                    this.feature.featureType
+                )
             )
         },
         profileInformation() {
@@ -184,8 +155,11 @@ export default {
         },
     },
     watch: {
-        feature() {
-            this.triggerProfileUpdate = true
+        feature: {
+            deep: true,
+            handler() {
+                this.triggerProfileUpdate = true
+            },
         },
     },
     created() {
@@ -220,10 +194,6 @@ export default {
         })
     },
     methods: {
-        toggleMinimized() {
-            this.minimized = !this.minimized
-            this.triggerProfileUpdate = true
-        },
         onClose() {
             this.$emit('close')
         },
@@ -231,50 +201,42 @@ export default {
             this.$emit('delete')
         },
         onResize() {
-            if (!this.minimized) {
-                this.triggerProfileUpdate = true
-                this.updateProfile()
-            }
+            this.triggerProfileUpdate = true
+            this.updateProfile()
         },
         async updateProfile() {
-            const profileGraphEl = this.$refs['profile-graph']
-            if (!profileGraphEl) {
+            const containerEl = this.$refs['profile-graph']
+            if (!containerEl) {
                 return
             }
-            let profileChartEl
+            let chartEl
             if (!this.profileChart) {
-                this.options.width = profileGraphEl.clientWidth
-                this.options.height = profileGraphEl.clientHeight
+                this.options.width = containerEl.clientWidth
+                this.options.height = containerEl.clientHeight
                 this.profileChart = new ProfileChart(this.options)
-                profileChartEl = await this.createProfileChart()
+                chartEl = await this.createProfileChart()
             } else {
-                profileChartEl = await this.updateProfileChart([
-                    profileGraphEl.clientWidth,
-                    profileGraphEl.clientHeight,
+                chartEl = await this.updateProfileChart([
+                    containerEl.clientWidth,
+                    containerEl.clientHeight,
                 ])
             }
-            if (profileChartEl) {
+            if (chartEl) {
                 this.profileInfo = this.profileChart.getProfileInfo()
-                profileGraphEl.appendChild(profileChartEl)
+                containerEl.appendChild(chartEl)
             }
         },
         async createProfileChart() {
-            const data = await this.getProfile(this.getCoordinates())
+            const data = await this.getProfile(this.feature.coordinates)
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             this.attachPathListeners(areaChartPath)
             return this.profileChart.element
         },
         async updateProfileChart(size) {
-            const data = await this.getProfile(this.getCoordinates())
+            const data = await this.getProfile(this.feature.coordinates)
             this.profileChart.update(data, size)
             return this.profileChart.element
-        },
-        getCoordinates() {
-            const geometry = this.feature.getGeometry()
-            return geometry instanceof Polygon
-                ? geometry.getCoordinates()[0]
-                : geometry.getCoordinates()
         },
         async getProfile(coordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
@@ -356,11 +318,6 @@ export default {
     width: 100%;
     max-height: 380px;
 
-    &.minimized {
-        .popover-title {
-            cursor: pointer;
-        }
-    }
     .profile-info-container {
         overflow-x: auto;
         max-width: 100vw;

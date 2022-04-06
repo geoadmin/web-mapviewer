@@ -31,7 +31,7 @@ export default {
     },
     computed: {
         ...mapState({
-            selectedFeatures: (state) => state.feature.selectedFeatures,
+            selectedFeatures: (state) => state.features.selectedFeatures,
             tooltipInFooter: (state) => !state.ui.floatingTooltip,
             availableIconSets: (state) => state.drawing.iconSets,
         }),

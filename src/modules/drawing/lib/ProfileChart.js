@@ -184,7 +184,7 @@ export default class ProfileChart {
             .attr('height', this.height + this.marginVert)
             .attr('class', 'profile-svg')
 
-        const group = this.svg
+        this.group = this.svg
             .append('g')
             .attr('class', 'profile-group')
             .attr(
@@ -194,13 +194,13 @@ export default class ProfileChart {
 
         const area = createArea(this.domain, this.height, this.elevationModel)
 
-        group
+        this.group
             .append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0, ' + this.height + ')')
             .call(axis.X)
 
-        group
+        this.group
             .append('g')
             .attr('class', 'y axis')
             .call(axis.Y)
@@ -210,36 +210,34 @@ export default class ProfileChart {
             .attr('dy', '.71em')
             .style('text-anchor', 'end')
 
-        group
+        this.group
             .append('g')
             .attr('class', 'profile-grid-x')
             .attr('transform', 'translate(0, ' + this.height + ')')
             .call(axis.X.tickSize(-this.height, 0, 0).tickFormat(''))
 
-        group
+        this.group
             .append('g')
             .attr('class', 'profile-grid-y')
             .call(axis.Y.tickSize(-this.width, 0, 0).tickFormat(''))
 
-        group
+        this.group
             .append('path')
             .datum(this.data)
             .attr('class', 'profile-area')
             .attr('d', area)
             .attr('data-cy', 'profile-popup-area')
 
-        this.group = group
-
-        group
+        this.group
             .append('text')
+            .attr('text-anchor', 'end')
             .attr('class', 'profile-legend')
-            .attr('x', this.width - 118)
+            .attr('x', this.width)
             .attr('y', 11)
-            .attr('width', 100)
             .attr('height', 30)
             .text('swissALTI3D/DHM25')
 
-        group
+        this.group
             .append('text')
             .attr('class', 'profile-label ga-profile-label-x')
             .attr('x', this.width / 2)
@@ -247,7 +245,7 @@ export default class ProfileChart {
             .style('text-anchor', 'middle')
             .attr('font-size', '0.95em')
 
-        group
+        this.group
             .append('text')
             .attr('class', 'profile-label ga-profile-label-y')
             .attr('transform', 'rotate(-90)')
@@ -301,7 +299,8 @@ export default class ProfileChart {
                 .select('text.profile-legend')
                 .transition()
                 .duration(transitionTime)
-                .attr('x', this.width - 118)
+                .attr('text-anchor', 'end')
+                .attr('x', this.width)
                 .attr('y', 11)
                 .text('swissALTI3D/DHM25')
         }
