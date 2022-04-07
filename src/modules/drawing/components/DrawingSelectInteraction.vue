@@ -95,24 +95,23 @@ export default {
     },
     mounted() {
         this.selectInteraction.setActive(true)
-        const selected = this.selectInteraction.getFeatures()
-        selected.on('add', this.onSelectChange)
-        selected.on('remove', this.onSelectChange)
+        this.selectInteraction.on('select', this.onSelectChange)
         this.getMap().addInteraction(this.selectInteraction)
     },
     unmounted() {
         this.selectInteraction.setActive(false)
         this.getMap().removeInteraction(this.selectInteraction)
-        const selected = this.selectInteraction.getFeatures()
-        selected.un('remove', this.onSelectChange)
-        selected.un('add', this.onSelectChange)
+        this.selectInteraction.un('select', this.onSelectChange)
         this.selectInteraction = null
     },
     methods: {
         onSelectChange(event) {
-            if (event.type === 'add') {
-                this.selectFeature(event.element)
-            } else if (event.type === 'remove') {
+            // The select event lists the changes in two arrays: selected, deselected
+            // As we only allow for one feature to be selected at a time this event
+            // will always yield one item in either of the arrays.
+            if (event.selected.length > 0) {
+                this.selectFeature(event.selected[0])
+            } else {
                 this.selectFeature(null)
             }
         },
