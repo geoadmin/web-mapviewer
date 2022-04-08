@@ -7,6 +7,7 @@ import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawi
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import ModifyInteraction from 'ol/interaction/Modify'
+import { DRAWING_HIT_TOLERANCE } from '@/config'
 
 const cursorGrabbingClass = 'cursor-grabbing'
 
@@ -43,6 +44,9 @@ export default {
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
             // This enables click on the shape of features (instead of pixel tolerance from their coordinates)
             hitDetection: true,
+            // This seems to be calculated differently than the hitTolerance properties of SelectInteraction
+            // and forEachFeatureAtPixel. That's why we have to manually correct the value here.
+            pixelTolerance: DRAWING_HIT_TOLERANCE + 2,
         })
         this.modifyInteraction.on('modifystart', this.onModifyStart)
         this.modifyInteraction.on('modifyend', this.onModifyEnd)

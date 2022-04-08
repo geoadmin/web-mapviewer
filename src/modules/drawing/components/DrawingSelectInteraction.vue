@@ -7,6 +7,7 @@ import { EditableFeature } from '@/api/features.api'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
+import { DRAWING_HIT_TOLERANCE } from '@/config'
 
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected
@@ -90,7 +91,7 @@ export default {
             layers: [this.getDrawingLayer()],
             // As we've seen with the old viewer, some small features were hard
             // to select. We will try to add a bigger hit tolerance to mitigate that.
-            hitTolerance: 3,
+            hitTolerance: DRAWING_HIT_TOLERANCE,
         })
     },
     mounted() {
