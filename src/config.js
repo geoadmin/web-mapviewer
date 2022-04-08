@@ -169,3 +169,10 @@ export const BREAKPOINT_PHONE_HEIGHT = 500
  * @type {Number}
  */
 export const BREAKPOINT_TABLET = 768
+
+/**
+ * The tolerance in pixel when testing if the cursor is over an element in drawing mode.
+ *
+ * @type {Number}
+ */
+export const DRAWING_HIT_TOLERANCE = 6

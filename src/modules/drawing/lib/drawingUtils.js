@@ -164,6 +164,10 @@ export function extractOpenLayersFeatureCoordinates(feature) {
  * @returns {Boolean} If the point is close enough to the target.
  */
 export function pointWithinTolerance(point, target, tolerance = 0) {
+    if (!point || !target) {
+        return false
+    }
+
     return (
         point[0] >= target[0] - tolerance &&
         point[0] <= target[0] + tolerance &&
