@@ -90,7 +90,7 @@ export default {
             layers: [this.getDrawingLayer()],
             // As we've seen with the old viewer, some small features were hard
             // to select. We will try to add a bigger hit tolerance to mitigate that.
-            hitTolerance: 3,
+            hitTolerance: 6,
         })
     },
     mounted() {
