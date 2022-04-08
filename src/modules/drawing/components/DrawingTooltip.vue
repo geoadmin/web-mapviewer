@@ -1,13 +1,19 @@
 <template>
-    <div ref="drawingTooltip" class="drawing-tooltip"></div>
+    <!-- eslint-disable vue/no-v-html-->
+    <div ref="drawingTooltip" class="drawing-tooltip" v-html="tooltipText" />
+    <!-- eslint-enable vue/no-v-html-->
 </template>
 
 <script>
-import { Polygon } from 'ol/geom'
 import Overlay from 'ol/Overlay'
+import { pointWithinTolerance, getVertexCoordinates } from '@/modules/drawing/lib/drawingUtils'
+
+const cssPointer = 'cursor-pointer'
+const cssGrab = 'cursor-grab'
+const cssGrabbing = 'cursor-grabbing'
 
 export default {
-    inject: ['getMap'],
+    inject: ['getMap', 'getDrawingLayer'],
     props: {
         currentDrawingMode: {
             type: String,
@@ -17,10 +23,14 @@ export default {
             type: Array,
             default: () => [],
         },
+        currentlySketchedFeature: {
+            type: Object,
+            default: null,
+        },
     },
     data() {
         return {
-            sketchPoints: 0,
+            tooltipText: '',
         }
     },
     created() {
@@ -34,113 +44,149 @@ export default {
     },
     mounted() {
         this.tooltipOverlay.setElement(this.$refs.drawingTooltip)
+
         const map = this.getMap()
-        if (map) {
-            map.addOverlay(this.tooltipOverlay)
-            map.on('pointermove', this.onPointerMove)
-        }
+        map.addOverlay(this.tooltipOverlay)
+        map.on('pointermove', this.onPointerMove)
     },
     beforeUnmount() {
         this.tooltipOverlay.setElement(null)
+
         const map = this.getMap()
-        if (map) {
-            map.removeOverlay(this.tooltipOverlay)
-            map.un('pointermove', this.onPointerMove)
-        }
+        map.removeOverlay(this.tooltipOverlay)
+        map.un('pointermove', this.onPointerMove)
     },
     methods: {
-        updateTooltipText(translationKeyLine1, translationKeyLine2 = null) {
-            if (translationKeyLine2) {
-                this.tooltipOverlay.getElement().innerHTML =
-                    this.$i18n.t(translationKeyLine1) + '<br/>' + this.$i18n.t(translationKeyLine2)
-            } else {
-                this.tooltipOverlay.getElement().innerHTML = this.$i18n.t(translationKeyLine1)
+        updateTooltipText(translationKeys) {
+            if (!Array.isArray(translationKeys)) {
+                translationKeys = [translationKeys]
             }
+
+            const content = translationKeys.map((line) => this.$i18n.t(line)).join('<br>')
+            this.tooltipText = content
         },
         onPointerMove(event) {
             // moving the tooltip with the mouse cursor
             this.tooltipOverlay.setPosition(event.coordinate)
-            // detecting features under the mouse cursor
+
             const map = this.getMap()
-            if (map) {
-                let hoveringSelectableFeature = false
-                let hoveringSelectedFeature = false
+            const mapElement = map.getTarget()
 
-                const hasFeatureSelected = this.selectedFeatures && this.selectedFeatures.length > 0
-                // we only keep track of the first feature's info (the one on top of the stack)
-                const selectedFeatureId = hasFeatureSelected && this.selectedFeatures[0].id
-                let featureUnderCursor
+            if (mapElement.classList.contains(cssGrabbing)) {
+                mapElement.classList.remove(cssGrab)
+                return
+            }
 
-                map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
-                    // we ignore feature not linked to any layer
-                    if (!layer) {
-                        return
-                    }
+            const hitTolerance = 6
+            const drawingLayer = this.getDrawingLayer()
 
-                    // keeping track that features are being overed (even if not selected)
+            // detecting features under the mouse cursor
+            let hoveringSelectableFeature = false
+            let hoveringSelectedFeature = false
+
+            const hasFeatureSelected = this.selectedFeatures.length > 0
+            // we only keep track of the first feature's info (the one on top of the stack)
+            const selectedFeatureId = hasFeatureSelected
+                ? this.selectedFeatures[0]?.id.replace('drawing_feature_', '')
+                : null
+            let featureUnderCursor
+
+            map.forEachFeatureAtPixel(
+                event.pixel,
+                (feature) => {
+                    // Keeping track that features are being hovered (even if not selected)
                     hoveringSelectableFeature = true
 
                     const isSelectedFeature =
-                        hasFeatureSelected &&
-                        selectedFeatureId === `drawing_feature_${feature.getId()}`
+                        hasFeatureSelected && selectedFeatureId === feature.getId()
 
                     hoveringSelectedFeature = hoveringSelectedFeature || isSelectedFeature
                     // subsequent features will be ignored as featureUnderCursor will already be set
                     if (!featureUnderCursor || isSelectedFeature) {
                         featureUnderCursor = feature
                     }
-                })
-                // detecting if we are hovering the area of a polygon (and not its borders)
-                // if so, we suppress the flag "hoveringSelectedFeature" as it is of no value
-                // to know that we are hovering the area (only borders have interactivity)
-                if (featureUnderCursor?.getGeometry() instanceof Polygon) {
-                    hoveringSelectedFeature = false
+                },
+                {
+                    layerFilter: (layer) => layer === drawingLayer,
+                    hitTolerance,
                 }
+            )
 
-                const featureType = featureUnderCursor?.get('drawingMode')?.toLowerCase()
-                if (hoveringSelectedFeature) {
-                    // Display a help tooltip when modifying
-                    if (['marker', 'annotation'].includes(featureType)) {
-                        this.updateTooltipText(`modify_existing_vertex_${featureType}`)
+            let featureType = featureUnderCursor?.get('drawingMode')?.toLowerCase()
+            let translationKeys
+
+            if (hoveringSelectedFeature) {
+                mapElement.classList.add(cssGrab)
+                mapElement.classList.remove(cssPointer)
+
+                let hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
+                    let pixel = map.getPixelFromCoordinate(coordinate)
+                    return pointWithinTolerance(pixel, event.pixel, hitTolerance)
+                })
+
+                // Display a help tooltip when modifying
+                if (hoveringVertex || ['marker', 'annotation'].includes(featureType)) {
+                    translationKeys = `modify_existing_vertex_${featureType}`
+                } else {
+                    translationKeys = `modify_new_vertex_${featureType}`
+                }
+            } else if (hoveringSelectableFeature) {
+                mapElement.classList.add(cssPointer)
+                mapElement.classList.remove(cssGrab)
+
+                // Display a help tooltip when selecting
+                if (featureType) {
+                    translationKeys = `select_feature_${featureType}`
+                } else {
+                    translationKeys = 'select_no_feature'
+                }
+            } else {
+                mapElement.classList.remove(cssPointer)
+                mapElement.classList.remove(cssGrab)
+
+                // Display a help tooltip when drawing
+                if (this.currentDrawingMode) {
+                    let type = this.currentDrawingMode.toLowerCase()
+
+                    if (this.currentlySketchedFeature && !['marker', 'annotation'].includes(type)) {
+                        let hoveringFirstVertex = false
+                        let hoveringLastVertex = false
+                        // The last two coordinates seem to be some OL internal points we don't need.
+                        let coordinates = getVertexCoordinates(this.currentlySketchedFeature).slice(
+                            0,
+                            -2
+                        )
+
+                        coordinates.some((coordinate, index) => {
+                            let pixel = map.getPixelFromCoordinate(coordinate)
+                            if (pointWithinTolerance(pixel, event.pixel, hitTolerance)) {
+                                hoveringFirstVertex = index === 0
+                                hoveringLastVertex = index === coordinates.length - 1
+                                // Abort loop. We have what we need.
+                                return true
+                            }
+                        })
+
+                        if (hoveringFirstVertex && coordinates.length > 2) {
+                            translationKeys = `draw_snap_first_point_${type}`
+                        } else if (hoveringLastVertex && coordinates.length > 1) {
+                            translationKeys = `draw_snap_last_point_${type}`
+                        } else {
+                            translationKeys = `draw_next_${type}`
+                        }
+
+                        if (coordinates.length > 1) {
+                            translationKeys = [translationKeys, 'draw_delete_last_point']
+                        }
                     } else {
-                        this.updateTooltipText(`modify_new_vertex_${featureType}`)
-                    }
-                } else if (hoveringSelectableFeature) {
-                    // Display a help tooltip when selecting
-                    if (featureType) {
-                        this.updateTooltipText(`select_feature_${featureType}`)
-                    } else {
-                        this.updateTooltipText('select_no_feature')
+                        translationKeys = `draw_start_${type}`
                     }
                 } else {
-                    // Display a help tooltip when drawing
-                    // TODO: help for each drawing mode
-                    if (this.currentDrawingMode) {
-                        this.updateTooltipText(
-                            `draw_start_${this.currentDrawingMode.toLowerCase()}`
-                        )
-                        // let helpMsgId = 'draw_start_'
-                        // if (drawStarted) {
-                        //     if (type !== 'marker' && type !== 'annotation') {
-                        //         helpMsgId = 'draw_next_'
-                        //     }
-                        //     if (onLastPoint) {
-                        //         helpMsgId = 'draw_snap_last_point_'
-                        //     }
-                        //     if (onFirstPoint) {
-                        //         helpMsgId = 'draw_snap_first_point_'
-                        //     }
-                        // }
-                        // if (drawStarted && hasMinNbPoints) {
-                        //     this.updateTooltipText(helpMsgId + type, 'draw_delete_last_point')
-                        // } else {
-                        //     this.updateTooltipText(helpMsgId + type)
-                        // }
-                    } else {
-                        this.updateTooltipText('select_no_feature')
-                    }
+                    translationKeys = 'select_no_feature'
                 }
             }
+
+            this.updateTooltipText(translationKeys)
         },
     },
 }

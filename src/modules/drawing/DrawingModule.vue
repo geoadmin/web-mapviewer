@@ -15,6 +15,7 @@
             v-if="show"
             :current-drawing-mode="currentDrawingMode"
             :selected-features="selectedFeatures"
+            :currently-sketched-feature="currentlySketchedFeature"
         />
         <teleport v-if="readyForTeleport" to="#map-footer-middle">
             <ProfilePopup
@@ -45,21 +46,25 @@
             v-if="show && isDrawingModeMarker"
             ref="markerInteraction"
             :available-icon-sets="availableIconSets"
+            @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
         <DrawingTextInteraction
             v-if="show && isDrawingModeAnnotation"
             ref="textInteraction"
+            @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
         <DrawingLineInteraction
             v-if="show && isDrawingModeLine"
             ref="lineInteraction"
+            @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
         <DrawingMeasureInteraction
             v-if="show && isDrawingModeMeasure"
             ref="measureInteraction"
+            @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
     </div>
@@ -109,6 +114,7 @@ export default {
         return {
             drawingModes: Object.values(DrawingModes),
             isDrawingEmpty: true,
+            currentlySketchedFeature: null,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
         }
@@ -255,7 +261,11 @@ export default {
                 this.triggerKMLUpdate()
             }
         },
+        onDrawStart(feature) {
+            this.currentlySketchedFeature = feature
+        },
         onDrawEnd(feature) {
+            this.currentlySketchedFeature = null
             this.$refs.selectInteraction.selectFeature(feature)
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
@@ -362,7 +372,7 @@ export default {
 </script>
 
 <style lang="scss">
-/* Unscoped style as what is described below will not be wrapped 
+/* Unscoped style as what is described below will not be wrapped
 in this component but added straight the the OpenLayers map */
 .tooltip-measure,
 .draw-measure-tmp,

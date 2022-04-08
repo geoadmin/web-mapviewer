@@ -43,6 +43,7 @@ export default {
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
             // This enables click on the shape of features (instead of pixel tolerance from their coordinates)
             hitDetection: true,
+            pixelTolerance: 8,
         })
         this.modifyInteraction.on('modifystart', this.onModifyStart)
         this.modifyInteraction.on('modifyend', this.onModifyEnd)
