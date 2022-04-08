@@ -7,6 +7,8 @@
 <script>
 import Overlay from 'ol/Overlay'
 import { pointWithinTolerance, getVertexCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { DRAWING_HIT_TOLERANCE } from '@/config'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
@@ -62,8 +64,10 @@ export default {
                 translationKeys = [translationKeys]
             }
 
-            const content = translationKeys.map((line) => this.$i18n.t(line)).join('<br>')
-            this.tooltipText = content
+            this.tooltipText = translationKeys
+                .map((key) => key.toLowerCase())
+                .map((key) => this.$i18n.t(key))
+                .join('<br>')
         },
         onPointerMove(event) {
             // moving the tooltip with the mouse cursor
@@ -77,7 +81,6 @@ export default {
                 return
             }
 
-            const hitTolerance = 6
             const drawingLayer = this.getDrawingLayer()
 
             // detecting features under the mouse cursor
@@ -108,11 +111,12 @@ export default {
                 },
                 {
                     layerFilter: (layer) => layer === drawingLayer,
-                    hitTolerance,
+                    hitTolerance: DRAWING_HIT_TOLERANCE,
                 }
             )
 
-            let featureType = featureUnderCursor?.get('drawingMode')?.toLowerCase()
+            const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
+            let drawingMode = featureUnderCursor?.get('drawingMode')
             let translationKeys
 
             if (hoveringSelectedFeature) {
@@ -121,22 +125,22 @@ export default {
 
                 let hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
                     let pixel = map.getPixelFromCoordinate(coordinate)
-                    return pointWithinTolerance(pixel, event.pixel, hitTolerance)
+                    return pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)
                 })
 
                 // Display a help tooltip when modifying
-                if (hoveringVertex || ['marker', 'annotation'].includes(featureType)) {
-                    translationKeys = `modify_existing_vertex_${featureType}`
+                if (hoveringVertex || pointFeatureTypes.includes(drawingMode)) {
+                    translationKeys = `modify_existing_vertex_${drawingMode}`
                 } else {
-                    translationKeys = `modify_new_vertex_${featureType}`
+                    translationKeys = `modify_new_vertex_${drawingMode}`
                 }
             } else if (hoveringSelectableFeature) {
                 mapElement.classList.add(cssPointer)
                 mapElement.classList.remove(cssGrab)
 
                 // Display a help tooltip when selecting
-                if (featureType) {
-                    translationKeys = `select_feature_${featureType}`
+                if (drawingMode) {
+                    translationKeys = `select_feature_${drawingMode}`
                 } else {
                     translationKeys = 'select_no_feature'
                 }
@@ -144,11 +148,11 @@ export default {
                 mapElement.classList.remove(cssPointer)
                 mapElement.classList.remove(cssGrab)
 
-                // Display a help tooltip when drawing
-                if (this.currentDrawingMode) {
-                    let type = this.currentDrawingMode.toLowerCase()
+                drawingMode = this.currentDrawingMode
 
-                    if (this.currentlySketchedFeature && !['marker', 'annotation'].includes(type)) {
+                // Display a help tooltip when drawing
+                if (drawingMode) {
+                    if (this.currentlySketchedFeature && !pointFeatureTypes.includes(drawingMode)) {
                         let hoveringFirstVertex = false
                         let hoveringLastVertex = false
                         // The last two coordinates seem to be some OL internal points we don't need.
@@ -159,7 +163,7 @@ export default {
 
                         coordinates.some((coordinate, index) => {
                             let pixel = map.getPixelFromCoordinate(coordinate)
-                            if (pointWithinTolerance(pixel, event.pixel, hitTolerance)) {
+                            if (pointWithinTolerance(pixel, event.pixel, DRAWING_HIT_TOLERANCE)) {
                                 hoveringFirstVertex = index === 0
                                 hoveringLastVertex = index === coordinates.length - 1
                                 // Abort loop. We have what we need.
@@ -168,18 +172,18 @@ export default {
                         })
 
                         if (hoveringFirstVertex && coordinates.length > 2) {
-                            translationKeys = `draw_snap_first_point_${type}`
+                            translationKeys = `draw_snap_first_point_${drawingMode}`
                         } else if (hoveringLastVertex && coordinates.length > 1) {
-                            translationKeys = `draw_snap_last_point_${type}`
+                            translationKeys = `draw_snap_last_point_${drawingMode}`
                         } else {
-                            translationKeys = `draw_next_${type}`
+                            translationKeys = `draw_next_${drawingMode}`
                         }
 
                         if (coordinates.length > 1) {
                             translationKeys = [translationKeys, 'draw_delete_last_point']
                         }
                     } else {
-                        translationKeys = `draw_start_${type}`
+                        translationKeys = `draw_start_${drawingMode}`
                     }
                 } else {
                     translationKeys = 'select_no_feature'
