@@ -1,4 +1,4 @@
-import { SET_LANG_MUTATION_KEY } from '@/modules/i18n/store/i18n.store'
+import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import log from '@/utils/logging'

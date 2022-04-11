@@ -124,7 +124,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: {

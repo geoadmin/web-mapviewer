@@ -58,7 +58,7 @@ import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.
 import { mapActions, mapState } from 'vuex'
 
 import MenuTray from './components/menu/MenuTray.vue'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'

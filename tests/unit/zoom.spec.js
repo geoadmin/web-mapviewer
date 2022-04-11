@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import store from '@/modules/store'
+import store from '@/store'
 
 describe('Zoom level is calculated correctly in the store', () => {
     const screenSize = 100
