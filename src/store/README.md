@@ -1,6 +1,6 @@
 # Store
 
-This is the [Vuex](https://vuejs.org) store used to manage the state of the entire application.
+This is the [Vuex](https://vuex.vuejs.org/) store used to manage the state of the entire application.
 
 ## Structure
 
