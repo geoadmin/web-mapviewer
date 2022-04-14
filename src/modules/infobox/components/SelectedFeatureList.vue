@@ -3,6 +3,7 @@
         v-for="(feature, index) in selectedFeatures"
         :key="generateFeatureIdForList(feature, index)"
         class="tooltip-feature"
+        :class="{ 'profile-plot': isProfileForMeasureFeature(feature) }"
         data-cy="highlighted-features"
     >
         <!-- We do not show anything for an editable feature that is a measure
@@ -20,7 +21,7 @@
                 @change:icon-size="(iconSize) => onIconSizeChange(feature, iconSize)"
             />
         </div>
-        <ProfilePopup v-if="feature.isEditable && isFeatureMeasure(feature)" :feature="feature" />
+        <ProfilePopupPlot v-if="isProfileForMeasureFeature(feature)" :feature="feature" />
         <!-- eslint-disable vue/no-v-html-->
         <div v-if="!feature.isEditable" v-html="feature.htmlPopup" />
         <!-- eslint-enable vue/no-v-html-->
@@ -28,12 +29,12 @@
 </template>
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
-import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
+import ProfilePopupPlot from '@/modules/drawing/components/ProfilePopupPlot.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { mapActions, mapState } from 'vuex'
 
 export default {
-    components: { ProfilePopup, FeatureStyleEdit },
+    components: { ProfilePopupPlot, FeatureStyleEdit },
     computed: {
         ...mapState({
             selectedFeatures: (state) => state.features.selectedFeatures,
@@ -64,6 +65,9 @@ export default {
         isFeatureMeasure(feature) {
             return feature.featureType === EditableFeatureTypes.MEASURE
         },
+        isProfileForMeasureFeature(feature) {
+            return feature && feature.isEditable && this.isFeatureMeasure(feature)
+        },
         onTitleChange(feature, title) {
             this.changeFeatureTitle({ feature, title })
         },
@@ -90,6 +94,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import 'src/scss/media-query.mixin';
 .tooltip-feature {
     overflow: hidden;
 }
@@ -108,5 +113,21 @@ export default {
     width: 100%;
     border: 0;
     margin: 0 7px;
+}
+// telling the grid from the bottom tray to display the profile as one liner
+@include respond-above(md) {
+    .profile-plot {
+        grid-column: span 2;
+    }
+}
+@include respond-above(lg) {
+    .profile-plot {
+        grid-column: span 3;
+    }
+}
+@include respond-above(xl) {
+    .profile-plot {
+        grid-column: span 4;
+    }
 }
 </style>

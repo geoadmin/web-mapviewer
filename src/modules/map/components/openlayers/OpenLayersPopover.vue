@@ -25,11 +25,10 @@
 </template>
 
 <script>
-import Overlay from 'ol/Overlay'
-import OverlayPositioning from 'ol/OverlayPositioning'
-
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import Overlay from 'ol/Overlay'
+import OverlayPositioning from 'ol/OverlayPositioning'
 
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
