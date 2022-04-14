@@ -23,8 +23,7 @@ const drawingLayerManagementPlugin = (store) => {
         if (
             ['setKmlIds', 'setShowDrawingOverlay'].includes(mutation.type) &&
             !state.ui.showDrawingOverlay &&
-            state.drawing.drawingKmlIds &&
-            state.drawing.drawingKmlIds.fileId
+            state.drawing.drawingKmlIds?.fileId
         ) {
             // if we have a KML layer and that the drawing menu is not open
             //(!state.ui.showDrawingOverlay), then we need to add the KML layer to the active
@@ -38,8 +37,7 @@ const drawingLayerManagementPlugin = (store) => {
         } else if (
             mutation.type === 'removeLayerWithId' &&
             !state.ui.showDrawingOverlay &&
-            state.drawing.drawingKmlIds &&
-            state.drawing.drawingKmlIds.fileId &&
+            state.drawing.drawingKmlIds?.fileId &&
             !state.layers.activeLayers.find(
                 (layer) => layer.kmlFileUrl === store.getters.getDrawingPublicFileUrl
             )

@@ -34,7 +34,7 @@ describe('Profile popup', () => {
         const goToDrawingWithMockProfile = (mockValue) => {
             cy.mockupBackendResponse('rest/services/profile.json', mockValue, 'profile')
             cy.goToDrawing()
-            cy.clickDrawingTool('line')
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get(olSelector).click(100, 200)
             cy.get(olSelector).click(150, 200)
             cy.get(olSelector).dblclick(120, 240)
@@ -74,7 +74,7 @@ describe('Profile popup', () => {
         beforeEach(() => {
             cy.mockupBackendResponse('rest/services/profile.json', testResponse, 'profile')
             cy.goToDrawing()
-            cy.clickDrawingTool('line')
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get(olSelector).click(100, 200)
             cy.get(olSelector).click(150, 200)
             cy.get(olSelector).click(120, 240)
