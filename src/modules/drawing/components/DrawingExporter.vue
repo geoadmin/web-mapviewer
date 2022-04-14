@@ -49,28 +49,20 @@ import { saveAs } from 'file-saver'
 
 export default {
     inject: ['getDrawingLayer'],
-    computed: {
-        isDrawingEmpty() {
-            const drawingLayer = this.getDrawingLayer()
-            if (drawingLayer) {
-                return drawingLayer.getSource().getFeatures().length === 0
-            }
-            return true
+    props: {
+        isDrawingEmpty: {
+            type: Boolean,
+            default: false,
         },
     },
     methods: {
-        exportDrawing: function (gpx = false) {
-            // checking first that we have access to the drawing layer
-            const drawingLayer = this.getDrawingLayer()
-            if (!drawingLayer) {
-                return
-            }
-            const features = drawingLayer.getSource().getFeatures()
+        exportDrawing(gpx = false) {
             // if there's no features, no export
-            if (features.length === 0) {
+            if (this.isDrawingEmpty) {
                 return
             }
 
+            const features = this.getDrawingLayer().getSource().getFeatures()
             const date = new Date()
                 .toISOString()
                 .split('.')[0]
@@ -88,7 +80,8 @@ export default {
                 content = generateKmlString(features)
                 type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
             }
-            const blob = new Blob([content], { type: type })
+            const blob = new Blob([content], { type })
+
             saveAs(blob, fileName)
         },
     },

@@ -9,13 +9,13 @@ const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format
 const exportKmlButton = '[data-cy="drawing-toolbox-export-kml-button"]'
 const exportGpxButton = '[data-cy="drawing-toolbox-export-gpx-button"]'
 
-const isNonEmptyString = (x) => {
-    return Boolean(x && x.length)
+const isNonEmptyString = (value) => {
+    return typeof value === 'string' && value.length > 0
 }
 
 const checkFiles = (extension, callback) => {
     recurse(
-        () => cy.task('findFiles', { folderName: downloadsFolder, extension: extension }),
+        () => cy.task('findFiles', { folderName: downloadsFolder, extension }),
         isNonEmptyString,
         {
             delay: 100,
@@ -28,14 +28,14 @@ const checkFiles = (extension, callback) => {
 }
 
 const checkKmlFile = (content) => {
-    ;['measure', 'marker', 'text', 'line'].forEach((type) => {
+    ;['MEASURE', 'MARKER', 'ANNOTATION', 'LINEPOLYGON'].forEach((type) => {
         expect(content).to.contains(`<value>${type}</value>`)
     })
     expect(content).to.contains('<value>new text</value>')
     expect(content).to.contains('/icons/001-marker@1x-255,0,0.png')
 }
 const checkGpxFile = (content) => {
-    ;['MEASURE', 'MARKER', 'TEXT', 'LINE'].forEach((type) => {
+    ;['MEASURE', 'MARKER', 'ANNOTATION', 'LINEPOLYGON'].forEach((type) => {
         expect(content).to.contains(`<type>${type}</type>`)
     })
 }
