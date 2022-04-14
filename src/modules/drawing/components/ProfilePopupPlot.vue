@@ -326,4 +326,30 @@ export default {
         cursor: default;
     }
 }
+
+.profile-info-container {
+    overflow-x: auto;
+    max-width: 100vw;
+}
+
+.profile-tooltip {
+    position: absolute;
+    height: auto;
+    width: auto;
+    background-color: $black;
+    color: $white;
+    opacity: 0.8;
+    margin-left: -61px;
+    margin-top: -45px;
+    border-radius: 5px;
+
+    .profile-tooltip-arrow {
+        border-color: $black transparent transparent;
+        border-style: solid;
+        border-width: 10px 10px 0 10px;
+        position: absolute;
+        bottom: -10px;
+        left: calc(50% - 10px);
+    }
+}
 </style>
