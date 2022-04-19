@@ -94,7 +94,7 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import { sketchPointStyle } from '@/modules/drawing/lib/style'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: { ButtonWithIcon },

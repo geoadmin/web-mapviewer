@@ -10,7 +10,7 @@ require('animate.css')
 import { createApp } from 'vue'
 
 import App from './App.vue'
-import store from '@/modules/store'
+import store from '@/store'
 import i18n from '@/modules/i18n'
 import router from '@/router'
 import './registerServiceWorker'

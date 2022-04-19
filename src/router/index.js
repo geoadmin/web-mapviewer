@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import MapView from '@/views/MapView.vue'
 import LoadingView from '@/views/LoadingView.vue'
-import store from '@/modules/store'
+import store from '@/store'
 
 import appLoadingManagementRouterPlugin from './appLoadingManagement.routerPlugin'
 import storeSyncRouterPlugin from './storeSync/storeSync.routerPlugin'

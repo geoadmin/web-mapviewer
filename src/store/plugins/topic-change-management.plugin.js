@@ -1,4 +1,4 @@
-import { CHANGE_TOPIC_MUTATION } from '@/modules/store/modules/topics.store'
+import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 
 let isFirstSetTopic = true

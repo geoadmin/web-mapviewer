@@ -40,31 +40,38 @@ The app is divided into modules (or chunks) that are stored into `src/modules`. 
 
 Each module should have a root component, called `{Name of the module}Module.vue` that loads all needed component into the template. It should also have a `README.md` file at the root explaining what this module is about.
 
-If the module needs to add data not related to something app wise (for instance, some internal state), a `store` folder can be created with an `index.js` file exporting a Vuex module.
-This module can then be imported in the store module (see below)
+To make the code easier to navigate and maintain we consolidated the complete state in one place (`src/store/`). The store is divided into modules that mostly correspond to the application modules but also include modules for state that is used by multiple modules or would be too big for a single file.
+
+Store plugins can be used to react to store changes. See the [store read-me](src/store/README.md) for more information.
 
 Here's a sample of what project folder structure looks like :
 
 ```text
-    .
-    + -- adr
-    |    |    # all architectural decisions made over the course of this project
-    + -- cypress
-    |    + -- integration
-    |    |    |    # all unit test files
-    + -- public
-    |    |    # all files that don't need pre processing before going public (index.html, favicon, etc...)
-    + -- scripts
-    |    |    # NodeJS scripts useful for dev tools or for deploy (used by NPM targets)
-    + -- src
-    |    + -- main.js
-    |    + -- App.vue # here's where you should import your module "moduleName" to the app
-    |    + -- modules
-    |    |    + -- moduleName
-    |    |    |    + -- index.js
-    |    |    |    # other moduleName related files such as a components folder or a store folder
-
-
+├── adr
+│   └── all architectural decisions made over the course of this project
+│
+├── tests
+│   └── all test files
+│
+├── public
+│   └── all files that don't need pre processing before going public
+│       (index.html, favicon, etc...)
+│
+├── scripts
+│   └── NodeJS scripts useful for dev tools or for deploy
+│       (used by NPM targets)
+│
+├── src
+│   ├── main.js
+│   ├── App.vue
+│   ├── modules
+│   │   ├── <Module name>
+│   │   │   ├── index.js
+│   │   │   └── other moduleName related files such as
+│   │           a components folder or a store folder
+│   ├── store
+│   │   ├── modules
+│   │   │   ├── <Module name>.js
 ```
 
 ### Architectural decisions
@@ -74,7 +81,7 @@ All project related architectural decision will be described in the folder [`/ad
 ### Store module
 
 As there can be only one instance of a Vuex's store per app, the store module is there for that. It as the responsibility to instantiate Vuex, and add any module related state data to the store.
-See [its README.md](src/modules/store/README.md) for more details.
+See [its README.md](src/store/README.md) for more details.
 
 ### Testing
 
@@ -102,9 +109,10 @@ npm install
 Environment variables are defined in the following files
 
 - .env.development
+- .env.integration
 - .env.prodcution
 
-The first one is used by `npm run serve` as well as for all `development` modes. Otherwise `.env.production` is used by default.
+The first one is used by `npm run serve` as well as for all `development` modes. The second is used to build for and deploy to our integration server. Otherwise `.env.production` is used by default.
 For more information about loading environment variables see [Vue - Modes and Environment Variables](https://cli.vuejs.org/guide/mode-and-env.html#modes-and-environment-variables)
 
 ### Tooling for translation update

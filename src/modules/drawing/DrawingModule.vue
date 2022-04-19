@@ -37,7 +37,7 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { drawingModes } from '@/modules/store/modules/drawing.store'
+import { drawingModes } from '@/store/modules/drawing.store'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingManager from '@/modules/drawing/lib/DrawingManager'
 import { createEditingStyle, drawLineStyle, drawMeasureStyle } from '@/modules/drawing/lib/style'

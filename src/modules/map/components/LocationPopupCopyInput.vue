@@ -26,7 +26,7 @@
 <script>
 import jQuery from 'jquery'
 import { mapState } from 'vuex'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     inheritAttrs: false,
