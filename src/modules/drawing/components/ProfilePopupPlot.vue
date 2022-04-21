@@ -1,9 +1,9 @@
 <template>
-    <div v-if="showProfile" data-cy="profile-popup" class="profile-popup">
-        <div ref="profile-graph" class="profile-graph"></div>
+    <div data-cy="profile-popup-content">
+        <div ref="profileGraph" class="profile-graph"></div>
         <div
             v-show="showTooltip"
-            ref="profile-tooltip"
+            ref="profileTooltip"
             class="profile-tooltip"
             data-cy="profile-popup-tooltip"
         >
@@ -19,9 +19,9 @@
             </div>
             <div class="profile-tooltip-arrow"></div>
         </div>
-        <div v-if="profileInformation.length" class="d-flex">
+        <div v-if="profileInformation.length" class="d-flex p-2">
             <div
-                class="flex-grow-1 profile-info-container d-flex"
+                class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
                 data-cy="profile-popup-info-container"
             >
                 <span
@@ -56,33 +56,22 @@ import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { profile } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
-import { sketchPointStyle } from '@/modules/drawing/lib/style'
-import { UIModes } from '@/modules/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
-import { Feature } from 'ol'
-import { Point } from 'ol/geom'
-import { Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
-import proj4 from 'proj4'
 
 export default {
     components: { ButtonWithIcon },
-    inject: ['getMap'],
     props: {
         feature: {
             type: EditableFeature,
             required: true,
         },
-        uiMode: {
-            type: String,
-            default: UIModes.MENU_ALWAYS_OPEN,
-        },
     },
-    emits: ['close', 'delete'],
+    emits: ['delete'],
     data() {
         return {
+            showTooltip: false,
             options: {
                 margin: { left: 50, right: 0, bottom: 35, top: 5 },
                 width: 0,
@@ -90,17 +79,18 @@ export default {
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
             },
-            showTooltip: false,
             profileInfo: null,
         }
     },
     computed: {
+        featureCoordinates() {
+            return this.feature.coordinates
+        },
         showProfile() {
             return (
                 this.feature &&
-                [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
-                    this.feature.featureType
-                )
+                (this.feature.featureType === EditableFeatureTypes.MEASURE ||
+                    this.feature.featureType === EditableFeatureTypes.LINEPOLYGON)
             )
         },
         profileInformation() {
@@ -155,57 +145,27 @@ export default {
         },
     },
     watch: {
-        feature: {
-            deep: true,
-            handler() {
-                this.triggerProfileUpdate = true
-            },
+        featureCoordinates() {
+            this.$nextTick(this.updateProfile)
         },
     },
-    created() {
-        this.positionOnMap = new Point([0, 0])
-        /** Additional overlay to display azimuth circle */
-        this.overlay = new VectorLayer({
-            source: new VectorSource({
-                useSpatialIndex: false,
-                features: [new Feature(this.positionOnMap)],
-            }),
-            style: sketchPointStyle,
-            updateWhileAnimating: true,
-            updateWhileInteracting: true,
-            zIndex: 2000,
-        })
-    },
-    async mounted() {
+    mounted() {
         // listening to window.resize event so that we resize the SVG profile
         window.addEventListener('resize', this.onResize)
-        await this.updateProfile()
+        this.$nextTick(this.updateProfile)
     },
     unmounted() {
         window.removeEventListener('resize', this.onResize)
     },
-    updated() {
-        this.$nextTick(function () {
-            // Code that will run only after the entire view has been re-rendered
-            if (this.$refs['profile-graph'] && this.triggerProfileUpdate) {
-                this.triggerProfileUpdate = false
-                this.updateProfile()
-            }
-        })
-    },
     methods: {
-        onClose() {
-            this.$emit('close')
-        },
         onDelete() {
             this.$emit('delete')
         },
         onResize() {
-            this.triggerProfileUpdate = true
-            this.updateProfile()
+            this.$nextTick(this.updateProfile)
         },
         async updateProfile() {
-            const containerEl = this.$refs['profile-graph']
+            const containerEl = this.$refs.profileGraph
             if (!containerEl) {
                 return
             }
@@ -227,14 +187,14 @@ export default {
             }
         },
         async createProfileChart() {
-            const data = await this.getProfile(this.feature.coordinates)
+            const data = await this.getProfile(this.featureCoordinates)
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             this.attachPathListeners(areaChartPath)
             return this.profileChart.element
         },
         async updateProfileChart(size) {
-            const data = await this.getProfile(this.feature.coordinates)
+            const data = await this.getProfile(this.featureCoordinates)
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
@@ -267,7 +227,7 @@ export default {
                 const yCoord = this.profileChart.domain.Y.invert(pos.y)
                 const positionX = this.profileChart.domain.X(xCoord) + this.options.margin.left
                 const positionY = this.profileChart.domain.Y(yCoord) + this.options.margin.top
-                const toltipEl = this.$refs['profile-tooltip']
+                const toltipEl = this.$refs.profileTooltip
                 // done like this because using of computed makes it very slow
                 toltipEl.style.left = `${positionX}px`
                 toltipEl.style.top = `${positionY}px`
@@ -275,18 +235,18 @@ export default {
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
-                const coordsMap = this.profileChart.findMapCoordinates(xCoord)
-                this.positionOnMap.setCoordinates(proj4('EPSG:2056', 'EPSG:3857', coordsMap))
+                // const coordsMap = this.profileChart.findMapCoordinates(xCoord)
+                // this.positionOnMap.setCoordinates(proj4('EPSG:2056', 'EPSG:3857', coordsMap))
             })
 
             areaChartPath.on('mouseover', () => {
                 this.showTooltip = true
-                this.overlay.setMap(this.getMap())
+                // this.overlay.setMap(this.getMap())
             })
 
             areaChartPath.on('mouseout', () => {
                 this.showTooltip = false
-                this.overlay.setMap(null)
+                // this.overlay.setMap(null)
             })
         },
         formatDistance(value) {
@@ -311,88 +271,85 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+// unscoped style as otherwise it will not reached D3 generated HTML
+// (as they are not included in the template at mount)
 @import 'src/scss/webmapviewer-bootstrap-theme';
-
-.profile-popup {
+.profile-graph {
+    overflow: hidden;
     width: 100%;
-    max-height: 380px;
+    height: 145px;
 
-    .profile-info-container {
-        overflow-x: auto;
-        max-width: 100vw;
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
     }
-    .profile-graph {
+    .tick {
+        font-size: 11px;
+    }
+    .profile-inner {
         overflow: hidden;
         width: 100%;
         height: 145px;
 
-        .axis path,
-        .axis line {
-            fill: none;
-            stroke: #000;
-            shape-rendering: crispEdges;
-        }
-        .tick {
-            font-size: 11px;
-        }
-        .profile-inner {
-            overflow: hidden;
+        .profile-svg {
+            display: block;
+            margin: 0;
             width: 100%;
-            height: 145px;
-
-            .profile-svg {
-                display: block;
-                margin: 0;
-                width: 100%;
-                height: 100%;
-            }
-        }
-        .profile-grid-x,
-        .profile-grid-y {
-            stroke: black;
-            opacity: 0.8;
-
-            line {
-                stroke-width: 0.02em;
-            }
-        }
-        .profile-area {
-            fill: $primary;
-            fill-opacity: 0.5;
-        }
-        .profile-legend,
-        .profile-label {
-            font-weight: bold;
-            text-shadow: 1px 1px $light;
-        }
-        svg {
-            overflow: visible;
-        }
-        text {
-            cursor: default;
+            height: 100%;
         }
     }
-
-    .profile-tooltip {
-        position: absolute;
-        height: auto;
-        width: auto;
-        background-color: $black;
-        color: $white;
+    .profile-grid-x,
+    .profile-grid-y {
+        stroke: black;
         opacity: 0.8;
-        margin-left: -61px;
-        margin-top: -45px;
-        border-radius: 5px;
 
-        .profile-tooltip-arrow {
-            border-color: $black transparent transparent;
-            border-style: solid;
-            border-width: 10px 10px 0 10px;
-            position: absolute;
-            bottom: -10px;
-            left: calc(50% - 10px);
+        line {
+            stroke-width: 0.02em;
         }
+    }
+    .profile-area {
+        fill: $primary;
+        fill-opacity: 0.5;
+    }
+    .profile-legend,
+    .profile-label {
+        font-weight: bold;
+        text-shadow: 1px 1px $light;
+    }
+    svg {
+        overflow: visible;
+    }
+    text {
+        cursor: default;
+    }
+}
+
+.profile-info-container {
+    overflow-x: auto;
+    max-width: 100vw;
+}
+
+.profile-tooltip {
+    position: absolute;
+    height: auto;
+    width: auto;
+    background-color: $black;
+    color: $white;
+    opacity: 0.8;
+    margin-left: -61px;
+    margin-top: -45px;
+    border-radius: 5px;
+
+    .profile-tooltip-arrow {
+        border-color: $black transparent transparent;
+        border-style: solid;
+        border-width: 10px 10px 0 10px;
+        position: absolute;
+        bottom: -10px;
+        left: calc(50% - 10px);
     }
 }
 </style>

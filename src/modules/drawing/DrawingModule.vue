@@ -17,14 +17,6 @@
             :selected-features="selectedFeatures"
             :currently-sketched-feature="currentlySketchedFeature"
         />
-        <teleport v-if="readyForTeleport" to="#map-footer-middle">
-            <ProfilePopup
-                :feature="selectedFeatures"
-                :ui-mode="uiMode"
-                @delete="deleteSelectedFeature"
-                @close="clearAllSelectedFeatures"
-            />
-        </teleport>
         <DrawingSelectInteraction
             ref="selectInteraction"
             :selected-features="selectedFeatures"
@@ -81,7 +73,6 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
-import ProfilePopup from '@/modules/drawing/components/ProfilePopup.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/modules/store/modules/drawing.store'
@@ -101,7 +92,6 @@ export default {
         DrawingMarkerInteraction,
         DrawingTooltip,
         DrawingToolbox,
-        ProfilePopup,
     },
     inject: ['getMap'],
     provide() {
@@ -129,6 +119,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            floatingTooltip: (state) => state.ui.floatingTooltip,
         }),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
