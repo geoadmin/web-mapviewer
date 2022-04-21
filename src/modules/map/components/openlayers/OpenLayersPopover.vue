@@ -62,6 +62,7 @@ export default {
             offset: [0, 15],
             positioning: OverlayPositioning.TOP_CENTER,
             className: 'map-popover-overlay',
+            autoPan: { margin: 0 },
         })
     },
     mounted() {
@@ -88,7 +89,6 @@ export default {
 .map-popover {
     .card-body {
         width: $overlay-width;
-        min-width: 300px;
         max-width: 100%;
         max-height: 350px;
         overflow-y: auto;
