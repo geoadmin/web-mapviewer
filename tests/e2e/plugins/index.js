@@ -7,53 +7,37 @@
 
 require('dotenv').config()
 const { cypressBrowserPermissionsPlugin } = require('cypress-browser-permissions')
-const fs = require('fs')
+const fs = require('fs/promises')
 
 module.exports = (on, config) => {
     config = cypressBrowserPermissionsPlugin(on, config)
 
     on('task', {
         getFiles(folderName) {
-            return new Promise((resolve, reject) => {
-                fs.readdir(folderName, (err, files) => {
-                    if (err) {
-                        return reject(err)
-                    }
-
-                    resolve(files)
-                })
-            })
+            return fs.readdir(folderName)
         },
-        deleteFolder(folderName) {
+        async deleteFolder(folderName) {
             // eslint-disable-next-line no-console
             console.log('deleting folder %s', folderName)
 
-            return new Promise((resolve, reject) => {
-                fs.rmdir(folderName, { maxRetries: 10, recursive: true }, (err) => {
-                    if (err) {
-                        // eslint-disable-next-line no-console
-                        console.error(err)
-
-                        return reject(err)
-                    }
-
-                    resolve(null)
+            try {
+                await fs.rmdir(folderName, {
+                    recursive: true,
+                    // maxRetries: 10,
                 })
-            })
+                return null
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.log(error)
+                throw error
+            }
         },
-        findFiles({ folderName, extension }) {
-            return new Promise((resolve, reject) => {
-                fs.readdir(folderName, (err, files) => {
-                    if (err) {
-                        return reject(err)
-                    }
-                    files = files.filter((f) => {
-                        const position = f.length - extension.length - 1
-                        return f.includes(`.${extension}`, position)
-                    })
+        async findFiles({ folderName, extension }) {
+            const files = await fs.readdir(folderName)
 
-                    resolve(files)
-                })
+            return files.filter((file) => {
+                const position = file.length - extension.length - 1
+                return file.includes(`.${extension}`, position)
             })
         },
     })
