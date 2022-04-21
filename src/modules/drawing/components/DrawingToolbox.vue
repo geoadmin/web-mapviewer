@@ -31,7 +31,7 @@
                             data-cy="drawing-toolbox-delete-button"
                             @click="showClearConfirmation"
                         />
-                        <DrawingExporter />
+                        <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         <button
                             type="button"
                             class="btn btn-outline-light text-dark m-1"

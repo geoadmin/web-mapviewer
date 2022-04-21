@@ -13,8 +13,8 @@ describe('Delete action in the drawing module', () => {
             cy.drawGeoms()
             cy.get(deleteButton).click()
             cy.get('[data-cy="modal-confirm-button"]').click()
-            cy.readWindowValue('drawingManager')
-                .then((manager) => manager.source.getFeatures())
+            cy.readWindowValue('drawingLayer')
+                .then((layer) => layer.getSource().getFeatures())
                 .then((features) => {
                     expect(features).to.have.length(0)
                 })

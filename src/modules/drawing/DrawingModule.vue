@@ -198,10 +198,25 @@ export default {
         })
         // listening for "Delete" keystroke (in order to remove last point when drawing lines or measure)
         document.addEventListener('keyup', this.onKeyUp)
+        // We need to clear the vector source when the drawing layer is removed from the active layers.
+        this.unsubscribeKmlIds = this.$store.subscribe((mutation) => {
+            if (mutation.type === 'setKmlIds' && mutation.payload === null) {
+                this.drawingLayer.getSource().clear()
+            }
+        })
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.drawingLayer = this.drawingLayer
+        }
     },
     unmounted() {
         document.removeEventListener('keyup', this.onKeyUp)
         clearTimeout(this.KMLUpdateTimeout)
+        this.unsubscribeKmlIds()
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            delete window.drawingLayer
+        }
     },
     methods: {
         ...mapActions([
@@ -329,27 +344,25 @@ export default {
             this.drawingLayer.getSource().clear()
             this.onChange()
         },
-        addSavedKmlLayer() {
-            if (!this.kmlLayers || !this.kmlLayers.length) {
+        async addSavedKmlLayer() {
+            if (!this.kmlLayers?.length) {
                 return
             }
             // Search for a layer with corresponding fileId or take last
-            let layer
-            if (this.kmlIds && this.kmlIds.fileId) {
-                layer = this.kmlLayers.find((l) => l.fileId === this.kmlIds.fileId)
-            } else {
-                layer = this.kmlLayers[this.kmlLayers.length - 1]
-            }
+            const index = this.kmlIds?.fileId
+                ? this.kmlLayers.findIndex((l) => l.fileId === this.kmlIds.fileId)
+                : this.kmlLayers.length - 1
+            const layer = this.kmlLayers[index]
+
             // If KML layer exists add to drawing manager
             if (layer) {
-                this.addKmlLayer(layer).then(() => {
-                    if (!this.kmlIds) {
-                        this.triggerKMLUpdate()
-                    }
-                    // Remove the layer to not have an overlap with the drawing from
-                    // the drawing manager
-                    this.removeLayer(layer)
-                })
+                await this.addKmlLayer(layer)
+                if (!this.kmlIds) {
+                    this.triggerKMLUpdate()
+                }
+                // Remove the layer to not have an overlap with the drawing from
+                // the drawing manager
+                this.removeLayer(layer)
             }
         },
         async addKmlLayer(layer) {

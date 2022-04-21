@@ -18,7 +18,7 @@ describe('Line/Polygon tool', () => {
                 beforeEach(() => {
                     cy.goToDrawing(isMobileViewport || isTabletViewport)
 
-                    cy.clickDrawingTool('line')
+                    cy.clickDrawingTool('LINEPOLYGON')
                     cy.get(olSelector).click(100, 200)
                     cy.get(olSelector).click(150, 200)
                 })
@@ -29,7 +29,7 @@ describe('Line/Polygon tool', () => {
                     cy.wait('@post-kml').then((interception) =>
                         cy.checkKMLRequest(
                             interception,
-                            ['line', '<Data name="color"><value>#ff0000</value>'],
+                            ['LINEPOLYGON', '<Data name="color"><value>#ff0000</value>'],
                             true
                         )
                     )
@@ -41,7 +41,7 @@ describe('Line/Polygon tool', () => {
                     cy.wait('@post-kml').then((interception) =>
                         cy.checkKMLRequest(
                             interception,
-                            ['line', '<Data name="color"><value>#ff0000</value>'],
+                            ['LINEPOLYGON', '<Data name="color"><value>#ff0000</value>'],
                             true
                         )
                     )

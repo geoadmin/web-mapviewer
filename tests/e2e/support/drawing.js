@@ -22,25 +22,26 @@ const addSecondIconsFixtureAndIntercept = () => {
 }
 
 const addIconFixtureAndIntercept = () => {
+    const fixture = 'service-icons/placeholder.png'
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
-        fixture: 'service-icons/placeholder.png',
+        fixture,
     }).as('icon-default')
     cy.intercept(`**/api/icons/sets/second/icons/**@1x.png`, {
-        fixture: 'service-icons/placeholder.png',
+        fixture,
     }).as('icon-second')
 }
 
 Cypress.Commands.add('drawGeoms', () => {
-    cy.clickDrawingTool('marker')
+    cy.clickDrawingTool('MARKER')
     cy.get(olSelector).click(170, 190)
 
-    cy.clickDrawingTool('text')
+    cy.clickDrawingTool('ANNOTATION')
     cy.get(olSelector).click(200, 190)
 
-    cy.clickDrawingTool('measure')
+    cy.clickDrawingTool('MEASURE')
     cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
 
-    cy.clickDrawingTool('line')
+    cy.clickDrawingTool('LINEPOLYGON')
     cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
 })
 
@@ -66,16 +67,16 @@ Cypress.Commands.add('goToDrawing', (menuIsClosed = false) => {
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
-Cypress.Commands.add('clickDrawingTool', (name) => {
-    expect(['marker', 'text', 'line', 'measure']).to.include(name)
-    cy.get(`[data-cy="drawing-toolbox-mode-button-${name.toUpperCase()}`).click()
-    cy.readStoreValue('state.drawing.mode').should('eq', name.toUpperCase())
+Cypress.Commands.add('clickDrawingTool', (drawingMode) => {
+    expect(['MARKER', 'ANNOTATION', 'MEASURE', 'LINEPOLYGON']).to.include(drawingMode)
+    cy.get(`[data-cy="drawing-toolbox-mode-button-${drawingMode}`).click()
+    cy.readStoreValue('state.drawing.mode').should('eq', drawingMode)
 })
 
 Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
-    cy.readWindowValue('drawingManager').then((manager) => {
-        const features = manager.source.getFeatures()
-        expect(features).to.have.lengthOf(1, 'no feature found in the drawing manager')
+    cy.readWindowValue('drawingLayer').then((drawingLayer) => {
+        const features = drawingLayer.getSource().getFeatures()
+        expect(features).to.have.lengthOf(1, 'no feature found in the drawing layer')
         const foundType = features[0].getGeometry().getType()
         expect(foundType).to.equal(type)
         if (callback) {
@@ -85,9 +86,9 @@ Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
 })
 
 Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContains = false) => {
-    cy.readWindowValue('drawingManager').then((manager) => {
-        const features = manager.source.getFeatures()
-        expect(features).to.have.lengthOf(1, 'no feature found in the drawing manager')
+    cy.readWindowValue('drawingLayer').then((drawingLayer) => {
+        const features = drawingLayer.getSource().getFeatures()
+        expect(features).to.have.lengthOf(1, 'no feature found in the drawing layer')
         const firstFeature = features[0]
         if (checkIfContains) {
             expect(firstFeature.get(key)).to.contain(
