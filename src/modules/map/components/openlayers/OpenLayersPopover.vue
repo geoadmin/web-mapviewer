@@ -87,8 +87,9 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .map-popover {
     .card-body {
-        width: 100%;
-        max-width: $overlay-width;
+        width: $overlay-width;
+        min-width: 300px;
+        max-width: 100%;
         max-height: 350px;
         overflow-y: auto;
         display: flex;
