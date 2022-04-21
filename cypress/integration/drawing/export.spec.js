@@ -9,17 +9,15 @@ const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format
 const exportKmlButton = '[data-cy="drawing-toolbox-export-kml-button"]'
 const exportGpxButton = '[data-cy="drawing-toolbox-export-gpx-button"]'
 
-const isNonEmptyString = (value) => {
-    return typeof value === 'string' && value.length > 0
+const isNonEmptyArray = (value) => {
+    return Array.isArray(value) && value.length > 0
 }
 
 const checkFiles = (extension, callback) => {
     recurse(
         () => cy.task('findFiles', { folderName: downloadsFolder, extension }),
-        isNonEmptyString,
-        {
-            delay: 100,
-        }
+        isNonEmptyArray,
+        { delay: 100 }
     ).then((files) => {
         const fileName = `${downloadsFolder}/${files[files.length - 1]}`
         expect(fileName).to.contains(`map.geo.admin.ch_${extension.toUpperCase()}_`)
@@ -35,7 +33,7 @@ const checkKmlFile = (content) => {
     expect(content).to.contains('/icons/001-marker@1x-255,0,0.png')
 }
 const checkGpxFile = (content) => {
-    ;['MEASURE', 'MARKER', 'ANNOTATION', 'LINEPOLYGON'].forEach((type) => {
+    ;['Polygon', 'Point'].forEach((type) => {
         expect(content).to.contains(`<type>${type}</type>`)
     })
 }

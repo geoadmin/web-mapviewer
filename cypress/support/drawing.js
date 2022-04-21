@@ -33,17 +33,19 @@ const addIconFixtureAndIntercept = () => {
 }
 
 Cypress.Commands.add('drawGeoms', () => {
-    cy.clickDrawingTool('MARKER')
-    cy.get(olSelector).click(170, 190)
-
-    cy.clickDrawingTool('ANNOTATION')
-    cy.get(olSelector).click(200, 190)
+    // The line needs to come before the measure to ensure we don't click
+    // on one of the labels from the measure line.
+    cy.clickDrawingTool('LINEPOLYGON')
+    cy.get(olSelector).click(200, 300).click(250, 300).dblclick(250, 350)
 
     cy.clickDrawingTool('MEASURE')
-    cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
+    cy.get(olSelector).click(100, 300).click(150, 300).click(150, 350).click(100, 300)
 
-    cy.clickDrawingTool('LINEPOLYGON')
-    cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
+    cy.clickDrawingTool('MARKER')
+    cy.get(olSelector).click(100, 200)
+
+    cy.clickDrawingTool('ANNOTATION')
+    cy.get(olSelector).click(200, 200)
 })
 
 // https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
