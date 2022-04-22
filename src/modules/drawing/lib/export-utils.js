@@ -17,7 +17,7 @@ const gpxFormat = new GPX()
  * @returns {string}
  */
 export function generateGpxString(features = [], featureProjection = 'EPSG:3857') {
-    features.map((feature) => {
+    const normalizedFeatures = features.map((feature) => {
         const clone = feature.clone()
         const geom = clone.getGeometry()
         // convert polygon to line because gpx doesn't support polygons
@@ -27,8 +27,8 @@ export function generateGpxString(features = [], featureProjection = 'EPSG:3857'
         }
         return clone
     })
-    return gpxFormat.writeFeatures(features, {
-        featureProjection: featureProjection,
+    return gpxFormat.writeFeatures(normalizedFeatures, {
+        featureProjection,
     })
 }
 
