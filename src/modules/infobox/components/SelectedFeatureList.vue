@@ -95,9 +95,6 @@ export default {
 
 <style lang="scss">
 @import 'src/scss/media-query.mixin';
-.tooltip-feature {
-    overflow: hidden;
-}
 .htmlpopup-container {
     width: 100%;
     font-size: 11px;

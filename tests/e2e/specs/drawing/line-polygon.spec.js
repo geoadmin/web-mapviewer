@@ -34,7 +34,7 @@ describe('Line/Polygon tool', () => {
                         )
                     )
                 })
-                it('changes color of line/ polygon', () => {
+                it('changes color of line/polygon', () => {
                     cy.get(olSelector).click(150, 230)
                     cy.get(olSelector).click(100, 200)
                     cy.readDrawingFeatures('Polygon')
