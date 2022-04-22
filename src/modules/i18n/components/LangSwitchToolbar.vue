@@ -19,7 +19,7 @@ import { mapActions, mapState } from 'vuex'
 import { languages } from '../index'
 import log from '@/utils/logging'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: { ButtonWithIcon },

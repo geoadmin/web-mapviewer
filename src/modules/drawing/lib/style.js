@@ -1,5 +1,5 @@
 import { canShowAzimuthCircle, getMeasureDelta, toLv95 } from '@/modules/drawing/lib/drawingUtils'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 import { asArray } from 'ol/color'
 import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'

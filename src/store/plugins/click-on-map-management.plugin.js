@@ -1,8 +1,8 @@
 import { identify } from '@/api/features.api'
-import { ClickType } from '@/modules/map/store/map.store'
+import { ClickType } from '@/store/modules/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import log from '@/utils/logging'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui.store'
 
 /**
  * Identifies feature under the mouse cursor

@@ -1,4 +1,4 @@
-import i18n from '../'
+import i18n from '@/modules/i18n'
 
 /**
  * The name of the mutation for lang changes

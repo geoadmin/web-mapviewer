@@ -83,8 +83,8 @@
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
-import { UIModes } from '@/modules/store/modules/ui.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
+import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
