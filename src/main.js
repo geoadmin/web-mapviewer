@@ -50,6 +50,7 @@ import 'bootstrap/dist/js/bootstrap.bundle'
 import 'animate.css'
 
 import { createApp } from 'vue'
+import VueSocialSharing from 'vue-social-sharing'
 
 import App from './App.vue'
 import store from '@/store'
@@ -64,6 +65,12 @@ const app = createApp(App)
 app.use(router)
 app.use(i18n)
 app.use(store)
+app.use(VueSocialSharing, {
+    // defining service-qrcode as a network for the sharing library
+    networks: {
+        qrcode: `${API_SERVICES_BASE_URL}qrcode/generate?url=@url`,
+    },
+})
 
 // setting up font awesome vue component
 import './setup-fontawesome'

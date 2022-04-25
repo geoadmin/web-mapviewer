@@ -18,10 +18,9 @@
                 :button-font-awesome-icon="showHideIcon"
                 :class="{
                     'text-danger': isActive || isHidden,
-                    'menu-topic-item-folder': isTheme,
                 }"
+                :round="isTheme"
                 :large="!compact"
-                :square="isTheme"
             />
             <span class="menu-topic-item-name">{{ item.name }}</span>
             <ButtonWithIcon
@@ -57,10 +56,10 @@
 </template>
 
 <script>
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { topicTypes } from '@/api/topics.api'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
+import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
 /**
  * Node of the topic tree in the UI, rendering (and behavior) will differ if this is a theme or a
@@ -186,15 +185,6 @@ export default {
     .menu-topic-item-layer & {
         border-bottom: 1px dashed $gray-400;
     }
-}
-.menu-topic-item-folder {
-    width: 1rem;
-    height: 1rem;
-    box-shadow: 0 0 2px #c7c7c7;
-    border: 1px solid #afafaf;
-    border-radius: 50%;
-    justify-content: center;
-    font-size: 0.625rem;
 }
 .menu-topic-item-name {
     @extend .menu-name;
