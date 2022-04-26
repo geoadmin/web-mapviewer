@@ -16,7 +16,7 @@
                         ref="embedInput"
                         type="text"
                         class="form-control"
-                        :value="iFrameLink()"
+                        :value="iFrameLink(EmbedSizes.SMALL)"
                         readonly="readonly"
                     />
                     <button class="btn btn-outline-secondary" @click="togglePreviewModal">
@@ -28,16 +28,29 @@
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
-        <ModalWithBackdrop v-if="showPreviewModal" :title="$t('embed_map')" fluid>
+        <ModalWithBackdrop
+            v-if="showPreviewModal"
+            :title="$t('embed_map')"
+            fluid
+            @close="togglePreviewModal"
+        >
             <div class="embed-preview-modal">
-                <div class="d-flex">
+                <div
+                    class="d-grid embed-preview-modal-tools"
+                    :class="{ 'custom-size': isPreviewSizeCustom }"
+                >
                     <select v-model="currentPreviewSize" class="form-select select-embed-size">
                         <option v-for="size in EmbedSizes" :key="size.i18nKey" :value="size">
                             {{ $t(size.i18nKey) }}
                         </option>
                     </select>
+                    <div v-if="isPreviewSizeCustom" class="input-group">
+                        <input v-model="customWidth" type="number" class="form-control" />
+                        <span class="input-group-text">x</span>
+                        <input v-model="customHeight" type="number" class="form-control" />
+                    </div>
                     <MenuShareShortLinkInput
-                        class="flex-fill"
+                        class="input-embed-code"
                         :with-text="false"
                         :short-link="iFrameLink(currentPreviewSize)"
                     />
@@ -93,13 +106,19 @@ export default {
             showPreviewModal: false,
             EmbedSizes,
             currentPreviewSize: EmbedSizes.SMALL,
+            customWidth: EmbedSizes.SMALL.width,
+            customHeight: EmbedSizes.SMALL.height,
         }
+    },
+    computed: {
+        isPreviewSizeCustom() {
+            return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
+        },
     },
     methods: {
         iFrameLink(size) {
-            // default size is SMALL
-            let width = EmbedSizes.SMALL.width,
-                height = EmbedSizes.SMALL.height
+            let width = this.customWidth,
+                height = this.customHeight
             if (size && size.width && size.height) {
                 width = size.width
                 height = size.height
@@ -129,5 +148,13 @@ export default {
     // removing the width: 100% coming from .form-control
     // so that the flex-fill from the link input work as expected
     width: auto;
+}
+.embed-preview-modal-tools {
+    grid-template-columns: 1fr 2fr;
+    &.custom-size {
+        .input-embed-code {
+            grid-column: 1 / 3;
+        }
+    }
 }
 </style>

@@ -7,13 +7,16 @@
             :url="shortLink"
             title=""
             class="btn btn-default"
+            :options="shareNetworkOptions"
         >
-            <FontAwesomeIcon :icon="network.icons" size="xl" />
+            <FontAwesomeIcon :icon="network.icons" size="2x" />
         </ShareNetwork>
     </div>
 </template>
 
 <script>
+import { API_SERVICES_BASE_URL } from '@/config'
+
 export default {
     props: {
         shortLink: {
@@ -41,6 +44,13 @@ export default {
                     icons: ['fa-brands', 'twitter'],
                 },
             ],
+            // while waiting for official app.use support from vue-social-share
+            // we can define the network options here instead
+            shareNetworkOptions: {
+                networks: {
+                    qrcode: `${API_SERVICES_BASE_URL}qrcode/generate?url=@url`,
+                },
+            },
         }
     },
 }
