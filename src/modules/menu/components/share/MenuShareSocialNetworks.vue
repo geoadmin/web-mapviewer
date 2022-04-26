@@ -8,6 +8,7 @@
             title=""
             class="btn btn-default"
             :options="shareNetworkOptions"
+            :data-cy="`share-shortlink-${network.id}`"
         >
             <FontAwesomeIcon :icon="network.icons" size="2x" />
         </ShareNetwork>
