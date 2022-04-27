@@ -135,7 +135,7 @@ s3Utils
                     // checking if all files are done being uploaded
                     if (countFileBeingUploaded === 0) {
                         // outputs a URL to the index.html file hosted on the bucket in the console.
-                        const appUrl = `https://web-mapviewer.${target}.bgdi.ch/${
+                        const appUrl = `https://sys-map.${target}.bgdi.ch/${
                             bucketFolder + (bucketFolder !== '' ? '/' : '')
                         }index.html`
                         console.log('')
