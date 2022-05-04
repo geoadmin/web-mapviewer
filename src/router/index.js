@@ -4,9 +4,9 @@ import MapView from '@/views/MapView.vue'
 import LoadingView from '@/views/LoadingView.vue'
 import store from '@/store'
 
-import appLoadingManagementRouterPlugin from './appLoadingManagement.routerPlugin'
-import storeSyncRouterPlugin from './storeSync/storeSync.routerPlugin'
-import legacyPermalinkManagementRouterPlugin from './legacyPermalinkManagement.routerPlugin'
+import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
+import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
+import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import stringifyQuery from '@/router/stringifyQuery'
 
 /**

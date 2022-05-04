@@ -1,11 +1,12 @@
 {
-  "pluginsFile": "tests/e2e/plugins/index.js",
-  "downloadsFolder": "tests/e2e/downloads",
+  "baseUrl": "http://localhost:8080",
   "video": false,
   "defaultCommandTimeout": 10000,
   "requestTimeout": 15000,
   "retries": {
     "runMode": 5,
     "openMode": 0
-  }
+  },
+  "viewportWidth": 320,
+  "viewportHeight": 568
 }
