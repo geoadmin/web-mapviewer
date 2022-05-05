@@ -172,7 +172,7 @@ export const getLayerLegend = (lang, layerId) => {
 export const loadLayersConfigFromBackend = (lang) => {
     return new Promise((resolve, reject) => {
         if (!API_BASE_URL) {
-            // this could happen if we are testing the app in unit cypress, we simply reject and do nothing
+            // this could happen if we are testing the app in unit tests, we simply reject and do nothing
             reject('API base URL is undefined')
         } else {
             const layersConfig = []

@@ -113,7 +113,7 @@ describe('Test mouse position', () => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
         })
-        context('Coordinates system cypress', () => {
+        context('Coordinates system test', () => {
             it('Uses the coordination system LV95 in the popup', () => {
                 const LV95cord = proj4(proj4.WGS84, 'EPSG:2056', [lon, lat])
                 cy.get('[data-cy="location-popup-coordinates-lv95"]')

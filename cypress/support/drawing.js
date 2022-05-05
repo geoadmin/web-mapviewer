@@ -53,7 +53,7 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', (menuIsClosed = false) => {
+Cypress.Commands.add('goToDrawing', () => {
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()

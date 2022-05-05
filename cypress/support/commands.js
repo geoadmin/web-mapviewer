@@ -127,7 +127,7 @@ Cypress.Commands.add(
             const targetTopic = state.topics.current?.layersToActivate.length
             const targetLayers =
                 'layers' in otherParams
-                    ? // Legacy layers come with an additional param. At least in our cypress.
+                    ? // Legacy layers come with an additional param. At least in our tests.
                       'layers_opacity' in otherParams || 'layers_visibility' in otherParams
                         ? otherParams.layers.split(',').length
                         : otherParams.layers.split(';').length
