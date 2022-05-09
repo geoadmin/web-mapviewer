@@ -90,9 +90,9 @@ import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeat
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
+import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
-import { UIModes } from '@/modules/store/modules/ui.store'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view

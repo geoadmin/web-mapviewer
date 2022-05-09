@@ -1,5 +1,5 @@
+import { UIModes } from '@/store/modules/ui.store'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
-import { UIModes } from '@/modules/store/modules/ui.store'
 
 /** @enum */
 export const ClickType = {
