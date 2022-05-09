@@ -28,7 +28,7 @@ export class Feature extends EventEmitter {
         super()
         this._id = id
         // using the setter for coordinate (see below)
-        this.coordinates = coordinates
+        this._coordinates = coordinates
         this._title = title
         this._description = description
         this._isEditable = !!isEditable

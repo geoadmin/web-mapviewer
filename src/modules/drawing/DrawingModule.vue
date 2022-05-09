@@ -119,7 +119,6 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
-            floatingTooltip: (state) => state.ui.floatingTooltip,
         }),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER

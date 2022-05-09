@@ -33,13 +33,6 @@ export default {
             getSelectInteraction: () => this.selectInteraction,
         }
     },
-    props: {
-        /** Store selected features (instances of {@link EditableFeature}) */
-        selectedFeatures: {
-            type: Array,
-            required: true,
-        },
-    },
     emits: ['featureSelect', 'featureUnselect', 'featureChange'],
     data() {
         return {
