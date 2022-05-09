@@ -12,34 +12,31 @@
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="clickCoordinatesLV95">
-                    <span data-cy="location-popup-coordinates-lv95">
-                        {{ clickCoordinatesLV95 }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span data-cy="location-popup-coordinates-lv95">
+                    {{ clickCoordinatesLV95 }}
+                </span>
+                <LocationPopupCopySlot :value="clickCoordinatesLV95" />
             </div>
             <div>
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="clickCoordinatesLV03">
-                    <span data-cy="location-popup-coordinates-lv03">
-                        {{ clickCoordinatesLV03 }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span data-cy="location-popup-coordinates-lv03">
+                    {{ clickCoordinatesLV03 }}
+                </span>
+                <LocationPopupCopySlot :value="clickCoordinatesLV03" />
             </div>
             <div>
                 <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="clickCoordinatesPlainWGS84">
-                    <span
-                        class="location-popup-coordinates-wgs84-plain"
-                        data-cy="location-popup-coordinates-plain-wgs84"
-                    >
-                        {{ clickCoordinatesPlainWGS84 }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span
+                    class="location-popup-coordinates-wgs84-plain"
+                    data-cy="location-popup-coordinates-plain-wgs84"
+                >
+                    {{ clickCoordinatesPlainWGS84 }}
+                </span>
+                <LocationPopupCopySlot :value="clickCoordinatesPlainWGS84" />
                 <br />
                 <span data-cy="location-popup-coordinates-wgs84">
                     {{ clickCoordinatesWGS84 }}
@@ -49,38 +46,34 @@
                 <a href="https://epsg.io/32632" target="_blank">UTM</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="clickCoordinatesUTM">
-                    <span data-cy="location-popup-coordinates-utm">
-                        {{ clickCoordinatesUTM }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span data-cy="location-popup-coordinates-utm">
+                    {{ clickCoordinatesUTM }}
+                </span>
+                <LocationPopupCopySlot :value="clickCoordinatesUTM" />
             </div>
             <div>{{ 'MGRS' }}</div>
             <div>
-                <LocationPopupCopySlot :value="clickCoordinatesMGRS">
-                    <span data-cy="location-popup-coordinates-mgrs">
-                        {{ clickCoordinatesMGRS }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span data-cy="location-popup-coordinates-mgrs">
+                    {{ clickCoordinatesMGRS }}
+                </span>
+                <LocationPopupCopySlot :value="clickCoordinatesMGRS" />
             </div>
             <div>
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="clickWhat3Words">
-                    <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
-                        {{ clickWhat3Words }}
-                    </span>
-                </LocationPopupCopySlot>
+                <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
+                    {{ clickWhat3Words }}
+                </span>
+                <LocationPopupCopySlot :value="clickWhat3Words" />
             </div>
             <div>
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
             <div>
-                <LocationPopupCopySlot :value="height?.heightInMeter">
-                    <span data-cy="location-popup-height"> {{ height?.heightInMeter }} m</span> /
-                    <span>{{ height?.heightInFeet }} ft</span>
-                </LocationPopupCopySlot>
+                <span data-cy="location-popup-height"> {{ height?.heightInMeter }} m</span> /
+                <span>{{ height?.heightInFeet }} ft</span>
+                <LocationPopupCopySlot :value="height?.heightInMeter" />
             </div>
             <div class="location-popup-link">
                 {{ $t('link_bowl_crosshair') }}

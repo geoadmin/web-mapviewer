@@ -25,8 +25,9 @@
             ></textarea>
         </div>
         <div class="d-flex justify-content-between align-items-center">
-            <SelectedFeatureProfile v-if="isFeatureMeasure" :feature="feature" />
-            <div v-else class="d-flex justify-content-end margin-between-children">
+            <SelectedFeatureProfile :feature="feature" />
+
+            <div class="d-flex justify-content-end margin-between-children">
                 <PopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"

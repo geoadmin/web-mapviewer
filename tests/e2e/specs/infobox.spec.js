@@ -51,15 +51,15 @@ describe('The infobox', () => {
                     })
 
                     cy.get('[data-cy="popover"]').should('be.visible')
-                    cy.get('[data-cy="tooltip"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('not.be.visible')
 
                     cy.get('[data-cy="toggle-floating-off"]').click()
                     cy.get('[data-cy="popover"]').should('not.exist')
-                    cy.get('[data-cy="tooltip"]').should('be.visible')
+                    cy.get('[data-cy="infobox"]').should('be.visible')
 
-                    cy.get('[data-cy="toggle-floating-on"]').click()
+                    cy.get('[data-cy="infobox-toggle-floating"]').click()
                     cy.get('[data-cy="popover"]').should('be.visible')
-                    cy.get('[data-cy="tooltip"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('not.be.visible')
                 })
                 it('sets its height dynamically if at the bottom', () => {
                     longClickOnMap()
@@ -68,9 +68,9 @@ describe('The infobox', () => {
                     })
 
                     cy.get('[data-cy="toggle-floating-off"]').click()
-                    cy.get('[data-cy="tooltip-content"]').then(($element) => {
+                    cy.get('[data-cy="infobox-content"]').then(($element) => {
                         const maxHeight = $element
-                            .children()
+                            .find('[data-infobox="height-reference"')
                             .toArray()
                             .map((child) => child.offsetHeight)
                             .reduce((max, height) => Math.max(max, height), 0)

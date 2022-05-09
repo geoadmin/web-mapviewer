@@ -24,12 +24,12 @@
             :z-index="zIndex"
         />
         <!--
-     Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
-     is visible depending on the map resolution.
-     We have to manage aggregate layers straight here otherwise we won't be able to make a recursive call to this
-     component in another child (that would be OpenLayersAggregateLayer.vue component, that doesn't work).
-     See https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components for more info
-    -->
+        Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
+        is visible depending on the map resolution.
+        We have to manage aggregate layers straight here otherwise we won't be able to make a recursive call to this
+        component in another child (that would be OpenLayersAggregateLayer.vue component, that doesn't work).
+        See https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components for more info
+        -->
         <div v-if="layerConfig.type === LayerTypes.AGGREGATE">
             <!-- we can't v-for and v-if at the same time, so we need to wrap all sub-layers in a <div> -->
             <div

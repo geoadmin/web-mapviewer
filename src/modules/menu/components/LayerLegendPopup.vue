@@ -52,33 +52,34 @@ $spacing: 8px;
     line-height: 1.42857143;
     line-break: auto;
     text-align: start;
-    .legend-header {
-        // Negative margin to overcome padding from the parent.
-        // Removing the padding from the parent and adding the spacing on all
-        // possible child elements would be a mess.
-        margin: -0.5rem;
-        margin-bottom: 0;
+}
+.legend-header {
+    // Negative margin to overcome padding from the parent.
+    // Removing the padding from the parent and adding the spacing on all
+    // possible child elements would be a mess.
+    margin: -0.5rem;
+    margin-bottom: 0;
 
-        padding: $spacing;
-        background-color: #eee;
-        .bod-title {
-            color: red;
-            margin-bottom: $spacing;
-        }
-        .legend-abstract {
-            margin-bottom: 0;
-        }
+    padding: $spacing;
+    background-color: #eee;
+    .bod-title {
+        color: red;
+        margin-bottom: $spacing;
     }
-    .legend-footer {
-        padding: $spacing;
-        span {
-            font-weight: 700;
-        }
-        table {
-            font-size: 100%;
-            width: 100%;
-            border: 0;
-        }
+    .legend-abstract {
+        margin-bottom: 0;
+    }
+}
+
+.legend-footer {
+    padding: $spacing;
+    span {
+        font-weight: 700;
+    }
+    table {
+        font-size: 100%;
+        width: 100%;
+        border: 0;
     }
 }
 </style>
