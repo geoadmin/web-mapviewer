@@ -9,6 +9,7 @@
         <slot />
     </div>
 </template>
+
 <script>
 import VectorLayer from 'ol/layer/Vector'
 import { Vector as VectorSource } from 'ol/source'

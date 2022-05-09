@@ -3,6 +3,7 @@
         <slot />
     </div>
 </template>
+
 <script>
 import { Tile as TileLayer } from 'ol/layer'
 import { XYZ as XYZSource } from 'ol/source'

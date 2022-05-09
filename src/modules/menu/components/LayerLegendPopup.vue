@@ -44,6 +44,7 @@ export default {
 // No scoping here as we need to apply styles to the markup we included with v-html.
 @import 'src/scss/variables';
 $spacing: 8px;
+
 .layer-legend {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-style: normal;
@@ -53,6 +54,7 @@ $spacing: 8px;
     line-break: auto;
     text-align: start;
 }
+
 .legend-header {
     // Negative margin to overcome padding from the parent.
     // Removing the padding from the parent and adding the spacing on all
