@@ -86,6 +86,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+
 .map-popover {
     .card-body {
         width: $overlay-width;

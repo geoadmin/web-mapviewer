@@ -12,6 +12,7 @@
                 rows="1"
             ></textarea>
         </div>
+
         <div v-if="!isFeatureText" class="form-group mb-2">
             <label class="form-label" for="drawing-style-feature-description">
                 {{ $t('modify_description') }}
@@ -24,6 +25,7 @@
                 rows="2"
             ></textarea>
         </div>
+
         <div class="d-flex justify-content-between align-items-center">
             <SelectedFeatureProfile :feature="feature" />
 
@@ -47,6 +49,7 @@
                         />
                     </div>
                 </PopoverButton>
+
                 <PopoverButton
                     v-if="isFeatureMarker"
                     data-cy="drawing-style-marker-button"
@@ -63,6 +66,7 @@
                         @change:icon-size="changeFeatureIconSize"
                     />
                 </PopoverButton>
+
                 <PopoverButton
                     v-if="isFeatureLine"
                     data-cy="drawing-style-line-button"
@@ -76,6 +80,7 @@
                         @change="changeFeatureColor"
                     />
                 </PopoverButton>
+
                 <ButtonWithIcon
                     :button-font-awesome-icon="['far', 'trash-alt']"
                     @click="onDelete"

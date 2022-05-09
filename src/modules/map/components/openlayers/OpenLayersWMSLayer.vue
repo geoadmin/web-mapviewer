@@ -3,6 +3,7 @@
         <slot />
     </div>
 </template>
+
 <script>
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import ImageWMS from 'ol/source/ImageWMS'
