@@ -59,29 +59,21 @@ const clickOnMapManagementPlugin = (store) => {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
-            // we only react to left click, right clicks are handled by the LocationPopup component
-            if (state.map.clickInfo && state.map.clickInfo.clickType === ClickType.LEFT_CLICK) {
-                // if mobile, we manage long click (>500ms) as "identify" and short click (<500ms) as "fullscreen toggle"
-                if (state.ui.mode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
-                    if (state.map.clickInfo.millisecondsSpentMouseDown < 500) {
-                        store.dispatch('toggleFullscreenMode')
-                    } else {
-                        runIdentify(
-                            store,
-                            mutation.payload,
-                            store.getters.visibleLayers,
-                            store.state.i18n.lang
-                        )
-                    }
-                } else {
-                    // for Desktop, click is always an "identify"
-                    runIdentify(
-                        store,
-                        mutation.payload,
-                        store.getters.visibleLayers,
-                        store.state.i18n.lang
-                    )
-                }
+            const clickInfo = mutation.payload
+            const isDesktop = state.ui.mode === UIModes.MENU_ALWAYS_OPEN
+            const isLeftClick = clickInfo?.clickType === ClickType.LEFT_CLICK
+            const isLongClick = clickInfo?.millisecondsSpentMouseDown >= 500
+
+            if (
+                (isDesktop && isLeftClick) ||
+                (!isDesktop && isLeftClick && isLongClick) ||
+                (!isDesktop && !isLeftClick)
+            ) {
+                runIdentify(store, clickInfo, store.getters.visibleLayers, store.state.i18n.lang)
+            } else if (!isDesktop && isLeftClick && !isLongClick) {
+                store.dispatch('toggleFullscreenMode')
+            } else if (isDesktop && !isLeftClick) {
+                store.dispatch('clearSelectedFeatures')
             }
         }
     })

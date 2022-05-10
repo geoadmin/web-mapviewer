@@ -1,6 +1,6 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-    <div id="ol-map" ref="map" @contextmenu="showLocationPopup">
+    <div id="ol-map" ref="map" @contextmenu="onContextMenu">
         <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
         <slot />
         <!-- Adding background layer -->
@@ -90,6 +90,7 @@ import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeat
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
+import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 
@@ -137,6 +138,7 @@ export default {
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
+            clickInfo: (state) => state.map.clickInfo,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -275,57 +277,60 @@ export default {
             this.pointerDownStart = null
         },
         onMapSingleClick(event) {
-            // if no drawing is currently made
-            if (!this.isCurrentlyDrawing) {
-                const geoJsonFeatures = []
-                // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-                this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
-                    // retrieving OpenLayers layer object for this layer
-                    const olLayer = this.map
-                        .getLayers()
-                        .getArray()
-                        .find((layer) => layer.get('id') === geoJsonLayer.getID())
-                    if (olLayer) {
-                        // looking at features for this specific layer under the mouse cursor
-                        this.map
-                            .getFeaturesAtPixel(event.pixel, {
-                                // filtering other layers out
-                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
-                            })
-                            .forEach((feature) => {
-                                const featureGeometry = feature.getGeometry()
-                                // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                                // we have to wrap it around the "usual" wrapper from the backend
-                                // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                                const geoJsonFeature = new Feature(
-                                    geoJsonLayer,
-                                    feature.get('id') || feature.getId(),
-                                    `<div class="htmlpopup-container">
-                                        <div class="htmlpopup-header">
-                                            <span>${geoJsonLayer.name}</span>
-                                        </div>
-                                        <div class="htmlpopup-content">
-                                            ${feature.get('description')}
-                                        </div>
-                                    </div>`,
-                                    featureGeometry.flatCoordinates,
-                                    featureGeometry.getExtent()
-                                )
-                                log.debug('GeoJSON feature found', geoJsonFeature)
-                                geoJsonFeatures.push(geoJsonFeature)
-                            })
-                    }
-                })
-                // publishing click event into the store
-                this.click(
-                    new ClickInfo(
-                        event.coordinate,
-                        this.lastClickTimeLength,
-                        event.pixel,
-                        geoJsonFeatures
-                    )
-                )
+            // No feature info while drawing.
+            if (this.isCurrentlyDrawing) {
+                return
             }
+
+            const geoJsonFeatures = []
+            // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
+            this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
+                // retrieving OpenLayers layer object for this layer
+                const olLayer = this.map
+                    .getLayers()
+                    .getArray()
+                    .find((layer) => layer.get('id') === geoJsonLayer.getID())
+                if (olLayer) {
+                    // looking at features for this specific layer under the mouse cursor
+                    this.map
+                        .getFeaturesAtPixel(event.pixel, {
+                            // filtering other layers out
+                            layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
+                        })
+                        .forEach((feature) => {
+                            const featureGeometry = feature.getGeometry()
+                            // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+                            // we have to wrap it around the "usual" wrapper from the backend
+                            // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+                            const geoJsonFeature = new Feature(
+                                geoJsonLayer,
+                                feature.get('id') || feature.getId(),
+                                `<div class="htmlpopup-container">
+                                    <div class="htmlpopup-header">
+                                        <span>${geoJsonLayer.name}</span>
+                                    </div>
+                                    <div class="htmlpopup-content">
+                                        ${feature.get('description')}
+                                    </div>
+                                </div>`,
+                                featureGeometry.flatCoordinates,
+                                featureGeometry.getExtent()
+                            )
+                            log.debug('GeoJSON feature found', geoJsonFeature)
+                            geoJsonFeatures.push(geoJsonFeature)
+                        })
+                }
+            })
+
+            // publishing click event into the store
+            this.click(
+                new ClickInfo(
+                    event.coordinate,
+                    this.lastClickTimeLength,
+                    event.pixel,
+                    geoJsonFeatures
+                )
+            )
         },
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
@@ -347,20 +352,22 @@ export default {
                 }
             }
         },
-        showLocationPopup(event) {
-            const screenCoordinates = [event.x, event.y]
-            this.click(
-                new ClickInfo(
-                    this.map.getCoordinateFromPixel(screenCoordinates),
-                    0,
-                    screenCoordinates,
-                    [],
-                    ClickType.RIGHT_CLICK
+        onContextMenu(event) {
+            if (UIModes.MENU_OPENED_THROUGH_BUTTON) {
+                const screenCoordinates = [event.x, event.y]
+                this.click(
+                    new ClickInfo(
+                        this.map.getCoordinateFromPixel(screenCoordinates),
+                        0,
+                        screenCoordinates,
+                        [],
+                        ClickType.RIGHT_CLICK
+                    )
                 )
-            )
-            // we do not want the contextual menu to shows up, so we prevent the event propagation
-            event.preventDefault()
-            return false
+                // we do not want the contextual menu to shows up, so we prevent the event propagation
+                event.preventDefault()
+                return false
+            }
         },
     },
 }

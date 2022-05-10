@@ -1,6 +1,6 @@
 <template>
     <OpenLayersPopover
-        v-if="isRightClick && clickCoordinates"
+        v-if="displayLocationPopup"
         :title="$t('position')"
         :coordinates="clickCoordinates"
         class="location-popup"
@@ -100,12 +100,11 @@
 
 <script>
 import proj4 from 'proj4'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
-import { ClickType } from '@/store/modules/map.store'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
@@ -126,7 +125,6 @@ export default {
             clickWhat3Words: null,
             height: null,
             qrCodeImageSrc: null,
-            showQrCode: false,
         }
     },
     computed: {
@@ -134,6 +132,7 @@ export default {
             clickInfo: (state) => state.map.clickInfo,
             currentLang: (state) => state.i18n.lang,
         }),
+        ...mapGetters(['displayLocationPopup']),
         clickCoordinates() {
             return this.clickInfo?.coordinate
         },
@@ -174,9 +173,6 @@ export default {
                 CoordinateSystems.MGRS
             )
         },
-        isRightClick() {
-            return this.clickInfo?.clickType === ClickType.RIGHT_CLICK
-        },
         shareLinkUrl() {
             let [lon, lat] = this.reprojectClickCoordinates('EPSG:4326')
             let query = {
@@ -209,14 +205,11 @@ export default {
         onClose() {
             this.clearClick()
         },
-        toggleQrCode() {
-            this.showQrCode = !this.showQrCode
-        },
         reprojectClickCoordinates(targetEpsg) {
             return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
         },
         requestWhat3WordBackend() {
-            if (this.isRightClick && this.clickCoordinates) {
+            if (this.displayLocationPopup) {
                 registerWhat3WordsLocation(this.clickCoordinates, this.currentLang).then(
                     (what3word) => {
                         this.clickWhat3Words = what3word
@@ -225,14 +218,14 @@ export default {
             }
         },
         registerHeigthFromBackend() {
-            if (this.isRightClick && this.clickCoordinates) {
+            if (this.displayLocationPopup) {
                 requestHeight(this.clickCoordinates).then((height) => {
                     this.height = height
                 })
             }
         },
         async generateQrCodeFromBackend() {
-            if (this.isRightClick && this.clickCoordinates) {
+            if (this.displayLocationPopup) {
                 this.qrCodeImageSrc = await generateQrCode(this.shareLinkUrl)
             }
         },

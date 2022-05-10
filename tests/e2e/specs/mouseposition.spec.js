@@ -89,7 +89,7 @@ describe('Test mouse position', () => {
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)
         })
     })
-    context('LocationPopUp when rightclick on the map', function () {
+    context.skip('LocationPopUp when rightclick on the map', function () {
         const lat = 45
         const lon = 8
         beforeEach(() => {
