@@ -22,3 +22,15 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/variables-admin';
+a {
+    color: $black;
+    text-decoration: initial;
+}
+a:hover,
+a:focus {
+    text-decoration: underline;
+}
+</style>
