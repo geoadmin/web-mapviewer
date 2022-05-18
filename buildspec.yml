@@ -4,6 +4,8 @@ env:
   shell: bash
   variables:
     AWS_DEFAULT_REGION: eu-central-1
+    AWS_REGION: eu-central-1
+    CYPRESS_CACHE_FOLDER: /tmp/.cache
   parameter-store:
     AWS_SWISSTOPO_BGDI_ACCOUNT_ID: swisstopo-bgdi_account-id
     AWS_SWISSTOPO_BGDI_DEV_ACCOUNT_ID: swisstopo-bgdi-dev_account-id
@@ -14,12 +16,13 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      # updating npm to version 8.x.x (it is not done automatically by settings env to nodejs v14)
-      # see package.json for version requirements
-      - npm install -g npm@8.4.1
+      # updating node to v16
+      - n 16
+      # As the cypress/download folder is not added to git, and (somehow) not created by Cypress at startup, we create it
+      - mkdir cypress/downloads/
       # npm ci reads only the package-lock.json file (not the package.json) to be sure to have exactly the same libraries
       # that were used last time npm install was done on the developer's device.
-      - npm ci
+      - CYPRESS_CACHE_FOLDER=/tmp/.cache npm ci
 
   pre_build:
     commands:
@@ -74,7 +77,7 @@ phases:
   build:
     commands:
       # will build the application in dev mode before testing
-      - npm run test:ci
+      - CYPRESS_CACHE_FOLDER=/tmp/.cache npm run test:ci
 
   post_build:
     commands:
