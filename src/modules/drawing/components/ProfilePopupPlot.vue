@@ -78,11 +78,13 @@ export default {
                 height: 0,
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
-                sourceLinkLabel: 'swissALTI3D/DHM25', //* profile_source_link_label *//
-                sourceLinkUrl:
-                    this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
-                        ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
-                        : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
+                sourceLink: {
+                    label: 'swissALTI3D/DHM25', //* profile_source_link_label *//
+                    url:
+                        this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                            ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
+                            : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
+                },
             },
             profileInfo: null,
         }
@@ -326,17 +328,13 @@ export default {
     svg {
         overflow: visible;
     }
-    text {
-        cursor: default;
-    }
 
-    .profile-source-link {
-        text-decoration: initial;
-    }
-    .profile-source-link:hover {
-        text-decoration: underline;
-        text {
-            cursor: inherit;
+    a {
+        fill: $link-color;
+
+        &:hover,
+        &:focus {
+            fill: $link-hover-color;
         }
     }
 }

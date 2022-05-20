@@ -228,17 +228,18 @@ export default class ProfileChart {
             .attr('d', area)
             .attr('data-cy', 'profile-popup-area')
 
-        this.svg
+        this.group
             .append('a')
-            .attr('xlink:href', this.options.sourceLinkUrl)
+            .attr('xlink:href', this.options.sourceLink.url)
             .attr('target', '_blank')
             .attr('class', 'profile-source-link')
             .append('text')
+            .attr('class', 'profile-source-link')
             .attr('text-anchor', 'end')
-            .attr('x', this.width + this.options.margin.left - this.sourceFontMargin)
-            .attr('y', this.options.margin.top - this.sourceFontMargin)
+            .attr('x', this.width)
+            .attr('y', -this.sourceFontMargin)
             .attr('font-size', this.sourceFontSize)
-            .text(this.options.sourceLinkLabel)
+            .text(this.options.sourceLink.label)
 
         this.group
             .append('text')
@@ -298,14 +299,12 @@ export default class ProfileChart {
                 .attr('x', this.width / 2)
                 .attr('y', this.height + this.options.margin.bottom - 5)
                 .style('text-anchor', 'middle')
-            this.svg
-                .select('text.profile-legend')
+            this.group
+                .select('text.profile-source-link')
                 .transition()
                 .duration(transitionTime)
-                .attr('text-anchor', 'end')
-                .attr('x', this.width + this.options.margin.left - this.sourceFontMargin)
-                .attr('y', this.options.margin.top - this.sourceFontMargin)
-                .text(this.options.sourceLinkLabel)
+                .attr('x', this.width)
+                .attr('y', -this.sourceFontMargin)
         }
         if (data) {
             this.data = this.formatData(data)
