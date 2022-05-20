@@ -22,6 +22,8 @@ export default class ProfileChart {
         this.elevationModel = this.options.elevationModel || 'COMB'
         this.width = this.options.width - this.marginHoriz
         this.height = this.options.height - this.marginVert
+        this.sourceFontMargin = 5
+        this.sourceFontSize = this.options.margin.top - this.sourceFontMargin
     }
 
     findMapCoordinates(searchDist) {
@@ -226,14 +228,17 @@ export default class ProfileChart {
             .attr('d', area)
             .attr('data-cy', 'profile-popup-area')
 
-        this.group
+        this.svg
+            .append('a')
+            .attr('xlink:href', this.options.sourceLinkUrl)
+            .attr('target', '_blank')
+            .attr('class', 'profile-source-link')
             .append('text')
             .attr('text-anchor', 'end')
-            .attr('class', 'profile-legend')
-            .attr('x', this.width)
-            .attr('y', 11)
-            .attr('height', 30)
-            .text('swissALTI3D/DHM25')
+            .attr('x', this.width + this.options.margin.left - this.sourceFontMargin)
+            .attr('y', this.options.margin.top - this.sourceFontMargin)
+            .attr('font-size', this.sourceFontSize)
+            .text(this.options.sourceLinkLabel)
 
         this.group
             .append('text')
@@ -293,14 +298,14 @@ export default class ProfileChart {
                 .attr('x', this.width / 2)
                 .attr('y', this.height + this.options.margin.bottom - 5)
                 .style('text-anchor', 'middle')
-            this.group
+            this.svg
                 .select('text.profile-legend')
                 .transition()
                 .duration(transitionTime)
                 .attr('text-anchor', 'end')
-                .attr('x', this.width)
-                .attr('y', 11)
-                .text('swissALTI3D/DHM25')
+                .attr('x', this.width + this.options.margin.left - this.sourceFontMargin)
+                .attr('y', this.options.margin.top - this.sourceFontMargin)
+                .text(this.options.sourceLinkLabel)
         }
         if (data) {
             this.data = this.formatData(data)
