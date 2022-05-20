@@ -5,7 +5,6 @@ window.$ = window.jQuery = jQuery
 // exposing the config in the logs
 import {
     API_BASE_URL,
-    API_PUBLIC_URL,
     API_SERVICE_KML_BASE_URL,
     API_SERVICE_KML_STORAGE_BASE_URL,
     API_SERVICES_BASE_URL,
@@ -29,7 +28,6 @@ log.debug('Config is', {
     IS_TESTING_WITH_CYPRESS,
     APP_VERSION,
     API_BASE_URL,
-    API_PUBLIC_URL,
     API_SERVICES_BASE_URL,
     API_SERVICE_KML_BASE_URL,
     API_SERVICE_KML_STORAGE_BASE_URL,
