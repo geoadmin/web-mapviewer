@@ -70,7 +70,11 @@ import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
-/** @enum */
+/**
+ * Different pre-defined sizes that an iFrame can take
+ *
+ * @enum
+ */
 const EmbedSizes = {
     SMALL: {
         i18nKey: 'small_size',
@@ -89,9 +93,15 @@ const EmbedSizes = {
     },
     CUSTOM: {
         i18nKey: 'custom_size',
+        // no width height here, as it will be user specified
     },
 }
 
+/**
+ * Component building iFrame code so that the user can share/incorporate a specific map to his/her website.
+ *
+ * This iFrame generator comes with a modal that helps the user select the size he prefers.
+ */
 export default {
     components: { MenuShareShortLinkInput, ModalWithBackdrop, ButtonWithIcon, CollapseTransition },
     props: {
@@ -116,6 +126,12 @@ export default {
         },
     },
     methods: {
+        /**
+         * Generates an iframe HTML code snippet pointing to the short link
+         *
+         * @param {EmbedSizes} size
+         * @returns {String} HTML iframe code snippet
+         */
         iFrameLink(size) {
             let width = this.customWidth,
                 height = this.customHeight

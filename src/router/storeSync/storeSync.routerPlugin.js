@@ -65,8 +65,8 @@ function storeMutationWatcher(store, mutation, router) {
                     routeChangeIsTriggeredByThisModule = false
                 })
             // if the short linked version of the URL is already defined,
-            // we must refresh it as the URL has just changed
-            if (store.state.position.shortLink) {
+            // and the menu opened, we must refresh it as the URL has just changed
+            if (store.getters.showMenu && store.state.share.keepUpdatingShortLink) {
                 store.dispatch('generateShortLink')
             }
         }

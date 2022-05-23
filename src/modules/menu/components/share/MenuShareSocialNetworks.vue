@@ -18,6 +18,10 @@
 <script>
 import { API_SERVICES_BASE_URL } from '@/config'
 
+/**
+ * List of buttons enabling the user to easily share a short link to some social networks. All
+ * sharing to external social media will be done through a popup.
+ */
 export default {
     props: {
         shortLink: {
