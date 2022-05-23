@@ -1,33 +1,26 @@
 // loading and exporting all values from the .env file as ES6 importable variables
 
 /**
- * Flag that tells if the app is currently in debug mode (a.k.a. built in dev mode)
- *
- * @type Boolean
- */
-export const DEBUG = process.env.VUE_APP_DEBUG
-
-/**
  * Enum that tells for which (deployment) environment the app has been built.
  *
  * @type {'development' | 'integration' | 'production'}
  * @see {@link https://en.wikipedia.org/wiki/Deployment_environment}
  */
-export const ENVIRONMENT = process.env.VUE_APP_ENVIRONMENT
+export const ENVIRONMENT = VITE_ENVIRONMENT
 
 /**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
  *
  * @type Boolean
  */
-export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
+export const IS_TESTING_WITH_CYPRESS = !!window.Cypress || ENVIRONMENT === 'development'
 
 /**
  * Current app version (from package.json)
  *
  * @type {String}
  */
-export const APP_VERSION = process.env.PACKAGE_VERSION
+export const APP_VERSION = __APP_VERSION__
 
 /**
  * Adds a slash at the end of the URL if there is none
@@ -49,16 +42,7 @@ function enforceEndingSlashInUrl(url) {
  *
  * @type String
  */
-export const API_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_BASE_URL)
-
-/**
- * Public URL to get saved files (e.g. for prod https://public.geo.admin.ch).
- *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
- *
- * @type String
- */
-export const API_PUBLIC_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_PUBLIC_URL)
+export const API_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_API_BASE_URL)
 
 /**
  * Base part of the URL to use when requesting icons.
@@ -68,7 +52,7 @@ export const API_PUBLIC_URL = enforceEndingSlashInUrl(process.env.VUE_APP_API_PU
  * @type String
  */
 export const API_SERVICES_BASE_URL = enforceEndingSlashInUrl(
-    process.env.VUE_APP_API_SERVICES_BASE_URL
+    import.meta.env.VITE_API_SERVICES_BASE_URL
 )
 
 /**
@@ -79,7 +63,7 @@ export const API_SERVICES_BASE_URL = enforceEndingSlashInUrl(
  * @type String
  */
 export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
-    process.env.VUE_APP_API_SERVICE_KML_BASE_URL || API_PUBLIC_URL
+    import.meta.env.VITE_API_SERVICE_KML_BASE_URL || API_PUBLIC_URL
 )
 
 /**
@@ -90,7 +74,7 @@ export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
  * @type String
  */
 export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
-    process.env.VUE_APP_API_SERVICE_KML_STORAGE_BASE_URL || API_SERVICE_KML_BASE_URL
+    import.meta.env.VITE_API_SERVICE_KML_STORAGE_BASE_URL || API_SERVICE_KML_BASE_URL
 )
 
 /**
@@ -100,21 +84,21 @@ export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
  *
  * @type {String}
  */
-export const DATA_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_DATA_BASE_URL)
+export const DATA_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_DATA_BASE_URL)
 
 /**
  * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod
- * https://wmts{5-9}.geo.admin.ch/).
+ * https://wmts.geo.admin.ch/).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
  * @type {String}
  */
-export const WMTS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMTS_BASE_URL)
+export const WMTS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMTS_BASE_URL)
 
 /**
  * Default WMS base part of the URL to use when requesting tiles (e.g. for prod
- * https://wms{0-4}.geo.admin.ch).
+ * https://wms.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
@@ -123,7 +107,7 @@ export const WMTS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMTS_BA
  *
  * @type {String}
  */
-export const WMS_BASE_URL = enforceEndingSlashInUrl(process.env.VUE_APP_WMS_BASE_URL)
+export const WMS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMS_BASE_URL)
 
 /**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)

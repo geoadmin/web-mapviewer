@@ -87,7 +87,7 @@ See [its README.md](src/store/README.md) for more details.
 
 Unit testing is done through the VueCLI unit test helper, and integration testing is done with Cypress.io.
 All things related to tests are in the `/tests` folder.
-See [TESTING.md](tests/TESTING.md) for more documentation on testing in this project.
+See [TESTING.md](cypress/TESTING.md) for more documentation on testing in this project.
 
 ## Project setup
 
