@@ -269,6 +269,15 @@ export default class ProfileChart {
             .attr('dy', '1em')
             .attr('font-size', '0.95em')
 
+        this.glass = this.group
+            .append('rect')
+            .attr('class', 'profile-glass')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.width)
+            .attr('height', this.height)
+            .style('opacity', 0)
+
         this.updateLabels()
     }
 
