@@ -33,6 +33,12 @@ export default {
             getSelectInteraction: () => this.selectInteraction,
         }
     },
+    props: {
+        selectedFeatures: {
+            type: Array,
+            required: true,
+        },
+    },
     emits: ['featureSelect', 'featureUnselect', 'featureChange'],
     data() {
         return {

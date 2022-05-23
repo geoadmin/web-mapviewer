@@ -51,8 +51,18 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <FeatureEdit v-if="editFeature" :feature="editFeature" />
-            <FeatureList direction="column" />
+            <FeatureEdit
+                v-if="editFeature"
+                :feature="editFeature"
+                @change:title="onTitleChange"
+                @change:description="onDescriptionChange"
+                @change:text-size="onTextSizeChange"
+                @change:text-color="onTextColorChange"
+                @change:color="onColorChange"
+                @change:icon="onIconChange"
+                @change:icon-size="onIconSizeChange"
+            />
+            <FeatureList v-else direction="column" />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
@@ -295,6 +305,14 @@ export default {
             'mapStartBeingDragged',
             'toggleFloatingTooltip',
             'clearAllSelectedFeatures',
+
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()
@@ -390,6 +408,28 @@ export default {
             // we do not want the contextual menu to shows up, so we prevent the event propagation
             event.preventDefault()
             return false
+        },
+
+        onTitleChange(title) {
+            this.changeFeatureTitle({ feature: this.editFeature, title })
+        },
+        onDescriptionChange(description) {
+            this.changeFeatureDescription({ feature: this.editFeature, description })
+        },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.editFeature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.editFeature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.editFeature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.editFeature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.editFeature, iconSize })
         },
     },
 }
