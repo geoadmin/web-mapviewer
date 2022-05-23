@@ -1,5 +1,5 @@
 <template>
-    <div data-cy="profile-popup-content">
+    <div data-cy="profile-popup-content" style="position: relative">
         <div ref="profileGraph" class="profile-graph"></div>
         <div
             v-show="showTooltip"
@@ -206,7 +206,8 @@ export default {
             const data = await this.getProfile(this.featureCoordinates)
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
-            this.attachPathListeners(areaChartPath)
+            const glass = this.profileChart.glass
+            this.attachPathListeners(areaChartPath, glass)
             return this.profileChart.element
         },
         async updateProfileChart(size) {
@@ -223,16 +224,16 @@ export default {
                 distinct_points: true,
             })
         },
-        attachPathListeners(areaChartPath) {
-            areaChartPath.on('mousemove', (evt) => {
-                const x = d3.pointer(evt)[0]
-                let pos = evt.target.getPointAtLength(x)
+        attachPathListeners(areaChartPath, glass) {
+            glass.on('mousemove', (evt) => {
+                const [x] = d3.pointer(evt)
+                let pos = areaChartPath.node().getPointAtLength(x)
 
                 const start = x
                 const end = pos.x
                 const accuracy = 5
                 for (let i = start; i > end; i += accuracy) {
-                    pos = evt.target.getPointAtLength(i)
+                    pos = areaChartPath.node().getPointAtLength(i)
                     if (pos.x >= x) {
                         break
                     }
@@ -241,8 +242,8 @@ export default {
                 // Get the coordinate value of x and y
                 const xCoord = this.profileChart.domain.X.invert(x)
                 const yCoord = this.profileChart.domain.Y.invert(pos.y)
-                const positionX = this.profileChart.domain.X(xCoord) + this.options.margin.left
-                const positionY = this.profileChart.domain.Y(yCoord) + this.options.margin.top
+                const positionX = x + this.options.margin.left
+                const positionY = pos.y + this.options.margin.top
                 const toltipEl = this.$refs.profileTooltip
                 // done like this because using of computed makes it very slow
                 toltipEl.style.left = `${positionX}px`
@@ -255,12 +256,12 @@ export default {
                 // this.positionOnMap.setCoordinates(proj4('EPSG:2056', 'EPSG:3857', coordsMap))
             })
 
-            areaChartPath.on('mouseover', () => {
+            glass.on('mouseover', () => {
                 this.showTooltip = true
                 // this.overlay.setMap(this.getMap())
             })
 
-            areaChartPath.on('mouseout', () => {
+            glass.on('mouseout', () => {
                 this.showTooltip = false
                 // this.overlay.setMap(null)
             })
@@ -354,23 +355,23 @@ export default {
 }
 
 .profile-tooltip {
+    $arrow_height: 10px; // arrow_width = 2* arrow_height
+
     position: absolute;
-    height: auto;
-    width: auto;
+    pointer-events: none;
+    white-space: nowrap;
     background-color: $black;
     color: $white;
     opacity: 0.8;
-    margin-left: -61px;
-    margin-top: -45px;
+    transform: translate(-50%, calc(-100% - $arrow_height));
     border-radius: 5px;
 
     .profile-tooltip-arrow {
-        border-color: $black transparent transparent;
-        border-style: solid;
-        border-width: 10px 10px 0 10px;
+        border: $arrow_height solid transparent;
+        border-top-color: $black;
         position: absolute;
-        bottom: -10px;
-        left: calc(50% - 10px);
+        top: 100%;
+        left: calc(50% - $arrow_height);
     }
 }
 </style>
