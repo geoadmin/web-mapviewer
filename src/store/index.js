@@ -9,6 +9,7 @@ import layers from './modules/layers.store'
 import map from './modules/map.store'
 import position from './modules/position.store'
 import search from './modules/search.store'
+import share from './modules/share.store'
 import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 
@@ -50,5 +51,7 @@ export default createStore({
         search,
         topics,
         ui,
+        share,
+        i18n,
     },
 })

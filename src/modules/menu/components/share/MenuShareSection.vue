@@ -3,7 +3,7 @@
         :title="$t('share')"
         data-cy="menu-share-section"
         secondary
-        @click.once="generateShortLinkIfMNeeded"
+        @click="toggleShortLinkUpdate"
     >
         <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
         <div v-if="shortLink" class="p-2">
@@ -21,6 +21,7 @@ import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareSh
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import { mapActions, mapState } from 'vuex'
 
+/** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 export default {
     components: {
         MenuShareEmbed,
@@ -30,33 +31,30 @@ export default {
     },
     data() {
         return {
-            showEmbedSharing: false,
+            /** Keeping track of the visibility of the share section */
+            isSectionShown: false,
         }
     },
     computed: {
         ...mapState({
-            shortLink: (state) => state.position.shortLink,
+            shortLink: (state) => state.share.shortLink,
         }),
-        iFrameLink() {
-            return `<iframe src="${this.shortLink}" width="400" height="300" style="border:0" allow="geolocation"></iframe>`
-        },
     },
     methods: {
-        ...mapActions(['generateShortLink']),
+        ...mapActions(['generateShortLink', 'setKeepUpdatingShortLink']),
         generateShortLinkIfMNeeded() {
             if (!this.shortLink) {
                 this.generateShortLink()
             }
         },
-        toggleEmbedSharing() {
-            this.showEmbedSharing = !this.showEmbedSharing
+        toggleShortLinkUpdate() {
+            this.isSectionShown = !this.isSectionShown
+            // first time here, shortLink is not yet defined
+            if (this.isSectionShown && !this.shortLink) {
+                this.generateShortLink()
+            }
+            this.setKeepUpdatingShortLink(this.isSectionShown)
         },
     },
 }
 </script>
-
-<style lang="scss" scoped>
-.embedded-button {
-    font-size: 0.8rem;
-}
-</style>

@@ -19,6 +19,9 @@ const screenSizeManagementPlugin = (store) => {
             }
             if (wantedUiMode !== state.ui.mode) {
                 store.dispatch('setUiMode', wantedUiMode)
+                if (wantedUiMode === UIModes.MENU_ALWAYS_OPEN) {
+                    store.commit('setShowMenuTray', true)
+                }
                 // if the UI mode is set to "menu opened through a button" (mobile)
                 // and that the tooltip is still set to floating, we set it in the footer
                 // or
@@ -36,10 +39,10 @@ const screenSizeManagementPlugin = (store) => {
             // Check if the viewport width passes the configured tablet threshold.
             if (state.ui.width > BREAKPOINT_TABLET && lastWidth <= BREAKPOINT_TABLET) {
                 // Open the menu if the viewport passes to desktop size.
-                store.commit('setMenuDesktopOpen', true)
+                store.commit('setShowMenuTray', true)
             } else if (state.ui.width <= BREAKPOINT_TABLET && lastWidth > BREAKPOINT_TABLET) {
                 // Close the menu if the viewport passes to tablet size.
-                store.commit('setMenuDesktopOpen', false)
+                store.commit('setShowMenuTray', false)
             }
             // Update the last width for the next check.
             lastWidth = state.ui.width

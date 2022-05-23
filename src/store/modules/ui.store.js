@@ -32,10 +32,12 @@ export default {
         width: 0,
         /**
          * Flag telling if the menu tray (where the layer options, layer tree and other stuff is)
-         * should be open
+         * should be open while on mobile
          *
          * By default, on desktop mode, the menu is shown as a side menu. On mobile/touch it is
          * hidden as it requires a click on a button to be shown (in order to clear up screen space)
+         *
+         * This flag is only valid while the UI mode is MENU_OPENED_THROUGH_BUTTON
          *
          * @type Boolean
          */
@@ -67,7 +69,7 @@ export default {
          * the menu has to be opened through a button, for desktop it is always shown) and how the
          * information about a selected feature are shown.
          *
-         * @type UIModes
+         * @type String
          */
         mode: UIModes.MENU_OPENED_THROUGH_BUTTON,
         /**
@@ -90,6 +92,28 @@ export default {
                 return 0
             }
             return state.width / state.height
+        },
+        /**
+         * Tells if the menu should be visible on the UI
+         *
+         * @returns {boolean}
+         */
+        showMenu(state) {
+            // while on full screen mode, no menu must be visible
+            if (state.fullscreenMode) {
+                return false
+            } else {
+                // menu is always hidden when drawing
+                return !state.showDrawingOverlay && state.showMenuTray
+            }
+        },
+        /**
+         * Tells if the header bar should be visible
+         *
+         * @returns {boolean}
+         */
+        showHeader(state) {
+            return !state.fullscreenMode && !state.showDrawingOverlay
         },
     },
     actions: {

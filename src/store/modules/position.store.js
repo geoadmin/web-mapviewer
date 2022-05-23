@@ -2,7 +2,6 @@ import proj4 from 'proj4'
 import { round } from '@/utils/numberUtils'
 import log from '@/utils/logging'
 import { MAP_CENTER } from '@/config'
-import { getShortLink } from '@/api/shortlink.api'
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
@@ -34,14 +33,6 @@ const state = {
     center: MAP_CENTER,
     /** @type CrossHairs */
     crossHair: null,
-    /**
-     * Short link version of the current map position (and layers, and all...). This will not be
-     * defined each time, but only when the share menu is opened first (it will then be updated
-     * whenever the URL changes to match it)
-     *
-     * @type String
-     */
-    shortLink: null,
 }
 
 /**
@@ -216,19 +207,12 @@ const actions = {
             commit('setCrossHair', CrossHairs[crossHair])
         }
     },
-    async generateShortLink({ commit }) {
-        const shortLink = await getShortLink(window.location.href)
-        if (shortLink) {
-            commit('setShortLink', shortLink)
-        }
-    },
 }
 
 const mutations = {
     setZoom: (state, zoom) => (state.zoom = zoom),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
-    setShortLink: (state, shortLink) => (state.shortLink = shortLink),
 }
 
 export default {

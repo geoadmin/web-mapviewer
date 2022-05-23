@@ -17,6 +17,10 @@
 </template>
 
 <script>
+/**
+ * Simple input containing the current short link of the app, with a helper button to copy the short
+ * link to the clipboard
+ */
 export default {
     props: {
         shortLink: {
