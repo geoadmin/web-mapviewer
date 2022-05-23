@@ -3,19 +3,19 @@
         <FeatureStyleEdit
             :feature="feature"
             :available-icon-sets="availableIconSets"
-            @change:title="onTitleChange"
-            @change:description="onDescriptionChange"
-            @change:text-size="onTextSizeChange"
-            @change:text-color="onTextColorChange"
-            @change:color="onColorChange"
-            @change:icon="onIconChange"
-            @change:icon-size="onIconSizeChange"
+            @change:title="$emit('change:title', $event)"
+            @change:description="$emit('change:description', $event)"
+            @change:text-size="$emit('change:textSize', $event)"
+            @change:text-color="$emit('change:textColor', $event)"
+            @change:color="$emit('change:color', $event)"
+            @change:icon="$emit('change:icon', $event)"
+            @change:icon-size="$emit('change:iconSize', $event)"
         />
     </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import { EditableFeature } from '@/api/features.api'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
@@ -29,44 +29,19 @@ export default {
             required: true,
         },
     },
+    emits: [
+        'change:title',
+        'change:description',
+        'change:textSize',
+        'change:textColor',
+        'change:color',
+        'change:icon',
+        'change:iconSize',
+    ],
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
         }),
     },
-    methods: {
-        ...mapActions([
-            'changeFeatureTitle',
-            'changeFeatureDescription',
-            'changeFeatureColor',
-            'changeFeatureTextSize',
-            'changeFeatureTextColor',
-            'changeFeatureIcon',
-            'changeFeatureIconSize',
-        ]),
-        onTitleChange(title) {
-            this.changeFeatureTitle({ feature: this.feature, title })
-        },
-        onDescriptionChange(description) {
-            this.changeFeatureDescription({ feature: this.feature, description })
-        },
-        onTextSizeChange(textSize) {
-            this.changeFeatureTextSize({ feature: this.feature, textSize })
-        },
-        onTextColorChange(textColor) {
-            this.changeFeatureTextColor({ feature: this.feature, textColor })
-        },
-        onColorChange(color) {
-            this.changeFeatureColor({ feature: this.feature, color })
-        },
-        onIconChange(icon) {
-            this.changeFeatureIcon({ feature: this.feature, icon })
-        },
-        onIconSizeChange(iconSize) {
-            this.changeFeatureIconSize({ feature: this.feature, iconSize })
-        },
-    },
 }
 </script>
-
-<style lang="scss"></style>

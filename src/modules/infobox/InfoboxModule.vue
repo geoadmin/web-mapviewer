@@ -26,9 +26,32 @@
                 class="infobox-content card-body"
                 data-cy="infobox-content"
             >
-                <FeatureProfile v-if="isProfile" :feature="selectedFeatures[0]" />
-                <FeatureCombo v-else-if="isCombo" :feature="selectedFeatures[0]" />
-                <FeatureEdit v-else-if="isEdit" :feature="selectedFeatures[0]" />
+                <FeatureProfile v-if="isProfile" :feature="selectedFeature" />
+
+                <FeatureCombo
+                    v-else-if="isCombo"
+                    :feature="selectedFeature"
+                    @change:title="onTitleChange"
+                    @change:description="onDescriptionChange"
+                    @change:text-size="onTextSizeChange"
+                    @change:text-color="onTextColorChange"
+                    @change:color="onColorChange"
+                    @change:icon="onIconChange"
+                    @change:icon-size="onIconSizeChange"
+                />
+
+                <FeatureEdit
+                    v-else-if="isEdit"
+                    :feature="selectedFeature"
+                    @change:title="onTitleChange"
+                    @change:description="onDescriptionChange"
+                    @change:text-size="onTextSizeChange"
+                    @change:text-color="onTextColorChange"
+                    @change:color="onColorChange"
+                    @change:icon="onIconChange"
+                    @change:icon-size="onIconSizeChange"
+                />
+
                 <FeatureList v-else-if="isList" />
             </div>
         </div>
@@ -67,25 +90,27 @@ export default {
             floatingTooltip: (state) => state.ui.floatingTooltip,
         }),
 
+        selectedFeature() {
+            return this.selectedFeatures[0]
+        },
         isList() {
             return !this.floatingTooltip && !this.isEdit && this.selectedFeatures.length > 0
         },
         isEdit() {
-            const [feature] = this.selectedFeatures
-            return !this.floatingTooltip && feature?.isEditable
+            return !this.floatingTooltip && this.selectedFeature?.isEditable
         },
         isProfile() {
-            const [feature] = this.selectedFeatures
             return (
-                feature &&
-                (feature.featureType === EditableFeatureTypes.MEASURE ||
-                    (feature.featureType === EditableFeatureTypes.LINEPOLYGON &&
+                this.selectedFeature &&
+                (this.selectedFeature.featureType === EditableFeatureTypes.MEASURE ||
+                    (this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON &&
                         this.floatingTooltip))
             )
         },
         isCombo() {
-            const [feature] = this.selectedFeatures
-            return this.isEdit && feature.featureType === EditableFeatureTypes.LINEPOLYGON
+            return (
+                this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+            )
         },
 
         showContainer() {
@@ -127,15 +152,24 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
+        ...mapActions([
+            'clearAllSelectedFeatures',
+            'toggleFloatingTooltip',
+
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
+        ]),
 
         onToggleContent() {
             this.showContent = !this.showContent
 
             if (this.showContent) {
-                this.$nextTick(() => {
-                    this.setMaxHeight()
-                })
+                this.$nextTick(this.setMaxHeight)
             }
         },
         onToggleFloating() {
@@ -164,6 +198,28 @@ export default {
             // We set max-height because setting the height would influence the
             // height of the children which in turn breaks this calculation.
             container.style.maxHeight = `${verticalPadding + childHeight}px`
+        },
+
+        onTitleChange(title) {
+            this.changeFeatureTitle({ feature: this.selectedFeature, title })
+        },
+        onDescriptionChange(description) {
+            this.changeFeatureDescription({ feature: this.selectedFeature, description })
+        },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.selectedFeature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.selectedFeature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.selectedFeature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.selectedFeature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.selectedFeature, iconSize })
         },
     },
 }
