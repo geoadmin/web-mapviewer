@@ -22,6 +22,8 @@ export default class ProfileChart {
         this.elevationModel = this.options.elevationModel || 'COMB'
         this.width = this.options.width - this.marginHoriz
         this.height = this.options.height - this.marginVert
+        this.sourceFontMargin = 5
+        this.sourceFontSize = this.options.margin.top - this.sourceFontMargin
     }
 
     findMapCoordinates(searchDist) {
@@ -227,13 +229,17 @@ export default class ProfileChart {
             .attr('data-cy', 'profile-popup-area')
 
         this.group
+            .append('a')
+            .attr('xlink:href', this.options.sourceLink.url)
+            .attr('target', '_blank')
+            .attr('class', 'profile-source-link')
             .append('text')
+            .attr('class', 'profile-source-link')
             .attr('text-anchor', 'end')
-            .attr('class', 'profile-legend')
             .attr('x', this.width)
-            .attr('y', 11)
-            .attr('height', 30)
-            .text('swissALTI3D/DHM25')
+            .attr('y', -this.sourceFontMargin)
+            .attr('font-size', this.sourceFontSize)
+            .text(this.options.sourceLink.label)
 
         this.group
             .append('text')
@@ -294,13 +300,11 @@ export default class ProfileChart {
                 .attr('y', this.height + this.options.margin.bottom - 5)
                 .style('text-anchor', 'middle')
             this.group
-                .select('text.profile-legend')
+                .select('text.profile-source-link')
                 .transition()
                 .duration(transitionTime)
-                .attr('text-anchor', 'end')
                 .attr('x', this.width)
-                .attr('y', 11)
-                .text('swissALTI3D/DHM25')
+                .attr('y', -this.sourceFontMargin)
         }
         if (data) {
             this.data = this.formatData(data)

@@ -73,11 +73,18 @@ export default {
         return {
             showTooltip: false,
             options: {
-                margin: { left: 50, right: 0, bottom: 35, top: 5 },
+                margin: { left: 50, right: 0, bottom: 25, top: 15 },
                 width: 0,
                 height: 0,
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
+                sourceLink: {
+                    label: 'swissALTI3D/DHM25', //* profile_source_link_label *//
+                    url:
+                        this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                            ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
+                            : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
+                },
             },
             profileInfo: null,
         }
@@ -314,7 +321,6 @@ export default {
         fill: $primary;
         fill-opacity: 0.5;
     }
-    .profile-legend,
     .profile-label {
         font-weight: bold;
         text-shadow: 1px 1px $light;
@@ -322,8 +328,14 @@ export default {
     svg {
         overflow: visible;
     }
-    text {
-        cursor: default;
+
+    a {
+        fill: $link-color;
+
+        &:hover,
+        &:focus {
+            fill: $link-hover-color;
+        }
     }
 }
 
