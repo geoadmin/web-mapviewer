@@ -43,13 +43,13 @@ export default {
             this.clearIsCopiedInClipboard()
         },
     },
+    beforeUnmount() {
+        clearTimeout(this.timeoutCopied)
+    },
     methods: {
         clearIsCopiedInClipboard() {
             this.copiedInClipboard = false
-            if (this.timeoutCopied) {
-                clearTimeout(this.timeoutCopied)
-                this.timeoutCopied = null
-            }
+            clearTimeout(this.timeoutCopied)
         },
         copyShortLinkInClipboard() {
             navigator.clipboard.writeText(this.shortLink)
