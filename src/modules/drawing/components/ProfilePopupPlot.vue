@@ -17,7 +17,7 @@
                     <span class="elevation"></span>
                 </div>
             </div>
-            <div class="profile-tooltip-arrow"></div>
+            <div ref="profileTooltipArrow" class="profile-tooltip-arrow"></div>
         </div>
         <div v-if="profileInformation.length" class="d-flex p-2">
             <div
@@ -73,7 +73,7 @@ export default {
         return {
             showTooltip: false,
             options: {
-                margin: { left: 50, right: 0, bottom: 25, top: 15 },
+                margin: { left: 35, right: 15, bottom: 25, top: 15 },
                 width: 0,
                 height: 0,
                 xLabel: 'profile_x_label',
@@ -242,12 +242,25 @@ export default {
                 // Get the coordinate value of x and y
                 const xCoord = this.profileChart.domain.X.invert(x)
                 const yCoord = this.profileChart.domain.Y.invert(pos.y)
-                const positionX = x + this.options.margin.left
-                const positionY = pos.y + this.options.margin.top
                 const toltipEl = this.$refs.profileTooltip
+                const tooltipArrow = this.$refs.profileTooltipArrow
+
+                // Calculate center of tooltip (relative to graph)
+                const tooltipHalfWidth = toltipEl.offsetWidth / 2
+                const plotWidth =
+                    this.options.width - this.options.margin.left - this.options.margin.right
+                const tooltipCenterX = Math.min(
+                    Math.max(tooltipHalfWidth - this.options.margin.left, x),
+                    plotWidth - tooltipHalfWidth + this.options.margin.right
+                )
                 // done like this because using of computed makes it very slow
-                toltipEl.style.left = `${positionX}px`
-                toltipEl.style.top = `${positionY}px`
+                // X position of arrow (relative to tooltip)
+                tooltipArrow.style.left = tooltipHalfWidth + (x - tooltipCenterX) + 'px'
+                // X position of the tooltip center
+                toltipEl.style.left = tooltipCenterX + this.options.margin.left + 'px'
+                // Y position of arrowhead
+                toltipEl.style.top = pos.y + this.options.margin.top + 'px'
+
                 toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)}${
                     this.profileInfo.unitX
                 }`
@@ -371,7 +384,7 @@ export default {
         border-top-color: $black;
         position: absolute;
         top: 100%;
-        left: calc(50% - $arrow_height);
+        transform: translate(-$arrow_height, 0);
     }
 }
 </style>
