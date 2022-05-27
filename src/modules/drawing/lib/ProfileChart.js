@@ -228,18 +228,29 @@ export default class ProfileChart {
             .attr('d', area)
             .attr('data-cy', 'profile-popup-area')
 
-        this.group
-            .append('a')
-            .attr('xlink:href', this.options.sourceLink.url)
-            .attr('target', '_blank')
-            .attr('class', 'profile-source-link')
+        this.profileSourceText = this.group
             .append('text')
             .attr('class', 'profile-source-link')
             .attr('text-anchor', 'end')
             .attr('x', this.width)
             .attr('y', -this.sourceFontMargin)
             .attr('font-size', this.sourceFontSize)
-            .text(this.options.sourceLink.label)
+
+        this.profileSourceText
+            .append('a')
+            .attr('href', this.options.sourceLinks[0].url)
+            .attr('target', '_blank')
+            .append('tspan')
+            .text(this.options.sourceLinks[0].label)
+
+        this.profileSourceText.append('tspan').text(' / ')
+
+        this.profileSourceText
+            .append('a')
+            .attr('href', this.options.sourceLinks[1].url)
+            .attr('target', '_blank')
+            .append('tspan')
+            .text(this.options.sourceLinks[1].label)
 
         this.group
             .append('text')
