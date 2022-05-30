@@ -78,13 +78,22 @@ export default {
                 height: 0,
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
-                sourceLink: {
-                    label: 'swissALTI3D/DHM25', //* profile_source_link_label *//
-                    url:
-                        this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
-                            ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
-                            : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
-                },
+                sourceLinks: [
+                    {
+                        label: 'swissALTI3D',
+                        url:
+                            this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                                ? `https://www.swisstopo.admin.ch/de/geodata/height/alti3d.html`
+                                : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/alti3d.html`,
+                    },
+                    {
+                        label: 'DHM25',
+                        url:
+                            this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                                ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
+                                : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
+                    },
+                ],
             },
             profileInfo: null,
         }
