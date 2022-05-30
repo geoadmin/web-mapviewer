@@ -1,5 +1,5 @@
 <template>
-    <div ref="profilePopupContent" data-cy="profile-popup-content" style="position: relative">
+    <div ref="profilePopupContent" data-cy="profile-popup-content" class="profile-popup-content">
         <div ref="profileGraph" class="profile-graph"></div>
         <div ref="profileTooltipAnchor" class="profile-tooltip-anchor"></div>
         <div
@@ -315,6 +315,10 @@ export default {
 // unscoped style as otherwise it will not reached D3 generated HTML
 // (as they are not included in the template at mount)
 @import 'src/scss/webmapviewer-bootstrap-theme';
+
+.profile-popup-content {
+    position: relative;
+}
 
 .profile-graph {
     overflow: hidden;
