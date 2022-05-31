@@ -40,6 +40,7 @@
             :available-icon-sets="availableIconSets"
             @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
+            @feature-add="onAddFeature"
         />
         <DrawingTextInteraction
             v-if="show && isDrawingModeAnnotation"
@@ -119,6 +120,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            featureIds: (state) => state.drawing.featureIds,
         }),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
@@ -163,14 +165,16 @@ export default {
                 this.getMap().removeLayer(this.drawingLayer)
             }
         },
-        // kmlIds: function (kmlIds) {
-        //     // When removing as Drawing layer, the kmlIds are cleared. In this case
-        //     // we also need to clear the drawing in the manager which still contain
-        //     // the last drawing.
-        //     if (!kmlIds) {
-        //         this.manager.clearDrawing()
-        //     }
-        // },
+        featureIds(next, last) {
+            const removed = last.filter((id) => !next.includes(id))
+            if (removed.length > 0) {
+                const source = this.drawingLayer.getSource()
+                source
+                    .getFeatures()
+                    .filter((feature) => removed.includes(feature.getId()))
+                    .forEach((feature) => source.removeFeature(feature))
+            }
+        },
     },
     created() {
         this.drawingLayer = new VectorLayer({
@@ -219,6 +223,7 @@ export default {
             'clearAllSelectedFeatures',
             'changeFeatureCoordinates',
             'changeFeatureIsDragged',
+            'addDrawingFeature',
         ]),
         hideDrawingOverlay() {
             this.clearAllSelectedFeatures()
@@ -276,6 +281,9 @@ export default {
             this.setDrawingMode(null)
             this.onChange()
         },
+        onAddFeature(featureId) {
+            this.addDrawingFeature(featureId)
+        },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDragged(feature) {
             this.changeFeatureIsDragged({
@@ -324,6 +332,7 @@ export default {
             } else {
                 metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
             }
+
             if (metadata) {
                 this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }

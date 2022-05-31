@@ -181,7 +181,8 @@ export default {
             this.$emit('close')
         },
         onDelete() {
-            this.$emit('delete')
+            const id = this.feature.id.replace('drawing_feature_', '')
+            this.$emit('delete', id)
         },
         changeTextSize(size) {
             this.$emit('change:textSize', size)
