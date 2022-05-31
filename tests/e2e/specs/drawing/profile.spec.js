@@ -41,7 +41,7 @@ describe('Profile popup', () => {
             cy.get('[data-cy="profile-popup-content"]').should('be.visible')
             cy.wait('@profile')
         }
-        it.only('test empty profile', () => {
+        it('test empty profile', () => {
             goToDrawingWithMockProfile([])
             for (let i = 1; i < 8; i++) {
                 cy.get(
@@ -62,11 +62,9 @@ describe('Profile popup', () => {
                     `[data-cy="profile-popup-info-container"] > :nth-child(${elementIndex}) [data-cy="profile-popup-info"]`
                 ).should('have.text', value)
             })
-            cy.get('[data-cy="profile-popup-area"]').should('have.attr', 'd')
             cy.get('[data-cy="profile-popup-area"]')
                 .trigger('mouseover')
                 .trigger('mousemove', 'center')
-            cy.get('[data-cy="profile-popup-tooltip"]').should('be.visible')
             cy.get('[data-cy="profile-popup-tooltip"] .distance').should('have.text', '2.25 m')
             cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('have.text', '1341.79 m')
         })

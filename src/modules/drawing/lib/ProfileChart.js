@@ -221,12 +221,7 @@ export default class ProfileChart {
             .attr('class', 'profile-grid-y')
             .call(axis.Y.tickSize(-this.width, 0, 0).tickFormat(''))
 
-        this.group
-            .append('path')
-            .datum(this.data)
-            .attr('class', 'profile-area')
-            .attr('d', area)
-            .attr('data-cy', 'profile-popup-area')
+        this.group.append('path').datum(this.data).attr('class', 'profile-area').attr('d', area)
 
         this.profileSourceText = this.group
             .append('text')
@@ -277,6 +272,7 @@ export default class ProfileChart {
             .attr('width', this.width)
             .attr('height', this.height)
             .style('opacity', 0)
+            .attr('data-cy', 'profile-popup-area')
 
         this.updateLabels()
     }

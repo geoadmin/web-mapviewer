@@ -1,6 +1,12 @@
 <template>
-    <div data-cy="profile-popup-content" data-infobox="height-reference">
+    <div
+        ref="profilePopupContent"
+        data-cy="profile-popup-content"
+        data-infobox="height-reference"
+        class="profile-popup-content"
+    >
         <div ref="profileGraph" class="profile-graph"></div>
+        <div ref="profileTooltipAnchor" class="profile-tooltip-anchor"></div>
         <div
             v-show="showTooltip"
             ref="profileTooltip"
@@ -17,7 +23,7 @@
                     <span class="elevation"></span>
                 </div>
             </div>
-            <div class="profile-tooltip-arrow"></div>
+            <div ref="profileTooltipArrow" class="profile-tooltip-arrow"></div>
         </div>
         <div v-if="profileInformation.length" class="d-flex p-2">
             <div
@@ -52,13 +58,13 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { profile } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { format } from '@/utils/numberUtils'
+import * as d3 from 'd3'
 
 export default {
     components: { ButtonWithIcon },
@@ -73,18 +79,27 @@ export default {
         return {
             showTooltip: false,
             options: {
-                margin: { left: 50, right: 0, bottom: 25, top: 15 },
+                margin: { left: 35, right: 15, bottom: 25, top: 15 },
                 width: 0,
                 height: 0,
                 xLabel: 'profile_x_label',
                 yLabel: 'profile_y_label',
-                sourceLink: {
-                    label: 'swissALTI3D/DHM25', //* profile_source_link_label *//
-                    url:
-                        this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
-                            ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
-                            : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
-                },
+                sourceLinks: [
+                    {
+                        label: 'swissALTI3D',
+                        url:
+                            this.$i18n.locale === 'rm' //* Linked site is not translated in Rm *//
+                                ? `https://www.swisstopo.admin.ch/de/geodata/height/alti3d.html`
+                                : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/alti3d.html`,
+                    },
+                    {
+                        label: 'DHM25',
+                        url:
+                            this.$i18n.locale === 'rm' //* Linked site is not translated in Rm *//
+                                ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
+                                : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
+                    },
+                ],
             },
             profileInfo: null,
         }
@@ -197,7 +212,8 @@ export default {
             const data = await this.getProfile(this.featureCoordinates)
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
-            this.attachPathListeners(areaChartPath)
+            const glass = this.profileChart.glass
+            this.attachPathListeners(areaChartPath, glass)
             return this.profileChart.element
         },
         async updateProfileChart(size) {
@@ -207,53 +223,66 @@ export default {
         },
         async getProfile(coordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return await profile({
+            return profile({
                 geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
                 offset: 0,
                 sr: 2056,
                 distinct_points: true,
             })
         },
-        attachPathListeners(areaChartPath) {
-            areaChartPath.on('mousemove', (evt) => {
-                const x = d3.pointer(evt)[0]
-                let pos = evt.target.getPointAtLength(x)
-
+        attachPathListeners(areaChartPath, glass) {
+            glass.on('mousemove', (evt) => {
+                const [x] = d3.pointer(evt)
+                let pos = areaChartPath.node().getPointAtLength(x)
                 const start = x
                 const end = pos.x
                 const accuracy = 5
                 for (let i = start; i > end; i += accuracy) {
-                    pos = evt.target.getPointAtLength(i)
+                    pos = areaChartPath.node().getPointAtLength(i)
                     if (pos.x >= x) {
                         break
                     }
                 }
-
                 // Get the coordinate value of x and y
                 const xCoord = this.profileChart.domain.X.invert(x)
                 const yCoord = this.profileChart.domain.Y.invert(pos.y)
-                const positionX = this.profileChart.domain.X(xCoord) + this.options.margin.left
-                const positionY = this.profileChart.domain.Y(yCoord) + this.options.margin.top
                 const toltipEl = this.$refs.profileTooltip
+                const tooltipArrow = this.$refs.profileTooltipArrow
+                // Calculate center of tooltip (relative to graph)
+                const tooltipHalfWidth = toltipEl.offsetWidth / 2
+                const plotWidth =
+                    this.options.width - this.options.margin.left - this.options.margin.right
+                const tooltipCenterX = Math.min(
+                    Math.max(tooltipHalfWidth - this.options.margin.left, x),
+                    plotWidth - tooltipHalfWidth + this.options.margin.right
+                )
                 // done like this because using of computed makes it very slow
-                toltipEl.style.left = `${positionX}px`
-                toltipEl.style.top = `${positionY}px`
+                // X position of arrow (relative to tooltip)
+                tooltipArrow.style.left = tooltipHalfWidth + (x - tooltipCenterX) + 'px'
+                // X position of the tooltip center
+                toltipEl.style.left =
+                    tooltipCenterX +
+                    this.options.margin.left +
+                    this.$refs.profilePopupContent.getBoundingClientRect().x -
+                    this.$refs.profileTooltipAnchor.getBoundingClientRect().x +
+                    'px'
+                // Y position of arrowhead
+                toltipEl.style.top =
+                    pos.y +
+                    this.options.margin.top +
+                    this.$refs.profilePopupContent.getBoundingClientRect().y -
+                    this.$refs.profileTooltipAnchor.getBoundingClientRect().y +
+                    'px'
                 toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)}${
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
-                // const coordsMap = this.profileChart.findMapCoordinates(xCoord)
-                // this.positionOnMap.setCoordinates(proj4('EPSG:2056', 'EPSG:3857', coordsMap))
             })
-
-            areaChartPath.on('mouseover', () => {
+            glass.on('mouseover', () => {
                 this.showTooltip = true
-                // this.overlay.setMap(this.getMap())
             })
-
-            areaChartPath.on('mouseout', () => {
+            glass.on('mouseout', () => {
                 this.showTooltip = false
-                // this.overlay.setMap(null)
             })
         },
         formatDistance(value) {
@@ -282,6 +311,11 @@ export default {
 // unscoped style as otherwise it will not reached D3 generated HTML
 // (as they are not included in the template at mount)
 @import 'src/scss/webmapviewer-bootstrap-theme';
+
+.profile-popup-content {
+    position: relative;
+}
+
 .profile-graph {
     overflow: hidden;
     width: 100%;
@@ -343,25 +377,36 @@ export default {
     overflow-x: auto;
     max-width: 100vw;
 }
-
+// Anchor is needed, as "fixed" coordinates are not absolute, but relative
+// to the last transform
+.profile-tooltip-anchor {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    height: 0;
+    width: 0;
+}
 .profile-tooltip {
-    position: absolute;
-    height: auto;
-    width: auto;
+    $arrow_height: 10px; // arrow_width = 2* arrow_height
+    //In contrary to "absolute", "fixed" ignores any overflow value
+    //and the tooltip appears above everything else
+    position: fixed;
+    pointer-events: none;
+    white-space: nowrap;
     background-color: $black;
     color: $white;
     opacity: 0.8;
-    margin-left: -61px;
-    margin-top: -45px;
+    transform: translate(-50%, calc(-100% - $arrow_height));
     border-radius: 5px;
 
     .profile-tooltip-arrow {
-        border-color: $black transparent transparent;
-        border-style: solid;
-        border-width: 10px 10px 0 10px;
+        border: $arrow_height solid transparent;
+        border-top-color: $black;
         position: absolute;
-        bottom: -10px;
-        left: calc(50% - 10px);
+        top: 100%;
+        transform: translate(-$arrow_height, 0);
     }
 }
 </style>
