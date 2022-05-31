@@ -2,6 +2,7 @@ import { forEachTestViewport } from '../../support'
 
 const olSelector = '.ol-viewport'
 
+const infoboxSelector = '[data-cy="infobox-header"]'
 const drawingStyleLineButton = '[data-cy="drawing-style-line-button"]'
 const drawingStyleLinePopup = '[data-cy="drawing-style-line-popup"]'
 const drawingDeleteLastPointButton = '[data-cy="drawing-delete-last-point-button"]'
@@ -47,6 +48,7 @@ describe('Line/Polygon tool', () => {
                     )
 
                     // Opening line popup
+                    cy.get(infoboxSelector).click()
                     cy.get(drawingStyleLineButton).click()
                     cy.get(drawingStyleLinePopup).should('be.visible')
 
@@ -60,6 +62,7 @@ describe('Line/Polygon tool', () => {
                 })
                 it('creates a line with double click', () => {
                     cy.get(olSelector).dblclick(120, 240)
+                    cy.get(infoboxSelector).click()
                     cy.readDrawingFeatures('LineString', (features) => {
                         const coos = features[0].getGeometry().getCoordinates()
                         expect(coos.length).to.equal(3)

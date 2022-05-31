@@ -1,5 +1,10 @@
 <template>
-    <div ref="profilePopupContent" data-cy="profile-popup-content" class="profile-popup-content">
+    <div
+        ref="profilePopupContent"
+        data-cy="profile-popup-content"
+        data-infobox="height-reference"
+        class="profile-popup-content"
+    >
         <div ref="profileGraph" class="profile-graph"></div>
         <div ref="profileTooltipAnchor" class="profile-tooltip-anchor"></div>
         <div
@@ -83,14 +88,14 @@ export default {
                     {
                         label: 'swissALTI3D',
                         url:
-                            this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                            this.$i18n.locale === 'rm' //* Linked site is not translated in Rm *//
                                 ? `https://www.swisstopo.admin.ch/de/geodata/height/alti3d.html`
                                 : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/alti3d.html`,
                     },
                     {
                         label: 'DHM25',
                         url:
-                            this.$i18n.locale == 'rm' //* Linked site is not translated in Rm *//
+                            this.$i18n.locale === 'rm' //* Linked site is not translated in Rm *//
                                 ? `https://www.swisstopo.admin.ch/de/geodata/height/dhm25.html`
                                 : `https://www.swisstopo.admin.ch/${this.$i18n.locale}/geodata/height/dhm25.html`,
                     },
@@ -218,7 +223,7 @@ export default {
         },
         async getProfile(coordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return await profile({
+            return profile({
                 geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
                 offset: 0,
                 sr: 2056,
@@ -238,13 +243,11 @@ export default {
                         break
                     }
                 }
-
                 // Get the coordinate value of x and y
                 const xCoord = this.profileChart.domain.X.invert(x)
                 const yCoord = this.profileChart.domain.Y.invert(pos.y)
                 const toltipEl = this.$refs.profileTooltip
                 const tooltipArrow = this.$refs.profileTooltipArrow
-
                 // Calculate center of tooltip (relative to graph)
                 const tooltipHalfWidth = toltipEl.offsetWidth / 2
                 const plotWidth =
@@ -270,23 +273,16 @@ export default {
                     this.$refs.profilePopupContent.getBoundingClientRect().y -
                     this.$refs.profileTooltipAnchor.getBoundingClientRect().y +
                     'px'
-
                 toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)}${
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
-                // const coordsMap = this.profileChart.findMapCoordinates(xCoord)
-                // this.positionOnMap.setCoordinates(proj4('EPSG:2056', 'EPSG:3857', coordsMap))
             })
-
             glass.on('mouseover', () => {
                 this.showTooltip = true
-                // this.overlay.setMap(this.getMap())
             })
-
             glass.on('mouseout', () => {
                 this.showTooltip = false
-                // this.overlay.setMap(null)
             })
         },
         formatDistance(value) {
@@ -381,7 +377,6 @@ export default {
     overflow-x: auto;
     max-width: 100vw;
 }
-
 // Anchor is needed, as "fixed" coordinates are not absolute, but relative
 // to the last transform
 .profile-tooltip-anchor {
@@ -393,10 +388,8 @@ export default {
     height: 0;
     width: 0;
 }
-
 .profile-tooltip {
     $arrow_height: 10px; // arrow_width = 2* arrow_height
-
     //In contrary to "absolute", "fixed" ignores any overflow value
     //and the tooltip appears above everything else
     position: fixed;

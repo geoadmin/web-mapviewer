@@ -87,8 +87,7 @@ export default {
                 })
             })
             .catch((error) => {
-                log(
-                    'error',
+                log.error(
                     'Error while fetching GeoJSON data/style for layer ' + this.layerId,
                     error
                 )

@@ -10,7 +10,11 @@ export default {
         /** @type Array<Feature> */
         selectedFeatures: [],
     },
-    getters: {},
+    getters: {
+        editFeature(state) {
+            return state.selectedFeatures.find((feature) => feature.isEditable)
+        },
+    },
     actions: {
         /**
          * Tells the map to highlight a list of features (place a round marker at their location).

@@ -51,7 +51,18 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <SelectedFeatureList />
+            <FeatureEdit
+                v-if="editFeature"
+                :feature="editFeature"
+                @change:title="onTitleChange"
+                @change:description="onDescriptionChange"
+                @change:text-size="onTextSizeChange"
+                @change:text-color="onTextColorChange"
+                @change:color="onColorChange"
+                @change:icon="onIconChange"
+                @change:icon-size="onIconSizeChange"
+            />
+            <FeatureList v-else direction="column" />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
@@ -70,11 +81,12 @@
 </template>
 
 <script>
-import { Feature } from '@/api/features.api'
+import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import SelectedFeatureList from '@/modules/infobox/components/SelectedFeatureList.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -104,12 +116,13 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 export default {
     components: {
         ButtonWithIcon,
-        SelectedFeatureList,
-        OpenLayersPopover,
+        FeatureEdit,
+        FeatureList,
+        OpenLayersAccuracyCircle,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
-        OpenLayersAccuracyCircle,
         OpenLayersMarker,
+        OpenLayersPopover,
     },
     provide() {
         return {
@@ -186,9 +199,16 @@ export default {
             if (this.isFeatureTooltipInFooter || this.selectedFeatures.length === 0) {
                 return false
             }
-            // we hide the popover whenever the feature is being dragged
             const [firstFeature] = this.selectedFeatures
-            return !firstFeature.isDragged
+            return (
+                // We hide the popover whenever the feature is being dragged ...
+                !firstFeature.isDragged &&
+                // ... and we never show the measure feature in the popover.
+                firstFeature.featureType !== EditableFeatureTypes.MEASURE
+            )
+        },
+        editFeature() {
+            return this.selectedFeatures.find((feature) => feature.isEditable)
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
@@ -222,8 +242,9 @@ export default {
             handler(newSelectedFeatures) {
                 if (newSelectedFeatures.length > 0) {
                     const [firstFeature] = newSelectedFeatures
-                    this.popoverCoordinates =
-                        firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                    this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
+                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                        : firstFeature.coordinates
                 }
             },
             deep: true,
@@ -284,6 +305,14 @@ export default {
             'mapStartBeingDragged',
             'toggleFloatingTooltip',
             'clearAllSelectedFeatures',
+
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()
@@ -315,7 +344,7 @@ export default {
                                 // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
                                 // we have to wrap it around the "usual" wrapper from the backend
                                 // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                                const geoJsonFeature = new Feature(
+                                const geoJsonFeature = new LayerFeature(
                                     geoJsonLayer,
                                     feature.get('id') || feature.getId(),
                                     `<div class="htmlpopup-container">
@@ -379,6 +408,28 @@ export default {
             // we do not want the contextual menu to shows up, so we prevent the event propagation
             event.preventDefault()
             return false
+        },
+
+        onTitleChange(title) {
+            this.changeFeatureTitle({ feature: this.editFeature, title })
+        },
+        onDescriptionChange(description) {
+            this.changeFeatureDescription({ feature: this.editFeature, description })
+        },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.editFeature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.editFeature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.editFeature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.editFeature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.editFeature, iconSize })
         },
     },
 }

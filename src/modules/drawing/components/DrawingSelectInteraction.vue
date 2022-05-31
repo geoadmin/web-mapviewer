@@ -34,7 +34,6 @@ export default {
         }
     },
     props: {
-        /** Store selected features (instances of {@link EditableFeature}) */
         selectedFeatures: {
             type: Array,
             required: true,

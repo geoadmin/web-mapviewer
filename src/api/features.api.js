@@ -28,7 +28,7 @@ export class Feature extends EventEmitter {
         super()
         this._id = id
         // using the setter for coordinate (see below)
-        this.coordinates = coordinates
+        this._coordinates = coordinates
         this._title = title
         this._description = description
         this._isEditable = !!isEditable
@@ -95,19 +95,6 @@ export class Feature extends EventEmitter {
         return this._isEditable
     }
     // isEditable is immutable, no setter
-
-    /**
-     * Tells if the feature is currently being dragged (and later dropped) by the user
-     *
-     * @returns {boolean}
-     */
-    get isDragged() {
-        return this._isDragged
-    }
-    set isDragged(flag) {
-        this._isDragged = flag
-        this.emitChangeEvent('isDragged')
-    }
 }
 
 /** @enum */
@@ -232,6 +219,19 @@ export class EditableFeature extends Feature {
             this._iconSize = newSize
             this.emitChangeEvent('iconSize')
         }
+    }
+
+    /**
+     * Tells if the feature is currently being dragged (and later dropped) by the user
+     *
+     * @returns {boolean}
+     */
+    get isDragged() {
+        return this._isDragged
+    }
+    set isDragged(flag) {
+        this._isDragged = flag
+        this.emitChangeEvent('isDragged')
     }
 }
 
@@ -434,8 +434,7 @@ const getFeature = (layer, featureID, lang = 'en') => {
                 )
             })
             .catch((error) => {
-                log(
-                    'error',
+                log.error(
                     'Error while requesting a feature to the backend',
                     layer,
                     featureID,

@@ -25,6 +25,7 @@
         </div>
     </div>
 </template>
+
 <script>
 import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
 

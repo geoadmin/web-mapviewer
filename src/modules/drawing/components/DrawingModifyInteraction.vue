@@ -65,8 +65,8 @@ export default {
             )
         },
         onModifyStart(event) {
-            const features = event.features.getArray()
-            const [feature] = features
+            const [feature] = event.features.getArray()
+
             if (feature) {
                 const correspondingStoreFeature =
                     this.getSelectedFeatureCorrespondingToOpenLayersFeature(feature)
@@ -80,8 +80,9 @@ export default {
             if (!event.features) {
                 return
             }
-            const features = event.features.getArray()
-            const [feature] = features
+
+            const [feature] = event.features.getArray()
+
             if (feature) {
                 const correspondingStoreFeature =
                     this.getSelectedFeatureCorrespondingToOpenLayersFeature(feature)

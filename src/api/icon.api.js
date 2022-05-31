@@ -149,7 +149,15 @@ export class Icon {
  * @returns {Promise<IconSet[]>}
  */
 export async function loadAllIconSetsFromBackend() {
-    const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
+    const rawSets = (
+        await axios.get(`${API_SERVICES_BASE_URL}icons/sets`, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Credentials': 'true',
+            },
+        })
+    ).data.items
     const sets = []
     for (const rawSet of rawSets) {
         const iconSet = new IconSet(
@@ -174,7 +182,13 @@ export async function loadAllIconSetsFromBackend() {
  */
 function loadIconsForIconSet(iconSet) {
     return axios
-        .get(iconSet.iconsURL)
+        .get(iconSet.iconsURL, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Credentials': 'true',
+            },
+        })
         .then((rawIcons) => {
             iconSet.icons = rawIcons.data.items.map(
                 (rawIcon) =>
