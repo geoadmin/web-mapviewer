@@ -101,7 +101,17 @@ export default {
                     },
                 ],
             },
-            profileInfo: null,
+            // Not simply a null property, since it should already be added to the dom from the
+            // beginning for correct height calculations in TooltipBox.vue setMaxHeight()
+            profileInfo: {
+                elevationDiff: 0,
+                totalElevationDiff: 0,
+                elevationPoints: 0,
+                distance: 0,
+                slopeDistance: 0,
+                hikingTime: 0,
+                unitX: 0,
+            },
         }
     },
     computed: {
@@ -116,9 +126,6 @@ export default {
             )
         },
         profileInformation() {
-            if (!this.profileInfo) {
-                return []
-            }
             return [
                 {
                     title: 'profile_elevation_difference',
