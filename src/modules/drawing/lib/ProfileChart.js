@@ -249,14 +249,15 @@ export default class ProfileChart {
 
         this.group
             .append('text')
-            .attr('class', 'profile-label ga-profile-label-x')
+            .attr('class', 'profile-label profile-label-x')
+            .attr('x', this.width / 2)
             .attr('y', this.height + this.options.margin.bottom - 5)
             .style('text-anchor', 'middle')
             .attr('font-size', '0.80em')
 
         this.group
             .append('text')
-            .attr('class', 'profile-label ga-profile-label-y')
+            .attr('class', 'profile-label profile-label-y')
             .attr('transform', 'rotate(-90)')
             .attr('y', 0 - this.options.margin.left)
             .attr('x', -this.height / 2)
@@ -279,12 +280,9 @@ export default class ProfileChart {
 
     updateLabels() {
         this.group
-            .select('text.ga-profile-label-x')
-            .attr('x', this.width / 2)
+            .select('text.profile-label-x')
             .text(`${i18n.global.t(this.options.xLabel)} [${this.unitX}]`)
-        this.group
-            .select('text.ga-profile-label-y')
-            .text(`${i18n.global.t(this.options.yLabel)} [m]`)
+        this.group.select('text.profile-label-y').text(`${i18n.global.t(this.options.yLabel)} [m]`)
     }
 
     getProfileInfo() {
@@ -317,7 +315,6 @@ export default class ProfileChart {
                 .duration(transitionTime)
                 .attr('x', this.width / 2)
                 .attr('y', this.height + this.options.margin.bottom - 5)
-                .style('text-anchor', 'middle')
             this.group
                 .select('text.profile-source-link')
                 .transition()
