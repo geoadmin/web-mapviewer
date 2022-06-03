@@ -1,25 +1,10 @@
 <template>
     <div class="edit-feature" data-infobox="height-reference">
         <div class="edit-feature-form">
-            <FeatureStyleEdit
-                :feature="feature"
-                :available-icon-sets="availableIconSets"
-                @change:title="$emit('change:title', $event)"
-                @change:description="$emit('change:description', $event)"
-                @change:text-size="$emit('change:textSize', $event)"
-                @change:text-color="$emit('change:textColor', $event)"
-                @change:color="$emit('change:color', $event)"
-                @change:icon="$emit('change:icon', $event)"
-                @change:icon-size="$emit('change:iconSize', $event)"
-                @delete="$emit('delete', $event)"
-            />
+            <FeatureStyleEdit :feature="feature" :available-icon-sets="availableIconSets" />
         </div>
 
-        <FeatureProfile
-            class="edit-feature-plot"
-            :feature="feature"
-            @delete="$emit('delete', $event)"
-        />
+        <FeatureProfile class="edit-feature-plot" :feature="feature" />
     </div>
 </template>
 
@@ -40,16 +25,6 @@ export default {
             required: true,
         },
     },
-    emits: [
-        'change:title',
-        'change:description',
-        'change:textSize',
-        'change:textColor',
-        'change:color',
-        'change:icon',
-        'change:iconSize',
-        'delete',
-    ],
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
