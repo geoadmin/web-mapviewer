@@ -11,10 +11,15 @@
                 @change:color="$emit('change:color', $event)"
                 @change:icon="$emit('change:icon', $event)"
                 @change:icon-size="$emit('change:iconSize', $event)"
+                @delete="$emit('delete', $event)"
             />
         </div>
 
-        <FeatureProfile class="edit-feature-plot" :feature="feature" />
+        <FeatureProfile
+            class="edit-feature-plot"
+            :feature="feature"
+            @delete="$emit('delete', $event)"
+        />
     </div>
 </template>
 
@@ -43,6 +48,7 @@ export default {
         'change:color',
         'change:icon',
         'change:iconSize',
+        'delete',
     ],
     computed: {
         ...mapState({

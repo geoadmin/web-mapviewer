@@ -40,7 +40,6 @@
             :available-icon-sets="availableIconSets"
             @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
-            @feature-add="onAddFeature"
         />
         <DrawingTextInteraction
             v-if="show && isDrawingModeAnnotation"
@@ -173,6 +172,7 @@ export default {
                     .getFeatures()
                     .filter((feature) => removed.includes(feature.getId()))
                     .forEach((feature) => source.removeFeature(feature))
+                this.onChange()
             }
         },
     },
@@ -224,6 +224,7 @@ export default {
             'changeFeatureCoordinates',
             'changeFeatureIsDragged',
             'addDrawingFeature',
+            'clearFeatureIds',
         ]),
         hideDrawingOverlay() {
             this.clearAllSelectedFeatures()
@@ -268,9 +269,8 @@ export default {
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
             this.onChange()
-        },
-        onAddFeature(featureId) {
-            this.addDrawingFeature(featureId)
+
+            this.addDrawingFeature(feature.getId())
         },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDragged(feature) {
@@ -326,6 +326,7 @@ export default {
             }
         },
         clearDrawing: function () {
+            this.clearFeatureIds()
             this.clearAllSelectedFeatures()
             this.$refs.selectInteraction.clearSelectedFeature()
             this.drawingLayer.getSource().clear()

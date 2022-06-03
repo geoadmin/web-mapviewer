@@ -10,6 +10,7 @@
             @change:color="$emit('change:color', $event)"
             @change:icon="$emit('change:icon', $event)"
             @change:icon-size="$emit('change:iconSize', $event)"
+            @delete="$emit('delete', $event)"
         />
     </div>
 </template>
@@ -37,6 +38,7 @@ export default {
         'change:color',
         'change:icon',
         'change:iconSize',
+        'delete',
     ],
     computed: {
         ...mapState({

@@ -61,6 +61,7 @@
                 @change:color="onColorChange"
                 @change:icon="onIconChange"
                 @change:icon-size="onIconSizeChange"
+                @delete="onDelete"
             />
             <FeatureList v-else direction="column" />
         </OpenLayersPopover>
@@ -315,6 +316,7 @@ export default {
             'changeFeatureTextColor',
             'changeFeatureIcon',
             'changeFeatureIconSize',
+            'deleteDrawingFeature',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()
@@ -434,6 +436,9 @@ export default {
         },
         onIconSizeChange(iconSize) {
             this.changeFeatureIconSize({ feature: this.editFeature, iconSize })
+        },
+        onDelete(id) {
+            this.deleteDrawingFeature(id)
         },
     },
 }

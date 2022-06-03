@@ -49,7 +49,9 @@ export default {
          */
         iconSets: [],
         /**
-         * List of feature IDs being currently drawn
+         * Feature IDs of all features that have been drawn.
+         *
+         * Removing an ID from the list will trigger a watcher that will delete the respective feature.
          *
          * @type {String[]}
          */
@@ -88,6 +90,9 @@ export default {
             dispatch('clearAllSelectedFeatures')
             commit('deleteDrawingFeature', featureId)
         },
+        clearFeatureIds({ commit }) {
+            commit('clearFeatureIds')
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
@@ -96,5 +101,6 @@ export default {
         addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
+        clearFeatureIds: (state) => (state.featureIds = []),
     },
 }

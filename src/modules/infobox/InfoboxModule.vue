@@ -26,7 +26,7 @@
                 class="infobox-content card-body"
                 data-cy="infobox-content"
             >
-                <FeatureProfile v-if="isProfile" :feature="selectedFeature" />
+                <FeatureProfile v-if="isProfile" :feature="selectedFeature" @delete="onDelete" />
 
                 <FeatureCombo
                     v-else-if="isCombo"
@@ -38,6 +38,7 @@
                     @change:color="onColorChange"
                     @change:icon="onIconChange"
                     @change:icon-size="onIconSizeChange"
+                    @delete="onDelete"
                 />
 
                 <FeatureEdit
@@ -50,6 +51,7 @@
                     @change:color="onColorChange"
                     @change:icon="onIconChange"
                     @change:icon-size="onIconSizeChange"
+                    @delete="onDelete"
                 />
 
                 <FeatureList v-else-if="isList" />
@@ -163,6 +165,7 @@ export default {
             'changeFeatureTextColor',
             'changeFeatureIcon',
             'changeFeatureIconSize',
+            'deleteDrawingFeature',
         ]),
 
         onToggleContent() {
@@ -220,6 +223,9 @@ export default {
         },
         onIconSizeChange(iconSize) {
             this.changeFeatureIconSize({ feature: this.selectedFeature, iconSize })
+        },
+        onDelete(id) {
+            this.deleteDrawingFeature(id)
         },
     },
 }
