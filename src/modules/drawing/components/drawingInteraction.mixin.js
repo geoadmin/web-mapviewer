@@ -30,7 +30,7 @@ import { getUid } from 'ol/util'
  */
 const drawingInteractionMixin = {
     inject: ['getDrawingLayer', 'getMap'],
-    emits: ['drawStart', 'drawEnd', 'featureAdd'],
+    emits: ['drawStart', 'drawEnd'],
     mounted() {
         this.interaction = new DrawInteraction({
             style: this.editingStyle || editingFeatureStyleFunction,
@@ -81,7 +81,6 @@ const drawingInteractionMixin = {
                     ...props,
                 })
             }
-            this.$emit('featureAdd', feature.getId())
         },
         _onDrawStart(event) {
             const feature = event.feature

@@ -181,7 +181,8 @@ export default {
     },
     methods: {
         onDelete() {
-            this.$emit('delete')
+            const id = this.feature.id.replace('drawing_feature_', '')
+            this.$emit('delete', id)
         },
         onResize() {
             this.$nextTick(this.updateProfile)
