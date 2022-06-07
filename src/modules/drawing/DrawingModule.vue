@@ -75,7 +75,7 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { deserializeAnchor } from '@/utils/featureAnchor'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
@@ -163,14 +163,6 @@ export default {
                 this.getMap().removeLayer(this.drawingLayer)
             }
         },
-        // kmlIds: function (kmlIds) {
-        //     // When removing as Drawing layer, the kmlIds are cleared. In this case
-        //     // we also need to clear the drawing in the manager which still contain
-        //     // the last drawing.
-        //     if (!kmlIds) {
-        //         this.manager.clearDrawing()
-        //     }
-        // },
     },
     created() {
         this.drawingLayer = new VectorLayer({
@@ -234,9 +226,6 @@ export default {
                 this.setDrawingMode(mode)
             }
         },
-        deleteSelectedFeature() {
-            this.deleteSelected()
-        },
         triggerKMLUpdate() {
             clearTimeout(this.KMLUpdateTimeout)
             this.KMLUpdateTimeout = setTimeout(
@@ -256,15 +245,6 @@ export default {
                 this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
                 this.triggerKMLUpdate()
             })
-        },
-        onClear() {
-            // Only trigger the kml update if we have an active open drawing. The clear
-            // event also happens when removing a drawing layer when the drawing menu
-            // is closed and in this condition we don't want to re-created now a new KML
-            // until the menu is opened again.
-            if (this.show) {
-                this.triggerKMLUpdate()
-            }
         },
         onDrawStart(feature) {
             this.currentlySketchedFeature = feature

@@ -6,7 +6,7 @@
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { RED } from '@/utils/featureStyleUtils'
 import GeometryType from 'ol/geom/GeometryType'
 

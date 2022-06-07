@@ -1,5 +1,5 @@
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import GeometryType from 'ol/geom/GeometryType'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'

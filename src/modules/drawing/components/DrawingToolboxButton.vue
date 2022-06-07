@@ -14,9 +14,9 @@
 </template>
 
 <script>
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { UIModes } from '@/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: { ButtonWithIcon },

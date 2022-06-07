@@ -26,7 +26,7 @@ describe('The infobox', () => {
 
         longClickOnMap()
         cy.waitUntilState((state) => {
-            return state.feature.selectedFeatures.length > 0
+            return state.features.selectedFeatures.length > 0
         })
 
         cy.get('[data-cy="highlighted-features"]').should('be.visible')
@@ -34,33 +34,32 @@ describe('The infobox', () => {
     it('can float or stick to the bottom', () => {
         longClickOnMap()
         cy.waitUntilState((state) => {
-            return state.feature.selectedFeatures.length > 0
+            return state.features.selectedFeatures.length > 0
         })
 
+        cy.get('[data-cy="popover"]').should('not.exist')
+        cy.get('[data-cy="infobox"]').should('be.visible')
+
+        cy.get('[data-cy="infobox-toggle-floating"]').click()
         cy.get('[data-cy="popover"]').should('be.visible')
-        cy.get('[data-cy="tooltip"]').should('not.exist')
+        cy.get('[data-cy="infobox"]').should('not.be.visible')
 
         cy.get('[data-cy="toggle-floating-off"]').click()
         cy.get('[data-cy="popover"]').should('not.exist')
-        cy.get('[data-cy="tooltip"]').should('be.visible')
-
-        cy.get('[data-cy="toggle-floating-on"]').click()
-        cy.get('[data-cy="popover"]').should('be.visible')
-        cy.get('[data-cy="tooltip"]').should('not.exist')
+        cy.get('[data-cy="infobox"]').should('be.visible')
     })
     it('sets its height dynamically if at the bottom', () => {
         longClickOnMap()
         cy.waitUntilState((state) => {
-            return state.feature.selectedFeatures.length > 0
+            return state.features.selectedFeatures.length > 0
         })
 
-        cy.get('[data-cy="toggle-floating-off"]').click()
-        cy.get('[data-cy="tooltip-content"]').then(($element) => {
+        cy.get('[data-cy="infobox-content"]').then(($element) => {
             const maxHeight = $element
-                .children()
-                .toArray()
-                .map((child) => child.offsetHeight)
-                .reduce((max, height) => Math.max(max, height), 0)
+              .find('[data-infobox="height-reference"')
+              .toArray()
+              .map((child) => child.offsetHeight)
+              .reduce((max, height) => Math.max(max, height), 0)
 
             expect($element.height()).to.be.equal(maxHeight)
         })

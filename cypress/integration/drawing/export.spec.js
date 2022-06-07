@@ -1,13 +1,10 @@
-import { recurse } from 'cypress-recurse'
-
-const downloadsFolder = Cypress.config('downloadsFolder')
-
 /// <reference types="cypress" />
 
-const quickExportButton = '[data-cy="drawing-toolbox-quick-export-button"]'
-const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format-button"]'
-const exportKmlButton = '[data-cy="drawing-toolbox-export-kml-button"]'
-const exportGpxButton = '[data-cy="drawing-toolbox-export-gpx-button"]'
+import { EditableFeatureTypes } from '@/api/features.api'
+import { recurse } from 'cypress-recurse'
+import { Point, Polygon } from 'ol/geom'
+
+const downloadsFolder = Cypress.config('downloadsFolder')
 
 const isNonEmptyArray = (value) => {
     return Array.isArray(value) && value.length > 0
@@ -26,7 +23,7 @@ const checkFiles = (extension, callback) => {
 }
 
 const checkKmlFile = (content) => {
-    ;['MEASURE', 'MARKER', 'ANNOTATION', 'LINEPOLYGON'].forEach((type) => {
+    Object.values(EditableFeatureTypes).forEach((type) => {
         expect(content).to.contains(`<value>${type}</value>`)
     })
     expect(content).to.contains('<value>new text</value>')
@@ -40,25 +37,27 @@ const checkGpxFile = (content) => {
 
 describe('Drawing toolbox actions', () => {
     beforeEach(() => {
-        cy.task('deleteFolder', downloadsFolder)
         cy.goToDrawing()
         cy.drawGeoms()
     })
+    afterEach(() => {
+        cy.task('clearFolder', downloadsFolder)
+    })
     context('Export KML', () => {
         it('exports KML when clicking on the export button (without choosing format)', () => {
-            cy.get(quickExportButton).click()
+            cy.get('[data-cy="drawing-toolbox-quick-export-button"]').click()
             checkFiles('kml', checkKmlFile)
         })
         it('exports KML file through the "choose format" export menu', () => {
-            cy.get(chooseExportFormatButton).click()
-            cy.get(exportKmlButton).click()
+            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-kml-button"]').click()
             checkFiles('kml', checkKmlFile)
         })
     })
     context('Export GPX', () => {
         it('exports GPX file through the "choose format" export menu', () => {
-            cy.get(chooseExportFormatButton).click()
-            cy.get(exportGpxButton).click()
+            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-gpx-button"]').click()
             checkFiles('gpx', checkGpxFile)
         })
     })

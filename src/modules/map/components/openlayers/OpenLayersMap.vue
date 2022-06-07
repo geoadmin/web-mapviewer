@@ -85,8 +85,8 @@ import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -374,7 +374,7 @@ export default {
                         geoJsonFeatures
                     )
                 )
-            )
+            }
         },
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {

@@ -2,7 +2,7 @@ import { createStore } from 'vuex'
 
 import app from './modules/app.store'
 import drawing from './modules/drawing.store'
-import feature from './modules/feature.store'
+import features from './modules/features.store'
 import geolocation from './modules/geolocation.store'
 import i18n from './modules/i18n.store'
 import layers from './modules/layers.store'

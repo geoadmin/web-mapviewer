@@ -1,5 +1,4 @@
-import { LineString, Polygon } from 'ol/geom'
-import GeometryType from 'ol/geom/GeometryType'
+import { Point, LineString, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { format } from '@/utils/numberUtils'
 
@@ -32,10 +31,10 @@ export function geometryInfo(type, coordinates, epsg) {
     const output = {
         type,
     }
-    if (type === 'Point') {
+    if (type === Point) {
         output.location = formatPointCoordinates(coos95)
     } else {
-        if (type === 'Polygon') {
+        if (type === Polygon) {
             const poly = new Polygon(coos95)
             output.area = formatMeters(poly.getArea(), { dim: 2 })
             const line = new LineString(coos95[0])
@@ -140,7 +139,7 @@ export function getMeasureDelta(length) {
 
 export function extractOpenLayersFeatureCoordinates(feature) {
     let coordinates = feature.getGeometry().getCoordinates()
-    if (feature.getGeometry().getType() === GeometryType.POLYGON) {
+    if (feature.getGeometry().getType() === Polygon) {
         // in case of a polygon, the coordinates structure is
         // [
         //   [ (poly1)

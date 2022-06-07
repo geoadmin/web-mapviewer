@@ -2,7 +2,7 @@
 
 const searchbarSelector = '[data-cy="searchbar"]'
 
-describe.skip('Testing coordinates typing in search bar', () => {
+describe('Testing coordinates typing in search bar', () => {
     // in order to ease test run, we only load the page once at the begining of this context
     // so that it doesn't load the page for each copy/paste in the search bar
     before(() => {

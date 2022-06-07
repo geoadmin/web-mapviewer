@@ -4,7 +4,7 @@
 
 <script>
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
-import { DrawingModes } from '@/modules/store/modules/drawing.store'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
 import GeometryType from 'ol/geom/GeometryType'
 

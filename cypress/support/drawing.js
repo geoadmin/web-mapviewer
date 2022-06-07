@@ -1,6 +1,7 @@
+import { EditableFeatureTypes } from "@/api/features.api";
+import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import pako from 'pako'
 import { parseInterception } from './multipart'
-import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 
 const olSelector = '.ol-viewport'
 
@@ -23,29 +24,29 @@ const addSecondIconsFixtureAndIntercept = () => {
 }
 
 const addIconFixtureAndIntercept = () => {
-    const fixture = 'service-icons/placeholder.png'
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
-        fixture,
+        fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
     cy.intercept(`**/api/icons/sets/second/icons/**@1x.png`, {
-        fixture,
+        fixture: 'service-icons/placeholder.png',
     }).as('icon-second')
 }
 
 Cypress.Commands.add('drawGeoms', () => {
-    // The line needs to come before the measure to ensure we don't click
-    // on one of the labels from the measure line.
-    cy.clickDrawingTool('LINEPOLYGON')
-    cy.get(olSelector).click(200, 300).click(250, 300).dblclick(250, 350)
+    cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+    cy.get(olSelector).click(170, 190)
+    cy.get('[data-cy="infobox-close"]').click()
 
-    cy.clickDrawingTool('MEASURE')
-    cy.get(olSelector).click(100, 300).click(150, 300).click(150, 350).click(100, 300)
+    cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+    cy.get(olSelector).click(200, 190)
+    cy.get('[data-cy="infobox-close"]').click()
 
-    cy.clickDrawingTool('MARKER')
-    cy.get(olSelector).click(100, 200)
+    cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+    cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
+    cy.get('[data-cy="infobox-close"]').click()
 
-    cy.clickDrawingTool('ANNOTATION')
-    cy.get(olSelector).click(200, 200)
+    cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
+    cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
 })
 
 // https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
@@ -71,10 +72,10 @@ Cypress.Commands.add('goToDrawing', () => {
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
-Cypress.Commands.add('clickDrawingTool', (drawingMode) => {
-    expect(['MARKER', 'ANNOTATION', 'MEASURE', 'LINEPOLYGON']).to.include(drawingMode)
-    cy.get(`[data-cy="drawing-toolbox-mode-button-${drawingMode}`).click()
-    cy.readStoreValue('state.drawing.mode').should('eq', drawingMode)
+Cypress.Commands.add('clickDrawingTool', (name) => {
+    expect(Object.values(EditableFeatureTypes)).to.include(name)
+    cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).click()
+    cy.readStoreValue('state.drawing.mode').should('eq', name)
 })
 
 Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
