@@ -15,8 +15,8 @@
         "test:ci": "npm run test:unit && npm run test:e2e:ci",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
         "build": "vite build",
-        "deploy:dev": "DEPLOY=true npm run build && node scripts/deploy.js dev",
-        "deploy:int": "DEPLOY=true npm run build && node scripts/deploy.js int",
+        "deploy:dev": "DEPLOY=true npm run build -- --mode development && node scripts/deploy.js dev",
+        "deploy:int": "DEPLOY=true npm run build -- --mode development && node scripts/deploy.js int",
         "update:translations": "node scripts/generate-i18n-files.js",
         "update:browserlist": "npx browserslist@latest --update-db"
     },

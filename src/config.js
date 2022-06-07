@@ -13,7 +13,7 @@ export const ENVIRONMENT = VITE_ENVIRONMENT
  *
  * @type Boolean
  */
-export const IS_TESTING_WITH_CYPRESS = !!window.Cypress || ENVIRONMENT === 'development'
+export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
 
 /**
  * Current app version (from package.json)
@@ -87,8 +87,7 @@ export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
 export const DATA_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_DATA_BASE_URL)
 
 /**
- * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod
- * https://wmts.geo.admin.ch/).
+ * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod https://wmts.geo.admin.ch/).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
@@ -97,8 +96,7 @@ export const DATA_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_DATA_B
 export const WMTS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMTS_BASE_URL)
 
 /**
- * Default WMS base part of the URL to use when requesting tiles (e.g. for prod
- * https://wms.geo.admin.ch).
+ * Default WMS base part of the URL to use when requesting tiles (e.g. for prod https://wms.geo.admin.ch).
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
