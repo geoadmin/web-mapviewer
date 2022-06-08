@@ -41,11 +41,11 @@
                         <DrawingStyleSizeSelector
                             class="mb-3"
                             :current-size="feature.textSize"
-                            @change="changeTextSize"
+                            @change="onTextSizeChange"
                         />
                         <DrawingStyleTextColorSelector
                             :current-color="feature.textColor"
-                            @change="changeTextColor"
+                            @change="onTextColorChange"
                         />
                     </div>
                 </PopoverButton>
@@ -61,9 +61,9 @@
                         data-cy="drawing-style-marker-popup"
                         :feature="feature"
                         :icon-sets="availableIconSets"
-                        @change:icon="changeFeatureIcon"
-                        @change:icon-color="changeFeatureColor"
-                        @change:icon-size="changeFeatureIconSize"
+                        @change:icon="onIconChange"
+                        @change:icon-color="onColorChange"
+                        @change:icon-size="onIconSizeChange"
                     />
                 </PopoverButton>
 
@@ -77,7 +77,7 @@
                 >
                     <DrawingStyleColorSelector
                         data-cy="drawing-style-line-popup"
-                        @change="changeFeatureColor"
+                        @change="onColorChange"
                     />
                 </PopoverButton>
 
@@ -100,6 +100,7 @@ import SelectedFeatureProfile from '@/modules/infobox/components/styling/Selecte
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import PopoverButton from '@/utils/PopoverButton.vue'
+import { mapActions } from 'vuex'
 
 /**
  * Display a popup on the map when a drawing is selected.
@@ -126,17 +127,7 @@ export default {
             required: true,
         },
     },
-    emits: [
-        'close',
-        'delete',
-        'change:description',
-        'change:title',
-        'change:textSize',
-        'change:textColor',
-        'change:color',
-        'change:icon',
-        'change:iconSize',
-    ],
+    emits: ['close'],
     data() {
         return {
             colors: allStylingColors,
@@ -152,7 +143,7 @@ export default {
                 return this.feature.description
             },
             set(value) {
-                this.$emit('change:description', value)
+                this.changeFeatureDescription({ feature: this.feature, description: value })
             },
         },
         text: {
@@ -160,7 +151,7 @@ export default {
                 return this.feature.title
             },
             set(value) {
-                this.$emit('change:title', value)
+                this.changeFeatureTitle({ feature: this.feature, title: value })
             },
         },
         isFeatureMarker() {
@@ -177,26 +168,37 @@ export default {
         },
     },
     methods: {
+        ...mapActions([
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
+            'deleteDrawingFeature',
+        ]),
         onClose() {
             this.$emit('close')
         },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.feature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.feature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.feature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.feature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.feature, iconSize })
+        },
         onDelete() {
-            this.$emit('delete')
-        },
-        changeTextSize(size) {
-            this.$emit('change:textSize', size)
-        },
-        changeTextColor(color) {
-            this.$emit('change:textColor', color)
-        },
-        changeFeatureColor(color) {
-            this.$emit('change:color', color)
-        },
-        changeFeatureIcon(icon) {
-            this.$emit('change:icon', icon)
-        },
-        changeFeatureIconSize(size) {
-            this.$emit('change:iconSize', size)
+            const id = this.feature.id.replace('drawing_feature_', '')
+            this.deleteDrawingFeature(id)
         },
     },
 }

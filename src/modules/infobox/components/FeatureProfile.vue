@@ -65,6 +65,7 @@ import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
+import { mapActions } from 'vuex'
 
 export default {
     components: { ButtonWithIcon },
@@ -74,7 +75,6 @@ export default {
             required: true,
         },
     },
-    emits: ['delete'],
     data() {
         return {
             showTooltip: false,
@@ -187,8 +187,10 @@ export default {
         window.removeEventListener('resize', this.onResize)
     },
     methods: {
+        ...mapActions(['deleteDrawingFeature']),
         onDelete() {
-            this.$emit('delete')
+            const id = this.feature.id.replace('drawing_feature_', '')
+            this.deleteDrawingFeature(id)
         },
         onResize() {
             this.$nextTick(this.updateProfile)

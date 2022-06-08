@@ -48,6 +48,14 @@ export default {
          * @type {IconSet[]}
          */
         iconSets: [],
+        /**
+         * Feature IDs of all features that have been drawn.
+         *
+         * Removing an ID from the list will trigger a watcher that will delete the respective feature.
+         *
+         * @type {String[]}
+         */
+        featureIds: [],
     },
     getters: {
         getDrawingPublicFileUrl(state) {
@@ -75,10 +83,24 @@ export default {
                 commit('setIconSets', iconSets)
             }
         },
+        addDrawingFeature({ commit }, featureId) {
+            commit('addDrawingFeature', featureId)
+        },
+        deleteDrawingFeature({ commit, dispatch }, featureId) {
+            dispatch('clearAllSelectedFeatures')
+            commit('deleteDrawingFeature', featureId)
+        },
+        clearFeatureIds({ commit }) {
+            commit('clearFeatureIds')
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
         setIconSets: (state, iconSets) => (state.iconSets = iconSets),
+        addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
+        deleteDrawingFeature: (state, featureId) =>
+            (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
+        clearFeatureIds: (state) => (state.featureIds = []),
     },
 }

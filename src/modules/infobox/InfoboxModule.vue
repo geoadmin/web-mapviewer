@@ -28,29 +28,9 @@
             >
                 <FeatureProfile v-if="isProfile" :feature="selectedFeature" />
 
-                <FeatureCombo
-                    v-else-if="isCombo"
-                    :feature="selectedFeature"
-                    @change:title="onTitleChange"
-                    @change:description="onDescriptionChange"
-                    @change:text-size="onTextSizeChange"
-                    @change:text-color="onTextColorChange"
-                    @change:color="onColorChange"
-                    @change:icon="onIconChange"
-                    @change:icon-size="onIconSizeChange"
-                />
+                <FeatureCombo v-else-if="isCombo" :feature="selectedFeature" />
 
-                <FeatureEdit
-                    v-else-if="isEdit"
-                    :feature="selectedFeature"
-                    @change:title="onTitleChange"
-                    @change:description="onDescriptionChange"
-                    @change:text-size="onTextSizeChange"
-                    @change:text-color="onTextColorChange"
-                    @change:color="onColorChange"
-                    @change:icon="onIconChange"
-                    @change:icon-size="onIconSizeChange"
-                />
+                <FeatureEdit v-else-if="isEdit" :feature="selectedFeature" />
 
                 <FeatureList v-else-if="isList" />
             </div>
@@ -152,18 +132,7 @@ export default {
         })
     },
     methods: {
-        ...mapActions([
-            'clearAllSelectedFeatures',
-            'toggleFloatingTooltip',
-
-            'changeFeatureTitle',
-            'changeFeatureDescription',
-            'changeFeatureColor',
-            'changeFeatureTextSize',
-            'changeFeatureTextColor',
-            'changeFeatureIcon',
-            'changeFeatureIconSize',
-        ]),
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
 
         onToggleContent() {
             this.showContent = !this.showContent
@@ -198,28 +167,6 @@ export default {
             // We set max-height because setting the height would influence the
             // height of the children which in turn breaks this calculation.
             container.style.maxHeight = `${verticalPadding + childHeight}px`
-        },
-
-        onTitleChange(title) {
-            this.changeFeatureTitle({ feature: this.selectedFeature, title })
-        },
-        onDescriptionChange(description) {
-            this.changeFeatureDescription({ feature: this.selectedFeature, description })
-        },
-        onTextSizeChange(textSize) {
-            this.changeFeatureTextSize({ feature: this.selectedFeature, textSize })
-        },
-        onTextColorChange(textColor) {
-            this.changeFeatureTextColor({ feature: this.selectedFeature, textColor })
-        },
-        onColorChange(color) {
-            this.changeFeatureColor({ feature: this.selectedFeature, color })
-        },
-        onIconChange(icon) {
-            this.changeFeatureIcon({ feature: this.selectedFeature, icon })
-        },
-        onIconSizeChange(iconSize) {
-            this.changeFeatureIconSize({ feature: this.selectedFeature, iconSize })
         },
     },
 }

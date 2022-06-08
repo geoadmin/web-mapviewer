@@ -119,6 +119,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            featureIds: (state) => state.drawing.featureIds,
         }),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
@@ -161,6 +162,17 @@ export default {
                 this.getMap().addLayer(this.drawingLayer)
             } else {
                 this.getMap().removeLayer(this.drawingLayer)
+            }
+        },
+        featureIds(next, last) {
+            const removed = last.filter((id) => !next.includes(id))
+            if (removed.length > 0) {
+                const source = this.drawingLayer.getSource()
+                source
+                    .getFeatures()
+                    .filter((feature) => removed.includes(feature.getId()))
+                    .forEach((feature) => source.removeFeature(feature))
+                this.onChange()
             }
         },
     },
@@ -211,6 +223,8 @@ export default {
             'clearAllSelectedFeatures',
             'changeFeatureCoordinates',
             'changeFeatureIsDragged',
+            'addDrawingFeature',
+            'clearFeatureIds',
         ]),
         hideDrawingOverlay() {
             this.clearAllSelectedFeatures()
@@ -255,6 +269,8 @@ export default {
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
             this.onChange()
+
+            this.addDrawingFeature(feature.getId())
         },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDragged(feature) {
@@ -304,11 +320,13 @@ export default {
             } else {
                 metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
             }
+
             if (metadata) {
                 this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }
         },
         clearDrawing: function () {
+            this.clearFeatureIds()
             this.clearAllSelectedFeatures()
             this.$refs.selectInteraction.clearSelectedFeature()
             this.drawingLayer.getSource().clear()
