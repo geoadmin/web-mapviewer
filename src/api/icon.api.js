@@ -149,27 +149,23 @@ export class Icon {
  * @returns {Promise<IconSet[]>}
  */
 export async function loadAllIconSetsFromBackend() {
-    const rawSets = (
-        await axios.get(`${API_SERVICES_BASE_URL}icons/sets`, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Credentials': 'true',
-            },
-        })
-    ).data.items
     const sets = []
-    for (const rawSet of rawSets) {
-        const iconSet = new IconSet(
-            rawSet.name,
-            rawSet.colorable,
-            rawSet.icons_url,
-            rawSet.template_url
-        )
-        // retrieving all icons for this icon set
-        await loadIconsForIconSet(iconSet)
+    try {
+        const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
+        for (const rawSet of rawSets) {
+            const iconSet = new IconSet(
+                rawSet.name,
+                rawSet.colorable,
+                rawSet.icons_url,
+                rawSet.template_url
+            )
+            // retrieving all icons for this icon set
+            await loadIconsForIconSet(iconSet)
 
-        sets.push(iconSet)
+            sets.push(iconSet)
+        }
+    } catch (error) {
+        log.error(`Failed to retrieve icons sets: ${error}`)
     }
     return sets
 }
@@ -182,13 +178,7 @@ export async function loadAllIconSetsFromBackend() {
  */
 function loadIconsForIconSet(iconSet) {
     return axios
-        .get(iconSet.iconsURL, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Credentials': 'true',
-            },
-        })
+        .get(iconSet.iconsURL)
         .then((rawIcons) => {
             iconSet.icons = rawIcons.data.items.map(
                 (rawIcon) =>

@@ -1,8 +1,8 @@
 # web-mapviewer
 
-| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version                   |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | https://sys-map.dev.bgdi.ch/       |
+| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version             |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | https://sys-map.dev.bgdi.ch/ |
 | master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNml3WEJ4dGpETUExUGswQmxnOXdLczNNOFJUMG05dW9GUk5EYWEzL2Nmek1EbFAvYlpNS2FWRkxzTGtxaFpKeWJKallVTmIyOHhrTWZqRnlyUUU3Uk5RPSIsIml2UGFyYW1ldGVyU3BlYyI6IllNU05Qdi9zcUtMSzF4OGciLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | https://sys-map.int.bgdi.ch/ |
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
@@ -158,7 +158,7 @@ All script commands starting a webserver or using one (`serve` and all things re
 
 The CI uses this file to ensure it will not stumble upon a minor version of a library that breaks the app. So this file needs to be versioned, and kept up to date (each time a new library or version of a library is added to `package.json`, `npm install` will update `package-lock.json` accordingly).
 
-The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `pakcage-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
+The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `package-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
 
 ### What does the deploy script do?
 
