@@ -33,19 +33,19 @@
 </template>
 
 <script>
-import DrawingStyleSize, { drawingStyleSizes } from '@/modules/drawing/lib/drawingStyleSizes'
+import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 export default {
     props: {
         currentSize: {
-            type: DrawingStyleSize,
+            type: FeatureStyleSize,
             required: true,
         },
     },
     emits: ['change'],
     data() {
         return {
-            sizes: drawingStyleSizes,
+            sizes: allStylingSizes,
         }
     },
     computed: {

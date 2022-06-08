@@ -1,6 +1,7 @@
 <template>
     <div class="app-backdrop" :class="{ front }" data-cy="black-backdrop"></div>
 </template>
+
 <script>
 export default {
     props: {
@@ -11,8 +12,10 @@ export default {
     },
 }
 </script>
+
 <style lang="scss" scoped>
 @import 'src/scss/variables';
+
 .app-backdrop {
     position: absolute;
     top: 0;

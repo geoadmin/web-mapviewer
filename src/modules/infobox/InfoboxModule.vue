@@ -1,49 +1,247 @@
 <template>
-    <div>
-        <teleport v-if="readyForTeleport" to="#map-footer-middle">
-            <TooltipBox
-                v-if="tooltipInFooter && selectedFeatures.length > 0"
-                ref="tooltipBox"
-                :selected-features="selectedFeatures"
-                @toggle-tooltip-in-footer="toggleFloatingTooltip"
-                @close="clearSelectedFeatures"
+    <teleport v-if="readyForTeleport" to="#map-footer-middle">
+        <div v-show="showContainer" class="infobox card" data-cy="infobox" @contextmenu.stop>
+            <div
+                class="infobox-header card-header"
+                data-cy="infobox-header"
+                @click="onToggleContent"
             >
-                <HighlightedFeatureList :highlighted-features="selectedFeatures" />
-            </TooltipBox>
-        </teleport>
-    </div>
+                <ButtonWithIcon
+                    v-if="showFloatingToggle"
+                    :button-font-awesome-icon="['fa', 'caret-up']"
+                    data-cy="infobox-toggle-floating"
+                    @click.stop="onToggleFloating"
+                />
+                <ButtonWithIcon :button-font-awesome-icon="['fa', 'print']" @click.stop="onPrint" />
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fa', 'times']"
+                    data-cy="infobox-close"
+                    @click.stop="onClose"
+                />
+            </div>
+
+            <div
+                v-show="showContent"
+                ref="content"
+                class="infobox-content card-body"
+                data-cy="infobox-content"
+            >
+                <FeatureProfile v-if="isProfile" :feature="selectedFeature" />
+
+                <FeatureCombo
+                    v-else-if="isCombo"
+                    :feature="selectedFeature"
+                    @change:title="onTitleChange"
+                    @change:description="onDescriptionChange"
+                    @change:text-size="onTextSizeChange"
+                    @change:text-color="onTextColorChange"
+                    @change:color="onColorChange"
+                    @change:icon="onIconChange"
+                    @change:icon-size="onIconSizeChange"
+                />
+
+                <FeatureEdit
+                    v-else-if="isEdit"
+                    :feature="selectedFeature"
+                    @change:title="onTitleChange"
+                    @change:description="onDescriptionChange"
+                    @change:text-size="onTextSizeChange"
+                    @change:text-color="onTextColorChange"
+                    @change:color="onColorChange"
+                    @change:icon="onIconChange"
+                    @change:icon-size="onIconSizeChange"
+                />
+
+                <FeatureList v-else-if="isList" />
+            </div>
+        </div>
+    </teleport>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import TooltipBox from '@/modules/infobox/components/TooltipBox.vue'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+import FeatureCombo from './components/FeatureCombo.vue'
+import FeatureEdit from './components/FeatureEdit.vue'
+import FeatureList from './components/FeatureList.vue'
+import FeatureProfile from './components/FeatureProfile.vue'
+import { EditableFeatureTypes } from '@/api/features.api'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import promptUserToPrintHtmlContent from '@/utils/print'
 
 export default {
     components: {
-        TooltipBox,
-        HighlightedFeatureList,
+        ButtonWithIcon,
+        FeatureCombo,
+        FeatureEdit,
+        FeatureList,
+        FeatureProfile,
     },
     data() {
         return {
+            /** Allows infobox to be "minimized". */
+            showContent: true,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
         }
     },
     computed: {
         ...mapState({
-            selectedFeatures: (state) => state.feature.selectedFeatures,
-            tooltipInFooter: (state) => !state.ui.floatingTooltip,
+            selectedFeatures: (state) => state.features.selectedFeatures,
+            floatingTooltip: (state) => state.ui.floatingTooltip,
         }),
+
+        selectedFeature() {
+            return this.selectedFeatures[0]
+        },
+        isList() {
+            return !this.floatingTooltip && !this.isEdit && this.selectedFeatures.length > 0
+        },
+        isEdit() {
+            return !this.floatingTooltip && this.selectedFeature?.isEditable
+        },
+        isProfile() {
+            return (
+                this.selectedFeature &&
+                (this.selectedFeature.featureType === EditableFeatureTypes.MEASURE ||
+                    (this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON &&
+                        this.floatingTooltip))
+            )
+        },
+        isCombo() {
+            return (
+                this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+            )
+        },
+
+        showContainer() {
+            return this.isList || this.isEdit || this.isProfile || this.isCombo
+        },
+        showFloatingToggle() {
+            return (
+                this.isList ||
+                (this.isEdit && !this.isProfile) ||
+                (this.isCombo && !this.floatingTooltip)
+            )
+        },
+    },
+    watch: {
+        showContainer(visible) {
+            if (visible) {
+                this.$nextTick(this.setMaxHeight)
+            }
+        },
+        selectedFeatures(features) {
+            if (features.length === 0) {
+                return
+            }
+            this.showContent = true
+
+            this.$nextTick(() => {
+                // Update maxHeight when the features change while the box is open.
+                this.setMaxHeight()
+                // Reset the container's scroll when the content changes.
+                this.$refs.content.scrollTo(0, 0)
+            })
+        },
     },
     mounted() {
         // We can enable the teleport after the view has been rendered.
         this.$nextTick(() => {
             this.readyForTeleport = true
+            this.setMaxHeight()
         })
     },
     methods: {
-        ...mapActions(['clearSelectedFeatures', 'toggleFloatingTooltip']),
+        ...mapActions([
+            'clearAllSelectedFeatures',
+            'toggleFloatingTooltip',
+
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
+        ]),
+
+        onToggleContent() {
+            this.showContent = !this.showContent
+
+            if (this.showContent) {
+                this.$nextTick(this.setMaxHeight)
+            }
+        },
+        onToggleFloating() {
+            this.toggleFloatingTooltip()
+        },
+        onPrint() {
+            promptUserToPrintHtmlContent(this.$refs.content)
+        },
+        onClose() {
+            this.clearAllSelectedFeatures()
+        },
+
+        setMaxHeight() {
+            if (!this.showContainer) {
+                return
+            }
+
+            const container = this.$refs.content
+            const { paddingTop, paddingBottom } = getComputedStyle(container)
+            const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
+            const childHeight = Array.from(
+                container.querySelectorAll('[data-infobox="height-reference"]')
+            )
+                .map((child) => parseInt(child.offsetHeight))
+                .reduce((max, height) => Math.max(max, height), 0)
+            // We set max-height because setting the height would influence the
+            // height of the children which in turn breaks this calculation.
+            container.style.maxHeight = `${verticalPadding + childHeight}px`
+        },
+
+        onTitleChange(title) {
+            this.changeFeatureTitle({ feature: this.selectedFeature, title })
+        },
+        onDescriptionChange(description) {
+            this.changeFeatureDescription({ feature: this.selectedFeature, description })
+        },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.selectedFeature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.selectedFeature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.selectedFeature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.selectedFeature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.selectedFeature, iconSize })
+        },
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/variables';
+
+.infobox {
+    width: 100%;
+
+    &-header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    &-content {
+        // The real max-height will be set dynamically. (setMaxHeight)
+        max-height: 0;
+        overflow-y: auto;
+    }
+}
+</style>

@@ -1,12 +1,19 @@
-import { getAllIconSets } from '@/api/icon.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { getKmlUrl } from '@/api/files.api'
+import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 
-/** @enum */
-export const drawingModes = {
-    MARKER: 'MARKER',
-    TEXT: 'TEXT',
-    LINE: 'LINE',
-    MEASURE: 'MEASURE',
+/**
+ * Enumerate of all possible drawing modes for the viewer :
+ *
+ * - Marker
+ * - Annotation (text)
+ * - LinePolygon
+ * - Measure (profile)
+ *
+ * @enum
+ */
+export const DrawingModes = {
+    ...EditableFeatureTypes,
 }
 
 /**
@@ -24,9 +31,9 @@ export const drawingModes = {
 export default {
     state: {
         /**
-         * Current drawing mode (or `null` if there is none)
+         * Current drawing mode (or `null` if there is none). See {@link DrawingModes}
          *
-         * @type {drawingModes | null}
+         * @type {String | null}
          */
         mode: null,
         /**
@@ -55,7 +62,7 @@ export default {
     },
     actions: {
         setDrawingMode({ commit }, mode) {
-            if (mode in drawingModes || mode === null) {
+            if (mode in DrawingModes || mode === null) {
                 commit('setDrawingMode', mode)
             }
         },
@@ -63,7 +70,7 @@ export default {
             commit('setKmlIds', drawingKmlIds)
         },
         async loadAvailableIconSets({ commit }) {
-            const iconSets = await getAllIconSets()
+            const iconSets = await loadAllIconSetsFromBackend()
             if (iconSets?.length > 0) {
                 commit('setIconSets', iconSets)
             }

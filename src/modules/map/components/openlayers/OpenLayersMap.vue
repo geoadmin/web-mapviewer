@@ -40,9 +40,9 @@
         />
         <OpenLayersPopover
             v-if="showFeaturesPopover"
-            :coordinates="selectedFeatures[0].coordinate"
+            :coordinates="popoverCoordinates"
             authorize-print
-            @close="clearSelectedFeatures"
+            @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
                 <ButtonWithIcon
@@ -51,7 +51,18 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <HighlightedFeatureList :highlighted-features="selectedFeatures" />
+            <FeatureEdit
+                v-if="editFeature"
+                :feature="editFeature"
+                @change:title="onTitleChange"
+                @change:description="onDescriptionChange"
+                @change:text-size="onTextSizeChange"
+                @change:text-color="onTextColorChange"
+                @change:color="onColorChange"
+                @change:icon="onIconChange"
+                @change:icon-size="onIconSizeChange"
+            />
+            <FeatureList v-else direction="column" />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
@@ -70,29 +81,30 @@
 </template>
 
 <script>
-import 'ol/ol.css'
-
-import { mapState, mapGetters, mapActions } from 'vuex'
-import { Map, View } from 'ol'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
-import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { round } from '@/utils/numberUtils'
-import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
-import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
-import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
-import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
-import { Feature } from '@/api/features.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
-import HighlightedFeatureList from '@/modules/infobox/components/HighlightedFeatureList.vue'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
+import { Map, View } from 'ol'
+import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import 'ol/ol.css'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+
+import { mapActions, mapGetters, mapState } from 'vuex'
+import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
+import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
+import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -105,12 +117,13 @@ import log from '@/utils/logging'
 export default {
     components: {
         ButtonWithIcon,
-        HighlightedFeatureList,
-        OpenLayersPopover,
+        FeatureEdit,
+        FeatureList,
+        OpenLayersAccuracyCircle,
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
-        OpenLayersAccuracyCircle,
         OpenLayersMarker,
+        OpenLayersPopover,
     },
     provide() {
         return {
@@ -124,13 +137,14 @@ export default {
             markerStyles,
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
+            popoverCoordinates: [],
         }
     },
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
             center: (state) => state.position.center,
-            selectedFeatures: (state) => state.feature.selectedFeatures,
+            selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,
@@ -184,7 +198,19 @@ export default {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
         },
         showFeaturesPopover() {
-            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+            if (this.isFeatureTooltipInFooter || this.selectedFeatures.length === 0) {
+                return false
+            }
+            const [firstFeature] = this.selectedFeatures
+            return (
+                // We hide the popover whenever the feature is being dragged ...
+                !firstFeature.isDragged &&
+                // ... and we never show the measure feature in the popover.
+                firstFeature.featureType !== EditableFeatureTypes.MEASURE
+            )
+        },
+        editFeature() {
+            return this.selectedFeatures.find((feature) => feature.isEditable)
         },
     },
     // let's watch changes for center and zoom, and animate what has changed with a small easing
@@ -211,6 +237,19 @@ export default {
                     interaction.setActive(!newValue)
                 }
             })
+        },
+        selectedFeatures: {
+            // we need to deep watch this as otherwise we aren't triggered when
+            // coordinates are changed (but only when one feature is added/removed)
+            handler(newSelectedFeatures) {
+                if (newSelectedFeatures.length > 0) {
+                    const [firstFeature] = newSelectedFeatures
+                    this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
+                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                        : firstFeature.coordinates
+                }
+            },
+            deep: true,
         },
     },
     beforeCreate() {
@@ -267,7 +306,15 @@ export default {
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
             'toggleFloatingTooltip',
-            'clearSelectedFeatures',
+            'clearAllSelectedFeatures',
+
+            'changeFeatureTitle',
+            'changeFeatureDescription',
+            'changeFeatureColor',
+            'changeFeatureTextSize',
+            'changeFeatureTextColor',
+            'changeFeatureIcon',
+            'changeFeatureIconSize',
         ]),
         onMapPointerDown() {
             this.pointerDownStart = performance.now()
@@ -277,60 +324,57 @@ export default {
             this.pointerDownStart = null
         },
         onMapSingleClick(event) {
-            // No feature info while drawing.
-            if (this.isCurrentlyDrawing) {
-                return
-            }
-
-            const geoJsonFeatures = []
-            // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-            this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
-                // retrieving OpenLayers layer object for this layer
-                const olLayer = this.map
-                    .getLayers()
-                    .getArray()
-                    .find((layer) => layer.get('id') === geoJsonLayer.getID())
-                if (olLayer) {
-                    // looking at features for this specific layer under the mouse cursor
-                    this.map
-                        .getFeaturesAtPixel(event.pixel, {
-                            // filtering other layers out
-                            layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
-                        })
-                        .forEach((feature) => {
-                            const featureGeometry = feature.getGeometry()
-                            // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                            // we have to wrap it around the "usual" wrapper from the backend
-                            // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                            const geoJsonFeature = new Feature(
-                                geoJsonLayer,
-                                feature.get('id') || feature.getId(),
-                                `<div class="htmlpopup-container">
-                                    <div class="htmlpopup-header">
-                                        <span>${geoJsonLayer.name}</span>
-                                    </div>
-                                    <div class="htmlpopup-content">
-                                        ${feature.get('description')}
-                                    </div>
-                                </div>`,
-                                featureGeometry.flatCoordinates,
-                                featureGeometry.getExtent()
-                            )
-                            log.debug('GeoJSON feature found', geoJsonFeature)
-                            geoJsonFeatures.push(geoJsonFeature)
-                        })
-                }
-            })
-
-            // publishing click event into the store
-            this.click(
-                new ClickInfo(
-                    event.coordinate,
-                    this.lastClickTimeLength,
-                    event.pixel,
-                    geoJsonFeatures
+            // if no drawing is currently made
+            if (!this.isCurrentlyDrawing) {
+                const geoJsonFeatures = []
+                // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
+                this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
+                    // retrieving OpenLayers layer object for this layer
+                    const olLayer = this.map
+                        .getLayers()
+                        .getArray()
+                        .find((layer) => layer.get('id') === geoJsonLayer.getID())
+                    if (olLayer) {
+                        // looking at features for this specific layer under the mouse cursor
+                        this.map
+                            .getFeaturesAtPixel(event.pixel, {
+                                // filtering other layers out
+                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
+                            })
+                            .forEach((feature) => {
+                                const featureGeometry = feature.getGeometry()
+                                // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+                                // we have to wrap it around the "usual" wrapper from the backend
+                                // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+                                const geoJsonFeature = new LayerFeature(
+                                    geoJsonLayer,
+                                    feature.get('id') || feature.getId(),
+                                    `<div class="htmlpopup-container">
+                                        <div class="htmlpopup-header">
+                                            <span>${geoJsonLayer.name}</span>
+                                        </div>
+                                        <div class="htmlpopup-content">
+                                            ${feature.get('description')}
+                                        </div>
+                                    </div>`,
+                                    featureGeometry.flatCoordinates,
+                                    featureGeometry.getExtent()
+                                )
+                                log.debug('GeoJSON feature found', geoJsonFeature)
+                                geoJsonFeatures.push(geoJsonFeature)
+                            })
+                    }
+                })
+                // publishing click event into the store
+                this.click(
+                    new ClickInfo(
+                        event.coordinate,
+                        this.lastClickTimeLength,
+                        event.pixel,
+                        geoJsonFeatures
+                    )
                 )
-            )
+            }
         },
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
@@ -368,6 +412,28 @@ export default {
                 event.preventDefault()
                 return false
             }
+        },
+
+        onTitleChange(title) {
+            this.changeFeatureTitle({ feature: this.editFeature, title })
+        },
+        onDescriptionChange(description) {
+            this.changeFeatureDescription({ feature: this.editFeature, description })
+        },
+        onTextSizeChange(textSize) {
+            this.changeFeatureTextSize({ feature: this.editFeature, textSize })
+        },
+        onTextColorChange(textColor) {
+            this.changeFeatureTextColor({ feature: this.editFeature, textColor })
+        },
+        onColorChange(color) {
+            this.changeFeatureColor({ feature: this.editFeature, color })
+        },
+        onIconChange(icon) {
+            this.changeFeatureIcon({ feature: this.editFeature, icon })
+        },
+        onIconSizeChange(iconSize) {
+            this.changeFeatureIconSize({ feature: this.editFeature, iconSize })
         },
     },
 }

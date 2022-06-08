@@ -18,28 +18,32 @@ const generateKmlLayer = (kmlUrl, fileId, adminId) => {
  *
  * @param {Vuex.Store} store
  */
-const drawingLayerManagementPlugin = (store) => {
+export default function drawingLayerManagementPlugin(store) {
     store.subscribe((mutation, state) => {
+        if (state.ui.showDrawingOverlay) {
+            return
+        }
+
+        const fileId = state.drawing.drawingKmlIds?.fileId
+
         if (
+            fileId &&
             ['setKmlIds', 'setShowDrawingOverlay'].includes(mutation.type) &&
-            !state.ui.showDrawingOverlay &&
-            state.drawing.drawingKmlIds &&
-            state.drawing.drawingKmlIds.fileId
+            !state.layers.activeLayers.find((layer) => layer.fileId === fileId)
         ) {
             // if we have a KML layer and that the drawing menu is not open
             //(!state.ui.showDrawingOverlay), then we need to add the KML layer to the active
             //layers, otherwise the KML drawing manager is responsible to display the KML.
             const kmlLayer = generateKmlLayer(
                 store.getters.getDrawingPublicFileUrl,
-                state.drawing.drawingKmlIds.fileId,
+                fileId,
                 state.drawing.drawingKmlIds.adminId
             )
+
             store.dispatch('addLayer', kmlLayer)
         } else if (
+            fileId &&
             mutation.type === 'removeLayerWithId' &&
-            !state.ui.showDrawingOverlay &&
-            state.drawing.drawingKmlIds &&
-            state.drawing.drawingKmlIds.fileId &&
             !state.layers.activeLayers.find(
                 (layer) => layer.kmlFileUrl === store.getters.getDrawingPublicFileUrl
             )
@@ -49,11 +53,9 @@ const drawingLayerManagementPlugin = (store) => {
             // kml drawing manager, this way when opening the drawing menu again we
             // start with a new empty KML.
             store.dispatch('setKmlIds', null)
-        } else if (mutation.type === 'clearLayers' && !state.ui.showDrawingOverlay) {
+        } else if (mutation.type === 'clearLayers') {
             // Same as for 'removeLayerWithId' mutation, see comment above
             store.dispatch('setKmlIds', null)
         }
     })
 }
-
-export default drawingLayerManagementPlugin

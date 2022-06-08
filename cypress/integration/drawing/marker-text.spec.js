@@ -1,13 +1,9 @@
 /// <reference types="cypress" />
 
-import { SMALL, MEDIUM, LARGE } from '@/modules/drawing/lib/drawingStyleSizes'
-import { RED, GREEN, BLACK } from '@/modules/drawing/lib/drawingStyleColor'
-import { BREAKPOINT_PHONE_WIDTH, MAP_CENTER } from '@/config'
+import { EditableFeatureTypes } from '@/api/features.api'
+import { MAP_CENTER } from '@/config'
+import { BLACK, GREEN, RED, LARGE, MEDIUM, SMALL } from '@/utils/featureStyleUtils'
 
-const drawingStyleTitle = '[data-cy="drawing-style-feature-title"]'
-const drawingStyleDescription = '[data-cy="drawing-style-feature-description"]'
-
-const drawingStyleMarkerButton = '[data-cy="drawing-style-marker-button"]'
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
 // const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
 const drawingStyleMarkerIconSetSelector = '[data-cy="drawing-style-icon-set-button"]'
@@ -37,10 +33,10 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
-    createAPoint('marker', 0, -200, MAP_CENTER[0], 6156527.960512564)
+    createAPoint(EditableFeatureTypes.MARKER, 0, -200, MAP_CENTER[0], 6156527.960512564)
     cy.wait('@iconSets')
     cy.wait('@iconSet-default')
-    cy.get(drawingStyleMarkerButton).click()
+    cy.get('[data-cy="drawing-style-marker-button"]').click()
 }
 
 /** @param {DrawingStyleColor} color */
@@ -48,15 +44,23 @@ const clickOnAColor = (color) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
     ).click()
-    cy.checkDrawnGeoJsonProperty('icon', `-${color.rgbString}.png`, true)
+    cy.checkDrawnGeoJsonProperty('iconUrl', `-${color.rgbString}.png`, true)
 }
 
 /** @param {DrawingStyleSize} size */
 const changeIconSize = (size) => {
-    cy.get(`${drawingStyleMarkerPopup} ${drawingStyleSizeSelector}`).click()
+    cy.get(`${drawingStyleMarkerPopup} ${drawingStyleSizeSelector}`).click({ force: true })
     cy.get(
         `${drawingStyleMarkerPopup} [data-cy="drawing-style-size-selector-${size.label}"]`
     ).click()
+}
+
+const checkIconInKml = (expectedIconUrl) => {
+    cy.wait('@update-kml').then((interception) => {
+        cy.checkKMLRequest(interception, [
+            new RegExp(`<Data name="iconUrl">.+?${expectedIconUrl}.+?<\\/Data>`),
+        ])
+    })
 }
 
 describe('Drawing marker/points', () => {
@@ -78,7 +82,7 @@ describe('Drawing marker/points', () => {
             cy.get(drawingStyleMarkerPopup).should('be.visible')
         })
         it('can move a marker by drag&dropping', () => {
-            createAPoint('marker')
+            createAPoint(EditableFeatureTypes.MARKER)
             // Move it, the geojson geometry should move
             cy.readWindowValue('map').then((map) => {
                 cy.simulateEvent(map, 'pointerdown', 0, 0)
@@ -93,26 +97,18 @@ describe('Drawing marker/points', () => {
             })
         })
         it('changes the title of a marker', () => {
-            createAPoint('marker')
-            cy.get(drawingStyleTitle).type('This is a title')
+            createAPoint(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
             cy.checkDrawnGeoJsonProperty('text', 'This is a title')
         })
         it('changes the description of a marker', () => {
-            createAPoint('marker')
-            cy.get(drawingStyleDescription).type('This is a description')
+            createAPoint(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="drawing-style-feature-description"]').type('This is a description')
             cy.checkDrawnGeoJsonProperty('description', 'This is a description')
         })
     })
 
     context('marker styling popup', () => {
-        const checkIconInKml = (expectedIconUrl) => {
-            cy.wait('@update-kml').then((interception) => {
-                cy.checkKMLRequest(interception, [
-                    new RegExp(`<Data name="icon">.+?${expectedIconUrl}.+?<\\/Data>`),
-                ])
-            })
-        }
-
         context('color change', () => {
             beforeEach(() => {
                 cy.intercept(`**/v4/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
@@ -133,12 +129,13 @@ describe('Drawing marker/points', () => {
 
         context('size change', () => {
             beforeEach(() => {
+                const fixture = 'service-icons/placeholder.png'
                 cy.intercept(`**/icons/**@${LARGE.iconScale}x-${RED.rgbString}.png`, {
-                    fixture: 'service-icons/placeholder.png',
+                    fixture,
                 }).as('large-icon')
 
                 cy.intercept(`**/icons/**@${SMALL.iconScale}x-${RED.rgbString}.png`, {
-                    fixture: 'service-icons/placeholder.png',
+                    fixture,
                 }).as('small-icon')
             })
             it('uses medium as its default size', () => {
@@ -218,41 +215,39 @@ describe('Drawing marker/points', () => {
         })
     })
 
-    const width = Cypress.config('viewportWidth')
-    // TODO : fix text styling for mobile
-    if (width > BREAKPOINT_PHONE_WIDTH) {
-        context('text styling popup', () => {
-            it('creates a text', () => {
-                createAPoint('text', 0, -200, MAP_CENTER[0], 6156527.960512564)
-            })
-            ;['marker', 'text'].forEach((drawingMode) => {
-                it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
-                    createAPoint(drawingMode, 0, -200, MAP_CENTER[0], 6156527.960512564)
+    context('text styling popup', () => {
+        it('creates a text', () => {
+            createAPoint(EditableFeatureTypes.ANNOTATION, 0, -200, MAP_CENTER[0], 6156527.960512564)
+        })
+        ;[EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION].forEach((drawingMode) => {
+            it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
+                createAPoint(drawingMode, 0, -200, MAP_CENTER[0], 6156527.960512564)
 
-                    // Opening text popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('be.visible')
+                // Opening text popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('be.visible')
 
-                    cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click()
-                    cy.get(
-                        `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
-                    ).click()
-                    cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
-
-                    cy.get(
-                        `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
-                    ).click()
-                    cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
-
-                    // Closing the popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('not.exist')
-
-                    // Opening again the popup
-                    cy.get(drawingStyleTextButton).click()
-                    cy.get(drawingStyleTextPopup).should('be.visible')
+                cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click({
+                    force: true,
                 })
+                cy.get(
+                    `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
+                ).click({ force: true })
+                cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
+
+                cy.get(
+                    `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
+                ).click({ force: true })
+                cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
+
+                // Closing the popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('not.exist')
+
+                // Opening again the popup
+                cy.get(drawingStyleTextButton).click()
+                cy.get(drawingStyleTextPopup).should('be.visible')
             })
         })
-    }
+    })
 })

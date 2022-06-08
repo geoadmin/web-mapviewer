@@ -13,7 +13,7 @@ import { LineString } from 'ol/geom'
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4()
 
-describe('Unit test functions from drawingUtils.js', () => {
+describe('Unit test functions from featureStyleUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {
         it('reprojects points from EPSG:4326', () => {
             expect(toLv95([6.57268, 46.51333], 'EPSG:4326')).to.eql([

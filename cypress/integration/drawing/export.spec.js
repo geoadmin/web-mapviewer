@@ -1,25 +1,20 @@
+/// <reference types="cypress" />
+
+import { EditableFeatureTypes } from '@/api/features.api'
 import { recurse } from 'cypress-recurse'
+import { Point, Polygon } from 'ol/geom'
 
 const downloadsFolder = Cypress.config('downloadsFolder')
 
-/// <reference types="cypress" />
-
-const quickExportButton = '[data-cy="drawing-toolbox-quick-export-button"]'
-const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format-button"]'
-const exportKmlButton = '[data-cy="drawing-toolbox-export-kml-button"]'
-const exportGpxButton = '[data-cy="drawing-toolbox-export-gpx-button"]'
-
-const isNonEmptyString = (x) => {
-    return Boolean(x && x.length)
+const isNonEmptyArray = (value) => {
+    return Array.isArray(value) && value.length > 0
 }
 
 const checkFiles = (extension, callback) => {
     recurse(
-        () => cy.task('findFiles', { folderName: downloadsFolder, extension: extension }),
-        isNonEmptyString,
-        {
-            delay: 100,
-        }
+        () => cy.task('findFiles', { folderName: downloadsFolder, extension }),
+        isNonEmptyArray,
+        { delay: 100 }
     ).then((files) => {
         const fileName = `${downloadsFolder}/${files[files.length - 1]}`
         expect(fileName).to.contains(`map.geo.admin.ch_${extension.toUpperCase()}_`)
@@ -28,39 +23,41 @@ const checkFiles = (extension, callback) => {
 }
 
 const checkKmlFile = (content) => {
-    ;['measure', 'marker', 'text', 'line'].forEach((type) => {
+    Object.values(EditableFeatureTypes).forEach((type) => {
         expect(content).to.contains(`<value>${type}</value>`)
     })
     expect(content).to.contains('<value>new text</value>')
     expect(content).to.contains('/icons/001-marker@1x-255,0,0.png')
 }
 const checkGpxFile = (content) => {
-    ;['MEASURE', 'MARKER', 'TEXT', 'LINE'].forEach((type) => {
+    ;['Polygon', 'Point'].forEach((type) => {
         expect(content).to.contains(`<type>${type}</type>`)
     })
 }
 
 describe('Drawing toolbox actions', () => {
     beforeEach(() => {
-        cy.task('deleteFolder', downloadsFolder)
         cy.goToDrawing()
         cy.drawGeoms()
     })
+    afterEach(() => {
+        cy.task('clearFolder', downloadsFolder)
+    })
     context('Export KML', () => {
         it('exports KML when clicking on the export button (without choosing format)', () => {
-            cy.get(quickExportButton).click()
+            cy.get('[data-cy="drawing-toolbox-quick-export-button"]').click()
             checkFiles('kml', checkKmlFile)
         })
         it('exports KML file through the "choose format" export menu', () => {
-            cy.get(chooseExportFormatButton).click()
-            cy.get(exportKmlButton).click()
+            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-kml-button"]').click()
             checkFiles('kml', checkKmlFile)
         })
     })
     context('Export GPX', () => {
         it('exports GPX file through the "choose format" export menu', () => {
-            cy.get(chooseExportFormatButton).click()
-            cy.get(exportGpxButton).click()
+            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-gpx-button"]').click()
             checkFiles('gpx', checkGpxFile)
         })
     })

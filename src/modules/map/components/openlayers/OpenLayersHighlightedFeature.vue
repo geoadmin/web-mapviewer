@@ -1,21 +1,22 @@
 <template>
     <div>
         <OpenLayersMarker
-            v-if="!doesFeatureHaveAGeometry"
-            :position="feature.coordinate"
+            v-if="!doesFeatureHaveAGeometry && !feature.isEditable"
+            :position="feature.lastCoordinate"
             :marker-style="markerStyles.FEATURE"
             :z-index="zIndex"
         />
         <slot />
     </div>
 </template>
+
 <script>
 import VectorLayer from 'ol/layer/Vector'
 import { Vector as VectorSource } from 'ol/source'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import Style from 'ol/style/Style'
-import { LayerFeature } from '@/api/features.api'
+import { Feature } from '@/api/features.api'
 import OpenLayersMarker, {
     highlightedFill,
     highlightedStroke,
@@ -54,7 +55,7 @@ export default {
     mixins: [addLayerToMapMixin],
     props: {
         feature: {
-            type: LayerFeature,
+            type: Feature,
             required: true,
         },
         zIndex: {

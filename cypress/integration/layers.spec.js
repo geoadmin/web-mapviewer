@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET } from '@/config'
-import { randomIntBetween } from '@/utils/numberUtils'
+import { BREAKPOINT_TABLET } from "@/config";
+import { randomIntBetween } from "@/utils/numberUtils";
 
 /**
  * Returns a timestamp from the layer's config that is different from the default behaviour

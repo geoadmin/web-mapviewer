@@ -3,12 +3,13 @@
         <slot />
     </div>
 </template>
+
 <script>
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { featureStyle } from '@/modules/drawing/lib/style'
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { deserializeAnchor } from '@/utils/featureAnchor'
 
 /** Renders a KML file on the map */
@@ -57,7 +58,7 @@ export default {
             // The following deserialization is a hack. See @module comment in file.
             deserializeAnchor(f)
             f.set('type', f.get('type').toUpperCase())
-            f.setStyle((feature) => featureStyle(feature))
+            f.setStyle((feature) => featureStyleFunction(feature))
         })
     },
 }

@@ -14,16 +14,16 @@
 </template>
 
 <script>
-import { drawingModes } from '@/store/modules/drawing.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { DrawingModes } from '@/store/modules/drawing.store'
 import { UIModes } from '@/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 export default {
     components: { ButtonWithIcon },
     props: {
         drawingMode: {
             type: String,
-            default: drawingModes.LINE,
+            default: DrawingModes.LINEPOLYGON,
         },
         isActive: {
             type: Boolean,
@@ -38,13 +38,13 @@ export default {
     computed: {
         buttonIcon() {
             switch (this.drawingMode) {
-                case drawingModes.LINE:
+                case DrawingModes.LINEPOLYGON:
                     return ['fa', 'draw-polygon']
-                case drawingModes.MARKER:
+                case DrawingModes.MARKER:
                     return ['fa', 'map-marker-alt']
-                case drawingModes.MEASURE:
+                case DrawingModes.MEASURE:
                     return ['fa', 'ruler']
-                case drawingModes.TEXT:
+                case DrawingModes.ANNOTATION:
                     return ['fa', 't']
             }
             return null

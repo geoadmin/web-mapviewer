@@ -76,7 +76,7 @@ export default {
          *
          * @type Boolean
          */
-        floatingTooltip: true,
+        floatingTooltip: window.innerWidth > BREAKPOINT_TABLET,
         /**
          * Flag telling if the menu in desktop mode (MENU_ALWAYS_OPEN) is open.
          *

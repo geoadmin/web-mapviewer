@@ -25,11 +25,10 @@
 </template>
 
 <script>
-import Overlay from 'ol/Overlay'
-import OverlayPositioning from 'ol/OverlayPositioning'
-
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import Overlay from 'ol/Overlay'
+import OverlayPositioning from 'ol/OverlayPositioning'
 
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
@@ -56,8 +55,6 @@ export default {
     watch: {
         coordinates(newCoordinates) {
             this.overlay.setPosition(newCoordinates)
-            // Reset the container's scroll when the content changes.
-            this.$refs.mapPopoverContent.scrollTo(0, 0)
         },
     },
     beforeCreate() {
@@ -65,6 +62,7 @@ export default {
             offset: [0, 15],
             positioning: OverlayPositioning.TOP_CENTER,
             className: 'map-popover-overlay',
+            autoPan: { margin: 0 },
         })
     },
     mounted() {
@@ -88,10 +86,11 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+
 .map-popover {
     .card-body {
-        width: 100%;
-        max-width: $overlay-width;
+        width: $overlay-width;
+        max-width: 100%;
         max-height: 350px;
         overflow-y: auto;
         display: flex;

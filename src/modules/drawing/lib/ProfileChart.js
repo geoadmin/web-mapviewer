@@ -22,6 +22,8 @@ export default class ProfileChart {
         this.elevationModel = this.options.elevationModel || 'COMB'
         this.width = this.options.width - this.marginHoriz
         this.height = this.options.height - this.marginVert
+        this.sourceFontMargin = 5
+        this.sourceFontSize = this.options.margin.top - this.sourceFontMargin
     }
 
     findMapCoordinates(searchDist) {
@@ -40,11 +42,10 @@ export default class ProfileChart {
             const maxX = data[data.length - 1].dist
             const denom = maxX >= 10000 ? 1000 : 1
             this.unitX = maxX >= 10000 ? ' km' : ' m'
-            data.map((val) => {
-                coords.push([val.easting, val.northing])
-                val.domainDist = val.dist / denom
-                val.alts[this.elevationModel] = val.alts[this.elevationModel] || 0
-                return val
+            data.forEach((datum) => {
+                coords.push([datum.easting, datum.northing])
+                datum.domainDist = datum.dist / denom
+                datum.alts[this.elevationModel] = datum.alts[this.elevationModel] || 0
             })
             this.lineString = new LineString(coords)
         }
@@ -99,21 +100,20 @@ export default class ProfileChart {
 
     // Highest & lowest elevation points
     getElevationPoints() {
-        if (this.data.length) {
-            const elArray = []
-            for (let i = 0; i < this.data.length; i++) {
-                elArray.push(this.data[i].alts[this.elevationModel])
-            }
-            const highPoi = d3.max(elArray) || 0
-            const lowPoi = d3.min(elArray) || 0
-            return [highPoi, lowPoi]
+        if (this.data.length > 0) {
+            const elevations = this.data.map((datum) => {
+                return datum.alts[this.elevationModel]
+            })
+            const highestPoint = d3.max(elevations) || 0
+            const lowestPoint = d3.min(elevations) || 0
+            return [highestPoint, lowestPoint]
         }
         return [0, 0]
     }
 
     // Distance
     getDistance() {
-        if (this.data.length) {
+        if (this.data.length > 0) {
             return this.data[this.data.length - 1].dist
         }
     }
@@ -131,7 +131,7 @@ export default class ProfileChart {
             0.028588, -0.00057466, -0.0021842, 1.5176e-5, 8.6894e-5, -1.3584e-7, -1.4026e-6,
         ]
 
-        if (this.data.length) {
+        if (this.data.length > 0) {
             for (let i = 1; i < this.data.length; i++) {
                 const data = this.data[i]
                 const dataBefore = this.data[i - 1]
@@ -149,20 +149,20 @@ export default class ProfileChart {
 
                 // Slope value between the 2 points
                 // 10ths (schweizmobil formula) instead of % (official formula)
-                const s = (elevDiff * 10.0) / distance
+                const slope = (elevDiff * 10.0) / distance
 
                 // The swiss hiking formula is used between -25% and +25%
                 // but schweiz mobil use -40% and +40%
                 let minutesPerKilometer = 0
-                if (s > -4 && s < 4) {
+                if (slope > -4 && slope < 4) {
                     for (let j = 0; j < arrConstants.length; j++) {
-                        minutesPerKilometer += arrConstants[j] * Math.pow(s, j)
+                        minutesPerKilometer += arrConstants[j] * Math.pow(slope, j)
                     }
                     // outside the -40% to +40% range, we use a linear formula
-                } else if (s > 0) {
-                    minutesPerKilometer = 17 * s
+                } else if (slope > 0) {
+                    minutesPerKilometer = 17 * slope
                 } else {
-                    minutesPerKilometer = -9 * s
+                    minutesPerKilometer = -9 * slope
                 }
                 wayTime += (distance * minutesPerKilometer) / 1000
             }
@@ -184,7 +184,7 @@ export default class ProfileChart {
             .attr('height', this.height + this.marginVert)
             .attr('class', 'profile-svg')
 
-        const group = this.svg
+        this.group = this.svg
             .append('g')
             .attr('class', 'profile-group')
             .attr(
@@ -194,13 +194,13 @@ export default class ProfileChart {
 
         const area = createArea(this.domain, this.height, this.elevationModel)
 
-        group
+        this.group
             .append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0, ' + this.height + ')')
             .call(axis.X)
 
-        group
+        this.group
             .append('g')
             .attr('class', 'y axis')
             .call(axis.Y)
@@ -210,36 +210,44 @@ export default class ProfileChart {
             .attr('dy', '.71em')
             .style('text-anchor', 'end')
 
-        group
+        this.group
             .append('g')
             .attr('class', 'profile-grid-x')
             .attr('transform', 'translate(0, ' + this.height + ')')
             .call(axis.X.tickSize(-this.height, 0, 0).tickFormat(''))
 
-        group
+        this.group
             .append('g')
             .attr('class', 'profile-grid-y')
             .call(axis.Y.tickSize(-this.width, 0, 0).tickFormat(''))
 
-        group
-            .append('path')
-            .datum(this.data)
-            .attr('class', 'profile-area')
-            .attr('d', area)
-            .attr('data-cy', 'profile-popup-area')
+        this.group.append('path').datum(this.data).attr('class', 'profile-area').attr('d', area)
 
-        this.group = group
-
-        group
+        this.profileSourceText = this.group
             .append('text')
-            .attr('class', 'profile-legend')
-            .attr('x', this.width - 118)
-            .attr('y', 11)
-            .attr('width', 100)
-            .attr('height', 30)
-            .text('swissALTI3D/DHM25')
+            .attr('class', 'profile-source-link')
+            .attr('text-anchor', 'end')
+            .attr('x', this.width)
+            .attr('y', -this.sourceFontMargin)
+            .attr('font-size', this.sourceFontSize)
 
-        group
+        this.profileSourceText
+            .append('a')
+            .attr('href', this.options.sourceLinks[0].url)
+            .attr('target', '_blank')
+            .append('tspan')
+            .text(this.options.sourceLinks[0].label)
+
+        this.profileSourceText.append('tspan').text(' / ')
+
+        this.profileSourceText
+            .append('a')
+            .attr('href', this.options.sourceLinks[1].url)
+            .attr('target', '_blank')
+            .append('tspan')
+            .text(this.options.sourceLinks[1].label)
+
+        this.group
             .append('text')
             .attr('class', 'profile-label ga-profile-label-x')
             .attr('x', this.width / 2)
@@ -247,7 +255,7 @@ export default class ProfileChart {
             .style('text-anchor', 'middle')
             .attr('font-size', '0.95em')
 
-        group
+        this.group
             .append('text')
             .attr('class', 'profile-label ga-profile-label-y')
             .attr('transform', 'rotate(-90)')
@@ -255,6 +263,16 @@ export default class ProfileChart {
             .attr('x', 0 - this.height / 2 - 30)
             .attr('dy', '1em')
             .attr('font-size', '0.95em')
+
+        this.glass = this.group
+            .append('rect')
+            .attr('class', 'profile-glass')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.width)
+            .attr('height', this.height)
+            .style('opacity', 0)
+            .attr('data-cy', 'profile-popup-area')
 
         this.updateLabels()
     }
@@ -298,12 +316,11 @@ export default class ProfileChart {
                 .attr('y', this.height + this.options.margin.bottom - 5)
                 .style('text-anchor', 'middle')
             this.group
-                .select('text.profile-legend')
+                .select('text.profile-source-link')
                 .transition()
                 .duration(transitionTime)
-                .attr('x', this.width - 118)
-                .attr('y', 11)
-                .text('swissALTI3D/DHM25')
+                .attr('x', this.width)
+                .attr('y', -this.sourceFontMargin)
         }
         if (data) {
             this.data = this.formatData(data)

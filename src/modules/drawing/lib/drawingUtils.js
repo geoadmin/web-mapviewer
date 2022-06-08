@@ -1,4 +1,4 @@
-import { LineString, Polygon } from 'ol/geom'
+import { Point, LineString, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { format } from '@/utils/numberUtils'
 
@@ -31,10 +31,10 @@ export function geometryInfo(type, coordinates, epsg) {
     const output = {
         type,
     }
-    if (type === 'Point') {
+    if (type === Point) {
         output.location = formatPointCoordinates(coos95)
     } else {
-        if (type === 'Polygon') {
+        if (type === Polygon) {
             const poly = new Polygon(coos95)
             output.area = formatMeters(poly.getArea(), { dim: 2 })
             const line = new LineString(coos95[0])
@@ -135,4 +135,65 @@ export function getMeasureDelta(length) {
         delta = 1000 / length
     }
     return delta
+}
+
+export function extractOpenLayersFeatureCoordinates(feature) {
+    let coordinates = feature.getGeometry().getCoordinates()
+    if (feature.getGeometry().getType() === Polygon) {
+        // in case of a polygon, the coordinates structure is
+        // [
+        //   [ (poly1)
+        //      [coord1],[coord2]
+        //   ],
+        //   [ (poly2) ...
+        // ]
+        // so as we will not have multipoly, we only keep what's defined as poly one
+        // (we remove the wrapping array that would enable us to have a second polygon)
+        coordinates = coordinates[0]
+    }
+    return coordinates
+}
+
+/**
+ * Checks if point is at target within tolerance.
+ *
+ * @param {Number[]} point The point in question.
+ * @param {Number[]} target The target to check against.
+ * @param {Number} [tolerance=0] Distance from target that still counts. Default is `0`
+ * @returns {Boolean} If the point is close enough to the target.
+ */
+export function pointWithinTolerance(point, target, tolerance = 0) {
+    if (!point || !target) {
+        return false
+    }
+
+    return (
+        point[0] >= target[0] - tolerance &&
+        point[0] <= target[0] + tolerance &&
+        point[1] >= target[1] - tolerance &&
+        point[1] <= target[1] + tolerance
+    )
+}
+
+/**
+ * Extracts and normalizes coordinates from LineStrings and Polygons.
+ *
+ * @param {ol.Feature} feature The feature to extract from.
+ * @returns {Number[][]} An array of coordinates.
+ */
+export function getVertexCoordinates(feature) {
+    let normalized = []
+    const geometry = feature?.getGeometry()
+
+    if (geometry) {
+        const coordinates = geometry.getCoordinates()
+
+        if (geometry instanceof LineString) {
+            normalized = coordinates
+        } else if (geometry instanceof Polygon) {
+            normalized = coordinates[0]
+        }
+    }
+
+    return normalized
 }

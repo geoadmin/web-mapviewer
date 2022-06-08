@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { EditableFeatureTypes } from '@/api/features.api'
+
 const olSelector = '.ol-viewport'
 
 const drawingStyleLineButton = '[data-cy="drawing-style-line-button"]'
@@ -9,7 +11,7 @@ const drawingDeleteLastPointButton = '[data-cy="drawing-delete-last-point-button
 describe('Line/Polygon tool', () => {
     beforeEach(() => {
         cy.goToDrawing()
-        cy.clickDrawingTool('line')
+        cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
         cy.get(olSelector).click(100, 200)
         cy.get(olSelector).click(150, 200)
     })
@@ -20,7 +22,7 @@ describe('Line/Polygon tool', () => {
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(
                 interception,
-                ['line', '<Data name="color"><value>#ff0000</value>'],
+                [EditableFeatureTypes.LINEPOLYGON, '<Data name="color"><value>#ff0000</value>'],
                 true
             )
         )
@@ -32,7 +34,7 @@ describe('Line/Polygon tool', () => {
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(
                 interception,
-                ['line', '<Data name="color"><value>#ff0000</value>'],
+                [EditableFeatureTypes.LINEPOLYGON, '<Data name="color"><value>#ff0000</value>'],
                 true
             )
         )
@@ -48,12 +50,7 @@ describe('Line/Polygon tool', () => {
         )
     })
     it('creates a line with double click', () => {
-        cy.get(olSelector).dblclick(120, 240)
-        cy.readDrawingFeatures('LineString', (features) => {
-            const coos = features[0].getGeometry().getCoordinates()
-            expect(coos.length).to.equal(3)
-        })
-        cy.get(olSelector).click(200, 300) // do nothing, already finished
+        cy.get(olSelector).dblclick(120, 240, { force: true })
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
             expect(coos.length).to.equal(3)

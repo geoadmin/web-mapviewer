@@ -3,6 +3,7 @@
         <slot />
     </div>
 </template>
+
 <script>
 import { Circle as CircleStyle, Fill, Icon as IconStyle, Stroke, Style } from 'ol/style'
 import { Vector as VectorLayer } from 'ol/layer'
@@ -86,6 +87,7 @@ export default {
                             }),
                         }),
                     })
+
                 case markerStyles.BALLOON:
                     return new Style({
                         image: new IconStyle({
@@ -93,6 +95,7 @@ export default {
                             src: require('@/modules/map/assets/marker.png'),
                         }),
                     })
+
                 case markerStyles.BOWL:
                 case markerStyles.CIRCLE:
                 case markerStyles.CROSS:
@@ -105,8 +108,10 @@ export default {
                             src: require(`@/modules/map/assets/${this.markerStyle}.png`),
                         }),
                     })
+
                 case markerStyles.FEATURE:
                     return highlightPointStyle
+
                 case markerStyles.HIDDEN:
                 default:
                     return new Style({

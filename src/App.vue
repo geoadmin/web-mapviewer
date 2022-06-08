@@ -56,12 +56,14 @@ export default {
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'node_modules/bootstrap/scss/bootstrap';
+
 #main-component {
     font-family: $frutiger;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: $coal;
 }
+
 :focus {
     outline-style: none;
     .outlines & {
