@@ -48,6 +48,12 @@ export default {
          * @type {IconSet[]}
          */
         iconSets: [],
+        /**
+         * List of feature IDs being currently drawn
+         *
+         * @type {String[]}
+         */
+        featureIds: [],
     },
     getters: {
         getDrawingPublicFileUrl(state) {
@@ -75,10 +81,20 @@ export default {
                 commit('setIconSets', iconSets)
             }
         },
+        addDrawingFeature({ commit }, featureId) {
+            commit('addDrawingFeature', featureId)
+        },
+        deleteDrawingFeature({ commit, dispatch }, featureId) {
+            dispatch('clearAllSelectedFeatures')
+            commit('deleteDrawingFeature', featureId)
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
         setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
         setIconSets: (state, iconSets) => (state.iconSets = iconSets),
+        addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
+        deleteDrawingFeature: (state, featureId) =>
+            (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
     },
 }

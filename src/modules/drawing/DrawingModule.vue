@@ -40,6 +40,7 @@
             :available-icon-sets="availableIconSets"
             @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
+            @feature-add="onAddFeature"
         />
         <DrawingTextInteraction
             v-if="show && isDrawingModeAnnotation"
@@ -119,6 +120,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            featureIds: (state) => state.drawing.featureIds,
         }),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
@@ -161,6 +163,16 @@ export default {
                 this.getMap().addLayer(this.drawingLayer)
             } else {
                 this.getMap().removeLayer(this.drawingLayer)
+            }
+        },
+        featureIds(next, last) {
+            const removed = last.filter((id) => !next.includes(id))
+            if (removed.length > 0) {
+                const source = this.drawingLayer.getSource()
+                source
+                    .getFeatures()
+                    .filter((feature) => removed.includes(feature.getId()))
+                    .forEach((feature) => source.removeFeature(feature))
             }
         },
     },
@@ -211,6 +223,7 @@ export default {
             'clearAllSelectedFeatures',
             'changeFeatureCoordinates',
             'changeFeatureIsDragged',
+            'addDrawingFeature',
         ]),
         hideDrawingOverlay() {
             this.clearAllSelectedFeatures()
@@ -255,6 +268,9 @@ export default {
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
             this.onChange()
+        },
+        onAddFeature(featureId) {
+            this.addDrawingFeature(featureId)
         },
         /** See {@link DrawingModifyInteraction} events */
         onFeatureIsDragged(feature) {
@@ -304,6 +320,7 @@ export default {
             } else {
                 metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
             }
+
             if (metadata) {
                 this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
             }
