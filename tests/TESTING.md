@@ -2,15 +2,17 @@
 
 ## Unit testing
 
-This projected uses [@vue/cli-plugin-unit-mocha](https://cli.vuejs.org/core-plugins/unit-mocha.html) (it is preferred to use Mocha instead of Jest, because Cypress also uses mocha, the syntax will then be consistent throughout the project). All things related to unit testing are in the folder `/tests/unit/`.
+This project uses [vitest](https://vitest.dev/) which is the default used by Vue3. Unit tests files are directly
+located next to the source code that is tested. By definition we put all unit testings files in a subdirectory
+name `__tests__`. Vitest search for test files using the following pattern: `src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`.
 
 To run unit tests, execute `npm run test:unit`.
 
 ## E2E testing
 
-This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/e2e/`.
+This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/e2e-cypress/`.
 
-There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:headless`.
+There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:e2e:ci`.
 
 ### Using cypress on a Windows machine
 
@@ -32,11 +34,6 @@ It is possible to use VSCode like [this one](https://code.visualstudio.com/docs/
 
 Follow the [Cypress install guide](https://docs.cypress.io/guides/getting-started/installing-cypress.html#System-requirements)
 
-### Folder structure
-
-We leverage the [Vue E2E Cypress integration](https://github.com/vuejs/vue-cli/tree/dev/packages/@vue/cli-plugin-e2e-cypress#readme), so Vue is managing most of what Cypress needs.
-Specs (test files) are located in `/tests/e2e/specs/` and it is possible to write some commands (helper function) in `/tests/e2e/support/commands.js`.
-
 ## CI
 
-The CI will run both test types by executing `npm run test:ci` (E2E tests will be run headless)
+The CI will run both test types by executing `npm run test:ci` (E2E tests will be run in headless)
