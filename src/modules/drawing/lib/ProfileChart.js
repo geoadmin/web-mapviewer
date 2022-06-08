@@ -41,7 +41,7 @@ export default class ProfileChart {
             const coords = []
             const maxX = data[data.length - 1].dist
             const denom = maxX >= 10000 ? 1000 : 1
-            this.unitX = maxX >= 10000 ? ' km' : ' m'
+            this.unitX = maxX >= 10000 ? 'km' : 'm'
             data.forEach((datum) => {
                 coords.push([datum.easting, datum.northing])
                 datum.domainDist = datum.dist / denom
@@ -249,20 +249,21 @@ export default class ProfileChart {
 
         this.group
             .append('text')
-            .attr('class', 'profile-label ga-profile-label-x')
+            .attr('class', 'profile-label profile-label-x')
             .attr('x', this.width / 2)
             .attr('y', this.height + this.options.margin.bottom - 5)
             .style('text-anchor', 'middle')
-            .attr('font-size', '0.95em')
+            .attr('font-size', '0.80em')
 
         this.group
             .append('text')
-            .attr('class', 'profile-label ga-profile-label-y')
+            .attr('class', 'profile-label profile-label-y')
             .attr('transform', 'rotate(-90)')
             .attr('y', 0 - this.options.margin.left)
-            .attr('x', 0 - this.height / 2 - 30)
-            .attr('dy', '1em')
-            .attr('font-size', '0.95em')
+            .attr('x', -this.height / 2)
+            .attr('dy', '0.85em')
+            .style('text-anchor', 'middle')
+            .attr('font-size', '0.80em')
 
         this.glass = this.group
             .append('rect')
@@ -314,7 +315,6 @@ export default class ProfileChart {
                 .duration(transitionTime)
                 .attr('x', this.width / 2)
                 .attr('y', this.height + this.options.margin.bottom - 5)
-                .style('text-anchor', 'middle')
             this.group
                 .select('text.profile-source-link')
                 .transition()

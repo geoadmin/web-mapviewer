@@ -15,11 +15,11 @@
         >
             <div class="profile-tooltip-inner p-2">
                 <div>
-                    <strong>Distance: </strong>
+                    <strong>{{ $t(options.xLabel) }}: </strong>
                     <span class="distance"></span>
                 </div>
                 <div>
-                    <strong>Elevation: </strong>
+                    <strong>{{ $t(options.yLabel) }}: </strong>
                     <span class="elevation"></span>
                 </div>
             </div>
@@ -79,7 +79,7 @@ export default {
         return {
             showTooltip: false,
             options: {
-                margin: { left: 35, right: 15, bottom: 25, top: 15 },
+                margin: { left: 55, right: 15, bottom: 35, top: 15 },
                 width: 0,
                 height: 0,
                 xLabel: 'profile_x_label',
@@ -280,7 +280,8 @@ export default {
                     this.$refs.profilePopupContent.getBoundingClientRect().y -
                     this.$refs.profileTooltipAnchor.getBoundingClientRect().y +
                     'px'
-                toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)}${
+
+                toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)} ${
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
