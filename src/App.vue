@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
 import debounce from '@/utils/debounce'
+import { mapActions, mapState } from 'vuex'
 
 /**
  * Main component of the App.
@@ -25,11 +25,22 @@ export default {
             showOutlines: false,
         }
     },
+    computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
+    },
+    watch: {
+        lang: function () {
+            this.refreshPageTitle()
+        },
+    },
     mounted() {
         // reading size
         this.setScreenSizeFromWindowSize()
         this.debouncedOnResize = debounce(this.setScreenSizeFromWindowSize, 300)
         window.addEventListener('resize', this.debouncedOnResize, { passive: true })
+        this.refreshPageTitle()
     },
     unmounted() {
         window.removeEventListener('resize', this.debouncedOnResize)
@@ -44,6 +55,9 @@ export default {
         },
         setOutlines(state) {
             this.showOutlines = state
+        },
+        refreshPageTitle() {
+            document.title = this.$i18n.t('page_title')
         },
     },
 }
