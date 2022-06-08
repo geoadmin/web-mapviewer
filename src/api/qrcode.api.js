@@ -23,11 +23,6 @@ export const generateQrCode = (url) => {
                     url: url,
                 },
                 responseType: 'arraybuffer',
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                },
             })
             .then((image) => {
                 resolve(
