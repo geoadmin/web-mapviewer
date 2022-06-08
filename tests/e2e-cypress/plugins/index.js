@@ -133,11 +133,5 @@ module.exports = (on, config) => {
         return outputPath
     })
 
-    return Object.assign({}, config, {
-        fixturesFolder: 'cypress/fixtures',
-        integrationFolder: 'cypress/integration',
-        screenshotsFolder: 'cypress/screenshots',
-        videosFolder: 'cypress/videos',
-        supportFile: 'cypress/support/index.js',
-    })
+    return config
 }

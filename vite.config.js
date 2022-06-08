@@ -18,5 +18,8 @@ export default defineConfig(({ command, mode }) => {
             __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
             VITE_ENVIRONMENT: JSON.stringify(mode),
         },
+        test: {
+            include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+        },
     }
 })
