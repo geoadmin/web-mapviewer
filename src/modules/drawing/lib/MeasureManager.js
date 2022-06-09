@@ -9,6 +9,7 @@ import {
 } from '@/modules/drawing/lib/drawingUtils'
 import { LineString, Polygon } from 'ol/geom'
 import { Collection } from 'ol'
+import { DrawingModes } from '@/store/modules/drawing.store'
 
 export default class MeasureManager {
     constructor(map, layer) {
@@ -170,7 +171,7 @@ export default class MeasureManager {
             .getSource()
             .getFeatures()
             .forEach((feature) => {
-                if (feature.get('type') === 'MEASURE') {
+                if (feature.get('drawingMode') === DrawingModes.MEASURE) {
                     if (visible) {
                         this.addOverlays(feature)
                     } else {

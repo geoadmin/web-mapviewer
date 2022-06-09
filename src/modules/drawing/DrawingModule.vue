@@ -81,6 +81,7 @@ import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapState } from 'vuex'
+import MeasureManager from '@/modules/drawing/lib/MeasureManager'
 
 export default {
     components: {
@@ -98,6 +99,7 @@ export default {
         return {
             // sharing OL stuff for children drawing components
             getDrawingLayer: () => this.drawingLayer,
+            getMeasureManager: () => this.measureManager,
         }
     },
     data() {
@@ -156,10 +158,12 @@ export default {
     watch: {
         show(show) {
             if (show) {
+                // Clear the drawing layer, so addSavedKMLLayer() also updates already
+                // existent features
+                this.drawingLayer.getSource().clear()
                 // if a KML was previously created with the drawing module
                 // we add it back for further editing
-                this.addSavedKmlLayer()
-                this.getMap().addLayer(this.drawingLayer)
+                this.addSavedKmlLayer().then(() => this.getMap().addLayer(this.drawingLayer))
             } else {
                 this.getMap().removeLayer(this.drawingLayer)
             }
@@ -180,6 +184,7 @@ export default {
         this.drawingLayer = new VectorLayer({
             source: new VectorSource({ useSpatialIndex: false }),
         })
+        this.measureManager = new MeasureManager(this.getMap(), this.drawingLayer)
         // if icons have not yet been loaded, we do so
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
@@ -224,7 +229,8 @@ export default {
             'changeFeatureCoordinates',
             'changeFeatureIsDragged',
             'addDrawingFeature',
-            'clearFeatureIds',
+            'clearDrawingFeatures',
+            'setDrawingFeatures',
         ]),
         hideDrawingOverlay() {
             this.clearAllSelectedFeatures()
@@ -326,7 +332,7 @@ export default {
             }
         },
         clearDrawing: function () {
-            this.clearFeatureIds()
+            this.clearDrawingFeatures()
             this.clearAllSelectedFeatures()
             this.$refs.selectInteraction.clearSelectedFeature()
             this.drawingLayer.getSource().clear()
@@ -352,6 +358,8 @@ export default {
                 // the drawing manager
                 this.removeLayer(layer)
             }
+            const features = this.drawingLayer.getSource().getFeatures()
+            this.setDrawingFeatures(features.map((feature) => feature.getId()))
         },
         async addKmlLayer(layer) {
             const kml = await getKml(layer.fileId)
@@ -362,9 +370,6 @@ export default {
                 // The following deserialization is a hack. See @module comment in file.
                 deserializeAnchor(feature)
                 feature.setStyle(featureStyleFunction)
-                if (feature.get('drawingMode') === DrawingModes.MEASURE) {
-                    this.measureManager.addOverlays(feature)
-                }
             })
             this.drawingLayer.getSource().addFeatures(features)
         },

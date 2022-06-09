@@ -5,7 +5,6 @@
 <script>
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
-import MeasureManager from '@/modules/drawing/lib/MeasureManager'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/store/modules/drawing.store'
 import { RED } from '@/utils/featureStyleUtils'
@@ -13,7 +12,7 @@ import GeometryType from 'ol/geom/GeometryType'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
-    inject: ['getMap', 'getDrawingLayer'],
+    inject: ['getMap', 'getDrawingLayer', 'getMeasureManager'],
     data() {
         return {
             drawingMode: DrawingModes.MEASURE,
@@ -25,12 +24,6 @@ export default {
             featureStyle: drawMeasureStyle,
         }
     },
-    created() {
-        this.measureManager = new MeasureManager(this.getMap(), this.getDrawingLayer())
-    },
-    unmounted() {
-        this.measureManager = null
-    },
     methods: {
         /**
          * Declaring optional mixin method onDrawStart to register the measure manager (the code
@@ -39,15 +32,28 @@ export default {
          * See {@link drawingInteractionMixin}
          */
         onDrawStart(feature) {
-            this.measureManager.addOverlays(feature)
+            this.getMeasureManager().addOverlays(feature)
         },
         /**
-         * Declaring the optional mixin method onDrawEnd to unregister the measure manager
+         * Declaring optional mixin method onDrawEnd to force remove any overlays. The
+         * updateOverlays event will regenerate them right after that. This is a hack to make
+         * updateOverlays work correctly. A fix in updateOverlays would probably be better.
          *
          * See {@link drawingInteractionMixin}
          */
         onDrawEnd(feature) {
-            this.measureManager.removeOverlays(feature)
+            this.getMeasureManager().removeOverlays(feature)
+        },
+
+        /**
+         * Declaring optional mixin method onDrawAbort to unregister the resource Manager for the
+         * aborted feature
+         *
+         * See {@link drawingInteractionMixin}
+         */
+        onDrawAbort(feature) {
+            this.getMeasureManager().removeOverlays(feature)
+            feature.set('overlays', undefined)
         },
     },
 }

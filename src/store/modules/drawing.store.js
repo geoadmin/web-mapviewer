@@ -37,7 +37,7 @@ export default {
          */
         mode: null,
         /**
-         * Ids of stored KML file
+         * Ids of stored KML file. Format is: {adminId, fileId}
          *
          * @type {DrawingKmlIds | null}
          */
@@ -90,8 +90,11 @@ export default {
             dispatch('clearAllSelectedFeatures')
             commit('deleteDrawingFeature', featureId)
         },
-        clearFeatureIds({ commit }) {
-            commit('clearFeatureIds')
+        clearDrawingFeatures({ commit }) {
+            commit('setDrawingFeatures', [])
+        },
+        setDrawingFeatures({ commit }, featureIds) {
+            commit('setDrawingFeatures', featureIds)
         },
     },
     mutations: {
@@ -101,6 +104,6 @@ export default {
         addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
-        clearFeatureIds: (state) => (state.featureIds = []),
+        setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
     },
 }
