@@ -163,9 +163,17 @@ export default {
                 this.drawingLayer.getSource().clear()
                 // if a KML was previously created with the drawing module
                 // we add it back for further editing
-                this.addSavedKmlLayer().then(() => this.getMap().addLayer(this.drawingLayer))
+                this.addSavedKmlLayer().then(() => {
+                    this.getMap().addLayer(this.drawingLayer)
+                    this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
+                })
             } else {
-                this.getMap().removeLayer(this.drawingLayer)
+                this.triggerImmediateKMLUpdate()
+                // Next tick is needed to wait that all overlays are correctly updated so that
+                // they can be correctly removed with the map
+                this.$nextTick(() => {
+                    this.getMap().removeLayer(this.drawingLayer)
+                })
             }
         },
         featureIds(next, last) {
@@ -249,16 +257,18 @@ export default {
         triggerKMLUpdate() {
             clearTimeout(this.KMLUpdateTimeout)
             this.KMLUpdateTimeout = setTimeout(
-                () => {
-                    const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
-                    if (kml && kml.length) {
-                        this.saveDrawing(kml)
-                    }
-                },
+                this.triggerImmediateKMLUpdate,
                 // when testing, speed up and avoid race conditions
                 // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
+        },
+        triggerImmediateKMLUpdate() {
+            clearTimeout(this.KMLUpdateTimeout)
+            const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
+            if (kml && kml.length) {
+                this.saveDrawing(kml)
+            }
         },
         onChange() {
             this.$nextTick(() => {
