@@ -1,3 +1,9 @@
+/**
+ * Handels the overlays that are shown on top of a each measure drawing
+ *
+ * It is used in the Drawing module as well as in the map KMLLayer, as the drawing is displayed with
+ * a KML Layer when outside of the drawing mode.
+ */
 import Overlay from 'ol/Overlay'
 import {
     canShowAzimuthCircle,
@@ -169,8 +175,8 @@ export default class MeasureManager {
     toggleOverlays(visible) {
         this.layer
             .getSource()
-            .getFeatures()
-            .forEach((feature) => {
+            ?.getFeatures()
+            ?.forEach((feature) => {
                 if (feature.get('drawingMode') === DrawingModes.MEASURE) {
                     if (visible) {
                         this.addOverlays(feature)

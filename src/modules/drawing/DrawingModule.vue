@@ -81,7 +81,7 @@ import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapState } from 'vuex'
-import MeasureManager from '@/modules/drawing/lib/MeasureManager'
+import MeasureManager from '@/utils/MeasureManager'
 
 export default {
     components: {
