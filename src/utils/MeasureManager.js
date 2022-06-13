@@ -1,9 +1,3 @@
-/**
- * Handels the overlays that are shown on top of a each measure drawing
- *
- * It is used in the Drawing module as well as in the map KMLLayer, as the drawing is displayed with
- * a KML Layer when outside of the drawing mode.
- */
 import Overlay from 'ol/Overlay'
 import {
     canShowAzimuthCircle,
@@ -17,6 +11,12 @@ import { LineString, Polygon } from 'ol/geom'
 import { Collection } from 'ol'
 import { DrawingModes } from '@/store/modules/drawing.store'
 
+/**
+ * Handels the overlays that are shown on top of a each measure drawing
+ *
+ * It is used in the Drawing module as well as in the map KMLLayer, as the drawing is displayed with
+ * a KML Layer when outside of the drawing mode.
+ */
 export default class MeasureManager {
     constructor(map, layer) {
         this.map = map
