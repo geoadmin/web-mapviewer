@@ -1,4 +1,4 @@
-import { EditableFeatureTypes } from "@/api/features.api";
+import { EditableFeatureTypes } from '@/api/features.api'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import pako from 'pako'
 import { parseInterception } from './multipart'
@@ -57,12 +57,12 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', () => {
+Cypress.Commands.add('goToDrawing', (...args) => {
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
-    cy.goToMapView()
+    cy.goToMapView(...args)
     const viewportWidth = Cypress.config('viewportWidth')
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
@@ -72,10 +72,14 @@ Cypress.Commands.add('goToDrawing', () => {
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
-Cypress.Commands.add('clickDrawingTool', (name) => {
+Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).click()
-    cy.readStoreValue('state.drawing.mode').should('eq', name)
+    if (unselect) {
+        cy.readStoreValue('state.drawing.mode').should('eq', null)
+    } else {
+        cy.readStoreValue('state.drawing.mode').should('eq', name)
+    }
 })
 
 Cypress.Commands.add('readDrawingFeatures', (type, callback) => {

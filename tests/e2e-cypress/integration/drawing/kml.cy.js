@@ -4,6 +4,10 @@ import { EditableFeatureTypes } from '@/api/features.api'
 
 const olSelector = '.ol-viewport'
 
+// Position of the marker defined in service-kml/lonelyMarker.kml
+const markerLatitude = 47.097
+const markerLongitude = 7.743
+
 describe('Drawing saving KML', () => {
     beforeEach(() => {
         cy.goToDrawing()
@@ -40,12 +44,52 @@ describe('Drawing saving KML', () => {
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
         cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230, { force: true })
         cy.wait('@update-kml').then((interception) =>
-            cy.checkKMLRequest(interception, [EditableFeatureTypes.MARKER, EditableFeatureTypes.LINEPOLYGON])
+            cy.checkKMLRequest(interception, [
+                EditableFeatureTypes.MARKER,
+                EditableFeatureTypes.LINEPOLYGON,
+            ])
         )
         // verifying that we still have the same KML file/admin ID from the backend
         cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
             expect(ids.adminId).to.eq('1234_adminId')
             expect(ids.fileId).to.eq('1234_fileId')
         })
+    })
+})
+
+describe('Drawing loading KML', () => {
+    it('load kml file, open drawing mode and try to delete a feature', () => {
+        //load map with an injected kml layer containing a text
+        const kmlFileId = 'test-fileID12345678900'
+        const kmlUrlParam = `KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlFileId}|Dessin`
+        cy.intercept(`**/api/kml/files/${kmlFileId}`, {
+            fixture: 'service-kml/lonelyMarker.kml',
+        }).as('initialKmlFile')
+        //open drawing mode
+        cy.goToDrawing(
+            'fr',
+            { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
+            true
+        )
+        cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+        cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 1)
+        //click on the text
+        cy.get(olSelector).click('center')
+        cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+        cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 1)
+        //click on the delete button
+        cy.get('[data-cy="drawing-style-delete-button"]').click()
+        //ckeck that the text was correctly deleted
+        cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+        cy.readStoreValue('state.drawing.featureIds').should('have.length', 0)
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 0)
     })
 })
