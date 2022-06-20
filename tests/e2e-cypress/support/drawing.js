@@ -63,6 +63,9 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
     cy.goToMapView(...args)
+    cy.readWindowValue('map')
+        .then((map) => map.getOverlays().getLength())
+        .as('nbOverlaysAtBeginning')
     const viewportWidth = Cypress.config('viewportWidth')
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
