@@ -16,6 +16,12 @@ export const ENVIRONMENT = VITE_ENVIRONMENT
 export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
 
 /**
+ * Flag that tells if users should be warned that it is a development site. Also used to hide
+ * development specific features in production (like the app version)
+ */
+export const DEV_SITE_WARNING = !IS_TESTING_WITH_CYPRESS && ENVIRONMENT !== 'production'
+
+/**
  * Current app version (from package.json)
  *
  * @type {String}
