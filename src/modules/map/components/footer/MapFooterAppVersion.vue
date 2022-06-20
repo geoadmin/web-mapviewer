@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import { APP_VERSION, ENVIRONMENT } from '@/config'
+import { APP_VERSION, DEV_SITE_WARNING } from '@/config'
 
 export default {
     data() {
         return {
             appVersion: APP_VERSION,
-            showAppVersion: ENVIRONMENT !== 'production',
+            showAppVersion: DEV_SITE_WARNING,
         }
     },
 }
