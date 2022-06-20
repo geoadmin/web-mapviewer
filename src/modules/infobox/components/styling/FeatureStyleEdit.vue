@@ -82,6 +82,7 @@
                 </PopoverButton>
 
                 <ButtonWithIcon
+                    data-cy="drawing-style-delete-button"
                     :button-font-awesome-icon="['far', 'trash-alt']"
                     @click="onDelete"
                 ></ButtonWithIcon>

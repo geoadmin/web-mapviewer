@@ -23,6 +23,7 @@ import { getUid } from 'ol/util'
  *
  * - `onDrawStart` (function): called after the drawing has started with the feature being drawn as argument
  * - `onDrawEnd` (function): called after the drawing is done with the drawn feature as argument
+ * - `onDrawAbort` (function): called when the drawing is aborted with the aborted feature as argument
  * - `editingStyle` (function): style function used while drawing, if none given
  *   {@link editingFeatureStyleFunction} will be used
  * - `featureStyle` (function): style applied to the feature as soon as it is done being drawn, will
@@ -51,6 +52,7 @@ const drawingInteractionMixin = {
             this.interaction.getOverlay().getSource().on('addfeature', this.onAddFeature)
             this.interaction.on('drawstart', this._onDrawStart)
             this.interaction.on('drawend', this._onDrawEnd)
+            this.interaction.on('drawabort', this._onDrawAbort)
 
             this.getMap().addInteraction(this.interaction)
         },
@@ -61,6 +63,7 @@ const drawingInteractionMixin = {
 
             this.interaction.un('drawend', this._onDrawEnd)
             this.interaction.un('drawstart', this._onDrawStart)
+            this.interaction.un('drawabort', this._onDrawAbort)
             this.interaction.getOverlay().getSource().un('addfeature', this.onAddFeature)
         },
         onAddFeature(event) {
@@ -111,6 +114,12 @@ const drawingInteractionMixin = {
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             this.interaction.finishDrawing()
             this.$emit('drawEnd', feature)
+        },
+        _onDrawAbort(event) {
+            // if optional onDrawAbort is defined, we call it
+            if (this.onDrawAbort) {
+                this.onDrawAbort(event.feature)
+            }
         },
         removeLastPoint() {
             this.interaction.removeLastPoint()

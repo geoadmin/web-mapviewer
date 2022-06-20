@@ -1,0 +1,40 @@
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+    <Document>
+        <name>Dessin</name>
+        <Placemark id="138">
+            <description></description>
+            <Style />
+            <ExtendedData>
+                <Data name="anchor" />
+                <Data name="anchorString">
+                    <value>[0.5,0.875]</value>
+                </Data>
+                <Data name="color">
+                    <value>#ff0000</value>
+                </Data>
+                <Data name="drawingMode">
+                    <value>MARKER</value>
+                </Data>
+                <Data name="font">
+                    <value>normal 24px Helvetica</value>
+                </Data>
+                <Data name="icon" />
+                <Data name="iconUrl">
+                    <value>https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1x-255,0,0.png</value>
+                </Data>
+                <Data name="text">
+                    <value>A not interesting comment</value>
+                </Data>
+                <Data name="textScale">
+                    <value>1.5</value>
+                </Data>
+                <Data name="type">
+                    <value>point</value>
+                </Data>
+            </ExtendedData>
+            <Point>
+                <coordinates>7.743,47.097</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

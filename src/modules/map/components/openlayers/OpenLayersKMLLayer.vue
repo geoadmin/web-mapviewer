@@ -11,10 +11,13 @@ import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { deserializeAnchor } from '@/utils/featureAnchor'
+import MeasureManager from '@/utils/MeasureManager'
+import { DrawingModes } from '@/store/modules/drawing.store'
 
 /** Renders a KML file on the map */
 export default {
     mixins: [addLayerToMapMixin],
+    inject: ['getMap'],
     props: {
         layerId: {
             type: String,
@@ -53,12 +56,16 @@ export default {
                 format: new KML(),
             }),
         })
+        this.measureManager = new MeasureManager(this.getMap(), this.layer)
         this.layer.getSource().on('addfeature', (event) => {
             const f = event.feature
             // The following deserialization is a hack. See @module comment in file.
             deserializeAnchor(f)
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyleFunction(feature))
+            if (f.get('drawingMode') === DrawingModes.MEASURE) {
+                this.measureManager.addOverlays(f)
+            }
         })
     },
 }
