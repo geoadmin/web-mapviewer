@@ -59,6 +59,7 @@
             @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
+        <LoadingScreen v-if="isLoading" />
     </div>
 </template>
 
@@ -72,6 +73,7 @@ import DrawingModifyInteraction from '@/modules/drawing/components/DrawingModify
 import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelectInteraction.vue'
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
+import LoadingScreen from '@/utils/LoadingScreen.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
@@ -93,6 +95,7 @@ export default {
         DrawingMarkerInteraction,
         DrawingTooltip,
         DrawingToolbox,
+        LoadingScreen,
     },
     inject: ['getMap'],
     provide() {
@@ -107,6 +110,7 @@ export default {
             drawingModes: Object.values(DrawingModes),
             isDrawingEmpty: true,
             currentlySketchedFeature: null,
+            isLoading: false,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
         }
@@ -158,6 +162,7 @@ export default {
     watch: {
         show(show) {
             if (show) {
+                this.isLoading = true
                 // Clear the drawing layer, so addSavedKMLLayer() also updates already
                 // existent features
                 this.drawingLayer.getSource().clear()
@@ -166,14 +171,15 @@ export default {
                 this.addSavedKmlLayer().then(() => {
                     this.getMap().addLayer(this.drawingLayer)
                     this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
+                    this.isLoading = false
                 })
             } else {
-                this.triggerImmediateKMLUpdate()
                 // Next tick is needed to wait that all overlays are correctly updated so that
                 // they can be correctly removed with the map
                 this.$nextTick(() => {
                     this.getMap().removeLayer(this.drawingLayer)
                 })
+                this.isLoading = false
             }
         },
         featureIds(next, last) {
@@ -241,9 +247,10 @@ export default {
             'setDrawingFeatures',
         ]),
         hideDrawingOverlay() {
+            this.isLoading = true
             this.clearAllSelectedFeatures()
             this.setDrawingMode(null)
-            this.toggleDrawingOverlay()
+            this.triggerImmediateKMLUpdate().then(() => this.toggleDrawingOverlay())
         },
         changeDrawingMode(mode) {
             // we de-activate the mode if the same button is pressed twice
@@ -263,11 +270,11 @@ export default {
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
         },
-        triggerImmediateKMLUpdate() {
+        async triggerImmediateKMLUpdate() {
             clearTimeout(this.KMLUpdateTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
             if (kml && kml.length) {
-                this.saveDrawing(kml)
+                await this.saveDrawing(kml)
             }
         },
         onChange() {

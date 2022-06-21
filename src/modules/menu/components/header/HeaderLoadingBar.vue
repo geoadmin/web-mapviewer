@@ -15,6 +15,7 @@ $loading-element-width: 40rem;
 $loading-bar-animation-duration: 2s;
 
 .header-loading-bar {
+    z-index: 1000;
     box-sizing: content-box;
     height: 2px;
     position: fixed;
