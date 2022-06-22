@@ -6,7 +6,7 @@
             :is-drawing-empty="isDrawingEmpty"
             :kml-ids="kmlIds"
             :ui-mode="uiMode"
-            @close="hideDrawingOverlay"
+            @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
             @delete-last-point="removeLastPoint"
@@ -82,8 +82,10 @@ import { deserializeAnchor } from '@/utils/featureAnchor'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import MeasureManager from '@/utils/MeasureManager'
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -127,6 +129,7 @@ export default {
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
         }),
+        ...mapGetters(['getDrawingPublicFileUrl']),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
         },
@@ -161,6 +164,10 @@ export default {
     },
     watch: {
         show(show) {
+            if (this.abortedToggleOverlay) {
+                this.abortedToggleOverlay = false
+                return
+            }
             if (show) {
                 this.isLoading = true
                 // Clear the drawing layer, so addSavedKMLLayer() also updates already
@@ -168,18 +175,52 @@ export default {
                 this.drawingLayer.getSource().clear()
                 // if a KML was previously created with the drawing module
                 // we add it back for further editing
-                this.addSavedKmlLayer().then(() => {
-                    this.getMap().addLayer(this.drawingLayer)
-                    this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
-                    this.isLoading = false
-                })
+                this.addSavedKmlLayer()
+                    .then(() => {
+                        this.getMap().addLayer(this.drawingLayer)
+                        this.isDrawingEmpty =
+                            this.drawingLayer.getSource().getFeatures().length === 0
+                        this.isLoading = false
+                    })
+                    .catch((e) => {
+                        log.error(
+                            'Aborted opening of drawing mode. Could not add existent KML layer: ',
+                            e.code
+                        )
+                        this.abortToggleOverlay()
+                        this.isLoading = false
+                    })
             } else {
-                // Next tick is needed to wait that all overlays are correctly updated so that
-                // they can be correctly removed with the map
-                this.$nextTick(() => {
-                    this.getMap().removeLayer(this.drawingLayer)
-                })
-                this.isLoading = false
+                this.isLoading = true
+                this.clearAllSelectedFeatures()
+                this.setDrawingMode(null)
+                this.triggerImmediateKMLUpdate()
+                    .then(() => {
+                        // Next tick is needed to wait that all overlays are correctly updated so that
+                        // they can be correctly removed with the map
+                        this.$nextTick(() => {
+                            this.getMap().removeLayer(this.drawingLayer)
+                        })
+                        this.addLayer(
+                            new KMLLayer(
+                                1.0,
+                                this.getDrawingPublicFileUrl,
+                                this.kmlIds.fileId,
+                                this.kmlIds.adminId
+                            )
+                        )
+                        this.isLoading = false
+                    })
+                    .catch((e) => {
+                        // Here a better logic for handeling network errors could be added
+                        // (e.g. user feedback)
+                        log.error(
+                            'Aborted closing of drawing mode. Could not save KML layer: ',
+                            e.code
+                        )
+                        this.abortToggleOverlay()
+                        this.isLoading = false
+                    })
             }
         },
         featureIds(next, last) {
@@ -237,6 +278,7 @@ export default {
             'setDrawingMode',
             'setKmlIds',
             'removeLayer',
+            'addLayer',
             'loadAvailableIconSets',
             'setSelectedFeatures',
             'clearAllSelectedFeatures',
@@ -246,11 +288,9 @@ export default {
             'clearDrawingFeatures',
             'setDrawingFeatures',
         ]),
-        hideDrawingOverlay() {
-            this.isLoading = true
-            this.clearAllSelectedFeatures()
-            this.setDrawingMode(null)
-            this.triggerImmediateKMLUpdate().then(() => this.toggleDrawingOverlay())
+        abortToggleOverlay() {
+            this.abortedToggleOverlay = true
+            this.toggleDrawingOverlay()
         },
         changeDrawingMode(mode) {
             // we de-activate the mode if the same button is pressed twice
