@@ -1,6 +1,6 @@
 import log from '@/utils/logging'
 import axios from 'axios'
-import { API_BASE_URL } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 
 /**
  * @typedef ProfileRequestData
@@ -51,9 +51,13 @@ export const profile = (data, fileExtension = '.json') => {
         }
         const params = new URLSearchParams(data)
         axios
-            .post(`${API_BASE_URL}rest/services/profile${fileExtension}`, params.toString(), {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            })
+            .post(
+                `${API_SERVICE_ALTI_BASE_URL}rest/services/profile${fileExtension}`,
+                params.toString(),
+                {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                }
+            )
             .then((response) => {
                 if (response.data && response.data) {
                     resolve(response.data)

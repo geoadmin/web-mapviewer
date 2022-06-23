@@ -2,7 +2,7 @@ import axios from 'axios'
 import proj4 from 'proj4'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import { API_BASE_URL } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 
 export const meterToFeetFactor = 3.28084
 
@@ -29,7 +29,7 @@ export const requestHeight = (coordinates) => {
         if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
             const lv95coords = proj4('EPSG:3857', 'EPSG:2056', coordinates)
             axios
-                .get(`${API_BASE_URL}rest/services/height`, {
+                .get(`${API_SERVICE_ALTI_BASE_URL}rest/services/height`, {
                     params: {
                         easting: lv95coords[0],
                         northing: lv95coords[1],

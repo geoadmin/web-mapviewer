@@ -42,13 +42,35 @@ function enforceEndingSlashInUrl(url) {
 }
 
 /**
- * Base part of the URL to use when requesting the backend (e.g. for prod https://api3.geo.admin.ch).
+ * Base part of the URL to use when requesting the api3.
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
  *
  * @type String
  */
 export const API_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_API_BASE_URL)
+
+/**
+ * Base part of the URL to use when requesting the alti service.
+ *
+ * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
+ * @type String
+ */
+export const API_SERVICE_ALTI_BASE_URL = enforceEndingSlashInUrl(
+    import.meta.env.VITE_API_SERVICE_ALTI_BASE_URL
+)
+
+/**
+ * Base part of the URL to use when requesting the search service.
+ *
+ * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ *
+ * @type String
+ */
+export const API_SERVICE_SEARCH_BASE_URL = enforceEndingSlashInUrl(
+    import.meta.env.VITE_API_SERVICE_SEARCH_BASE_URL
+)
 
 /**
  * Base part of the URL to use when requesting icons.
