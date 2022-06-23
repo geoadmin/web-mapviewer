@@ -53,6 +53,11 @@
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
             />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'download']"
+                data-cy="profile-popup-csv-download-button"
+                @click="onCSVDownload"
+            />
         </div>
     </div>
 </template>
@@ -192,6 +197,12 @@ export default {
             const id = this.feature.id.replace('drawing_feature_', '')
             this.deleteDrawingFeature(id)
         },
+        onCSVDownload() {
+            this.getProfile('.csv').then((data) => {
+                const dataBlob = new Blob([data], { type: 'text/csv', endings: 'native' })
+                this.triggerDownload(dataBlob, 'profile.csv')
+            })
+        },
         onResize() {
             this.$nextTick(this.updateProfile)
         },
@@ -218,7 +229,7 @@ export default {
             }
         },
         async createProfileChart() {
-            const data = await this.getProfile(this.featureCoordinates)
+            const data = await this.getProfile()
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             const glass = this.profileChart.glass
@@ -226,18 +237,32 @@ export default {
             return this.profileChart.element
         },
         async updateProfileChart(size) {
-            const data = await this.getProfile(this.featureCoordinates)
+            const data = await this.getProfile()
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
-        async getProfile(coordinates) {
+        async getProfile(fileExtension = '.json', coordinates = this.featureCoordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return profile({
-                geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
-                offset: 0,
-                sr: 2056,
-                distinct_points: true,
-            })
+            return profile(
+                {
+                    geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
+                    offset: 0,
+                    sr: 2056,
+                    distinct_points: true,
+                },
+                fileExtension
+            )
+        },
+        triggerDownload(blob, fileName) {
+            const link = document.createElement('a')
+            link.style.display = 'none'
+            link.href = URL.createObjectURL(blob)
+            link.download = fileName
+
+            document.body.appendChild(link)
+            link.click()
+            URL.revokeObjectURL(link.href)
+            link.parentNode.removeChild(link)
         },
         attachPathListeners(areaChartPath, glass) {
             glass.on('mousemove', (evt) => {

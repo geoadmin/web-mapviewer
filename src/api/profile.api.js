@@ -34,10 +34,16 @@ import { API_BASE_URL } from '@/config'
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
  * @param {ProfileRequestData} data
+ * @param {String} FileExtension .json (default) and .csv are possible file extensions
  * @returns {Promise<ProfilePoint[]>}
  */
-export const profile = (data) => {
+export const profile = (data, fileExtension = '.json') => {
     return new Promise((resolve, reject) => {
+        if (fileExtension !== '.json' && fileExtension !== '.csv') {
+            const errorMessage = `Not supported file extension`
+            log.error(errorMessage)
+            reject(errorMessage)
+        }
         if (!data || !data.geom) {
             const errorMessage = `Geom not provided`
             log.error(errorMessage)
@@ -45,7 +51,7 @@ export const profile = (data) => {
         }
         const params = new URLSearchParams(data)
         axios
-            .post(`${API_BASE_URL}rest/services/profile.json`, params.toString(), {
+            .post(`${API_BASE_URL}rest/services/profile${fileExtension}`, params.toString(), {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             })
             .then((response) => {
