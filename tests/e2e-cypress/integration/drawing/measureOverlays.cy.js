@@ -3,6 +3,7 @@ import i18n from '@/modules/i18n'
 import pako from 'pako'
 
 const olSelector = '.ol-viewport'
+const language = 'fr'
 
 const latitude = 47.097
 const longitude = 7.743
@@ -57,10 +58,11 @@ const addKmlInterceptAndReinject = () => {
 describe('Measure Overlays handling', () => {
     beforeEach(() => {
         serverKml = '<kml></kml>'
+        i18n.global.locale = language
     })
     it('draw measure, abort, and check that there are no overlays left', () => {
         //Open drawing mode
-        cy.goToDrawing('fr', { lat: latitude, lon: longitude, z: zoom }, true)
+        cy.goToDrawing(language, { lat: latitude, lon: longitude, z: zoom }, true)
         cy.readWindowValue('map').then((map) => {
             const nbOverlaysAtBeginning = map.getOverlays().getLength()
             cy.readWindowValue('drawingLayer')
@@ -95,7 +97,7 @@ describe('Measure Overlays handling', () => {
      */
     it('Check correct passover from drawingLayer to kmlLayer when closing drawing', () => {
         //Open drawing mode
-        cy.goToDrawing('fr', { lat: latitude, lon: longitude, z: zoom }, true)
+        cy.goToDrawing(language, { lat: latitude, lon: longitude, z: zoom }, true)
         cy.readWindowValue('map')
             .then((map) => map.getOverlays().getLength())
             .as('nbOverlaysBeforeDrawing')
