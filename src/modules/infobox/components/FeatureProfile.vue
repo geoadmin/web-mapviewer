@@ -49,14 +49,14 @@
                 </span>
             </div>
             <ButtonWithIcon
-                :button-font-awesome-icon="['far', 'trash-alt']"
-                data-cy="profile-popup-delete-button"
-                @click="onDelete"
-            />
-            <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'download']"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
+            />
+            <ButtonWithIcon
+                :button-font-awesome-icon="['far', 'trash-alt']"
+                data-cy="profile-popup-delete-button"
+                @click="onDelete"
             />
         </div>
     </div>
@@ -64,13 +64,14 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { profile } from '@/api/profile.api'
+import { profileCsv, profileJson } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
 import { mapActions } from 'vuex'
+import { generateFilename } from '@/modules/drawing/lib/export-utils'
 
 export default {
     components: { ButtonWithIcon },
@@ -198,9 +199,9 @@ export default {
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
-            this.getProfile('.csv').then((data) => {
+            this.getProfile(profileCsv).then((data) => {
                 const dataBlob = new Blob([data], { type: 'text/csv', endings: 'native' })
-                this.triggerDownload(dataBlob, 'profile.csv')
+                this.triggerDownload(dataBlob, generateFilename('.csv'))
             })
         },
         onResize() {
@@ -241,28 +242,22 @@ export default {
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
-        async getProfile(fileExtension = '.json', coordinates = this.featureCoordinates) {
+        async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return profile(
-                {
-                    geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
-                    offset: 0,
-                    sr: 2056,
-                    distinct_points: true,
-                },
-                fileExtension
-            )
+            return apiFunction({
+                geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
+                offset: 0,
+                sr: 2056,
+                distinct_points: true,
+            })
         },
         triggerDownload(blob, fileName) {
             const link = document.createElement('a')
-            link.style.display = 'none'
             link.href = URL.createObjectURL(blob)
             link.download = fileName
 
-            document.body.appendChild(link)
             link.click()
             URL.revokeObjectURL(link.href)
-            link.parentNode.removeChild(link)
         },
         attachPathListeners(areaChartPath, glass) {
             glass.on('mousemove', (evt) => {

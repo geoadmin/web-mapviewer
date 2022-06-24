@@ -37,7 +37,7 @@ import { API_SERVICE_ALTI_BASE_URL } from '@/config'
  * @param {String} FileExtension .json (default) and .csv are possible file extensions
  * @returns {Promise<ProfilePoint[]>}
  */
-export const profile = (data, fileExtension = '.json') => {
+const profile = (data, fileExtension) => {
     return new Promise((resolve, reject) => {
         if (fileExtension !== '.json' && fileExtension !== '.csv') {
             const errorMessage = `Not supported file extension`
@@ -72,4 +72,24 @@ export const profile = (data, fileExtension = '.json') => {
                 reject(error)
             })
     })
+}
+
+/**
+ * Gets profile in json format from https://api3.geo.admin.ch/services/sdiservices.html#profile
+ *
+ * @param {ProfileRequestData} data
+ * @returns {Promise<ProfilePoint[]>}
+ */
+export const profileJson = (data) => {
+    return profile(data, '.json')
+}
+
+/**
+ * Gets profile in csv format from https://api3.geo.admin.ch/services/sdiservices.html#profile
+ *
+ * @param {ProfileRequestData} data
+ * @returns {Promise<ProfilePoint[]>}
+ */
+export const profileCsv = (data) => {
+    return profile(data, '.csv')
 }
