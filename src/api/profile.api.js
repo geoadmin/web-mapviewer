@@ -4,7 +4,7 @@ import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 
 /**
  * @typedef ProfileRequestData
- * @property {String} geom A GeoJSON representation of a polyline (type = LineString)
+ * @property {GeoJSON} geom A GeoJSON object representation of a polyline (type = LineString)
  * @property {Number} [sr] The reference system to use (EPSG code). Valid value are 2056 (for LV95)
  *   and 21781 (for LV03)
  * @property {Number} [nb_points] The number of points used for the polyline segmentation. Default “200”.
@@ -13,6 +13,12 @@ import { API_SERVICE_ALTI_BASE_URL } from '@/config'
  *   used to calculate the average.
  * @property {Boolean} [distinct_points] If True, it will ensure the coordinates given to the
  *   service are part of the response. Possible values are True or False, default to False.
+ */
+
+/**
+ * @typedef GeoJSON A GeoJSON object
+ * @property {string} type
+ * @property {[[Number]]} coordinates
  */
 
 /**
@@ -49,14 +55,13 @@ const profile = (data, fileExtension) => {
             log.error(errorMessage)
             reject(errorMessage)
         }
+        const geoJson = data.geom
+        delete data.geom
         const params = new URLSearchParams(data)
         axios
             .post(
-                `${API_SERVICE_ALTI_BASE_URL}rest/services/profile${fileExtension}`,
-                params.toString(),
-                {
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                }
+                `${API_SERVICE_ALTI_BASE_URL}rest/services/profile${fileExtension}?${params.toString()}`,
+                geoJson
             )
             .then((response) => {
                 if (response.data && response.data) {

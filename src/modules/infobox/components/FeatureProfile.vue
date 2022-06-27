@@ -245,7 +245,7 @@ export default {
         async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
             return apiFunction({
-                geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
+                geom: { type: 'LineString', coordinates: coordinatesLv95 },
                 offset: 0,
                 sr: 2056,
                 distinct_points: true,

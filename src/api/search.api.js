@@ -110,7 +110,7 @@ export class CombinedSearchResults {
  * @returns Promise<Array<Any>>
  */
 const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
-    return axios.get(`${API_SERVICE_SEARCH_BASE_URL}/2008121130/rest/services/ech/SearchServer`, {
+    return axios.get(`${API_SERVICE_SEARCH_BASE_URL}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
             sr: 3857,
