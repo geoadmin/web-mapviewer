@@ -16,7 +16,6 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-//@import 'src/scss/variables-admin';
 .loading-glass {
     position: fixed;
     left: 0;
@@ -25,7 +24,7 @@ export default {
     width: 100vw;
     color: $black;
     background-color: rgba(255, 255, 255, 0.2);
-    z-index: 1000;
+    z-index: $zindex-loading-screen;
     cursor: wait;
     text-align: center;
     line-height: 100vh;
@@ -50,12 +49,12 @@ export default {
     }
     .loading-glass {
         background-color: rgba(255, 255, 255, 0);
-        // screen becomes a bit whiter if loading more than 5s
-        animation: background-fade 5s forwards;
+        // screen becomes a bit whiter if loading more than 2s
+        animation: background-fade 2s forwards;
     }
 
     @keyframes background-fade {
-        99.9% {
+        99% {
             background: rgba(255, 255, 255, 0);
         }
         100% {
