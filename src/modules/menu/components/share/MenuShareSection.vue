@@ -1,9 +1,10 @@
 <template>
     <MenuSection
         :title="$t('share')"
+        :show-content="isSectionShown"
         data-cy="menu-share-section"
         secondary
-        @click="toggleShortLinkUpdate"
+        @click="toggleShareMenu"
     >
         <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
         <div v-if="shortLink" class="p-2">
@@ -29,32 +30,25 @@ export default {
         MenuShareSocialNetworks,
         MenuSection,
     },
-    data() {
-        return {
-            /** Keeping track of the visibility of the share section */
-            isSectionShown: false,
-        }
-    },
     computed: {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
+            isSectionShown: (state) => state.share.isMenuSectionShown,
         }),
     },
     methods: {
-        ...mapActions(['generateShortLink', 'setKeepUpdatingShortLink']),
-        generateShortLinkIfMNeeded() {
-            if (!this.shortLink) {
+        ...mapActions(['generateShortLink',' clearShortLink', 'toggleShareMenuSection']),
+        toggleShareMenu() {
+            this.toggleShareMenuSection()
+            if (!this.shortLink){
                 this.generateShortLink()
             }
-        },
-        toggleShortLinkUpdate() {
-            this.isSectionShown = !this.isSectionShown
-            // first time here, shortLink is not yet defined
-            if (this.isSectionShown && !this.shortLink) {
-                this.generateShortLink()
+            else {
+                this.clearShortLink()
             }
-            this.setKeepUpdatingShortLink(this.isSectionShown)
+
         },
+
     },
 }
 </script>

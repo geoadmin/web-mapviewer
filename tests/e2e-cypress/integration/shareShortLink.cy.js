@@ -19,21 +19,20 @@ describe('Testing the share menu', () => {
             cy.wait('@shortLink')
             cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
         })
-        it('Updates the short link as soon as the state of the map (the URL) has changed', () => {
+        it('deletes the short link and close the menu as soon as the state of the map (the URL) has changed', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             // a short link should be generated as it is our first time opening this section
             cy.wait('@shortLink')
-            // overriding the response of the service with a different URL
-            const updatedDummyShortLink = 'https://updated.dummy.link'
-            cy.intercept('https://s.geo.admin.ch**', {
-                body: { shorturl: updatedDummyShortLink },
-            }).as('updateShortLink')
-            // closing the menu
+            // We close the menu to still be able too click on the zoom button
             cy.get('[data-cy="menu-button"]').click()
             // zoom in the map in order to change the URL
             cy.get('[data-cy="zoom-in"]').click()
-            cy.wait('@updateShortLink')
-            cy.readStoreValue('state.share.shortLink').should('eq', updatedDummyShortLink)
+            // checking that the shortLink value doesn't exist anymore
+            cy.readStoreValue('state.share.shortLink').should('eq', null)
+            // opening the general menu again
+            cy.get('[data-cy="menu-button"]').click
+            // checking that the share menu has been closed
+            cy.get('[data-cy="share-menu-opened"]').should('not.exist')
         })
     })
     context('Social networks', () => {
