@@ -1,5 +1,4 @@
 import { getShortLink } from '@/api/shortlink.api'
-
 export default {
     state: {
         /**
@@ -11,13 +10,13 @@ export default {
          */
         shortLink: null,
         /**
-         * Flag telling if the short link should be updated anytime the URL changes.
+         * The state of the shortlink share menu section. As we need to be able to change this
+         * whenever the user moves the map, and it should only be done within mutations.
          *
-         * This will be true when the share section of the menu is shown so that the short link is
-         * always in sync with the app state. But as soon as the share section in the menu is closed
-         * we can stop updating the link (otherwise we create a lot of unwanted/unused short links)
+         *
+         * @type Boolean
          */
-        keepUpdatingShortLink: false,
+        isMenuSectionShown: false,
     },
     getters: {},
     actions: {
@@ -27,16 +26,24 @@ export default {
                 commit('setShortLink', shortLink)
             }
         },
-        setKeepUpdatingShortLink({ commit }, flagValue) {
-            commit('setKeepUpdatingShortLink', flagValue)
+        closeShareMenuAndRemoveShortlink({ commit }) {
+            commit('setIsMenuSectionShown', false)
+            commit('setShortLink', null)
+
         },
+        toggleShareMenuSection({ commit, state }) {
+            commit('setIsMenuSectionShown', !state.isMenuSectionShown)
+        },
+        clearShortLink({ commit }) {
+            commit('setShortLink', null)
+        }
     },
     mutations: {
         setShortLink(state, shortLink) {
             state.shortLink = shortLink
         },
-        setKeepUpdatingShortLink(state, flagValue) {
-            state.keepUpdatingShortLink = flagValue
-        },
+        setIsMenuSectionShown(state, flag) {
+            state.isMenuSectionShown = flag
+        }
     },
 }

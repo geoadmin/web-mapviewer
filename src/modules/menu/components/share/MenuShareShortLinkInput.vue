@@ -1,5 +1,5 @@
 <template>
-    <div v-if="shortLink" class="p-1">
+    <div v-if="shortLink" data-cy="share-menu-opened" class="p-1">
         <label v-if="withText">{{ $t('share_link') }}: </label>
         <div class="input-group input-group-sm">
             <input
