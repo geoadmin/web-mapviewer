@@ -58,6 +58,10 @@ const addKmlInterceptAndReinject = () => {
 describe('Measure Overlays handling', () => {
     beforeEach(() => {
         serverKml = '<kml></kml>'
+        /**
+         * This i18n instance is not the instance of the website. (Thats why it needs separate
+         * initialization) It is used to manually get translations of tags inside a test case.
+         */
         i18n.global.locale = language
         cy.goToDrawing(language, { lat: latitude, lon: longitude, z: zoom }, true)
     })
@@ -96,6 +100,10 @@ describe('Measure Overlays handling', () => {
      *   measureManager of the kml layer correctly takes over
      */
     it('Check correct passover from drawingLayer to kmlLayer when closing drawing', () => {
+        /**
+         * In this test case, the keyword "this" is used to reference previously defined cypress
+         * aliases. This is done to avoid a pyramid of doom caused by nested "then" statements.
+         */
         //Open drawing mode
         cy.readWindowValue('map')
             .then((map) => map.getOverlays().getLength())

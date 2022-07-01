@@ -310,7 +310,12 @@ export default {
             clearTimeout(this.KMLUpdateTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
             if (kml && kml.length) {
-                await this.saveDrawing(kml)
+                try {
+                    await this.saveDrawing(kml)
+                } catch (e) {
+                    log.error('Could not save KML layer: ', e)
+                    throw e
+                }
             }
         },
         onChange() {
