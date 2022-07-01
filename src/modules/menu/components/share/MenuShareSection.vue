@@ -4,7 +4,7 @@
         :show-content="isSectionShown"
         data-cy="menu-share-section"
         secondary
-        @click="toggleShareMenu"
+        @click:header="toggleShareMenu"
     >
         <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
         <div v-if="shortLink" class="p-2">
