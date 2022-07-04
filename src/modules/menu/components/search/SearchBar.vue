@@ -46,6 +46,9 @@ export default {
             resultsShown: (state) => state.search.show,
         }),
     },
+    mounted() {
+        this.$refs.search.focus()
+    },
     methods: {
         ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults']),
         updateSearchQuery(event) {
