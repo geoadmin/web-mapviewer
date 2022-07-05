@@ -72,6 +72,7 @@ import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
 import { mapActions } from 'vuex'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
+import log from '@/utils/logging'
 
 export default {
     components: { ButtonWithIcon },
@@ -244,14 +245,22 @@ export default {
         },
         async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return apiFunction({
-                geom: { type: 'LineString', coordinates: coordinatesLv95 },
-                offset: 0,
-                sr: 2056,
-                distinct_points: true,
-            })
+            try {
+                return await apiFunction({
+                    geom: { type: 'LineString', coordinates: coordinatesLv95 },
+                    offset: 0,
+                    sr: 2056,
+                    distinct_points: true,
+                })
+            } catch (e) {
+                log.error('Error while geting profile: ', e)
+            }
         },
         triggerDownload(blob, fileName) {
+            /**
+             * A link is needed to be able to set the fileName of the downloaded file, as
+             * window.open() does not support that
+             */
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
             link.download = fileName

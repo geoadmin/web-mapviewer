@@ -36,10 +36,12 @@ module.exports = (on, config) => {
 
             return new Promise((resolve, reject) => {
                 try {
-                    const files = fs.readdirSync(folderName)
-                    files.forEach((file) => {
-                        fs.unlinkSync(path.join(folderName, file))
-                    })
+                    if (fs.existsSync(folderName)) {
+                        const files = fs.readdirSync(folderName)
+                        files.forEach((file) => {
+                            fs.unlinkSync(path.join(folderName, file))
+                        })
+                    }
                     resolve(true)
                 } catch (err) {
                     reject(err)

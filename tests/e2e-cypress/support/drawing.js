@@ -44,6 +44,10 @@ Cypress.Commands.add('drawGeoms', () => {
     cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
     cy.get('[data-cy="infobox-close"]').click()
 
+    cy.drawMeasure()
+})
+
+Cypress.Commands.add('drawMeasure', () => {
     cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
     cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
 })
