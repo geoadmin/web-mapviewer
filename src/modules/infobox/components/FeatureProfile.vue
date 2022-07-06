@@ -49,6 +49,11 @@
                 </span>
             </div>
             <ButtonWithIcon
+                :button-font-awesome-icon="['fas', 'download']"
+                data-cy="profile-popup-csv-download-button"
+                @click="onCSVDownload"
+            />
+            <ButtonWithIcon
                 :button-font-awesome-icon="['far', 'trash-alt']"
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
@@ -59,13 +64,15 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { profile } from '@/api/profile.api'
+import { profileCsv, profileJson } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
 import { mapActions } from 'vuex'
+import { generateFilename } from '@/modules/drawing/lib/export-utils'
+import log from '@/utils/logging'
 
 export default {
     components: { ButtonWithIcon },
@@ -192,6 +199,12 @@ export default {
             const id = this.feature.id.replace('drawing_feature_', '')
             this.deleteDrawingFeature(id)
         },
+        onCSVDownload() {
+            this.getProfile(profileCsv).then((data) => {
+                const dataBlob = new Blob([data], { type: 'text/csv', endings: 'native' })
+                this.triggerDownload(dataBlob, generateFilename('.csv'))
+            })
+        },
         onResize() {
             this.$nextTick(this.updateProfile)
         },
@@ -218,7 +231,7 @@ export default {
             }
         },
         async createProfileChart() {
-            const data = await this.getProfile(this.featureCoordinates)
+            const data = await this.getProfile()
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             const glass = this.profileChart.glass
@@ -226,18 +239,34 @@ export default {
             return this.profileChart.element
         },
         async updateProfileChart(size) {
-            const data = await this.getProfile(this.featureCoordinates)
+            const data = await this.getProfile()
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
-        async getProfile(coordinates) {
+        async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
             const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
-            return profile({
-                geom: `{"type":"LineString","coordinates":${JSON.stringify(coordinatesLv95)}}`,
-                offset: 0,
-                sr: 2056,
-                distinct_points: true,
-            })
+            try {
+                return await apiFunction({
+                    geom: { type: 'LineString', coordinates: coordinatesLv95 },
+                    offset: 0,
+                    sr: 2056,
+                    distinct_points: true,
+                })
+            } catch (e) {
+                log.error('Error while geting profile: ', e)
+            }
+        },
+        triggerDownload(blob, fileName) {
+            /**
+             * A link is needed to be able to set the fileName of the downloaded file, as
+             * window.open() does not support that
+             */
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.download = fileName
+
+            link.click()
+            URL.revokeObjectURL(link.href)
         },
         attachPathListeners(areaChartPath, glass) {
             glass.on('mousemove', (evt) => {

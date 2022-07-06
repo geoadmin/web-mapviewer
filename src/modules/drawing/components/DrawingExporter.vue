@@ -44,7 +44,11 @@
 </template>
 
 <script>
-import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
+import {
+    generateGpxString,
+    generateKmlString,
+    generateFilename,
+} from '@/modules/drawing/lib/export-utils'
 import { saveAs } from 'file-saver'
 
 export default {
@@ -63,20 +67,13 @@ export default {
             }
 
             const features = this.getDrawingLayer().getSource().getFeatures()
-            const date = new Date()
-                .toISOString()
-                .split('.')[0]
-                .replaceAll('-', '')
-                .replaceAll(':', '')
-                .replace('T', '')
-            let fileName = 'map.geo.admin.ch_'
-            let content, type
+            let content, type, fileName
             if (gpx) {
-                fileName += `GPX_${date}.gpx`
+                fileName = generateFilename('.gpx')
                 content = generateGpxString(features)
                 type = 'application/gpx+xml;charset=UTF-8'
             } else {
-                fileName += `KML_${date}.kml`
+                fileName = generateFilename('.kml')
                 content = generateKmlString(features)
                 type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
             }

@@ -2,7 +2,6 @@
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { recurse } from 'cypress-recurse'
-import { Point, Polygon } from 'ol/geom'
 
 const downloadsFolder = Cypress.config('downloadsFolder')
 
@@ -35,13 +34,20 @@ const checkGpxFile = (content) => {
     })
 }
 
+const csvMock =
+    '"Distance";"Altitude";"Easting";"Northing"\n' +
+    '"0";"940.7";"2620888.741";"1196773.17"\n' +
+    '"22.4";"941.7";"2620886.135";"1196750.875"'
+
+const checkCsvFile = (content) => {
+    expect(content).to.be.equal(csvMock)
+}
+
 describe('Drawing toolbox actions', () => {
     beforeEach(() => {
+        cy.task('clearFolder', downloadsFolder)
         cy.goToDrawing()
         cy.drawGeoms()
-    })
-    afterEach(() => {
-        cy.task('clearFolder', downloadsFolder)
     })
     context('Export KML', () => {
         it('exports KML when clicking on the export button (without choosing format)', () => {
@@ -60,5 +66,19 @@ describe('Drawing toolbox actions', () => {
             cy.get('[data-cy="drawing-toolbox-export-gpx-button"]').click()
             checkFiles('gpx', checkGpxFile)
         })
+    })
+})
+
+describe('Profile popup actions', () => {
+    beforeEach(() => {
+        cy.task('clearFolder', downloadsFolder)
+        cy.goToDrawing()
+        cy.drawMeasure()
+    })
+    it('trigger download of CSV file', () => {
+        cy.mockupBackendResponse('rest/services/profile.csv**', csvMock, 'profileAsCsv')
+        cy.get('[data-cy="profile-popup-csv-download-button"]').click()
+        checkFiles('csv', checkCsvFile)
+        cy.wait('@profileAsCsv')
     })
 })

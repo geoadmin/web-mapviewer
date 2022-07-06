@@ -34,7 +34,7 @@ const testInfo = ['0.00m', '0.10m', '0.10m', "1'342m", "1'342m", '4.50m', '4.51m
 describe('Profile popup', () => {
     context('check how app behave with backend output', () => {
         const goToDrawingWithMockProfile = (mockValue) => {
-            cy.mockupBackendResponse('rest/services/profile.json', mockValue, 'profile')
+            cy.mockupBackendResponse('rest/services/profile.json**', mockValue, 'profile')
             cy.goToDrawing()
             cy.clickDrawingTool('LINEPOLYGON')
             cy.get(olSelector).click(100, 200)
@@ -73,7 +73,7 @@ describe('Profile popup', () => {
     })
     context('show/minimize/close profile popup', () => {
         beforeEach(() => {
-            cy.mockupBackendResponse('rest/services/profile.json', testResponse, 'profile')
+            cy.mockupBackendResponse('rest/services/profile.json**', testResponse, 'profile')
             cy.goToDrawing()
             cy.clickDrawingTool('LINEPOLYGON')
             cy.get(olSelector).then(($map) => {
