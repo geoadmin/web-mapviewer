@@ -1,6 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features.api'
+import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
 import i18n from '@/modules/i18n'
-import pako from 'pako'
 
 const olSelector = '.ol-viewport'
 const language = 'fr'
@@ -10,12 +10,6 @@ const longitude = 7.743
 const zoom = 9.5
 
 let serverKml = '<kml></kml>'
-
-const getKmlFromRequest = async (req) => {
-    const formData = await new Response(req.body, { headers: req.headers }).formData()
-    const kmlBlob = await formData.get('kml').arrayBuffer()
-    return new TextDecoder().decode(pako.ungzip(kmlBlob))
-}
 
 const addKmlInterceptAndReinject = () => {
     cy.intercept(
