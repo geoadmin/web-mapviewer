@@ -13,6 +13,7 @@ import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { deserializeAnchor } from '@/utils/featureAnchor'
 import MeasureManager from '@/utils/MeasureManager'
 import { DrawingModes } from '@/store/modules/drawing.store'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 /** Renders a KML file on the map */
 export default {
@@ -56,6 +57,9 @@ export default {
                 format: new KML(),
             }),
         })
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.kmlLayer = this.layer
+        }
         this.measureManager = new MeasureManager(this.getMap(), this.layer)
         this.layer.getSource().on('addfeature', (event) => {
             const f = event.feature
@@ -67,6 +71,11 @@ export default {
                 this.measureManager.addOverlays(f)
             }
         })
+    },
+    unmounted() {
+        if (IS_TESTING_WITH_CYPRESS) {
+            delete window.kmlLayer
+        }
     },
 }
 </script>

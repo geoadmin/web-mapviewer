@@ -13,6 +13,8 @@ $zindex-drawing-toolbox: $zindex-menu + 1;
 $zindex-backdrop-front: 300;
 // so that the modal is above the menu (and its backdrop)
 $zindex-modal: $zindex-backdrop-front + 1;
+$zindex-loading-screen: 400;
+$zindex-loading-bar: $zindex-loading-screen + 1;
 
 $header-height: 3rem;
 $footer-height: 1.5rem;

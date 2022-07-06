@@ -1,7 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import pako from 'pako'
-import { parseInterception } from './multipart'
 
 const olSelector = '.ol-viewport'
 
@@ -63,6 +62,9 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
     cy.goToMapView(...args)
+    cy.readWindowValue('map')
+        .then((map) => map.getOverlays().getLength())
+        .as('nbOverlaysAtBeginning')
     const viewportWidth = Cypress.config('viewportWidth')
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
@@ -121,6 +123,12 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
     })
 })
 
+export async function getKmlFromRequest(req) {
+    const formData = await new Response(req.body, { headers: req.headers }).formData()
+    const kmlBlob = await formData.get('kml').arrayBuffer()
+    return new TextDecoder().decode(pako.ungzip(kmlBlob))
+}
+
 Cypress.Commands.add('checkKMLRequest', async (interception, data, create = false) => {
     // Check request
     if (!create) {
@@ -132,15 +140,10 @@ Cypress.Commands.add('checkKMLRequest', async (interception, data, create = fals
         'multipart/form-data; boundary='
     )
 
-    const { kml } = parseInterception(interception)
-    const fileBuffer = await kml.blob.arrayBuffer()
-
-    const inflated = pako.ungzip(new Uint8Array(fileBuffer))
-    const decoded = new TextDecoder().decode(inflated)
-
-    expect(decoded).to.contain('</kml>')
+    const kml = await getKmlFromRequest(interception.request)
+    expect(kml).to.contain('</kml>')
     data.forEach((test) => {
         const condition = test instanceof RegExp ? 'match' : 'contain'
-        expect(decoded).to[condition](test)
+        expect(kml).to[condition](test)
     })
 })

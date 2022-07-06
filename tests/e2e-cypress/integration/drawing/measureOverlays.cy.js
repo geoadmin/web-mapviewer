@@ -1,16 +1,66 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { Collection } from 'ol'
+import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
+import i18n from '@/modules/i18n'
 
 const olSelector = '.ol-viewport'
+const language = 'fr'
 
 const latitude = 47.097
 const longitude = 7.743
 const zoom = 9.5
 
+let serverKml = '<kml></kml>'
+
+const addKmlInterceptAndReinject = () => {
+    cy.intercept(
+        {
+            method: 'POST',
+            url: '**/api/kml/admin',
+        },
+        async (req) => {
+            serverKml = await getKmlFromRequest(req)
+            req.reply({
+                statusCode: 201,
+                fixture: 'service-kml/create-file.fixture.json',
+            })
+        }
+    ).as('post-kml')
+    cy.intercept(
+        {
+            method: 'PUT',
+            url: '**/api/kml/admin/**',
+        },
+        async (req) => {
+            serverKml = await getKmlFromRequest(req)
+            req.reply({
+                statusCode: 200,
+                fixture: 'service-kml/update-file.fixture.json',
+            })
+        }
+    ).as('update-kml')
+    // intercepting now the call to the file itself
+    cy.fixture('service-kml/create-file.fixture.json').then((fileFixture) => {
+        cy.intercept(`**/api/kml/files/${fileFixture.id}`, function (req) {
+            req.reply({
+                statusCode: 200,
+                body: serverKml,
+            })
+        }).as('get-kml')
+    })
+}
+
 describe('Measure Overlays handling', () => {
+    beforeEach(() => {
+        serverKml = '<kml></kml>'
+        /**
+         * This i18n instance is not the instance of the website. (Thats why it needs separate
+         * initialization) It is used to manually get translations of tags inside a test case.
+         */
+        i18n.global.locale = language
+        cy.goToDrawing(language, { lat: latitude, lon: longitude, z: zoom }, true)
+    })
     it('draw measure, abort, and check that there are no overlays left', () => {
         //Open drawing mode
-        cy.goToDrawing('fr', { lat: latitude, lon: longitude, z: zoom }, true)
         cy.readWindowValue('map').then((map) => {
             const nbOverlaysAtBeginning = map.getOverlays().getLength()
             cy.readWindowValue('drawingLayer')
@@ -33,6 +83,75 @@ describe('Measure Overlays handling', () => {
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 0)
+        })
+    })
+
+    /**
+     * This test verifies multiple things:
+     *
+     * - That the kml layer is saved before it is loaded when closing the drawing immediately after drawing
+     * - That the measureManager of the drawingLayer correctly removes all overlays and that the
+     *   measureManager of the kml layer correctly takes over
+     */
+    it('Check correct passover from drawingLayer to kmlLayer when closing drawing', () => {
+        /**
+         * In this test case, the keyword "this" is used to reference previously defined cypress
+         * aliases. This is done to avoid a pyramid of doom caused by nested "then" statements.
+         */
+        //Open drawing mode
+        cy.readWindowValue('map')
+            .then((map) => map.getOverlays().getLength())
+            .as('nbOverlaysBeforeDrawing')
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 0)
+        addKmlInterceptAndReinject()
+        //Draw a measure
+        cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
+        cy.get(olSelector).click('left')
+        cy.get(olSelector).click('center')
+        cy.get(olSelector).dblclick('center')
+
+        //Overlays should be visible
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        cy.readWindowValue('map')
+            .then((map) => map.getOverlays().getLength())
+            .as('nbOverlaysAfterDrawing')
+            .should(function (nb) {
+                expect(nb).to.be.greaterThan(this.nbOverlaysBeforeDrawing)
+            })
+            .then(function (nb) {
+                cy.wrap(nb - this.nbOverlaysBeforeDrawing).as('nbOverlaysDrawn')
+            })
+
+        //Close drawing mode and check that the same number of the features and Overlays are
+        //displayed
+        cy.log('Close drawing mode')
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        cy.readWindowValue('map').should(function (map) {
+            const length = map.getOverlays().getLength()
+            expect(length).to.be.equal(this.nbOverlaysDrawn + this.nbOverlaysAtBeginning)
+        })
+        cy.readWindowValue('kmlLayer').should((layer) => {
+            const features = layer.getSource().getFeatures()
+            expect(features.length).to.be.equal(1)
+        })
+
+        //Hide KML layer and check that kml layer and overlays disappeared
+        cy.fixture('service-kml/create-file.fixture.json').as('fileFixture')
+        cy.readWindowValue('kmlLayer').then(function (layer) {
+            const kmlUrl = layer.getSource().getUrl()
+            const kmlLayerSelector =
+                `[data-cy="button-toggle-visibility-` +
+                `layer-KML|${kmlUrl}|${i18n.global.t('draw_layer_label')}` +
+                `@adminId=${this.fileFixture.admin_id}"]`
+            cy.get(kmlLayerSelector).click()
+            cy.readWindowValue('map').should(function (map) {
+                const length = map.getOverlays().getLength()
+                expect(length).to.be.eq(this.nbOverlaysAtBeginning)
+            })
+            cy.readWindowValue('kmlLayer').should('not.exist')
         })
     })
 })

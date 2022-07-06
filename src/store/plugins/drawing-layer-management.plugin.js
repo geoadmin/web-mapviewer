@@ -28,7 +28,7 @@ export default function drawingLayerManagementPlugin(store) {
 
         if (
             fileId &&
-            ['setKmlIds', 'setShowDrawingOverlay'].includes(mutation.type) &&
+            mutation.type === 'setKmlIds' &&
             !state.layers.activeLayers.find((layer) => layer.fileId === fileId)
         ) {
             // if we have a KML layer and that the drawing menu is not open

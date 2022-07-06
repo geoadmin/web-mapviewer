@@ -15,6 +15,8 @@ $loading-element-width: 40rem;
 $loading-bar-animation-duration: 2s;
 
 .header-loading-bar {
+    @import 'src/scss/variables';
+    z-index: $zindex-loading-bar;
     box-sizing: content-box;
     height: 2px;
     position: fixed;

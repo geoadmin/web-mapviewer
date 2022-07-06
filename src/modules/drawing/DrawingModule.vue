@@ -6,7 +6,7 @@
             :is-drawing-empty="isDrawingEmpty"
             :kml-ids="kmlIds"
             :ui-mode="uiMode"
-            @close="hideDrawingOverlay"
+            @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
             @delete-last-point="removeLastPoint"
@@ -59,6 +59,7 @@
             @draw-start="onDrawStart"
             @draw-end="onDrawEnd"
         />
+        <LoadingScreen v-if="isLoading" />
     </div>
 </template>
 
@@ -72,6 +73,7 @@ import DrawingModifyInteraction from '@/modules/drawing/components/DrawingModify
 import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelectInteraction.vue'
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
+import LoadingScreen from '@/utils/LoadingScreen.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
@@ -80,8 +82,10 @@ import { deserializeAnchor } from '@/utils/featureAnchor'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import MeasureManager from '@/utils/MeasureManager'
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -93,6 +97,7 @@ export default {
         DrawingMarkerInteraction,
         DrawingTooltip,
         DrawingToolbox,
+        LoadingScreen,
     },
     inject: ['getMap'],
     provide() {
@@ -107,6 +112,7 @@ export default {
             drawingModes: Object.values(DrawingModes),
             isDrawingEmpty: true,
             currentlySketchedFeature: null,
+            isLoading: false,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
         }
@@ -123,6 +129,7 @@ export default {
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
         }),
+        ...mapGetters(['getDrawingPublicFileUrl']),
         isDrawingModeMarker() {
             return this.currentDrawingMode === DrawingModes.MARKER
         },
@@ -156,16 +163,58 @@ export default {
         },
     },
     watch: {
-        show(show) {
-            if (show) {
-                // Clear the drawing layer, so addSavedKMLLayer() also updates already
-                // existent features
-                this.drawingLayer.getSource().clear()
-                // if a KML was previously created with the drawing module
-                // we add it back for further editing
-                this.addSavedKmlLayer().then(() => this.getMap().addLayer(this.drawingLayer))
-            } else {
-                this.getMap().removeLayer(this.drawingLayer)
+        async show(show) {
+            /**
+             * Makes it possible to abort the toggle on error by setting
+             * "this.abortedToggleOverlay=true" before calling "this.toggleDrawingOverlay()", as
+             * calling "this.toggleDrawingOverlay()" will retrigger this function.
+             */
+            if (this.abortedToggleOverlay) {
+                this.abortedToggleOverlay = false
+                return
+            }
+            this.isLoading = true
+            try {
+                if (show) {
+                    // Clear the drawing layer, so addSavedKMLLayer() also updates already
+                    // existent features
+                    this.drawingLayer.getSource().clear()
+                    // if a KML was previously created with the drawing module
+                    // we add it back for further editing
+                    await this.addSavedKmlLayer()
+                    this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
+                    this.getMap().addLayer(this.drawingLayer)
+                } else {
+                    this.clearAllSelectedFeatures()
+                    this.setDrawingMode(null)
+                    await this.triggerImmediateKMLUpdate()
+                    // Next tick is needed to wait that all overlays are correctly updated so that
+                    // they can be correctly removed with the map
+                    this.$nextTick(() => {
+                        this.getMap().removeLayer(this.drawingLayer)
+                    })
+                    this.addLayer(
+                        new KMLLayer(
+                            1.0,
+                            this.getDrawingPublicFileUrl,
+                            this.kmlIds.fileId,
+                            this.kmlIds.adminId
+                        )
+                    )
+                }
+            } catch (e) {
+                // Here a better logic for handeling network errors could be added
+                // (e.g. user feedback)
+                const e_msg = show
+                    ? 'Aborted opening of drawing mode. Could not add existent KML layer: '
+                    : 'Aborted closing of drawing mode. Could not save KML layer: '
+                log.error(e_msg, e.code)
+                // Abort the toggle to give the user a chance to reconnect to the internet and
+                // so to not loose his drawing
+                this.abortedToggleOverlay = true
+                this.toggleDrawingOverlay()
+            } finally {
+                this.isLoading = false
             }
         },
         featureIds(next, last) {
@@ -189,6 +238,12 @@ export default {
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
         }
+
+        /**
+         * Flag used internally in the "show(show)" watcher function. Look at the comment at the top
+         * of the beforementioned function to understand how this flag is used.
+         */
+        this.abortedToggleOverlay = false
     },
     mounted() {
         // We can enable the teleport after the view has been rendered.
@@ -223,6 +278,7 @@ export default {
             'setDrawingMode',
             'setKmlIds',
             'removeLayer',
+            'addLayer',
             'loadAvailableIconSets',
             'setSelectedFeatures',
             'clearAllSelectedFeatures',
@@ -232,11 +288,6 @@ export default {
             'clearDrawingFeatures',
             'setDrawingFeatures',
         ]),
-        hideDrawingOverlay() {
-            this.clearAllSelectedFeatures()
-            this.setDrawingMode(null)
-            this.toggleDrawingOverlay()
-        },
         changeDrawingMode(mode) {
             // we de-activate the mode if the same button is pressed twice
             // (if the current mode is equal to the one received)
@@ -249,16 +300,23 @@ export default {
         triggerKMLUpdate() {
             clearTimeout(this.KMLUpdateTimeout)
             this.KMLUpdateTimeout = setTimeout(
-                () => {
-                    const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
-                    if (kml && kml.length) {
-                        this.saveDrawing(kml)
-                    }
-                },
+                this.triggerImmediateKMLUpdate,
                 // when testing, speed up and avoid race conditions
                 // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
+        },
+        async triggerImmediateKMLUpdate() {
+            clearTimeout(this.KMLUpdateTimeout)
+            const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
+            if (kml && kml.length) {
+                try {
+                    await this.saveDrawing(kml)
+                } catch (e) {
+                    log.error('Could not save KML layer: ', e)
+                    throw e
+                }
+            }
         },
         onChange() {
             this.$nextTick(() => {
