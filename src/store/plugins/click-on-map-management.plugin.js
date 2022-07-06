@@ -73,7 +73,7 @@ const clickOnMapManagementPlugin = (store) => {
             } else if (!isDesktop && isLeftClick && !isLongClick) {
                 store.dispatch('toggleFullscreenMode')
             } else if (isDesktop && !isLeftClick) {
-                store.dispatch('clearSelectedFeatures')
+                store.dispatch('clearAllSelectedFeatures')
             }
         }
     })
