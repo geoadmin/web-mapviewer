@@ -1,57 +1,28 @@
 <template>
-    <div class="btn-group m-1">
-        <button
-            :disabled="isDrawingEmpty"
-            type="button"
-            class="btn btn-outline-light text-dark"
-            data-cy="drawing-toolbox-quick-export-button"
-            @click="exportDrawing(false)"
-        >
-            {{ $t('export_kml') }}
-        </button>
-        <button
-            id="toggle-export-dropdown-options"
-            type="button"
-            :disabled="isDrawingEmpty"
-            class="btn btn-outline-light text-dark dropdown-toggle dropdown-toggle-split"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            data-cy="drawing-toolbox-choose-export-format-button"
-        >
-            <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="toggle-export-dropdown-options">
-            <li>
-                <button
-                    class="dropdown-item"
-                    data-cy="drawing-toolbox-export-kml-button"
-                    @click="exportDrawing(false)"
-                >
-                    KML
-                </button>
-            </li>
-            <li>
-                <button
-                    class="dropdown-item"
-                    data-cy="drawing-toolbox-export-gpx-button"
-                    @click="exportDrawing(true)"
-                >
-                    GPX
-                </button>
-            </li>
-        </ul>
-    </div>
+    <DropdownButton
+        class="m-1"
+        :title="$t('export_kml')"
+        :current-value="$t('export_kml')"
+        :items="exportOptions"
+        :disabled="isDrawingEmpty"
+        with-toggle-button
+        data-cy="drawing-toolbox-quick-export-button"
+        @select:item="onExportOptionSelected"
+        @click="exportDrawing(false)"
+    />
 </template>
 
 <script>
 import {
+    generateFilename,
     generateGpxString,
     generateKmlString,
-    generateFilename,
 } from '@/modules/drawing/lib/export-utils'
+import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { saveAs } from 'file-saver'
 
 export default {
+    components: { DropdownButton },
     inject: ['getDrawingLayer'],
     props: {
         isDrawingEmpty: {
@@ -59,7 +30,15 @@ export default {
             default: false,
         },
     },
+    data() {
+        return {
+            exportOptions: [new DropdownItem('KML'), new DropdownItem('GPX')],
+        }
+    },
     methods: {
+        onExportOptionSelected(dropdownItem) {
+            this.exportDrawing(dropdownItem.title === 'GPX')
+        },
         exportDrawing(gpx = false) {
             // if there's no features, no export
             if (this.isDrawingEmpty) {
