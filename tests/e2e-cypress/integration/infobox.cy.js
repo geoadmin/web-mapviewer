@@ -56,7 +56,7 @@ describe('The infobox', () => {
 
         cy.get('[data-cy="infobox-content"]').then(($element) => {
             const maxHeight = $element
-              .find('[data-infobox="height-reference"')
+              .find('[data-infobox="height-reference"]')
               .toArray()
               .map((child) => child.offsetHeight)
               .reduce((max, height) => Math.max(max, height), 0)

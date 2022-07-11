@@ -41,7 +41,7 @@ export default {
         },
         dropdownItems() {
             return this.sizes.map((size) => {
-                return new DropdownItem(this.$t(size.label), size)
+                return new DropdownItem(size.label, size)
             })
         }
     },

@@ -1,24 +1,19 @@
 /// <reference types="cypress" />
 
-const deleteButton = '[data-cy="drawing-toolbox-delete-button"]'
-const quickExportButton = '[data-cy="drawing-toolbox-quick-export-button"]'
-const chooseExportFormatButton = '[data-cy="drawing-toolbox-choose-export-format-button"]'
-const shareButton = '[data-cy="drawing-toolbox-share-button"]'
-
 describe('Delete action in the drawing module', () => {
     it('deletes the drawing when confirming the delete modal', () => {
         cy.goToDrawing()
         cy.drawGeoms()
-        cy.get(deleteButton).click()
+        cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
         cy.get('[data-cy="modal-confirm-button"]').click()
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .then((features) => {
                 expect(features).to.have.length(0)
             })
-        cy.get(deleteButton).should('have.attr', 'disabled')
-        cy.get(chooseExportFormatButton).should('have.attr', 'disabled')
-        cy.get(quickExportButton).should('have.attr', 'disabled')
-        cy.get(shareButton).should('have.attr', 'disabled')
+        cy.get('[data-cy="drawing-toolbox-delete-button"]').should('have.attr', 'disabled')
+        cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]').should('have.attr', 'disabled')
+        cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]').should('have.attr', 'disabled')
+        cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
     })
 })

@@ -6,7 +6,7 @@
         :items="exportOptions"
         :disabled="isDrawingEmpty"
         with-toggle-button
-        data-cy="drawing-toolbox-quick-export-button"
+        data-cy="drawing-toolbox-export-button"
         @select:item="onExportOptionSelected"
         @click="exportDrawing(false)"
     />

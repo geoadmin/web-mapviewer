@@ -34,15 +34,6 @@ const checkGpxFile = (content) => {
     })
 }
 
-const csvMock =
-    '"Distance";"Altitude";"Easting";"Northing"\n' +
-    '"0";"940.7";"2620888.741";"1196773.17"\n' +
-    '"22.4";"941.7";"2620886.135";"1196750.875"'
-
-const checkCsvFile = (content) => {
-    expect(content).to.be.equal(csvMock)
-}
-
 describe('Drawing toolbox actions', () => {
     beforeEach(() => {
         cy.task('clearFolder', downloadsFolder)
@@ -51,19 +42,19 @@ describe('Drawing toolbox actions', () => {
     })
     context('Export KML', () => {
         it('exports KML when clicking on the export button (without choosing format)', () => {
-            cy.get('[data-cy="drawing-toolbox-quick-export-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]').click()
             checkFiles('kml', checkKmlFile)
         })
         it('exports KML file through the "choose format" export menu', () => {
-            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
-            cy.get('[data-cy="drawing-toolbox-export-kml-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]').click()
             checkFiles('kml', checkKmlFile)
         })
     })
     context('Export GPX', () => {
         it('exports GPX file through the "choose format" export menu', () => {
-            cy.get('[data-cy="drawing-toolbox-choose-export-format-button"]').click()
-            cy.get('[data-cy="drawing-toolbox-export-gpx-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]').click()
             checkFiles('gpx', checkGpxFile)
         })
     })
@@ -76,9 +67,18 @@ describe('Profile popup actions', () => {
         cy.drawMeasure()
     })
     it('trigger download of CSV file', () => {
-        cy.mockupBackendResponse('rest/services/profile.csv**', csvMock, 'profileAsCsv')
+        cy.intercept('**/rest/services/profile.csv**', {
+            fixture: 'service-alti/profile.fixture',
+        }).as('profileAsCsv')
         cy.get('[data-cy="profile-popup-csv-download-button"]').click()
-        checkFiles('csv', checkCsvFile)
         cy.wait('@profileAsCsv')
+        cy.fixture('service-alti/profile.fixture').then((mockCsv) => {
+            checkFiles('csv', (content) => {
+                // just in case we are testing from windows we replace all \r\n by \n
+                const agnosticContent = content.replaceAll('\r', '')
+                const agnosticMockCsv = mockCsv.replaceAll('\r', '')
+                expect(agnosticContent).to.be.equal(agnosticMockCsv)
+            })
+        })
     })
 })

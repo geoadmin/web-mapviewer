@@ -70,7 +70,7 @@ const addCatalogFixtureAndIntercept = () => {
 }
 const addHeightFixtureAndIntercept = () => {
     cy.intercept('**/rest/services/height**', {
-        fixture: 'height.fixture',
+        fixture: 'service-alti/height.fixture',
     }).as('coordinates-for-height')
 }
 
