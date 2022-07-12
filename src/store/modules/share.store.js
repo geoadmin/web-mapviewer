@@ -1,4 +1,6 @@
-import { getShortLink } from '@/api/shortlink.api'
+import { createShortLink } from '@/api/shortlink.api'
+import log from '@/utils/logging'
+
 export default {
     state: {
         /**
@@ -21,9 +23,13 @@ export default {
     getters: {},
     actions: {
         async generateShortLink({ commit }) {
-            const shortLink = await getShortLink(window.location.href)
-            if (shortLink) {
-                commit('setShortLink', shortLink)
+            try {
+                const shortLink = await createShortLink(window.location.href)
+                if (shortLink) {
+                    commit('setShortLink', shortLink)
+                }
+            } catch (err) {
+                log.error('Error while creating short link for', window.location.href, err)
             }
         },
         closeShareMenuAndRemoveShortlink({ commit }) {

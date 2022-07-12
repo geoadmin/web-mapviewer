@@ -8,7 +8,7 @@ import { API_SERVICE_SHORTLINK_BASE_URL } from '@/config'
  * @param {String} url The URL we want to shorten
  * @returns {Promise<String>} A promise that will resolve with the short link
  */
-export function getShortLink(url) {
+export function createShortLink(url) {
     return new Promise((resolve, reject) => {
         try {
             new URL(url)
