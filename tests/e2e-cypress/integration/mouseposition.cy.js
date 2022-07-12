@@ -1,10 +1,9 @@
 /// <reference types="cypress" />
 
-import proj4 from 'proj4'
-import { Decoder } from '@nuintun/qrcode'
-
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
+import { Decoder } from '@nuintun/qrcode'
+import proj4 from 'proj4'
 
 setupProj4()
 
@@ -109,7 +108,7 @@ describe('Test mouse position', () => {
         })
         it('Uses the elevation in the popup', () => {
             cy.wait('@coordinates-for-height')
-            cy.fixture('height.fixture').then((fakeheight) => {
+            cy.fixture('service-alti/height.fixture').then((fakeheight) => {
                 cy.get('[data-cy="location-popup-height"]').contains(fakeheight.height)
             })
         })

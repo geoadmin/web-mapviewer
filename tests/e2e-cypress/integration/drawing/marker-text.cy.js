@@ -2,11 +2,12 @@
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { MAP_CENTER } from '@/config'
-import { BLACK, GREEN, RED, LARGE, MEDIUM, SMALL } from '@/utils/featureStyleUtils'
+import { BLACK, GREEN, LARGE, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
 
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
-// const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
-const drawingStyleMarkerIconSetSelector = '[data-cy="drawing-style-icon-set-button"]'
+const drawingStyleMarkerShowAllIconsButton = '[data-cy="drawing-style-show-all-icons-button"]'
+const drawingStyleMarkerIconSetSelector =
+    '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
 
 const drawingStyleTextButton = '[data-cy="drawing-style-text-button"]'
 const drawingStyleTextPopup = '[data-cy="drawing-style-text-popup"]'
@@ -39,7 +40,7 @@ const createMarkerAndOpenIconStylePopup = () => {
     cy.get('[data-cy="drawing-style-marker-button"]').click()
 }
 
-/** @param {DrawingStyleColor} color */
+/** @param {FeatureStyleColor} color */
 const clickOnAColor = (color) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleColorBox} [data-cy="color-selector-${color.name}"]`
@@ -47,11 +48,13 @@ const clickOnAColor = (color) => {
     cy.checkDrawnGeoJsonProperty('iconUrl', `-${color.rgbString}.png`, true)
 }
 
-/** @param {DrawingStyleSize} size */
+/** @param {FeatureStyleSize} size */
 const changeIconSize = (size) => {
-    cy.get(`${drawingStyleMarkerPopup} ${drawingStyleSizeSelector}`).click({ force: true })
     cy.get(
-        `${drawingStyleMarkerPopup} [data-cy="drawing-style-size-selector-${size.label}"]`
+        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
+    ).click({ force: true })
+    cy.get(
+        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size.label}"]`
     ).click()
 }
 
@@ -169,7 +172,7 @@ describe('Drawing marker/points', () => {
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
                         cy.get(
-                            `[data-cy="drawing-style-icon-set-selector-${iconSet.name}"]`
+                            `[data-cy="dropdown-item-${iconSet.name}"]`
                         ).should('be.visible')
                     })
                 })
@@ -177,7 +180,7 @@ describe('Drawing marker/points', () => {
             it('Changes the icon selector box content when the icon set changes', () => {
                 createMarkerAndOpenIconStylePopup()
                 cy.get(drawingStyleMarkerIconSetSelector).click()
-                cy.get('[data-cy="drawing-style-icon-set-selector-second"]').click()
+                cy.get('[data-cy="dropdown-item-second"]').click()
                 cy.wait('@iconSet-second')
                 cy.wait('@icon-second')
                     .its('request.url')
@@ -227,11 +230,11 @@ describe('Drawing marker/points', () => {
                 cy.get(drawingStyleTextButton).click()
                 cy.get(drawingStyleTextPopup).should('be.visible')
 
-                cy.get(`${drawingStyleTextPopup} ${drawingStyleSizeSelector}`).click({
-                    force: true,
-                })
                 cy.get(
-                    `${drawingStyleTextPopup} [data-cy="drawing-style-size-selector-${MEDIUM.label}"]`
+                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
+                ).click({ force: true })
+                cy.get(
+                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${MEDIUM.label}"]`
                 ).click({ force: true })
                 cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
 

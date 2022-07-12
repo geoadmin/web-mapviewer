@@ -9,32 +9,13 @@
                 <label class="form-label" for="drawing-style-icon-set-selector">
                     {{ $t('modify_icon_label') }}
                 </label>
-                <div id="drawing-style-icon-set-selector" class="dropdown">
-                    <button
-                        id="dropdown-icon-set-selector"
-                        data-cy="drawing-style-icon-set-button"
-                        class="btn btn-light dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                    >
-                        {{ currentIconSetName }}
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdown-size-selector">
-                        <li>
-                            <a
-                                v-for="iconSet in iconSets"
-                                :key="iconSet.name"
-                                class="dropdown-item"
-                                :class="{ active: currentIconSetName === iconSet.name }"
-                                :data-cy="`drawing-style-icon-set-selector-${iconSet.name}`"
-                                @click="setCurrentIconSet(iconSet)"
-                            >
-                                {{ iconSet.name }}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                <DropdownButton
+                    :title="currentIconSetName"
+                    :items="iconSetDropdownItems"
+                    :current-value="currentIconSet"
+                    data-cy="drawing-style-icon-set-button"
+                    @select:item="changeDisplayedIconSet"
+                />
             </div>
         </div>
 
@@ -78,12 +59,17 @@
 
 <script>
 import { EditableFeature } from '@/api/features.api'
-import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
+import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
+import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
-    components: { DrawingStyleSizeSelector, DrawingStyleColorSelector },
+    components: {
+        DropdownButton,
+        DrawingStyleSizeSelector,
+        DrawingStyleColorSelector,
+    },
     props: {
         feature: {
             type: EditableFeature,
@@ -107,6 +93,11 @@ export default {
     computed: {
         currentIconSetName() {
             return this.currentIconSet ? this.currentIconSet.name : ''
+        },
+        iconSetDropdownItems() {
+            return this.iconSets.map((iconSet) => {
+                return new DropdownItem(iconSet.name, iconSet)
+            })
         },
     },
     mounted() {
@@ -136,8 +127,8 @@ export default {
             this.$emit('change:iconSize', size)
             this.$emit('change')
         },
-        setCurrentIconSet(iconSet) {
-            this.currentIconSet = iconSet
+        changeDisplayedIconSet(dropdownItem) {
+            this.currentIconSet = dropdownItem.value
         },
     },
 }

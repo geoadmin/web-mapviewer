@@ -1,6 +1,4 @@
 import log from '@/utils/logging'
-import jQuery from 'jquery'
-window.$ = window.jQuery = jQuery
 
 // exposing the config in the logs
 import {
@@ -48,9 +46,6 @@ log.debug('Config is', {
 })
 
 // Importing styling CSS libraries
-// Must be require() as import will be done before window.jQuery = jQuery.
-// If window.jQuery is not set before Bootstrap the plugins will not be loaded.
-import 'bootstrap/dist/js/bootstrap.bundle'
 import 'animate.css'
 
 import { createApp } from 'vue'

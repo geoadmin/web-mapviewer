@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import jQuery from 'jquery'
+import { Tooltip } from 'bootstrap'
 import { mapState } from 'vuex'
 import { UIModes } from '@/store/modules/ui.store'
 
@@ -44,14 +44,15 @@ export default {
         }),
     },
     mounted() {
-        jQuery(this.$refs.input).tooltip({
+        this.tooltip = new Tooltip(this.$refs.input, {
             trigger: 'focus',
             placement: 'bottom',
             title: () => (this.showTooltip ? this.$t('share_link_tooltip') : null),
         })
     },
     beforeUnmount() {
-        jQuery(this.$refs.input).tooltip('dispose')
+        this.tooltip.dispose()
+        delete this.tooltip
     },
     unmounted() {
         clearTimeout(this.resetTimeout)
