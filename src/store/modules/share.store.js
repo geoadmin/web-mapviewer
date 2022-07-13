@@ -30,6 +30,7 @@ export default {
                 }
             } catch (err) {
                 log.error('Error while creating short link for', window.location.href, err)
+                commit('setShortLink', null)
             }
         },
         closeShareMenuAndRemoveShortlink({ commit }) {

@@ -64,12 +64,7 @@ const app = createApp(App)
 app.use(router)
 app.use(i18n)
 app.use(store)
-app.use(VueSocialSharing, {
-    // defining service-qrcode as a network for the sharing library
-    networks: {
-        qrcode: `${API_SERVICES_BASE_URL}qrcode/generate?url=@url`,
-    },
-})
+app.use(VueSocialSharing)
 
 // setting up font awesome vue component
 import './setup-fontawesome'

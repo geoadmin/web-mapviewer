@@ -53,7 +53,7 @@ export default {
             // we can define the network options here instead
             shareNetworkOptions: {
                 networks: {
-                    qrcode: `${API_SERVICES_BASE_URL}qrcode/generate?url=@url`,
+                    qrcode: `${API_SERVICES_BASE_URL}qrcode/generate?url=@u`,
                 },
             },
         }

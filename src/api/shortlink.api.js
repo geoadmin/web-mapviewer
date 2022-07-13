@@ -23,13 +23,6 @@ export function createShortLink(url) {
                 {
                     url: url,
                 },
-                {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Headers': '*',
-                        'Access-Control-Allow-Credentials': 'true',
-                    },
-                }
             )
             .then((response) => {
                 resolve(response.data.shorturl)
