@@ -11,6 +11,7 @@
             data-cy="menu-section-header"
             data-toggle="collapse"
             @click="toggleShowBody"
+
         >
             <span class="menu-section-title">
                 <button class="btn menu-section-title-icon" type="button">
@@ -55,7 +56,7 @@ export default {
             default: false,
         },
     },
-    emits: ['showBody'],
+    emits: ['showBody', 'click:header'],
     data() {
         return {
             showBody: this.showContent,
@@ -85,6 +86,7 @@ export default {
             if (this.showBody) {
                 this.$emit('showBody')
             }
+            this.$emit('click:header')
         },
     },
 }

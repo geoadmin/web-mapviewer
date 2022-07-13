@@ -49,6 +49,7 @@ log.debug('Config is', {
 import 'animate.css'
 
 import { createApp } from 'vue'
+import VueSocialSharing from 'vue-social-sharing'
 
 import App from './App.vue'
 import store from '@/store'
@@ -63,6 +64,7 @@ const app = createApp(App)
 app.use(router)
 app.use(i18n)
 app.use(store)
+app.use(VueSocialSharing)
 
 // setting up font awesome vue component
 import './setup-fontawesome'

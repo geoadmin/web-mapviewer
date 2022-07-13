@@ -5,7 +5,7 @@
         <div class="drawing-toolbox-in-menu"></div>
         <transition name="fade-in-out">
             <BlackBackdrop
-                v-if="!shouldMenuTrayAlwaysBeVisible && showMenuTray"
+                v-if="!shouldMenuTrayAlwaysBeVisible && showMenu"
                 @click="toggleMenuTray"
             />
         </transition>
@@ -28,7 +28,7 @@
         </div>
         <transition name="slide-up">
             <div
-                v-show="showMenuTray"
+                v-show="showMenu"
                 class="menu-tray"
                 :class="{
                     'desktop-mode': shouldMenuTrayAlwaysBeVisible,
@@ -39,7 +39,7 @@
                 <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
                 <ButtonWithIcon
                     v-if="shouldMenuTrayAlwaysBeVisible"
-                    class="m-auto"
+                    class="button-open-close-desktop-menu m-auto"
                     data-cy="menu-button"
                     :button-font-awesome-icon="['fas', menuDesktopOpen ? 'caret-up' : 'caret-down']"
                     :button-title="$t(menuDesktopOpen ? 'close_menu' : 'open_menu')"
@@ -54,15 +54,14 @@
 </template>
 
 <script>
+import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
-import { mapActions, mapState } from 'vuex'
-
-import MenuTray from './components/menu/MenuTray.vue'
-import { UIModes } from '@/store/modules/ui.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
+import { UIModes } from '@/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
@@ -76,7 +75,6 @@ export default {
     computed: {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
-            stateShowMenuTray: (state) => state.ui.showMenuTray,
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             currentLang: (state) => state.i18n.lang,
             currentTopic: (state) => state.topics.current,
@@ -86,22 +84,9 @@ export default {
             isGeolocationDenied: (state) => state.geolocation.denied,
             menuDesktopOpen: (state) => state.ui.menuDesktopOpen,
         }),
+        ...mapGetters(['showMenu', 'showHeader']),
         shouldMenuTrayAlwaysBeVisible() {
             return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
-        },
-        showHeader() {
-            return !this.isFullscreenMode && !this.isCurrentlyDrawing
-        },
-        showMenuTray() {
-            if (this.isFullscreenMode) {
-                return false
-            } else {
-                if (this.shouldMenuTrayAlwaysBeVisible) {
-                    return !this.isCurrentlyDrawing
-                } else {
-                    return this.stateShowMenuTray && !this.isCurrentlyDrawing
-                }
-            }
         },
     },
     methods: {
@@ -165,6 +150,10 @@ $animation-time: 0.5s;
         max-height: calc(100% - #{$header-height});
         overflow-y: auto;
         transition: $animation-time;
+        $openCloseButtonHeight: 38px;
+        .button-open-close-desktop-menu {
+            height: $openCloseButtonHeight;
+        }
         &.desktop-mode {
             .menu-tray-content {
                 transition: opacity $animation-time;
@@ -175,7 +164,7 @@ $animation-time: 0.5s;
             .menu-tray-content {
                 opacity: 0;
             }
-            transform: translate(0px, calc(-100% + 2.5rem));
+            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
     }
 }

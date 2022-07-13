@@ -1,9 +1,18 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons'
+import {
+    faCheckSquare,
+    faClock,
+    faCopy,
+    faEye,
+    faSquare,
+    faTrashAlt,
+} from '@fortawesome/free-regular-svg-icons'
 import {
     faArrowDown,
-    faArrowUp,
     faArrowsAltH,
     faArrowsAltV,
+    faArrowUp,
     faCaretDown,
     faCaretRight,
     faCaretUp,
@@ -12,6 +21,7 @@ import {
     faCog,
     faDownload,
     faDrawPolygon,
+    faEnvelope,
     faFont,
     faInfoCircle,
     faMapMarkerAlt,
@@ -24,8 +34,8 @@ import {
     faQrcode,
     faRuler,
     faSearch,
-    faSortAmountUpAlt,
     faSortAmountDownAlt,
+    faSortAmountUpAlt,
     faSpinner,
     faSquareFull,
     faT,
@@ -33,14 +43,6 @@ import {
     faTimesCircle,
     faWindowMinimize,
 } from '@fortawesome/free-solid-svg-icons'
-import {
-    faCheckSquare,
-    faClock,
-    faCopy,
-    faEye,
-    faSquare,
-    faTrashAlt,
-} from '@fortawesome/free-regular-svg-icons'
 
 library.add(
     // Solid
@@ -56,6 +58,7 @@ library.add(
     faCog,
     faDownload,
     faDrawPolygon,
+    faEnvelope,
     faFont,
     faInfoCircle,
     faMapMarkerAlt,
@@ -82,5 +85,8 @@ library.add(
     faCopy,
     faEye,
     faSquare,
-    faTrashAlt
+    faTrashAlt,
+    // Brands
+    faFacebook,
+    faTwitter
 )

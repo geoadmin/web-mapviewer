@@ -64,6 +64,12 @@ function storeMutationWatcher(store, mutation, router) {
                     log.info('Error while routing to', query, error)
                     routeChangeIsTriggeredByThisModule = false
                 })
+            // if the short linked version of the URL is already defined,
+            // and the share menu opened, we must close the share menu and
+            // reset the shortlink
+            if (store.state.share.shortLink) {
+                store.dispatch('closeShareMenuAndRemoveShortlink')
+            }
         }
     }
 }

@@ -8,6 +8,7 @@
         >
             <MenuSettings :current-ui-mode="currentUiMode" @change-ui-mode="setUiMode" />
         </MenuSection>
+        <MenuShareSection />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <MenuSection
             :title="$t('draw_panel_title')"
@@ -33,9 +34,11 @@ import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
+import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 
 export default {
     components: {
+        MenuShareSection,
         MenuTopicSection,
         MenuSection,
         MenuActiveLayersList,

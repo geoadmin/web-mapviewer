@@ -2,7 +2,7 @@
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work. -->
         <BlackBackdrop front @click="onClose(false)" />
-        <div class="modal-popup">
+        <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
             <div class="card">
                 <div class="card-header d-flex align-middle">
                     <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
@@ -64,6 +64,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        fluid: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     methods: {
@@ -87,8 +91,11 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    &:not(&-fluid) {
+        // only setting a min-width if the modal content shouldn't be fluid
+        min-width: 75vw;
+    }
     z-index: $zindex-modal;
-    min-width: 75vw;
     max-width: 90vw;
     max-height: 90vh;
     .card {
