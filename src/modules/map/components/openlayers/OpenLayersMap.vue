@@ -133,6 +133,7 @@ export default {
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
+            rotation: (state) => state.position.rotation,
             center: (state) => state.position.center,
             selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
@@ -217,6 +218,12 @@ export default {
                 duration: 250,
             })
         },
+        rotation() {
+            this.view.animate({
+                rotation: this.rotation,
+                duration: 250,
+            })
+        },
         isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order
             // to enable/disable the "double click zoom" interaction while
@@ -262,6 +269,7 @@ export default {
         this.view = new View({
             center: this.center,
             zoom: this.zoom,
+            rotation: this.rotation,
         })
         this.map.setView(this.view)
 
@@ -292,6 +300,7 @@ export default {
         ...mapActions([
             'setCenter',
             'setZoom',
+            'setRotation',
             'click',
             'mapStoppedBeingDragged',
             'mapStartBeingDragged',
@@ -375,6 +384,10 @@ export default {
                 const zoom = round(this.view.getZoom(), 3)
                 if (zoom && zoom !== this.zoom) {
                     this.setZoom(zoom)
+                }
+                const rotation = this.view.getRotation()
+                if (rotation !== this.rotation) {
+                    this.setRotation(rotation)
                 }
             }
         },

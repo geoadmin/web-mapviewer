@@ -157,6 +157,15 @@ Cypress.Commands.add('readStoreValue', (key) => {
     return cy.window().its(`store.${key}`)
 })
 
+Cypress.Commands.add('setStoreValue', (action, value) => {
+    return cy
+        .window()
+        .its('store')
+        .then((store) => {
+            store.dispatch(action, value)
+        })
+})
+
 // Reads a value from the window
 Cypress.Commands.add('readWindowValue', (key) => {
     return cy.window().its(key)
