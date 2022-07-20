@@ -28,6 +28,7 @@
                 getLayerClass(currentBackgroundLayerWithVoid),
             ]"
             type="button"
+            :title="$t('bg_toggle')"
             @click="toggleBackgroundWheel"
             @animationend="onAnimationEnd"
         />
@@ -106,7 +107,7 @@ $map-button-gap: 0.5rem;
     background-image: url('../../../menu/assets/backgrounds_mobile.png');
     background-repeat: no-repeat;
     border-style: solid;
-    border-color: $gray-800;
+    border-color: $map-button-border-color;
     border-radius: 50%;
 
     &.bg-void {
@@ -121,12 +122,15 @@ $map-button-gap: 0.5rem;
     &.bg-ch-swisstopo-pixelkarte-farbe {
         background-position: -81px 0;
     }
+    &:hover {
+        border-color: $map-button-hover-border-color;
+    }
 }
 
 .bg-selector-trigger {
     @extend .bg-selector-button;
     position: relative;
-    border-width: 8px;
+    border-width: $map-button-border-width;
 }
 
 .bg-selector-wheel {
