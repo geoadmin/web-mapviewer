@@ -86,6 +86,10 @@ import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { Map, View } from 'ol'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import DragRotateInteraction from 'ol/interaction/DragRotate'
+import { defaults as getDefaultInteractions } from 'ol/interaction'
+import { platformModifierKeyOnly } from 'ol/events/condition'
+
 import 'ol/ol.css'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
@@ -252,7 +256,17 @@ export default {
     beforeCreate() {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
-        this.map = new Map({ controls: [] })
+
+        /* Make it possible to rotate the map with ctrl+drag (in addition to openlayers default
+        Alt+Shift+Drag). This is probably more intuitive. Also, Windows and some Linux distros use
+        alt+shift to switch the keyboard layout, so using alt+shift may have unintended side effects
+        or not work at all. */
+        const interactions = getDefaultInteractions().extend([
+            new DragRotateInteraction({
+                condition: platformModifierKeyOnly,
+            }),
+        ])
+        this.map = new Map({ controls: [], interactions })
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.map = this.map
