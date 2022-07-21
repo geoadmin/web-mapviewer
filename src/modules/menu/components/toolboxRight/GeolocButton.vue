@@ -47,8 +47,8 @@ $radius-circle: calc(($map-button-inner-icon-diameter / 2) - ($stroke-width / 2)
     svg {
         overflow: initial;
         position: relative;
-        top: 50%;
-        left: 50%;
+        top: $map-button-diameter * 0.5;
+        left: $map-button-diameter * 0.5;
         height: $map-button-diameter;
     }
     .geoloc-button-inner-circle {

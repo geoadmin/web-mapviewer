@@ -46,6 +46,7 @@ export default {
     cursor: pointer;
     background-color: $map-button-border-color;
     text-align: center;
+    font-size: 0px; // Needed to fully center the icon
     &:hover {
         background-color: $map-button-hover-border-color;
     }
@@ -54,9 +55,8 @@ export default {
         fill: $map-button-border-color;
     }
     .svg-inline--fa {
-        font-size: $map-button-inner-icon-diameter;
+        height: $map-button-inner-icon-diameter;
         color: $white;
-        vertical-align: middle;
     }
 }
 </style>
