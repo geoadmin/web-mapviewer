@@ -157,7 +157,13 @@ Cypress.Commands.add('readStoreValue', (key) => {
     return cy.window().its(`store.${key}`)
 })
 
-Cypress.Commands.add('setStoreValue', (action, value) => {
+/**
+ * Dispatches a store action to update a value of the store.
+ *
+ * @param {String} action The store action to dispatch
+ * @param {any} value The value that is passed as a parameter to the action
+ */
+Cypress.Commands.add('writeStoreValue', (action, value) => {
     return cy
         .window()
         .its('store')

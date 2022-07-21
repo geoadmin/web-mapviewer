@@ -26,11 +26,11 @@ describe('Testing the buttons of the right toolbox', () => {
             cy.get(compassButtonSelector).should('not.exist')
         })
         it('Should appear if app is not facing north', () => {
-            cy.setStoreValue('setRotation', facingWest + 2 * Math.PI)
+            cy.writeStoreValue('setRotation', facingWest + 2 * Math.PI)
             checkMapRotationAndButton(facingWest)
         })
         it('clicking on the button should northen the map', () => {
-            cy.setStoreValue('setRotation', facingWest)
+            cy.writeStoreValue('setRotation', facingWest)
             checkMapRotationAndButton(facingWest)
             cy.get(compassButtonSelector).click()
             checkMapRotationAndButton(0)
