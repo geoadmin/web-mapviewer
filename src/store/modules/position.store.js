@@ -18,6 +18,26 @@ export const CrossHairs = {
     marker: 'marker',
 }
 
+/**
+ * Normalizes any angle so that -PI < result <= PI
+ *
+ * @param {Number} rotation Angle in radians
+ * @returns Normalized angle in radians in range -PI < result <= PI
+ */
+export function normalizeAngle(rotation) {
+    while (rotation > Math.PI) {
+        rotation -= 2 * Math.PI
+    }
+    while (rotation < -Math.PI || Math.abs(rotation + Math.PI) < 1e-9) {
+        rotation += 2 * Math.PI
+    }
+    // Automatically fully northen the map if the user has set it approximately to the north.
+    if (Math.abs(rotation) < 1e-2) {
+        rotation = 0
+    }
+    return rotation
+}
+
 const state = {
     /**
      * The map zoom level, which define the resolution of the view
@@ -25,6 +45,12 @@ const state = {
      * @type Number
      */
     zoom: 7,
+    /**
+     * The map rotation expressed so that -Pi < rotation <= Pi
+     *
+     * @type Number
+     */
+    rotation: 0,
     /**
      * Center of the view of the map expressed in EPSG:3857
      *
@@ -119,6 +145,13 @@ const actions = {
         }
         commit('setZoom', round(zoom, 3))
     },
+    setRotation({ commit }, rotation) {
+        if (typeof rotation !== 'number') {
+            return
+        }
+        rotation = normalizeAngle(rotation)
+        commit('setRotation', rotation)
+    },
     setCenter: ({ commit }, center) => {
         if (
             !center ||
@@ -211,6 +244,7 @@ const actions = {
 
 const mutations = {
     setZoom: (state, zoom) => (state.zoom = zoom),
+    setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
 }

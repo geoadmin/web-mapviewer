@@ -25,6 +25,7 @@
                 @click="toggleGeolocation"
             />
             <ZoomButtons @zoom-in="increaseZoom" @zoom-out="decreaseZoom" />
+            <CompassButton />
         </div>
         <transition name="slide-up">
             <div
@@ -59,6 +60,7 @@ import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
+import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -67,6 +69,7 @@ export default {
     components: {
         HeaderWithSearch,
         BlackBackdrop,
+        CompassButton,
         ZoomButtons,
         GeolocButton,
         ButtonWithIcon,

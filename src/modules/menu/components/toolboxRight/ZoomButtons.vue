@@ -1,11 +1,21 @@
 <template>
     <div class="zoom d-print-none">
-        <a class="zoom-button zoom-in mb-1" data-cy="zoom-in" title="Zoom in" @click="onZoomIn">
+        <button
+            class="zoom-button zoom-in mb-1"
+            data-cy="zoom-in"
+            :title="$t('zoom_in')"
+            @click="onZoomIn"
+        >
             <font-awesome-icon size="lg" :icon="['fas', 'plus-circle']" />
-        </a>
-        <a class="zoom-button zoom-out mb-1" data-cy="zoom-out" title="Zoom out" @click="onZoomOut">
+        </button>
+        <button
+            class="zoom-button zoom-out mb-1"
+            data-cy="zoom-out"
+            :title="$t('zoom_out')"
+            @click="onZoomOut"
+        >
             <font-awesome-icon size="lg" :icon="['fas', 'minus-circle']" />
-        </a>
+        </button>
     </div>
 </template>
 
@@ -25,31 +35,27 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-$normal-color: $gray-800;
-$active-color: $primary;
-$disabled-color: $gray-300;
 .zoom-button {
+    border: none;
+    padding: 0;
     display: block;
     height: $map-button-diameter;
     width: $map-button-diameter;
     border-radius: $map-button-diameter * 0.5;
     overflow: hidden;
     cursor: pointer;
-    background-color: $normal-color;
+    background-color: $map-button-border-color;
     text-align: center;
+    font-size: 0px; // Needed to fully center the icon
     &:hover {
-        background-color: $gray-700;
+        background-color: $map-button-hover-border-color;
     }
     .button-inner-circle {
         stroke: $white;
-        fill: $normal-color;
+        fill: $map-button-border-color;
     }
     .svg-inline--fa {
-        overflow: initial;
-        position: relative;
-        top: 7px;
-        left: 0;
-        font-size: 26px;
+        height: $map-button-inner-icon-diameter;
         color: $white;
     }
 }

@@ -1,13 +1,15 @@
 <template>
-    <div
+    <button
         class="geoloc-button"
+        type="button"
         :class="{ active: isActive, disabled: isDenied }"
+        :title="isActive ? $t('geoloc_stop_tracking') : $t('geoloc_start_tracking')"
         data-cy="geolocation-button"
     >
         <svg xmlns="http://www.w3.org/2000/svg" y="0" x="0">
-            <ellipse class="geoloc-button-inner-circle" rx="8" ry="8" stroke-width="9" />
+            <ellipse class="geoloc-button-inner-circle" />
         </svg>
-    </div>
+    </button>
 </template>
 
 <script>
@@ -28,11 +30,14 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-$normal-color: $gray-800;
+$normal-color: $map-button-border-color;
 $active-color: $primary;
 $disabled-color: $gray-300;
-
+$stroke-width: 9px;
+$radius-circle: calc(($map-button-inner-icon-diameter / 2) - ($stroke-width / 2));
 .geoloc-button {
+    padding: 0;
+    border: none;
     height: $map-button-diameter;
     width: $map-button-diameter;
     border-radius: $map-button-diameter * 0.5;
@@ -42,12 +47,19 @@ $disabled-color: $gray-300;
     svg {
         overflow: initial;
         position: relative;
-        top: 50%;
-        left: 50%;
+        top: $map-button-diameter * 0.5;
+        left: $map-button-diameter * 0.5;
+        height: $map-button-diameter;
     }
     .geoloc-button-inner-circle {
         stroke: $white;
         fill: $normal-color;
+        stroke-width: $stroke-width;
+        rx: $radius-circle;
+        ry: $radius-circle;
+    }
+    &:hover {
+        background-color: $map-button-hover-border-color;
     }
     &.active {
         background-color: $active-color;

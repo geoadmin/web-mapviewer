@@ -10,13 +10,13 @@
 
 <script>
 import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
-import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
+import { DEV_SITE_WARNING } from '@/config'
 export default {
     emits: ['click'],
     data() {
         return {
             swissFlagIcon,
-            devSiteWarning: !IS_TESTING_WITH_CYPRESS && ENVIRONMENT !== 'production',
+            devSiteWarning: DEV_SITE_WARNING,
         }
     },
 }

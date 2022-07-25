@@ -15,12 +15,8 @@ describe('Testing coordinates typing in search bar', () => {
                 cy.get('[data-cy="searchbar-clear"]').click()
                 // replacing the view somewhere else in order to check that
                 // subsequent coordinate search will place the view at the correct location
-                cy.window()
-                    .its('store')
-                    .then((store) => {
-                        store.dispatch('setZoom', 10)
-                        store.dispatch('setCenter', [46.5, 8])
-                    })
+                cy.writeStoreValue('setZoom', 10)
+                cy.writeStoreValue('setCenter', [46.5, 8])
             }
         })
     })
