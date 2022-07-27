@@ -223,10 +223,12 @@ export default {
             })
         },
         rotation() {
-            this.view.animate({
-                rotation: this.rotation,
-                duration: 250,
-            })
+            if (!this.mapIsBeingDragged) {
+                this.view.animate({
+                    rotation: this.rotation,
+                    duration: 250,
+                })
+            }
         },
         isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order
@@ -384,6 +386,10 @@ export default {
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
                 this.mapStartBeingDragged()
+            }
+            const rotation = this.view.getRotation()
+            if (rotation !== this.rotation) {
+                this.setRotation(rotation)
             }
         },
         onMapMoveEnd() {

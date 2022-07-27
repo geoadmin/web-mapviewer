@@ -57,7 +57,7 @@ export default {
         border-color: $map-button-hover-border-color;
     }
     &-icon {
-        transition: transform 0.25s ease-in-out;
+        //transition: transform 0.25s ease-in-out;
         height: $map-button-diameter - 5px;
     }
 }
