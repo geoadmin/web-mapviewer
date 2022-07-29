@@ -73,9 +73,12 @@ import * as d3 from 'd3'
 import { mapActions } from 'vuex'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import log from '@/utils/logging'
+import Overlay from 'ol/Overlay'
+import proj4 from 'proj4'
 
 export default {
     components: { ButtonWithIcon },
+    inject: ['getMap'],
     props: {
         feature: {
             type: EditableFeature,
@@ -189,9 +192,19 @@ export default {
         // listening to window.resize event so that we resize the SVG profile
         window.addEventListener('resize', this.onResize)
         this.$nextTick(this.updateProfile)
+
+        /* Overlay that shows the corresponding position on the map when hovering over the profile
+        graph. */
+        this.currentHoverPosOverlay = new Overlay({
+            element: document.createElement('div'),
+            positioning: 'center-center',
+            stopEvent: false,
+        })
+        this.currentHoverPosOverlay.getElement().classList.add('profile-circle-current-hover-pos')
     },
     unmounted() {
         window.removeEventListener('resize', this.onResize)
+        this.getMap().removeOverlay(this.currentHoverPosOverlay)
     },
     methods: {
         ...mapActions(['deleteDrawingFeature']),
@@ -316,12 +329,24 @@ export default {
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
+
+                // Update the position of the overlay
+                const coords = proj4(
+                    'EPSG:2056',
+                    'EPSG:3857',
+                    this.profileChart.lineString.getCoordinateAt(x / plotWidth)
+                )
+                this.currentHoverPosOverlay.setPosition(coords)
             })
             glass.on('mouseover', () => {
                 this.showTooltip = true
+                this.currentHoverPosOverlay.getElement().style.backgroundColor =
+                    this.feature.fillColor.fill
+                this.getMap().addOverlay(this.currentHoverPosOverlay)
             })
             glass.on('mouseout', () => {
                 this.showTooltip = false
+                this.getMap().removeOverlay(this.currentHoverPosOverlay)
             })
         },
         formatDistance(value) {
@@ -447,5 +472,11 @@ export default {
         top: 100%;
         transform: translate(-$arrow_height, 0);
     }
+}
+
+.profile-circle-current-hover-pos {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
 }
 </style>
