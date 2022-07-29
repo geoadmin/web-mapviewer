@@ -36,6 +36,37 @@ export default class ProfileChart {
         return this.lineString.getCoordinateAt(ratio)
     }
 
+    /**
+     * Given a distance from origin, calculate the height.
+     *
+     * @param {Number} dist Distance (must be in the unit specified by this.unitX, i.e. depending on
+     *   the length of the path, either km or m)
+     * @returns The height in meter at the given distance
+     */
+    getHeightAtDist(dist) {
+        const maxDist = this.data[this.data.length - 1].domainDist || 0
+        dist = Math.min(Math.max(dist, 0), maxDist)
+        let lowerIndex = Math.trunc(((this.data.length - 1) * dist) / maxDist)
+        lowerIndex = Math.min(lowerIndex, this.data.length - 1)
+        while (dist < this.data[lowerIndex].domainDist) {
+            lowerIndex--
+        }
+        while (lowerIndex < this.data.length - 1 && dist > this.data[lowerIndex + 1].domainDist) {
+            lowerIndex++
+        }
+        const lowerAlti = this.data[lowerIndex].alts[this.elevationModel] || 0
+        const lowerDist = this.data[lowerIndex].domainDist
+        if (lowerIndex >= this.data.length - 1) {
+            return lowerAlti
+        }
+        let higherIndex = lowerIndex + 1
+        const higherAlti = this.data[higherIndex].alts[this.elevationModel] || 0
+        const higherDist = this.data[higherIndex].domainDist
+        const higherRatio = (dist - lowerDist) / (higherDist - lowerDist)
+        const lowerRatio = 1 - higherRatio
+        return lowerRatio * lowerAlti + higherRatio * higherAlti
+    }
+
     formatData(data) {
         if (data.length) {
             const coords = []

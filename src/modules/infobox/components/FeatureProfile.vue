@@ -283,20 +283,11 @@ export default {
         },
         attachPathListeners(areaChartPath, glass) {
             glass.on('mousemove', (evt) => {
-                const [x] = d3.pointer(evt)
-                let pos = areaChartPath.node().getPointAtLength(x)
-                const start = x
-                const end = pos.x
-                const accuracy = 5
-                for (let i = start; i > end; i += accuracy) {
-                    pos = areaChartPath.node().getPointAtLength(i)
-                    if (pos.x >= x) {
-                        break
-                    }
-                }
                 // Get the coordinate value of x and y
+                const [x] = d3.pointer(evt)
                 const xCoord = this.profileChart.domain.X.invert(x)
-                const yCoord = this.profileChart.domain.Y.invert(pos.y)
+                const yCoord = this.profileChart.getHeightAtDist(xCoord)
+                const y = this.profileChart.domain.Y(yCoord)
                 const toltipEl = this.$refs.profileTooltip
                 const tooltipArrow = this.$refs.profileTooltipArrow
                 // Calculate center of tooltip (relative to graph)
@@ -319,12 +310,12 @@ export default {
                     'px'
                 // Y position of arrowhead
                 toltipEl.style.top =
-                    pos.y +
+                    y +
                     this.options.margin.top +
                     this.$refs.profilePopupContent.getBoundingClientRect().y -
                     this.$refs.profileTooltipAnchor.getBoundingClientRect().y +
                     'px'
-
+                // Tooltip text
                 toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)} ${
                     this.profileInfo.unitX
                 }`
