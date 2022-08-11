@@ -1,5 +1,8 @@
 <template>
-    <div v-if="rotation" class="zoom d-print-none">
+    <!-- The rotation constraint of the openlayers view by default snaps to zero. This means that
+    even if the angle is not normalized, it will automatically be set to zero if pointing to the
+    north -->
+    <div v-if="Math.abs(rotation_) >= 1e-9" class="zoom d-print-none">
         <button
             class="compass-button"
             data-cy="compass-button"
@@ -13,7 +16,7 @@
                 class="compass-button-icon"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="-100 -240 200 480"
-                :style="{ transform: `rotate(${rotation}rad)` }"
+                :style="{ transform: `rotate(${rotation_}rad)` }"
             >
                 <polygon style="fill: #cd2a00" points="-100,0 100,0 0,240" />
                 <polygon style="fill: #ff3501" points="-100,0 100,0 0,-240" />
@@ -23,18 +26,32 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 export default {
+    inject: ['getMap'],
     emits: ['northen'],
-    computed: {
-        ...mapState({
-            rotation: (state) => state.position.rotation,
-        }),
+
+    data() {
+        return {
+            rotation_: 0,
+        }
+    },
+    mounted() {
+        this.getMap().on('postrender', this.onRotate)
+    },
+    unmounted() {
+        this.getMap().un('postrender', this.onRotate)
     },
     methods: {
         ...mapActions(['setRotation']),
         onNorthen() {
             this.setRotation(0)
+        },
+        onRotate(mapEvent) {
+            const rotation = mapEvent.frameState.viewState.rotation
+            if (rotation !== this.rotation_) {
+                this.rotation_ = rotation
+            }
         },
     },
 }
@@ -57,7 +74,6 @@ export default {
         border-color: $map-button-hover-border-color;
     }
     &-icon {
-        transition: transform 0.25s ease-in-out;
         height: $map-button-diameter - 5px;
     }
 }
