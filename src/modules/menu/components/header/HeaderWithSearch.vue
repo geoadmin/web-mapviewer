@@ -39,6 +39,8 @@ import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import { mapGetters, mapState } from 'vuex'
+import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: {
@@ -48,28 +50,22 @@ export default {
         SwissFlag,
         HeaderLoadingBar,
     },
-    props: {
-        showLoadingBar: {
-            type: Boolean,
-            default: false,
-        },
-        showMenuButton: {
-            type: Boolean,
-            default: false,
-        },
-        currentLang: {
-            type: String,
-            required: true,
-        },
-        currentTopicId: {
-            type: String,
-            default: 'ech',
-        },
-    },
     data() {
         return {
             devSiteWarning: DEV_SITE_WARNING,
         }
+    },
+    computed: {
+        ...mapState({
+            showLoadingBar: (state) => state.ui.showLoadingBar,
+            currentLang: (state) => state.i18n.lang,
+            currentTopic: (state) => state.topics.current,
+            currentUiMode: (state) => state.ui.mode,
+        }),
+        ...mapGetters(['currentTopicId']),
+        showMenuButton() {
+            return this.currentUiMode !== UIModes.MENU_ALWAYS_OPEN
+        },
     },
     methods: {
         resetApp() {

@@ -1,13 +1,13 @@
 <template>
     <div id="splashscreen">
-        <MenuModule />
+        <HeaderWithSearch />
     </div>
 </template>
 
 <script>
-import MenuModule from '@/modules/menu/MenuModule.vue'
+import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 export default {
-    components: { MenuModule },
+    components: { HeaderWithSearch },
 }
 </script>
 

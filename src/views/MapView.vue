@@ -7,8 +7,9 @@
             <MapFooter />
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
             <InfoboxModule />
+            <!-- needed to e.g. set register an event to set the compass position -->
+            <MenuModule />
         </MapModule>
-        <MenuModule />
         <I18nModule />
     </div>
 </template>
