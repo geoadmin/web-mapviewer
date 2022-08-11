@@ -1,4 +1,6 @@
 <template>
+    <!-- Disallow zooming on touch, as the zoom gesture is already reserved for zooming the map -->
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
     <div
         id="main-component"
         :class="{ outlines: showOutlines }"
