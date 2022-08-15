@@ -1,19 +1,24 @@
 <template>
     <div class="full-screen-map" data-cy="map">
-        <OpenLayersMap>
-            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+<!--        <OpenLayersMap>-->
+<!--            &lt;!&ndash; So that external modules can have access to the map instance through the provided 'getMap' &ndash;&gt;-->
+<!--            <slot />-->
+<!--            <LocationPopup />-->
+<!--        </OpenLayersMap>-->
+        <MaplibreMap>
             <slot />
             <LocationPopup />
-        </OpenLayersMap>
+        </MaplibreMap>
     </div>
 </template>
 
 <script>
+import MaplibreMap from "@/modules/map/components/maplibre/MaplibreMap.vue";
 import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import LocationPopup from './components/LocationPopup.vue'
 
 export default {
-    components: { OpenLayersMap, LocationPopup },
+    components: { MaplibreMap, OpenLayersMap, LocationPopup },
 }
 </script>
 

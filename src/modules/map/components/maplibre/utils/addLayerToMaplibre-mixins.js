@@ -1,4 +1,4 @@
-import {randomIntBetween} from "@/numberUtils";
+import { randomIntBetween } from "@/utils/numberUtils";
 
 const Z_INDEX_FOR_LABELS_IN_STYLE = 121;
 
@@ -13,12 +13,12 @@ const addLayerToMaplibreMixin = {
     },
     mounted() {
         if (this.layerSource && this.layerStyle) {
-            this.addLayerAndSourceToMap(this.zIndex, this.layerStyle, this.layerSource);
+            this.addLayerAndSourceToMap(this.layerStyle, this.layerSource);
         }
     },
-    destroyed() {
+    beforeUnmount() {
         if (this.layerStyle && this.layerSource) {
-            this.removeLayerAndSourceFromMap(this.zIndexForThisLayer);
+            this.removeLayerAndSourceFromMap(this.layerStyle);
         }
     },
     computed: {
@@ -27,32 +27,27 @@ const addLayerToMaplibreMixin = {
         }
     },
     methods: {
-        addLayerAndSourceToMap: function (zIndex, layer, source) {
-            const style = this.getStyle();
-            style.sources[this.sourceId] = source;
-            layer.source = this.sourceId;
-            style.layers.splice(this.zIndexForThisLayer, 0, layer);
-            this.getMap().setStyle(style);
-        },
-        removeLayerAndSourceFromMap: function (zIndex) {
-            const style = this.getStyle();
-            style.layers.splice(zIndex, 1);
-            delete style.sources[this.sourceId];
-            this.getMap().setStyle(style);
-        }
-    },
-    watch: {
-        layerSource: function (newSource) {
-            const style = this.getStyle();
-            style.sources[this.sourceId] = newSource;
-            this.getMap().setStyle(style);
-        },
-        layerStyle: function (newStyle) {
-            if (this.layerStyle) {
-                this.removeLayerAndSourceFromMap(this.zIndexForThisLayer)
+        addLayerAndSourceToMap: function (layer, source) {
+            const map = this.getMap()
+            if (!map) {
+                return
             }
-            this.addLayerAndSourceToMap(this.zIndexForThisLayer, newStyle, this.layerSource);
+            if (!map.getSource(this.sourceId)) {
+                map.addSource(this.sourceId, source)
+            }
+            if (!map.getLayer(layer.id)) {
+                layer.source = this.sourceId
+                map.addLayer(layer)
+            }
         },
+        removeLayerAndSourceFromMap: function (layer) {
+            const map = this.getMap()
+            if (!map) {
+                return
+            }
+            map.removeLayer(layer.id)
+            map.removeSource(this.sourceId)
+        }
     },
 }
 export default addLayerToMaplibreMixin;

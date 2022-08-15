@@ -30,6 +30,7 @@ const state = {
      * @type AbstractLayer
      */
     previewLayer: null,
+    vectorTileDefaultStyle: null,
 }
 
 const getters = {
@@ -152,6 +153,9 @@ const actions = {
                 commit('addLayerWithConfig', layer)
             }
         })
+    },
+    setVectorTileDefaultStyle({ commit }, style) {
+        commit('setVectorTileDefaultStyle', style)
     },
     setBackground({ commit }, bgLayerId) {
         if (bgLayerId === 'void') {
@@ -294,6 +298,9 @@ const mutations = {
     },
     setPreviewLayer(state, layer) {
         state.previewLayer = layer
+    },
+    setVectorTileDefaultStyle(state, style) {
+        state.vectorTileDefaultStyle = style
     },
 }
 

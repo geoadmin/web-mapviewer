@@ -1,6 +1,6 @@
-import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
-import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
+import { loadLayersConfigFromBackend, loadVectorTileStyle } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
+import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
 /**
@@ -45,6 +45,11 @@ const loadLayersAndTopicsConfigAndDispatchToStore = (store) => {
                     )
                 }
             })
+        })
+        .catch((error) => log.error(error))
+    loadVectorTileStyle()
+        .then((style) => {
+            store.dispatch('setVectorTileDefaultStyle', style)
         })
         .catch((error) => log.error(error))
 }

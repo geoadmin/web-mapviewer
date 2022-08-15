@@ -1,56 +1,59 @@
 <template>
-  <div>
-    <slot/>
-  </div>
+    <div>
+        <slot />
+    </div>
 </template>
 <script>
-import addLayerToMaplibreMixin from "./utils/addLayerToMaplibre-mixins";
+import addLayerToMaplibreMixin from './utils/addLayerToMaplibre-mixins'
 
 export default {
-  props: {
-    layerId: {
-      type: String,
-      required: true,
+    mixins: [addLayerToMaplibreMixin],
+    props: {
+        layerId: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        },
+        opacity: {
+            type: Number,
+            default: 1.0,
+        },
+        zIndex: {
+            type: Number,
+            default: -1,
+        },
+        gutter: {
+            type: Number,
+            default: -1,
+        },
+        projection: {
+            type: String,
+            default: 'EPSG:3857',
+        },
     },
-    url: {
-      type: String,
-      required: true,
+    data() {
+        return {
+            layerStyle: null,
+            layerSource: null,
+        }
     },
-    opacity: {
-      type: Number,
-      default: 1.0,
+    created() {
+        const tileSize = 256
+        this.layerSource = {
+            type: 'raster',
+            tiles: [
+                this.url +
+                    `&WIDTH=${tileSize}&HEIGHT=${tileSize}&BBOX={bbox-epsg-3857}&CRS=${this.projection}`,
+            ],
+            tileSize: tileSize,
+        }
+        this.layerStyle = {
+            id: this.layerId,
+            type: 'raster',
+        }
     },
-    zIndex: {
-      type: Number,
-      default: -1,
-    },
-    gutter: {
-      type: Number,
-      default: -1,
-    },
-    projection: {
-      type: String,
-      default: 'EPSG:3857'
-    }
-  },
-  mixins: [addLayerToMaplibreMixin],
-  data() {
-    return {
-      layerStyle: null,
-      layerSource: null,
-    }
-  },
-  created() {
-    const tileSize = 256;
-    this.layerSource = {
-      type: "raster",
-      tiles: [this.url + `&WIDTH=${tileSize}&HEIGHT=${tileSize}&BBOX={bbox-epsg-3857}&CRS=${this.projection}`],
-      tileSize: tileSize
-    }
-    this.layerStyle = {
-      id: this.layerId,
-      type: "raster",
-    }
-  },
-};
+}
 </script>

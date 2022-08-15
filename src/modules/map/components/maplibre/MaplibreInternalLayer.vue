@@ -1,29 +1,26 @@
 <template>
     <div>
-        <OpenLayersWMTSLayer
+        <MaplibreWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS"
             :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
+            :opacity="layerConfig.opacity"
             :z-index="zIndex"
         />
-        <OpenLayersWMSLayer
+        <MaplibreWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
-            :gutter="layerConfig.gutter"
+            :opacity="layerConfig.opacity"
             :z-index="zIndex"
         />
-        <OpenLayersGeoJSONLayer
+        <MaplibreGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
             :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :geojson-url="layerConfig.geoJsonUrl"
+            :data-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"
             :z-index="zIndex"
-        />
-        <!--
+        /><!--
         Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
         is visible depending on the map resolution.
         We have to manage aggregate layers straight here otherwise we won't be able to make a recursive call to this
@@ -36,41 +33,34 @@
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
             >
-                <OpenLayersInternalLayer
-                  v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
-                  :layer-config="aggregateSubLayer.layer"
-                  :z-index="zIndex"
+                <maplibre-internal-layer
+                    v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
+                    :layer-config="aggregateSubLayer.layer"
+                    :z-index="zIndex"
                 />
             </div>
         </div>
-        <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
-            :z-index="zIndex"
-        />
+        <!--        <OpenLayersKMLLayer-->
+        <!--          v-if="layerConfig.type === LayerTypes.KML"-->
+        <!--          :layer-id="layerConfig.getID()"-->
+        <!--          :opacity="layerConfig.opacity"-->
+        <!--          :url="layerConfig.getURL()"-->
+        <!--          :z-index="zIndex"-->
+        <!--        />-->
         <slot />
     </div>
 </template>
-
 <script>
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
-import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import MaplibreGeoJSONLayer from '@/modules/map/components/maplibre/MaplibreGeoJSONLayer.vue'
+import MaplibreWMSLayer from '@/modules/map/components/maplibre/MaplibreWMSLayer.vue'
+import MaplibreWMTSLayer from '@/modules/map/components/maplibre/MaplibreWMTSLayer.vue'
+import { mapGetters } from 'vuex'
 
-/** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers
-    name: 'OpenLayersInternalLayer',
-    components: {
-        OpenLayersKMLLayer,
-        OpenLayersGeoJSONLayer,
-        OpenLayersWMSLayer,
-        OpenLayersWMTSLayer,
-    },
+    name: 'MaplibreInternalLayer',
+    components: { MaplibreGeoJSONLayer, MaplibreWMSLayer, MaplibreWMTSLayer },
     props: {
         layerConfig: {
             type: Object,
@@ -80,24 +70,23 @@ export default {
             type: Number,
             default: -1,
         },
-        // In order to be able to manage aggregate layers we need to know the current map resolution
-        currentMapResolution: {
-            type: Number,
-            default: -1,
-        },
     },
     data() {
         return {
             LayerTypes,
         }
     },
+    computed: {
+        // In order to be able to manage aggregate layers we need to know the current map resolution
+        ...mapGetters(['resolution']),
+    },
     methods: {
-        shouldAggregateSubLayerBeVisible(subLayer) {
+        shouldAggregateSubLayerBeVisible: function (subLayer) {
             // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
             // have to worry about checking their validity
             return (
-                this.currentMapResolution >= subLayer.minResolution &&
-                this.currentMapResolution <= subLayer.maxResolution
+                this.resolution >= subLayer.minResolution &&
+                this.resolution <= subLayer.maxResolution
             )
         },
     },

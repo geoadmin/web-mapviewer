@@ -1,11 +1,11 @@
-import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
-import axios from 'axios'
-import log from '@/utils/logging'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import WMTSLayer from '@/api/layers/WMTSLayer.class'
-import WMSLayer from '@/api/layers/WMSLayer.class'
-import GeoJsonLayer from '@/api/layers/GeoJsonLayer.class'
 import AggregateLayer, { AggregateSubLayer } from '@/api/layers/AggregateLayer.class'
+import GeoJsonLayer from '@/api/layers/GeoJsonLayer.class'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import WMSLayer from '@/api/layers/WMSLayer.class'
+import WMTSLayer from '@/api/layers/WMTSLayer.class'
+import { API_BASE_URL, VECTOR_TILES_STYLE_URL, WMTS_BASE_URL } from '@/config'
+import log from '@/utils/logging'
+import axios from 'axios'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 // TODO : implement loading of a cached CloudFront version for MVP
@@ -203,5 +203,19 @@ export const loadLayersConfigFromBackend = (lang) => {
                     reject(message)
                 })
         }
+    })
+}
+
+export function loadVectorTileStyle() {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(VECTOR_TILES_STYLE_URL)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((err) => {
+                log.error('Unable to load vector tile style', err)
+                reject(err)
+            })
     })
 }

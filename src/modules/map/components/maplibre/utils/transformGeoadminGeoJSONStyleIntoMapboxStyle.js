@@ -15,7 +15,6 @@ export default function transformGeoadminGeoJSONStyleIntoMapboxStyle(geoadminSty
     mapboxStyle["circle-color"].push("#eee");
     return mapboxStyle;
   } else if (geoadminStyle.ranges) {
-    console.log(geoadminStyle.ranges);
     return geoadminStyle.ranges;
   } else {
     return geoadminStyle;

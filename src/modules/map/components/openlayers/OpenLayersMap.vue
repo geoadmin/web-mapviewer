@@ -1,102 +1,125 @@
 <template>
-  <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-  <div id="ol-map" ref="map" oncontextmenu="return false">
-    <div id="scale-line" ref="scaleLine"></div>
-    <!-- Adding background layer -->
-    <OpenLayersBODLayer v-if="currentBackgroundLayer"
-                        :layer-config="currentBackgroundLayer"
-                        :z-index="0" />
-    <!-- Adding all other BOD layers -->
-    <OpenLayersBODLayer v-for="(layer, index) in visibleLayers"
-                        :key="layer.id"
-                        :layer-config="layer"
-                        :z-index="index + (currentBackgroundLayer ? 1 : 0)" />
-    <!-- Adding highlight marker-->
-    <OpenLayersMarker v-if="highlightedFeature && highlightedFeature.type === 'location'"
-                      :position="highlightedFeature.coordinate"
-                      :marker-style="markerStyles.BALLOON" />
-    <!-- Adding marker and accuracy circle for Geolocation -->
-    <OpenLayersAccuracyCircle v-if="isMobile && geolocationActive"
-                              :position="geolocationPosition"
-                              :accuracy="geolocationAccuracy" />
-    <OpenLayersMarker v-if="geolocationActive"
-                      :position="geolocationPosition"
-                      :marker-style="markerStyles.POSITION" />
-  </div>
+    <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
+    <div id="ol-map" ref="map" @contextmenu="onContextMenu">
+        <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+        <slot />
+        <!-- Adding background layer -->
+        <OpenLayersInternalLayer
+            v-if="currentBackgroundLayer"
+            :layer-config="currentBackgroundLayer"
+            :z-index="0"
+        />
+        <!-- Adding all other layers -->
+        <OpenLayersInternalLayer
+            v-for="(layer, index) in visibleLayers"
+            :key="layer.getID()"
+            :layer-config="layer"
+            :current-map-resolution="resolution"
+            :z-index="index + startingZIndexForVisibleLayers"
+        />
+        <!-- Adding pinned location -->
+        <OpenLayersMarker
+            v-if="pinnedLocation"
+            :position="pinnedLocation"
+            :marker-style="markerStyles.BALLOON"
+            :z-index="zIndexDroppedPinned"
+        />
+        <!-- Showing cross hair if needed-->
+        <OpenLayersMarker
+            v-if="crossHairStyle"
+            :position="initialCenter"
+            :marker-style="crossHairStyle"
+            :z-index="zIndexCrossHair"
+        />
+        <!-- Adding highlighted features -->
+        <OpenLayersHighlightedFeature
+            v-for="(feature, index) in selectedFeatures"
+            :key="feature.id"
+            :feature="feature"
+            :z-index="index + startingZIndexForHighlightedFeatures"
+        />
+        <OpenLayersPopover
+            v-if="showFeaturesPopover"
+            :coordinates="popoverCoordinates"
+            authorize-print
+            @close="clearAllSelectedFeatures"
+        >
+            <template #extra-buttons>
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fa', 'caret-down']"
+                    data-cy="toggle-floating-off"
+                    @click="toggleFloatingTooltip"
+                />
+            </template>
+            <FeatureEdit v-if="editFeature" :feature="editFeature" />
+            <FeatureList v-else direction="column" />
+        </OpenLayersPopover>
+        <!-- Adding marker and accuracy circle for Geolocation -->
+        <OpenLayersAccuracyCircle
+            v-if="geolocationActive"
+            :position="geolocationPosition"
+            :accuracy="geolocationAccuracy"
+            :z-index="zIndexAccuracyCircle"
+        />
+        <OpenLayersMarker
+            v-if="geolocationActive"
+            :position="geolocationPosition"
+            :marker-style="markerStyles.POSITION"
+            :z-index="zIndexAccuracyCircle + 1"
+        />
+    </div>
 </template>
 
-<style lang="scss">
-@import "node_modules/bootstrap/scss/bootstrap";
-#ol-map {
-  width: 100%;
-  height: 100%;
-}
-#scale-line {
-  position: absolute;
-  // placing Map Scale over the footer to free some map screen space
-  bottom: 0;
-  height: 1rem;
-  width: 150px;
-  // OL Map is at z-index 10
-  z-index: 20;
-
-  .ol-scale-line {
-    text-align: center;
-    font-weight: bold;
-    bottom: 0;
-    left: 0;
-    background: rgba(255,255,255,0.6);
-    .ol-scale-line-inner {
-      color: $black;
-      border: 2px solid $black;
-      border-top: none;
-    }
-  }
-}
-</style>
-
 <script>
-import 'ol/ol.css';
+import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import moment from "moment";
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { CrossHairs } from '@/store/modules/position.store'
+import { UIModes } from '@/store/modules/ui.store'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
+import { Map, View } from 'ol'
+import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
+import 'ol/ol.css'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
 
-import {mapState, mapGetters, mapActions} from "vuex";
-import {Map, View} from 'ol';
-import ScaleLine from "ol/control/ScaleLine"
-import { isMobile } from 'mobile-device-detect';
+import { mapActions, mapGetters, mapState } from 'vuex'
+import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
+import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
+import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
+import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 
-import { round } from "@/numberUtils";
-import OpenLayersMarker, { markerStyles } from "./OpenLayersMarker";
-import OpenLayersAccuracyCircle from "./OpenLayersAccuracyCircle";
-import OpenLayersBODLayer from "./OpenLayersBODLayer";
-
+/**
+ * Main OpenLayers map component responsible for building the OL map instance and telling the view
+ * where to look at. Will delegate other responsibilities to children components (such as layer
+ * rendering, marker placement, etc...).
+ *
+ * This is the only component of the OL components constellation that must be aware of the store,
+ * and pass down information about it through props.
+ */
 export default {
-  components: {OpenLayersBODLayer, OpenLayersAccuracyCircle, OpenLayersMarker},
-  computed: {
-    ...mapState({
-      zoom: state => state.position.zoom,
-      center: state => state.position.center,
-      highlightedFeature: state => state.map.highlightedFeature,
-      pinLocation: state => state.map.pinLocation,
-      mapIsBeingDragged: state => state.map.isBeingDragged,
-      geolocationActive: state => state.geolocation.active,
-      geolocationPosition: state => state.geolocation.position,
-      geolocationAccuracy: state => state.geolocation.accuracy,
-    }),
-    ...mapGetters(["visibleLayers", "currentBackgroundLayer", "extent"]),
-  },
-  watch: {
-    center: function () {
-      this.view.animate({
-        center: this.center,
-        duration: 250
-      })
+    components: {
+        ButtonWithIcon,
+        FeatureEdit,
+        FeatureList,
+        OpenLayersAccuracyCircle,
+        OpenLayersHighlightedFeature,
+        OpenLayersInternalLayer,
+        OpenLayersMarker,
+        OpenLayersPopover,
     },
-    zoom: function () {
-      this.view.animate({
-        zoom: this.zoom,
-        duration: 250
-      })
+    provide() {
+        return {
+            // sharing OL map object with children components
+            getMap: () => this.map,
+        }
     },
     data() {
         return {
@@ -388,3 +411,12 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+#ol-map {
+    width: 100%;
+    height: 100%;
+}
+</style>

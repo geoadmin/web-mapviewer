@@ -1,48 +1,57 @@
 <template>
-  <div>
-    <slot />
-  </div>
+    <div>
+        <slot />
+    </div>
 </template>
 <script>
-import addLayerToMaplibreMixin from "./utils/addLayerToMaplibre-mixins";
+import addLayerToMaplibreMixin from './utils/addLayerToMaplibre-mixins'
 
 export default {
-  props: {
-    layerId: {
-      type: String,
-      required: true,
+    mixins: [addLayerToMaplibreMixin],
+    props: {
+        layerId: {
+            type: String,
+            required: true,
+        },
+        opacity: {
+            type: Number,
+            default: 1.0,
+        },
+        projection: {
+            type: String,
+            default: 'EPSG:3857',
+        },
+        visible: {
+            type: Boolean,
+            default: true,
+        },
+        url: {
+            type: String,
+            required: true,
+        },
+        zIndex: {
+            type: Number,
+            default: -1,
+        },
     },
-    zIndex: {
-      type: Number,
-      default: -1,
+    data() {
+        return {
+            layerStyle: null,
+            layerSource: null,
+        }
     },
-    urls: {
-      type: Array,
-      required: true,
+    created() {
+        this.layerSource = {
+            type: 'raster',
+            id: `source-${this.layerId}`,
+            tiles: [this.url],
+            tileSize: 256,
+        }
+        this.layerStyle = {
+            id: this.layerId,
+            type: 'raster',
+            opacity: this.opacity,
+        }
     },
-    opacity: {
-      type: Number,
-      default: 1.0,
-    }
-  },
-  data() {
-    return {
-      layerStyle: null,
-      layerSource: null,
-    }
-  },
-  mixins: [addLayerToMaplibreMixin],
-  created() {
-    this.layerSource = {
-      type: "raster",
-      tiles: [...this.urls],
-      tileSize: 256
-    };
-    this.layerStyle = {
-      id: this.layerId,
-      type: "raster",
-      opacity: this.opacity,
-    };
-  },
 }
 </script>
