@@ -2,7 +2,7 @@
     <!-- The rotation constraint of the openlayers view by default snaps to zero. This means that
     even if the angle is not normalized, it will automatically be set to zero if pointing to the
     north -->
-    <div v-if="Math.abs(rotation_) >= 1e-9" class="zoom d-print-none">
+    <div v-if="Math.abs(rotation) >= 1e-9" class="zoom d-print-none">
         <button
             class="compass-button"
             data-cy="compass-button"
@@ -16,7 +16,7 @@
                 class="compass-button-icon"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="-100 -240 200 480"
-                :style="{ transform: `rotate(${rotation_}rad)` }"
+                :style="{ transform: `rotate(${rotation}rad)` }"
             >
                 <polygon style="fill: #cd2a00" points="-100,0 100,0 0,240" />
                 <polygon style="fill: #ff3501" points="-100,0 100,0 0,-240" />
@@ -33,7 +33,7 @@ export default {
 
     data() {
         return {
-            rotation_: 0,
+            rotation: 0,
         }
     },
     mounted() {
@@ -48,9 +48,9 @@ export default {
             this.setRotation(0)
         },
         onRotate(mapEvent) {
-            const rotation = mapEvent.frameState.viewState.rotation
-            if (rotation !== this.rotation_) {
-                this.rotation_ = rotation
+            const newRotation = mapEvent.frameState.viewState.rotation
+            if (newRotation !== this.rotation) {
+                this.rotation = newRotation
             }
         },
     },
