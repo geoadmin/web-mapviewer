@@ -331,6 +331,8 @@ export default {
             })
             glass.on('mouseover', () => {
                 this.showTooltip = true
+                /* Must be reset everytime we show the overlay, as the user may have changed the
+                color in between. */
                 this.currentHoverPosOverlay.getElement().style.backgroundColor =
                     this.feature.fillColor.fill
                 this.getMap().addOverlay(this.currentHoverPosOverlay)
