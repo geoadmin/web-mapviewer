@@ -28,7 +28,6 @@
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 import Overlay from 'ol/Overlay'
-import OverlayPositioning from 'ol/OverlayPositioning'
 
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
@@ -60,7 +59,7 @@ export default {
     beforeCreate() {
         this.overlay = new Overlay({
             offset: [0, 15],
-            positioning: OverlayPositioning.TOP_CENTER,
+            positioning: 'top-center',
             className: 'map-popover-overlay',
             autoPan: { margin: 0 },
         })

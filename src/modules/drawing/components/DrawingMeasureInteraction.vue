@@ -8,7 +8,6 @@ import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/store/modules/drawing.store'
 import { RED } from '@/utils/featureStyleUtils'
-import GeometryType from 'ol/geom/GeometryType'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
@@ -16,7 +15,7 @@ export default {
     data() {
         return {
             drawingMode: DrawingModes.MEASURE,
-            geometryType: GeometryType.POLYGON,
+            geometryType: 'Polygon',
             extraProperties: {
                 color: RED.fill,
             },
