@@ -5,9 +5,10 @@
             <DrawingModule />
             <!-- The footer also need to receive the map (for mouse position) -->
             <MapFooter />
+            <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
+            <InfoboxModule />
         </MapModule>
         <MenuModule />
-        <InfoboxModule />
         <I18nModule />
     </div>
 </template>

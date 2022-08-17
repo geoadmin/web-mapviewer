@@ -73,9 +73,12 @@ import * as d3 from 'd3'
 import { mapActions } from 'vuex'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import log from '@/utils/logging'
+import Overlay from 'ol/Overlay'
+import proj4 from 'proj4'
 
 export default {
     components: { ButtonWithIcon },
+    inject: ['getMap'],
     props: {
         feature: {
             type: EditableFeature,
@@ -189,9 +192,19 @@ export default {
         // listening to window.resize event so that we resize the SVG profile
         window.addEventListener('resize', this.onResize)
         this.$nextTick(this.updateProfile)
+
+        /* Overlay that shows the corresponding position on the map when hovering over the profile
+        graph. */
+        this.currentHoverPosOverlay = new Overlay({
+            element: document.createElement('div'),
+            positioning: 'center-center',
+            stopEvent: false,
+        })
+        this.currentHoverPosOverlay.getElement().classList.add('profile-circle-current-hover-pos')
     },
     unmounted() {
         window.removeEventListener('resize', this.onResize)
+        this.getMap().removeOverlay(this.currentHoverPosOverlay)
     },
     methods: {
         ...mapActions(['deleteDrawingFeature']),
@@ -270,20 +283,11 @@ export default {
         },
         attachPathListeners(areaChartPath, glass) {
             glass.on('mousemove', (evt) => {
-                const [x] = d3.pointer(evt)
-                let pos = areaChartPath.node().getPointAtLength(x)
-                const start = x
-                const end = pos.x
-                const accuracy = 5
-                for (let i = start; i > end; i += accuracy) {
-                    pos = areaChartPath.node().getPointAtLength(i)
-                    if (pos.x >= x) {
-                        break
-                    }
-                }
                 // Get the coordinate value of x and y
+                const [x] = d3.pointer(evt)
                 const xCoord = this.profileChart.domain.X.invert(x)
-                const yCoord = this.profileChart.domain.Y.invert(pos.y)
+                const yCoord = this.profileChart.getHeightAtDist(xCoord)
+                const y = this.profileChart.domain.Y(yCoord)
                 const toltipEl = this.$refs.profileTooltip
                 const tooltipArrow = this.$refs.profileTooltipArrow
                 // Calculate center of tooltip (relative to graph)
@@ -306,22 +310,36 @@ export default {
                     'px'
                 // Y position of arrowhead
                 toltipEl.style.top =
-                    pos.y +
+                    y +
                     this.options.margin.top +
                     this.$refs.profilePopupContent.getBoundingClientRect().y -
                     this.$refs.profileTooltipAnchor.getBoundingClientRect().y +
                     'px'
-
+                // Tooltip text
                 toltipEl.querySelector('.distance').innerText = `${xCoord.toFixed(2)} ${
                     this.profileInfo.unitX
                 }`
                 toltipEl.querySelector('.elevation').innerText = `${yCoord.toFixed(2)} m`
+
+                // Update the position of the overlay
+                const coords = proj4(
+                    'EPSG:2056',
+                    'EPSG:3857',
+                    this.profileChart.lineString.getCoordinateAt(x / plotWidth)
+                )
+                this.currentHoverPosOverlay.setPosition(coords)
             })
             glass.on('mouseover', () => {
                 this.showTooltip = true
+                /* Must be reset everytime we show the overlay, as the user may have changed the
+                color in between. */
+                this.currentHoverPosOverlay.getElement().style.backgroundColor =
+                    this.feature.fillColor.fill
+                this.getMap().addOverlay(this.currentHoverPosOverlay)
             })
             glass.on('mouseout', () => {
                 this.showTooltip = false
+                this.getMap().removeOverlay(this.currentHoverPosOverlay)
             })
         },
         formatDistance(value) {
@@ -447,5 +465,11 @@ export default {
         top: 100%;
         transform: translate(-$arrow_height, 0);
     }
+}
+
+.profile-circle-current-hover-pos {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
 }
 </style>

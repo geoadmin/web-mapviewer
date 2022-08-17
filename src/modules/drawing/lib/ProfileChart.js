@@ -36,6 +36,44 @@ export default class ProfileChart {
         return this.lineString.getCoordinateAt(ratio)
     }
 
+    /**
+     * Given a distance from origin, calculate the height.
+     *
+     * @param {Number} dist Distance (must be in the unit specified by this.unitX, i.e. depending on
+     *   the length of the path, either km or m)
+     * @returns The height in meter at the given distance
+     */
+    getHeightAtDist(dist) {
+        // Find lowerindex, such that dist[lowerindex] <= dist <= dist[lowerindex+1] = dist[higherIndex]
+        /* The distance increase between each index is approximately regular, so we can make a
+           first guess with a complexity of O(1) */
+        const maxDist = this.data[this.data.length - 1].domainDist || 0
+        dist = Math.min(Math.max(dist, 0), maxDist)
+        let lowerIndex = Math.trunc(((this.data.length - 1) * dist) / maxDist)
+        lowerIndex = Math.min(lowerIndex, this.data.length - 1)
+        /* As it is not perfectly regular (maybe as a result of trunking the decimals in the
+           backend?) we still need to correct our first guess with these two while loops. */
+        while (dist < this.data[lowerIndex].domainDist) {
+            lowerIndex--
+        }
+        while (lowerIndex < this.data.length - 1 && dist > this.data[lowerIndex + 1].domainDist) {
+            lowerIndex++
+        }
+        /* Now we can linearly interpolate between lowerindex and higherindex to find the exact
+           altitude. */
+        const lowerAlti = this.data[lowerIndex].alts[this.elevationModel] || 0
+        const lowerDist = this.data[lowerIndex].domainDist
+        if (lowerIndex >= this.data.length - 1) {
+            return lowerAlti
+        }
+        const higherIndex = lowerIndex + 1
+        const higherAlti = this.data[higherIndex].alts[this.elevationModel] || 0
+        const higherDist = this.data[higherIndex].domainDist
+        const higherRatio = (dist - lowerDist) / (higherDist - lowerDist)
+        const lowerRatio = 1 - higherRatio
+        return lowerRatio * lowerAlti + higherRatio * higherAlti
+    }
+
     formatData(data) {
         if (data.length) {
             const coords = []
