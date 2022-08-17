@@ -120,6 +120,14 @@ export class Icon {
     }
 
     /**
+     * @returns {String} Stringified JSON representation of this object. Is called by
+     *   {@link ol.format.KML} if this object is part of the properties of a feature.
+     */
+    get value() {
+        return JSON.stringify(this)
+    }
+
+    /**
      * Generate an icon URL from its template. If no iconSize is given, medium scale will be
      * applied. If no iconColor is given, red will be applied (if applicable, as non-colorable icons
      * will not have {r}, {g}, {b} part of their template URL)
