@@ -6,14 +6,13 @@
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import { DrawingModes } from '@/store/modules/drawing.store'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
-import GeometryType from 'ol/geom/GeometryType'
 
 export default {
     mixins: [drawingInteractionMixin],
     data() {
         return {
             drawingMode: DrawingModes.ANNOTATION,
-            geometryType: GeometryType.POINT,
+            geometryType: 'Point',
             extraProperties: {
                 color: RED.fill,
                 text: 'new text',

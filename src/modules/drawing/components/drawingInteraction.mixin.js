@@ -1,6 +1,5 @@
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/store/modules/drawing.store'
-import GeometryType from 'ol/geom/GeometryType'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
 
@@ -16,8 +15,7 @@ import { getUid } from 'ol/util'
  *   defines some props that will be set in each feature's metadata created by this interaction
  *   (i.e. the fill color used, which size the text should be, etc...)
  * - `drawingMode`: which drawing mode (from {@link DrawingModes}) is being used with this interaction
- * - `geometryType`: which geometry type (from OL {@link GeometryType}) is being drawn on the map by
- *   this interaction
+ * - `geometryType`: which geometry type (from OL type) is being drawn on the map by this interaction
  *
  * It is also possible to define optionals :
  *
@@ -35,7 +33,7 @@ const drawingInteractionMixin = {
     mounted() {
         this.interaction = new DrawInteraction({
             style: this.editingStyle || editingFeatureStyleFunction,
-            type: this.geometryType || GeometryType.POINT,
+            type: this.geometryType || 'Point',
             source: this.getDrawingLayer().getSource(),
         })
         this.interaction.set('drawingMode', this.drawingMode || DrawingModes.MARKER)

@@ -6,7 +6,6 @@
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import { DrawingModes } from '@/store/modules/drawing.store'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
-import GeometryType from 'ol/geom/GeometryType'
 
 export default {
     mixins: [drawingInteractionMixin],
@@ -19,7 +18,7 @@ export default {
     data() {
         return {
             drawingMode: DrawingModes.MARKER,
-            geometryType: GeometryType.POINT,
+            geometryType: 'Point',
         }
     },
     methods: {

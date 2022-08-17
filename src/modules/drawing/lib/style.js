@@ -3,7 +3,6 @@ import { DrawingModes } from '@/store/modules/drawing.store'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 import { asArray } from 'ol/color'
 import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
-import GeometryType from 'ol/geom/GeometryType'
 import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
 /** Color for polygon area fill while drawing */
@@ -181,11 +180,11 @@ const sketchPolygonStyle = new Style({
 
 export function drawLineStyle(sketch) {
     const type = sketch.getGeometry().getType()
-    if (type === GeometryType.POINT) {
+    if (type === 'Point') {
         return sketchPointStyle
-    } else if (type === GeometryType.LINE_STRING) {
+    } else if (type === 'LineString') {
         return sketchLineStyle
-    } else if (type === GeometryType.POLYGON) {
+    } else if (type === 'Polygon') {
         return sketchPolygonStyle
     }
 }

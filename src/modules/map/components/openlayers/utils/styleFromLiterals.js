@@ -71,7 +71,7 @@ function getOlStyleFromLiterals(value) {
     const olStyles = {}
     const { vectorOptions: style, geomType } = value
 
-    if (geomType === 'point') {
+    if (geomType === 'Point') {
         let olText
         if (style.label) {
             olText = getOlBasicStyles(style.label).text
