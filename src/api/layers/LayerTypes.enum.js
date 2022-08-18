@@ -8,5 +8,6 @@ const LayerTypes = {
     GEOJSON: 'geojson',
     AGGREGATE: 'aggregate',
     KML: 'kml',
+    VECTOR: 'vector',
 }
 export default LayerTypes

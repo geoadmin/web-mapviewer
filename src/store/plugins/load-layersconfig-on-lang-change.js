@@ -1,6 +1,8 @@
-import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
+import VectorLayer from '@/api/layers/VectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
+import { VECTOR_TILES_STYLE_ID, VECTOR_TILES_STYLE_URL } from '@/config'
+import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
 /**
@@ -28,25 +30,38 @@ function loadLayersConfig(lang) {
     })
 }
 
-const loadLayersAndTopicsConfigAndDispatchToStore = (store) => {
-    loadLayersConfig(store.state.i18n.lang)
-        .then((layersConfig) => {
-            store.dispatch('setLayerConfig', layersConfig)
-            loadTopicsFromBackend(layersConfig).then((topicsConfig) => {
-                store.dispatch('setTopics', topicsConfig)
-                if (store.state.topics.current) {
-                    loadTopicTreeForTopic(store.state.i18n.lang, store.state.topics.current).then(
-                        (tree) => store.dispatch('setTopicTree', tree)
-                    )
-                } else {
-                    store.dispatch(
-                        'changeTopic',
-                        topicsConfig.find((topic) => topic.id === 'ech')
-                    )
-                }
-            })
-        })
-        .catch((error) => log.error(error))
+const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
+    try {
+        // adding vector tile backend through a hardcoded entry (for now)
+        // this should be removed as soon as the backend delivers a proper configuration
+        // for our vector tile background layer
+        const bgVectorLayer = new VectorLayer(VECTOR_TILES_STYLE_ID, 1.0, VECTOR_TILES_STYLE_URL)
+        const layersConfig = [bgVectorLayer, ...(await loadLayersConfig(store.state.i18n.lang))]
+        store.dispatch('setLayerConfig', layersConfig)
+        const topicsConfig = await loadTopicsFromBackend(layersConfig)
+        // as we want the vector tile background as default, we edit on the fly
+        // the default topic ECH to have the vector layer as its default background
+        const topicEch = topicsConfig.find((topic) => topic.id === 'ech')
+        if (topicEch) {
+            topicEch.backgroundLayers.push(bgVectorLayer)
+            topicEch.defaultBackgroundLayer = bgVectorLayer
+        }
+        store.dispatch('setTopics', topicsConfig)
+        if (store.state.topics.current) {
+            const tree = await loadTopicTreeForTopic(
+                store.state.i18n.lang,
+                store.state.topics.current
+            )
+            store.dispatch('setTopicTree', tree)
+        } else {
+            store.dispatch(
+                'changeTopic',
+                topicsConfig.find((topic) => topic.id === 'ech')
+            )
+        }
+    } catch (error) {
+        log.error(error)
+    }
 }
 
 /**

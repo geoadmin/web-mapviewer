@@ -1,5 +1,11 @@
 <template>
     <div>
+        <OpenLayersVectorLayer
+            v-if="layerConfig.type === LayerTypes.VECTOR"
+            :layer-id="layerConfig.getID()"
+            :opacity="layerConfig.opacity"
+            :style-url="layerConfig.getURL()"
+        />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS"
             :layer-id="layerConfig.getID()"
@@ -61,6 +67,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
+import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
@@ -73,6 +80,7 @@ export default {
         OpenLayersGeoJSONLayer,
         OpenLayersWMSLayer,
         OpenLayersWMTSLayer,
+        OpenLayersVectorLayer,
     },
     props: {
         layerConfig: {

@@ -235,3 +235,7 @@ export const BREAKPOINT_TABLET = 768
  * @type {Number}
  */
 export const DRAWING_HIT_TOLERANCE = 6
+
+export const VECTOR_TILES_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_world.vt'
+
+export const VECTOR_TILES_STYLE_URL = `https://vectortiles.geo.admin.ch/styles/${VECTOR_TILES_STYLE_ID}/style.json`

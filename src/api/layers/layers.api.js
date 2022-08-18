@@ -37,6 +37,9 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         switch (type.toLowerCase()) {
+            case 'vector':
+                layer = new VectorLayer(id, opacity, layerConfig.styleUrl)
+                break;
             case 'wmts':
                 layer = new WMTSLayer(
                     name,

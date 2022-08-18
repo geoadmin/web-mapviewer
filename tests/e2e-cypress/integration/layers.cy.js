@@ -127,7 +127,9 @@ describe('Test of layer handling', () => {
                 cy.goToMapView()
                 cy.readStoreValue('state.layers.backgroundLayerId').should(
                     'eq',
-                    defaultTopic.defaultBackground
+                    // for no we force the background to be the VT layer as we can't rely on the backend to give it to us
+                    // (otherwise mf-geoadmin3 PROD will also receive it...)
+                    VECTOR_TILES_STYLE_ID
                 )
             })
         })
@@ -139,7 +141,8 @@ describe('Test of layer handling', () => {
                 })
                 cy.readStoreValue('state.layers.backgroundLayerId').should(
                     'eq',
-                    defaultTopic.defaultBackground
+                    // same remark as above, we now overwrite the default BG given by the backend to the vector tile layer
+                    VECTOR_TILES_STYLE_ID
                 )
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')

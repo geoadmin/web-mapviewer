@@ -198,18 +198,12 @@ $menu-button-diameter: 3px;
         bottom: calc($map-button-diameter + $map-button-gap);
         opacity: 1;
     }
-
-    .bg-index-0 {
-        $offset: calc(($map-button-diameter + $map-button-gap) * -3);
-        transform: translateY($offset);
-    }
-    .bg-index-1 {
-        $offset: calc(($map-button-diameter + $map-button-gap) * -2);
-        transform: translateY($offset);
-    }
-    .bg-index-2 {
-        $offset: calc(($map-button-diameter + $map-button-gap) * -1);
-        transform: translateY($offset);
+    $numberOfBackgrounds: 4;
+    @for $i from 0 through $numberOfBackgrounds {
+        .bg-index-#{$i} {
+            $offset: calc(($map-button-diameter + $map-button-gap) * ($i - $numberOfBackgrounds));
+            transform: translateY($offset);
+        }
     }
 }
 
