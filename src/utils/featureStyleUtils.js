@@ -13,6 +13,19 @@ export class FeatureStyleColor {
         this._border = border
     }
 
+    getStrippedObject() {
+        /* Warning: Changing this method will break the compability of KML files */
+        return {
+            name: this.name,
+            fill: this.fill,
+            border: this.border,
+        }
+    }
+
+    static recreateObject(o) {
+        return new FeatureStyleColor(o.name, o.fill, o.border)
+    }
+
     /** @returns {String} Name of this color in lower case english */
     get name() {
         return this._name
@@ -82,6 +95,19 @@ export class FeatureStyleSize {
         this._label = label
         this._textScale = textScale
         this._iconScale = iconScale
+    }
+
+    getStrippedObject() {
+        /* Warning: Changing this method will break the compability of KML files */
+        return {
+            label: this.label,
+            textScale: this.textScale,
+            iconScale: this.iconScale,
+        }
+    }
+
+    static recreateObject(o) {
+        return new FeatureStyleSize(o.label, o.textScale, o.iconScale)
     }
 
     /**

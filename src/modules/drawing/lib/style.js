@@ -48,6 +48,7 @@ const sketchPoint = new Circle({
  * Note that the style differs when the feature is selected (or drawn for the first time) or when
  * displayed without interaction (see {@link featureStyleFunction} for this case)
  */
+//export const editingFeatureStyleFunction = featureStyleFunction
 export const editingFeatureStyleFunction = (feature) => {
     const isLineOrMeasure = feature.get('type') === 'Polygon'
     const styles = [
@@ -93,64 +94,47 @@ export const editingFeatureStyleFunction = (feature) => {
  * @returns {Style[]}
  */
 export function featureStyleFunction(feature) {
-    if (feature.get('drawingMode') === DrawingModes.MEASURE) {
-        return drawMeasureStyle(feature)
-    }
-    let color = feature.get('color')
-    if (!color) {
+    const editableFeature = feature.get('editableFeature')
+    if (!editableFeature) {
         return
     }
-    color = asArray(color)
-    const stroke = feature.get('strokeColor')
-    const fillColor = [...color.slice(0, 3), 0.4]
-    const text = feature.get('text')
-    const drawingMode = feature.get('drawingMode')
-    const icon = feature.get('iconUrl')
-    const anchor = feature.get('anchor')
-    const textScale = feature.get('textScale') || MEDIUM
+    if (editableFeature.featureType === DrawingModes.MEASURE) {
+        return drawMeasureStyle(feature)
+    }
     // Tells if we are drawing a polygon for the first time, in this case we want
     // to fill this polygon with a transparent white (instead of red)
     const isDrawing = feature.get('isDrawing')
-    let image = null
-    if (icon) {
-        // this might be expensive
-        image = new Icon({
-            src: icon,
-            crossOrigin: 'Anonymous',
-            anchor: anchor,
-        })
-    }
     const styles = [
         new Style({
-            image: image,
+            image: editableFeature.generateOpenlayersIcon(),
             text: new Text({
-                text: text,
-                font: textScale.font,
+                text: editableFeature.title,
+                font: editableFeature.font,
                 fill: new Fill({
-                    color,
+                    color: editableFeature.textColor.fill,
                 }),
                 stroke: new Stroke({
-                    color: stroke ? asArray(stroke) : [255, 255, 255, 1.0],
+                    color: editableFeature.textColor.border,
                     width: 3,
                 }),
-                scale: textScale || 1,
+                scale: editableFeature.textSizeScale || 1,
             }),
             stroke:
-                drawingMode === DrawingModes.MEASURE
+                editableFeature.featureType === DrawingModes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
-                          color: stroke || color,
+                          color: editableFeature.fillColor.fill,
                           width: 3,
                       }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: fillColor,
+                      color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
                   }),
         }),
     ]
-    if (drawingMode === DrawingModes.MEASURE) {
+    if (editableFeature.featureType === DrawingModes.MEASURE) {
         styles.push(azimuthCircleStyle(), measurePoints())
     }
     return styles

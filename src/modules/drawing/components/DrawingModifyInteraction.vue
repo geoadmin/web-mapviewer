@@ -59,17 +59,11 @@ export default {
         this.modifyInteraction = null
     },
     methods: {
-        getSelectedFeatureCorrespondingToOpenLayersFeature(openLayersFeature) {
-            return this.selectedFeatures.find(
-                (feature) => feature.id === `drawing_feature_${openLayersFeature.getId()}`
-            )
-        },
         onModifyStart(event) {
             const [feature] = event.features.getArray()
 
             if (feature) {
-                const correspondingStoreFeature =
-                    this.getSelectedFeatureCorrespondingToOpenLayersFeature(feature)
+                const correspondingStoreFeature = feature.get('editableFeature')
                 if (correspondingStoreFeature) {
                     this.$emit('featureIsDragged', correspondingStoreFeature)
                 }
@@ -84,8 +78,7 @@ export default {
             const [feature] = event.features.getArray()
 
             if (feature) {
-                const correspondingStoreFeature =
-                    this.getSelectedFeatureCorrespondingToOpenLayersFeature(feature)
+                const correspondingStoreFeature = feature.get('editableFeature')
                 if (correspondingStoreFeature) {
                     this.$emit('featureIsDropped', {
                         feature: correspondingStoreFeature,

@@ -3,8 +3,6 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
@@ -40,6 +38,7 @@ export default {
         },
     },
     emits: ['featureSelect', 'featureUnselect', 'featureChange'],
+    expose: ['selectFeature'],
     data() {
         return {
             /** OpenLayers feature currently selected */
@@ -50,35 +49,24 @@ export default {
         selectedFeatures(newSelectedFeatures) {
             // if the store doesn't contain any more feature, we clear our local variable on that topic
             if (!newSelectedFeatures || newSelectedFeatures.length === 0) {
-                this.currentlySelectedFeature = null
+                this.selectFeature(null)
             }
         },
-        currentlySelectedFeature(newFeature) {
-            this.clearSelectedFeature()
+        currentlySelectedFeature(newFeature, oldFeature) {
             if (newFeature) {
-                // creating an editable feature with all the data from the drawing overlay
-                const featureForStore = new EditableFeature(
-                    `drawing_feature_${newFeature.getId()}`,
-                    extractOpenLayersFeatureCoordinates(newFeature),
-                    newFeature.get('text'),
-                    newFeature.get('description'),
-                    newFeature.get('drawingMode'),
-                    newFeature.get('textColor'),
-                    newFeature.get('textSize'),
-                    newFeature.get('fillColor'),
-                    newFeature.get('icon'),
-                    newFeature.get('iconSize')
-                )
                 // binding store feature change events to our handlers
                 // so that we can update the style of the OL features as soon
                 // as the store feature is edited
-                this.bindFeatureEvents(featureForStore)
-                this.$emit('featureSelect', featureForStore)
-                // adding the feature to the list, so that modify interaction can edit it
-                this.selectInteraction.getFeatures().push(newFeature)
+                newFeature.get('editableFeature').on('change:style', this.emitFeatureChangeEvent)
+                this.$emit('featureSelect', newFeature.get('editableFeature'))
             } else {
                 this.$emit('featureUnselect')
             }
+            // if (oldFeature) {
+            //     oldFeature
+            //         .get('editableFeature')
+            //         .removeListener('change', this.emitFeatureChangeEvent)
+            // }
         },
     },
     created() {
@@ -105,77 +93,29 @@ export default {
         this.selectInteraction = null
     },
     methods: {
+        /** Change the selected feature programmatically. */
+        selectFeature(olFeature) {
+            this.selectInteraction.getFeatures().clear()
+            if (olFeature) {
+                this.selectInteraction.getFeatures().push(olFeature)
+            }
+            this.currentlySelectedFeature = olFeature
+        },
+
+        /** Change the selected feature by user input. */
         onSelectChange(event) {
             // The select event lists the changes in two arrays: selected, deselected
             // As we only allow for one feature to be selected at a time this event
             // will always yield one item in either of the arrays.
             if (event.selected.length > 0) {
-                this.selectFeature(event.selected[0])
+                this.currentlySelectedFeature = event.selected[0]
             } else {
-                this.selectFeature(null)
+                this.currentlySelectedFeature = null
             }
-        },
-        selectFeature(olFeature) {
-            this.currentlySelectedFeature = olFeature
-        },
-        clearSelectedFeature() {
-            this.selectInteraction.getFeatures().clear()
         },
         emitFeatureChangeEvent(feature) {
+            this.currentlySelectedFeature.changed()
             this.$emit('featureChange', feature)
-        },
-        //----------------------------------------------------------------------
-        // Bindings between the currently edited feature and the one stored in Vuex
-        //----------------------------------------------------------------------
-        bindFeatureEvents(feature) {
-            if (feature) {
-                feature.on('change:title', this.updateFeatureTitle)
-                feature.on('change:description', this.updateFeatureDescription)
-                feature.on('change:textColor', this.updateFeatureTextColor)
-                feature.on('change:textSize', this.updateFeatureTextSize)
-                feature.on('change:fillColor', this.updateFeatureFillColor)
-                feature.on('change:fillColor', this.updateFeatureIcon)
-                feature.on('change:icon', this.updateFeatureIcon)
-                feature.on('change:iconSize', this.updateFeatureIcon)
-            }
-        },
-        unbindFeatureEvents(feature) {
-            if (feature) {
-                feature.removeListener('change:title', this.updateFeatureTitle)
-                feature.removeListener('change:description', this.updateFeatureDescription)
-                feature.removeListener('change:textColor', this.updateFeatureTextColor)
-                feature.removeListener('change:textSize', this.updateFeatureTextSize)
-                feature.removeListener('change:fillColor', this.updateFeatureFillColor)
-                feature.removeListener('change:fillColor', this.updateFeatureIcon)
-                feature.removeListener('change:icon', this.updateFeatureIcon)
-                feature.removeListener('change:iconSize', this.updateFeatureIcon)
-            }
-        },
-        updateFeatureTitle(feature) {
-            this.currentlySelectedFeature?.set('text', feature.title)
-            this.emitFeatureChangeEvent(feature)
-        },
-        updateFeatureDescription(feature) {
-            this.currentlySelectedFeature?.set('description', feature.description)
-            this.emitFeatureChangeEvent(feature)
-        },
-        updateFeatureTextColor(feature) {
-            this.currentlySelectedFeature?.set('color', feature.textColor.fill)
-            this.currentlySelectedFeature?.set('strokeColor', feature.textColor.border)
-            this.emitFeatureChangeEvent(feature)
-        },
-        updateFeatureTextSize(feature) {
-            this.currentlySelectedFeature?.set('font', feature.textSize.font)
-            this.currentlySelectedFeature?.set('textScale', feature.textSizeScale)
-            this.emitFeatureChangeEvent(feature)
-        },
-        updateFeatureFillColor(feature) {
-            this.currentlySelectedFeature?.set('color', feature.fillColor.fill)
-            this.emitFeatureChangeEvent(feature)
-        },
-        updateFeatureIcon(feature) {
-            this.currentlySelectedFeature?.set('iconUrl', feature.iconUrl)
-            this.emitFeatureChangeEvent(feature)
         },
     },
 }

@@ -78,7 +78,7 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/store/modules/drawing.store'
-import { deserializeAnchor } from '@/utils/featureAnchor'
+import { EditableFeature } from '@/api/features.api'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -208,7 +208,7 @@ export default {
                 const e_msg = show
                     ? 'Aborted opening of drawing mode. Could not add existent KML layer: '
                     : 'Aborted closing of drawing mode. Could not save KML layer: '
-                log.error(e_msg, e.code)
+                log.error(e_msg, e.code, e)
                 // Abort the toggle to give the user a chance to reconnect to the internet and
                 // so to not loose his drawing
                 this.abortedToggleOverlay = true
@@ -392,7 +392,6 @@ export default {
         clearDrawing: function () {
             this.clearDrawingFeatures()
             this.clearAllSelectedFeatures()
-            this.$refs.selectInteraction.clearSelectedFeature()
             this.drawingLayer.getSource().clear()
             this.onChange()
         },
@@ -421,12 +420,15 @@ export default {
         },
         async addKmlLayer(layer) {
             const kml = await getKml(layer.fileId)
+            console.log(kml)
             const features = new KML().readFeatures(kml, {
                 featureProjection: layer.projection,
             })
             features.forEach((feature) => {
-                // The following deserialization is a hack. See @module comment in file.
-                deserializeAnchor(feature)
+                feature.set(
+                    'editableFeature',
+                    EditableFeature.deserialize(feature.get('editableFeature'))
+                )
                 feature.setStyle(featureStyleFunction)
             })
             this.drawingLayer.getSource().addFeatures(features)

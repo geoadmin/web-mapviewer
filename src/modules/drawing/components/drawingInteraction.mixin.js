@@ -2,6 +2,8 @@ import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/dra
 import { DrawingModes } from '@/store/modules/drawing.store'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
+import { EditableFeature } from '@/api/features.api'
+import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 
 /**
  * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing module.
@@ -36,7 +38,6 @@ const drawingInteractionMixin = {
             type: this.geometryType || 'Point',
             source: this.getDrawingLayer().getSource(),
         })
-        this.interaction.set('drawingMode', this.drawingMode || DrawingModes.MARKER)
         this.activate()
     },
     unmounted() {
@@ -68,18 +69,29 @@ const drawingInteractionMixin = {
             const feature = event.feature
             if (!feature.getId()) {
                 // setting a unique ID for each feature (using the feature metadata as seed for the UID generation)
-                feature.setId(getUid(feature))
+                const uid = getUid(feature)
+                feature.setId(uid)
+                const args =
+                    typeof this.editableFeatureArgs === 'function'
+                        ? this.editableFeatureArgs()
+                        : this.editableFeatureArgs
+                        ? this.editableFeatureArgs
+                        : {}
+                args.id = `drawing_feature_${uid}`
+                args.coordinates = null
+                // as the EditableFeatureTypes enum is a synonym for the DrawingModes enum
+                args.featureType = this.drawingMode
+
                 // applying any extra properties that are required for this kind of feature (Components that uses this mixin
                 // can define either a function that receive the feature as param, or an object containing the things we need
                 // to set in each feature of this type)
-                const props =
-                    typeof this.extraProperties === 'function'
-                        ? this.extraProperties()
-                        : this.extraProperties
+                // const props =
+                //     typeof this.extraProperties === 'function'
+                //         ? this.extraProperties()
+                //         : this.extraProperties
                 feature.setProperties({
                     type: this.geometryType,
-                    drawingMode: this.drawingMode,
-                    ...props,
+                    editableFeature: EditableFeature.constructWithObject(args),
                 })
             }
         },
@@ -101,9 +113,16 @@ const drawingInteractionMixin = {
             this.deactivate()
             // grabbing the drawn feature so that we send it through the event
             const feature = event.feature
+            if (typeof this.onDrawEndTransformPolygonIntoLineIfNeeded === 'function') {
+                this.onDrawEndTransformPolygonIntoLineIfNeeded(event)
+            }
+            feature.get('editableFeature').coordinates =
+                extractOpenLayersFeatureCoordinates(feature)
             // removing the flag we've set above in onDrawStart (this feature is now drawn)
             feature.unset('isDrawing')
             // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
+            // This function will be automatically recalled every time the feature object is modified or rerendered.
+            // (so there is no need to recall setstyle after modifing an extended property)
             feature.setStyle(this.featureStyle || featureStyleFunction)
             // if optional onDrawEnd is defined, we call it
             if (this.onDrawEnd) {

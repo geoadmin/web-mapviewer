@@ -19,6 +19,9 @@ export default {
                 font: MEDIUM.font,
                 textScale: MEDIUM.textScale,
             },
+            editableFeatureArgs: {
+                title: 'new text',
+            },
         }
     },
 }

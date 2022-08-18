@@ -1,5 +1,4 @@
 import i18n from '@/modules/i18n/index'
-import { serializeAnchor } from '@/utils/featureAnchor'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
@@ -44,8 +43,6 @@ export function generateKmlString(features = [], styleFunction = null) {
     let exportFeatures = []
     features.forEach((f) => {
         const clone = f.clone()
-        // The following serialization is a hack. See @module comment in file.
-        serializeAnchor(clone)
         clone.set('type', clone.get('type').toLowerCase())
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
@@ -93,6 +90,7 @@ export function generateKmlString(features = [], styleFunction = null) {
             `<Document><name>${i18n.global.t('draw_layer_label')}</name>`
         )
     }
+    console.log(kmlString)
     return kmlString
 }
 

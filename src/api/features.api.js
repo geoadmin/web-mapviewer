@@ -1,8 +1,17 @@
 import { API_BASE_URL } from '@/config'
 import EventEmitter from '@/utils/EventEmitter.class'
-import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    MEDIUM,
+    RED,
+    FeatureStyleColor,
+    FeatureStyleSize,
+} from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
+import { Icon } from '@/api/icon.api'
+import { Icon as openlayersIcon } from 'ol/style'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -48,6 +57,18 @@ export class Feature extends EventEmitter {
         }
     }
 
+    /**
+     * Like "emitChangeEvent(changeType)", but also emits a 'change:style' event. This event should
+     * be triggered for changes that can affect the visuals of the feature, but not the positioning
+     * or other stage changes.
+     *
+     * @param {String} changeType
+     */
+    emitStylingChangeEvent(changeType = null) {
+        this.emit('change:style', this)
+        this.emitChangeEvent(changeType)
+    }
+
     get id() {
         return this._id
     }
@@ -80,7 +101,7 @@ export class Feature extends EventEmitter {
     }
     set title(newTitle) {
         this._title = newTitle
-        this.emitChangeEvent('title')
+        this.emitStylingChangeEvent('title')
     }
 
     get description() {
@@ -124,8 +145,8 @@ export class EditableFeature extends Feature {
     constructor(
         id,
         coordinates,
-        title,
-        description,
+        title = '',
+        description = '',
         featureType,
         textColor = RED,
         textSize = MEDIUM,
@@ -142,6 +163,65 @@ export class EditableFeature extends Feature {
         this._iconSize = iconSize
     }
 
+    // RED, MEDIUM, '' are defaults. Only id and coordinates are obligatory
+    static constructWithObject(obj) {
+        return new EditableFeature(
+            obj.id,
+            obj.coordinates,
+            obj.title,
+            obj.description,
+            obj.featureType,
+            obj.textColor,
+            obj.textSize,
+            obj.fillColor,
+            obj.icon,
+            obj.iconSize
+        )
+    }
+
+    getStrippedObject() {
+        /* Warning: Changing this method will break the compability of KML files */
+        return {
+            id: this.id,
+            coordinates: this.coordinates,
+            title: this.title,
+            description: this.description,
+            featureType: this.featureType,
+            textColor: this.textColor.getStrippedObject(),
+            textSize: this.textSize.getStrippedObject(),
+            fillColor: this.fillColor.getStrippedObject(),
+            icon: this.icon?.getStrippedObject(),
+            iconSize: this.iconSize.getStrippedObject(),
+        }
+    }
+
+    static recreateObject(o) {
+        return new EditableFeature(
+            o.id,
+            o.coordinates,
+            o.title,
+            o.description,
+            o.featureType,
+            FeatureStyleColor.recreateObject(o.textColor),
+            FeatureStyleSize.recreateObject(o.textSize),
+            FeatureStyleColor.recreateObject(o.fillColor),
+            o.icon ? Icon.recreateObject(o.icon) : null,
+            FeatureStyleSize.recreateObject(o.iconSize)
+        )
+    }
+
+    static deserialize(jsonString) {
+        return EditableFeature.recreateObject(JSON.parse(jsonString))
+    }
+
+    serialize() {
+        return JSON.stringify(this.getStrippedObject())
+    }
+
+    get value() {
+        return this.serialize()
+    }
+
     // getters and setters for all properties (with event emit for setters)
     get featureType() {
         return this._featureType
@@ -156,7 +236,7 @@ export class EditableFeature extends Feature {
     set textColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
             this._textColor = newColor
-            this.emitChangeEvent('textColor')
+            this.emitStylingChangeEvent('textColor')
         }
     }
 
@@ -172,7 +252,7 @@ export class EditableFeature extends Feature {
     set textSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.textScale === newSize.textScale)) {
             this._textSize = newSize
-            this.emitChangeEvent('textSize')
+            this.emitStylingChangeEvent('textSize')
         }
     }
     get font() {
@@ -186,11 +266,21 @@ export class EditableFeature extends Feature {
     /** @param newIcon {Icon} */
     set icon(newIcon) {
         this._icon = newIcon
-        this.emitChangeEvent('icon')
+        this.emitStylingChangeEvent('icon')
     }
     /** @returns {String} */
     get iconUrl() {
         return this._icon?.generateURL(this.iconSize, this.fillColor)
+    }
+
+    generateOpenlayersIcon() {
+        return this.icon
+            ? new openlayersIcon({
+                  src: this.iconUrl,
+                  crossOrigin: 'Anonymous',
+                  anchor: this.icon.anchor,
+              })
+            : null
     }
 
     /** @returns {FeatureStyleColor} */
@@ -201,7 +291,7 @@ export class EditableFeature extends Feature {
     set fillColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
             this._fillColor = newColor
-            this.emitChangeEvent('fillColor')
+            this.emitStylingChangeEvent('fillColor')
         }
     }
 
@@ -217,7 +307,7 @@ export class EditableFeature extends Feature {
     set iconSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.iconScale === newSize.iconScale)) {
             this._iconSize = newSize
-            this.emitChangeEvent('iconSize')
+            this.emitStylingChangeEvent('iconSize')
         }
     }
 

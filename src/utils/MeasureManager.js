@@ -177,7 +177,7 @@ export default class MeasureManager {
             .getSource()
             ?.getFeatures()
             ?.forEach((feature) => {
-                if (feature.get('drawingMode') === DrawingModes.MEASURE) {
+                if (feature.get('editableFeature').featureType === DrawingModes.MEASURE) {
                     if (visible) {
                         this.addOverlays(feature)
                     } else {

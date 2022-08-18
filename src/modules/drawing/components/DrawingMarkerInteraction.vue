@@ -22,6 +22,15 @@ export default {
         }
     },
     methods: {
+        editableFeatureArgs() {
+            const defaultIconSet = this.availableIconSets.find((set) => set.name === 'default')
+            const defaultIcon = defaultIconSet.icons[0]
+
+            return {
+                icon: defaultIcon,
+            }
+        },
+
         extraProperties() {
             const defaultIconSet = this.availableIconSets.find((set) => set.name === 'default')
             const defaultIcon = defaultIconSet.icons[0]
@@ -30,8 +39,6 @@ export default {
                 color: RED.fill,
                 font: MEDIUM.font,
                 icon: defaultIcon,
-                iconUrl: defaultIcon.generateURL(),
-                anchor: defaultIcon.anchor,
                 text: '',
                 description: '',
                 textScale: MEDIUM.textScale,
