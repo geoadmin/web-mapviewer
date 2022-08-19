@@ -79,7 +79,7 @@ describe('Test mouse position', () => {
         it('switches to WebMercator when this SRS is selected in the UI', () => {
             getMousePositionAndSelect(CoordinateSystems.WGS84)
             let dd = defaultCenter.map((value) => value.toFixed(5)).join(', ')
-            checkMousePositionStringValue(`47° 30′ 00.00″ N 7° 30′ 00.00″ E (${dd})`)
+            checkMousePositionStringValue(`47° 30′ N 7° 30′ E (${dd})`)
         })
         it('goes back to LV95 display if selected again', () => {
             // Change display projection without moving the mouse
