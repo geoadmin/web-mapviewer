@@ -35,7 +35,13 @@
             <div
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
-            ></div>
+            >
+                <open-layers-internal-layer
+                    v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
+                    :layer-config="aggregateSubLayer.layer"
+                    :z-index="zIndex"
+                />
+            </div>
         </div>
         <OpenLayersKMLLayer
             v-if="layerConfig.type === LayerTypes.KML"
@@ -50,10 +56,10 @@
 
 <script>
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
+import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
+import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
 /** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
 export default {
