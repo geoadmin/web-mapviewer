@@ -9,14 +9,7 @@
                 @click="toggleMenuTray"
             />
         </transition>
-        <HeaderWithSearch
-            v-show="showHeader"
-            class="header"
-            :show-loading-bar="showLoadingBar"
-            :show-menu-button="!shouldMenuTrayAlwaysBeVisible"
-            :current-lang="currentLang"
-            :current-topic-id="currentTopic && currentTopic.id"
-        />
+        <HeaderWithSearch v-show="showHeader" class="header" />
         <div class="toolbox-right">
             <GeolocButton
                 class="mb-1"
