@@ -3,7 +3,7 @@
 const fs = require('fs')
 const { google } = require('googleapis')
 
-const googleApiKey = import.meta.env.GOOGLE_API_KEY
+const googleApiKey = process.env.GOOGLE_API_KEY
 
 if (!googleApiKey) {
     console.error('Please provide a valid Google API Key through the env variable GOOGLE_API_KEY')
