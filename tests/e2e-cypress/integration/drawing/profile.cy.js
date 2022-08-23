@@ -32,6 +32,45 @@ const testResponse = [
 const testInfo = ['0.00m', '0.10m', '0.10m', "1'342m", "1'342m", '4.50m', '4.51m']
 
 describe('Profile popup', () => {
+    context('Validate correctness of data passed to the backend', () => {
+        beforeEach(() => {
+            // Interception to validate the backend response
+            cy.intercept(
+                {
+                    method: 'POST',
+                    url: `**/rest/services/profile.json**`,
+                },
+                async (req) => {
+                    expect(typeof req.body).to.be.equal('object')
+                    expect(Array.isArray(req.body.coordinates)).to.be.true
+                    expect(req.body.coordinates).to.have.length.of.at.least(2)
+                    req.body.coordinates.forEach((coord) => {
+                        expect(Array.isArray(coord)).to.be.true
+                        expect(coord).to.have.length(2)
+                        expect(typeof coord[0]).to.be.equal('number')
+                        expect(typeof coord[1]).to.be.equal('number')
+                    })
+                    req.reply({
+                        statusCode: 200,
+                        body: testResponse,
+                    })
+                }
+            ).as('profile')
+            cy.goToDrawing()
+            cy.clickDrawingTool('LINEPOLYGON')
+            cy.get(olSelector).click(100, 200)
+            cy.get(olSelector).click(150, 200)
+        })
+        it('Test data passed when drawing a LineString', () => {
+            cy.get(olSelector).dblclick(120, 240)
+            cy.wait('@profile')
+        })
+        it.only('Test data passed when drawing a closed polygon', () => {
+            cy.get(olSelector).click(120, 240)
+            cy.get(olSelector).dblclick(100, 200)
+            cy.wait('@profile')
+        })
+    })
     context('check how app behave with backend output', () => {
         const goToDrawingWithMockProfile = (mockValue) => {
             cy.mockupBackendResponse('rest/services/profile.json**', mockValue, 'profile')

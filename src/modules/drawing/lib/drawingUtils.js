@@ -139,7 +139,7 @@ export function getMeasureDelta(length) {
 
 export function extractOpenLayersFeatureCoordinates(feature) {
     let coordinates = feature.getGeometry().getCoordinates()
-    if (feature.getGeometry().getType() === Polygon) {
+    if (feature.getGeometry().getType() === 'Polygon') {
         // in case of a polygon, the coordinates structure is
         // [
         //   [ (poly1)
