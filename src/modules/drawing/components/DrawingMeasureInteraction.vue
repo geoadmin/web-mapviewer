@@ -7,7 +7,6 @@ import drawingInteractionMixin from '@/modules/drawing/components/drawingInterac
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 import { DrawingModes } from '@/store/modules/drawing.store'
-import { RED } from '@/utils/featureStyleUtils'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
@@ -16,9 +15,6 @@ export default {
         return {
             drawingMode: DrawingModes.MEASURE,
             geometryType: 'Polygon',
-            extraProperties: {
-                color: RED.fill,
-            },
             editingStyle: drawMeasureStyle,
             featureStyle: drawMeasureStyle,
         }

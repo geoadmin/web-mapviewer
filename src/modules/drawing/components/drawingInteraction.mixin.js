@@ -13,9 +13,10 @@ import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawi
  *
  * Each component using this mixin must define some data (or methods) :
  *
- * - `extraProperties`: either an object or a function (with no args) returning an object. This
- *   defines some props that will be set in each feature's metadata created by this interaction
- *   (i.e. the fill color used, which size the text should be, etc...)
+ * - `editableFeatureArgs`: either an object or a function (with no args) returning an object. This
+ *   defines the values that should be applied to the {@link EditableFeature} constructor. Note that
+ *   id, coordinates and featureType are automatically set by this mixin and that if a parameter is
+ *   missing, its default value will be used.
  * - `drawingMode`: which drawing mode (from {@link DrawingModes}) is being used with this interaction
  * - `geometryType`: which geometry type (from OL type) is being drawn on the map by this interaction
  *
@@ -74,21 +75,16 @@ const drawingInteractionMixin = {
                 const args =
                     typeof this.editableFeatureArgs === 'function'
                         ? this.editableFeatureArgs()
-                        : this.editableFeatureArgs
-                        ? this.editableFeatureArgs
-                        : {}
+                        : { ...this.editableFeatureArgs }
                 args.id = `drawing_feature_${uid}`
                 args.coordinates = null
                 // as the EditableFeatureTypes enum is a synonym for the DrawingModes enum
                 args.featureType = this.drawingMode
 
-                // applying any extra properties that are required for this kind of feature (Components that uses this mixin
-                // can define either a function that receive the feature as param, or an object containing the things we need
-                // to set in each feature of this type)
-                // const props =
-                //     typeof this.extraProperties === 'function'
-                //         ? this.extraProperties()
-                //         : this.extraProperties
+                /* applying extra properties that should be stored with that feature. Openlayers will
+                automatically redraw the feature if these properties change, but not in a recursive
+                manner. This means that if e.g. a property inside of the editableFeature changes, an
+                update must be triggered manually.*/
                 feature.setProperties({
                     type: this.geometryType,
                     editableFeature: EditableFeature.constructWithObject(args),
