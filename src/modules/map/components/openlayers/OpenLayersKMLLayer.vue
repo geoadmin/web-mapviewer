@@ -66,8 +66,6 @@ export default {
             // The following deserialization is a hack. See @module comment in file.
             f.set('editableFeature', EditableFeature.deserialize(f.get('editableFeature')))
             f.set('type', f.get('type').toUpperCase())
-            debugger
-            //f.getStyle()(f)
             f.setStyle((feature) => featureStyleFunction(feature))
             if (f.get('editableFeature').featureType === DrawingModes.MEASURE) {
                 this.measureManager.addOverlays(f)

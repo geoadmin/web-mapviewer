@@ -18,7 +18,8 @@ export default {
     actions: {
         /**
          * Tells the map to highlight a list of features (place a round marker at their location).
-         * Those features are currently shown by the tooltip.
+         * Those features are currently shown by the tooltip. If in drawing mode, this functions
+         * tells the store which features are selected (it does not select the features by itself)
          *
          * @param commit
          * @param {Feature[]} features A list of feature we want to highlight/select on the map
@@ -32,7 +33,7 @@ export default {
         clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
         },
-        /** Removes a specific feature from the selected features list */
+        /** Removes a specific feature from the selected features list. Is not used in drawing mode. */
         removeSelectedFeature({ commit, state }, feature) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature) {
@@ -46,8 +47,9 @@ export default {
             }
         },
         /**
-         * Changes the coordinates of the feature. Only change the coordinates if the feature is
-         * editable and part of the currently selected features
+         * In drawing mode, informs the store about the new coordinates of the feature. (It does not
+         * move the feature.) Only change the coordinates if the feature is editable and part of the
+         * currently selected features.
          *
          * Coordinates is an array of coordinate. Marker and text feature have only one entry in
          * this array while line and measure store each points describing them in this coordinates array
@@ -197,6 +199,13 @@ export default {
                 commit('changeFeatureIconSize', { feature: selectedFeature, iconSize: wantedSize })
             }
         },
+
+        /**
+         * In drawing mode , tells the state if a given feature is being dragged.
+         *
+         * @param {EditableFeature} feature
+         * @param {Boolean} isDragged
+         */
         changeFeatureIsDragged({ commit, state }, { feature, isDragged }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {

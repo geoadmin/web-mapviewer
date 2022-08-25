@@ -6,19 +6,17 @@
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
+import { mapActions, mapState } from 'vuex'
 
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected
  * (as OpenLayers objects) so that other interaction that requires them can have them without
- * centralizing all the code in one place (as it was before).
+ * centralizing all the code in one place (as it was before). It will also update the selected
+ * feature (style, color, etc...) whenever it is edited through the popover.
  *
  * This component will emit events :
  *
- * - `featureSelect`: whenever one is selected, with a feature object from `feature.api.js` as argument
- * - `featureUnselect`: when the user clicks somewhere else on the map, thus deselecting any selected
- *   feature. Will not trigger the event if nothing was selected and the user clicks in the void.
- *
- * It will also update the selected feature (style, color, etc...) whenever it is edited through the popover.
+ * - `featureChange`: Triggered whenever the style of the selected feature changes
  */
 export default {
     inject: ['getMap', 'getDrawingLayer'],
@@ -31,13 +29,7 @@ export default {
             getSelectInteraction: () => this.selectInteraction,
         }
     },
-    props: {
-        selectedFeatures: {
-            type: Array,
-            required: true,
-        },
-    },
-    emits: ['featureSelect', 'featureUnselect', 'featureChange'],
+    emits: ['featureChange'],
     expose: ['selectFeature'],
     data() {
         return {
@@ -45,9 +37,18 @@ export default {
             currentlySelectedFeature: null,
         }
     },
+    computed: {
+        ...mapState({
+            selectedFeatures: (state) => state.features.selectedFeatures,
+        }),
+    },
     watch: {
         selectedFeatures(newSelectedFeatures) {
-            // if the store doesn't contain any more feature, we clear our local variable on that topic
+            /* if the store doesn't contain any more feature, we clear our local variable on that topic
+            This makes it possible for other modules to call clearAllSelectedFeatures()
+            Other modules cannot however call setSelectedFeatures() from the store, as we cannot
+            infer the OlFeature from the store feature. They instead have to call the exposed
+            selectFeature() function from this module. */
             if (!newSelectedFeatures || newSelectedFeatures.length === 0) {
                 this.selectFeature(null)
             }
@@ -58,15 +59,16 @@ export default {
                 // so that we can update the style of the OL features as soon
                 // as the store feature is edited
                 newFeature.get('editableFeature').on('change:style', this.emitFeatureChangeEvent)
-                this.$emit('featureSelect', newFeature.get('editableFeature'))
+                this.setSelectedFeatures([newFeature.get('editableFeature')])
             } else {
-                this.$emit('featureUnselect')
+                this.clearAllSelectedFeatures()
             }
-            // if (oldFeature) {
-            //     oldFeature
-            //         .get('editableFeature')
-            //         .removeListener('change', this.emitFeatureChangeEvent)
-            // }
+            if (oldFeature) {
+                // editableFeature was removed from the state just before, so we can edit it directly again.
+                oldFeature
+                    .get('editableFeature')
+                    .removeListener('change:style', this.emitFeatureChangeEvent)
+            }
         },
     },
     created() {
@@ -93,6 +95,7 @@ export default {
         this.selectInteraction = null
     },
     methods: {
+        ...mapActions(['setSelectedFeatures', 'clearAllSelectedFeatures']),
         /** Change the selected feature programmatically. */
         selectFeature(olFeature) {
             this.selectInteraction.getFeatures().clear()
@@ -114,8 +117,8 @@ export default {
             }
         },
         emitFeatureChangeEvent(feature) {
-            this.currentlySelectedFeature.changed()
-            this.$emit('featureChange', feature)
+            this.currentlySelectedFeature.changed() // This triggers a call to the style function (see style.js)
+            this.$emit('featureChange', feature) // So that the drawing module can save the changes
         },
     },
 }

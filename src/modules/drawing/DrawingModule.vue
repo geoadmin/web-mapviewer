@@ -17,22 +17,11 @@
             :selected-features="selectedFeatures"
             :currently-sketched-feature="currentlySketchedFeature"
         />
-        <DrawingSelectInteraction
-            ref="selectInteraction"
-            :selected-features="selectedFeatures"
-            @feature-select="onFeatureSelect"
-            @feature-unselect="onFeatureUnselect"
-            @feature-change="onChange"
-        >
+        <DrawingSelectInteraction ref="selectInteraction" @feature-change="onChange">
             <!-- As modify interaction needs access to the selected features we embed it into
             the select interaction component, this component will share its feature
             through a provide/inject -->
-            <DrawingModifyInteraction
-                :selected-features="selectedFeatures"
-                @feature-is-dragged="onFeatureIsDragged"
-                @feature-is-dropped="onFeatureIsDropped"
-                @modify-end="onChange"
-            />
+            <DrawingModifyInteraction @modify-end="onChange" />
         </DrawingSelectInteraction>
         <DrawingMarkerInteraction
             v-if="show && isDrawingModeMarker"
@@ -280,10 +269,7 @@ export default {
             'removeLayer',
             'addLayer',
             'loadAvailableIconSets',
-            'setSelectedFeatures',
             'clearAllSelectedFeatures',
-            'changeFeatureCoordinates',
-            'changeFeatureIsDragged',
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
@@ -335,35 +321,6 @@ export default {
             this.onChange()
 
             this.addDrawingFeature(feature.getId())
-        },
-        /** See {@link DrawingModifyInteraction} events */
-        onFeatureIsDragged(feature) {
-            this.changeFeatureIsDragged({
-                feature: feature,
-                isDragged: true,
-            })
-            this.onChange()
-        },
-        /** See {@link DrawingModifyInteraction} events */
-        onFeatureIsDropped({ feature, coordinates }) {
-            this.changeFeatureIsDragged({
-                feature: feature,
-                isDragged: false,
-            })
-            this.changeFeatureCoordinates({
-                feature: feature,
-                coordinates: coordinates,
-            })
-            this.onChange()
-        },
-        /** See {@link DrawingSelectInteraction} events */
-        onFeatureSelect(feature) {
-            this.setSelectedFeatures([feature])
-        },
-        /** See {@link DrawingSelectInteraction} events */
-        onFeatureUnselect() {
-            // emptying selected features in the store
-            this.clearAllSelectedFeatures()
         },
         onKeyUp(event) {
             if (event.key === 'Delete') {
