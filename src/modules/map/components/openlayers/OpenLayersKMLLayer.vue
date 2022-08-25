@@ -63,8 +63,7 @@ export default {
         this.measureManager = new MeasureManager(this.getMap(), this.layer)
         this.layer.getSource().on('addfeature', (event) => {
             const f = event.feature
-            // The following deserialization is a hack. See @module comment in file.
-            f.set('editableFeature', EditableFeature.deserialize(f.get('editableFeature')))
+            EditableFeature.deserialize(f)
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyleFunction(feature))
             if (f.get('editableFeature').featureType === EditableFeatureTypes.MEASURE) {

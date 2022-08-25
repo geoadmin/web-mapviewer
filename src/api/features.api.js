@@ -163,7 +163,13 @@ export class EditableFeature extends Feature {
         this._iconSize = iconSize
     }
 
-    // RED, MEDIUM, '' are defaults. Only id and coordinates are obligatory
+    /**
+     * Calls the constructor, but the parameters are inside an object. Omitted parameters means the
+     * default value of the constructor will be used.
+     *
+     * @param {any} obj An object with key value pairs for the parameters of the constructor
+     * @returns The constructed object
+     */
     static constructWithObject(obj) {
         return new EditableFeature(
             obj.id,
@@ -179,6 +185,11 @@ export class EditableFeature extends Feature {
         )
     }
 
+    /**
+     * This function returns a stripped down version of this object ready to be serialized.
+     *
+     * @returns The version of the object that can be serialized
+     */
     getStrippedObject() {
         /* Warning: Changing this method will break the compability of KML files */
         return {
@@ -195,6 +206,12 @@ export class EditableFeature extends Feature {
         }
     }
 
+    /**
+     * Regenerates the full version of an editable feature given a stripped version.
+     *
+     * @param {stripped EditableFeature} o A stripped down version of the editable Feature
+     * @returns The full version of the editable Feature
+     */
     static recreateObject(o) {
         return new EditableFeature(
             o.id,
@@ -210,16 +227,26 @@ export class EditableFeature extends Feature {
         )
     }
 
-    static deserialize(jsonString) {
-        return EditableFeature.recreateObject(JSON.parse(jsonString))
+    /**
+     * This method deserializes an editable feature that is stored in the extra properties of an
+     * openlayers feature.
+     *
+     * @param {openlayersFeature} olFeature
+     */
+    static deserialize(olFeature) {
+        olFeature.set(
+            'editableFeature',
+            this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
+        )
     }
 
-    serialize() {
-        return JSON.stringify(this.getStrippedObject())
-    }
-
+    /**
+     * This getter is automatically called by openlayers when serializing the openlayers feature. In
+     * fact, if objects are saved in the extra properties of a feature, openlayers will save their
+     * 'value' property in the KML.
+     */
     get value() {
-        return this.serialize()
+        return JSON.stringify(this.getStrippedObject())
     }
 
     // getters and setters for all properties (with event emit for setters)

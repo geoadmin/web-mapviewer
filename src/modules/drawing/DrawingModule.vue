@@ -381,12 +381,9 @@ export default {
             const features = new KML().readFeatures(kml, {
                 featureProjection: layer.projection,
             })
-            features.forEach((feature) => {
-                feature.set(
-                    'editableFeature',
-                    EditableFeature.deserialize(feature.get('editableFeature'))
-                )
-                feature.setStyle(featureStyleFunction)
+            features.forEach((olFeature) => {
+                EditableFeature.deserialize(olFeature)
+                olFeature.setStyle(featureStyleFunction)
             })
             this.drawingLayer.getSource().addFeatures(features)
         },
