@@ -66,7 +66,7 @@ import LoadingScreen from '@/utils/LoadingScreen.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { EditableFeature } from '@/api/features.api'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
@@ -98,7 +98,7 @@ export default {
     },
     data() {
         return {
-            drawingModes: Object.values(DrawingModes),
+            drawingModes: Object.values(EditableFeatureTypes),
             isDrawingEmpty: true,
             currentlySketchedFeature: null,
             isLoading: false,
@@ -120,16 +120,16 @@ export default {
         }),
         ...mapGetters(['getDrawingPublicFileUrl']),
         isDrawingModeMarker() {
-            return this.currentDrawingMode === DrawingModes.MARKER
+            return this.currentDrawingMode === EditableFeatureTypes.MARKER
         },
         isDrawingModeAnnotation() {
-            return this.currentDrawingMode === DrawingModes.ANNOTATION
+            return this.currentDrawingMode === EditableFeatureTypes.ANNOTATION
         },
         isDrawingModeLine() {
-            return this.currentDrawingMode === DrawingModes.LINEPOLYGON
+            return this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON
         },
         isDrawingModeMeasure() {
-            return this.currentDrawingMode === DrawingModes.MEASURE
+            return this.currentDrawingMode === EditableFeatureTypes.MEASURE
         },
         currentlySelectedFeature() {
             // there can only be one drawing feature edited at the same time

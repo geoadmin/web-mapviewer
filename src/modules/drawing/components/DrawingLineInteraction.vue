@@ -6,15 +6,17 @@
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
     data() {
         return {
-            drawingMode: DrawingModes.LINEPOLYGON,
             geometryType: 'Polygon',
             editingStyle: drawLineStyle,
+            editableFeatureArgs: {
+                featureType: EditableFeatureTypes.LINEPOLYGON,
+            },
         }
     },
 }

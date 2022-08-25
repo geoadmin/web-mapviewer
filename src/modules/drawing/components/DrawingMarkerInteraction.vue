@@ -4,7 +4,7 @@
 
 <script>
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 export default {
     mixins: [drawingInteractionMixin],
@@ -16,7 +16,6 @@ export default {
     },
     data() {
         return {
-            drawingMode: DrawingModes.MARKER,
             geometryType: 'Point',
         }
     },
@@ -26,6 +25,7 @@ export default {
             const defaultIcon = defaultIconSet.icons[0]
             return {
                 icon: defaultIcon,
+                featureType: EditableFeatureTypes.MARKER,
             }
         },
     },

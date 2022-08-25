@@ -1,5 +1,4 @@
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/store/modules/drawing.store'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
 import { EditableFeature } from '@/api/features.api'
@@ -15,9 +14,8 @@ import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawi
  *
  * - `editableFeatureArgs`: either an object or a function (with no args) returning an object. This
  *   defines the values that should be applied to the {@link EditableFeature} constructor. Note that
- *   id, coordinates and featureType are automatically set by this mixin and that if a parameter is
- *   missing, its default value will be used.
- * - `drawingMode`: which drawing mode (from {@link DrawingModes}) is being used with this interaction
+ *   id and coordinates are automatically set by this mixin and that if a parameter is missing, its
+ *   default value will be used. Only 'featureType' is obligatory.
  * - `geometryType`: which geometry type (from OL type) is being drawn on the map by this interaction
  *
  * It is also possible to define optionals :
@@ -75,11 +73,9 @@ const drawingInteractionMixin = {
                 const args =
                     typeof this.editableFeatureArgs === 'function'
                         ? this.editableFeatureArgs()
-                        : { ...this.editableFeatureArgs }
+                        : this.editableFeatureArgs
                 args.id = `drawing_feature_${uid}`
                 args.coordinates = null
-                // as the EditableFeatureTypes enum is a synonym for the DrawingModes enum
-                args.featureType = this.drawingMode
 
                 /* applying extra properties that should be stored with that feature. Openlayers will
                 automatically redraw the feature if these properties change, but not in a recursive

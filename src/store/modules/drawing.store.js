@@ -3,20 +3,6 @@ import { getKmlUrl } from '@/api/files.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 
 /**
- * Enumerate of all possible drawing modes for the viewer :
- *
- * - Marker
- * - Annotation (text)
- * - LinePolygon
- * - Measure (profile)
- *
- * @enum
- */
-export const DrawingModes = {
-    ...EditableFeatureTypes,
-}
-
-/**
  * @typedef SelectedFeatureData
  * @property {[number, number]} coordinate
  * @property {string} featureId
@@ -31,7 +17,7 @@ export const DrawingModes = {
 export default {
     state: {
         /**
-         * Current drawing mode (or `null` if there is none). See {@link DrawingModes}
+         * Current drawing mode (or `null` if there is none). See {@link EditableFeatureTypes}
          *
          * @type {String | null}
          */
@@ -70,7 +56,7 @@ export default {
     },
     actions: {
         setDrawingMode({ commit }, mode) {
-            if (mode in DrawingModes || mode === null) {
+            if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', mode)
             }
         },

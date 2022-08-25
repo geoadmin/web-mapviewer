@@ -1,7 +1,5 @@
 import { canShowAzimuthCircle, getMeasureDelta, toLv95 } from '@/modules/drawing/lib/drawingUtils'
-import { DrawingModes } from '@/store/modules/drawing.store'
-import { MEDIUM } from '@/utils/featureStyleUtils'
-import { asArray } from 'ol/color'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
 import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style'
 
@@ -98,7 +96,7 @@ export function featureStyleFunction(feature) {
     if (!editableFeature) {
         return
     }
-    if (editableFeature.featureType === DrawingModes.MEASURE) {
+    if (editableFeature.featureType === EditableFeatureTypes.MEASURE) {
         return drawMeasureStyle(feature)
     }
     // Tells if we are drawing a polygon for the first time, in this case we want
@@ -120,7 +118,7 @@ export function featureStyleFunction(feature) {
                 scale: editableFeature.textSizeScale || 1,
             }),
             stroke:
-                editableFeature.featureType === DrawingModes.MEASURE
+                editableFeature.featureType === EditableFeatureTypes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
                           color: editableFeature.fillColor.fill,
@@ -134,7 +132,7 @@ export function featureStyleFunction(feature) {
                   }),
         }),
     ]
-    if (editableFeature.featureType === DrawingModes.MEASURE) {
+    if (editableFeature.featureType === EditableFeatureTypes.MEASURE) {
         styles.push(azimuthCircleStyle(), measurePoints())
     }
     return styles

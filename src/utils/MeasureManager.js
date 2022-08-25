@@ -9,7 +9,7 @@ import {
 } from '@/modules/drawing/lib/drawingUtils'
 import { LineString, Polygon } from 'ol/geom'
 import { Collection } from 'ol'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 /**
  * Handels the overlays that are shown on top of a each measure drawing
@@ -177,7 +177,7 @@ export default class MeasureManager {
             .getSource()
             ?.getFeatures()
             ?.forEach((feature) => {
-                if (feature.get('editableFeature').featureType === DrawingModes.MEASURE) {
+                if (feature.get('editableFeature').featureType === EditableFeatureTypes.MEASURE) {
                     if (visible) {
                         this.addOverlays(feature)
                     } else {

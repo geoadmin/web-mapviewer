@@ -23,6 +23,7 @@ They allow the store to update itself according to events instead of having to a
 State, getters, mutations, and action don't need to be imported directly but can be bound with the corresponding `map...` methods from Vuex. (e.g. [mapState](https://vuex.vuejs.org/guide/state.html#the-mapstate-helper)).
 
 For the cases where an import is necessary it can be done through the `@` resolver.
+
 ```js
-import { drawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 ```

@@ -12,7 +12,7 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { EditableFeature } from '@/api/features.api'
 import MeasureManager from '@/utils/MeasureManager'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 /** Renders a KML file on the map */
@@ -67,7 +67,7 @@ export default {
             f.set('editableFeature', EditableFeature.deserialize(f.get('editableFeature')))
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyleFunction(feature))
-            if (f.get('editableFeature').featureType === DrawingModes.MEASURE) {
+            if (f.get('editableFeature').featureType === EditableFeatureTypes.MEASURE) {
                 this.measureManager.addOverlays(f)
             }
         })
