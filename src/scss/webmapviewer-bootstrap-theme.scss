@@ -14,3 +14,7 @@ $primary: $venetian-red;
 
 $map-button-border-color: $gray-800;
 $map-button-hover-border-color: $gray-700;
+
+.form-control:focus {
+  box-shadow: 0 1px 4px lighten($dark, 8%);
+}
