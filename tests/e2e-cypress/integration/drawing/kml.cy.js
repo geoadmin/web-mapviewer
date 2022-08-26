@@ -5,8 +5,8 @@ import { EditableFeatureTypes } from '@/api/features.api'
 const olSelector = '.ol-viewport'
 
 // Position of the marker defined in service-kml/lonelyMarker.kml
-const markerLatitude = 47.097
-const markerLongitude = 7.743
+const markerLatitude = 46.883715999352546
+const markerLongitude = 7.656108679791837
 
 describe('Drawing saving KML', () => {
     beforeEach(() => {

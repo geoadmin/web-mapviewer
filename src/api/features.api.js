@@ -201,7 +201,7 @@ export class EditableFeature extends Feature {
             textColor: this.textColor.getStrippedObject(),
             textSize: this.textSize.getStrippedObject(),
             fillColor: this.fillColor.getStrippedObject(),
-            icon: this.icon?.getStrippedObject(),
+            icon: this.icon ? this.icon.getStrippedObject() : null,
             iconSize: this.iconSize.getStrippedObject(),
         }
     }
