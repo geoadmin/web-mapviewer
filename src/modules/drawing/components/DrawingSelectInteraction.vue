@@ -7,6 +7,7 @@ import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { mapActions, mapState } from 'vuex'
+import ObjectEventType from 'ol/ObjectEventType.js'
 
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected
@@ -117,7 +118,12 @@ export default {
             }
         },
         emitFeatureChangeEvent(feature) {
-            this.currentlySelectedFeature.changed() // This triggers a call to the style function (see style.js)
+            /* This triggers a call to the style function (see style.js)
+            One would think that calling 'this.currentlySelectedFeature.changed()' would be simpler,
+            but it turns out that calling the beforementioned function breaks the modifyInteraction
+            (a marker / text stays dragable even after deselecting when its style was changed). This
+            may be a bug in openlayers. (as of 08-2022) */
+            this.currentlySelectedFeature.dispatchEvent(ObjectEventType.PROPERTYCHANGE)
             this.$emit('featureChange', feature) // So that the drawing module can save the changes
         },
     },
