@@ -105,24 +105,15 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
         const features = drawingLayer.getSource().getFeatures()
         expect(features).to.have.lengthOf(1, 'no feature found in the drawing layer')
         const firstFeature = features[0]
+        const keys = key.split('.')
+        let value = firstFeature.get('editableFeature')
+        for (const k of keys) {
+            value = value[k]
+        }
         if (checkIfContains) {
-            expect(firstFeature.get(key)).to.contain(
-                expected,
-                `${firstFeature} != ${expected} Properties are ${JSON.stringify(
-                    firstFeature.getProperties(),
-                    null,
-                    2
-                )}`
-            )
+            expect(value).to.contain(expected, `${firstFeature} != ${expected}`)
         } else {
-            expect(firstFeature.get(key)).to.equal(
-                expected,
-                `${firstFeature} != ${expected} Properties are ${JSON.stringify(
-                    firstFeature,
-                    null,
-                    2
-                )}`
-            )
+            expect(value).to.equal(expected, `${firstFeature} != ${expected}`)
         }
     })
 })

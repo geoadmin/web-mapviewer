@@ -22,7 +22,7 @@ describe('Line/Polygon tool', () => {
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(
                 interception,
-                [EditableFeatureTypes.LINEPOLYGON, '<Data name="color"><value>#ff0000</value>'],
+                [EditableFeatureTypes.LINEPOLYGON, /"fillColor":{[^}]*"fill":"#ff0000"/],
                 true
             )
         )
@@ -31,10 +31,11 @@ describe('Line/Polygon tool', () => {
         cy.get(olSelector).click(150, 230)
         cy.get(olSelector).click(100, 200)
         cy.readDrawingFeatures('Polygon')
+        // Who says that the order in json will stay the same? this does not work, also fix unit test
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(
                 interception,
-                [EditableFeatureTypes.LINEPOLYGON, '<Data name="color"><value>#ff0000</value>'],
+                [EditableFeatureTypes.LINEPOLYGON, /"fillColor":{[^}]*"fill":"#ff0000"/],
                 true
             )
         )
@@ -44,9 +45,9 @@ describe('Line/Polygon tool', () => {
         cy.get(drawingStyleLinePopup).should('be.visible')
 
         cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click()
-        cy.checkDrawnGeoJsonProperty('color', '#000000')
+        cy.checkDrawnGeoJsonProperty('fillColor.fill', '#000000')
         cy.wait('@update-kml').then((interception) =>
-            cy.checkKMLRequest(interception, ['<Data name="color"><value>#000000</value>'])
+            cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"fill":"#000000"/])
         )
     })
     it('creates a line with double click', () => {

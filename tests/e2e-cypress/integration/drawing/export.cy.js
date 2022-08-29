@@ -23,10 +23,10 @@ const checkFiles = (extension, callback) => {
 
 const checkKmlFile = (content) => {
     Object.values(EditableFeatureTypes).forEach((type) => {
-        expect(content).to.contains(`<value>${type}</value>`)
+        expect(content).to.contains(`"featureType":"${type}"`)
     })
-    expect(content).to.contains('<value>new text</value>')
-    expect(content).to.contains('/icons/001-marker@1x-255,0,0.png')
+    expect(content).to.contains('"title":"New text"')
+    expect(content).to.contains('"name":"001-marker"')
 }
 const checkGpxFile = (content) => {
     ;['Polygon', 'Point'].forEach((type) => {
@@ -42,19 +42,29 @@ describe('Drawing toolbox actions', () => {
     })
     context('Export KML', () => {
         it('exports KML when clicking on the export button (without choosing format)', () => {
-            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]').click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
+            ).click()
             checkFiles('kml', checkKmlFile)
         })
         it('exports KML file through the "choose format" export menu', () => {
-            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]').click()
-            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]').click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
+            ).click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]'
+            ).click()
             checkFiles('kml', checkKmlFile)
         })
     })
     context('Export GPX', () => {
         it('exports GPX file through the "choose format" export menu', () => {
-            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]').click()
-            cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]').click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
+            ).click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]'
+            ).click()
             checkFiles('gpx', checkGpxFile)
         })
     })

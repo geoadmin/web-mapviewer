@@ -24,8 +24,8 @@ const stringifiedTestObject = `{"id":"drawing_feature_2",\
 "description":"",\
 "featureType":"ANNOTATION",\
 "textColor":{"name":"red","fill":"#ff0000","border":"#ffffff"},\
-"textSize":{"label":"medium_size","textScale":1.5,"iconScale":1},\
 "fillColor":{"name":"red","fill":"#ff0000","border":"#ffffff"},\
+"textSize":{"label":"medium_size","textScale":1.5,"iconScale":1},\
 "icon":null,\
 "iconSize":{"label":"medium_size","textScale":1.5,"iconScale":1}}`
 
@@ -35,7 +35,8 @@ describe('Validate features api', () => {
             const feature = EditableFeature.constructWithObject(args)
             expect(feature).to.be.instanceOf(EditableFeature)
             const stringified = JSON.stringify(feature.getStrippedObject())
-            expect(stringified).to.equal(stringifiedTestObject)
+            // Cannot directly compare the two strings, as the order is undefined
+            expect(JSON.parse(stringified)).to.deep.equal(JSON.parse(stringifiedTestObject))
         })
         it('Deserialize a default editable feature', () => {
             const reconstructed = EditableFeature.recreateObject(JSON.parse(stringifiedTestObject))

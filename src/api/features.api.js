@@ -243,7 +243,8 @@ export class EditableFeature extends Feature {
     /**
      * This getter is automatically called by openlayers when serializing the openlayers feature. In
      * fact, if objects are saved in the extra properties of a feature, openlayers will save their
-     * 'value' property in the KML.
+     * 'value' property in the KML. Warning: This feature seems to be undocumented, but I did not
+     * found another good way to do this.
      */
     get value() {
         return JSON.stringify(this.getStrippedObject())
