@@ -188,7 +188,8 @@ export const MAP_CENTER = [915602.81, 5911929.47]
 /**
  * Horizontal threshold for the phone view. (max-width) This will change the menu and also some interactions.
  *
- * The value is taken from the "sm" breakpoint from Bootstrap.
+ * The value is taken from the "sm" breakpoint from Bootstrap. If this value is modified, the
+ * variable with the same name defined in 'src/scss/media-query.mixin' must also be modified.
  *
  * @type {Number}
  */
@@ -197,11 +198,17 @@ export const BREAKPOINT_PHONE_WIDTH = 576
  * Horizontal threshold for the phone view. (max-height) The height is needed to catch landscape
  * view on mobile.
  *
+ * If this value is modified, the variable with the same name defined in
+ * 'src/scss/media-query.mixin' must also be modified.
+ *
  * @type {Number}
  */
 export const BREAKPOINT_PHONE_HEIGHT = 500
 /**
  * Horizontal threshold for the tablet view. (max-width)
+ *
+ * If this value is modified, the variable with the same name defined in
+ * 'src/scss/media-query.mixin' must also be modified.
  *
  * @type {Number}
  */

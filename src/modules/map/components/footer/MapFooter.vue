@@ -2,8 +2,11 @@
     <div class="map-footer" :class="{ 'map-footer-fullscreen': isFullscreenMode }">
         <div class="map-footer-top">
             <MapFooterAttribution />
-            <div class="map-background-selector">
-                <MapFooterBackgroundSelector />
+            <div>
+                <div class="map-background-selector">
+                    <MapFooterBackgroundSelector />
+                </div>
+                <MapFooterScale :current-zoom="zoom" class="scale-line-phone" />
             </div>
         </div>
         <div id="map-footer-middle" class="map-footer-middle">
@@ -56,6 +59,16 @@ export default {
 }
 </script>
 
+<style lang="scss">
+@import 'src/scss/webmapviewer-bootstrap-theme';
+/* Must be unscoped, as the scaleLine is defined in the child component MapFooterScale.vue */
+.scale-line-phone .scale-line-inner {
+    /* If in phone mode, we need a background color, as the scale line is directly displayed on the
+    map in this case. */
+    background-color: rgba($white, 0.7);
+}
+</style>
+
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/webmapviewer-bootstrap-theme';
@@ -92,6 +105,12 @@ $flex-gap: 1em;
         @include respond-above(lg) {
             flex-direction: column-reverse;
         }
+        .scale-line-phone {
+            font-size: 0.6rem;
+            @include respond-above(phone) {
+                display: none;
+            }
+        }
     }
 
     &-middle {
@@ -108,13 +127,17 @@ $flex-gap: 1em;
         background-color: rgba($white, 0.9);
         font-size: 0.6rem;
 
-        display: flex;
+        display: none;
         align-items: center;
         gap: 0 $flex-gap;
         flex-wrap: wrap;
 
         &-spacer {
             flex-grow: 1;
+        }
+
+        @include respond-above(phone) {
+            display: flex;
         }
     }
 }
