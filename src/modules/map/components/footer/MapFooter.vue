@@ -1,11 +1,9 @@
 <template>
     <div class="map-footer" :class="{ 'map-footer-fullscreen': isFullscreenMode }">
         <div class="map-footer-top">
-            <div class="map-footer-top-left">
+            <MapFooterAttribution />
+            <div class="map-background-selector">
                 <MapFooterBackgroundSelector />
-            </div>
-            <div class="map-footer-top-right">
-                <MapFooterAttribution />
             </div>
         </div>
         <div id="map-footer-middle" class="map-footer-middle">
@@ -75,8 +73,7 @@ $flex-gap: 1em;
     transition: transform $transition-duration;
     pointer-events: none;
 
-    &-top-left,
-    &-top-right,
+    &-top > *,
     &-middle,
     &-bottom {
         pointer-events: all;
@@ -87,23 +84,13 @@ $flex-gap: 1em;
         z-index: $zindex-footer;
         display: flex;
         align-items: flex-end;
-        flex-direction: row;
+        flex-direction: row-reverse;
         justify-content: space-between;
-
-        &-left {
-            // Elements are stacked horizontally, left to right.
-            display: flex;
-            gap: $flex-gap;
+        .map-background-selector {
             padding: $screen-padding-for-ui-elements;
-
-            transition: transform $transition-duration;
         }
-
-        &-right {
-            // Elements are stacked vertically, bottom to top.
-            display: flex;
+        @include respond-above(lg) {
             flex-direction: column-reverse;
-            align-items: flex-end;
         }
     }
 

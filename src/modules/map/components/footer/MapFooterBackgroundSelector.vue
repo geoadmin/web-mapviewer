@@ -19,7 +19,11 @@
                 :tabindex="showBgWheel ? 0 : -1"
                 :data-cy="`background-selector-${background.getID()}`"
                 @click="selectBackground(background, $event)"
-            />
+            >
+                <div class="bg-selector-button-label">
+                    {{ $t(getLayerTranslationLabel(background)) }}
+                </div>
+            </button>
         </div>
         <button
             class="bg-selector-trigger"
@@ -31,7 +35,9 @@
             :title="$t('bg_toggle')"
             @click="toggleBackgroundWheel"
             @animationend="onAnimationEnd"
-        />
+        >
+            <div class="bg-selector-button-label">{{ $t('bg_chooser_label') }}</div>
+        </button>
     </div>
 </template>
 
@@ -86,12 +92,27 @@ export default {
         getLayerClass(layer) {
             return 'bg-' + layer.getID().replaceAll('.', '-')
         },
+        getLayerTranslationLabel(layer) {
+            switch (layer.getID()) {
+                case 'void':
+                    return 'void_layer'
+                case 'ch.swisstopo.pixelkarte-farbe':
+                    return 'bg_pixel_color'
+                case 'ch.swisstopo.pixelkarte-grau':
+                    return 'bg_pixel_grey'
+                case 'ch.swisstopo.swissimage':
+                    return 'bg_luftbild'
+                default:
+                    return layer.name || layer.getID()
+            }
+        },
     },
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/scss/media-query.mixin';
 
 $transition-duration: 0.3s;
 $map-button-gap: 0.5rem;
@@ -125,6 +146,15 @@ $map-button-gap: 0.5rem;
     &:hover {
         border-color: $map-button-hover-border-color;
     }
+}
+
+.bg-selector-button-label {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background: rgba($white, 0.7);
+    font-size: 0.7rem;
+    display: none;
 }
 
 .bg-selector-trigger {
@@ -190,5 +220,50 @@ $map-button-gap: 0.5rem;
     animation-name: bigger-pulse;
     animation-timing-function: ease-in-out;
     animation-duration: $transition-duration;
+}
+
+@include respond-above(lg) {
+    $desktop-map-button-width: 96px;
+    .bg-selector-button {
+        width: $desktop-map-button-width;
+        height: 64px;
+        border-radius: initial;
+        background-image: url('../../../menu/assets/backgrounds.jpg');
+        background-size: 392px;
+        // Original size: 180px x 4 = 720px image, 5px x 3 = 15px border => 735px (100%)
+        // Size after reducing the size: 96px image x 4 = 384px, 2.666px x 3 = 8px => 392px (x0.5333)
+        &.bg-ch-swisstopo-swissimage {
+            background-position: 0 0;
+        }
+        &.bg-ch-swisstopo-pixelkarte-grau {
+            background-position: -98.6667px 0; // 96px (image) + 2.6667 (border)
+        }
+        &.bg-ch-swisstopo-pixelkarte-farbe {
+            background-position: -197.3334px 0; // 192px (2 images) + 5.3334 (2 borders)
+        }
+    }
+
+    .bg-selector-button-label {
+        display: block;
+    }
+
+    .bg-selector-open {
+        .bg-selector-wheel {
+            left: calc(($desktop-map-button-width + $map-button-gap) * -1);
+            bottom: 0;
+        }
+        .bg-index-0 {
+            $offset: calc(($desktop-map-button-width + $map-button-gap) * -3);
+            transform: translateX($offset);
+        }
+        .bg-index-1 {
+            $offset: calc(($desktop-map-button-width + $map-button-gap) * -2);
+            transform: translateX($offset);
+        }
+        .bg-index-2 {
+            $offset: calc(($desktop-map-button-width + $map-button-gap) * -1);
+            transform: translateX($offset);
+        }
+    }
 }
 </style>
