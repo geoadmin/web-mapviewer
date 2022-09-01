@@ -10,13 +10,13 @@
                 />
                 <HeaderSwissConfederationText
                     :current-lang="currentLang"
-                    class="me-2 cursor-pointer d-none d-lg-block"
+                    class="me-2 cursor-pointer search-header-swiss-confederation-text"
                     data-cy="menu-swiss-confederation-text"
                     @click="resetApp"
                 />
             </div>
             <div class="mx-2 flex-grow-1 position-relative">
-                <span class="float-start d-none d-lg-block">{{ $t('search_title') }}</span>
+                <span class="float-start search-title">{{ $t('search_title') }}</span>
                 <SearchBar />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
@@ -115,6 +115,12 @@ export default {
         }
     }
 }
+
+.search-header-swiss-confederation-text,
+.search-title {
+    display: none;
+}
+
 @include respond-above(lg) {
     .header {
         height: 2 * $header-height;
@@ -128,6 +134,10 @@ export default {
                 top: 2 * $header-height;
             }
         }
+    }
+    .search-header-swiss-confederation-text,
+    .search-title {
+        display: block;
     }
 }
 </style>

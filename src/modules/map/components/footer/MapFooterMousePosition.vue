@@ -54,15 +54,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/media-query.mixin';
-
 .mouse-position {
     display: none;
     min-width: 10em;
     text-align: left;
     white-space: nowrap;
 }
-@include respond-above(md) {
+@media (any-hover: hover) {
     .mouse-position {
         display: block;
     }

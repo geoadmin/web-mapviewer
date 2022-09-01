@@ -55,7 +55,7 @@
                     </div>
                     <!-- eslint-disable vue/no-v-html-->
                     <small
-                        class="d-none d-sm-block text-center text-muted"
+                        class="text-center text-muted drawing-toolbox-disclaimer"
                         v-html="$t('share_file_disclaimer')"
                     ></small>
                     <!-- eslint-enable vue/no-v-html-->
@@ -209,9 +209,12 @@ $zindex-drawing-toolbox: -1;
         grid-template: 1fr / 1fr 1fr 1fr 1fr;
         gap: 0.25rem;
     }
+    &-disclaimer {
+        display: none;
+    }
 }
 
-@include respond-above(sm) {
+@include respond-above(phone) {
     .drawing-toolbox {
         position: absolute;
         max-width: $menu-tray-width;
@@ -230,10 +233,13 @@ $zindex-drawing-toolbox: -1;
             }
             transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
+        &-disclaimer {
+            display: block;
+        }
     }
 }
 
-@include respond-above(md) {
+@include respond-above(tablet) {
     .drawing-toolbox-mode-selector {
         margin: 1rem 2rem;
         grid-template: 1fr 1fr / 1fr 1fr;

@@ -81,12 +81,12 @@ export default {
     color: white !important;
 }
 
-@include respond-above(sm) {
+@include respond-above(phone) {
     .drawing-toolbox-button {
         padding: 0.5rem 0;
     }
 }
-@include respond-above(md) {
+@include respond-above(tablet) {
     .drawing-toolbox-button {
         font-weight: bold;
 
