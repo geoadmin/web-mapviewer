@@ -116,7 +116,7 @@ export default {
             )
 
             const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
-            let drawingMode = featureUnderCursor?.get('drawingMode')
+            let drawingMode = featureUnderCursor?.get('editableFeature').featureType
             let translationKeys
 
             if (hoveringSelectedFeature) {

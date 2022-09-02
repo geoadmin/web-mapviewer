@@ -10,9 +10,9 @@ import VectorSource from 'ol/source/Vector'
 import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { deserializeAnchor } from '@/utils/featureAnchor'
+import { EditableFeature } from '@/api/features.api'
 import MeasureManager from '@/utils/MeasureManager'
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 /** Renders a KML file on the map */
@@ -63,11 +63,10 @@ export default {
         this.measureManager = new MeasureManager(this.getMap(), this.layer)
         this.layer.getSource().on('addfeature', (event) => {
             const f = event.feature
-            // The following deserialization is a hack. See @module comment in file.
-            deserializeAnchor(f)
+            EditableFeature.deserialize(f)
             f.set('type', f.get('type').toUpperCase())
             f.setStyle((feature) => featureStyleFunction(feature))
-            if (f.get('drawingMode') === DrawingModes.MEASURE) {
+            if (f.get('editableFeature').featureType === EditableFeatureTypes.MEASURE) {
                 this.measureManager.addOverlays(f)
             }
         })

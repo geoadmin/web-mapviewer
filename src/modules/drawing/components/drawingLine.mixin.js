@@ -24,12 +24,10 @@ const drawingLineMixin = {
 
         // registering events on the interaction created by the other mixin
         this.interaction.on('drawstart', this.onDrawStartResetPointCounter)
-        this.interaction.on('drawend', this.onDrawEndTransformPolygonIntoLineIfNeeded)
         this.interaction.getOverlay().getSource().on('addfeature', this.checkIfSnapping)
     },
     beforeUnmount() {
         this.interaction.getOverlay().getSource().un('addfeature', this.checkIfSnapping)
-        this.interaction.un('drawend', this.onDrawEndTransformPolygonIntoLineIfNeeded)
         this.interaction.un('drawstart', this.onDrawStartResetPointCounter)
         // removing snap interaction
         this.getMap().removeInteraction(this.snapInteraction)

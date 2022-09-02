@@ -17,22 +17,11 @@
             :selected-features="selectedFeatures"
             :currently-sketched-feature="currentlySketchedFeature"
         />
-        <DrawingSelectInteraction
-            ref="selectInteraction"
-            :selected-features="selectedFeatures"
-            @feature-select="onFeatureSelect"
-            @feature-unselect="onFeatureUnselect"
-            @feature-change="onChange"
-        >
+        <DrawingSelectInteraction ref="selectInteraction" @feature-change="onChange">
             <!-- As modify interaction needs access to the selected features we embed it into
             the select interaction component, this component will share its feature
             through a provide/inject -->
-            <DrawingModifyInteraction
-                :selected-features="selectedFeatures"
-                @feature-is-dragged="onFeatureIsDragged"
-                @feature-is-dropped="onFeatureIsDropped"
-                @modify-end="onChange"
-            />
+            <DrawingModifyInteraction @modify-end="onChange" />
         </DrawingSelectInteraction>
         <DrawingMarkerInteraction
             v-if="show && isDrawingModeMarker"
@@ -77,8 +66,8 @@ import LoadingScreen from '@/utils/LoadingScreen.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/store/modules/drawing.store'
-import { deserializeAnchor } from '@/utils/featureAnchor'
+import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeature } from '@/api/features.api'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -109,7 +98,7 @@ export default {
     },
     data() {
         return {
-            drawingModes: Object.values(DrawingModes),
+            drawingModes: Object.values(EditableFeatureTypes),
             isDrawingEmpty: true,
             currentlySketchedFeature: null,
             isLoading: false,
@@ -131,16 +120,16 @@ export default {
         }),
         ...mapGetters(['getDrawingPublicFileUrl']),
         isDrawingModeMarker() {
-            return this.currentDrawingMode === DrawingModes.MARKER
+            return this.currentDrawingMode === EditableFeatureTypes.MARKER
         },
         isDrawingModeAnnotation() {
-            return this.currentDrawingMode === DrawingModes.ANNOTATION
+            return this.currentDrawingMode === EditableFeatureTypes.ANNOTATION
         },
         isDrawingModeLine() {
-            return this.currentDrawingMode === DrawingModes.LINEPOLYGON
+            return this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON
         },
         isDrawingModeMeasure() {
-            return this.currentDrawingMode === DrawingModes.MEASURE
+            return this.currentDrawingMode === EditableFeatureTypes.MEASURE
         },
         currentlySelectedFeature() {
             // there can only be one drawing feature edited at the same time
@@ -208,7 +197,7 @@ export default {
                 const e_msg = show
                     ? 'Aborted opening of drawing mode. Could not add existent KML layer: '
                     : 'Aborted closing of drawing mode. Could not save KML layer: '
-                log.error(e_msg, e.code)
+                log.error(e_msg, e.code, e)
                 // Abort the toggle to give the user a chance to reconnect to the internet and
                 // so to not loose his drawing
                 this.abortedToggleOverlay = true
@@ -280,10 +269,7 @@ export default {
             'removeLayer',
             'addLayer',
             'loadAvailableIconSets',
-            'setSelectedFeatures',
             'clearAllSelectedFeatures',
-            'changeFeatureCoordinates',
-            'changeFeatureIsDragged',
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
@@ -336,35 +322,6 @@ export default {
 
             this.addDrawingFeature(feature.getId())
         },
-        /** See {@link DrawingModifyInteraction} events */
-        onFeatureIsDragged(feature) {
-            this.changeFeatureIsDragged({
-                feature: feature,
-                isDragged: true,
-            })
-            this.onChange()
-        },
-        /** See {@link DrawingModifyInteraction} events */
-        onFeatureIsDropped({ feature, coordinates }) {
-            this.changeFeatureIsDragged({
-                feature: feature,
-                isDragged: false,
-            })
-            this.changeFeatureCoordinates({
-                feature: feature,
-                coordinates: coordinates,
-            })
-            this.onChange()
-        },
-        /** See {@link DrawingSelectInteraction} events */
-        onFeatureSelect(feature) {
-            this.setSelectedFeatures([feature])
-        },
-        /** See {@link DrawingSelectInteraction} events */
-        onFeatureUnselect() {
-            // emptying selected features in the store
-            this.clearAllSelectedFeatures()
-        },
         onKeyUp(event) {
             if (event.key === 'Delete') {
                 // drawing modes will be checked by the function itself (no need to double-check)
@@ -392,7 +349,6 @@ export default {
         clearDrawing: function () {
             this.clearDrawingFeatures()
             this.clearAllSelectedFeatures()
-            this.$refs.selectInteraction.clearSelectedFeature()
             this.drawingLayer.getSource().clear()
             this.onChange()
         },
@@ -424,10 +380,9 @@ export default {
             const features = new KML().readFeatures(kml, {
                 featureProjection: layer.projection,
             })
-            features.forEach((feature) => {
-                // The following deserialization is a hack. See @module comment in file.
-                deserializeAnchor(feature)
-                feature.setStyle(featureStyleFunction)
+            features.forEach((olFeature) => {
+                EditableFeature.deserialize(olFeature)
+                olFeature.setStyle(featureStyleFunction)
             })
             this.drawingLayer.getSource().addFeatures(features)
         },

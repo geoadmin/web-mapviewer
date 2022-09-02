@@ -6,21 +6,19 @@
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
-import { DrawingModes } from '@/store/modules/drawing.store'
-import { RED } from '@/utils/featureStyleUtils'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
     inject: ['getMap', 'getDrawingLayer', 'getMeasureManager'],
     data() {
         return {
-            drawingMode: DrawingModes.MEASURE,
             geometryType: 'Polygon',
-            extraProperties: {
-                color: RED.fill,
-            },
             editingStyle: drawMeasureStyle,
             featureStyle: drawMeasureStyle,
+            editableFeatureArgs: {
+                featureType: EditableFeatureTypes.MEASURE,
+            },
         }
     },
     methods: {

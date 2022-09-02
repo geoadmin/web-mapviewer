@@ -58,14 +58,6 @@ const changeIconSize = (size) => {
     ).click()
 }
 
-const checkIconInKml = (expectedIconUrl) => {
-    cy.wait('@update-kml').then((interception) => {
-        cy.checkKMLRequest(interception, [
-            new RegExp(`<Data name="iconUrl">.+?${expectedIconUrl}.+?<\\/Data>`),
-        ])
-    })
-}
-
 describe('Drawing marker/points', () => {
     beforeEach(() => {
         cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
@@ -102,7 +94,7 @@ describe('Drawing marker/points', () => {
         it('changes the title of a marker', () => {
             createAPoint(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
-            cy.checkDrawnGeoJsonProperty('text', 'This is a title')
+            cy.checkDrawnGeoJsonProperty('title', 'This is a title')
         })
         it('changes the description of a marker', () => {
             createAPoint(EditableFeatureTypes.MARKER)
@@ -126,7 +118,9 @@ describe('Drawing marker/points', () => {
             it('Modify the KML file whenever the color of the icon changes', () => {
                 createMarkerAndOpenIconStylePopup()
                 clickOnAColor(GREEN)
-                checkIconInKml(`-${GREEN.rgbString}.png`)
+                cy.wait('@update-kml').then((interception) => {
+                    cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"name":"green"/])
+                })
             })
         })
 
@@ -154,7 +148,12 @@ describe('Drawing marker/points', () => {
                 createMarkerAndOpenIconStylePopup()
                 changeIconSize(SMALL)
                 cy.wait('@small-icon')
-                checkIconInKml(`@${SMALL.iconScale}x-${RED.rgbString}`)
+                cy.wait('@update-kml').then((interception) => {
+                    cy.checkKMLRequest(interception, [
+                        /"iconSize":{[^}]*"label":"small_size"/,
+                        /"fillColor":{[^}]*"fill":"#ff0000"/,
+                    ])
+                })
             })
         })
 
@@ -171,9 +170,7 @@ describe('Drawing marker/points', () => {
                 cy.get(drawingStyleMarkerIconSetSelector).click()
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
-                        cy.get(
-                            `[data-cy="dropdown-item-${iconSet.name}"]`
-                        ).should('be.visible')
+                        cy.get(`[data-cy="dropdown-item-${iconSet.name}"]`).should('be.visible')
                     })
                 })
             })
@@ -201,17 +198,11 @@ describe('Drawing marker/points', () => {
                     cy.get(
                         `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
                     ).click()
-                    cy.checkDrawnGeoJsonProperty(
-                        'icon',
-                        `api/icons/sets/default/icons/${fourthIcon.name}`,
-                        true
-                    )
+                    cy.checkDrawnGeoJsonProperty('icon.name', fourthIcon.name, true)
                     cy.wait('@update-kml').then((interception) =>
-                        expect(interception.request.body).to.match(
-                            RegExp(
-                                `<Data name="icon"><value>.*api/icons/sets/default/icons/${fourthIcon.name}.*</value>`
-                            )
-                        )
+                        cy.checkKMLRequest(interception, [
+                            new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`),
+                        ])
                     )
                 })
             })
@@ -236,12 +227,12 @@ describe('Drawing marker/points', () => {
                 cy.get(
                     `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${MEDIUM.label}"]`
                 ).click({ force: true })
-                cy.checkDrawnGeoJsonProperty('textScale', MEDIUM.textScale)
+                cy.checkDrawnGeoJsonProperty('iconSize.textScale', MEDIUM.textScale)
 
                 cy.get(
                     `${drawingStyleTextPopup} [data-cy="drawing-style-text-color-${BLACK.name}"]`
                 ).click({ force: true })
-                cy.checkDrawnGeoJsonProperty('color', BLACK.fill)
+                cy.checkDrawnGeoJsonProperty('textColor.fill', BLACK.fill)
 
                 // Closing the popup
                 cy.get(drawingStyleTextButton).click()

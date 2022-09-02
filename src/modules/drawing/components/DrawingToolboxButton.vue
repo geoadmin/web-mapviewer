@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { DrawingModes } from '@/store/modules/drawing.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
@@ -23,7 +23,7 @@ export default {
     props: {
         drawingMode: {
             type: String,
-            default: DrawingModes.LINEPOLYGON,
+            default: EditableFeatureTypes.LINEPOLYGON,
         },
         isActive: {
             type: Boolean,
@@ -38,13 +38,13 @@ export default {
     computed: {
         buttonIcon() {
             switch (this.drawingMode) {
-                case DrawingModes.LINEPOLYGON:
+                case EditableFeatureTypes.LINEPOLYGON:
                     return ['fa', 'draw-polygon']
-                case DrawingModes.MARKER:
+                case EditableFeatureTypes.MARKER:
                     return ['fa', 'map-marker-alt']
-                case DrawingModes.MEASURE:
+                case EditableFeatureTypes.MEASURE:
                     return ['fa', 'ruler']
-                case DrawingModes.ANNOTATION:
+                case EditableFeatureTypes.ANNOTATION:
                     return ['fa', 't']
             }
             return null

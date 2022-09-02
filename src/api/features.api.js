@@ -1,8 +1,17 @@
 import { API_BASE_URL } from '@/config'
 import EventEmitter from '@/utils/EventEmitter.class'
-import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    MEDIUM,
+    RED,
+    FeatureStyleColor,
+    FeatureStyleSize,
+} from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
+import { Icon } from '@/api/icon.api'
+import { Icon as openlayersIcon } from 'ol/style'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -48,6 +57,18 @@ export class Feature extends EventEmitter {
         }
     }
 
+    /**
+     * Like "emitChangeEvent(changeType)", but also emits a 'change:style' event. This event should
+     * be triggered for changes that can affect the visuals of the feature, but not the positioning
+     * or other stage changes.
+     *
+     * @param {String} changeType
+     */
+    emitStylingChangeEvent(changeType = null) {
+        this.emit('change:style', this)
+        this.emitChangeEvent(changeType)
+    }
+
     get id() {
         return this._id
     }
@@ -80,7 +101,7 @@ export class Feature extends EventEmitter {
     }
     set title(newTitle) {
         this._title = newTitle
-        this.emitChangeEvent('title')
+        this.emitStylingChangeEvent('title')
     }
 
     get description() {
@@ -124,8 +145,8 @@ export class EditableFeature extends Feature {
     constructor(
         id,
         coordinates,
-        title,
-        description,
+        title = '',
+        description = '',
         featureType,
         textColor = RED,
         textSize = MEDIUM,
@@ -142,6 +163,93 @@ export class EditableFeature extends Feature {
         this._iconSize = iconSize
     }
 
+    /**
+     * Calls the constructor, but the parameters are inside an object. Omitted parameters means the
+     * default value of the constructor will be used.
+     *
+     * @param {any} obj An object with key value pairs for the parameters of the constructor
+     * @returns The constructed object
+     */
+    static constructWithObject(obj) {
+        return new EditableFeature(
+            obj.id,
+            obj.coordinates,
+            obj.title,
+            obj.description,
+            obj.featureType,
+            obj.textColor,
+            obj.textSize,
+            obj.fillColor,
+            obj.icon,
+            obj.iconSize
+        )
+    }
+
+    /**
+     * This function returns a stripped down version of this object ready to be serialized.
+     *
+     * @returns The version of the object that can be serialized
+     */
+    getStrippedObject() {
+        /* Warning: Changing this method will break the compability of KML files */
+        return {
+            id: this.id,
+            coordinates: this.coordinates,
+            title: this.title,
+            description: this.description,
+            featureType: this.featureType,
+            textColor: this.textColor.getStrippedObject(),
+            textSize: this.textSize.getStrippedObject(),
+            fillColor: this.fillColor.getStrippedObject(),
+            icon: this.icon ? this.icon.getStrippedObject() : null,
+            iconSize: this.iconSize.getStrippedObject(),
+        }
+    }
+
+    /**
+     * Regenerates the full version of an editable feature given a stripped version.
+     *
+     * @param {stripped EditableFeature} o A stripped down version of the editable Feature
+     * @returns The full version of the editable Feature
+     */
+    static recreateObject(o) {
+        return new EditableFeature(
+            o.id,
+            o.coordinates,
+            o.title,
+            o.description,
+            o.featureType,
+            FeatureStyleColor.recreateObject(o.textColor),
+            FeatureStyleSize.recreateObject(o.textSize),
+            FeatureStyleColor.recreateObject(o.fillColor),
+            o.icon ? Icon.recreateObject(o.icon) : null,
+            FeatureStyleSize.recreateObject(o.iconSize)
+        )
+    }
+
+    /**
+     * This method deserializes an editable feature that is stored in the extra properties of an
+     * openlayers feature.
+     *
+     * @param {openlayersFeature} olFeature
+     */
+    static deserialize(olFeature) {
+        olFeature.set(
+            'editableFeature',
+            this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
+        )
+    }
+
+    /**
+     * This getter is automatically called by openlayers when serializing the openlayers feature. In
+     * fact, if objects are saved in the extra properties of a feature, openlayers will save their
+     * 'value' property in the KML. Warning: This feature seems to be undocumented, but I did not
+     * found another good way to do this.
+     */
+    get value() {
+        return JSON.stringify(this.getStrippedObject())
+    }
+
     // getters and setters for all properties (with event emit for setters)
     get featureType() {
         return this._featureType
@@ -156,7 +264,7 @@ export class EditableFeature extends Feature {
     set textColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
             this._textColor = newColor
-            this.emitChangeEvent('textColor')
+            this.emitStylingChangeEvent('textColor')
         }
     }
 
@@ -172,7 +280,7 @@ export class EditableFeature extends Feature {
     set textSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.textScale === newSize.textScale)) {
             this._textSize = newSize
-            this.emitChangeEvent('textSize')
+            this.emitStylingChangeEvent('textSize')
         }
     }
     get font() {
@@ -186,11 +294,21 @@ export class EditableFeature extends Feature {
     /** @param newIcon {Icon} */
     set icon(newIcon) {
         this._icon = newIcon
-        this.emitChangeEvent('icon')
+        this.emitStylingChangeEvent('icon')
     }
     /** @returns {String} */
     get iconUrl() {
         return this._icon?.generateURL(this.iconSize, this.fillColor)
+    }
+
+    generateOpenlayersIcon() {
+        return this.icon
+            ? new openlayersIcon({
+                  src: this.iconUrl,
+                  crossOrigin: 'Anonymous',
+                  anchor: this.icon.anchor,
+              })
+            : null
     }
 
     /** @returns {FeatureStyleColor} */
@@ -201,7 +319,7 @@ export class EditableFeature extends Feature {
     set fillColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
             this._fillColor = newColor
-            this.emitChangeEvent('fillColor')
+            this.emitStylingChangeEvent('fillColor')
         }
     }
 
@@ -217,7 +335,7 @@ export class EditableFeature extends Feature {
     set iconSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.iconScale === newSize.iconScale)) {
             this._iconSize = newSize
-            this.emitChangeEvent('iconSize')
+            this.emitStylingChangeEvent('iconSize')
         }
     }
 
