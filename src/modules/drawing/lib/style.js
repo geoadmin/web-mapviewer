@@ -46,7 +46,6 @@ const sketchPoint = new Circle({
  * Note that the style differs when the feature is selected (or drawn for the first time) or when
  * displayed without interaction (see {@link featureStyleFunction} for this case)
  */
-//export const editingFeatureStyleFunction = featureStyleFunction
 export const editingFeatureStyleFunction = (feature) => {
     const isLineOrMeasure = feature.get('type') === 'Polygon'
     const styles = [

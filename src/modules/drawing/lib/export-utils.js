@@ -90,7 +90,6 @@ export function generateKmlString(features = [], styleFunction = null) {
             `<Document><name>${i18n.global.t('draw_layer_label')}</name>`
         )
     }
-    console.log(kmlString)
     return kmlString
 }
 

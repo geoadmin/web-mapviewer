@@ -377,7 +377,6 @@ export default {
         },
         async addKmlLayer(layer) {
             const kml = await getKml(layer.fileId)
-            console.log(kml)
             const features = new KML().readFeatures(kml, {
                 featureProjection: layer.projection,
             })
