@@ -36,7 +36,12 @@
             @click="toggleBackgroundWheel"
             @animationend="onAnimationEnd"
         >
-            <div class="bg-selector-button-label">{{ $t('bg_chooser_label') }}</div>
+            <div v-if="!showBgWheel" class="bg-selector-button-label">
+                {{ $t('bg_chooser_label') }}
+            </div>
+            <div v-if="showBgWheel" class="bg-selector-button-label">
+                <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
+            </div>
         </button>
     </div>
 </template>
@@ -116,6 +121,7 @@ export default {
 
 $transition-duration: 0.3s;
 $map-button-gap: 0.5rem;
+$menu-button-diameter: 3px;
 
 .bg-selector {
     position: relative;
@@ -124,6 +130,7 @@ $map-button-gap: 0.5rem;
 .bg-selector-button {
     height: $map-button-diameter;
     width: $map-button-diameter;
+    transition: width $transition-duration;
     padding: 0;
     background-image: url('../../../menu/assets/backgrounds_mobile.png');
     background-repeat: no-repeat;
@@ -166,13 +173,14 @@ $map-button-gap: 0.5rem;
 .bg-selector-wheel {
     position: absolute;
     bottom: 0;
+    left: 0;
     opacity: 0;
 
-    transition-property: bottom, opacity;
+    transition-property: bottom, left, opacity;
     transition-duration: $transition-duration;
 
     .bg-selector-button {
-        border-width: 3px;
+        border-width: $menu-button-diameter;
         transition-property: transform, opacity;
         transition-duration: $transition-duration;
         transform: translateY(0);
@@ -226,6 +234,7 @@ $map-button-gap: 0.5rem;
     $desktop-map-button-width: 96px;
     .bg-selector-button {
         width: $desktop-map-button-width;
+        border-color: $white;
         height: 64px;
         border-radius: initial;
         background-image: url('../../../menu/assets/backgrounds.jpg');
@@ -240,6 +249,17 @@ $map-button-gap: 0.5rem;
         }
         &.bg-ch-swisstopo-pixelkarte-farbe {
             background-position: -197.3334px 0; // 192px (2 images) + 5.3334 (2 borders)
+        }
+
+        &:hover {
+            border-color: $red;
+        }
+    }
+
+    .bg-selector-trigger {
+        border-width: $menu-button-diameter;
+        &:hover {
+            border-color: $red;
         }
     }
 
@@ -263,6 +283,19 @@ $map-button-gap: 0.5rem;
         .bg-index-2 {
             $offset: calc(($desktop-map-button-width + $map-button-gap) * -1);
             transform: translateX($offset);
+        }
+
+        .bg-selector-trigger {
+            background-image: none;
+            border-width: $menu-button-diameter;
+            width: 40px;
+            animation: none;
+            .bg-selector-button-label {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         }
     }
 }
