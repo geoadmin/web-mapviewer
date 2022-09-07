@@ -17,7 +17,6 @@
                             :key="drawingMode"
                             :drawing-mode="drawingMode"
                             :is-active="currentDrawingMode === drawingMode"
-                            :ui-mode="uiMode"
                             :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
                             @set-drawing-mode="bubbleSetDrawingEventToParent"
                         />
@@ -96,7 +95,6 @@ import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
 import { EditableFeatureTypes } from '@/api/features.api'
-import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import DrawingHeader from './DrawingHeader.vue'
@@ -122,10 +120,6 @@ export default {
         isDrawingEmpty: {
             type: Boolean,
             default: false,
-        },
-        uiMode: {
-            type: String,
-            default: UIModes.MENU_ALWAYS_OPEN,
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],

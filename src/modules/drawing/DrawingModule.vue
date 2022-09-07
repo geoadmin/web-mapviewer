@@ -5,7 +5,6 @@
             :current-drawing-mode="currentDrawingMode"
             :is-drawing-empty="isDrawingEmpty"
             :kml-ids="kmlIds"
-            :ui-mode="uiMode"
             @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
@@ -114,7 +113,6 @@ export default {
             kmlLayers: (state) =>
                 state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
-            uiMode: (state) => state.ui.mode,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
         }),
