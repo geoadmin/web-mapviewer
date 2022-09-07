@@ -26,7 +26,7 @@
                 ></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <HeaderMenuButton v-if="showMenuButton" />
+            <HeaderMenuButton v-if="isPhoneMode" />
         </div>
     </div>
 </template>
@@ -40,7 +40,6 @@ import HeaderSwissConfederationText from '@/modules/menu/components/header/Heade
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import { mapGetters, mapState } from 'vuex'
-import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: {
@@ -59,13 +58,8 @@ export default {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
             currentLang: (state) => state.i18n.lang,
-            currentTopic: (state) => state.topics.current,
-            currentUiMode: (state) => state.ui.mode,
         }),
-        ...mapGetters(['currentTopicId']),
-        showMenuButton() {
-            return this.currentUiMode !== UIModes.MENU_ALWAYS_OPEN
-        },
+        ...mapGetters(['currentTopicId', 'isPhoneMode']),
     },
     methods: {
         resetApp() {

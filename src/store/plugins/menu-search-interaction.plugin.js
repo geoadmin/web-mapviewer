@@ -11,19 +11,19 @@ const menuSearchBarInteractionManagementPlugin = (store) => {
                 store.commit('hideSearchResults')
             }
         }
-        const hideMenuTrayIfShown = () => {
-            if (state.ui.showMenuTray) {
-                store.dispatch('toggleMenuTray')
+        const hideMenuIfShown = () => {
+            if (state.ui.showMenu) {
+                store.dispatch('toggleMenu')
             }
         }
         switch (mutation.type) {
-            case 'setShowMenuTray':
-                if (state.ui.showMenuTray) {
+            case 'setShowMenu':
+                if (state.ui.showMenu) {
                     hideSearchResultsIfShown()
                 }
                 break
             case 'showSearchResults':
-                hideMenuTrayIfShown()
+                hideMenuIfShown()
                 break
         }
     })
