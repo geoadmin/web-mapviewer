@@ -23,13 +23,13 @@ export default {
          *
          * @type Number
          */
-        height: 0,
+        height: window.innerHeight,
         /**
          * Width of the viewport (in px)
          *
          * @type Number
          */
-        width: 0,
+        width: window.innerWidth,
 
         /**
          * Flag telling if the main menu (where the layer options, layer tree and other stuff is)
@@ -37,7 +37,7 @@ export default {
          * also depends on e.g. if the drawing mode is open or not. Use the getter "isMenuShown" to
          * know that.
          */
-        showMenu: false,
+        showMenu: window.innerWidth >= BREAKPOINT_TABLET,
         /**
          * Flag telling if the app should be shown in fullscreen mode, meaning that :
          *
@@ -67,14 +67,14 @@ export default {
          *
          * @type String
          */
-        mode: UIModes.PHONE,
+        mode: UIModes.PHONE, // Configured in screen-size-management.plugin.js (or manually in the settings)
         /**
          * Flag telling if the tooltip should be displayed over the map, floating and positioned at
          * the feature's coordinates. If false, the tooltip will be displayed in the footer
          *
          * @type Boolean
          */
-        floatingTooltip: window.innerWidth > BREAKPOINT_TABLET,
+        floatingTooltip: false, // Configured in screen-size-management.plugin.js
     },
     getters: {
         screenDensity(state) {

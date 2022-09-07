@@ -13,6 +13,7 @@ const screenSizeManagementPlugin = (store) => {
             ) {
                 wantedUiMode = UIModes.PHONE
             } else {
+                // so the UI mode DESKTOP also includes the tablet mode.
                 wantedUiMode = UIModes.DESKTOP
             }
             if (wantedUiMode !== state.ui.mode) {
