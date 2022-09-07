@@ -40,7 +40,7 @@ export default {
     },
     computed: {
         ...mapState({
-            showTooltip: (state) => state.ui.mode === UIModes.MENU_ALWAYS_OPEN,
+            showTooltip: (state) => state.ui.mode === UIModes.DESKTOP,
         }),
     },
     mounted() {

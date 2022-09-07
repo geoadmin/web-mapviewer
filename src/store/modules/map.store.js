@@ -74,7 +74,7 @@ export default {
     getters: {
         displayLocationPopup(state, getters, rootState) {
             return (
-                rootState.ui.mode !== UIModes.MENU_OPENED_THROUGH_BUTTON &&
+                rootState.ui.mode === UIModes.DESKTOP &&
                 state.clickInfo?.clickType === ClickType.RIGHT_CLICK &&
                 Array.isArray(state.clickInfo?.coordinate)
             )

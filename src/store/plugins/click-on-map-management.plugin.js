@@ -60,7 +60,7 @@ const clickOnMapManagementPlugin = (store) => {
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             const clickInfo = mutation.payload
-            const isDesktop = state.ui.mode === UIModes.MENU_ALWAYS_OPEN
+            const isDesktop = state.ui.mode === UIModes.DESKTOP
             const isLeftClick = clickInfo?.clickType === ClickType.LEFT_CLICK
             const isLongClick = clickInfo?.millisecondsSpentMouseDown >= 500
 

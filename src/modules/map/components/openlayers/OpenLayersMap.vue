@@ -406,21 +406,19 @@ export default {
             }
         },
         onContextMenu(event) {
-            if (UIModes.MENU_OPENED_THROUGH_BUTTON) {
-                const screenCoordinates = [event.x, event.y]
-                this.click(
-                    new ClickInfo(
-                        this.map.getCoordinateFromPixel(screenCoordinates),
-                        0,
-                        screenCoordinates,
-                        [],
-                        ClickType.RIGHT_CLICK
-                    )
+            const screenCoordinates = [event.x, event.y]
+            this.click(
+                new ClickInfo(
+                    this.map.getCoordinateFromPixel(screenCoordinates),
+                    0,
+                    screenCoordinates,
+                    [],
+                    ClickType.RIGHT_CLICK
                 )
-                // we do not want the contextual menu to shows up, so we prevent the event propagation
-                event.preventDefault()
-                return false
-            }
+            )
+            // we do not want the contextual menu to shows up, so we prevent the event propagation
+            event.preventDefault()
+            return false
         },
     },
 }

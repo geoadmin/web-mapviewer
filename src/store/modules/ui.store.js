@@ -1,16 +1,14 @@
-import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_TABLET } from '@/config'
+import { BREAKPOINT_TABLET } from '@/config'
 
 /**
- * Describes the different mode the UI can have. Either desktop (menu is always shown, info box is a
- * side tray) or touch (menu has to be opened with a button, info box is a swipeable element)
+ * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
+ * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable element)
  *
  * @type enum
  */
 export const UIModes = {
-    MENU_ALWAYS_OPEN: 'DESKTOP',
-    DESKTOP: 'DESKTOP',
-    MENU_OPENED_THROUGH_BUTTON: 'PHONE',
-    PHONE: 'PHONE',
+    DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
+    PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
 
 /**
