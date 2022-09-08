@@ -22,7 +22,12 @@
             <slot name="extra-button" />
         </div>
         <CollapseTransition :duration="200">
-            <div v-show="showBody" ref="sectionBody" class="menu-section-body">
+            <div
+                v-show="showBody"
+                ref="sectionBody"
+                class="menu-section-body"
+                data-cy="menu-section-body"
+            >
                 <slot />
             </div>
         </CollapseTransition>
@@ -103,6 +108,7 @@ export default {
 $section-border: 1px;
 
 .menu-section-header {
+    display: flex;
     flex: none;
     overflow: visible;
     padding: 0.5rem 1rem;
