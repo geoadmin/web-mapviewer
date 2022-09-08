@@ -32,12 +32,17 @@
 <script>
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-
 export default {
     components: {
         CollapseTransition,
     },
     props: {
+        // String that uniquely identifies this section
+        id: {
+            type: String,
+            required: true,
+        },
+        // Translated name of this section
         title: {
             type: String,
             required: true,
@@ -55,7 +60,8 @@ export default {
             default: false,
         },
     },
-    emits: ['showBody', 'click:header'],
+    expose: ['close'],
+    emits: ['openMenuSection', 'click:header'],
     data() {
         return {
             showBody: this.showContent,
@@ -79,10 +85,13 @@ export default {
             if (!this.alwaysKeepClosed) {
                 this.showBody = !this.showBody
             }
-            if (this.showBody) {
-                this.$emit('showBody')
-            }
             this.$emit('click:header')
+            if (this.showBody) {
+                this.$emit('openMenuSection', this.id)
+            }
+        },
+        close() {
+            this.showBody = false
         },
     },
 }

@@ -1,9 +1,11 @@
 <template>
     <MenuSection
         v-if="currentTopic"
+        ref="menuTopicSection"
         :title="$t(currentTopic.id)"
         :show-content="showTopicTree"
         data-cy="menu-topic-section"
+        @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
         <template #extra-button>
             <button
@@ -62,6 +64,8 @@ export default {
             default: false,
         },
     },
+    emits: ['openMenuSection'],
+    expose: ['close'],
     data() {
         return {
             showLayerInfoFor: null,
@@ -109,6 +113,9 @@ export default {
         },
         onClickLayerInfo(layerId) {
             this.showLayerInfoFor = layerId
+        },
+        close() {
+            this.$refs.menuTopicSection.close()
         },
     },
 }
