@@ -20,30 +20,41 @@
             <ZoomButtons @zoom-in="increaseZoom" @zoom-out="decreaseZoom" />
             <CompassButton />
         </div>
-        <transition name="slide-up">
-            <div
-                v-show="showMenu"
-                class="menu-tray"
-                :class="{
-                    'desktop-mode': shouldMenuTrayAlwaysBeVisible,
-                    'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && !menuDesktopOpen,
-                }"
-                data-cy="menu-tray"
-            >
-                <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
-                <ButtonWithIcon
-                    v-if="shouldMenuTrayAlwaysBeVisible"
-                    class="button-open-close-desktop-menu m-auto"
-                    data-cy="menu-button"
-                    :button-font-awesome-icon="['fas', menuDesktopOpen ? 'caret-up' : 'caret-down']"
-                    :button-title="$t(menuDesktopOpen ? 'close_menu' : 'open_menu')"
-                    icons-before-text
-                    dark
-                    @click="toggleMenuDesktopOpen"
+        <div
+            class="menu-tray-container"
+            :class="{
+                'desktop-mode': shouldMenuTrayAlwaysBeVisible,
+            }"
+        >
+            <transition name="slide-up">
+                <div
+                    v-show="showMenu"
+                    class="menu-tray"
+                    :class="{
+                        'desktop-mode': shouldMenuTrayAlwaysBeVisible,
+                        'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && !menuDesktopOpen,
+                    }"
+                    data-cy="menu-tray"
                 >
-                </ButtonWithIcon>
-            </div>
-        </transition>
+                    <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
+                    <ButtonWithIcon
+                        v-if="shouldMenuTrayAlwaysBeVisible"
+                        class="m-auto button-open-close-desktop-menu"
+                        data-cy="menu-button"
+                        style="{ flex: 'none', max-height: '100%' + 'px' }"
+                        :button-font-awesome-icon="[
+                            'fas',
+                            menuDesktopOpen ? 'caret-up' : 'caret-down',
+                        ]"
+                        :button-title="$t(menuDesktopOpen ? 'close_menu' : 'open_menu')"
+                        icons-before-text
+                        dark
+                        @click="toggleMenuDesktopOpen"
+                    >
+                    </ButtonWithIcon>
+                </div>
+            </transition>
+        </div>
     </div>
 </template>
 
@@ -136,19 +147,34 @@ $animation-time: 0.5s;
         position: relative;
         margin: $screen-padding-for-ui-elements;
     }
-    .menu-tray {
+    .menu-tray-container {
+        pointer-events: none;
         position: absolute;
-        z-index: $zindex-menu-tray;
         top: $header-height;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        &.desktop-mode {
+            bottom: 70px;
+        }
+    }
+    .menu-tray {
+        /* Don't activate pointer events right here, as this box is still a bit larger than the
+        actual menu in desktop mode (includes right and left of close button) */
+        position: absolute;
+        display: grid;
+        // The menu takes the whole available width, the open close button only as much as needed
+        grid-template-rows: 1fr auto;
+        z-index: $zindex-menu-tray;
+        top: 0;
         left: 0;
         width: 100%;
         max-width: 100%;
-        max-height: calc(100% - #{$header-height});
-        overflow-y: auto;
+        max-height: 100%;
         transition: $animation-time;
-        $openCloseButtonHeight: 38px;
-        .button-open-close-desktop-menu {
-            height: $openCloseButtonHeight;
+
+        .menu-tray-content {
+            pointer-events: all;
         }
         &.desktop-mode {
             .menu-tray-content {
@@ -156,17 +182,22 @@ $animation-time: 0.5s;
             }
             max-width: 22rem;
         }
+        $openCloseButtonHeight: 2.5rem;
         &.desktop-menu-closed {
             .menu-tray-content {
                 opacity: 0;
             }
             transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
+        .button-open-close-desktop-menu {
+            pointer-events: all;
+            height: $openCloseButtonHeight;
+        }
     }
 }
 @include respond-above(lg) {
     .menu {
-        .menu-tray {
+        .menu-tray-container {
             top: 2 * $header-height;
         }
     }

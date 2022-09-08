@@ -1,5 +1,5 @@
 <template>
-    <div data-cy="menu-tray" :class="{ 'menu-tray-compact': compact }">
+    <div data-cy="menu-tray" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
         <MenuSection
             :title="$t('settings')"
             :show-content="false"
@@ -66,6 +66,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.menu-tray-inner {
+    display: grid;
+    /* One entry for each menu section.
+    - "min-content" means the menu section is non-scrollable (intrinsic size i.e. based solely on content)
+    - "auto" means the menu section is scrollable (size based on content and the container) */
+    grid-template-rows: min-content min-content min-content auto auto;
+    overflow: hidden;
+}
+
+// UI is compact if in desktop mode
 .menu-tray-compact {
     font-size: 0.825rem;
 }

@@ -119,7 +119,6 @@ export default {
 
 .menu-topic-list {
     @extend .menu-list;
-    max-height: 50vh;
     overflow-y: auto;
 }
 .menu-topic-switch {
