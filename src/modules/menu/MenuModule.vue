@@ -137,7 +137,6 @@ $animation-time: 0.5s;
         background: rgba($white, 0.9);
         box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
         position: relative;
-        z-index: $zindex-menu;
         .header-content {
             transition: height $animation-time;
         }

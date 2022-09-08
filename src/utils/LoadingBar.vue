@@ -16,7 +16,7 @@ $loading-bar-animation-duration: 2s;
 
 .header-loading-bar {
     @import 'src/scss/variables';
-    z-index: $zindex-loading-bar;
+    z-index: 1000; //Always on top of current stacking context
     box-sizing: content-box;
     height: 2px;
     position: fixed;

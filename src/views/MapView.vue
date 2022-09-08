@@ -38,7 +38,6 @@ export default {
 @import 'src/scss/variables.scss';
 #map-view {
     position: absolute;
-    z-index: $zindex-map;
     width: 100%;
     height: 100%;
 }

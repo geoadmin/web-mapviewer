@@ -72,8 +72,6 @@ $flex-gap: 1em;
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: $zindex-menu + 1;
-
     transition: transform $transition-duration;
     pointer-events: none;
 
@@ -85,6 +83,8 @@ $flex-gap: 1em;
     }
 
     &-top {
+        position: relative;
+        z-index: $zindex-footer;
         display: flex;
         align-items: flex-end;
         flex-direction: row;
@@ -108,10 +108,14 @@ $flex-gap: 1em;
     }
 
     &-middle {
+        position: relative;
+        z-index: $zindex-footer-infobox;
         background-color: $white;
     }
 
     &-bottom {
+        position: relative;
+        z-index: $zindex-footer;
         width: 100%;
         padding: 0.6em;
         background-color: rgba($white, 0.9);
