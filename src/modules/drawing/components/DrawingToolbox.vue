@@ -1,16 +1,17 @@
 <template>
     <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
-        <div class="drawing-toolbox">
-            <div class="card text-center">
+        <DrawingHeader v-if="isMenuAlwaysOpen()" @close="emitCloseEvent" />
+        <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
+            <div class="card text-center drawing-toolbox-content">
                 <div class="card-body position-relative">
                     <ButtonWithIcon
-                        class="position-absolute top-0 end-0"
+                        class="drawing-toolbox-close-button"
                         data-cy="drawing-toolbox-close-button"
                         :button-font-awesome-icon="['fas', 'times']"
                         transparent
                         @click="emitCloseEvent"
                     />
-                    <div class="d-flex justify-content-center">
+                    <div class="drawing-toolbox-mode-selector">
                         <DrawingToolboxButton
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
@@ -18,9 +19,19 @@
                             :is-active="currentDrawingMode === drawingMode"
                             :ui-mode="uiMode"
                             :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                            class="m-1"
                             @set-drawing-mode="bubbleSetDrawingEventToParent"
                         />
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <ButtonWithIcon
+                            v-if="isDrawingLineOrMeasure"
+                            data-cy="drawing-delete-last-point-button"
+                            class="m-1 drawing-toolbox-delete-last-point-button"
+                            outline-danger
+                            @click="$emit('deleteLastPoint')"
+                        >
+                            {{ $t('draw_button_delete_last_point') }}
+                        </ButtonWithIcon>
                     </div>
                     <div class="d-flex justify-content-center">
                         <ButtonWithIcon
@@ -41,15 +52,6 @@
                         >
                             {{ $t('share') }}
                         </button>
-                        <ButtonWithIcon
-                            v-if="isDrawingLineOrMeasure"
-                            data-cy="drawing-delete-last-point-button"
-                            class="m-1"
-                            outline-danger
-                            @click="$emit('deleteLastPoint')"
-                        >
-                            {{ $t('draw_button_delete_last_point') }}
-                        </ButtonWithIcon>
                     </div>
                     <!-- eslint-disable vue/no-v-html-->
                     <small
@@ -59,6 +61,16 @@
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </div>
+            <ButtonWithIcon
+                class="m-auto button-open-close-draw-menu"
+                data-cy="menu-button"
+                :button-font-awesome-icon="['fas', drawMenuOpen ? 'caret-up' : 'caret-down']"
+                :button-title="$t(drawMenuOpen ? 'close_menu' : 'open_menu')"
+                icons-before-text
+                dark
+                @click="drawMenuOpen = !drawMenuOpen"
+            >
+            </ButtonWithIcon>
         </div>
         <ModalWithBackdrop
             v-if="showClearConfirmationModal"
@@ -87,6 +99,7 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import DrawingHeader from './DrawingHeader.vue'
 
 export default {
     components: {
@@ -95,6 +108,7 @@ export default {
         ButtonWithIcon,
         DrawingToolboxButton,
         ShareForm,
+        DrawingHeader,
     },
     props: {
         kmlIds: {
@@ -121,6 +135,7 @@ export default {
             showShareModal: false,
             showClearConfirmationModal: false,
             readyForTeleport: false,
+            drawMenuOpen: true,
         }
     },
     computed: {
@@ -137,6 +152,9 @@ export default {
         })
     },
     methods: {
+        isMenuAlwaysOpen() {
+            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
+        },
         emitCloseEvent() {
             this.$emit('close')
         },
@@ -162,3 +180,64 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
+
+$animation-time: 0.5s;
+$openCloseButtonHeight: 2.5rem;
+// So that the toolbox can slip behind the header when the closing animation occurs.
+$zindex-drawing-toolbox: -1;
+
+.drawing-toolbox {
+    position: relative;
+    z-index: $zindex-drawing-toolbox;
+    transition: transform $animation-time;
+    &-close-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+    .button-open-close-draw-menu {
+        height: $openCloseButtonHeight;
+        display: none;
+    }
+    &-mode-selector {
+        margin: 1rem 0;
+        display: grid;
+        grid-template: 1fr / 1fr 1fr 1fr 1fr;
+        gap: 0.25rem;
+    }
+}
+
+@include respond-above(sm) {
+    .drawing-toolbox {
+        position: absolute;
+        max-width: $menu-tray-width;
+        .drawing-toolbox-content {
+            transition: opacity $animation-time;
+        }
+        &-close-button {
+            display: none;
+        }
+        .button-open-close-draw-menu {
+            display: block;
+        }
+        &-closed {
+            .drawing-toolbox-content {
+                opacity: 0;
+            }
+            transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
+        }
+    }
+}
+
+@include respond-above(md) {
+    .drawing-toolbox-mode-selector {
+        margin: 1rem 2rem;
+        grid-template: 1fr 1fr / 1fr 1fr;
+        gap: 0.5rem 2rem;
+    }
+}
+</style>

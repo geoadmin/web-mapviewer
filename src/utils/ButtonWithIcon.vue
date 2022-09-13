@@ -1,5 +1,5 @@
 <template>
-    <button class="button-with-icon d-flex btn" :class="buttonClasses" @click="forwardClickEvent">
+    <button class="button-with-icon btn" :class="buttonClasses" @click="forwardClickEvent">
         <FontAwesomeIcon
             v-if="iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             class="icon"
@@ -134,6 +134,7 @@ export default {
 
 <style lang="scss" scoped>
 .button-with-icon {
+    display: flex;
     align-items: center;
     &.btn-no-style {
         background: none;
