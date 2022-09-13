@@ -1,4 +1,6 @@
 import proj4 from 'proj4'
+import { register } from 'ol/proj/proj4'
+import { get as getProjection, transformExtent } from 'ol/proj'
 
 /**
  * Proj4 comes with [EPSG:4326]{@link https://epsg.io/4326} as default projection.
@@ -20,6 +22,14 @@ const setupProj4 = () => {
         'EPSG:21781',
         '+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs'
     )
+
+    // registering all "custom" projection with OpenLayers as well
+    register(proj4)
+
+    const proj2056 = getProjection('EPSG:2056')
+    proj2056.setExtent([2420000, 1030000, 2900000, 1350000])
+    const proj21781 = getProjection('EPSG:21781')
+    proj21781.setExtent([420000, 30000, 900000, 350000])
 }
 
 export default setupProj4

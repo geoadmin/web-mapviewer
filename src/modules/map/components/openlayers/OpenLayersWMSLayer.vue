@@ -55,10 +55,10 @@ export default {
                 id: this.layerId,
                 opacity: this.opacity,
                 source: new TileWMS({
+                    projection: this.projection,
                     url: this.url,
                     gutter: this.gutter,
                     tileGrid: new TileGrid({
-                        projection: this.projection,
                         tileSize: WMS_TILE_SIZE,
                         origin: TILEGRID_ORIGIN,
                         resolutions: TILEGRID_RESOLUTIONS,

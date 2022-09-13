@@ -8,6 +8,8 @@
 import { Tile as TileLayer } from 'ol/layer'
 import { XYZ as XYZSource } from 'ol/source'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import TileGrid from "ol/tilegrid/TileGrid";
+import {TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS} from "@/config";
 
 /** Renders a WMTS layer on the map */
 export default {
@@ -56,6 +58,11 @@ export default {
             source: new XYZSource({
                 projection: this.projection,
                 url: this.url,
+                tileGrid: new TileGrid({
+                    resolutions: TILEGRID_RESOLUTIONS,
+                    extent: TILEGRID_EXTENT,
+                    origin: TILEGRID_ORIGIN,
+                })
             }),
             visible: this.visible,
         })

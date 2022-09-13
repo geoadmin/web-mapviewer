@@ -4,16 +4,18 @@
             v-if="layerConfig.type === LayerTypes.WMTS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
+            :url="layerConfig.getURL(2056)"
             :z-index="zIndex"
+            :projection="'EPSG:2056'"
         />
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
+            :url="layerConfig.getURL(2056)"
             :gutter="layerConfig.gutter"
             :z-index="zIndex"
+            :projection="'EPSG:2056'"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"

@@ -23,9 +23,11 @@ export default class AbstractLayer {
 
     /**
      * @abstract
+     * @param {Number} projection The EPSG number of the projection system to use (for instance,
+     *   EPSG:2056 will require an input of 2056)
      * @returns {String} The URL to use to request tile/image/data for this layer
      */
-    getURL() {
+    getURL(projection = 3857) {
         throw new Error('You have to implement the method getURL!')
     }
 
