@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <HeaderLoadingBar v-if="showLoadingBar" />
+        <LoadingBar v-if="showLoadingBar" />
         <div class="header-content align-items-center p-1 d-flex justify-content-between">
             <div class="justify-content-start d-flex">
                 <SwissFlag
@@ -34,7 +34,7 @@
 <script>
 import { DEV_SITE_WARNING } from '@/config'
 
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
+import LoadingBar from '@/utils/LoadingBar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
@@ -48,7 +48,7 @@ export default {
         HeaderMenuButton,
         HeaderSwissConfederationText,
         SwissFlag,
-        HeaderLoadingBar,
+        LoadingBar,
     },
     data() {
         return {
@@ -85,7 +85,7 @@ export default {
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
     position: relative;
-    z-index: $zindex-menu;
+    z-index: $zindex-menu-header;
     .header-content {
         height: $header-height;
     }

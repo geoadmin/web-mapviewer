@@ -104,8 +104,4 @@ export default {
         padding-right: 2.5rem;
     }
 }
-#clear-search-button {
-    margin-left: -40px;
-    z-index: $zindex-map + 1;
-}
 </style>

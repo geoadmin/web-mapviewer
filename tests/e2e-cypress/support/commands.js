@@ -83,22 +83,60 @@ const addWhat3WordFixtureAndIntercept = () => {
     }).as('coordinates-for-w3w')
 }
 
-// Adds a command that visit the main view and wait for the map to be shown (for the app to be ready)
+export function getDefaultFixturesAndIntercepts() {
+    return {
+        addLayerTileFixture,
+        addFileAPIFixtureAndIntercept,
+        addLayerFixtureAndIntercept,
+        addTopicFixtureAndIntercept,
+        addCatalogFixtureAndIntercept,
+        addHeightFixtureAndIntercept,
+        addWhat3WordFixtureAndIntercept,
+    }
+}
+
+/**
+ * Command that visits the main view and waits for the map to be shown (for the app to be ready) All
+ * parameters are optional. They can either be passed in order or inside a wrapper object.
+ *
+ * @param {String} lang Language of the app
+ * @param {Object} otherParams URL parameters except the language
+ * @param {Boolean} withHash Wheather or not to use the new URL format (that has a hash)
+ * @param {Object} geolocationMockupOptions Latitude and Longitude of facked geolocation
+ * @param {Object} fixturesAndIntercepts Contains functions that overwrite the default interceptions
+ *   to the backend.
+ */
 Cypress.Commands.add(
     'goToMapView',
     (
         lang = 'en',
         otherParams = {},
         withHash = false,
-        geolocationMockupOptions = { latitude: 47, longitude: 7 }
+        geolocationMockupOptions = { latitude: 47, longitude: 7 },
+        fixturesAndIntercepts = {}
     ) => {
-        addLayerTileFixture()
-        addFileAPIFixtureAndIntercept()
-        addLayerFixtureAndIntercept()
-        addTopicFixtureAndIntercept()
-        addCatalogFixtureAndIntercept()
-        addWhat3WordFixtureAndIntercept()
-        addHeightFixtureAndIntercept()
+        // If parameters have been passed inside a wrapper object, unwrap the object
+        if (typeof lang === 'object' && !(lang instanceof String)) {
+            const params = lang
+            return cy.goToMapView(
+                params.lang,
+                params.otherParams,
+                params.withHash,
+                params.geolocationMockupOptions,
+                params.fixturesAndIntercepts
+            )
+        }
+        // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
+        // default intercept.
+        const defIntercepts = getDefaultFixturesAndIntercepts()
+        const intercepts = fixturesAndIntercepts
+        for (const intercept in defIntercepts) {
+            if (intercept in intercepts) {
+                intercepts[intercept]()
+            } else {
+                defIntercepts[intercept]()
+            }
+        }
         let flattenedOtherParams = ''
         Object.keys(otherParams).forEach((key) => {
             flattenedOtherParams += `&${key}=${otherParams[key]}`

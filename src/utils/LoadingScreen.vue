@@ -1,15 +1,19 @@
 <template>
-    <HeaderLoadingBar />
-    <div class="loading-glass">
-        <font-awesome-icon class="loading-glass-spinner" :icon="['fas', 'spinner']" spin />
-    </div>
+    <!-- To be sure it is always on the main stacking context so that it can be on top of everything
+    else -->
+    <teleport to="#main-component">
+        <LoadingBar />
+        <div class="loading-glass">
+            <font-awesome-icon class="loading-glass-spinner" :icon="['fas', 'spinner']" spin />
+        </div>
+    </teleport>
 </template>
 
 <script>
-import HeaderLoadingBar from '@/modules/menu/components/header/HeaderLoadingBar.vue'
+import LoadingBar from '@/utils/LoadingBar.vue'
 export default {
     components: {
-        HeaderLoadingBar,
+        LoadingBar,
     },
 }
 </script>

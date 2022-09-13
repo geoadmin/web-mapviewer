@@ -1,8 +1,6 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
     <div id="ol-map" ref="map" @contextmenu="onContextMenu">
-        <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
-        <slot />
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -68,6 +66,8 @@
             :z-index="zIndexAccuracyCircle + 1"
         />
     </div>
+    <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+    <slot />
 </template>
 
 <script>
@@ -432,5 +432,7 @@ export default {
 #ol-map {
     width: 100%;
     height: 100%;
+    position: relative; // Element must be positioned to set a z-index
+    z-index: $zindex-map;
 }
 </style>

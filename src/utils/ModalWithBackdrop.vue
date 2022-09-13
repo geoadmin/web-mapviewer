@@ -1,8 +1,9 @@
 <template>
     <teleport to="#main-component">
-        <!-- Must teleport inside main-component in order for dynamic outlines to work. -->
-        <BlackBackdrop front @click="onClose(false)" />
+        <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
+        sure that it is always on top of the reset. -->
         <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
+            <BlackBackdrop @click="onClose(false)" />
             <div class="card">
                 <div class="card-header d-flex align-middle">
                     <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>

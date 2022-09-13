@@ -5,6 +5,7 @@
         data-cy="menu-share-section"
         secondary
         @click:header="toggleShareMenu"
+        @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
         <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
         <div v-if="shortLink" class="p-2">
@@ -30,6 +31,8 @@ export default {
         MenuShareSocialNetworks,
         MenuSection,
     },
+    emits: ['openMenuSection'],
+    expose: ['close'],
     computed: {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
@@ -37,18 +40,23 @@ export default {
         }),
     },
     methods: {
-        ...mapActions(['generateShortLink',' clearShortLink', 'toggleShareMenuSection']),
+        ...mapActions([
+            'generateShortLink',
+            'clearShortLink',
+            'toggleShareMenuSection',
+            'closeShareMenuAndRemoveShortlink',
+        ]),
         toggleShareMenu() {
             this.toggleShareMenuSection()
-            if (!this.shortLink){
+            if (!this.shortLink) {
                 this.generateShortLink()
-            }
-            else {
+            } else {
                 this.clearShortLink()
             }
-
         },
-
+        close() {
+            this.closeShareMenuAndRemoveShortlink()
+        },
     },
 }
 </script>

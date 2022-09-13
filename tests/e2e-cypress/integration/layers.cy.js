@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET } from "@/config";
-import { randomIntBetween } from "@/utils/numberUtils";
+import { BREAKPOINT_TABLET } from '@/config'
+import { randomIntBetween } from '@/utils/numberUtils'
 
 /**
  * Returns a timestamp from the layer's config that is different from the default behaviour
@@ -256,13 +256,11 @@ describe('Test of layer handling', () => {
                 const timedLayerMetadata = layers[timedLayerId]
                 const defaultTimestamp = timedLayerMetadata.timeBehaviour
                 timedLayerMetadata.timestamps.forEach((timestamp) => {
-                    cy.get(`[data-cy="time-select-${timestamp}"]`)
-                        .should('be.visible')
-                        .then((timestampButton) => {
-                            if (timestamp === defaultTimestamp) {
-                                expect(timestampButton).to.have.class('btn-danger')
-                            }
-                        })
+                    cy.get(`[data-cy="time-select-${timestamp}"]`).then((timestampButton) => {
+                        if (timestamp === defaultTimestamp) {
+                            expect(timestampButton).to.have.class('btn-danger')
+                        }
+                    })
                 })
             })
         })
@@ -272,7 +270,8 @@ describe('Test of layer handling', () => {
             cy.fixture('layers.fixture.json').then((layersMetadata) => {
                 const timedLayerMetadata = layersMetadata[timedLayerId]
                 const randomTimestamp = getRandomTimestampFromSeries(timedLayerMetadata)
-                cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click()
+                // "force" is needed, as else there is a false positive "button hidden"
+                cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click({ force: true })
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
                     activeLayers.forEach((layer) => {
@@ -402,6 +401,11 @@ describe('Test of layer handling', () => {
 
             cy.goToMapView(langBefore, {
                 layers: visibleLayerIds.map((layer) => `${layer},f,0.1`).join(';'),
+            })
+
+            // Wait until the active layers are ready.
+            cy.waitUntilState((state) => {
+                return state.layers.activeLayers.some((layer) => layer.lang === langBefore)
             })
 
             // CHECK before
