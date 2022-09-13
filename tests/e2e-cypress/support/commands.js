@@ -103,7 +103,8 @@ export function getDefaultFixturesAndIntercepts() {
  * @param {Object} otherParams URL parameters except the language
  * @param {Boolean} withHash Wheather or not to use the new URL format (that has a hash)
  * @param {Object} geolocationMockupOptions Latitude and Longitude of facked geolocation
- * @param {Object} fixturesAndIntercepts Contains functions that add interceptions to the backend
+ * @param {Object} fixturesAndIntercepts Contains functions that overwrite the default interceptions
+ *   to the backend.
  */
 Cypress.Commands.add(
     'goToMapView',
@@ -112,7 +113,7 @@ Cypress.Commands.add(
         otherParams = {},
         withHash = false,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
-        fixturesAndIntercepts = getDefaultFixturesAndIntercepts()
+        fixturesAndIntercepts = {}
     ) => {
         // If parameters have been passed inside a wrapper object, unwrap the object
         if (typeof lang === 'object' && !(lang instanceof String)) {
@@ -125,13 +126,17 @@ Cypress.Commands.add(
                 params.fixturesAndIntercepts
             )
         }
-        fixturesAndIntercepts.addLayerTileFixture()
-        fixturesAndIntercepts.addFileAPIFixtureAndIntercept()
-        fixturesAndIntercepts.addLayerFixtureAndIntercept()
-        fixturesAndIntercepts.addTopicFixtureAndIntercept()
-        fixturesAndIntercepts.addCatalogFixtureAndIntercept()
-        fixturesAndIntercepts.addWhat3WordFixtureAndIntercept()
-        fixturesAndIntercepts.addHeightFixtureAndIntercept()
+        // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
+        // default intercept.
+        const defIntercepts = getDefaultFixturesAndIntercepts()
+        const intercepts = fixturesAndIntercepts
+        for (const intercept in defIntercepts) {
+            if (intercept in intercepts) {
+                intercepts[intercept]()
+            } else {
+                defIntercepts[intercept]()
+            }
+        }
         let flattenedOtherParams = ''
         Object.keys(otherParams).forEach((key) => {
             flattenedOtherParams += `&${key}=${otherParams[key]}`

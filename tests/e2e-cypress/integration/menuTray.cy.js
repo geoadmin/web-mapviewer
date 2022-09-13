@@ -1,4 +1,3 @@
-import { getDefaultFixturesAndIntercepts } from 'tests/e2e-cypress/support/commands'
 import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config'
 import { UIModes } from '@/store/modules/ui.store'
 
@@ -52,58 +51,58 @@ function addFakeWMTSLayer(layers, id) {
 
 function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
     const topicId = 'ech'
-    let fixAndInt = getDefaultFixturesAndIntercepts()
-    fixAndInt.addCatalogFixtureAndIntercept = () => {
-        let layersCatalogEntries = []
-        for (let i = 2; i < nbLayers + 2; i++) {
-            layersCatalogEntries = layersCatalogEntries.concat(getFakeWMTSLayerCatalogEntry(i))
-        }
-        const catalog = {
-            results: {
-                root: {
-                    category: 'root',
-                    staging: 'prod',
-                    id: 1,
-                    children: layersCatalogEntries,
-                },
-            },
-        }
-        // intercepting further topic metadata retrieval. Each topic has its own topic tree
-        cy.intercept(`**/rest/services/${topicId}/CatalogServer?lang=**`, {
-            body: catalog,
-        }).as(`topic-${topicId}`)
-    }
-    fixAndInt.addLayerFixtureAndIntercept = () => {
-        let layers = {}
-        for (let i = 2; i < nbLayers + 2; i++) {
-            addFakeWMTSLayer(layers, i)
-        }
-        cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
-            body: layers,
-        }).as('layers')
-    }
-    fixAndInt.addTopicFixtureAndIntercept = () => {
-        let activatedLayers = []
-        for (let i = 2; i < nbSelectedLayers + 2; i++) {
-            activatedLayers.push('test.wmts.layer.' + i)
-        }
-        cy.intercept('**/rest/services', {
-            body: {
-                topics: [
-                    {
-                        activatedLayers,
-                        backgroundLayers: ['test.background.layer', 'test.background.layer2'],
-                        defaultBackground: 'test.background.layer2',
-                        groupId: 1,
-                        id: topicId,
-                        plConfig: null,
-                        selectedLayers: [],
+    return {
+        addCatalogFixtureAndIntercept: () => {
+            let layersCatalogEntries = []
+            for (let i = 2; i < nbLayers + 2; i++) {
+                layersCatalogEntries = layersCatalogEntries.concat(getFakeWMTSLayerCatalogEntry(i))
+            }
+            const catalog = {
+                results: {
+                    root: {
+                        category: 'root',
+                        staging: 'prod',
+                        id: 1,
+                        children: layersCatalogEntries,
                     },
-                ],
-            },
-        }).as('topics')
+                },
+            }
+            // intercepting further topic metadata retrieval. Each topic has its own topic tree
+            cy.intercept(`**/rest/services/${topicId}/CatalogServer?lang=**`, {
+                body: catalog,
+            }).as(`topic-${topicId}`)
+        },
+        addLayerFixtureAndIntercept: () => {
+            let layers = {}
+            for (let i = 2; i < nbLayers + 2; i++) {
+                addFakeWMTSLayer(layers, i)
+            }
+            cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
+                body: layers,
+            }).as('layers')
+        },
+        addTopicFixtureAndIntercept: () => {
+            let activatedLayers = []
+            for (let i = 2; i < nbSelectedLayers + 2; i++) {
+                activatedLayers.push('test.wmts.layer.' + i)
+            }
+            cy.intercept('**/rest/services', {
+                body: {
+                    topics: [
+                        {
+                            activatedLayers,
+                            backgroundLayers: ['test.background.layer', 'test.background.layer2'],
+                            defaultBackground: 'test.background.layer2',
+                            groupId: 1,
+                            id: topicId,
+                            plConfig: null,
+                            selectedLayers: [],
+                        },
+                    ],
+                },
+            }).as('topics')
+        },
     }
-    return fixAndInt
 }
 
 /**
