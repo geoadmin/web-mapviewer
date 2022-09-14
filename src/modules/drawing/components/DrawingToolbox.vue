@@ -204,7 +204,7 @@ $zindex-drawing-toolbox: -1;
         display: none;
     }
     &-mode-selector {
-        margin: 1rem 0;
+        margin: 0.5rem 0;
         display: grid;
         grid-template: 1fr / 1fr 1fr 1fr 1fr;
         gap: 0.25rem;
