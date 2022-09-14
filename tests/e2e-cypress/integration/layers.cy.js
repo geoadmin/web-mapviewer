@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET } from '@/config'
+import { BREAKPOINT_TABLET, VECTOR_TILES_STYLE_ID } from '@/config'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 /**
