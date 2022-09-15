@@ -41,9 +41,12 @@ export default {
 <style lang="scss" scoped>
 .menu-topic-popup {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 1rem 0.5rem;
-    padding: 1.5rem;
+    // Automatic number of columns, minimum width of a cell is 161px
+    grid-template-columns: repeat(auto-fill, minmax(161px, 1fr));
+    // Guarantees that all rows have identical heights (height of the rows will be the height of the heighest cell)
+    grid-auto-rows: 1fr;
+    padding: 1rem;
+    gap: 1rem;
     cursor: pointer;
 }
 .menu-topic-popup-topic {
