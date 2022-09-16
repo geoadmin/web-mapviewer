@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { Tile as TileLayer } from 'ol/layer'
 import { XYZ as XYZSource } from 'ol/source'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
@@ -25,7 +26,7 @@ export default {
         },
         projection: {
             type: String,
-            default: 'EPSG:3857',
+            default: CoordinateSystems.WEBMERCATOR.epsg,
         },
         visible: {
             type: Boolean,
@@ -52,17 +53,24 @@ export default {
         },
     },
     created() {
+        let tileGrid = undefined
+        // If we are using LV95, we can constrain the WMTS to only request tiles over Switzerland
+        // we can also define the resolutions used in the LV95 WMTS pyramid, as it is different from the Mercator pyramid
+        // otherwise tiles will be requested at a resolution such as they will appear zoomed in.
+        if (this.projection === CoordinateSystems.LV95.epsg) {
+            tileGrid = new TileGrid({
+                resolutions: TILEGRID_RESOLUTIONS,
+                extent: TILEGRID_EXTENT,
+                origin: TILEGRID_ORIGIN,
+            })
+        }
         this.layer = new TileLayer({
             id: this.layerId,
             opacity: this.opacity,
             source: new XYZSource({
                 projection: this.projection,
                 url: this.url,
-                tileGrid: new TileGrid({
-                    resolutions: TILEGRID_RESOLUTIONS,
-                    extent: TILEGRID_EXTENT,
-                    origin: TILEGRID_ORIGIN,
-                })
+                tileGrid,
             }),
             visible: this.visible,
         })

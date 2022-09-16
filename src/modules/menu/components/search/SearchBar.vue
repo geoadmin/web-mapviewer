@@ -1,5 +1,5 @@
 <template>
-    <div class="search-bar input-group" :class="{ 'search-bar-filled': searchQuery?.length > 0 }">
+    <div class="input-group d-flex" :class="{ 'search-bar-filled': searchQuery?.length > 0 }">
         <span class="input-group-text">
             <FontAwesomeIcon :icon="['fas', 'search']" />
         </span>
@@ -21,7 +21,7 @@
         <ButtonWithIcon
             v-if="searchQuery?.length > 0"
             :button-font-awesome-icon="['fas', 'times-circle']"
-            class="search-bar-clear"
+            class="flex-shrink-1"
             data-cy="searchbar-clear"
             transparent
             @click="clearSearchQuery"
@@ -85,23 +85,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-.search-bar {
-    display: flex;
-    flex: 1 1 auto;
-
-    &-clear {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 3;
-    }
-
-    &-filled .form-control {
-        padding-right: 2.5rem;
-    }
-}
-</style>

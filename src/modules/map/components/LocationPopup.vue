@@ -131,23 +131,23 @@ export default {
         },
         clickCoordinatesLV95() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates('EPSG:2056'),
+                this.reprojectClickCoordinates(CoordinateSystems.LV95.epsg),
                 CoordinateSystems.LV95
             )
         },
         clickCoordinatesLV03() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates('EPSG:21781'),
+                this.reprojectClickCoordinates(CoordinateSystems.LV03.epsg),
                 CoordinateSystems.LV03
             )
         },
         clickCoordinatesPlainWGS84() {
-            const wgsMetric = this.reprojectClickCoordinates('EPSG:4326')
+            const wgsMetric = this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg)
             return `${round(wgsMetric[1], 5)}, ${round(wgsMetric[0], 5)}`
         },
         clickCoordinatesWGS84() {
             const complete = printHumanReadableCoordinates(
-                this.reprojectClickCoordinates('EPSG:4326'),
+                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
                 CoordinateSystems.WGS84
             )
             // Only return the first (HDMS) part here. The other part is in:
@@ -156,18 +156,18 @@ export default {
         },
         clickCoordinatesUTM() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates('EPSG:4326'),
+                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
                 CoordinateSystems.UTM
             )
         },
         clickCoordinatesMGRS() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates('EPSG:4326'),
+                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
                 CoordinateSystems.MGRS
             )
         },
         shareLinkUrl() {
-            let [lon, lat] = this.reprojectClickCoordinates('EPSG:4326')
+            let [lon, lat] = this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg)
             let query = {
                 ...this.$route.query,
                 crosshair: 'marker',
@@ -199,7 +199,7 @@ export default {
             this.clearClick()
         },
         reprojectClickCoordinates(targetEpsg) {
-            return proj4('EPSG:3857', targetEpsg, this.clickCoordinates)
+            return proj4(CoordinateSystems.WEBMERCATOR.epsg, targetEpsg, this.clickCoordinates)
         },
         requestWhat3WordBackend() {
             if (this.displayLocationPopup) {

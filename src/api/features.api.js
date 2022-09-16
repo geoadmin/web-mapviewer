@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '@/config'
+import { CoordinateSystems } from "@/utils/coordinateUtils";
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -439,7 +440,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
                 {
                     params: {
                         layers: `all:${layer.getID()}`,
-                        sr: 3857, // EPSG:3857
+                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
                         geometry: coordinate.join(','),
                         geometryFormat: 'geojson',
                         geometryType: 'esriGeometryPoint',
@@ -499,13 +500,13 @@ const getFeature = (layer, featureID, lang = 'en') => {
             .all([
                 axios.get(featureUrl, {
                     params: {
-                        sr: 3857,
+                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
                         geometryFormat: 'geojson',
                     },
                 }),
                 axios.get(`${featureUrl}/htmlPopup`, {
                     params: {
-                        sr: 3857,
+                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
                         lang: lang,
                     },
                 }),

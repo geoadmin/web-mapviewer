@@ -68,6 +68,7 @@ import { profileCsv, profileJson } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
 import { mapActions } from 'vuex'
@@ -257,12 +258,12 @@ export default {
             return this.profileChart.element
         },
         async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
-            const coordinatesLv95 = toLv95(coordinates, 'EPSG:3857')
+            const coordinatesLv95 = toLv95(coordinates, CoordinateSystems.WEBMERCATOR.epsg)
             try {
                 return await apiFunction({
                     geom: { type: 'LineString', coordinates: coordinatesLv95 },
                     offset: 0,
-                    sr: 2056,
+                    sr: CoordinateSystems.LV95.espgNumber,
                     distinct_points: true,
                 })
             } catch (e) {
@@ -323,8 +324,8 @@ export default {
 
                 // Update the position of the overlay
                 const coords = proj4(
-                    'EPSG:2056',
-                    'EPSG:3857',
+                    CoordinateSystems.LV95.epsg,
+                    CoordinateSystems.WEBMERCATOR.epsg,
                     this.profileChart.lineString.getCoordinateAt(x / plotWidth)
                 )
                 this.currentHoverPosOverlay.setPosition(coords)

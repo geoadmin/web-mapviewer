@@ -2,6 +2,7 @@ import { canShowAzimuthCircle, getMeasureDelta, toLv95 } from '@/modules/drawing
 import { EditableFeatureTypes } from '@/api/features.api'
 import { Circle as CircleGeom, LineString, MultiPoint, Polygon } from 'ol/geom'
 import { Circle, Fill, Icon, Stroke, Style, Text } from 'ol/style'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** Color for polygon area fill while drawing */
 const whiteSketchFill = new Fill({
@@ -218,7 +219,7 @@ export function measurePoints(isDrawing) {
                 }
                 geom = new LineString(coords)
             }
-            const coordinatesLv95 = toLv95(geom.getCoordinates(), 'EPSG:3857')
+            const coordinatesLv95 = toLv95(geom.getCoordinates(), CoordinateSystems.WEBMERCATOR.epsg)
             const coordinates = []
             const length = new LineString(coordinatesLv95).getLength()
             const delta = getMeasureDelta(length)

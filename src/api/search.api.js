@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import log from '@/utils/logging'
 
@@ -113,7 +114,7 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
     return axios.get(`${API_SERVICE_SEARCH_BASE_URL}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
-            sr: 3857,
+            sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
             searchText: query.trim(),
             lang: lang || 'en',
             type: type || 'locations',
