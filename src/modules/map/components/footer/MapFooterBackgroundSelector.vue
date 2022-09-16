@@ -230,7 +230,7 @@ $menu-button-diameter: 3px;
     animation-duration: $transition-duration;
 }
 
-@include respond-above(lg) {
+@include respond-above(tablet) {
     $desktop-map-button-width: 96px;
     .bg-selector-button {
         width: $desktop-map-button-width;

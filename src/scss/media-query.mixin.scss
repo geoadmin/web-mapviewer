@@ -2,23 +2,41 @@
 
 @import 'node_modules/bootstrap/scss/bootstrap-grid';
 
-// Respond above.
+/* Important: These constants are duplicates from the variables defined in '@/config'. If a const
+is changed, the constant must also be changed in the config file */
+$breakpoint_phone_width: 576px;
+$breakpoint_phone_height: 500px;
+$breakpoint_tablet: 768px;
+
+/**
+* Automatically selects the correct media tag to respond above the specified threshold
+*
+* @param breakpoint 'phone' for the phone threshold, 'tablet' for the tablet threshold. The function
+                    also accepts the bootstrap values sm, md, lg, xl, xxl
+*/
 @mixin respond-above($breakpoint) {
 
   // If the breakpoint exists in the map (from Bootstrap).
-  @if map-has-key($grid-breakpoints, $breakpoint) {
+  @if map-has-key($grid-breakpoints, $breakpoint) and $breakpoint != xs {
+    /* Following values are accepted:
+       xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px */
 
     // Get the breakpoint value.
     $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
 
     // Write the media query.
-    @media (min-width: $breakpoint-value) {
+    @media (min-width: $breakpoint-value) and (min-height: $breakpoint_phone_height) {
       @content;
     }
-
-    // If the breakpoint doesn't exist in the map.
+  } @else if $breakpoint == phone {
+    @media (min-width: $breakpoint_phone_width) and (min-height: $breakpoint_phone_height) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (min-width: $breakpoint_tablet) and (min-height: $breakpoint_phone_height) {
+      @content;
+    }
   } @else {
-
     // Log a warning.
     @warn 'Invalid breakpoint: #{$breakpoint}.';
   }
