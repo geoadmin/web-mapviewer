@@ -12,8 +12,8 @@ describe('Test functions for the header / search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const checkMenuTrayValue = (value) => {
-        cy.readStoreValue('state.ui.showMenuTray').should('eq', value)
+    const checkMenuValue = (value) => {
+        cy.readStoreValue('getters.isMenuShown').should('eq', value)
     }
 
     const width = Cypress.config('viewportWidth')
@@ -21,20 +21,20 @@ describe('Test functions for the header / search bar', () => {
     if (width < BREAKPOINT_PHONE_WIDTH) {
         context('Menu mobile functionalities', () => {
             it("doesn't show the menu at app startup", () => {
-                checkMenuTrayValue(false)
+                checkMenuValue(false)
             })
             it('shows the menu when the menu button is pressed', () => {
                 cy.get(menuButtonSelector).click()
-                checkMenuTrayValue(true)
+                checkMenuValue(true)
             })
             it('hides the menu if the menu button is clicked again', () => {
                 cy.get(menuButtonSelector).click().click()
-                checkMenuTrayValue(false)
+                checkMenuValue(false)
             })
             it('hides the menu when the backdrop is clicked', () => {
                 cy.get(menuButtonSelector).click()
                 cy.get(backdropSelector).click()
-                checkMenuTrayValue(false)
+                checkMenuValue(false)
             })
         })
     }
@@ -47,7 +47,7 @@ describe('Test functions for the header / search bar', () => {
         })
     }
 
-    if (width > BREAKPOINT_TABLET) {
+    if (width >= BREAKPOINT_TABLET) {
         context('Menu on Desktop', () => {
             it('should start open', () => {
                 cy.get('[data-cy="menu-tray"]').should('not.have.class', 'desktop-menu-closed')
@@ -123,7 +123,7 @@ describe('Test functions for the header / search bar', () => {
             // checking that topic and lang are still the same
             checkLangAndTopic('fr', 'test-topic-standard')
         })
-        if (width > BREAKPOINT_TABLET) {
+        if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
                 cy.goToMapView('fr', {
@@ -143,7 +143,7 @@ describe('Test functions for the header / search bar', () => {
             checkLangAndTopic('en', 'test-topic-standard')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
         })
-        if (width > BREAKPOINT_TABLET) {
+        if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
                 cy.goToMapView()

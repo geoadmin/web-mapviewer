@@ -1,9 +1,4 @@
-import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config'
-import { UIModes } from '@/store/modules/ui.store'
-
-const width = Cypress.config('viewportWidth')
 const height = Cypress.config('viewportHeight')
-const isTabletViewport = width > BREAKPOINT_PHONE_WIDTH && width <= BREAKPOINT_TABLET
 
 const menuTraySelector = '[data-cy="menu-tray"]'
 const menuTopicSectionSelector = '[data-cy="menu-topic-section"]'
@@ -132,13 +127,13 @@ function measureMenu(shouldHaveMaxSize) {
  */
 function init(nbLayers, nbSelectedLayers) {
     cy.goToMapView({ fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers) })
-    cy.readStoreValue('state.ui.mode')
-        .as('uiMode')
-        .then((uiMode) => {
-            if (uiMode === UIModes.MENU_OPENED_THROUGH_BUTTON) {
+    cy.readStoreValue('getters')
+        .as('storeGetters')
+        .then((getters) => {
+            if (getters.isPhoneMode) {
                 cy.get('[data-cy="menu-button"]').click()
                 cy.wrap(height).as('expectedMenuTrayBottom')
-            } else if (isTabletViewport) {
+            } else if (getters.isTabletSize) {
                 cy.get('[data-cy="menu-button"]').click()
                 cy.wrap(height - 70).as('expectedMenuTrayBottom')
             } else {

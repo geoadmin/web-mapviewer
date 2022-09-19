@@ -9,17 +9,12 @@ describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
-        if (isMobileViewport || isTabletViewport) {
-            cy.readStoreValue('state.ui').then((ui) => {
-                // only click on the menu button if the menu is not opened yet
-                if (
-                    (isMobileViewport && !ui.showMenuTray) ||
-                    (isTabletViewport && !ui.menuDesktopOpen)
-                ) {
-                    cy.get('[data-cy="menu-button"]').click()
-                }
-            })
-        }
+        cy.readStoreValue('state.ui').then((ui) => {
+            // only click on the menu button if the menu is not opened yet
+            if (!ui.showMenu) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+        })
         cy.get('[data-cy="change-topic-button"]').click()
         cy.get(`[data-cy="change-to-topic-${topicId}"]`).click()
         cy.wait(`@topic-${topicId}`)
@@ -158,7 +153,7 @@ describe('Topics', () => {
                 // clicking on topic standard
                 const topicStandard = mockupTopics.topics[1]
                 selectTopicWithId(topicStandard.id)
-                cy.readStoreValue('state.ui.showMenuTray').should('eq', true)
+                cy.readStoreValue('getters.isMenuShown').should('eq', true)
             })
         }
         it('open active layers section in menu when a topic with active layers is selected', () => {
