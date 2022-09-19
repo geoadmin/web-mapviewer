@@ -1,6 +1,6 @@
 <template>
     <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="isMenuAlwaysOpen()" @close="emitCloseEvent" />
+        <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content">
                 <div class="card-body position-relative">
@@ -98,6 +98,7 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import DrawingHeader from './DrawingHeader.vue'
+import { mapGetters } from 'vuex'
 
 export default {
     components: {
@@ -133,6 +134,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['isDesktopMode']),
         isDrawingLineOrMeasure() {
             return (
                 this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
@@ -146,9 +148,6 @@ export default {
         })
     },
     methods: {
-        isMenuAlwaysOpen() {
-            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
-        },
         emitCloseEvent() {
             this.$emit('close')
         },
