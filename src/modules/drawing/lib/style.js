@@ -41,6 +41,21 @@ const sketchPoint = new Circle({
 })
 
 /**
+ * Style function as used by the Modify Interaction. Used to display a translucent point on a line
+ * when hovering it to indicate that the user can grab the line to create a new point.
+ */
+export const editingVertexStyleFunction = (vertex) => {
+    const associatedFeature = vertex.get('features')[0]
+    const isLineOrMeasure = associatedFeature.get('type') === 'Polygon'
+    return isLineOrMeasure
+        ? new Style({
+              image: sketchPoint,
+              zIndex: 30,
+          })
+        : null
+}
+
+/**
  * Style function (as OpenLayers needs it) that will style features while they are being drawn or
  * edited by our drawing module.
  *
@@ -48,17 +63,20 @@ const sketchPoint = new Circle({
  * displayed without interaction (see {@link featureStyleFunction} for this case)
  */
 export const editingFeatureStyleFunction = (feature) => {
-    const isLineOrMeasure = feature.get('type') === 'Polygon'
+    /* This style (image tag) will only be shown for point geometries. So this style will display
+    the white dot when selecting a symbol or text feature. */
     const styles = [
         new Style({
-            image: isLineOrMeasure ? sketchPoint : point,
+            image: point,
             zIndex: 30,
         }),
     ]
     const geom = feature.getGeometry()
     if (geom instanceof Polygon || geom instanceof LineString) {
         // adding grabbing points at each edge so that the user can grab them and
-        // modify the shape of the features
+        // modify the shape of the features (functionality is handled by the modify interaction,
+        // this only adds the visual indicators so the user understands that the edges are
+        // grabable.)
         styles.push(
             new Style({
                 image: point,
@@ -95,9 +113,6 @@ export function featureStyleFunction(feature) {
     const editableFeature = feature.get('editableFeature')
     if (!editableFeature) {
         return
-    }
-    if (editableFeature.featureType === EditableFeatureTypes.MEASURE) {
-        return drawMeasureStyle(feature)
     }
     // Tells if we are drawing a polygon for the first time, in this case we want
     // to fill this polygon with a transparent white (instead of red)

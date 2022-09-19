@@ -15,7 +15,6 @@ export default {
         return {
             geometryType: 'Polygon',
             editingStyle: drawMeasureStyle,
-            featureStyle: drawMeasureStyle,
             editableFeatureArgs: {
                 featureType: EditableFeatureTypes.MEASURE,
             },

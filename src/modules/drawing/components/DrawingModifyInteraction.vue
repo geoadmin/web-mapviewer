@@ -5,7 +5,7 @@
 <script>
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
+import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import ModifyInteraction from 'ol/interaction/Modify'
 import { mapActions } from 'vuex'
@@ -32,7 +32,7 @@ export default {
             // here we can't have the whole drawing layers features (or source)
             // otherwise non-selected features will be editable anytime
             features: this.getSelectInteraction().getFeatures(),
-            style: editingFeatureStyleFunction,
+            style: editingVertexStyleFunction,
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
             // This enables click on the shape of features (instead of pixel tolerance from their coordinates)
             hitDetection: true,
