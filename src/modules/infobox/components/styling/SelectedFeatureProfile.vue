@@ -19,6 +19,7 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {
@@ -42,7 +43,7 @@ export default {
                 return geometryInfo(
                     this.geometry.getType(),
                     this.geometry.getCoordinates(),
-                    'EPSG:3857'
+                    CoordinateSystems.WEBMERCATOR.epsg
                 )
             }
             return null

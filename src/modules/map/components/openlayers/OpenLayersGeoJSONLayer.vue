@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import axios from 'axios'
 import proj4 from 'proj4'
 import { Vector as VectorSource } from 'ol/source'
@@ -67,15 +68,23 @@ export default {
                 // if another projection was set in the GeoJSON (through the "crs" property) we use it instead
                 let reprojectedGeoJSON
                 if (dataProjection) {
-                    if (dataProjection !== 'EPSG:3857') {
-                        reprojectedGeoJSON = reproject(geojsonData, dataProjection, 'EPSG:3857')
+                    if (dataProjection !== CoordinateSystems.WEBMERCATOR.epsg) {
+                        reprojectedGeoJSON = reproject(
+                            geojsonData,
+                            dataProjection,
+                            CoordinateSystems.WEBMERCATOR.epsg
+                        )
                     } else {
                         // it's already in the correct projection, we don't reproject
                         reprojectedGeoJSON = geojsonData
                     }
                 } else {
                     // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
-                    reprojectedGeoJSON = reproject(geojsonData, proj4.WGS84, 'EPSG:3857')
+                    reprojectedGeoJSON = reproject(
+                        geojsonData,
+                        CoordinateSystems.WGS84.epsg,
+                        CoordinateSystems.WEBMERCATOR.epsg
+                    )
                 }
                 this.layer.setSource(
                     new VectorSource({

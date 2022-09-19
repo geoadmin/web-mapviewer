@@ -1,4 +1,5 @@
 import i18n from '@/modules/i18n/index'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
@@ -15,7 +16,10 @@ const gpxFormat = new GPX()
  * @param featureProjection {String} Projection used to describe the feature (default is EPSG:3857)
  * @returns {string}
  */
-export function generateGpxString(features = [], featureProjection = 'EPSG:3857') {
+export function generateGpxString(
+    features = [],
+    featureProjection = CoordinateSystems.WEBMERCATOR.epsg
+) {
     const normalizedFeatures = features.map((feature) => {
         const clone = feature.clone()
         const geom = clone.getGeometry()
@@ -46,7 +50,7 @@ export function generateKmlString(features = [], styleFunction = null) {
         clone.set('type', clone.get('type').toLowerCase())
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        clone.getGeometry().transform('EPSG:3857', 'EPSG:4326')
+        clone.getGeometry().transform(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg)
         let styles = styleFunction || clone.getStyleFunction()
         styles = styles(clone)
         const newStyle = {

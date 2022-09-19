@@ -1,5 +1,6 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
 export default class WMTSLayer extends GeoAdminLayer {
@@ -53,9 +54,9 @@ export default class WMTSLayer extends GeoAdminLayer {
     }
 
     /** @returns {String} A XYZ type URL to request this WMTS layer's tiles */
-    getURL() {
+    getURL(epsgNumber = CoordinateSystems.WEBMERCATOR.epsgNumber) {
         return `${this.baseURL}1.0.0/${this.getID()}/default/${
             this.timeConfig.currentTimestamp
-        }/3857/{z}/{x}/{y}.${this.format}`
+        }/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 }

@@ -157,13 +157,13 @@ export const WMS_TILE_SIZE = 512 // px
 
 /**
  * Origin of the TileGrid (comes from
- * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk}) reprojected in EPSG:3857 (WGS84)
+ * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk})
  *
- * Was [2420000, 1350000] (LV95), is now [558147.8, 6152731.53]
+ * Is expressed as LV95 coordinates.
  *
  * @type {Number[]}
  */
-export const TILEGRID_ORIGIN = [558147.8, 6152731.53]
+export const TILEGRID_ORIGIN = [2420000, 1350000]
 
 /**
  * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
@@ -178,6 +178,20 @@ export const TILEGRID_RESOLUTIONS = [
     4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500,
     250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.1,
 ]
+
+/**
+ * Array of coordinates with bottom left / top right values of the extent. This can be used to
+ * constrain OpenLayers (or other mapping framework) to only ask for tiles that are within the
+ * extent. It should remove for instance the big white zone that are around the pixelkarte-farbe.
+ *
+ * This is a ripoff of
+ * https://github.com/geoadmin/mf-geoadmin3/blob/0ec560069e93fdceb54ce126a3c2d0ef23a50f45/mk/config.mk#L140
+ *
+ * Those are coordinates expressed in EPSG:2056 (or LV95)
+ *
+ * @type {Number[]}
+ */
+export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
 
 /**
  * Map center default value is the center of switzerland LV:95 projection's extent (from

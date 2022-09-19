@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import KML from 'ol/format/KML'
@@ -34,7 +35,7 @@ export default {
         },
         projection: {
             type: String,
-            default: 'EPSG:3857',
+            default: CoordinateSystems.WEBMERCATOR.epsg,
         },
         zIndex: {
             type: Number,

@@ -1,3 +1,4 @@
+import { CoordinateSystems } from "@/utils/coordinateUtils";
 import Overlay from 'ol/Overlay'
 import {
     canShowAzimuthCircle,
@@ -66,7 +67,7 @@ export default class MeasureManager {
         const isDrawing = feature.get('isDrawing')
         let currIdx = 0
         let geom = feature.getGeometry()
-        const coordinatesLv95 = toLv95(geom.getCoordinates(), 'EPSG:3857')
+        const coordinatesLv95 = toLv95(geom.getCoordinates(), CoordinateSystems.WEBMERCATOR.epsg)
         let geomLv95 =
             geom instanceof Polygon ? new Polygon(coordinatesLv95) : new LineString(coordinatesLv95)
 

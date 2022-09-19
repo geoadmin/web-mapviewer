@@ -1,3 +1,5 @@
+import { CoordinateSystems } from '@/utils/coordinateUtils'
+
 /**
  * Base class for layers' config description, must be extended to a more specific flavor of Layer
  * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer}, {@link AggregateLayer} or {@link KMLLayer})
@@ -18,14 +20,17 @@ export default class AbstractLayer {
         this.opacity = opacity
         this.hasTooltip = hasTooltip
         this.visible = false
-        this.projection = 'EPSG:3857'
+        // default projection used, as we want to achieve worldwide coverage, is web mercator metric
+        this.projection = CoordinateSystems.WEBMERCATOR.epsg
     }
 
     /**
      * @abstract
+     * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
+     *   EPSG:2056 will require an input of 2056)
      * @returns {String} The URL to use to request tile/image/data for this layer
      */
-    getURL() {
+    getURL(epsgNumber = CoordinateSystems.WEBMERCATOR.epsgNumber) {
         throw new Error('You have to implement the method getURL!')
     }
 

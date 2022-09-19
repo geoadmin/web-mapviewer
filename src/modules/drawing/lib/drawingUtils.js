@@ -1,12 +1,13 @@
 import { Point, LineString, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { format } from '@/utils/numberUtils'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
         return input.map((si) => toLv95(si, epsg))
     } else {
-        return proj4(epsg, 'EPSG:2056', [input[0], input[1]])
+        return proj4(epsg, CoordinateSystems.LV95.epsg, [input[0], input[1]])
     }
 }
 

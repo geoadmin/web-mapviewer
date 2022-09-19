@@ -4,16 +4,18 @@
             v-if="layerConfig.type === LayerTypes.WMTS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
+            :url="layerConfig.getURL(LV95.espgNumber)"
             :z-index="zIndex"
+            :projection="LV95.epsg"
         />
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
+            :url="layerConfig.getURL(LV95.espgNumber)"
             :gutter="layerConfig.gutter"
             :z-index="zIndex"
+            :projection="LV95.epsg"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
@@ -57,6 +59,7 @@
 <script>
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
@@ -89,6 +92,7 @@ export default {
     data() {
         return {
             LayerTypes,
+            LV95: CoordinateSystems.LV95,
         }
     },
     methods: {

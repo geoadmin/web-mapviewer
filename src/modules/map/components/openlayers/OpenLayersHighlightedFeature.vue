@@ -24,6 +24,7 @@ import OpenLayersMarker, {
     markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 const geoJsonStyleFunction = (olFeature) => {
     const geoJsonType = olFeature.get('geometry').getType()
@@ -76,7 +77,7 @@ export default {
         openLayersGeoJsonGeometry() {
             if (this.doesFeatureHaveAGeometry) {
                 return new GeoJSON().readGeometry(this.feature.geometry, {
-                    dataProject: 'EPSG:3857',
+                    dataProject: CoordinateSystems.WEBMERCATOR.epsg,
                 })
             }
             return null

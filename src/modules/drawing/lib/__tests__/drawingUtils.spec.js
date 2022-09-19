@@ -7,6 +7,7 @@ import {
     formatTime,
     getAzimuth,
 } from '@/modules/drawing/lib/drawingUtils'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
 import { LineString } from 'ol/geom'
 
@@ -16,12 +17,12 @@ setupProj4()
 describe('Unit test functions from featureStyleUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {
         it('reprojects points from EPSG:4326', () => {
-            expect(toLv95([6.57268, 46.51333], 'EPSG:4326')).to.eql([
+            expect(toLv95([6.57268, 46.51333], CoordinateSystems.WGS84.epsg)).to.eql([
                 2533541.8057776038, 1151703.909974419,
             ])
         })
         it('reprojects points from EPSG:3857', () => {
-            expect(toLv95([731667, 5862995], 'EPSG:3857')).to.eql([
+            expect(toLv95([731667, 5862995], CoordinateSystems.WEBMERCATOR.epsg)).to.eql([
                 2533541.530335663, 1151703.3642947723,
             ])
         })
@@ -32,7 +33,7 @@ describe('Unit test functions from featureStyleUtils.js', () => {
                         [6.57268, 46.51333],
                         [6.7, 46.7],
                     ],
-                    'EPSG:4326'
+                    CoordinateSystems.WGS84.epsg
                 )
             ).to.eql([
                 [2533541.8057776038, 1151703.909974419],
@@ -48,7 +49,7 @@ describe('Unit test functions from featureStyleUtils.js', () => {
                         [6.9, 46.9],
                         [6.57268, 46.51333],
                     ],
-                    'EPSG:4326'
+                    CoordinateSystems.WGS84.epsg
                 )
             ).to.eql([
                 [2533541.8057776038, 1151703.909974419],

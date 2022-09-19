@@ -114,14 +114,20 @@ describe('Test mouse position', () => {
         })
         context('Coordinates system test', () => {
             it('Uses the coordination system LV95 in the popup', () => {
-                const LV95cord = proj4(proj4.WGS84, 'EPSG:2056', [lon, lat])
+                const LV95cord = proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.LV95.epsg, [
+                    lon,
+                    lat,
+                ])
                 cy.get('[data-cy="location-popup-coordinates-lv95"]')
                     .invoke('text')
                     .then(parseLV)
                     .then(checkXY(...LV95cord))
             })
             it('Uses the coordination system LV03 in the popup', () => {
-                const LV03cord = proj4(proj4.WGS84, 'EPSG:21781', [lon, lat])
+                const LV03cord = proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.LV03.epsg, [
+                    lon,
+                    lat,
+                ])
                 cy.get('[data-cy="location-popup-coordinates-lv03"]')
                     .invoke('text')
                     .then(parseLV)
