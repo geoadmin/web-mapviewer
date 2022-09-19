@@ -179,7 +179,7 @@ $animation-time: 0.5s;
             .menu-tray-content {
                 transition: opacity $animation-time;
             }
-            max-width: 22rem;
+            max-width: $menu-tray-width;
         }
         $openCloseButtonHeight: 2.5rem;
         &.desktop-menu-closed {

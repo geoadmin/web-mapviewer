@@ -10,6 +10,7 @@ import {
 } from '@fortawesome/free-regular-svg-icons'
 import {
     faArrowDown,
+    faArrowLeft,
     faArrowsAltH,
     faArrowsAltV,
     faArrowUp,
@@ -48,6 +49,7 @@ import {
 library.add(
     // Solid
     faArrowDown,
+    faArrowLeft,
     faArrowUp,
     faArrowsAltH,
     faArrowsAltV,

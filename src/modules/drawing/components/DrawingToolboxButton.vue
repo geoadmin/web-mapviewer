@@ -7,7 +7,7 @@
         :button-font-awesome-icon="buttonIcon"
         :icons-before-text="true"
         direction="column"
-        :class="buttonClasses"
+        :class="[{ 'drawing-toolbox-button-active': isActive }, 'drawing-toolbox-button']"
         :data-cy="`drawing-${drawingMode.toLowerCase()}`"
         @click="emitSetDrawingMode"
     />
@@ -57,14 +57,6 @@ export default {
                 return undefined
             }
         },
-        buttonClasses() {
-            // Set a fixed width on large viewports for a consistent look.
-            if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
-                return 'button-with-icon-uniform'
-            } else {
-                return undefined
-            }
-        },
     },
     methods: {
         emitSetDrawingMode() {
@@ -74,8 +66,34 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.button-with-icon-uniform {
-    width: 5em;
+<style lang="scss">
+@import 'src/scss/media-query.mixin';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.drawing-toolbox-button {
+    border-width: 2px;
+    border-radius: 15px;
+    border-color: rgb(238, 238, 238);
+    padding: 1rem 0;
+}
+.drawing-toolbox-button-active {
+    border-radius: 4px;
+    color: white !important;
+}
+
+@include respond-above(sm) {
+    .drawing-toolbox-button {
+        padding: 0.5rem 0;
+    }
+}
+@include respond-above(md) {
+    .drawing-toolbox-button {
+        font-weight: bold;
+
+        & > .icon {
+            font-weight: normal;
+            font-size: 1.6rem;
+        }
+    }
 }
 </style>

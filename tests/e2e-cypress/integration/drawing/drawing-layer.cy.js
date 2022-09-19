@@ -5,6 +5,9 @@ describe('A drawing layer is added at the end of the drawing session', () => {
         cy.goToDrawing()
         cy.drawGeoms()
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.waitUntilState((state) => {
+            return state.layers.activeLayers.length === 1
+        })
         cy.readStoreValue('state.layers.activeLayers').then((layers) => {
             expect(layers).to.be.an('Array').lengthOf(1)
             const [drawingLayer] = layers
