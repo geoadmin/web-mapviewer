@@ -265,6 +265,8 @@ $menu-button-diameter: 3px;
 
     .bg-selector-button-label {
         display: block;
+        background-color: rgba(0,0,0,.7);
+        color: white;
     }
 
     .bg-selector-open {
