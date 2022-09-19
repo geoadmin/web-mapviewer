@@ -136,7 +136,8 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.visible).to.be.true
             })
         })
-        it('is able to import an external KML from a legacy adminid query param with other layers', () => {
+        // TODO: reactivate this test while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2610
+        it.skip('is able to import an external KML from a legacy adminid query param with other layers', () => {
             cy.goToMapView('en', {
                 adminid: adminId,
                 layers: 'test.wms.layer,test.wmts.layer',
