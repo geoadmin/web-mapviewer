@@ -5,13 +5,18 @@
 </template>
 
 <script>
-import { Circle as CircleStyle, Fill, Icon as IconStyle, Stroke, Style } from 'ol/style'
-import { Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
-import Feature from 'ol/Feature'
-import { Point } from 'ol/geom'
+import markerImage from '@/modules/map/assets/marker.png'
+import bowlImage from '@/modules/map/assets/bowl.png'
+import circleImage from '@/modules/map/assets/circle.png'
+import crossImage from '@/modules/map/assets/cross.png'
+import pointImage from '@/modules/map/assets/point.png'
 
 import { randomIntBetween } from '@/utils/numberUtils'
+import Feature from 'ol/Feature'
+import { Point } from 'ol/geom'
+import { Vector as VectorLayer } from 'ol/layer'
+import { Vector as VectorSource } from 'ol/source'
+import { Circle as CircleStyle, Fill, Icon as IconStyle, Stroke, Style } from 'ol/style'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
@@ -40,6 +45,22 @@ export const markerStyles = {
     CIRCLE: 'circle',
     CROSS: 'cross',
     POINT: 'point',
+}
+
+function imageForMarkerStyle(markerStyle) {
+    switch(markerStyle) {
+        case markerStyles.BOWL:
+            return bowlImage
+        case markerStyles.BALLOON:
+            return markerImage
+        case markerStyles.CIRCLE:
+            return circleImage
+        case markerStyles.CROSS:
+            return crossImage
+        case markerStyles.POINT:
+            return pointImage
+    }
+    return undefined
 }
 
 /** Renders a marker on the map (different styling are available) */
@@ -92,7 +113,7 @@ export default {
                     return new Style({
                         image: new IconStyle({
                             anchor: [0.5, 1],
-                            src: require('@/modules/map/assets/marker.png'),
+                            src: markerImage,
                         }),
                     })
 
@@ -105,7 +126,7 @@ export default {
                             anchor: [0.5, 0.5],
                             anchorXUnits: 'fraction',
                             anchorYUnits: 'fraction',
-                            src: require(`@/modules/map/assets/${this.markerStyle}.png`),
+                            src: imageForMarkerStyle(this.markerStyle),
                         }),
                     })
 

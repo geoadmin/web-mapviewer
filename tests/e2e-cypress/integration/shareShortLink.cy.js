@@ -34,6 +34,59 @@ describe('Testing the share menu', () => {
             // checking that the share menu has been closed
             cy.get('[data-cy="share-menu-opened"]').should('not.exist')
         })
+        context('Geolocation management while generating share links', {
+            env: {
+                browserPermissions: {
+                    geolocation: 'allow',
+                },
+            },
+        }, () => {
+            beforeEach(() => {
+                // closing the menu
+                cy.get('[data-cy="menu-button"]').click()
+                // activating geolocation
+                cy.get('[data-cy="geolocation-button"]').click()
+                // checking that the app has added geolocation=true to the URL
+                cy.url().should('contain', 'geolocation=true')
+                // opening the menu once again
+                cy.get('[data-cy="menu-button"]').click()
+            })
+            it('does not add geolocation=true to the shared link, if geolocation is active', () => {
+                // opening the share menu, and checking that the link generated is without geolocation=true in the URL
+                cy.get('[data-cy="menu-share-section"]').click()
+                cy.wait('@shortLink').then((intercept) => {
+                    expect(intercept.request.body).to.haveOwnProperty('url')
+                    expect(intercept.request.body.url).to.not.contain('geolocation=true')
+                })
+            })
+            it('generates a short link with a balloon marker when the geolocation API was active and position tracked while generating the shortlink', () => {
+                // opening the share menu, and checking that the link generated has a param crosshair (so that the person opening the link will see where the user was standing)
+                cy.get('[data-cy="menu-share-section"]').click()
+                cy.wait('@shortLink').then((intercept) => {
+                    expect(intercept.request.body).to.haveOwnProperty('url')
+                    expect(intercept.request.body.url).to.contain('crosshair=marker')
+                })
+            })
+            it('does not generate a link with a balloon if the app stops tracking the GPS position', () => {
+                // closing the menu
+                cy.get('[data-cy="menu-button"]').click()
+                // moving the app, so that the GPS is still active, but the tracking is off
+                cy.readWindowValue('map').then((map) => {
+                    cy.simulateEvent(map, 'pointerdown', 0, 0)
+                    cy.simulateEvent(map, 'pointermove', 200, 140)
+                    cy.simulateEvent(map, 'pointerdrag', 200, 140)
+                    cy.simulateEvent(map, 'pointerup', 200, 140)
+                })
+                // opening the menu once again
+                cy.get('[data-cy="menu-button"]').click()
+                // opening the share menu, and checking that the link generated does not have a crosshair URL param
+                cy.get('[data-cy="menu-share-section"]').click()
+                cy.wait('@shortLink').then((intercept) => {
+                    expect(intercept.request.body).to.haveOwnProperty('url')
+                    expect(intercept.request.body.url).to.not.contain('crosshair=marker')
+                })
+            })
+        })
     })
     context('Social networks', () => {
         beforeEach(() => {

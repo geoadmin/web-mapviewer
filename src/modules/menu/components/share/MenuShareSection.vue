@@ -36,6 +36,7 @@ export default {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
             isSectionShown: (state) => state.share.isMenuSectionShown,
+            isTrackingGeolocation: (state) => state.geolocation.active && state.geolocation.tracking,
         }),
     },
     methods: {
@@ -48,7 +49,7 @@ export default {
         toggleShareMenu() {
             this.toggleShareMenuSection()
             if (!this.shortLink) {
-                this.generateShortLink()
+                this.generateShortLink(this.isTrackingGeolocation)
             } else {
                 this.clearShortLink()
             }
