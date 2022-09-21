@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { VECTOR_TILES_STYLE_ID } from "@/config";
 import { mapGetters, mapActions, mapState } from 'vuex'
 
 const voidLayer = {
@@ -107,6 +108,8 @@ export default {
                     return 'bg_pixel_grey'
                 case 'ch.swisstopo.swissimage':
                     return 'bg_luftbild'
+                case VECTOR_TILES_STYLE_ID:
+                    return 'basis'
                 default:
                     return layer.name || layer.getID()
             }
@@ -150,6 +153,9 @@ $menu-button-diameter: 3px;
     &.bg-ch-swisstopo-pixelkarte-farbe {
         background-position: -81px 0;
     }
+    &.bg-ch-swisstopo-leichte-basiskarte_world-vt {
+        background-position: -122px 0;
+    }
     &:hover {
         border-color: $map-button-hover-border-color;
     }
@@ -162,6 +168,7 @@ $menu-button-diameter: 3px;
     background: rgba($white, 0.7);
     font-size: 0.7rem;
     display: none;
+    white-space: nowrap;
 }
 
 .bg-selector-trigger {
@@ -244,6 +251,9 @@ $menu-button-diameter: 3px;
         &.bg-ch-swisstopo-pixelkarte-farbe {
             background-position: -197.3334px 0; // 192px (2 images) + 5.3334 (2 borders)
         }
+        &.bg-ch-swisstopo-leichte-basiskarte_world-vt {
+            background-position: -296px 0; // 288px (3 images) + 8 (3 borders)
+        }
 
         &:hover {
             border-color: $red;
@@ -268,17 +278,12 @@ $menu-button-diameter: 3px;
             left: calc(($desktop-map-button-width + $map-button-gap) * -1);
             bottom: 0;
         }
-        .bg-index-0 {
-            $offset: calc(($desktop-map-button-width + $map-button-gap) * -3);
-            transform: translateX($offset);
-        }
-        .bg-index-1 {
-            $offset: calc(($desktop-map-button-width + $map-button-gap) * -2);
-            transform: translateX($offset);
-        }
-        .bg-index-2 {
-            $offset: calc(($desktop-map-button-width + $map-button-gap) * -1);
-            transform: translateX($offset);
+        $numberOfBackgrounds: 4;
+        @for $i from 0 through $numberOfBackgrounds {
+            .bg-index-#{$i} {
+                $offset: calc(($desktop-map-button-width + $map-button-gap) * ($i - $numberOfBackgrounds));
+                transform: translateX($offset);
+            }
         }
 
         .bg-selector-trigger {
