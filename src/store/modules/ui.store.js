@@ -143,8 +143,10 @@ export default {
         toggleMenu({ commit, state }) {
             commit('setShowMenu', !state.showMenu)
         },
-        toggleFullscreenMode({ commit, state }) {
-            commit('setFullscreenMode', !state.fullscreenMode)
+        toggleFullscreenMode({ commit, state, getters }) {
+            if (getters.isPhoneMode) {
+                commit('setFullscreenMode', !state.fullscreenMode)
+            }
         },
         toggleLoadingBar({ commit, state }) {
             commit('setShowLoadingBar', !state.showLoadingBar)
@@ -155,9 +157,13 @@ export default {
         toggleFloatingTooltip({ commit, state }) {
             commit('setFloatingTooltip', !state.floatingTooltip)
         },
-        setUiMode({ commit }, mode) {
+        setUiMode({ commit, state }, mode) {
             if (mode in UIModes) {
                 commit('setUiMode', mode)
+                // As there is no possibility to trigger the fullscreen mode in desktop mode for now
+                if (state.fullscreenMode && mode === UIModes.DESKTOP) {
+                    commit('setFullscreenMode', false)
+                }
             }
         },
     },
