@@ -29,6 +29,10 @@ export default {
             type: Number,
             default: -1,
         },
+        excludeSource: {
+            type: String,
+            default: null
+        },
     },
     watch: {
         opacity(newOpacity) {
@@ -42,13 +46,14 @@ export default {
                 style: this.styleUrl,
             },
         })
-        // we load the style on the side in order to remove data over Switzerland (we are currently showing our standard National map as there is not enough details with our light vector map)
-        axios.get(this.styleUrl).then((response) => {
-            const vectorStyle = response.data
-            // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
-            vectorStyle.layers = vectorStyle.layers.filter((layer) => layer.source !== 'swissmaptiles')
-            this.layer.maplibreMap.setStyle(vectorStyle)
-        })
+        if (this.excludeSource) {
+            // we load the style on the side in order to be able to filter out some source
+            axios.get(this.styleUrl).then((response) => {
+                const vectorStyle = response.data
+                vectorStyle.layers = vectorStyle.layers.filter((layer) => layer.source !== this.excludeSource)
+                this.layer.maplibreMap.setStyle(vectorStyle)
+            })
+        }
     },
 }
 </script>

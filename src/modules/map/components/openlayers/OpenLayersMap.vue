@@ -8,9 +8,9 @@
             :z-index="0"
         />
         <OpenLayersInternalLayer
-            v-if="isBackgroundVectorTile && pixelKarteFarbeLayer"
-            :key="pixelKarteFarbeLayer.getID()"
-            :layer-config="pixelKarteFarbeLayer"
+            v-if="isBackgroundVectorTile && backgroundLayerOnTopOfVectorBackground"
+            :key="backgroundLayerOnTopOfVectorBackground.getID()"
+            :layer-config="backgroundLayerOnTopOfVectorBackground"
             :current-map-resolution="resolution"
             :z-index="1"
         />
@@ -81,7 +81,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from "@/config";
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -183,18 +183,25 @@ export default {
         isBackgroundVectorTile() {
             return (
                 this.currentBackgroundLayer &&
-                this.currentBackgroundLayer.getID() === VECTOR_TILES_STYLE_ID
+                this.currentBackgroundLayer.type === LayerTypes.VECTOR
             )
         },
-        pixelKarteFarbeLayer() {
-            return this.backgroundLayers.find(
-                (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'
-            )
+        backgroundLayerOnTopOfVectorBackground() {
+            // we currently only have the case of a light base map vector tile background with our national map on top
+            if (
+                this.isBackgroundVectorTile &&
+                this.currentBackgroundLayer.getID() === VECTOR_TILES_STYLE_ID
+            ) {
+                return this.backgroundLayers.find(
+                    (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'
+                )
+            }
+            return null
         },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
-            // if vector tile background, we currently add our WMTS map on top so there are two background layers stacked
-            if (this.isBackgroundVectorTile && this.pixelKarteFarbeLayer) {
+            // checking if the BG layer is a vector layer that has anoter
+            if (this.isBackgroundVectorTile && this.backgroundLayerOnTopOfVectorBackground) {
                 return 2
             }
             return this.currentBackgroundLayer ? 1 : 0

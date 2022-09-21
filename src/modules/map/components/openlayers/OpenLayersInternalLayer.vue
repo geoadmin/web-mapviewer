@@ -5,6 +5,7 @@
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :style-url="layerConfig.getURL()"
+            :exclude-source="layerConfig.excludeSource"
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS"

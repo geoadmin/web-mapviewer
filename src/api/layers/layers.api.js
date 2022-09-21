@@ -5,6 +5,7 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import WMTSLayer from '@/api/layers/WMTSLayer.class'
 import WMSLayer from '@/api/layers/WMSLayer.class'
 import GeoJsonLayer from '@/api/layers/GeoJsonLayer.class'
+import VectorLayer from '@/api/layers/VectorLayer.class'
 import AggregateLayer, { AggregateSubLayer } from '@/api/layers/AggregateLayer.class'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
@@ -38,7 +39,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         switch (type.toLowerCase()) {
             case 'vector':
-                layer = new VectorLayer(id, opacity, layerConfig.styleUrl)
+                layer = new VectorLayer(id, opacity, layerConfig.styleUrl, attributionName, attributionUrl)
                 break;
             case 'wmts':
                 layer = new WMTSLayer(

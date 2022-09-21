@@ -35,7 +35,16 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         // adding vector tile backend through a hardcoded entry (for now)
         // this should be removed as soon as the backend delivers a proper configuration
         // for our vector tile background layer
-        const bgVectorLayer = new VectorLayer(VECTOR_TILES_STYLE_ID, 1.0, VECTOR_TILES_STYLE_URL)
+        const bgVectorLayer = new VectorLayer(
+            VECTOR_TILES_STYLE_ID,
+            1.0,
+            VECTOR_TILES_STYLE_URL,
+            'swisstopo',
+            'https://www.swisstopo.admin.ch/en/home.html',
+            true,
+            // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
+            'swissmaptiles'
+        )
         const layersConfig = [bgVectorLayer, ...(await loadLayersConfig(store.state.i18n.lang))]
         store.dispatch('setLayerConfig', layersConfig)
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
