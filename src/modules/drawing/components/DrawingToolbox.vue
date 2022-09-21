@@ -1,6 +1,6 @@
 <template>
     <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="isMenuAlwaysOpen()" @close="emitCloseEvent" />
+        <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content">
                 <div class="card-body position-relative">
@@ -17,7 +17,6 @@
                             :key="drawingMode"
                             :drawing-mode="drawingMode"
                             :is-active="currentDrawingMode === drawingMode"
-                            :ui-mode="uiMode"
                             :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
                             @set-drawing-mode="bubbleSetDrawingEventToParent"
                         />
@@ -55,7 +54,7 @@
                     </div>
                     <!-- eslint-disable vue/no-v-html-->
                     <small
-                        class="d-none d-sm-block text-center text-muted"
+                        class="text-center text-muted drawing-toolbox-disclaimer"
                         v-html="$t('share_file_disclaimer')"
                     ></small>
                     <!-- eslint-enable vue/no-v-html-->
@@ -96,10 +95,10 @@ import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
 import { EditableFeatureTypes } from '@/api/features.api'
-import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import DrawingHeader from './DrawingHeader.vue'
+import { mapGetters } from 'vuex'
 
 export default {
     components: {
@@ -123,10 +122,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        uiMode: {
-            type: String,
-            default: UIModes.MENU_ALWAYS_OPEN,
-        },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
     data() {
@@ -139,6 +134,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['isDesktopMode']),
         isDrawingLineOrMeasure() {
             return (
                 this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
@@ -152,9 +148,6 @@ export default {
         })
     },
     methods: {
-        isMenuAlwaysOpen() {
-            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
-        },
         emitCloseEvent() {
             this.$emit('close')
         },
@@ -209,9 +202,12 @@ $zindex-drawing-toolbox: -1;
         grid-template: 1fr / 1fr 1fr 1fr 1fr;
         gap: 0.25rem;
     }
+    &-disclaimer {
+        display: none;
+    }
 }
 
-@include respond-above(sm) {
+@include respond-above(phone) {
     .drawing-toolbox {
         position: absolute;
         max-width: $menu-tray-width;
@@ -230,10 +226,13 @@ $zindex-drawing-toolbox: -1;
             }
             transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
         }
+        &-disclaimer {
+            display: block;
+        }
     }
 }
 
-@include respond-above(md) {
+@include respond-above(tablet) {
     .drawing-toolbox-mode-selector {
         margin: 1rem 2rem;
         grid-template: 1fr 1fr / 1fr 1fr;

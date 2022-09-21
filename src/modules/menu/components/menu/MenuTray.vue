@@ -9,7 +9,7 @@
             data-cy="menu-settings-section"
             @open-menu-section="onOpenMenuSection"
         >
-            <MenuSettings :current-ui-mode="currentUiMode" @change-ui-mode="setUiMode" />
+            <MenuSettings />
         </MenuSection>
         <MenuShareSection
             id="shareSection"
@@ -77,14 +77,13 @@ export default {
     computed: {
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
-            currentUiMode: (state) => state.ui.mode,
         }),
         showLayerList() {
             return this.activeLayers.length > 0
         },
     },
     methods: {
-        ...mapActions(['toggleDrawingOverlay', 'setUiMode']),
+        ...mapActions(['toggleDrawingOverlay']),
         onOpenMenuSection(id) {
             let toClose = this.nonScrollableMenuSections.filter((section) => section !== id)
             if (this.nonScrollableMenuSections.includes(id)) {

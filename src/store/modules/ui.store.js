@@ -1,14 +1,14 @@
 import { BREAKPOINT_TABLET } from '@/config'
 
 /**
- * Describes the different mode the UI can have. Either desktop (menu is always shown, info box is a
- * side tray) or touch (menu has to be opened with a button, info box is a swipeable element)
+ * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
+ * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable element)
  *
  * @type enum
  */
 export const UIModes = {
-    MENU_ALWAYS_OPEN: 'MENU_ALWAYS_OPEN',
-    MENU_OPENED_THROUGH_BUTTON: 'MENU_OPENED_THROUGH_BUTTON',
+    DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
+    PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
 
 /**
@@ -23,25 +23,21 @@ export default {
          *
          * @type Number
          */
-        height: 0,
+        height: window.innerHeight,
         /**
          * Width of the viewport (in px)
          *
          * @type Number
          */
-        width: 0,
+        width: window.innerWidth,
+
         /**
-         * Flag telling if the menu tray (where the layer options, layer tree and other stuff is)
-         * should be open while on mobile
-         *
-         * By default, on desktop mode, the menu is shown as a side menu. On mobile/touch it is
-         * hidden as it requires a click on a button to be shown (in order to clear up screen space)
-         *
-         * This flag is only valid while the UI mode is MENU_OPENED_THROUGH_BUTTON
-         *
-         * @type Boolean
+         * Flag telling if the main menu (where the layer options, layer tree and other stuff is)
+         * should be open. It does not tell if the menu is effectively displayed on screen, as this
+         * also depends on e.g. if the drawing mode is open or not. Use the getter "isMenuShown" to
+         * know that.
          */
-        showMenuTray: false,
+        showMenu: window.innerWidth >= BREAKPOINT_TABLET,
         /**
          * Flag telling if the app should be shown in fullscreen mode, meaning that :
          *
@@ -71,20 +67,14 @@ export default {
          *
          * @type String
          */
-        mode: UIModes.MENU_OPENED_THROUGH_BUTTON,
+        mode: UIModes.PHONE, // Configured in screen-size-management.plugin.js (or manually in the settings)
         /**
          * Flag telling if the tooltip should be displayed over the map, floating and positioned at
          * the feature's coordinates. If false, the tooltip will be displayed in the footer
          *
          * @type Boolean
          */
-        floatingTooltip: window.innerWidth > BREAKPOINT_TABLET,
-        /**
-         * Flag telling if the menu in desktop mode (MENU_ALWAYS_OPEN) is open.
-         *
-         * @type Boolean
-         */
-        menuDesktopOpen: window.innerWidth > BREAKPOINT_TABLET,
+        floatingTooltip: false, // Configured in screen-size-management.plugin.js
     },
     getters: {
         screenDensity(state) {
@@ -94,26 +84,53 @@ export default {
             return state.width / state.height
         },
         /**
-         * Tells if the menu should be visible on the UI
+         * Tells if the menu tray is shown
+         *
+         * On desktop mode, the menu tray is always shown, as long as the header is shown. Clicking
+         * on the menu open / close button will simply minimize / maximize the menu tray. On phone
+         * mode, the menu tray is only shown if the menu is shown.
          *
          * @returns {boolean}
          */
-        showMenu(state) {
-            // while on full screen mode, no menu must be visible
-            if (state.fullscreenMode) {
-                return false
-            } else {
-                // menu is always hidden when drawing
-                return !state.showDrawingOverlay && state.showMenuTray
-            }
+        isMenuTrayShown(state, getters) {
+            return state.mode === UIModes.PHONE ? getters.isMenuShown : getters.isHeaderShown
         },
+
         /**
-         * Tells if the header bar should be visible
+         * Tells if the main menu is effectively displayed on the screen (i.e. if the menu is open
+         * AND visible).
+         *
+         * This is the case if the menu is in its open state and the header is shown.
          *
          * @returns {boolean}
          */
-        showHeader(state) {
+        isMenuShown(state, getters) {
+            return getters.isHeaderShown && state.showMenu
+        },
+
+        /**
+         * Tells if the header bar is visible
+         *
+         * @returns {boolean}
+         */
+        isHeaderShown(state) {
             return !state.fullscreenMode && !state.showDrawingOverlay
+        },
+
+        isPhoneMode(state) {
+            return state.mode === UIModes.PHONE
+        },
+        isDesktopMode(state) {
+            return state.mode === UIModes.DESKTOP
+        },
+        isPhoneSize(state, getters) {
+            return getters.isPhoneMode
+        },
+        isTabletSize(state, getters) {
+            return getters.isDesktopMode && state.width < BREAKPOINT_TABLET
+        },
+        isTraditionalDesktopSize(state, getters) {
+            return getters.isDesktopMode && state.width >= BREAKPOINT_TABLET
         },
     },
     actions: {
@@ -123,11 +140,13 @@ export default {
                 width,
             })
         },
-        toggleMenuTray({ commit, state }) {
-            commit('setShowMenuTray', !state.showMenuTray)
+        toggleMenu({ commit, state }) {
+            commit('setShowMenu', !state.showMenu)
         },
-        toggleFullscreenMode({ commit, state }) {
-            commit('setFullscreenMode', !state.fullscreenMode)
+        toggleFullscreenMode({ commit, state, getters }) {
+            if (getters.isPhoneMode) {
+                commit('setFullscreenMode', !state.fullscreenMode)
+            }
         },
         toggleLoadingBar({ commit, state }) {
             commit('setShowLoadingBar', !state.showLoadingBar)
@@ -138,13 +157,14 @@ export default {
         toggleFloatingTooltip({ commit, state }) {
             commit('setFloatingTooltip', !state.floatingTooltip)
         },
-        setUiMode({ commit }, mode) {
+        setUiMode({ commit, state }, mode) {
             if (mode in UIModes) {
                 commit('setUiMode', mode)
+                // As there is no possibility to trigger the fullscreen mode in desktop mode for now
+                if (state.fullscreenMode && mode === UIModes.DESKTOP) {
+                    commit('setFullscreenMode', false)
+                }
             }
-        },
-        toggleMenuDesktopOpen({ commit, state }) {
-            commit('setMenuDesktopOpen', !state.menuDesktopOpen)
         },
     },
     mutations: {
@@ -152,8 +172,8 @@ export default {
             state.height = height
             state.width = width
         },
-        setShowMenuTray(state, flagValue) {
-            state.showMenuTray = flagValue
+        setShowMenu(state, flagValue) {
+            state.showMenu = flagValue
         },
         setFullscreenMode(state, flagValue) {
             state.fullscreenMode = flagValue
@@ -169,9 +189,6 @@ export default {
         },
         setUiMode(state, mode) {
             state.mode = mode
-        },
-        setMenuDesktopOpen(state, flagValue) {
-            state.menuDesktopOpen = flagValue
         },
     },
 }

@@ -24,15 +24,16 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/scss/media-query.mixin';
 .swiss-flag {
-    height: 34px;
+    height: 21px;
     &.dev-site {
         filter: hue-rotate(225deg);
     }
 }
-@include media-breakpoint-down(md) {
+@include respond-above(tablet) {
     .swiss-flag {
-        height: 21px;
+        height: 34px;
     }
 }
 </style>

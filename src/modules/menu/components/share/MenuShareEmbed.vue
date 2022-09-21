@@ -1,5 +1,5 @@
 <template>
-    <div class="d-none d-sm-block">
+    <div class="menu-share-embed">
         <ButtonWithIcon
             class="embedded-button"
             :button-title="$t('share_more')"
@@ -160,6 +160,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
 .select-embed-size {
     // removing the width: 100% coming from .form-control
     // so that the flex-fill from the link input work as expected
@@ -171,6 +172,13 @@ export default {
         .input-embed-code {
             grid-column: 1 / 3;
         }
+    }
+}
+
+.menu-share-embed {
+    display: none;
+    @include respond-above(phone) {
+        display: block;
     }
 }
 </style>

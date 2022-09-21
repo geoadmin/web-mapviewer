@@ -80,7 +80,6 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
-import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -406,21 +405,19 @@ export default {
             }
         },
         onContextMenu(event) {
-            if (UIModes.MENU_OPENED_THROUGH_BUTTON) {
-                const screenCoordinates = [event.x, event.y]
-                this.click(
-                    new ClickInfo(
-                        this.map.getCoordinateFromPixel(screenCoordinates),
-                        0,
-                        screenCoordinates,
-                        [],
-                        ClickType.RIGHT_CLICK
-                    )
+            const screenCoordinates = [event.x, event.y]
+            this.click(
+                new ClickInfo(
+                    this.map.getCoordinateFromPixel(screenCoordinates),
+                    0,
+                    screenCoordinates,
+                    [],
+                    ClickType.RIGHT_CLICK
                 )
-                // we do not want the contextual menu to shows up, so we prevent the event propagation
-                event.preventDefault()
-                return false
-            }
+            )
+            // we do not want the contextual menu to shows up, so we prevent the event propagation
+            event.preventDefault()
+            return false
         },
     },
 }

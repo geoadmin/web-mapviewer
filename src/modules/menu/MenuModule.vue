@@ -4,12 +4,9 @@
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu"></div>
         <transition name="fade-in-out">
-            <BlackBackdrop
-                v-if="!shouldMenuTrayAlwaysBeVisible && showMenu"
-                @click="toggleMenuTray"
-            />
+            <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-show="showHeader" class="header" />
+        <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <div class="toolbox-right">
             <GeolocButton
                 class="mb-1"
@@ -23,33 +20,29 @@
         <div
             class="menu-tray-container"
             :class="{
-                'desktop-mode': shouldMenuTrayAlwaysBeVisible,
+                'desktop-mode': isDesktopMode,
             }"
         >
             <transition name="slide-up">
                 <div
-                    v-show="showMenu"
+                    v-show="isMenuTrayShown"
                     class="menu-tray"
                     :class="{
-                        'desktop-mode': shouldMenuTrayAlwaysBeVisible,
-                        'desktop-menu-closed': shouldMenuTrayAlwaysBeVisible && !menuDesktopOpen,
+                        'desktop-mode': isDesktopMode,
+                        'desktop-menu-closed': isDesktopMode && !showMenu,
                     }"
                     data-cy="menu-tray"
                 >
-                    <MenuTray class="menu-tray-content" :compact="shouldMenuTrayAlwaysBeVisible" />
+                    <MenuTray class="menu-tray-content" :compact="isDesktopMode" />
                     <ButtonWithIcon
-                        v-if="shouldMenuTrayAlwaysBeVisible"
-                        class="m-auto button-open-close-desktop-menu"
+                        v-if="isDesktopMode"
+                        class="button-open-close-desktop-menu m-auto"
                         data-cy="menu-button"
-                        style="{ flex: 'none', max-height: '100%' + 'px' }"
-                        :button-font-awesome-icon="[
-                            'fas',
-                            menuDesktopOpen ? 'caret-up' : 'caret-down',
-                        ]"
-                        :button-title="$t(menuDesktopOpen ? 'close_menu' : 'open_menu')"
+                        :button-font-awesome-icon="['fas', showMenu ? 'caret-up' : 'caret-down']"
+                        :button-title="$t(showMenu ? 'close_menu' : 'open_menu')"
                         icons-before-text
                         dark
-                        @click="toggleMenuDesktopOpen"
+                        @click="toggleMenu"
                     >
                     </ButtonWithIcon>
                 </div>
@@ -65,7 +58,6 @@ import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
-import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
@@ -81,29 +73,20 @@ export default {
     },
     computed: {
         ...mapState({
-            showLoadingBar: (state) => state.ui.showLoadingBar,
-            isFullscreenMode: (state) => state.ui.fullscreenMode,
-            currentLang: (state) => state.i18n.lang,
-            currentTopic: (state) => state.topics.current,
-            currentUiMode: (state) => state.ui.mode,
-            isCurrentlyDrawing: (state) => state.ui.showDrawingOverlay,
             isGeolocationActive: (state) => state.geolocation.active,
             isGeolocationDenied: (state) => state.geolocation.denied,
-            menuDesktopOpen: (state) => state.ui.menuDesktopOpen,
+            showMenu: (state) => state.ui.showMenu,
         }),
-        ...mapGetters(['showMenu', 'showHeader']),
-        shouldMenuTrayAlwaysBeVisible() {
-            return this.currentUiMode === UIModes.MENU_ALWAYS_OPEN
-        },
+        ...mapGetters([
+            'isHeaderShown',
+            'isPhoneMode',
+            'isDesktopMode',
+            'isMenuShown',
+            'isMenuTrayShown',
+        ]),
     },
     methods: {
-        ...mapActions([
-            'toggleGeolocation',
-            'increaseZoom',
-            'decreaseZoom',
-            'toggleMenuTray',
-            'toggleMenuDesktopOpen',
-        ]),
+        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenu']),
     },
 }
 </script>

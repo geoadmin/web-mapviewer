@@ -7,7 +7,7 @@
             :danger="lang === currentLang"
             :transparent="lang !== currentLang"
             :button-title="lang.toUpperCase()"
-            :small="isUIinDesktopMode"
+            :small="isDesktopMode"
             :data-cy="'menu-lang-' + lang"
             @click="changeLang(lang)"
         />
@@ -15,11 +15,10 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import { languages } from '../index'
 import log from '@/utils/logging'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import { UIModes } from '@/store/modules/ui.store'
 
 export default {
     components: { ButtonWithIcon },
@@ -31,11 +30,8 @@ export default {
     computed: {
         ...mapState({
             currentLang: (state) => state.i18n.lang,
-            uiMode: (state) => state.ui.mode,
         }),
-        isUIinDesktopMode() {
-            return this.uiMode === UIModes.MENU_ALWAYS_OPEN
-        },
+        ...mapGetters(['isDesktopMode']),
     },
     methods: {
         changeLang(lang) {

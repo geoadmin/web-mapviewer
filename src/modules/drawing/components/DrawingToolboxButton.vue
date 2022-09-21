@@ -15,8 +15,8 @@
 
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
-import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { mapGetters } from 'vuex'
 
 export default {
     components: { ButtonWithIcon },
@@ -29,13 +29,10 @@ export default {
             type: Boolean,
             default: false,
         },
-        uiMode: {
-            type: String,
-            default: UIModes.MENU_ALWAYS_OPEN,
-        },
     },
     emits: ['setDrawingMode'],
     computed: {
+        ...mapGetters(['isPhoneMode']),
         buttonIcon() {
             switch (this.drawingMode) {
                 case EditableFeatureTypes.LINEPOLYGON:
@@ -51,10 +48,10 @@ export default {
         },
         buttonLabel() {
             // Don't show a label on small viewports.
-            if (this.uiMode === UIModes.MENU_ALWAYS_OPEN) {
-                return this.$t(`draw_${this.drawingMode.toLowerCase()}`)
-            } else {
+            if (this.isPhoneMode) {
                 return undefined
+            } else {
+                return this.$t(`draw_${this.drawingMode.toLowerCase()}`)
             }
         },
     },
@@ -81,12 +78,12 @@ export default {
     color: white !important;
 }
 
-@include respond-above(sm) {
+@include respond-above(phone) {
     .drawing-toolbox-button {
         padding: 0.5rem 0;
     }
 }
-@include respond-above(md) {
+@include respond-above(tablet) {
     .drawing-toolbox-button {
         font-weight: bold;
 

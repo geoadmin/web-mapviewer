@@ -93,6 +93,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/scss/media-query.mixin';
 .search-category-entry {
     display: flex;
     align-items: center;
@@ -105,7 +106,7 @@ export default {
         padding-bottom: 0;
         line-height: 1;
     }
-    @include media-breakpoint-up(sm) {
+    @include respond-above(phone) {
         &:hover {
             background-color: $dark;
             color: $light;

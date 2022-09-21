@@ -46,7 +46,7 @@ export default {
 .map-projection {
     display: none;
 }
-@include respond-above(md) {
+@media (any-hover: hover) {
     .map-projection {
         display: block;
     }

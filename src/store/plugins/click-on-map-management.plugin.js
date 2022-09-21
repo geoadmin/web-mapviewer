@@ -2,7 +2,6 @@ import { identify } from '@/api/features.api'
 import { ClickType } from '@/store/modules/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import log from '@/utils/logging'
-import { UIModes } from '@/store/modules/ui.store'
 
 /**
  * Identifies feature under the mouse cursor
@@ -60,19 +59,19 @@ const clickOnMapManagementPlugin = (store) => {
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             const clickInfo = mutation.payload
-            const isDesktop = state.ui.mode === UIModes.MENU_ALWAYS_OPEN
+            const isDesktopMode = store.getters.isDesktopMode
             const isLeftClick = clickInfo?.clickType === ClickType.LEFT_CLICK
             const isLongClick = clickInfo?.millisecondsSpentMouseDown >= 500
 
             if (
-                (isDesktop && isLeftClick) ||
-                (!isDesktop && isLeftClick && isLongClick) ||
-                (!isDesktop && !isLeftClick)
+                (isDesktopMode && isLeftClick) ||
+                (!isDesktopMode && isLeftClick && isLongClick) ||
+                (!isDesktopMode && !isLeftClick)
             ) {
                 runIdentify(store, clickInfo, store.getters.visibleLayers, store.state.i18n.lang)
-            } else if (!isDesktop && isLeftClick && !isLongClick) {
+            } else if (!isDesktopMode && isLeftClick && !isLongClick) {
                 store.dispatch('toggleFullscreenMode')
-            } else if (isDesktop && !isLeftClick) {
+            } else if (isDesktopMode && !isLeftClick) {
                 store.dispatch('clearAllSelectedFeatures')
             }
         }
