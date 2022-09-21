@@ -9,14 +9,15 @@
                 :key="mode"
                 :danger="currentUiMode === mode"
                 :button-title="$t(getI18nKeyForUiMode(mode))"
-                :small="currentUiMode === UIModes.DESKTOP"
-                @click="changeUiMode(mode)"
+                :small="isDesktopMode"
+                @click="setUiMode(mode)"
             />
         </div>
     </div>
 </template>
 
 <script>
+import { mapActions, mapState, mapGetters } from 'vuex'
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
@@ -26,22 +27,19 @@ export default {
         ButtonWithIcon,
         LangSwitchToolbar,
     },
-    props: {
-        currentUiMode: {
-            type: String,
-            required: true,
-        },
-    },
-    emits: ['changeUiMode'],
     data() {
         return {
             UIModes,
         }
     },
+    computed: {
+        ...mapGetters(['isDesktopMode']),
+        ...mapState({
+            currentUiMode: (state) => state.ui.mode,
+        }),
+    },
     methods: {
-        changeUiMode(mode) {
-            this.$emit('changeUiMode', mode)
-        },
+        ...mapActions(['setUiMode']),
         getI18nKeyForUiMode(mode) {
             switch (mode) {
                 case UIModes.DESKTOP:

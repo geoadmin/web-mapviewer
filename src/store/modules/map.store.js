@@ -1,4 +1,3 @@
-import { UIModes } from '@/store/modules/ui.store'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** @enum */
@@ -72,9 +71,9 @@ export default {
         displayedProjection: CoordinateSystems.LV95,
     },
     getters: {
-        displayLocationPopup(state, getters, rootState) {
+        displayLocationPopup(state, getters) {
             return (
-                rootState.ui.mode === UIModes.DESKTOP &&
+                getters.isDesktopMode &&
                 state.clickInfo?.clickType === ClickType.RIGHT_CLICK &&
                 Array.isArray(state.clickInfo?.coordinate)
             )

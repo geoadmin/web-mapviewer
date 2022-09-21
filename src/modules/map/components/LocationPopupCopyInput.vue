@@ -17,8 +17,7 @@
 
 <script>
 import { Tooltip } from 'bootstrap'
-import { mapState } from 'vuex'
-import { UIModes } from '@/store/modules/ui.store'
+import { mapGetters } from 'vuex'
 
 export default {
     inheritAttrs: false,
@@ -39,9 +38,7 @@ export default {
         }
     },
     computed: {
-        ...mapState({
-            showTooltip: (state) => state.ui.mode === UIModes.DESKTOP,
-        }),
+        ...mapGetters({ showTooltip: 'isDesktopMode' }),
     },
     mounted() {
         this.tooltip = new Tooltip(this.$refs.input, {
