@@ -7,6 +7,13 @@
             :layer-config="currentBackgroundLayer"
             :z-index="0"
         />
+        <OpenLayersInternalLayer
+            v-if="isBackgroundVectorTile && backgroundLayerOnTopOfVectorBackground"
+            :key="backgroundLayerOnTopOfVectorBackground.getID()"
+            :layer-config="backgroundLayerOnTopOfVectorBackground"
+            :current-map-resolution="resolution"
+            :z-index="1"
+        />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
             v-for="(layer, index) in visibleLayers"
@@ -74,7 +81,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from "@/config";
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -84,10 +91,10 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { Map, View } from 'ol'
+import { platformModifierKeyOnly } from 'ol/events/condition'
+import { defaults as getDefaultInteractions } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
-import { defaults as getDefaultInteractions } from 'ol/interaction'
-import { platformModifierKeyOnly } from 'ol/events/condition'
 
 import 'ol/ol.css'
 import { register } from 'ol/proj/proj4'
@@ -154,6 +161,7 @@ export default {
             'extent',
             'resolution',
             'isCurrentlyDrawing',
+            'backgroundLayers',
         ]),
         crossHairStyle() {
             if (this.crossHair) {
@@ -172,8 +180,30 @@ export default {
             }
             return null
         },
+        isBackgroundVectorTile() {
+            return (
+                this.currentBackgroundLayer &&
+                this.currentBackgroundLayer.type === LayerTypes.VECTOR
+            )
+        },
+        backgroundLayerOnTopOfVectorBackground() {
+            // we currently only have the case of a light base map vector tile background with our national map on top
+            if (
+                this.isBackgroundVectorTile &&
+                this.currentBackgroundLayer.getID() === VECTOR_TILES_STYLE_ID
+            ) {
+                return this.backgroundLayers.find(
+                    (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'
+                )
+            }
+            return null
+        },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
+            // checking if the BG layer is a vector layer that has anoter
+            if (this.isBackgroundVectorTile && this.backgroundLayerOnTopOfVectorBackground) {
+                return 2
+            }
             return this.currentBackgroundLayer ? 1 : 0
         },
         zIndexDroppedPinned() {
