@@ -5,13 +5,13 @@
 </template>
 
 <script>
+import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from "@/config";
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import ImageWMS from 'ol/source/ImageWMS'
 import TileWMS from 'ol/source/TileWMS'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 
 /** Renders a WMS layer on the map */
 export default {
@@ -58,6 +58,7 @@ export default {
                 resolutions: TILEGRID_RESOLUTIONS,
                 extent: TILEGRID_EXTENT,
                 origin: TILEGRID_ORIGIN,
+                tileSize: WMS_TILE_SIZE
             })
         }
         if (this.gutter !== -1) {
