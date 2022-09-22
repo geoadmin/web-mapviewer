@@ -1,13 +1,13 @@
+import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
+import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
+import {
+    getKmlLayerFromLegacyAdminIdParam,
+    getLayersFromLegacyUrlParams,
+    isLayersUrlParamLegacy,
+} from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
-import {
-    getLayersFromLegacyUrlParams,
-    isLayersUrlParamLegacy,
-    getKmlLayerFromLegacyAdminIdParam,
-} from '@/utils/legacyLayerParamUtils'
-import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
 
 /**
  * @param {String} search

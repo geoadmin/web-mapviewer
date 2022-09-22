@@ -1,10 +1,10 @@
 import { API_BASE_URL } from '@/config'
-import axios from 'axios'
 import {
-    getLayersFromLegacyUrlParams,
     getBackgroundLayerFromLegacyUrlParams,
+    getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
+import axios from 'axios'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export class Topic {

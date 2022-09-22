@@ -30,9 +30,9 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     components: {

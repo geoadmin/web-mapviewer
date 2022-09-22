@@ -91,14 +91,14 @@
 </template>
 
 <script>
+import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import ShareForm from '@/modules/drawing/components/SharePopup.vue'
-import { EditableFeatureTypes } from '@/api/features.api'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import DrawingHeader from './DrawingHeader.vue'
 import { mapGetters } from 'vuex'
+import DrawingHeader from './DrawingHeader.vue'
 
 export default {
     components: {

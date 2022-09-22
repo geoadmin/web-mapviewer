@@ -14,7 +14,8 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   different backends of map.geo.admin.ch
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
+     *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {Boolean} isBackground If this layer is to be used as a background layer or not
      *   (background layer are stored in the background wheel on the side of the UI)
@@ -23,7 +24,8 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   WMS/WMTS backend URL will be used)
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
+     *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
      */

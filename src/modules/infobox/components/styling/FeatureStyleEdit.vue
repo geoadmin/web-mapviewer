@@ -106,7 +106,8 @@ import { mapActions } from 'vuex'
 /**
  * Display a popup on the map when a drawing is selected.
  *
- * The popup has a form with the drawing's properties (text, description) and some styling configuration.
+ * The popup has a form with the drawing's properties (text, description) and some styling
+ * configuration.
  */
 export default {
     components: {

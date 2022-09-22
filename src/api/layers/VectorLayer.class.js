@@ -1,5 +1,5 @@
-import GeoAdminLayer from "@/api/layers/GeoAdminLayer.class";
-import LayerTypes from "@/api/layers/LayerTypes.enum";
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /** Metadata for a vector tile layer (MapLibre layer) */
 export default class VectorLayer extends GeoAdminLayer {

@@ -3,10 +3,10 @@
 </template>
 
 <script>
+import { EditableFeatureTypes } from '@/api/features.api'
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
-import { EditableFeatureTypes } from '@/api/features.api'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],

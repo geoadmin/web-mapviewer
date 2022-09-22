@@ -46,10 +46,13 @@
 
 <script>
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
-import promptUserToPrintHtmlContent from '@/utils/print'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import promptUserToPrintHtmlContent from '@/utils/print'
 
-/** Utility component that will wrap your modal content and make sure it is above the overlay of the map */
+/**
+ * Utility component that will wrap your modal content and make sure it is above the overlay of the
+ * map
+ */
 export default {
     components: { BlackBackdrop, ButtonWithIcon },
     props: {

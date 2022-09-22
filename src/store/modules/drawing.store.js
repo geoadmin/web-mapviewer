@@ -37,7 +37,8 @@ export default {
         /**
          * Feature IDs of all features that have been drawn.
          *
-         * Removing an ID from the list will trigger a watcher that will delete the respective feature.
+         * Removing an ID from the list will trigger a watcher that will delete the respective
+         * feature.
          *
          * @type {String[]}
          */

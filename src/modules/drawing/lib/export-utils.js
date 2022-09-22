@@ -50,7 +50,9 @@ export function generateKmlString(features = [], styleFunction = null) {
         clone.set('type', clone.get('type').toLowerCase())
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        clone.getGeometry().transform(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg)
+        clone
+            .getGeometry()
+            .transform(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg)
         let styles = styleFunction || clone.getStyleFunction()
         styles = styles(clone)
         const newStyle = {

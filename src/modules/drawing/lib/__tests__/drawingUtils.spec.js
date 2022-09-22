@@ -1,15 +1,15 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import {
-    formatPointCoordinates,
     formatMeters,
-    toLv95,
+    formatPointCoordinates,
     formatTime,
     getAzimuth,
+    toLv95,
 } from '@/modules/drawing/lib/drawingUtils'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
+import { expect } from 'chai'
 import { LineString } from 'ol/geom'
+import { describe, it } from 'vitest'
 
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4()

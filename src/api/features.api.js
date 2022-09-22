@@ -1,17 +1,17 @@
+import { Icon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
-import { CoordinateSystems } from "@/utils/coordinateUtils";
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
     allStylingSizes,
-    MEDIUM,
-    RED,
     FeatureStyleColor,
     FeatureStyleSize,
+    MEDIUM,
+    RED,
 } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
-import { Icon } from '@/api/icon.api'
 import { Icon as openlayersIcon } from 'ol/style'
 
 /**
@@ -20,7 +20,8 @@ import { Icon as openlayersIcon } from 'ol/style'
  * property of the instance has changed)
  *
  * This will then be specialized in (at least) two flavor of features, layer feature (coming from
- * our backend, with extra information attached) and drawing feature (that can be modified by the user)
+ * our backend, with extra information attached) and drawing feature (that can be modified by the
+ * user)
  *
  * @abstract
  */
@@ -31,8 +32,10 @@ export class Feature extends EventEmitter {
      * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature in EPSG:3857
      *   (metric mercator)
      * @param {String} title Title of this feature
-     * @param {String} description A description of this feature, can not be HTML content (only text)
-     * @param {Boolean} isEditable Whether this feature is editable when selected (color, size, etc...)
+     * @param {String} description A description of this feature, can not be HTML content (only
+     *   text)
+     * @param {Boolean} isEditable Whether this feature is editable when selected (color, size,
+     *   etc...)
      */
     constructor(id, coordinates, title, description, isEditable = false) {
         super()
@@ -135,13 +138,15 @@ export class EditableFeature extends Feature {
      * @param {Number[][]} coordinates [[x,y],[x2.y2],...] coordinates of this feature in EPSG:3857
      *   (metric mercator)
      * @param {String} title Title of this feature
-     * @param {String} description A description of this feature, can not be HTML content (only text)
+     * @param {String} description A description of this feature, can not be HTML content (only
+     *   text)
      * @param {EditableFeatureTypes} featureType Type of this editable feature
      * @param {FeatureStyleColor} textColor Color for the text of this feature
      * @param {FeatureStyleSize} textSize Size of the text for this feature
      * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
      * @param {Icon} icon Icon that will be covering this feature, can be null
-     * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this feature
+     * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this
+     *   feature
      */
     constructor(
         id,
@@ -354,7 +359,10 @@ export class EditableFeature extends Feature {
     }
 }
 
-/** Describe a feature from the backend, so a feature linked to a backend layer (see {@link getFeature}) below */
+/**
+ * Describe a feature from the backend, so a feature linked to a backend layer (see
+ * {@link getFeature}) below
+ */
 export class LayerFeature extends Feature {
     /**
      * @param {GeoAdminLayer} layer The layer in which this feature belongs

@@ -4,11 +4,13 @@ import SnapInteraction from 'ol/interaction/Snap'
 /**
  * Mixin that will count how many points are drawn by the user while drawing a line (or measure
  * line) and check for point snapping. It will then decide if the drawn geometry should be converted
- * to a line after drawing has ended (ff the user finished drawing by closing the polygon, nothing is done)
+ * to a line after drawing has ended (ff the user finished drawing by closing the polygon, nothing
+ * is done)
  *
  * This mixin must be used with the other drawing mixin (`drawingInteraction.mixin.js`) because it
  * will assume that there is an interaction object stored on `this.interaction` and that it is the
- * interaction responsible to draw the line. This interaction is created and managed by the other mixin.
+ * interaction responsible to draw the line. This interaction is created and managed by the other
+ * mixin.
  */
 const drawingLineMixin = {
     inject: ['getMap', 'getDrawingLayer'],

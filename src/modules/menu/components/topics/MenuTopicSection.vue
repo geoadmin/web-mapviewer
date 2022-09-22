@@ -44,11 +44,11 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
+import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {

@@ -1,7 +1,7 @@
-import proj4 from 'proj4'
-import { register } from 'ol/proj/proj4'
-import { get as getProjection, transformExtent } from 'ol/proj'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { get as getProjection } from 'ol/proj'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
 
 /**
  * Proj4 comes with [EPSG:4326]{@link https://epsg.io/4326} as default projection.

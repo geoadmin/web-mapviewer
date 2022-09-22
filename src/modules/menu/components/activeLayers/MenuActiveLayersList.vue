@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
-import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import { mapActions, mapState } from 'vuex'
+import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
 
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user

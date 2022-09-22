@@ -1,9 +1,9 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
-import WMSLayer from '@/api/layers/WMSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
+import WMSLayer from '@/api/layers/WMSLayer.class'
 import WMTSLayer from '@/api/layers/WMTSLayer.class'
+import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {

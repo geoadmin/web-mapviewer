@@ -55,9 +55,9 @@
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
+import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
 

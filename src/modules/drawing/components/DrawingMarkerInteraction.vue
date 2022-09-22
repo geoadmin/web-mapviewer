@@ -3,8 +3,8 @@
 </template>
 
 <script>
-import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import { EditableFeatureTypes } from '@/api/features.api'
+import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 
 export default {
     mixins: [drawingInteractionMixin],

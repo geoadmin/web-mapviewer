@@ -11,6 +11,7 @@
 
 <script>
 import LoadingBar from '@/utils/LoadingBar.vue'
+
 export default {
     components: {
         LoadingBar,

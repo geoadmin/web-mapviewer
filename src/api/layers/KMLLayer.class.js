@@ -1,6 +1,6 @@
-import i18n from '@/modules/i18n'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import i18n from '@/modules/i18n'
 
 /** Metadata for an external KML layer, mostly used to show drawing */
 export default class KMLLayer extends AbstractLayer {

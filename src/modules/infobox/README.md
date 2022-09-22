@@ -2,7 +2,7 @@
 
 Adds a container that holds any dynmaic information about the map / feature that the user could need (drawing style edition, feature identification, etc...)
 
-Depending on the viewport size (or user's preference/config) this container will be (for desktop mode) a side tray that can be collapsed at will, 
+Depending on the viewport size (or user's preference/config) this container will be (for desktop mode) a side tray that can be collapsed at will,
 and for mobile mode a swipeable element that takes place at the bottom of the screen.
 
 ### Swipable element

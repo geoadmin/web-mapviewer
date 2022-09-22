@@ -39,14 +39,14 @@
 </template>
 
 <script>
+import { EditableFeatureTypes } from '@/api/features.api'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import promptUserToPrintHtmlContent from '@/utils/print'
 import { mapActions, mapState } from 'vuex'
 import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureList from './components/FeatureList.vue'
 import FeatureProfile from './components/FeatureProfile.vue'
-import { EditableFeatureTypes } from '@/api/features.api'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import promptUserToPrintHtmlContent from '@/utils/print'
 
 export default {
     components: {

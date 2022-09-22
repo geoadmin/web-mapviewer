@@ -8,7 +8,8 @@ export default class WMTSLayer extends GeoAdminLayer {
      * @param {String} name Layer name (internationalized)
      * @param {String} id Unique layer ID used in our backend
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
+     *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {String} format Image format for this WMTS layer (jpeg or png)
      * @param {LayerTimeConfig} timeConfig Settings telling which timestamp has to be used when
@@ -18,7 +19,8 @@ export default class WMTSLayer extends GeoAdminLayer {
      *   to describe many available backends)
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
+     *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
      */

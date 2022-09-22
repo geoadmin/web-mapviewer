@@ -11,11 +11,6 @@
 </template>
 
 <script>
-import VectorLayer from 'ol/layer/Vector'
-import { Vector as VectorSource } from 'ol/source'
-import OpenLayersFeature from 'ol/Feature'
-import GeoJSON from 'ol/format/GeoJSON'
-import Style from 'ol/style/Style'
 import { Feature } from '@/api/features.api'
 import OpenLayersMarker, {
     highlightedFill,
@@ -25,6 +20,11 @@ import OpenLayersMarker, {
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import OpenLayersFeature from 'ol/Feature'
+import GeoJSON from 'ol/format/GeoJSON'
+import VectorLayer from 'ol/layer/Vector'
+import { Vector as VectorSource } from 'ol/source'
+import Style from 'ol/style/Style'
 
 const geoJsonStyleFunction = (olFeature) => {
     const geoJsonType = olFeature.get('geometry').getType()

@@ -1,5 +1,5 @@
+import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config'
 import { UIModes } from '@/store/modules/ui.store'
-import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_TABLET } from '@/config'
 
 /** @param store */
 const screenSizeManagementPlugin = (store) => {

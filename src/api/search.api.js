@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
-import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import log from '@/utils/logging'
+import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
+import axios from 'axios'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 

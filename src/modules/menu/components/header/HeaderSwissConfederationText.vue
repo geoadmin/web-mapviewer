@@ -14,6 +14,7 @@
 
 <script>
 import { DEV_SITE_WARNING } from '@/config'
+
 export default {
     props: {
         currentLang: {

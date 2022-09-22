@@ -1,5 +1,3 @@
-import log from '@/utils/logging'
-
 // exposing the config in the logs
 import {
     API_BASE_URL,
@@ -22,6 +20,22 @@ import {
     WMS_TILE_SIZE,
     WMTS_BASE_URL,
 } from '@/config'
+import i18n from '@/modules/i18n'
+import router from '@/router'
+import store from '@/store'
+import log from '@/utils/logging'
+
+import setupProj4 from '@/utils/setupProj4'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// Importing styling CSS libraries
+import 'animate.css'
+
+import { createApp } from 'vue'
+import VueSocialSharing from 'vue-social-sharing'
+
+import App from './App.vue'
+// setting up font awesome vue component
+import './setup-fontawesome'
 
 log.debug('Config is', {
     ENVIRONMENT,
@@ -45,18 +59,6 @@ log.debug('Config is', {
     BREAKPOINT_TABLET,
 })
 
-// Importing styling CSS libraries
-import 'animate.css'
-
-import { createApp } from 'vue'
-import VueSocialSharing from 'vue-social-sharing'
-
-import App from './App.vue'
-import store from '@/store'
-import i18n from '@/modules/i18n'
-import router from '@/router'
-
-import setupProj4 from '@/utils/setupProj4'
 setupProj4()
 
 const app = createApp(App)
@@ -66,9 +68,6 @@ app.use(i18n)
 app.use(store)
 app.use(VueSocialSharing)
 
-// setting up font awesome vue component
-import './setup-fontawesome'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 // if we are testing with Cypress, we expose the store

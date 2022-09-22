@@ -15,7 +15,6 @@ export default {
          * The state of the shortlink share menu section. As we need to be able to change this
          * whenever the user moves the map, and it should only be done within mutations.
          *
-         *
          * @type Boolean
          */
         isMenuSectionShown: false,
@@ -41,14 +40,13 @@ export default {
         closeShareMenuAndRemoveShortlink({ commit }) {
             commit('setIsMenuSectionShown', false)
             commit('setShortLink', null)
-
         },
         toggleShareMenuSection({ commit, state }) {
             commit('setIsMenuSectionShown', !state.isMenuSectionShown)
         },
         clearShortLink({ commit }) {
             commit('setShortLink', null)
-        }
+        },
     },
     mutations: {
         setShortLink(state, shortLink) {
@@ -56,6 +54,6 @@ export default {
         },
         setIsMenuSectionShown(state, flag) {
             state.isMenuSectionShown = flag
-        }
+        },
     },
 }

@@ -1,13 +1,14 @@
+import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 
 /**
  * @typedef ProfileRequestData
  * @property {GeoJSON} geom A GeoJSON object representation of a polyline (type = LineString)
  * @property {Number} [sr] The reference system to use (EPSG code). Valid value are 2056 (for LV95)
  *   and 21781 (for LV03)
- * @property {Number} [nb_points] The number of points used for the polyline segmentation. Default “200”.
+ * @property {Number} [nb_points] The number of points used for the polyline segmentation. Default
+ *   “200”.
  * @property {Number} [offset] The offset value (INTEGER) in order to use the exponential moving
  *   algorithm. For a given value the offset value specify the number of values before and after
  *   used to calculate the average.

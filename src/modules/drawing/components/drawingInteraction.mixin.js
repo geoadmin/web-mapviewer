@@ -1,11 +1,12 @@
+import { EditableFeature } from '@/api/features.api'
+import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
-import { EditableFeature } from '@/api/features.api'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 
 /**
- * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing module.
+ * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing
+ * module.
  *
  * This interaction will be responsible for one of the many shape available to draw. It will handle
  * the start and ending of the drawing (later edition will be handled elsewhere)
@@ -20,7 +21,8 @@ import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawi
  *
  * It is also possible to define optionals :
  *
- * - `onDrawStart` (function): called after the drawing has started with the feature being drawn as argument
+ * - `onDrawStart` (function): called after the drawing has started with the feature being drawn as
+ *   argument
  * - `onDrawEnd` (function): called after the drawing is done with the drawn feature as argument
  * - `onDrawAbort` (function): called when the drawing is aborted with the aborted feature as argument
  * - `editingStyle` (function): style function used while drawing, if none given

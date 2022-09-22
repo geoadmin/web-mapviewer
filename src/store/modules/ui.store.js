@@ -2,7 +2,8 @@ import { BREAKPOINT_TABLET } from '@/config'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
- * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable element)
+ * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable
+ * element)
  *
  * @type enum
  */
@@ -14,7 +15,8 @@ export const UIModes = {
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
- * used/synchronized by store plugins as it involved listening to some mutation to trigger this change.
+ * used/synchronized by store plugins as it involved listening to some mutation to trigger this
+ * change.
  */
 export default {
     state: {

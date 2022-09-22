@@ -43,7 +43,7 @@ export default {
             return this.sizes.map((size) => {
                 return new DropdownItem(size.label, size)
             })
-        }
+        },
     },
     methods: {
         onSizeSelect(dropdownItem) {

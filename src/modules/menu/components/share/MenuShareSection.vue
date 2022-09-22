@@ -36,7 +36,8 @@ export default {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
             isSectionShown: (state) => state.share.isMenuSectionShown,
-            isTrackingGeolocation: (state) => state.geolocation.active && state.geolocation.tracking,
+            isTrackingGeolocation: (state) =>
+                state.geolocation.active && state.geolocation.tracking,
         }),
     },
     methods: {

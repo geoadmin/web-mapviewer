@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 class DummyLayer extends AbstractParamConfig {
     constructor(

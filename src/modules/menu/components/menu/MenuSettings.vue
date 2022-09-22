@@ -17,10 +17,10 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapGetters } from 'vuex'
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import { UIModes } from '@/store/modules/ui.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

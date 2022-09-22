@@ -1,5 +1,4 @@
-import { CoordinateSystems } from "@/utils/coordinateUtils";
-import Overlay from 'ol/Overlay'
+import { EditableFeatureTypes } from '@/api/features.api'
 import {
     canShowAzimuthCircle,
     formatAngle,
@@ -8,9 +7,10 @@ import {
     getMeasureDelta,
     toLv95,
 } from '@/modules/drawing/lib/drawingUtils'
-import { LineString, Polygon } from 'ol/geom'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { Collection } from 'ol'
-import { EditableFeatureTypes } from '@/api/features.api'
+import { LineString, Polygon } from 'ol/geom'
+import Overlay from 'ol/Overlay'
 
 /**
  * Handels the overlays that are shown on top of a each measure drawing

@@ -1,7 +1,7 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import store from '@/store'
 import { normalizeAngle } from '@/store/modules/position.store'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 function validateNormalizeAngle(angle) {
     expect(angle).to.be.lte(Math.PI)

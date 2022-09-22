@@ -1,5 +1,5 @@
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getKmlMetadataByAdminId } from '@/api/files.api'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {

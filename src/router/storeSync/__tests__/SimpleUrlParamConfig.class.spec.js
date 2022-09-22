@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 describe('Test all SimpleUrlParamConfig class functionalities', () => {
     const fakeStore = {

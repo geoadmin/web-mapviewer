@@ -1,9 +1,9 @@
+import { format, toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
+import log from './logging'
+import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
 
 import { formatThousand, round } from './numberUtils'
-import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
-import log from './logging'
-import { toStringHDMS, format } from 'ol/coordinate'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i
@@ -229,23 +229,23 @@ const executeAndReturn = (
  * Accepted formats ------------------------------------------------ **CH1903+ / LV95**
  *
  * - With or without thousand separator (`2'600'000 1'200'000` or `2600000 1200000`)
- * - *CH1903 / LV03**
+ * - _CH1903 / LV03_*
  * - With or without thousand separator (`600'000 200'000` or `600000 200000`)
- * - *WGS84 (Web Mercator)**
+ * - _WGS84 (Web Mercator)_*
  * - Numerical (`46.97984 6.60757`)
  * - DegreesMinutes (`46°58.7904' 6°36.4542'`)
  * - DegreesMinutesSeconds, double single quote for seconds (`46°58'47.424'' 6°36'27.252''`)
  * - DegreesMinutesSeconds, double quote for seconds (`46°58'47.424" 6°36'27.252"`)
  * - Google style is also supported (any format above without degrees, minutes and seconds symbol)
- * - *Military Grid Reference System (MGRS)**
+ * - _Military Grid Reference System (MGRS)_*
  * - I.e. `32TLT 98757 23913`
- * - *what3words**
+ * - _what3words_*
  * - I.e. `zufall.anders.blaumeise`
  *
  * @param {String} text The text in which we want to find coordinates
  * @param {String} toProjection Projection wanted for the output coordinates (default: EPSG:3857)
- * @param {Number} roundingToDecimal How many decimals should stay in the final coordinates (default: 1)
- *   (default: 1)
+ * @param {Number} roundingToDecimal How many decimals should stay in the final coordinates
+ *   (default: 1) (default: 1)
  * @returns {Number[]} Coordinates in the given order in text in the wanted projection, or
  *   `undefined` if nothing was found
  */

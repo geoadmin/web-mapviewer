@@ -27,6 +27,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+
 export default {
     inject: ['getMap'],
     emits: ['northen'],

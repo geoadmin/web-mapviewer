@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from "@/config";
+import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import ImageWMS from 'ol/source/ImageWMS'
@@ -58,7 +58,7 @@ export default {
                 resolutions: TILEGRID_RESOLUTIONS,
                 extent: TILEGRID_EXTENT,
                 origin: TILEGRID_ORIGIN,
-                tileSize: WMS_TILE_SIZE
+                tileSize: WMS_TILE_SIZE,
             })
         }
         if (this.gutter !== -1) {

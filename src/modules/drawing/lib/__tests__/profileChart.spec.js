@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 function generateProfileChart(data) {
     const options = {

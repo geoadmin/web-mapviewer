@@ -44,7 +44,8 @@ function enforceEndingSlashInUrl(url) {
 /**
  * Base part of the URL to use when requesting the api3.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -53,7 +54,8 @@ export const API_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_API_BAS
 /**
  * Base part of the URL to use when requesting the alti service.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -64,7 +66,8 @@ export const API_SERVICE_ALTI_BASE_URL = enforceEndingSlashInUrl(
 /**
  * Base part of the URL to use when requesting the search service.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -75,7 +78,8 @@ export const API_SERVICE_SEARCH_BASE_URL = enforceEndingSlashInUrl(
 /**
  * Base part of the URL to use when requesting icons.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -86,7 +90,8 @@ export const API_SERVICES_BASE_URL = enforceEndingSlashInUrl(
 /**
  * Base part of the URL to use for saving, updating or getting kml files.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -97,7 +102,8 @@ export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
 /**
  * Base part of the URL to use for getting kml files.
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type String
  */
@@ -108,7 +114,8 @@ export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
 /**
  * Base part of the URL to communicate with service-shortlink backend
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type {String}
  */
@@ -117,27 +124,33 @@ export const API_SERVICE_SHORTLINK_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
- * Base part of the URL to use when requesting GeoJSON data (e.g. for prod https://data.geo.admin.ch).
+ * Base part of the URL to use when requesting GeoJSON data (e.g. for prod
+ * https://data.geo.admin.ch).
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type {String}
  */
 export const DATA_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_DATA_BASE_URL)
 
 /**
- * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod https://wmts.geo.admin.ch/).
+ * Default WMTS base part of the URL to use when requesting tiles (e.g. for prod
+ * https://wmts.geo.admin.ch/).
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * @type {String}
  */
 export const WMTS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMTS_BASE_URL)
 
 /**
- * Default WMS base part of the URL to use when requesting tiles (e.g. for prod https://wms.geo.admin.ch).
+ * Default WMS base part of the URL to use when requesting tiles (e.g. for prod
+ * https://wms.geo.admin.ch).
  *
- * This URL always end with a slash, so there's no need at add another one after it to create REST endpoints
+ * This URL always end with a slash, so there's no need at add another one after it to create REST
+ * endpoints
  *
  * WMS layers tend to carry their own base URL in their metadata, be mindful of that when using this
  * constant (it might be unnecessary)
@@ -149,7 +162,8 @@ export const WMS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMS_BAS
 /**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)
  *
- * Comes from {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/map/TileGrid.js}
+ * Comes from
+ * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/map/TileGrid.js}
  *
  * @type {Number}
  */

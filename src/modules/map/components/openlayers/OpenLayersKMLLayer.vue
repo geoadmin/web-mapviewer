@@ -5,16 +5,15 @@
 </template>
 
 <script>
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import MeasureManager from '@/utils/MeasureManager'
+import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import KML from 'ol/format/KML'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { EditableFeature } from '@/api/features.api'
-import MeasureManager from '@/utils/MeasureManager'
-import { EditableFeatureTypes } from '@/api/features.api'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 /** Renders a KML file on the map */
 export default {

@@ -52,7 +52,9 @@
 </template>
 
 <script>
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, updateKml } from '@/api/files.api'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
@@ -61,19 +63,16 @@ import DrawingModifyInteraction from '@/modules/drawing/components/DrawingModify
 import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelectInteraction.vue'
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
-import LoadingScreen from '@/utils/LoadingScreen.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { EditableFeatureTypes } from '@/api/features.api'
-import { EditableFeature } from '@/api/features.api'
+import LoadingScreen from '@/utils/LoadingScreen.vue'
+import log from '@/utils/logging'
+import MeasureManager from '@/utils/MeasureManager'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapState, mapGetters } from 'vuex'
-import MeasureManager from '@/utils/MeasureManager'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import log from '@/utils/logging'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

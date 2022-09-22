@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import tippy from 'tippy.js'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import tippy from 'tippy.js'
 
 /** @enum */
 export const POPOVER_POSITION = {

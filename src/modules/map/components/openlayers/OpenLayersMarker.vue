@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import markerImage from '@/modules/map/assets/marker.png'
 import bowlImage from '@/modules/map/assets/bowl.png'
 import circleImage from '@/modules/map/assets/circle.png'
 import crossImage from '@/modules/map/assets/cross.png'
+import markerImage from '@/modules/map/assets/marker.png'
 import pointImage from '@/modules/map/assets/point.png'
 
 import { randomIntBetween } from '@/utils/numberUtils'
@@ -48,7 +48,7 @@ export const markerStyles = {
 }
 
 function imageForMarkerStyle(markerStyle) {
-    switch(markerStyle) {
+    switch (markerStyle) {
         case markerStyles.BOWL:
             return bowlImage
         case markerStyles.BALLOON:
