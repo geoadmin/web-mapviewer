@@ -13,7 +13,8 @@ export class IconSet {
      * @param {String} name Name of this set in the backend, lower cased
      * @param {Boolean} isColorable Tells if this set's icons can be colored differently (if the
      *   color can be defined in each icon's URL)
-     * @param {String} iconsURL URL to the backend endpoint that gives all available icons for this set
+     * @param {String} iconsURL URL to the backend endpoint that gives all available icons for this
+     *   set
      * @param {String} templateURL A template URL to access this icon set's metadata
      *   ({icon_set_name} needs to be replaced with this icon set's name)
      */
@@ -78,7 +79,8 @@ export class Icon {
      *   replacing {icon_scale} and {{r},{g},{b}} respectively, see {@link Icon.generateURL})
      * @param {String} iconSetName Name of the icon set in which belongs this icon (an icon can only
      *   belong to one icon set)
-     * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y] format)
+     * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y]
+     *   format)
      */
     constructor(name, imageURL, imageTemplateURL, iconSetName, anchor) {
         this._name = name

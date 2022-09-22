@@ -81,7 +81,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from "@/config";
+import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'

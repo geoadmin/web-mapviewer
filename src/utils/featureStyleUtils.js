@@ -118,12 +118,18 @@ export class FeatureStyleSize {
         return this._label
     }
 
-    /** @returns {Number} Scale to apply to a text when choosing this size (related to KML/GeoJSON styling) */
+    /**
+     * @returns {Number} Scale to apply to a text when choosing this size (related to KML/GeoJSON
+     *   styling)
+     */
     get textScale() {
         return this._textScale
     }
 
-    /** @returns {Number} Scale to apply to an icon when choosing this size (related to KML/GeoJSON styling) */
+    /**
+     * @returns {Number} Scale to apply to an icon when choosing this size (related to KML/GeoJSON
+     *   styling)
+     */
     get iconScale() {
         return this._iconScale
     }

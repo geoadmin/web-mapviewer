@@ -18,6 +18,7 @@
 <script>
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
 export default {
     components: { TopicIcon, ModalWithBackdrop },
     props: {

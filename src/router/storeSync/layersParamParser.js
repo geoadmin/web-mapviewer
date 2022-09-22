@@ -17,7 +17,8 @@ class LayersParsedFromURL {
 }
 
 /**
- * Parses the URL param value for `layers` as described in the ADR : `/adr/2021_03_16_url_param_structure.md`
+ * Parses the URL param value for `layers` as described in the ADR :
+ * `/adr/2021_03_16_url_param_structure.md`
  *
  * @param {String} queryValue The value of the `layers` URL param
  * @returns {LayersParsedFromURL[]} Metadata for layers that must be activated in the app

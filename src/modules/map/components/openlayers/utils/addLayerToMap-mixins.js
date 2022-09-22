@@ -7,7 +7,8 @@
  * the OL map. The mixin will manage this layer and will remove it from the map as soon as the
  * component that has incorporated this mixin will be removed from the DOM.
  *
- * This layer should be one of OpenLayers JS API layer type, i.e. `/ol/layer/Vector`, `/ol/layer/Tile`, etc...
+ * This layer should be one of OpenLayers JS API layer type, i.e. `/ol/layer/Vector`,
+ * `/ol/layer/Tile`, etc...
  *
  * It is also possible to set a prop (or data) called zIndex, which will be used (if defined) to
  * place the layer accordingly in the layer stack of OpenLayers.

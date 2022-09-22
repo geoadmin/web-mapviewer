@@ -25,7 +25,8 @@ const getRandomTimestampFromSeries = (layer) => {
     return randomTimestampFromLayer
 }
 /**
- * This function is used as a parameter to `JSON.stringify` to remove all properties with the name `lang`.
+ * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
+ * `lang`.
  *
  * @param {String} key The current property name.
  * @param {any} value The current value to stringify.

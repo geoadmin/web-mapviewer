@@ -29,8 +29,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
 import { SearchResult } from '@/api/search.api'
+import { mapActions } from 'vuex'
 
 /** Component showing one search result entry (and dispatching its selection to the store) */
 export default {

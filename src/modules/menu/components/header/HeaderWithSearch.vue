@@ -33,12 +33,12 @@
 
 <script>
 import { DEV_SITE_WARNING } from '@/config'
-
-import LoadingBar from '@/utils/LoadingBar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+
+import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapGetters, mapState } from 'vuex'
 
 export default {

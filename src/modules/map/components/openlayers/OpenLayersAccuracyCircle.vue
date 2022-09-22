@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import { Circle } from 'ol/geom'
 import Feature from 'ol/Feature'
+import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { Fill, Stroke, Style } from 'ol/style'

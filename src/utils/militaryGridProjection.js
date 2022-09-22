@@ -624,7 +624,8 @@ northing meters ${mgrsString}`)
 
 /**
  * Given the first letter from a two-letter MGRS 100k zone, and given the MGRS table set for the
- * zone number, figure out the easting value that should be added to the other, secondary easting value.
+ * zone number, figure out the easting value that should be added to the other, secondary easting
+ * value.
  *
  * @private
  * @param {string} e The first letter from a two-letter MGRS 100´k zone.
@@ -664,7 +665,7 @@ function getEastingFromChar(e, set) {
  * zone number, figure out the northing value that should be added to the other, secondary northing
  * value. You have to remember that Northings are determined from the equator, and the vertical
  * cycle of letters mean a 2000000 additional northing meters. This happens approx. every 18 degrees
- * of latitude. This method does *NOT* count any additional northings. You have to figure out how
+ * of latitude. This method does _NOT_ count any additional northings. You have to figure out how
  * many 2000000 meters need to be added for the zone letter of the MGRS coordinate.
  *
  * @private

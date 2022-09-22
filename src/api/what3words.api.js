@@ -1,8 +1,8 @@
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 import axios from 'axios'
 import proj4 from 'proj4'
-import { round } from '@/utils/numberUtils'
-import log from '@/utils/logging'
 
 // copied from https://developer.what3words.com/tutorial/detecting-if-text-is-in-the-format-of-a-3-word-address
 const REGEX_WHAT_3_WORDS =
@@ -24,7 +24,8 @@ export const isWhat3WordsString = (text) => {
  * Returns a Promise that will request a location to the What3Words API backend and returns it if it
  * exists there (otherwise fails)
  *
- * @param {String} what3wordsString A what3word string (validity will be checked before sending it to the API)
+ * @param {String} what3wordsString A what3word string (validity will be checked before sending it
+ *   to the API)
  * @returns {Promise<Number[]>} Lat, lon array (in EPSG:3857 so in meters)
  */
 export const retrieveWhat3WordsLocation = (what3wordsString) => {

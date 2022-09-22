@@ -3,11 +3,11 @@
 </template>
 
 <script>
+import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import ModifyInteraction from 'ol/interaction/Modify'
-import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { mapActions } from 'vuex'
 
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -21,7 +21,8 @@ const cursorGrabbingClass = 'cursor-grabbing'
  *
  * It will emit those events :
  *
- * - `modifyEnd`: when an edit has finished (not necessarily a drag and drop, can also be a point deletion)
+ * - `modifyEnd`: when an edit has finished (not necessarily a drag and drop, can also be a point
+ *   deletion)
  */
 export default {
     inject: ['getMap', 'getSelectInteraction'],

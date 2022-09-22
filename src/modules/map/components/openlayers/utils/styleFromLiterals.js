@@ -1,8 +1,8 @@
 // copied and adapted from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/StylesFromLiteralsService.js
-import { Circle, Icon, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
-import { Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon } from 'ol/geom'
-import { isNumber } from '@/utils/numberUtils'
 import log from '@/utils/logging'
+import { isNumber } from '@/utils/numberUtils'
+import { LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon } from 'ol/geom'
+import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
 
 function getOlStyleForPoint(options, shape) {
     if (shape === 'circle') {

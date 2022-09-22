@@ -6,15 +6,14 @@
 
 <script>
 import { CoordinateSystems } from '@/utils/coordinateUtils'
-import axios from 'axios'
-import proj4 from 'proj4'
-import { Vector as VectorSource } from 'ol/source'
-import { Vector as VectorLayer } from 'ol/layer'
-import GeoJSON from 'ol/format/GeoJSON'
-import OlStyleForPropertyValue from './utils/styleFromLiterals'
-import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { reproject } from 'reproject'
 import log from '@/utils/logging'
+import axios from 'axios'
+import GeoJSON from 'ol/format/GeoJSON'
+import { Vector as VectorLayer } from 'ol/layer'
+import { Vector as VectorSource } from 'ol/source'
+import { reproject } from 'reproject'
+import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import OlStyleForPropertyValue from './utils/styleFromLiterals'
 
 /** Adds a GeoJSON layer to the OpenLayers map */
 export default {

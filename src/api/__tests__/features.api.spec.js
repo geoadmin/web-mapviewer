@@ -1,7 +1,7 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
-import { EditableFeatureTypes, EditableFeature } from '@/api/features.api'
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 const args = {
     id: 'drawing_feature_2',

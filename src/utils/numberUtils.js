@@ -18,7 +18,8 @@ export function round(value, decimals = 0) {
 }
 
 /**
- * Returns true if value represents or is a number (a string containing a valid number will return true)
+ * Returns true if value represents or is a number (a string containing a valid number will return
+ * true)
  *
  * @param {any} value
  * @returns {boolean}

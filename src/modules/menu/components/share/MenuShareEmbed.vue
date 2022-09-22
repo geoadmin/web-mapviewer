@@ -98,7 +98,8 @@ const EmbedSizes = {
 }
 
 /**
- * Component building iFrame code so that the user can share/incorporate a specific map to his/her website.
+ * Component building iFrame code so that the user can share/incorporate a specific map to his/her
+ * website.
  *
  * This iFrame generator comes with a modal that helps the user select the size he prefers.
  */

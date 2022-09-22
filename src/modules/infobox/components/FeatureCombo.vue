@@ -9,10 +9,10 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import { EditableFeature } from '@/api/features.api'
-import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
+import { mapState } from 'vuex'
 import FeatureProfile from './FeatureProfile.vue'
+import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
 export default {
     components: {

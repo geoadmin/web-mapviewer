@@ -14,7 +14,8 @@ export class ClickInfo {
      *   same feedback to the user, see click-on-map-management.plugin .js)
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
-     * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the click
+     * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the
+     *   click
      * @param {ClickType} clickType Which button of the mouse has been used to make this click
      */
     constructor(
@@ -85,7 +86,8 @@ export default {
          * useful to make a quick overview of the layer while hovering it in the search results.
          *
          * @param commit
-         * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer The layer to be highlighted
+         * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer The layer to be
+         *   highlighted
          */
         highlightLayer: ({ commit }, layer) => commit('setHighlightedFeature', layer),
         /**

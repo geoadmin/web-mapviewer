@@ -1,6 +1,6 @@
 import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
-import { coordinateFromString } from '@/utils/coordinateUtils'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
+import { coordinateFromString } from '@/utils/coordinateUtils'
 import { ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
 
 const state = {

@@ -1,89 +1,89 @@
 {
-  "items": [
-    {
-      "icon_set": "second",
-      "name": "second-1",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-1.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-10",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-10.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-100",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-100.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-101",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-101.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-102",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-102.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-103",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-103.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-104",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-104.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-105",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-105.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-106",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-106.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-107",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-107.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-108",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-108.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-109",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-109.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-11",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-11.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    },
-    {
-      "icon_set": "second",
-      "name": "second-160",
-      "url": "http://localhost:8080/api/icons/sets/second/icons/second-160.png",
-      "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
-    }
-  ],
-  "success": true
+    "items": [
+        {
+            "icon_set": "second",
+            "name": "second-1",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-1.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-10",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-10.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-100",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-100.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-101",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-101.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-102",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-102.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-103",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-103.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-104",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-104.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-105",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-105.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-106",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-106.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-107",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-107.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-108",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-108.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-109",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-109.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-11",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-11.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "second",
+            "name": "second-160",
+            "url": "http://localhost:8080/api/icons/sets/second/icons/second-160.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        }
+    ],
+    "success": true
 }

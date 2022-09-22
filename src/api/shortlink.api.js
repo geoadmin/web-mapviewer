@@ -1,6 +1,6 @@
+import { API_SERVICE_SHORTLINK_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
-import { API_SERVICE_SHORTLINK_BASE_URL } from '@/config'
 
 /**
  * Generates a short link from the given URL
@@ -18,12 +18,9 @@ export function createShortLink(url) {
             reject(errorMessage)
         }
         axios
-            .post(
-                API_SERVICE_SHORTLINK_BASE_URL,
-                {
-                    url: url,
-                },
-            )
+            .post(API_SERVICE_SHORTLINK_BASE_URL, {
+                url: url,
+            })
             .then((response) => {
                 resolve(response.data.shorturl)
             })

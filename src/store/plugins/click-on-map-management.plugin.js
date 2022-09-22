@@ -1,6 +1,6 @@
 import { identify } from '@/api/features.api'
-import { ClickType } from '@/store/modules/map.store'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
 /**

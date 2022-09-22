@@ -47,8 +47,8 @@
 </template>
 
 <script>
-import { VECTOR_TILES_STYLE_ID } from "@/config";
-import { mapGetters, mapActions, mapState } from 'vuex'
+import { VECTOR_TILES_STYLE_ID } from '@/config'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 const voidLayer = {
     id: 'void',
@@ -269,7 +269,7 @@ $menu-button-diameter: 3px;
 
     .bg-selector-button-label {
         display: block;
-        background-color: rgba(0,0,0,.7);
+        background-color: rgba(0, 0, 0, 0.7);
         color: white;
     }
 
@@ -281,7 +281,9 @@ $menu-button-diameter: 3px;
         $numberOfBackgrounds: 4;
         @for $i from 0 through $numberOfBackgrounds {
             .bg-index-#{$i} {
-                $offset: calc(($desktop-map-button-width + $map-button-gap) * ($i - $numberOfBackgrounds));
+                $offset: calc(
+                    ($desktop-map-button-width + $map-button-gap) * ($i - $numberOfBackgrounds)
+                );
                 transform: translateX($offset);
             }
         }

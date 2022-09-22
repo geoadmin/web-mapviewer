@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapGetters } from 'vuex'
-import { languages } from '../index'
-import log from '@/utils/logging'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import log from '@/utils/logging'
+import { mapActions, mapGetters, mapState } from 'vuex'
+import { languages } from '../index'
 
 export default {
     components: { ButtonWithIcon },

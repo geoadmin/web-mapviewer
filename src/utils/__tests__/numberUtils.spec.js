@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
+import { format, formatThousand, isNumber, randomIntBetween, round } from '@/utils/numberUtils'
 import { expect } from 'chai'
-import { round, isNumber, randomIntBetween, format, formatThousand } from '@/utils/numberUtils'
+import { describe, it } from 'vitest'
 
 describe('Unit test functions from numberUtils.js', () => {
     describe('round(value, decimals)', () => {

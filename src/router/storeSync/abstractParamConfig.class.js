@@ -19,7 +19,8 @@ export default class AbstractParamConfig {
      * @param {Function} extractValueFromStore A function taking the store in param that needs to
      *   return the value of this param found in the store
      * @param {Boolean} keepValueInUrlWhenEmpty Tells the URL manager if this param should still be
-     *   added to the URL even though its value is empty. Empty means `null` or `false` for Boolean.
+     *   added to the URL even though its value is empty. Empty means `null` or `false` for
+     *   Boolean.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor, ObjectConstructor} valueType
      */
     constructor(
@@ -40,15 +41,18 @@ export default class AbstractParamConfig {
 
     /**
      * Reads the value from the given Vue router query (part of {@link RouterLink}). Depending on the
-     * value of keepValueInUrlWhenEmpty, the output can be drastically different for an empty query.
+     * value of keepValueInUrlWhenEmpty, the output can be drastically different for an empty
+     * query.
      *
-     * When keepValueInUrlWhenEmpty=true, and the query is empty, the function will output (by type) :
+     * When keepValueInUrlWhenEmpty=true, and the query is empty, the function will output (by type)
+     * :
      *
      * - Boolean: false
      * - Number: 0
      * - String: ''
      *
-     * When keepValueInUrlWhenEmpty=false, and the query is empty, the function will output (by type) :
+     * When keepValueInUrlWhenEmpty=false, and the query is empty, the function will output (by
+     * type) :
      *
      * - Boolean: undefined
      * - Number: undefined

@@ -1,5 +1,5 @@
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown
@@ -37,12 +37,14 @@ export default class AggregateLayer extends GeoAdminLayer {
      * @param {String} name The name of this layer in the given lang
      * @param {String} id The unique ID of this layer in GeoAdmin's backends
      * @param {Number} opacity The opacity to be applied to this layer
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
+     *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {LayerTimeConfig} timeConfig Time series config (if available)
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
+     *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
      */

@@ -6,7 +6,7 @@
 
 <script>
 import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
-import axios from "axios";
+import axios from 'axios'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 /** Renders a Vector layer on the map with MapLibre */
@@ -31,7 +31,7 @@ export default {
         },
         excludeSource: {
             type: String,
-            default: null
+            default: null,
         },
     },
     watch: {
@@ -50,7 +50,9 @@ export default {
             // we load the style on the side in order to be able to filter out some source
             axios.get(this.styleUrl).then((response) => {
                 const vectorStyle = response.data
-                vectorStyle.layers = vectorStyle.layers.filter((layer) => layer.source !== this.excludeSource)
+                vectorStyle.layers = vectorStyle.layers.filter(
+                    (layer) => layer.source !== this.excludeSource
+                )
                 this.layer.maplibreMap.setStyle(vectorStyle)
             })
         }

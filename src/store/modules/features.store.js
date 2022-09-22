@@ -52,7 +52,8 @@ export default {
          * currently selected features.
          *
          * Coordinates is an array of coordinate. Marker and text feature have only one entry in
-         * this array while line and measure store each points describing them in this coordinates array
+         * this array while line and measure store each points describing them in this coordinates
+         * array
          *
          * @param commit
          * @param state

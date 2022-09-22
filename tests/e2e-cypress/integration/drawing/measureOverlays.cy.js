@@ -1,6 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
 import i18n from '@/modules/i18n'
+import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
 
 const olSelector = '.ol-viewport'
 const language = 'fr'
@@ -89,7 +89,8 @@ describe('Measure Overlays handling', () => {
     /**
      * This test verifies multiple things:
      *
-     * - That the kml layer is saved before it is loaded when closing the drawing immediately after drawing
+     * - That the kml layer is saved before it is loaded when closing the drawing immediately after
+     *   drawing
      * - That the measureManager of the drawingLayer correctly removes all overlays and that the
      *   measureManager of the kml layer correctly takes over
      */

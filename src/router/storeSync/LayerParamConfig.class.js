@@ -1,6 +1,6 @@
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
-import KMLLayer from '@/api/layers/KMLLayer.class'
 
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a

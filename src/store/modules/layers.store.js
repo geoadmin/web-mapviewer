@@ -1,5 +1,5 @@
-import log from '@/utils/logging'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import log from '@/utils/logging'
 
 const getActiveLayerById = (state, layerId) =>
     state.activeLayers.find((layer) => layer.getID() === layerId)
@@ -12,7 +12,8 @@ const state = {
      */
     backgroundLayerId: null,
     /**
-     * Currently active layers (that have been selected by the user from the search bar or the layer tree)
+     * Currently active layers (that have been selected by the user from the search bar or the layer
+     * tree)
      *
      * @type AbstractLayer[]
      */

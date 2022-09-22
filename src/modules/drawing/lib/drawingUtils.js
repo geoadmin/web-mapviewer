@@ -1,7 +1,7 @@
-import { Point, LineString, Polygon } from 'ol/geom'
-import proj4 from 'proj4'
-import { format } from '@/utils/numberUtils'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { format } from '@/utils/numberUtils'
+import { LineString, Point, Polygon } from 'ol/geom'
+import proj4 from 'proj4'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
@@ -49,7 +49,8 @@ export function geometryInfo(type, coordinates, epsg) {
 }
 
 /**
- * Formats minutes to hours and minutes (if more than one hour) e.g. 1230 -> '20h 30min', 55 -> '55min'
+ * Formats minutes to hours and minutes (if more than one hour) e.g. 1230 -> '20h 30min', 55 ->
+ * '55min'
  *
  * @param {Number} minutes
  * @returns {string}

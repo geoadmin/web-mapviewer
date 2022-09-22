@@ -3,9 +3,9 @@
 </template>
 
 <script>
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import MousePosition from 'ol/control/MousePosition'
 import { get as getProjection } from 'ol/proj'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 export default {
     inject: ['getMap'],

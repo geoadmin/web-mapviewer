@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import LocationPopup from './components/LocationPopup.vue'
+import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 
 export default {
     components: { OpenLayersMap, LocationPopup },

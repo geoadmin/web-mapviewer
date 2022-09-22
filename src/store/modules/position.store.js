@@ -1,8 +1,8 @@
-import proj4 from 'proj4'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
-import { round } from '@/utils/numberUtils'
-import log from '@/utils/logging'
 import { MAP_CENTER } from '@/config'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
+import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
+import proj4 from 'proj4'
 
 // for constants' values
 // see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84

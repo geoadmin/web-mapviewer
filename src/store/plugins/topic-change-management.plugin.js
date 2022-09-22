@@ -1,5 +1,5 @@
-import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 import { loadTopicTreeForTopic } from '@/api/topics.api'
+import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 
 let isFirstSetTopic = true
 
@@ -18,7 +18,8 @@ let isFirstSetTopic = true
  * After app init, when topic changes, it will :
  *
  * - Clear up any active layers
- * - Add any layer to the app that are set in the topic metadata (and set their opacity/visibility accordingly)
+ * - Add any layer to the app that are set in the topic metadata (and set their opacity/visibility
+ *   accordingly)
  *
  * @param store
  */

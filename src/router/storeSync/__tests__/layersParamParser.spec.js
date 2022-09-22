@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import layersParamParser from '@/router/storeSync/layersParamParser'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 describe('Testing layersParamParser', () => {
     const checkLayer = (layer, id, visible = true, opacity = undefined, customAttributes = {}) => {

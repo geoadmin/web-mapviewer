@@ -1,6 +1,6 @@
-import { describe, beforeEach, it } from 'vitest'
-import { expect } from 'chai'
 import store from '@/store'
+import { expect } from 'chai'
+import { beforeEach, describe, it } from 'vitest'
 
 describe('Zoom level is calculated correctly in the store', () => {
     const screenSize = 100

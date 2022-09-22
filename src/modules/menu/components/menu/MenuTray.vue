@@ -45,12 +45,12 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
-import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
+import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
+import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     components: {

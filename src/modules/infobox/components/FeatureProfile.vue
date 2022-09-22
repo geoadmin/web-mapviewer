@@ -66,16 +66,16 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { profileCsv, profileJson } from '@/api/profile.api'
 import { formatTime, toLv95 } from '@/modules/drawing/lib/drawingUtils'
+import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import ProfileChart from '@/modules/drawing/lib/ProfileChart'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
+import log from '@/utils/logging'
 import { format } from '@/utils/numberUtils'
 import * as d3 from 'd3'
-import { mapActions } from 'vuex'
-import { generateFilename } from '@/modules/drawing/lib/export-utils'
-import log from '@/utils/logging'
 import Overlay from 'ol/Overlay'
 import proj4 from 'proj4'
+import { mapActions } from 'vuex'
 
 export default {
     components: { ButtonWithIcon },

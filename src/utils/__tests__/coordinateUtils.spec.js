@@ -1,10 +1,10 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import {
     coordinateFromString,
     reprojectUnknownSrsCoordsToWebMercator,
 } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4()
@@ -88,7 +88,8 @@ describe('Unit test functions from coordinateUtils.js', () => {
          * @param {String} text The input to be given to coordinateFromString
          * @param {Number[]} expected What is expected of coordinateFromString as output
          * @param {String} message Message to be shown if the test fails (in the unit test log)
-         * @param {Number} acceptableDelta If a delta with the expected result is acceptable (default is zero)
+         * @param {Number} acceptableDelta If a delta with the expected result is acceptable
+         *   (default is zero)
          */
         const checkText = (text, expected, message, acceptableDelta = 0) => {
             const result = coordinateFromString(text)
@@ -113,7 +114,8 @@ describe('Unit test functions from coordinateUtils.js', () => {
          * @param {Number, String} y Y to be passed as input to coordinateFromString
          * @param {Number} xExpectedValue What coordinateFromString is expected to output as X
          * @param {Number} yExpectedValue What coordinateFromString is expected to output as Y
-         * @param {Number} acceptableDelta If a delta with the expected result is acceptable (default is zero)
+         * @param {Number} acceptableDelta If a delta with the expected result is acceptable
+         *   (default is zero)
          */
         const checkXY = (x, y, xExpectedValue, yExpectedValue, acceptableDelta = 0) => {
             const valueOutputInCaseOfErr = `x: ${x}, y: ${y}, expected x: ${xExpectedValue}, expected y: ${yExpectedValue}`

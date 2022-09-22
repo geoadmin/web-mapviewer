@@ -72,7 +72,10 @@ import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
-/** Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the layer type. */
+/**
+ * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the
+ * layer type.
+ */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers
     name: 'OpenLayersInternalLayer',

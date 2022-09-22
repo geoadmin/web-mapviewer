@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
-import { expect } from 'chai'
 import { FeatureSearchResult } from '@/api/search.api'
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
 
 describe('Builds object by extracting all relevant attributes from the backend', () => {
     describe('FeatureSearchResult.getSimpleTitle', () => {

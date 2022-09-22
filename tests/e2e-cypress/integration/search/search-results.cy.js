@@ -1,10 +1,10 @@
 /// <reference types="cypress" />
 
 import { BREAKPOINT_TABLET } from '@/config'
-import { CoordinateSystems } from "@/utils/coordinateUtils";
-import proj4 from 'proj4'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import setupProj4 from '@/utils/setupProj4'
+import proj4 from 'proj4'
 
 setupProj4()
 
@@ -48,7 +48,11 @@ describe('Test the search bar result handling', () => {
     const expectedLayerLabel = '<b>Test layer</b>'
     const expectedLegendContent = '<div>Test</div>'
     const expectedCenterEpsg4326 = [7.0, 47.0] // lon/lat
-    const expectedCenterEpsg3857 = proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.WEBMERCATOR.epsg, expectedCenterEpsg4326)
+    const expectedCenterEpsg3857 = proj4(
+        CoordinateSystems.WGS84.epsg,
+        CoordinateSystems.WEBMERCATOR.epsg,
+        expectedCenterEpsg4326
+    )
     const expectedLayerId = 'test.wmts.layer'
     const locationResponse = {
         results: [

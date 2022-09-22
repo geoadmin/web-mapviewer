@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import SearchResultListEntry from './SearchResultListEntry.vue'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import SearchResultListEntry from './SearchResultListEntry.vue'
 
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this

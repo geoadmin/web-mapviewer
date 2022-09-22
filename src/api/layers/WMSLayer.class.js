@@ -1,6 +1,6 @@
-import { WMS_BASE_URL } from '@/config'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { WMS_BASE_URL } from '@/config'
 
 /**
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
@@ -11,7 +11,8 @@ export default class WMSLayer extends GeoAdminLayer {
      * @param {String} name The name of this layer (lang specific)
      * @param {String} id The unique ID of this layer in the GeoAdmin backends
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
+     *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
      * @param {String} baseURL The backend to call for tiles
      * @param {String} format In which image format the backend must be requested
@@ -23,7 +24,8 @@ export default class WMSLayer extends GeoAdminLayer {
      *   specific for tiled WMS, if unset this layer will be a considered a single tile WMS.
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint)
+     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
+     *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
      */

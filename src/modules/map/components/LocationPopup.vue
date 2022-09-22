@@ -92,18 +92,18 @@
 </template>
 
 <script>
-import proj4 from 'proj4'
-import { mapState, mapActions, mapGetters } from 'vuex'
-
-import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+
+import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
-import { printHumanReadableCoordinates, CoordinateSystems } from '@/utils/coordinateUtils'
-import { round } from '@/utils/numberUtils'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import stringifyQuery from '@/router/stringifyQuery'
+import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordinateUtils'
+import { round } from '@/utils/numberUtils'
+import proj4 from 'proj4'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {

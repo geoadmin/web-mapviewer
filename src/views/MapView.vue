@@ -15,12 +15,12 @@
 </template>
 
 <script>
-import MapModule from '@/modules/map/MapModule.vue'
-import MenuModule from '@/modules/menu/MenuModule.vue'
+import DrawingModule from '@/modules/drawing/DrawingModule.vue'
 import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
-import DrawingModule from '@/modules/drawing/DrawingModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
+import MapModule from '@/modules/map/MapModule.vue'
+import MenuModule from '@/modules/menu/MenuModule.vue'
 
 export default {
     components: {

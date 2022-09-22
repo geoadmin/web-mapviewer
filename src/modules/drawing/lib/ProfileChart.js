@@ -1,7 +1,7 @@
-import * as d3 from 'd3'
-import { LineString } from 'ol/geom'
 import { createArea, createAxis, getXYDomains } from '@/modules/drawing/lib/profileUtils'
 import i18n from '@/modules/i18n'
+import * as d3 from 'd3'
+import { LineString } from 'ol/geom'
 
 /**
  * @typedef ProfileChartOptions
