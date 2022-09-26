@@ -21,6 +21,7 @@
                             @set-drawing-mode="bubbleSetDrawingEventToParent"
                         />
                     </div>
+
                     <div class="d-flex justify-content-center">
                         <ButtonWithIcon
                             v-if="isDrawingLineOrMeasure"
@@ -32,19 +33,21 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </ButtonWithIcon>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <ButtonWithIcon
-                            :button-font-awesome-icon="['far', 'trash-alt']"
+
+                    <div class="d-flex justify-content-center hr">
+                        <button
                             :disabled="isDrawingEmpty"
                             outline-light
-                            class="m-1"
+                            class="btn m-1 drawing-button border-right fw-bold"
                             data-cy="drawing-toolbox-delete-button"
                             @click="showClearConfirmation"
-                        />
+                        >
+                            {{ $t('delete') }}
+                        </button>
                         <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         <button
                             type="button"
-                            class="btn btn-outline-light text-dark m-1"
+                            class="btn btn-outline-light text-dark m-1 drawing-button fw-bold"
                             :disabled="isDrawingEmpty || !kmlIds"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"
@@ -54,7 +57,7 @@
                     </div>
                     <!-- eslint-disable vue/no-v-html-->
                     <small
-                        class="text-center text-muted drawing-toolbox-disclaimer"
+                        class="text-center text-muted drawing-toolbox-disclaimer hr"
                         v-html="$t('share_file_disclaimer')"
                     ></small>
                     <!-- eslint-enable vue/no-v-html-->
@@ -205,6 +208,21 @@ $zindex-drawing-toolbox: -1;
     &-disclaimer {
         display: none;
     }
+}
+.drawing-button {
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    width: 33%;
+}
+.border-right {
+    border-right: 1px solid #e5e5e5;
+}
+.hr {
+    border-top: 1px solid #eee;
 }
 
 @include respond-above(phone) {

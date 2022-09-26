@@ -1,11 +1,12 @@
 <template>
     <DropdownButton
-        class="m-1"
+        class="m-1 drawing-button border-right"
         :title="$t('export_kml')"
         :current-value="$t('export_kml')"
         :items="exportOptions"
         :disabled="isDrawingEmpty"
         with-toggle-button
+        text-bold
         data-cy="drawing-toolbox-export-button"
         @select:item="onExportOptionSelected"
         @click="exportDrawing(false)"

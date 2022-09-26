@@ -5,7 +5,7 @@
             ref="dropdownMainButton"
             :disabled="disabled"
             class="btn btn-outline-light text-dark"
-            :class="{ 'dropdown-toggle': !withToggleButton }"
+            :class="{ 'dropdown-toggle': !withToggleButton, 'fw-bold': textBold }"
             type="button"
             data-cy="dropdown-main-button"
             :data-bs-toggle="withToggleButton ? null : 'dropdown'"
@@ -108,6 +108,10 @@ export default {
             default: false,
         },
         disabled: {
+            type: Boolean,
+            default: false,
+        },
+        textBold: {
             type: Boolean,
             default: false,
         },
