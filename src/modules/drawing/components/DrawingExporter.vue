@@ -1,6 +1,6 @@
 <template>
     <DropdownButton
-        class="m-1 drawing-button border-right"
+        class="m-1"
         :title="$t('export_kml')"
         :current-value="$t('export_kml')"
         :items="exportOptions"

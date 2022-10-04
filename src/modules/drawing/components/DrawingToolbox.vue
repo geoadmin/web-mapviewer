@@ -36,18 +36,21 @@
 
                     <div class="d-flex justify-content-center hr">
                         <button
-                            :disabled="isDrawingEmpty"
+                            class="drawing-button border-right btn m-1 fw-bold"
                             outline-light
-                            class="btn m-1 drawing-button border-right fw-bold"
+                            :disabled="isDrawingEmpty"
                             data-cy="drawing-toolbox-delete-button"
                             @click="showClearConfirmation"
                         >
                             {{ $t('delete') }}
                         </button>
-                        <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
+                        <DrawingExporter
+                            :is-drawing-empty="isDrawingEmpty"
+                            class="drawing-button border-right"
+                        />
                         <button
                             type="button"
-                            class="btn btn-outline-light text-dark m-1 drawing-button fw-bold"
+                            class="drawing-button btn btn-outline-light text-dark m-1 fw-bold"
                             :disabled="isDrawingEmpty || !kmlIds"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"
@@ -212,14 +215,14 @@ $zindex-drawing-toolbox: -1;
 .drawing-button {
     touch-action: manipulation;
     cursor: pointer;
-    background-image: none;
     background-color: transparent;
-    border: 1px solid transparent;
+    // the bootstraps borders keep getting a higher priority, and I don't know
+    // how to fix that, so I'm forcing these borders to be what I want.
+    border: 1px solid transparent !important;
     border-radius: 4px;
-    width: 33%;
 }
 .border-right {
-    border-right: 1px solid #e5e5e5;
+    border-right: 1px solid #e5e5e5 !important;
 }
 .hr {
     border-top: 1px solid #eee;
