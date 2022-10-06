@@ -29,10 +29,7 @@
 import { mapActions, mapState } from 'vuex'
 import SearchResultCategory from './SearchResultCategory.vue'
 
-/**
- * Component showing all results from the search, divided in two groups (categories) : layers and
- * locations
- */
+/** Component showing all results from the search, divided in two groups (categories) : layers and locations */
 export default {
     components: { SearchResultCategory },
     emits: ['close'],
@@ -62,6 +59,8 @@ export default {
     left: 0%;
     width: 100%;
     max-height: calc(75vh - 3rem);
+    border: 1px solid #ccc;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 @include respond-above(lg) {
     #search-results {
