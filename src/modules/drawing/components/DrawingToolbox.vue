@@ -36,7 +36,7 @@
 
                     <div class="d-flex justify-content-center hr">
                         <button
-                            class="drawing-button border-right btn m-1 fw-bold"
+                            class="drawing-button border-right btn btn-outline-light text-dark m-1 fw-bold"
                             outline-light
                             :disabled="isDrawingEmpty"
                             data-cy="drawing-toolbox-delete-button"
@@ -220,6 +220,7 @@ $zindex-drawing-toolbox: -1;
     // how to fix that, so I'm forcing these borders to be what I want.
     border: 1px solid transparent !important;
     border-radius: 4px;
+    flex: 1;
 }
 .border-right {
     border-right: 1px solid #e5e5e5 !important;
