@@ -22,7 +22,8 @@ const isRoutePushNeeded = (store, currentRoute) => {
     let aRoutePushIsNeeded = false
     storeSyncConfig.forEach(
         (paramConfig) =>
-            (aRoutePushIsNeeded ||= paramConfig.valuesAreDifferentBetweenQueryAndStore(
+            aRoutePushIsNeeded ||
+            (aRoutePushIsNeeded = paramConfig.valuesAreDifferentBetweenQueryAndStore(
                 currentRoute.query,
                 store
             ))
@@ -82,8 +83,7 @@ function storeMutationWatcher(store, mutation, router) {
  * @param {Store} store
  * @param {RouteLocationNormalized} to
  * @returns {undefined | false | RouteLocationRaw} Returns undefined to validate the navigation (no
- *   query changes), false to cancel the navigation or RouteLocationRaw to change url query
- *   parameter.
+ *   query changes), false to cancel the navigation or RouteLocationRaw to change url query parameter.
  */
 function urlQueryWatcher(store, to) {
     log.debug('Url query watcher', routeChangeIsTriggeredByThisModule, to)
