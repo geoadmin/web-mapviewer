@@ -13,6 +13,7 @@
             v-if="!iconsBeforeText && buttonFontAwesomeIcon && buttonFontAwesomeIcon.length > 0"
             class="icon"
             :icon="buttonFontAwesomeIcon"
+            :size="iconSize"
         />
     </button>
 </template>
@@ -26,6 +27,10 @@ export default {
         },
         buttonFontAwesomeIcon: {
             type: Array,
+            default: null,
+        },
+        iconSize: {
+            type: String,
             default: null,
         },
         iconsBeforeText: {
@@ -48,6 +53,10 @@ export default {
             default: false,
         },
         primary: {
+            type: Boolean,
+            default: false,
+        },
+        secondary: {
             type: Boolean,
             default: false,
         },
@@ -91,6 +100,8 @@ export default {
             }
             if (this.primary) {
                 classes.push('btn-primary')
+            } else if (this.secondary) {
+                classes.push('btn-secondary')
             } else if (this.danger) {
                 classes.push('btn-danger')
             } else if (this.outlineDanger) {
