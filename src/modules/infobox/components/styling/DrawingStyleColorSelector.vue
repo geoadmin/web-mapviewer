@@ -57,9 +57,9 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 
     button {
-        margin-left: 5px;
-        margin-right: 5px;
-        margin-bottom: 5px;
+        margin-left: $drawing-options-button-margin;
+        margin-right: $drawing-options-button-margin;
+        margin-bottom: $drawing-options-button-margin;
     }
 
     .button-background {
