@@ -3,7 +3,7 @@
         small
         outline-light
         :button-title="buttonLabel"
-        :danger="isActive"
+        :primary="isActive"
         :button-font-awesome-icon="buttonIcon"
         :icons-before-text="true"
         direction="column"
