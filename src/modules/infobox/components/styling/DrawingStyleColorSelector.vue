@@ -1,32 +1,38 @@
 <template>
-    <div
-        class="color-select-box bg-light border-light"
-        :class="{ inline: inline }"
-        data-cy="drawing-style-color-select-box"
-    >
-        <div
+    <div class="color-select-box bg-light border-light" data-cy="drawing-style-color-select-box">
+        <ButtonWithIcon
             v-for="color in colors"
             :key="color.name"
             :data-cy="`color-selector-${color.name}`"
+            :button-font-awesome-icon="['fas', 'circle']"
+            :style="{ color: color.name }"
+            :primary="currentColor === color"
+            :class="{ 'button-background': currentColor !== color }"
+            direction="column"
+            icon-size="lg"
             @click="() => onColorChange(color)"
-        >
-            <div class="color-circle" :style="colorCircleStyle(color)"></div>
-        </div>
+        ></ButtonWithIcon>
     </div>
 </template>
 
 <script>
-import { allStylingColors } from '@/utils/featureStyleUtils'
+import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
+import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /**
  * Component showing all available color for a feature and making it possible to switch from one
  * color to the other (will be responsible to change the color of the feature)
  */
 export default {
+    components: { ButtonWithIcon },
     props: {
         inline: {
             type: Boolean,
             default: false,
+        },
+        currentColor: {
+            type: FeatureStyleColor,
+            required: true,
         },
     },
     emits: ['change'],
@@ -39,12 +45,6 @@ export default {
         onColorChange(color) {
             this.$emit('change', color)
         },
-        colorCircleStyle(color) {
-            return {
-                'background-color': color.name,
-                'border-color': color.border,
-            }
-        },
     },
 }
 </script>
@@ -53,19 +53,17 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .color-select-box {
-    border-radius: 2px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    &.inline {
-        display: flex;
-        justify-content: space-evenly;
+
+    button {
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 5px;
     }
-    .color-circle {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 1rem;
-        border: 1px solid black;
-        cursor: pointer;
+
+    .button-background {
+        background-color: $gainsboro;
     }
 }
 </style>
