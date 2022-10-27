@@ -241,22 +241,34 @@ export default {
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
         center() {
-            this.view.animate({
-                center: this.center,
-                duration: 250,
-            })
+            if (!IS_TESTING_WITH_CYPRESS) {
+                this.view.animate({
+                    center: this.center,
+                    duration: 250,
+                })
+            } else {
+                this.view.setCenter(this.center)
+            }
         },
         zoom() {
-            this.view.animate({
-                zoom: this.zoom,
-                duration: 250,
-            })
+            if (!IS_TESTING_WITH_CYPRESS) {
+                this.view.animate({
+                    zoom: this.zoom,
+                    duration: 250,
+                })
+            } else {
+                this.view.setZoom(this.zoom)
+            }
         },
         rotation() {
-            this.view.animate({
-                rotation: this.rotation,
-                duration: 250,
-            })
+            if (!IS_TESTING_WITH_CYPRESS) {
+                this.view.animate({
+                    rotation: this.rotation,
+                    duration: 250,
+                })
+            } else {
+                this.view.setRotation(this.rotation)
+            }
         },
         isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order

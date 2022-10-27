@@ -31,6 +31,18 @@ const addIconFixtureAndIntercept = () => {
     }).as('icon-second')
 }
 
+const addProfileFixtureAndIntercept = () => {
+    cy.intercept(
+        {
+            method: 'POST',
+            url: `**/rest/services/profile.json**`,
+        },
+        {
+            body: [],
+        }
+    ).as('profile')
+}
+
 Cypress.Commands.add('drawGeoms', () => {
     cy.clickDrawingTool(EditableFeatureTypes.MARKER)
     cy.get(olSelector).click(170, 190)
@@ -65,6 +77,7 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
+    addProfileFixtureAndIntercept()
     cy.goToMapView(...args)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
