@@ -3,15 +3,21 @@
         <div id="menu-lang-selector">
             <LangSwitchToolbar />
         </div>
-        <div id="ui-mode-selector" class="btn-group">
-            <ButtonWithIcon
+        <div id="ui-mode-selector" class="ui-mode-switch-toolbar p-1">
+            <button
                 v-for="mode in UIModes"
                 :key="mode"
-                :danger="currentUiMode === mode"
-                :button-title="$t(getI18nKeyForUiMode(mode))"
-                :small="isDesktopMode"
+                class="btn"
+                :class="{
+                    'btn-light': currentUiMode !== mode,
+                    'btn-primary': currentUiMode === mode,
+                    'btn-sm': !isDesktopMode,
+                }"
+                :title="$t(getI18nKeyForUiMode(mode))"
                 @click="setUiMode(mode)"
-            />
+            >
+                {{ $t(getI18nKeyForUiMode(mode)) }}
+            </button>
         </div>
     </div>
 </template>
@@ -19,12 +25,10 @@
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import { UIModes } from '@/store/modules/ui.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
-        ButtonWithIcon,
         LangSwitchToolbar,
     },
     data() {
@@ -52,3 +56,15 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.ui-mode-switch-toolbar {
+    transition: max-height 0.3s linear;
+    button {
+        margin-right: 3px;
+        margin-left: 3px;
+    }
+}
+</style>
