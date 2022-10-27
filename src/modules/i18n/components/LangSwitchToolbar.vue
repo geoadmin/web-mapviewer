@@ -3,11 +3,10 @@
         <button
             v-for="lang in languages"
             :key="lang"
-            class="btn"
+            class="btn btn-sm"
             :class="{
                 'btn-light': lang !== currentLang,
                 'btn-primary': lang === currentLang,
-                'btn-sm': !isDesktopMode,
             }"
             :title="lang.toUpperCase()"
             :data-cy="'menu-lang-' + lang"

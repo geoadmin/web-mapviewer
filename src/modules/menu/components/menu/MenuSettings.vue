@@ -7,11 +7,10 @@
             <button
                 v-for="mode in UIModes"
                 :key="mode"
-                class="btn"
+                class="btn btn-sm"
                 :class="{
                     'btn-light': currentUiMode !== mode,
                     'btn-primary': currentUiMode === mode,
-                    'btn-sm': !isDesktopMode,
                 }"
                 :title="$t(getI18nKeyForUiMode(mode))"
                 @click="setUiMode(mode)"
