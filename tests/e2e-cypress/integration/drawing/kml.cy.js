@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 
 import { EditableFeatureTypes } from '@/api/features.api'
+import i18n from '@/modules/i18n'
+import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
 
 const olSelector = '.ol-viewport'
 
@@ -91,5 +93,97 @@ describe('Drawing loading KML', () => {
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .should('have.length', 0)
+    })
+})
+
+const language = 'fr'
+let serverKml = '<kml></kml>'
+
+const addKmlInterceptAndReinject = () => {
+    cy.intercept(
+        {
+            method: 'POST',
+            url: '**/api/kml/admin',
+        },
+        async (req) => {
+            serverKml = await getKmlFromRequest(req)
+            req.reply({
+                statusCode: 201,
+                fixture: 'service-kml/create-file.fixture.json',
+            })
+        }
+    ).as('post-kml')
+    cy.intercept(
+        {
+            method: 'PUT',
+            url: '**/api/kml/admin/**',
+        },
+        async (req) => {
+            serverKml = await getKmlFromRequest(req)
+            req.reply({
+                statusCode: 200,
+                fixture: 'service-kml/update-file.fixture.json',
+            })
+        }
+    ).as('update-kml')
+    // intercepting now the call to the file itself
+    cy.fixture('service-kml/create-file.fixture.json').then((fileFixture) => {
+        cy.intercept(`**/api/kml/files/${fileFixture.id}`, function (req) {
+            req.reply({
+                statusCode: 200,
+                body: serverKml,
+            })
+        }).as('get-kml')
+    })
+}
+
+describe('Switching from drawing mode to normal mode', () => {
+    beforeEach(() => {
+        serverKml = '<kml></kml>'
+        /**
+         * This i18n instance is not the instance of the website. (Thats why it needs separate
+         * initialization) It is used to manually get translations of tags inside a test case.
+         */
+        i18n.global.locale = language
+        cy.goToDrawing(language, { lat: 47.097, lon: 7.743, z: 9.5 }, true)
+    })
+
+    /**
+     * This test verifies multiple things that the kml layer is saved before it is loaded when
+     * closing the drawing immediately after drawing
+     */
+    it('Check correct passover from drawingLayer to kmlLayer when closing drawing', () => {
+        //Open drawing mode
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 0)
+        addKmlInterceptAndReinject()
+        //Draw a measure
+        cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
+        cy.get(olSelector).click('left')
+        cy.get(olSelector).click('center')
+        cy.get(olSelector).dblclick('center')
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+
+        //Close drawing mode and check that the same number of the features and are displayed
+        cy.log('Close drawing mode')
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        cy.readWindowValue('kmlLayer').should((layer) => {
+            const features = layer.getSource().getFeatures()
+            expect(features.length).to.be.equal(1)
+        })
+
+        //Hide KML layer and check that kml layer disappeared
+        cy.fixture('service-kml/create-file.fixture.json').as('fileFixture')
+        cy.readWindowValue('kmlLayer').then(function (layer) {
+            const kmlUrl = layer.getSource().getUrl()
+            const kmlLayerSelector =
+                `[data-cy="button-toggle-visibility-` +
+                `layer-KML|${kmlUrl}|${i18n.global.t('draw_layer_label')}` +
+                `@adminId=${this.fileFixture.admin_id}"]`
+            cy.get(kmlLayerSelector).click()
+            cy.readWindowValue('kmlLayer').should('not.exist')
+        })
     })
 })
