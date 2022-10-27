@@ -5,6 +5,7 @@ import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
 
 const kmlFormat = new KML()
 const gpxFormat = new GPX()
@@ -47,13 +48,12 @@ export function generateKmlString(features = [], styleFunction = null) {
     let exportFeatures = []
     features.forEach((f) => {
         const clone = f.clone()
-        clone.set('type', clone.get('type').toLowerCase())
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
         clone
             .getGeometry()
             .transform(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg)
-        let styles = styleFunction || clone.getStyleFunction()
+        let styles = styleFunction || featureStyleFunction
         styles = styles(clone)
         const newStyle = {
             fill: styles[0].getFill(),
@@ -85,8 +85,9 @@ export function generateKmlString(features = [], styleFunction = null) {
             exportFeatures.push(new Feature())
         }
         kmlString = kmlFormat.writeFeatures(exportFeatures)
-        // Remove no image hack
-        kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '')
+        /* Remove no image hack. An empty icon tag is needed by Openlayers to not show an icon
+        with the default style. "<scale>0</scale>" may also be needed by other implementations. */
+        kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '<Icon></Icon>')
 
         // Remove empty placemark added to have <Document> tag
         kmlString = kmlString.replace(/<Placemark\/>/g, '')

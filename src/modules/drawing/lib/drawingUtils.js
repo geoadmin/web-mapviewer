@@ -2,12 +2,37 @@ import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { format } from '@/utils/numberUtils'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
+import { wrapX as wrapXCoordinate } from 'ol/coordinate'
+import { get as getProjection } from 'ol/proj'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
         return input.map((si) => toLv95(si, epsg))
     } else {
         return proj4(epsg, CoordinateSystems.LV95.epsg, [input[0], input[1]])
+    }
+}
+
+/**
+ * Wraps the provided webmercator coordinates in the world extents (i.e. the coordinate range
+ * that if equivalent to the wgs84 [-180, 180))
+ *
+ * @param coords The coordinates (or array of coordinates) to wrap
+ * @param inPlace If false, the original coordinates remain untouched and only a copy is modified
+ * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
+ */
+export function wrapWebmercatorCoords(coords, inPlace = false) {
+    if (inPlace) {
+        if (Array.isArray(coords[0])) {
+            coords.forEach((coords) => wrapWebmercatorCoords(coords, true))
+            return coords
+        } else {
+            return wrapXCoordinate(coords, getProjection(CoordinateSystems.WEBMERCATOR.epsg))
+        }
+    } else {
+        return Array.isArray(coords[0])
+            ? coords.map((coords) => wrapWebmercatorCoords(coords, false))
+            : wrapXCoordinate(coords.slice(), getProjection(CoordinateSystems.WEBMERCATOR.epsg))
     }
 }
 
@@ -73,70 +98,8 @@ export function formatTime(minutes) {
     return result
 }
 
-/**
- * Determine if the geometry can display azimuth circle or not
- *
- * @param {Geometry} geom
- * @returns {boolean}
- */
-export function canShowAzimuthCircle(geom) {
-    if (geom instanceof LineString) {
-        const coords = geom.getCoordinates()
-        if (
-            coords.length === 2 ||
-            (coords.length === 3 && coords[1][0] === coords[2][0] && coords[1][1] === coords[2][1])
-        ) {
-            return true
-        }
-    }
-    return false
-}
-
-/**
- * @param {LineString} geom
- * @returns {number}
- */
-export function getAzimuth(geom) {
-    if (!(geom instanceof Polygon) && !(geom instanceof LineString)) {
-        return 0
-    }
-    let coords = geom.getCoordinates()
-    if (geom instanceof Polygon) {
-        coords = coords[0]
-    }
-    let pt1 = coords[0]
-    let pt2 = coords[1]
-
-    if (!pt1 || !pt2) {
-        return 0
-    }
-    const x = pt2[0] - pt1[0]
-    const y = pt2[1] - pt1[1]
-    const rad = Math.acos(y / Math.sqrt(x * x + y * y))
-    const factor = x > 0 ? 1 : -1
-    return (360 + (factor * rad * 180) / Math.PI) % 360
-}
-
 export function formatAngle(value, digits = 2) {
     return `${value.toFixed(digits)}°`
-}
-
-/**
- * Calculates frequency of intermediate tooltips on line
- *
- * @param {number} length Line length
- * @returns {number}
- */
-export function getMeasureDelta(length) {
-    let delta = 1
-    if (length > 200000) {
-        delta = 100000 / length
-    } else if (length > 20000) {
-        delta = 10000 / length
-    } else if (length !== 0) {
-        delta = 1000 / length
-    }
-    return delta
 }
 
 export function extractOpenLayersFeatureCoordinates(feature) {

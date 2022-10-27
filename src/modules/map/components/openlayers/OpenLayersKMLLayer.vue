@@ -5,11 +5,9 @@
 </template>
 
 <script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeature } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
-import MeasureManager from '@/utils/MeasureManager'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -60,15 +58,8 @@ export default {
         if (IS_TESTING_WITH_CYPRESS) {
             window.kmlLayer = this.layer
         }
-        this.measureManager = new MeasureManager(this.getMap(), this.layer)
         this.layer.getSource().on('addfeature', (event) => {
-            const f = event.feature
-            EditableFeature.deserialize(f)
-            f.set('type', f.get('type').toUpperCase())
-            f.setStyle((feature) => featureStyleFunction(feature))
-            if (f.get('editableFeature').featureType === EditableFeatureTypes.MEASURE) {
-                this.measureManager.addOverlays(f)
-            }
+            EditableFeature.deserialize(event.feature)
         })
     },
     unmounted() {

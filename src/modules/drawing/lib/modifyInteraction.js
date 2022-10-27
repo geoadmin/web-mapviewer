@@ -1,47 +1,41 @@
-/**
- * @module ol/interaction/Modify
- */
-import Collection from '../Collection.js';
-import CollectionEventType from '../CollectionEventType.js';
-import Event from '../events/Event.js';
-import EventType from '../events/EventType.js';
-import Feature from '../Feature.js';
-import MapBrowserEventType from '../MapBrowserEventType.js';
-import Point from '../geom/Point.js';
-import PointerInteraction from './Pointer.js';
-import RBush from '../structs/RBush.js';
-import VectorEventType from '../source/VectorEventType.js';
-import VectorLayer from '../layer/Vector.js';
-import VectorSource from '../source/Vector.js';
-import {
-  altKeyOnly,
-  always,
-  primaryAction,
-  singleClick,
-} from '../events/condition.js';
+/** @module ol/interaction/Modify */
+import Collection from "ol/Collection";
+import CollectionEventType from "ol/CollectionEventType";
+import Event from "ol/events/Event";
+import EventType from "ol/events/EventType";
+import Feature from "ol/Feature";
+import MapBrowserEventType from "ol/MapBrowserEventType";
+import Point from "ol/geom/Point";
+import PointerInteraction from "ol/interaction/Pointer";
+import RBush from "ol/structs/RBush";
+import VectorEventType from "ol/source/VectorEventType";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import { altKeyOnly, always, primaryAction, singleClick } from "ol/events/condition";
 import {
   boundingExtent,
   buffer as bufferExtent,
   createOrUpdateFromCoordinate as createExtent,
-} from '../extent.js';
+} from "ol/extent";
+import { wrapX as wrapXCoordinate } from "ol/coordinate";
 import {
   closestOnSegment,
   distance as coordinateDistance,
   equals as coordinatesEqual,
   squaredDistance as squaredCoordinateDistance,
   squaredDistanceToSegment,
-} from '../coordinate.js';
-import {createEditingStyle} from '../style/Style.js';
-import {equals} from '../array.js';
-import {fromCircle} from '../geom/Polygon.js';
+} from "ol/coordinate";
+import { createEditingStyle } from "ol/style/Style";
+import { equals } from "ol/array";
+import { fromCircle } from "ol/geom/Polygon";
 import {
   fromUserCoordinate,
   fromUserExtent,
   getUserProjection,
   toUserCoordinate,
   toUserExtent,
-} from '../proj.js';
-import {getUid} from '../util.js';
+} from "ol/proj";
+import { getUid } from "ol/util";
 
 /**
  * The segment index assigned to a circle's center when
@@ -79,13 +73,40 @@ const ModifyEventType = {
 };
 
 /**
+ * An array of exactly two coordinates that represent a line segment between two coordinates of e.g.
+ * a LineSring.
+ * @typedef {Array<Array<number>>} segment
+ */
+
+/**
  * @typedef {Object} SegmentData
  * @property {Array<number>} [depth] Depth.
  * @property {import("../Feature").FeatureLike} feature Feature.
  * @property {import("../geom/SimpleGeometry.js").default} geometry Geometry.
  * @property {number} [index] Index.
- * @property {Array<Array<number>>} segment Segment.
+ * @property {segment} segment Segment.
  * @property {Array<SegmentData>} [featureSegments] FeatureSegments.
+ */
+
+/**
+ * A function that takes a feature, segments index and view extent as arguments and returns a list
+ * of subsegments.  This makes it possible for the modify interaction to correctly detect e.g.
+ * hovering over a segment even if the actual geometry of the segment is not a straight line. Useful
+ * is you e.g. want to make geodesic features editable with the modify interaction.
+ *
+ * The function should return an array of subsegments of the given segment, either all subsegments
+ * of that segment or optionally only the subsegments that are in the passed view extent (to
+ * increase the performance). When defining this function, please also define
+ * {@link segmentExtentFunction} to match the segments new geometry.
+ * @typedef {function(Feature, number, Extent): Array<segment>} subsegmentsFunction
+ */
+
+/**
+ * A functions that takes a feature and segment index as arguments and that returns the extent of
+ * that segment. If this function is undefined, the modify interaction will by default use the
+ * {@link boundingExtent} of the begin and end coordinate of that segment. This function should
+ * be defined together with the {@link subsegmentsFunction} to match the segments new geometry.
+ * @typedef {function(Feature, number): Extent} segmentExtentFunction
  */
 
 /**
@@ -127,8 +148,19 @@ const ModifyEventType = {
  * provided, a vector source must be provided with the `source` option.
  * @property {boolean} [wrapX=false] Wrap the world horizontally on the sketch
  * overlay.
+ * @property {boolean} [pointerWrapX=false] Wrap the world horizontally for the pointer events.
+ * Default is `false`. This makes it impossible to select features that are drawn passed the world
+ * extent, but makes it in turn possible to select a feature that is on the main world even if the
+ * view is not (eg. if set to true, when the view is at [370,380] deg, a feature drawn between
+ * [10,20] deg will be selectable, a feature drawn between [370,380] deg not. If set to false, the
+ * opposite happens)
  * @property {boolean} [snapToPointer=!hitDetection] The vertex, point or segment being modified snaps to the
  * pointer coordinate when clicked within the `pixelTolerance`.
+ * @property {Function} [segmentExtentFunction] A function called to get the coorect extent of a
+ * feature's segment.
+ * @property {Function} [subsegmentsFunction] A function called to get the subsegments
+ * (i.e. geometry) of a particular segment. If not defined, the geometry is simply a straight line
+ * connecting the two endpoints of the segment.
  */
 
 /**
@@ -226,6 +258,16 @@ class Modify extends PointerInteraction {
     this.condition_ = options.condition ? options.condition : primaryAction;
 
     /**
+     * @type {segmentExtentFunction}
+     */
+    this.segmentExtentFunction = options.segmentExtentFunction;
+
+    /**
+     * @type {subsegmentsFunction}
+     */
+    this.subsegmentsFunction = options.subsegmentsFunction;
+
+    /**
      * @private
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Browser event.
      * @return {boolean} Combined condition result.
@@ -249,6 +291,11 @@ class Modify extends PointerInteraction {
     this.insertVertexCondition_ = options.insertVertexCondition
       ? options.insertVertexCondition
       : always;
+
+    /**
+     * @type {boolean}
+     */
+    this.pointerWrapX_ = !!options.pointerWrapX;
 
     /**
      * Editing vertex.
@@ -313,6 +360,11 @@ class Modify extends PointerInteraction {
     this.changingFeature_ = false;
 
     /**
+     * An array of objects of the form [segmentData, number]
+     * [segmentData, 0] means its the segment on the right of the vertex
+     * being dragged/clicked,
+     * [segmentData, 1] means its the segment on the left of the vertex
+     * being dragged/clicked.
      * @type {Array}
      * @private
      */
@@ -660,8 +712,7 @@ class Modify extends PointerInteraction {
         index: i,
         segment: segment,
       };
-
-      this.rBush_.insert(boundingExtent(segment), segmentData);
+      this.rBush_.insert(this.getSegmentDataExtent_(segmentData), segmentData);
     }
   }
 
@@ -685,8 +736,10 @@ class Modify extends PointerInteraction {
           index: i,
           segment: segment,
         };
-
-        this.rBush_.insert(boundingExtent(segment), segmentData);
+        this.rBush_.insert(
+          this.getSegmentDataExtent_(segmentData),
+          segmentData
+        );
       }
     }
   }
@@ -711,8 +764,10 @@ class Modify extends PointerInteraction {
           index: i,
           segment: segment,
         };
-
-        this.rBush_.insert(boundingExtent(segment), segmentData);
+        this.rBush_.insert(
+          this.getSegmentDataExtent_(segmentData),
+          segmentData
+        );
       }
     }
   }
@@ -739,8 +794,7 @@ class Modify extends PointerInteraction {
             index: i,
             segment: segment,
           };
-
-          this.rBush_.insert(boundingExtent(segment), segmentData);
+          this.rBush_.insert(this.getSegmentDataExtent_(segmentData), segmentData);
         }
       }
     }
@@ -871,15 +925,17 @@ class Modify extends PointerInteraction {
 
   /**
    * Handle pointer drag events.
+   *
    * @param {import("../MapBrowserEvent.js").default} evt Event.
    */
   handleDragEvent(evt) {
     this.ignoreNextSingleClick_ = false;
     this.willModifyFeatures_(evt, this.dragSegments_);
 
+    const evtCoordinate = this.getCoordinateFromEvent_(evt);
     const vertex = [
-      evt.coordinate[0] + this.delta_[0],
-      evt.coordinate[1] + this.delta_[1],
+      evtCoordinate[0] + this.delta_[0],
+      evtCoordinate[1] + this.delta_[1]
     ];
     const features = [];
     const geometries = [];
@@ -977,6 +1033,12 @@ class Modify extends PointerInteraction {
 
   /**
    * Handle pointer down events.
+   *
+   * If pointing device is on a vertex, creates "dragSegments_" containing the
+   * segments on the left and right of that vertex. Used for the delete and drag
+   * events. If the pointing device is on a segment but NOT on one of its
+   * vertices, call "insertVertex_" on that point.
+   *
    * @param {import("../MapBrowserEvent.js").default} evt Event.
    * @return {boolean} If the event was consumed.
    */
@@ -984,11 +1046,13 @@ class Modify extends PointerInteraction {
     if (!this.condition_(evt)) {
       return false;
     }
-    const pixelCoordinate = evt.coordinate;
+    const pixelCoordinate = this.getCoordinateFromEvent_(evt);
     this.handlePointerAtPixel_(evt.pixel, evt.map, pixelCoordinate);
     this.dragSegments_.length = 0;
     this.featuresBeingModified_ = null;
     const vertexFeature = this.vertexFeature_;
+    //VertexFeature represents snapped pointing device and was created by
+    //"handlePointerAtPixel_"
     if (vertexFeature) {
       const projection = evt.map.getView().getProjection();
       const insertVertices = [];
@@ -997,6 +1061,8 @@ class Modify extends PointerInteraction {
       const segmentDataMatches = this.rBush_.getInExtent(vertexExtent);
       const componentSegments = {};
       segmentDataMatches.sort(compareIndexes);
+      // For all segments that the vertex feature (snapped mouse pointer) is
+      // (possibly) on
       for (let i = 0, ii = segmentDataMatches.length; i < ii; ++i) {
         const segmentDataMatch = segmentDataMatches[i];
         const segment = segmentDataMatch.segment;
@@ -1013,7 +1079,7 @@ class Modify extends PointerInteraction {
           segmentDataMatch.geometry.getType() === 'Circle' &&
           segmentDataMatch.index === CIRCLE_CIRCUMFERENCE_INDEX
         ) {
-          const closestVertex = closestOnSegmentData(
+          const closestVertex = this.closestOnSegmentData(
             pixelCoordinate,
             segmentDataMatch,
             projection
@@ -1027,7 +1093,10 @@ class Modify extends PointerInteraction {
           }
           continue;
         }
-
+        /*If mouse pointer on one of the two vertices of the segment,
+        ad that segment to the dragSegments. [segmentData, 0] means its the
+        segment on the right of the vertex, [segmentData, 1] means its the
+        segment on the left of the vertex */
         if (
           coordinatesEqual(segment[0], vertex) &&
           !componentSegments[uid][0]
@@ -1073,7 +1142,9 @@ class Modify extends PointerInteraction {
           componentSegments[uid][1] = segmentDataMatch;
           continue;
         }
-
+        /* If this is the segment the vertexFeature was snapped to and
+        if the mouse pointer is NOT on a vertex of the segment and the insert
+        vertex condition is met, insert a new vertex */
         if (
           getUid(segment) in this.vertexSegments_ &&
           !componentSegments[uid][0] &&
@@ -1131,7 +1202,9 @@ class Modify extends PointerInteraction {
           circumferenceSegmentData
         );
       } else {
-        this.rBush_.update(boundingExtent(segmentData.segment), segmentData);
+        // Update the bounding box of all segments that were modified during the
+        // drag event
+        this.rBush_.update(this.getSegmentDataExtent_(segmentData), segmentData);
       }
     }
     if (this.featuresBeingModified_) {
@@ -1157,21 +1230,27 @@ class Modify extends PointerInteraction {
   }
 
   /**
+   * Creates the "this.vertexFeature_" out of the pointing device and snaps it
+   * to the nearest segment and (if near enough) to the nearest vertex of the
+   * segment. Also creates "this.vertexSegments_", an object that has normally
+   * only one "true" value on the uid of the segment "this.vertexFeature_" snaps
+   * to (expect when two segments have identical endpoints, in this case
+   * multiple uids can be true)
+   *
    * @param {import("../pixel.js").Pixel} pixel Pixel
    * @param {import("../Map.js").default} map Map.
    * @param {import("../coordinate.js").Coordinate} [coordinate] The pixel Coordinate.
    * @private
    */
   handlePointerAtPixel_(pixel, map, coordinate) {
-    const pixelCoordinate = coordinate || map.getCoordinateFromPixel(pixel);
+    let pixelCoordinate =
+      coordinate?.slice() ||
+      map.getCoordinateFromPixel(pixel);
     const projection = map.getView().getProjection();
-    const sortByDistance = function (a, b) {
-      return (
-        projectedDistanceToSegmentDataSquared(pixelCoordinate, a, projection) -
-        projectedDistanceToSegmentDataSquared(pixelCoordinate, b, projection)
-      );
-    };
-
+    if (this.pointerWrapX_) {
+      wrapXCoordinate(pixelCoordinate, projection);
+      pixel = map.getPixelFromCoordinate(pixelCoordinate);
+    }
     /** @type {Array<SegmentData>|undefined} */
     let nodes;
     let hitPointGeometry;
@@ -1207,23 +1286,45 @@ class Modify extends PointerInteraction {
         {layerFilter}
       );
     }
+    const viewExtent = fromUserExtent(
+      createExtent(pixelCoordinate, tempExtent),
+      projection
+    );
+    const buffer = map.getView().getResolution() * this.pixelTolerance_;
+    const box = toUserExtent(
+      bufferExtent(viewExtent, buffer, tempExtent),
+      projection
+    );
+    const sortByDistance = (a, b) => {
+      return (
+        this.projectedDistanceToSegmentDataSquared(
+          pixelCoordinate,
+          a,
+          projection,
+          box
+        ) - this.projectedDistanceToSegmentDataSquared(
+          pixelCoordinate,
+          b,
+          projection,
+          box
+        )
+      );
+    };
+    let node, vertex;
     if (!nodes) {
-      const viewExtent = fromUserExtent(
-        createExtent(pixelCoordinate, tempExtent),
-        projection
-      );
-      const buffer = map.getView().getResolution() * this.pixelTolerance_;
-      const box = toUserExtent(
-        bufferExtent(viewExtent, buffer, tempExtent),
-        projection
-      );
+      /* Get all segments (here called nodes) within pixelTolerance of mouse
+      pointer */
       nodes = this.rBush_.getInExtent(box);
     }
 
     if (nodes && nodes.length > 0) {
-      const node = nodes.sort(sortByDistance)[0];
+      node = nodes.sort(sortByDistance)[0];
+      vertex =
+        this.closestOnSegmentData(pixelCoordinate, node, projection, box);
+    }
+
+    if (vertex) {
       const closestSegment = node.segment;
-      let vertex = closestOnSegmentData(pixelCoordinate, node, projection);
       const vertexPixel = map.getPixelFromCoordinate(vertex);
       let dist = coordinateDistance(pixel, vertexPixel);
       if (hitPointGeometry || dist <= this.pixelTolerance_) {
@@ -1246,6 +1347,9 @@ class Modify extends PointerInteraction {
             [node.geometry]
           );
         } else {
+          /* If distance between pointing device and a segment vertex is smaller
+          than pixel tolerance, put the vertex feature directly on that
+          segment vertex. */
           const pixel1 = map.getPixelFromCoordinate(closestSegment[0]);
           const pixel2 = map.getPixelFromCoordinate(closestSegment[1]);
           const squaredDist1 = squaredCoordinateDistance(vertexPixel, pixel1);
@@ -1345,8 +1449,7 @@ class Modify extends PointerInteraction {
       depth: depth,
       index: index,
     };
-
-    rTree.insert(boundingExtent(newSegmentData.segment), newSegmentData);
+    rTree.insert(this.getSegmentDataExtent_(newSegmentData), newSegmentData);
     this.dragSegments_.push([newSegmentData, 1]);
 
     /** @type {SegmentData} */
@@ -1357,8 +1460,7 @@ class Modify extends PointerInteraction {
       depth: depth,
       index: index + 1,
     };
-
-    rTree.insert(boundingExtent(newSegmentData2.segment), newSegmentData2);
+    rTree.insert(this.getSegmentDataExtent_(newSegmentData2), newSegmentData2);
     this.dragSegments_.push([newSegmentData2, 0]);
     this.ignoreNextSingleClick_ = true;
   }
@@ -1399,6 +1501,12 @@ class Modify extends PointerInteraction {
    */
   removeVertex_() {
     const dragSegments = this.dragSegments_;
+    /* segmentsByFeature[featureUID+depth]
+      .index = index of the vertex selected (for the given feature)
+      .left  = segment on the left of the selected feature
+      .right = segment on the right of the selected feature
+    i.e. it lists the selected vertex by geometry */
+    // Generate segmentsByFeature
     const segmentsByFeature = {};
     let deleted = false;
     let component, coordinates, dragSegment, geometry, i, index, left;
@@ -1423,6 +1531,7 @@ class Modify extends PointerInteraction {
       }
     }
     for (uid in segmentsByFeature) {
+      // Delete the vertex from the geometry
       right = segmentsByFeature[uid].right;
       left = segmentsByFeature[uid].left;
       index = segmentsByFeature[uid].index;
@@ -1467,7 +1576,7 @@ class Modify extends PointerInteraction {
               // close the ring again
               component.pop();
               component.push(component[0]);
-              newIndex = component.length - 1;
+              newIndex = component.length - 2;
             }
           }
           break;
@@ -1475,6 +1584,7 @@ class Modify extends PointerInteraction {
         // pass
       }
 
+      // Delete the left and right segments and replace them by a single segment
       if (deleted) {
         this.setGeometryCoordinates_(geometry, coordinates);
         const segments = [];
@@ -1486,6 +1596,7 @@ class Modify extends PointerInteraction {
           this.rBush_.remove(right);
           segments.push(right.segment[1]);
         }
+        this.updateSegmentIndices_(geometry, index, segmentData.depth, -1);
         if (left !== undefined && right !== undefined) {
           /** @type {SegmentData} */
           const newSegmentData = {
@@ -1495,13 +1606,11 @@ class Modify extends PointerInteraction {
             index: newIndex,
             segment: segments,
           };
-
           this.rBush_.insert(
-            boundingExtent(newSegmentData.segment),
+            this.getSegmentDataExtent_(newSegmentData),
             newSegmentData
           );
         }
-        this.updateSegmentIndices_(geometry, index, segmentData.depth, -1);
         if (this.vertexFeature_) {
           this.overlay_.getSource().removeFeature(this.vertexFeature_);
           this.vertexFeature_ = null;
@@ -1523,7 +1632,21 @@ class Modify extends PointerInteraction {
     this.changingFeature_ = false;
   }
 
+  getSegmentDataExtent_(segmentData) {
+    /*This is temporary. Probably the segmentExtentFunction should not be called
+    on inner polygons. It works good for our needs, but we probably need to
+    improve it if we want to propose the code changes to openlayers.*/
+    return (
+      this.segmentExtentFunction(segmentData.feature, segmentData.index || 0) ||
+      boundingExtent(segmentData.segment)
+    );
+  }
+
   /**
+   * Select all segments of the passed geometry and depth and increase their
+   * index by "delta" (+1 or -1) if their current index is bigger than "index"
+   * (the index of the last segment that was deleted / added)
+   *
    * @param {import("../geom/SimpleGeometry.js").default} geometry Geometry.
    * @param {number} index Index.
    * @param {Array<number>|undefined} depth Depth.
@@ -1546,6 +1669,93 @@ class Modify extends PointerInteraction {
       }
     );
   }
+
+  getCoordinateFromEvent_(evt) {
+    const evtCoordinate = evt.coordinate.slice();
+    if (this.pointerWrapX_) {
+      wrapXCoordinate(evtCoordinate, evt.map.getView().getProjection());
+    }
+    return evtCoordinate;
+  }
+  /**
+   * Returns the distance from a point to a line segment.
+   * @param {import("../coordinate.js").Coordinate} pointCoordinates
+   * The coordinates of the point from which to calculate the distance.
+   * @param {SegmentData} segmentData The object describing the line segment
+   * we are calculating the distance to.
+   * @param {import("../proj/Projection.js").default} projection The view
+   * projection.
+   * @return {number} The square of the distance between a point and a line
+   * segment.
+   */
+  projectedDistanceToSegmentDataSquared(
+    point,
+    segmentData,
+    viewProjection,
+    viewExtent
+  ) {
+    const feature = segmentData.feature;
+    // Transform to view projection
+    const coordinate = fromUserCoordinate(point, viewProjection);
+    const index = segmentData.index ? segmentData.index : 0;
+    const segments =
+      this?.subsegmentsFunction(feature, index, viewExtent) ||
+      [segmentData.segment];
+    if (!segments.length) {
+      return Infinity;
+    }
+    return segments
+      .map((segment) => {
+        const tempSegment = [];
+        tempSegment[0] = fromUserCoordinate(segment[0], viewProjection);
+        tempSegment[1] = fromUserCoordinate(segment[1], viewProjection);
+        return squaredDistanceToSegment(coordinate, tempSegment);
+      })
+      .reduce((previous, current) => Math.min(previous, current));
+  }
+
+  /**
+   * Returns the point closest to a given line segment.
+   * @param {import("../coordinate.js").Coordinate} pointCoordinates The point
+   * to which a closest point should be found.
+   * @param {SegmentData} segmentData The object describing the line segment
+   * which should contain the closest point.
+   * @param {import("../proj/Projection.js").default} projection The view
+   * projection.
+   * @returns {import("../coordinate.js").Coordinate} The point closest to the
+   * specified line segment.
+   */
+  closestOnSegmentData(point, segmentData, viewProjection, viewExtent) {
+    const feature = segmentData.feature;
+    const coordinate = fromUserCoordinate(point, viewProjection);
+    const index = segmentData.index ? segmentData.index : 0;
+    const segments =
+      this?.subsegmentsFunction(feature, index, viewExtent) ||
+      [segmentData.segment];
+    if (!segments.length) {
+      return null;
+    }
+    const closestSegment =
+      segments[
+        segments
+          .map((segment, i) => {
+            const tempSegment = [];
+            tempSegment[0] = fromUserCoordinate(segment[0], viewProjection);
+            tempSegment[1] = fromUserCoordinate(segment[1], viewProjection);
+            return [squaredDistanceToSegment(coordinate, tempSegment), i];
+          })
+          .reduce((previous, current) =>
+            (previous[0] < current[0] ? previous : current)
+          )[1]
+      ];
+    const tempSegment = [];
+    tempSegment[0] = fromUserCoordinate(closestSegment[0], viewProjection);
+    tempSegment[1] = fromUserCoordinate(closestSegment[1], viewProjection);
+    return toUserCoordinate(
+      closestOnSegment(coordinate, tempSegment),
+      viewProjection
+    );
+  }
 }
 
 /**
@@ -1555,93 +1765,6 @@ class Modify extends PointerInteraction {
  */
 function compareIndexes(a, b) {
   return a.index - b.index;
-}
-
-/**
- * Returns the distance from a point to a line segment.
- *
- * @param {import("../coordinate.js").Coordinate} pointCoordinates The coordinates of the point from
- *        which to calculate the distance.
- * @param {SegmentData} segmentData The object describing the line
- *        segment we are calculating the distance to.
- * @param {import("../proj/Projection.js").default} projection The view projection.
- * @return {number} The square of the distance between a point and a line segment.
- */
-function projectedDistanceToSegmentDataSquared(
-  pointCoordinates,
-  segmentData,
-  projection
-) {
-  const geometry = segmentData.geometry;
-
-  if (geometry.getType() === 'Circle') {
-    let circleGeometry = /** @type {import("../geom/Circle.js").default} */ (
-      geometry
-    );
-
-    if (segmentData.index === CIRCLE_CIRCUMFERENCE_INDEX) {
-      const userProjection = getUserProjection();
-      if (userProjection) {
-        circleGeometry = /** @type {import("../geom/Circle.js").default} */ (
-          circleGeometry.clone().transform(userProjection, projection)
-        );
-      }
-      const distanceToCenterSquared = squaredCoordinateDistance(
-        circleGeometry.getCenter(),
-        fromUserCoordinate(pointCoordinates, projection)
-      );
-      const distanceToCircumference =
-        Math.sqrt(distanceToCenterSquared) - circleGeometry.getRadius();
-      return distanceToCircumference * distanceToCircumference;
-    }
-  }
-
-  const coordinate = fromUserCoordinate(pointCoordinates, projection);
-  tempSegment[0] = fromUserCoordinate(segmentData.segment[0], projection);
-  tempSegment[1] = fromUserCoordinate(segmentData.segment[1], projection);
-  return squaredDistanceToSegment(coordinate, tempSegment);
-}
-
-/**
- * Returns the point closest to a given line segment.
- *
- * @param {import("../coordinate.js").Coordinate} pointCoordinates The point to which a closest point
- *        should be found.
- * @param {SegmentData} segmentData The object describing the line
- *        segment which should contain the closest point.
- * @param {import("../proj/Projection.js").default} projection The view projection.
- * @return {import("../coordinate.js").Coordinate} The point closest to the specified line segment.
- */
-function closestOnSegmentData(pointCoordinates, segmentData, projection) {
-  const geometry = segmentData.geometry;
-
-  if (
-    geometry.getType() === 'Circle' &&
-    segmentData.index === CIRCLE_CIRCUMFERENCE_INDEX
-  ) {
-    let circleGeometry = /** @type {import("../geom/Circle.js").default} */ (
-      geometry
-    );
-    const userProjection = getUserProjection();
-    if (userProjection) {
-      circleGeometry = /** @type {import("../geom/Circle.js").default} */ (
-        circleGeometry.clone().transform(userProjection, projection)
-      );
-    }
-    return toUserCoordinate(
-      circleGeometry.getClosestPoint(
-        fromUserCoordinate(pointCoordinates, projection)
-      ),
-      projection
-    );
-  }
-  const coordinate = fromUserCoordinate(pointCoordinates, projection);
-  tempSegment[0] = fromUserCoordinate(segmentData.segment[0], projection);
-  tempSegment[1] = fromUserCoordinate(segmentData.segment[1], projection);
-  return toUserCoordinate(
-    closestOnSegment(coordinate, tempSegment),
-    projection
-  );
 }
 
 /**

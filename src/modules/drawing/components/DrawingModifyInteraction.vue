@@ -7,8 +7,9 @@ import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
-import ModifyInteraction from 'ol/interaction/Modify'
+import ModifyInteraction from '@/modules/drawing/lib/modifyInteraction'
 import { mapActions } from 'vuex'
+import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 
 const cursorGrabbingClass = 'cursor-grabbing'
 
@@ -35,10 +36,15 @@ export default {
             style: editingVertexStyleFunction,
             deleteCondition: (event) => noModifierKeys(event) && singleClick(event),
             // This enables click on the shape of features (instead of pixel tolerance from their coordinates)
-            hitDetection: true,
+            // commented for now is it has performance issues with geodesic lines
+            //hitDetection: true,
             // This seems to be calculated differently than the hitTolerance properties of SelectInteraction
             // and forEachFeatureAtPixel. That's why we have to manually correct the value here.
             pixelTolerance: DRAWING_HIT_TOLERANCE + 2,
+            segmentExtentFunction: segmentExtent,
+            subsegmentsFunction: subsegments,
+            pointerWrapX: true,
+            wrapX: true,
         })
         this.modifyInteraction.on('modifystart', this.onModifyStart)
         this.modifyInteraction.on('modifyend', this.onModifyEnd)

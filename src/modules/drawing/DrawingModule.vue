@@ -65,10 +65,8 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import LoadingScreen from '@/utils/LoadingScreen.vue'
 import log from '@/utils/logging'
-import MeasureManager from '@/utils/MeasureManager'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -91,7 +89,6 @@ export default {
         return {
             // sharing OL stuff for children drawing components
             getDrawingLayer: () => this.drawingLayer,
-            getMeasureManager: () => this.measureManager,
         }
     },
     data() {
@@ -217,9 +214,8 @@ export default {
     },
     created() {
         this.drawingLayer = new VectorLayer({
-            source: new VectorSource({ useSpatialIndex: false }),
+            source: new VectorSource({ useSpatialIndex: false, wrapX: true }),
         })
-        this.measureManager = new MeasureManager(this.getMap(), this.drawingLayer)
         // if icons have not yet been loaded, we do so
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
@@ -379,7 +375,6 @@ export default {
             })
             features.forEach((olFeature) => {
                 EditableFeature.deserialize(olFeature)
-                olFeature.setStyle(featureStyleFunction)
             })
             this.drawingLayer.getSource().addFeatures(features)
         },
@@ -390,46 +385,6 @@ export default {
 <style lang="scss">
 /* Unscoped style as what is described below will not be wrapped
 in this component but added straight the the OpenLayers map */
-.tooltip-measure,
-.draw-measure-tmp,
-.draw-help-popup {
-    background-color: rgba(140, 140, 140, 0.9);
-    border-radius: 4px;
-    color: white;
-    padding: 2px 8px;
-    font-size: 12px;
-    pointer-events: none;
-}
-
-.tooltip-measure {
-    background-color: rgba(255, 0, 0, 0.9);
-
-    &:after {
-        position: absolute;
-        left: 50%;
-        bottom: -6px;
-        margin-left: -6px;
-        content: '';
-        border-top: 6px solid rgba(255, 0, 0, 0.9);
-        border-right: 6px solid transparent;
-        border-left: 6px solid transparent;
-    }
-}
-
-.draw-measure-tmp {
-    background-color: transparent;
-    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-
-    &:after {
-        bottom: -11px;
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
-        background-color: red;
-        margin-left: -4px;
-        border: none;
-    }
-}
 
 .cursor-grab {
     cursor: grab;

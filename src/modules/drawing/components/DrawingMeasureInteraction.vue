@@ -7,10 +7,11 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
+import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
-    inject: ['getMap', 'getDrawingLayer', 'getMeasureManager'],
+    inject: ['getMap', 'getDrawingLayer'],
     data() {
         return {
             geometryType: 'Polygon',
@@ -22,34 +23,14 @@ export default {
     },
     methods: {
         /**
-         * Declaring optional mixin method onDrawStart to register the measure manager (the code
-         * responsible for showing points with distances while sketching the measure line)
+         * Declaring optional mixin method onDrawStart to register the geodesic manager (the code
+         * responsible for generating the geodesic geometries of this feature and the styles that
+         * display points with distances on the line)
          *
          * See {@link drawingInteractionMixin}
          */
         onDrawStart(feature) {
-            this.getMeasureManager().addOverlays(feature)
-        },
-        /**
-         * Declaring optional mixin method onDrawEnd to force remove any overlays. The
-         * updateOverlays event will regenerate them right after that. This is a hack to make
-         * updateOverlays work correctly. A fix in updateOverlays would probably be better.
-         *
-         * See {@link drawingInteractionMixin}
-         */
-        onDrawEnd(feature) {
-            this.getMeasureManager().removeOverlays(feature)
-        },
-
-        /**
-         * Declaring optional mixin method onDrawAbort to unregister the resource Manager for the
-         * aborted feature
-         *
-         * See {@link drawingInteractionMixin}
-         */
-        onDrawAbort(feature) {
-            this.getMeasureManager().removeOverlays(feature)
-            feature.set('overlays', undefined)
+            feature.geodesic = new GeodesicGeometries(feature)
         },
     },
 }

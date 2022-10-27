@@ -2,7 +2,6 @@ import {
     formatMeters,
     formatPointCoordinates,
     formatTime,
-    getAzimuth,
     toLv95,
 } from '@/modules/drawing/lib/drawingUtils'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
@@ -91,23 +90,6 @@ describe('Unit test functions from featureStyleUtils.js', () => {
             expect(formatTime(1200)).to.equal('20h')
             expect(formatTime(1230)).to.equal('20h 30min')
             expect(formatTime(1202)).to.equal('20h 2min')
-        })
-    })
-
-    describe('getAzimuth()', () => {
-        it('get azimuth', () => {
-            const line1 = new LineString([
-                [1064265.7618468616, 5882082.735211225],
-                [1062809.4664707903, 5876655.338092074],
-            ])
-            const line2 = new LineString([
-                [1062135.3244671016, 5878698.236526266],
-                [1062351.0719302234, 5876992.483145961],
-            ])
-            const line3 = new LineString([[1064265.7618468616, 5882082.735211225]])
-            expect(getAzimuth(line1).toFixed(2)).to.equal('195.02')
-            expect(getAzimuth(line2).toFixed(2)).to.equal('172.79')
-            expect(getAzimuth(line3)).to.equal(0)
         })
     })
 })

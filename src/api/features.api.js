@@ -13,7 +13,8 @@ import {
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
-
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
+import { GeodesicGeometries } from '@/utils/geodesicManager'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
  * edited if the corresponding flag says so (it will then fires "change" events any time one
@@ -235,14 +236,26 @@ export class EditableFeature extends Feature {
 
     /**
      * This method deserializes an editable feature that is stored in the extra properties of an
-     * openlayers feature.
+     * openlayers feature. It then recreates a fully functional ofFeature with the correct styling.
      *
      * @param {openlayersFeature} olFeature
      */
     static deserialize(olFeature) {
-        olFeature.set(
-            'editableFeature',
-            this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
+        const editableFeature = this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
+        olFeature.set('editableFeature', editableFeature)
+        olFeature.setStyle(featureStyleFunction)
+        if (
+            editableFeature.featureType === EditableFeatureTypes.MEASURE ||
+            editableFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+        ) {
+            olFeature.geodesic = new GeodesicGeometries(olFeature)
+        }
+    }
+
+    isLineOrMeasure() {
+        return (
+            this._featureType === EditableFeatureTypes.MEASURE ||
+            this.featureType === EditableFeatureTypes.LINEPOLYGON
         )
     }
 
