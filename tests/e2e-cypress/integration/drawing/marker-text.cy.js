@@ -167,7 +167,7 @@ describe('Drawing marker/points', () => {
             })
             it('Shows all available icon sets in the selector', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click()
+                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
                         cy.get(`[data-cy="dropdown-item-${iconSet.name}"]`).should('be.visible')
@@ -176,7 +176,7 @@ describe('Drawing marker/points', () => {
             })
             it('Changes the icon selector box content when the icon set changes', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click()
+                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 cy.get('[data-cy="dropdown-item-second"]').click()
                 cy.wait('@iconSet-second')
                 cy.wait('@icon-second')
@@ -189,7 +189,7 @@ describe('Drawing marker/points', () => {
             // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
             it.skip('Changes the marker icon when a new one is selected in the icon selector', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click()
+                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 // showing all icons of this sets so that we may choose a new one
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`).click()
                 cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
