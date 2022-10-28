@@ -7,8 +7,8 @@
     "background_color": "#fff",
     "description": "Maps of Switzerland - Swiss Confederation - map.geo.admin.ch",
     "icons": [
-        { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
-        { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+        { "src": "./icon-192.png", "type": "image/png", "sizes": "192x192" },
+        { "src": "./icon-512.png", "type": "image/png", "sizes": "512x512" }
     ],
     "related_applications": [
         { "platform": "play", "url": "https://play.google.com/store/apps/details?id=ch.admin.swisstopo" },
