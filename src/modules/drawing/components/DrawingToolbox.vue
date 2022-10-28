@@ -33,6 +33,9 @@
                         </ButtonWithIcon>
                     </div>
                     <div class="d-flex justify-content-center">
+                        {{ $t(savingStatus) }}
+                    </div>
+                    <div class="d-flex justify-content-center">
                         <ButtonWithIcon
                             :button-font-awesome-icon="['far', 'trash-alt']"
                             :disabled="isDrawingEmpty"
@@ -121,6 +124,11 @@ export default {
         isDrawingEmpty: {
             type: Boolean,
             default: false,
+        },
+        /** Translation key for the current kml saving status */
+        savingStatus: {
+            type: String,
+            default: '',
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],

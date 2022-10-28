@@ -64,8 +64,8 @@ export class Feature extends EventEmitter {
 
     /**
      * Like "emitChangeEvent(changeType)", but also emits a 'change:style' event. This event should
-     * be triggered for changes that can affect the visuals of the feature, but not the positioning
-     * or other stage changes.
+     * be triggered for changes that can affect the visuals and other properties of the feature, but
+     * not the positioning.
      *
      * @param {String} changeType
      */
@@ -114,7 +114,7 @@ export class Feature extends EventEmitter {
     }
     set description(newDescription) {
         this._description = newDescription
-        this.emitChangeEvent('description')
+        this.emitStylingChangeEvent('description')
     }
 
     get isEditable() {
