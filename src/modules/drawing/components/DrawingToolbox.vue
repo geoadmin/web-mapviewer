@@ -32,7 +32,7 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </ButtonWithIcon>
                     </div>
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center drawing-toolbox-saving-status">
                         {{ $t(savingStatus) }}
                     </div>
                     <div class="d-flex justify-content-center">
@@ -212,6 +212,12 @@ $zindex-drawing-toolbox: -1;
     }
     &-disclaimer {
         display: none;
+    }
+    &-saving-status {
+        color: #d3d3d3;
+        font-size: 12px;
+        line-height: 1.25;
+        min-height: 1.25em;
     }
 }
 
