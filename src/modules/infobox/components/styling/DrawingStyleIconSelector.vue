@@ -29,7 +29,7 @@
 
         <div
             v-if="currentIconSet && currentIconSet.icons.length > 0"
-            class="border-2 bg-light"
+            class="border-2 bg-light rounded"
             :class="{ 'transparent-bottom': !showAllSymbols }"
         >
             <div
@@ -42,16 +42,25 @@
                 <font-awesome-icon :icon="['fas', showAllSymbols ? 'caret-down' : 'caret-right']" />
             </div>
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
-                <img
+                <button
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
-                    :alt="icon.name"
-                    :src="generateColorizedURL(icon)"
+                    class="btn btn-sm"
+                    :class="{
+                        'btn-light': feature.icon.name !== icon.name,
+                        'btn-primary': feature.icon.name === icon.name,
+                    }"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
-                    class="marker-icon-image"
-                    crossorigin="anonymous"
                     @click="showAllSymbols && onCurrentIconChange(icon)"
-                />
+                >
+                    <img
+                        :alt="icon.name"
+                        :src="generateColorizedURL(icon)"
+                        class="marker-icon-image"
+                        :class="getImageStrokeClass(feature.fillColor)"
+                        crossorigin="anonymous"
+                    />
+                </button>
             </div>
             <div class="transparent-overlay" @click="showAllSymbols = true" />
         </div>
@@ -63,7 +72,7 @@ import { EditableFeature } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
-import { MEDIUM } from '@/utils/featureStyleUtils'
+import { MEDIUM, YELLOW, WHITE } from '@/utils/featureStyleUtils'
 
 export default {
     components: {
@@ -131,6 +140,12 @@ export default {
         changeDisplayedIconSet(dropdownItem) {
             this.currentIconSet = dropdownItem.value
         },
+        getImageStrokeClass(color) {
+            if (color.name === WHITE.name || color.name === YELLOW.name) {
+                return 'marker-icon-image-stroke-black'
+            }
+            return 'marker-icon-image-stroke-white'
+        },
     },
 }
 </script>
@@ -163,9 +178,16 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     transition: max-height 0.3s linear;
     .marker-icon-image {
-        cursor: pointer;
-        width: 3rem;
-        height: 3rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .marker-icon-image-stroke-white {
+        filter: drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white);
+    }
+
+    .marker-icon-image-stroke-black {
+        filter: drop-shadow(1px 1px 0 black) drop-shadow(-1px -1px 0 black);
     }
 }
 </style>
