@@ -1,27 +1,28 @@
 <template>
-    <div class="lang-switch-toolbar p-1 btn-group">
-        <ButtonWithIcon
+    <div class="lang-switch-toolbar p-1">
+        <button
             v-for="lang in languages"
             :key="lang"
-            :lang="lang"
-            :danger="lang === currentLang"
-            :transparent="lang !== currentLang"
-            :button-title="lang.toUpperCase()"
-            :small="isDesktopMode"
+            class="btn btn-sm"
+            :class="{
+                'btn-light': lang !== currentLang,
+                'btn-primary': lang === currentLang,
+            }"
+            :title="lang.toUpperCase()"
             :data-cy="'menu-lang-' + lang"
             @click="changeLang(lang)"
-        />
+        >
+            {{ lang.toUpperCase() }}
+        </button>
     </div>
 </template>
 
 <script>
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { languages } from '../index'
 
 export default {
-    components: { ButtonWithIcon },
     data() {
         return {
             languages: Object.keys(languages),
@@ -42,3 +43,16 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.lang-switch-toolbar {
+    transition: max-height 0.3s linear;
+    button {
+        width: 3rem;
+        margin-right: 3px;
+        margin-left: 3px;
+    }
+}
+</style>
