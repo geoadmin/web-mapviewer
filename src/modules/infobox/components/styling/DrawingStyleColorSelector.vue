@@ -11,7 +11,7 @@
             class="btn"
             @click="() => onColorChange(color)"
         >
-            <div class="color-circle" :style="colorCircleStyle(color)"></div>
+            <div class="color-circle rounded-circle" :style="colorCircleStyle(color)"></div>
         </button>
     </div>
 </template>
@@ -60,8 +60,6 @@ export default {
 .color-select-box {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    background-color: $gainsboro;
-    border-radius: 0.375rem;
 
     button {
         display: inline-flex;
@@ -76,7 +74,6 @@ export default {
     .color-circle {
         width: 1.5rem;
         height: 1.5rem;
-        border-radius: 1rem;
         border: 1px solid black;
     }
 }

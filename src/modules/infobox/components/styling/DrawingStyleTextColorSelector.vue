@@ -57,8 +57,8 @@ export default {
 #drawing-style-text-color-selector {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    background-color: $gainsboro;
-    border-radius: 0.375rem;
+    // background-color: $gainsboro;
+    // border-radius: 0.375rem;
 
     button {
         margin-left: $drawing-options-button-margin;
