@@ -9,8 +9,8 @@
                 :key="color.name"
                 class="btn btn-sm"
                 :class="{
-                    'btn-light': currentColor !== color,
-                    'btn-primary': currentColor === color,
+                    'btn-light': currentColor.name !== color.name,
+                    'btn-primary': currentColor.name === color.name,
                 }"
                 :style="{
                     color: color.name,
