@@ -1,30 +1,29 @@
 <template>
-    <div class="color-select-box bg-light border-light" data-cy="drawing-style-color-select-box">
-        <ButtonWithIcon
+    <div class="color-select-box rounded bg-light" data-cy="drawing-style-color-select-box">
+        <button
             v-for="color in colors"
             :key="color.name"
             :data-cy="`color-selector-${color.name}`"
-            :button-font-awesome-icon="['fas', 'circle']"
-            :style="{ color: color.name }"
-            :primary="currentColor.name === color.name"
-            :class="{ 'button-background': currentColor.name !== color.name }"
-            direction="column"
-            icon-size="lg"
+            :class="{
+                'btn-light': currentColor.name !== color.name,
+                'btn-primary': currentColor.name === color.name,
+            }"
+            class="btn m-1"
             @click="() => onColorChange(color)"
-        ></ButtonWithIcon>
+        >
+            <div class="color-circle rounded-circle" :style="colorCircleStyle(color)"></div>
+        </button>
     </div>
 </template>
 
 <script>
 import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 
 /**
  * Component showing all available color for a feature and making it possible to switch from one
  * color to the other (will be responsible to change the color of the feature)
  */
 export default {
-    components: { ButtonWithIcon },
     props: {
         inline: {
             type: Boolean,
@@ -45,6 +44,12 @@ export default {
         onColorChange(color) {
             this.$emit('change', color)
         },
+        colorCircleStyle(color) {
+            return {
+                'background-color': color.name,
+                'border-color': color.border,
+            }
+        },
     },
 }
 </script>
@@ -57,13 +62,14 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 1fr;
 
     button {
-        margin-left: $drawing-options-button-margin;
-        margin-right: $drawing-options-button-margin;
-        margin-bottom: $drawing-options-button-margin;
+        display: inline-flex;
+        justify-content: center;
     }
 
-    .button-background {
-        background-color: $gainsboro;
+    .color-circle {
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 1px solid black;
     }
 }
 </style>
