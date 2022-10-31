@@ -57,10 +57,13 @@ export default {
 #drawing-style-text-color-selector {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+    background-color: $gainsboro;
+    border-radius: 0.375rem;
 
     button {
         margin-left: $drawing-options-button-margin;
         margin-right: $drawing-options-button-margin;
+        margin-top: $drawing-options-button-margin;
         margin-bottom: $drawing-options-button-margin;
     }
 }
