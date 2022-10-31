@@ -57,7 +57,13 @@
                         :alt="icon.name"
                         :src="generateColorizedURL(icon)"
                         class="marker-icon-image"
-                        :class="getImageStrokeClass(feature.fillColor)"
+                        :class="
+                            getImageStrokeClass(
+                                currentIconSet.isColorable,
+                                feature.icon.name === icon.name,
+                                feature.fillColor.name
+                            )
+                        "
                         crossorigin="anonymous"
                     />
                 </button>
@@ -140,11 +146,15 @@ export default {
         changeDisplayedIconSet(dropdownItem) {
             this.currentIconSet = dropdownItem.value
         },
-        getImageStrokeClass(color) {
-            if (color.name === WHITE.name || color.name === YELLOW.name) {
-                return 'marker-icon-image-stroke-black'
+        getImageStrokeClass(isColorable, isSelected, color) {
+            if (isColorable) {
+                if (color === WHITE.name || color === YELLOW.name) {
+                    return 'marker-icon-image-stroke-black'
+                }
+                return 'marker-icon-image-stroke-white'
+            } else if (isSelected) {
+                return 'marker-icon-image-stroke-white-babs'
             }
-            return 'marker-icon-image-stroke-white'
         },
     },
 }
@@ -180,6 +190,10 @@ export default {
     .marker-icon-image {
         width: 2rem;
         height: 2rem;
+    }
+
+    .marker-icon-image-stroke-white-babs {
+        filter: drop-shadow(0px 0px 0 white);
     }
 
     .marker-icon-image-stroke-white {
