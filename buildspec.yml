@@ -75,10 +75,13 @@ phases:
       # As the cypress/download folder is not added to git, and (somehow) not created by Cypress at startup, we create it
       - mkdir -p cypress/downloads/
       # will build the application in dev mode before testing
-      - CYPRESS_CACHE_FOLDER=/tmp/.cache npm run test:ci
+      - CYPRESS_CACHE_FOLDER=/tmp/.cache npm run test:unit
 
-  post_build:
-    commands:
       # switching role for deploy (otherwise the S3 bucket won't be visible as it's another account)
       # the application will be built by the npm target before deploying
       - npm run deploy:${DEPLOY_TARGET} -- --role=arn:aws:iam::${AWS_ACCOUNT_TO_USE} --branch=${GIT_BRANCH}
+
+      # will build the application in dev mode before testing
+      - CYPRESS_CACHE_FOLDER=/tmp/.cache npm run test:e2e:ci
+
+
