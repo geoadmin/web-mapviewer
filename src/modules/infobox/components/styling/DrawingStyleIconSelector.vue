@@ -51,7 +51,7 @@
                         'btn-primary': feature.icon.name === icon.name,
                     }"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
-                    @click="showAllSymbols && onCurrentIconChange(icon)"
+                    @click="onCurrentIconChange(icon)"
                 >
                     <img
                         :alt="icon.name"
@@ -136,6 +136,7 @@ export default {
             this.$emit('change')
         },
         onCurrentIconChange(icon) {
+            this.showAllSymbols = true
             this.$emit('change:icon', icon)
             this.$emit('change')
         },
@@ -174,6 +175,7 @@ export default {
         height: 2rem;
         background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, $light 100%);
         bottom: 0;
+        pointer-events: none;
     }
 }
 .marker-icon-select-box {
