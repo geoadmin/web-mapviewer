@@ -3,14 +3,14 @@
         <label for="drawing-style-text-color-selector" class="form-label">
             {{ $t('modify_text_color_label') }}
         </label>
-        <div id="drawing-style-text-color-selector" class="btn-group bg-light border-light">
+        <div id="drawing-style-text-color-selector" class="rounded bg-light">
             <button
                 v-for="color in colors"
                 :key="color.name"
-                class="btn btn-sm"
+                class="btn btn-sm m-1"
                 :class="{
-                    'btn-light': currentColor !== color,
-                    'btn-primary': currentColor === color,
+                    'btn-light': currentColor.name !== color.name,
+                    'btn-primary': currentColor.name === color.name,
                 }"
                 :style="{
                     color: color.name,
@@ -52,8 +52,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
 #drawing-style-text-color-selector {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 </style>

@@ -77,6 +77,7 @@
                 >
                     <DrawingStyleColorSelector
                         data-cy="drawing-style-line-popup"
+                        :current-color="feature.fillColor"
                         @change="onColorChange"
                     />
                 </PopoverButton>

@@ -23,6 +23,7 @@
             v-if="currentIconSet && currentIconSet.isColorable"
             class="mb-3"
             inline
+            :current-color="feature.fillColor"
             @change="onCurrentIconColorChange"
         />
 

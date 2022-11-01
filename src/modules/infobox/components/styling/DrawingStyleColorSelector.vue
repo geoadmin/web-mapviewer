@@ -1,22 +1,27 @@
 <template>
     <div
-        class="color-select-box bg-light border-light"
-        :class="{ inline: inline }"
+        class="color-select-box rounded bg-light"
         data-cy="drawing-style-color-select-box"
+        :class="{ inline: inline }"
     >
-        <div
+        <button
             v-for="color in colors"
             :key="color.name"
             :data-cy="`color-selector-${color.name}`"
+            :class="{
+                'btn-light': currentColor.name !== color.name,
+                'btn-primary': currentColor.name === color.name,
+            }"
+            class="btn"
             @click="() => onColorChange(color)"
         >
-            <div class="color-circle" :style="colorCircleStyle(color)"></div>
-        </div>
+            <div class="color-circle rounded-circle" :style="colorCircleStyle(color)"></div>
+        </button>
     </div>
 </template>
 
 <script>
-import { allStylingColors } from '@/utils/featureStyleUtils'
+import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
 
 /**
  * Component showing all available color for a feature and making it possible to switch from one
@@ -27,6 +32,10 @@ export default {
         inline: {
             type: Boolean,
             default: false,
+        },
+        currentColor: {
+            type: FeatureStyleColor,
+            required: true,
         },
     },
     emits: ['change'],
@@ -53,19 +62,28 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .color-select-box {
-    border-radius: 2px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+
     &.inline {
         display: flex;
         justify-content: space-evenly;
+
+        button {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
     }
+
+    button {
+        display: inline-flex;
+        justify-content: center;
+    }
+
     .color-circle {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 1rem;
+        width: 1.5rem;
+        height: 1.5rem;
         border: 1px solid black;
-        cursor: pointer;
     }
 }
 </style>
