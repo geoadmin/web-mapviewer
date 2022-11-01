@@ -57,11 +57,11 @@
                         :alt="icon.name"
                         :src="generateColorizedURL(icon)"
                         class="marker-icon-image"
-                        :class="
-                            getImageStrokeClass(
+                        :style="
+                            getImageStrokeStyle(
                                 currentIconSet.isColorable,
                                 feature.icon.name === icon.name,
-                                feature.fillColor.name
+                                feature.fillColor
                             )
                         "
                         crossorigin="anonymous"
@@ -78,7 +78,7 @@ import { EditableFeature } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
-import { MEDIUM, YELLOW, WHITE } from '@/utils/featureStyleUtils'
+import { MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
     components: {
@@ -146,14 +146,13 @@ export default {
         changeDisplayedIconSet(dropdownItem) {
             this.currentIconSet = dropdownItem.value
         },
-        getImageStrokeClass(isColorable, isSelected, color) {
+        getImageStrokeStyle(isColorable, isSelected, color) {
             if (isColorable) {
-                if (color === WHITE.name || color === YELLOW.name) {
-                    return 'marker-icon-image-stroke-black'
+                return {
+                    filter: `drop-shadow(1px 1px 0 ${color.border}) drop-shadow(-1px -1px 0 ${color.border})`,
                 }
-                return 'marker-icon-image-stroke-white'
             } else if (isSelected) {
-                return 'marker-icon-image-stroke-white-babs'
+                return { filter: 'drop-shadow(0px 0px 0 white)' }
             }
         },
     },
@@ -190,18 +189,6 @@ export default {
     .marker-icon-image {
         width: 2rem;
         height: 2rem;
-    }
-
-    .marker-icon-image-stroke-white-babs {
-        filter: drop-shadow(0px 0px 0 white);
-    }
-
-    .marker-icon-image-stroke-white {
-        filter: drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white);
-    }
-
-    .marker-icon-image-stroke-black {
-        filter: drop-shadow(1px 1px 0 black) drop-shadow(-1px -1px 0 black);
     }
 }
 </style>
