@@ -10,5 +10,9 @@
         {
             "path": "./tsconfig.vitest.json"
         }
-    ]
+    ],
+    "compilerOptions": {
+        // see https://github.com/mammadataei/cypress-vite/issues/13
+        "esModuleInterop": true
+    }
 }
