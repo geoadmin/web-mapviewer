@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showAppVersion" class="app-version">v{{ appVersion }}</div>
+    <div v-if="showAppVersion" class="app-version">{{ appVersion }}</div>
 </template>
 
 <script>
