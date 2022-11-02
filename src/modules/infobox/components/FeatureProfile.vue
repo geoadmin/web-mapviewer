@@ -25,7 +25,7 @@
             </div>
             <div ref="profileTooltipArrow" class="profile-tooltip-arrow"></div>
         </div>
-        <div v-if="profileInformation.length" class="d-flex p-2">
+        <div v-if="profileInformation.length" class="d-flex p-2 profile-popup-info-buttons">
             <div
                 class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
                 data-cy="profile-popup-info-container"
@@ -54,6 +54,7 @@
                 @click="onCSVDownload"
             />
             <ButtonWithIcon
+                v-if="showDeleteButton"
                 :button-font-awesome-icon="['far', 'trash-alt']"
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
@@ -135,6 +136,9 @@ export default {
                 (this.feature.featureType === EditableFeatureTypes.MEASURE ||
                     this.feature.featureType === EditableFeatureTypes.LINEPOLYGON)
             )
+        },
+        showDeleteButton() {
+            return this.feature && this.feature.featureType === EditableFeatureTypes.MEASURE
         },
         profileInformation() {
             return [
@@ -472,5 +476,11 @@ export default {
     height: 20px;
     width: 20px;
     border-radius: 50%;
+}
+
+.profile-popup-info-buttons {
+    button {
+        margin-left: $button-spacer;
+    }
 }
 </style>
