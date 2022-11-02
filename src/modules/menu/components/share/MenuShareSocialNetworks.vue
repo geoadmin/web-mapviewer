@@ -6,7 +6,7 @@
             :network="network.id"
             :url="shortLink"
             title=""
-            class="btn btn-light"
+            class="btn btn-light share-network-button"
             :options="shareNetworkOptions"
             :data-cy="`share-shortlink-${network.id}`"
         >
@@ -60,3 +60,11 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.share-network-button {
+    margin-right: $button-spacer;
+}
+</style>

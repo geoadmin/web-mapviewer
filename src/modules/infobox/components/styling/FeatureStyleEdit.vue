@@ -26,10 +26,10 @@
             ></textarea>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex">
             <SelectedFeatureProfile :feature="feature" />
 
-            <div class="d-flex justify-content-end margin-between-children">
+            <div class="d-flex feature-style-edit-control">
                 <PopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
@@ -210,26 +210,8 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/variables';
 
-.drawing-style-popup {
-    min-width: 320px;
-    position: absolute;
-    z-index: 1000;
-
-    .arrow-top::after {
-        display: block;
-        content: ' ';
-        position: absolute;
-        left: 149px;
-        top: -10px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 10px 10px 10px;
-        z-index: 1000;
-        border-color: transparent transparent #f7f7f7 transparent;
-    }
-    .margin-between-children > :not(:last-child) {
-        margin-right: 5px;
-    }
+.feature-style-edit-control button,
+div {
+    margin-right: $button-spacer;
 }
 </style>

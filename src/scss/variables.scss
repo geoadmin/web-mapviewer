@@ -34,5 +34,5 @@ $map-button-diameter: 40px;
 $map-button-inner-icon-diameter: 26px;
 $map-button-border-width: calc(($map-button-diameter - $map-button-inner-icon-diameter) / 2);
 
-// Drawing variables
-$drawing-options-button-margin: 3px;
+// Space between adjacent buttons
+$button-spacer: 0.5rem;
