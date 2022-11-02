@@ -81,8 +81,8 @@ export default {
     }
 
     .color-circle {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 1.25rem;
+        height: 1.25rem;
         border: 1px solid black;
     }
 }

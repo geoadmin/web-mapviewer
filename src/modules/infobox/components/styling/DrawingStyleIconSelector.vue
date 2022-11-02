@@ -29,7 +29,7 @@
 
         <div
             v-if="currentIconSet && currentIconSet.icons.length > 0"
-            class="border-2 bg-light"
+            class="border-2 bg-light rounded"
             :class="{ 'transparent-bottom': !showAllSymbols }"
         >
             <div
@@ -42,16 +42,31 @@
                 <font-awesome-icon :icon="['fas', showAllSymbols ? 'caret-down' : 'caret-right']" />
             </div>
             <div class="marker-icon-select-box" :class="{ 'one-line': !showAllSymbols }">
-                <img
+                <button
                     v-for="icon in currentIconSet.icons"
                     :key="icon.name"
-                    :alt="icon.name"
-                    :src="generateColorizedURL(icon)"
+                    class="btn btn-sm"
+                    :class="{
+                        'btn-light': feature.icon.name !== icon.name,
+                        'btn-primary': feature.icon.name === icon.name,
+                    }"
                     :data-cy="`drawing-style-icon-selector-${icon.name}`"
-                    class="marker-icon-image"
-                    crossorigin="anonymous"
-                    @click="showAllSymbols && onCurrentIconChange(icon)"
-                />
+                    @click="onCurrentIconChange(icon)"
+                >
+                    <img
+                        :alt="icon.name"
+                        :src="generateColorizedURL(icon)"
+                        class="marker-icon-image"
+                        :style="
+                            getImageStrokeStyle(
+                                currentIconSet.isColorable,
+                                feature.icon.name === icon.name,
+                                feature.fillColor
+                            )
+                        "
+                        crossorigin="anonymous"
+                    />
+                </button>
             </div>
             <div class="transparent-overlay" @click="showAllSymbols = true" />
         </div>
@@ -121,6 +136,7 @@ export default {
             this.$emit('change')
         },
         onCurrentIconChange(icon) {
+            this.showAllSymbols = true
             this.$emit('change:icon', icon)
             this.$emit('change')
         },
@@ -130,6 +146,15 @@ export default {
         },
         changeDisplayedIconSet(dropdownItem) {
             this.currentIconSet = dropdownItem.value
+        },
+        getImageStrokeStyle(isColorable, isSelected, color) {
+            if (isColorable) {
+                return {
+                    filter: `drop-shadow(1px 1px 0 ${color.border}) drop-shadow(-1px -1px 0 ${color.border})`,
+                }
+            } else if (isSelected) {
+                return { filter: 'drop-shadow(0px 0px 0 white)' }
+            }
         },
     },
 }
@@ -150,6 +175,7 @@ export default {
         height: 2rem;
         background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, $light 100%);
         bottom: 0;
+        pointer-events: none;
     }
 }
 .marker-icon-select-box {
@@ -163,9 +189,12 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     transition: max-height 0.3s linear;
     .marker-icon-image {
-        cursor: pointer;
-        width: 3rem;
-        height: 3rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    button {
+        --bs-btn-padding-x: 0.25rem;
     }
 }
 </style>

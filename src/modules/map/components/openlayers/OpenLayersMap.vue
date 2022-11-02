@@ -52,6 +52,7 @@
             <template #extra-buttons>
                 <ButtonWithIcon
                     :button-font-awesome-icon="['fa', 'caret-down']"
+                    small
                     data-cy="toggle-floating-off"
                     @click="toggleFloatingTooltip"
                 />

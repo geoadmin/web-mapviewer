@@ -9,11 +9,13 @@
                 <ButtonWithIcon
                     v-if="authorizePrint"
                     :button-font-awesome-icon="['fa', 'print']"
+                    small
                     @click="printContent"
                 />
                 <ButtonWithIcon
                     data-cy="map-popover-close-button"
                     :button-font-awesome-icon="['fa', 'times']"
+                    small
                     @click="onClose"
                 />
             </div>
