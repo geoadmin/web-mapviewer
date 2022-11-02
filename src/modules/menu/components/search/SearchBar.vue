@@ -52,7 +52,12 @@ export default {
     methods: {
         ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults']),
         updateSearchQuery(event) {
-            this.setSearchQuery({ query: event.target.value })
+            if (this.debounceSearch) {
+                clearTimeout(this.debounceSearch)
+            }
+            this.debounceSearch = setTimeout(() => {
+                this.setSearchQuery({ query: event.target.value })
+            }, 50)
         },
         showSearchResultsIfExists() {
             if (this.searchQuery && this.searchQuery.length >= 2) {
