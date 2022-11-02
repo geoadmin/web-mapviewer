@@ -186,8 +186,26 @@ export const updateKml = (id, adminId, kml) => {
     })
 }
 
+const _getKml = (url, resolve, reject) => {
+    axios
+        .get(url)
+        .then((response) => {
+            if (response.status === 200 && response.data) {
+                resolve(response.data)
+            } else {
+                const msg = `Incorrect response while getting file with url=${url}`
+                log.error(msg, response)
+                reject(msg)
+            }
+        })
+        .catch((error) => {
+            log.error(`Error while getting file with url=${url}`)
+            reject(error)
+        })
+}
+
 /**
- * Get KML file
+ * Get KML file given a Kml ID
  *
  * @param {string} id KML ID
  * @returns {Promise<string>} KML file content
@@ -195,22 +213,18 @@ export const updateKml = (id, adminId, kml) => {
 export const getKml = (id) => {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
-        axios
-            .get(getKmlUrl(id))
-            .then((response) => {
-                if (response.status === 200 && response.data) {
-                    resolve(response.data)
-                } else {
-                    const msg = `Incorrect response while getting file with id=${id}`
-                    log.error(msg, response)
-                    reject(msg)
-                }
-            })
-            .catch((error) => {
-                log.error(`Error while getting file with id=${id}`)
-                reject(error)
-            })
+        _getKml(getKmlUrl(id), resolve, reject)
     })
+}
+
+/**
+ * Get KML file given an Url
+ *
+ * @param {string} url KML URL
+ * @returns {Promise<string>} KML file content
+ */
+export const getKmlFromUrl = (url) => {
+    return new Promise((resolve, reject) => _getKml(url, resolve, reject))
 }
 
 /**

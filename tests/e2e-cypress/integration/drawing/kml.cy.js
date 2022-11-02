@@ -1,7 +1,5 @@
 /// <reference types="cypress" />
-
 import { EditableFeatureTypes } from '@/api/features.api'
-import i18n from '@/modules/i18n'
 import { getKmlFromRequest } from 'tests/e2e-cypress/support/drawing'
 
 const olSelector = '.ol-viewport'
@@ -140,11 +138,6 @@ const addKmlInterceptAndReinject = () => {
 describe('Switching from drawing mode to normal mode', () => {
     beforeEach(() => {
         serverKml = '<kml></kml>'
-        /**
-         * This i18n instance is not the instance of the website. (Thats why it needs separate
-         * initialization) It is used to manually get translations of tags inside a test case.
-         */
-        i18n.global.locale = language
         cy.goToDrawing(language, { lat: 47.097, lon: 7.743, z: 9.5 }, true)
     })
 
@@ -175,13 +168,8 @@ describe('Switching from drawing mode to normal mode', () => {
         })
 
         //Hide KML layer and check that kml layer disappeared
-        cy.fixture('service-kml/create-file.fixture.json').as('fileFixture')
-        cy.readWindowValue('kmlLayer').then(function (layer) {
-            const kmlUrl = layer.getSource().getUrl()
-            const kmlLayerSelector =
-                `[data-cy="button-toggle-visibility-` +
-                `layer-KML|${kmlUrl}|${i18n.global.t('draw_layer_label')}` +
-                `@adminId=${this.fileFixture.admin_id}"]`
+        cy.readWindowValue('kmlLayerUrl').then(function (kmlUrl) {
+            const kmlLayerSelector = `[data-cy^="button-toggle-visibility-layer-KML|${kmlUrl}|`
             cy.get(kmlLayerSelector).click()
             cy.readWindowValue('kmlLayer').should('not.exist')
         })
