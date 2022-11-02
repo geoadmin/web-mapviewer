@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'url'
+import { gitDescribeSync } from 'git-describe'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -15,8 +16,7 @@ export default defineConfig(({ command, mode }) => {
             },
         },
         define: {
-            // Getting package.json version in order to expose it to the app
-            __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+            __APP_VERSION__: JSON.stringify(gitDescribeSync().raw),
             VITE_ENVIRONMENT: JSON.stringify(mode),
         },
         test: {

@@ -1,6 +1,5 @@
 {
     "name": "web-mapviewer",
-    "version": "0.1.0",
     "private": true,
     "scripts": {
         "start": "npm run dev",
@@ -76,6 +75,7 @@
         "eslint-plugin-prettier-vue": "^4.2.0",
         "eslint-plugin-vue": "^9.7.0",
         "git-branch": "^2.0.1",
+        "git-describe": "^4.1.1",
         "googleapis": "^109.0.0",
         "jsdom": "^20.0.2",
         "mime-types": "^2.1.35",
