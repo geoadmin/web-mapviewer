@@ -236,7 +236,7 @@ export class EditableFeature extends Feature {
 
     /**
      * This method deserializes an editable feature that is stored in the extra properties of an
-     * openlayers feature. It then recreates a fully functional ofFeature with the correct styling.
+     * openlayers feature. It then recreates a fully functional olFeature with the correct styling.
      *
      * @param {openlayersFeature} olFeature
      */
@@ -244,17 +244,18 @@ export class EditableFeature extends Feature {
         const editableFeature = this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
         olFeature.set('editableFeature', editableFeature)
         olFeature.setStyle(featureStyleFunction)
-        if (
-            editableFeature.featureType === EditableFeatureTypes.MEASURE ||
-            editableFeature.featureType === EditableFeatureTypes.LINEPOLYGON
-        ) {
+        if (editableFeature.isLineOrMeasure()) {
+            /* The featureStyleFunction uses the geometries calculated in the geodesic object
+            if present. The lines connecting the vertices of the geometry will appear
+            geodesic (follow the shortest path) in this case instead of linear (be straight on
+            the screen)  */
             olFeature.geodesic = new GeodesicGeometries(olFeature)
         }
     }
 
     isLineOrMeasure() {
         return (
-            this._featureType === EditableFeatureTypes.MEASURE ||
+            this.featureType === EditableFeatureTypes.MEASURE ||
             this.featureType === EditableFeatureTypes.LINEPOLYGON
         )
     }

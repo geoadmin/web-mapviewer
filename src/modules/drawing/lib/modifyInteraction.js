@@ -1,4 +1,33 @@
-/** @module ol/interaction/Modify */
+/**
+ * This file was copied over from the openlayers file "ol/interaction/Modify.js", version 7.1.0
+ * and modified to handle correctly the case where the geometries drawn are not linear but geodesic.
+ *
+ * To achieve that, following modifications were made:
+ * - Two callback functions were defined.
+ *   -"subsegmentsFunction" receives a line segment as argument (a straight line between 2 vertices of the
+ *    geometry) and returns a list of subsegments that constitute that segment. The list of subsegments
+ *    follows the geometry of the geodesic segment. The modify interaction will then use these
+ *    subsegments instead of the straight line for distance to segment calculations and hit detection.
+ *  -"segmentExtentFunction" returns the extent of a particular segment. We need to be able to
+ *   overwrite the default extent, as the extent for the geodesic segment will not be the same
+ *   as the extent for the linear segment.
+ * - Added the "pointerWrapX" option. When we draw linear lines with openlayers, a line that goes
+ *   from 179 deg of longitude to 181 deg of longitude will only be 2 deg short, whereas a line that
+ *   goes from 179 deg of longitude to -179 deg of longitude will be very long and go around the
+ *   world. This is because openlayers has no other way to decide in which direction to go. When
+ *   drawing geodesically, this is different, as it is always clear in which direction a geodesic
+ *   line should go (a geodesic line should always take the shortest path). So a geodesic line that
+ *   goes from 179 deg to 181 deg of longitude is exactly the same line as a geodesic line that
+ *   goes from 179 deg to -179 deg of longitude. Thats why all geodesic features have normalized
+ *   coordinates in the [-180, 180] deg range. However for the user, it would be very unexpected
+ *   if he cannot grab the vertex of a line just because he clicks at e.g. 181 deg instead of
+ *   -179 deg of longitude. When setting "pointerWrapX" to true, the modify interaction will
+ *   normalize the coordinates of click events. The option "wrapX" that was already present should
+ *   also be set to true. It will normalize the view extent. This also solves the problem of
+ *   drawn features not being present anymore when rotating 360 deg.
+ *
+ * @module ol/interaction/Modify
+ * */
 import Collection from "ol/Collection";
 import CollectionEventType from "ol/CollectionEventType";
 import Event from "ol/events/Event";

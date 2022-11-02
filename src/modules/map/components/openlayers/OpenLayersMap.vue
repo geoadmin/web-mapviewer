@@ -139,6 +139,7 @@ export default {
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
             popoverCoordinates: [],
+            animationDuration: IS_TESTING_WITH_CYPRESS ? 0 : 250,
         }
     },
     computed: {
@@ -241,34 +242,22 @@ export default {
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
         center() {
-            if (!IS_TESTING_WITH_CYPRESS) {
-                this.view.animate({
-                    center: this.center,
-                    duration: 250,
-                })
-            } else {
-                this.view.setCenter(this.center)
-            }
+            this.view.animate({
+                center: this.center,
+                duration: this.animationDuration,
+            })
         },
         zoom() {
-            if (!IS_TESTING_WITH_CYPRESS) {
-                this.view.animate({
-                    zoom: this.zoom,
-                    duration: 250,
-                })
-            } else {
-                this.view.setZoom(this.zoom)
-            }
+            this.view.animate({
+                zoom: this.zoom,
+                duration: this.animationDuration,
+            })
         },
         rotation() {
-            if (!IS_TESTING_WITH_CYPRESS) {
-                this.view.animate({
-                    rotation: this.rotation,
-                    duration: 250,
-                })
-            } else {
-                this.view.setRotation(this.rotation)
-            }
+            this.view.animate({
+                rotation: this.rotation,
+                duration: this.animationDuration,
+            })
         },
         isCurrentlyDrawing(newValue) {
             // we iterate through the map "interaction" classes in order
