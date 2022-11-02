@@ -136,10 +136,6 @@ export default {
             // shows an arrow at the border of the popover that points to the button location
             arrow: true,
             trigger: 'click',
-            // The default tippy maxWidth is 350px, we need to add one more pixel here in order
-            // to avoid a useless horizontal scrollbar in the drawing icon selection menu on
-            // Windows Edge Browser.
-            maxWidth: 351,
         })
     },
     beforeUnmount() {
