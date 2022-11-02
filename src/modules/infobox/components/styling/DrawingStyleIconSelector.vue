@@ -192,5 +192,9 @@ export default {
         width: 2rem;
         height: 2rem;
     }
+
+    button {
+        --bs-btn-padding-x: 0.25rem;
+    }
 }
 </style>
