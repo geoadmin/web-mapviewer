@@ -72,6 +72,7 @@ import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { SavingStatus } from './lib/export-utils'
 
 export default {
     components: {
@@ -100,7 +101,7 @@ export default {
             isLoading: false,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
-            savingStatus: '',
+            savingStatus: SavingStatus.INITIAL,
         }
     },
     computed: {
@@ -161,7 +162,7 @@ export default {
             this.isLoading = true
             try {
                 if (show) {
-                    this.savingStatus = ''
+                    this.savingStatus = SavingStatus.INITIAL
                     // Clear the drawing layer, so addSavedKMLLayer() also updates already
                     // existent features
                     this.drawingLayer.getSource().clear()
@@ -292,17 +293,16 @@ export default {
             clearTimeout(this.KMLUpdateTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
             if (kml && kml.length) {
-                this.savingStatus = 'draw_file_saving'
+                this.savingStatus = SavingStatus.SAVING
                 try {
                     await this.saveDrawing(kml)
                 } catch (e) {
                     log.error('Could not save KML layer: ', e)
-                    // We should probably add a translation key for that
-                    this.savingStatus = 'Error while saving the drawing'
+                    this.savingStatus = SavingStatus.SAVE_ERROR
                     throw e
                 }
-                if (this.savingStatus !== '') {
-                    this.savingStatus = 'draw_file_saved'
+                if (this.savingStatus !== SavingStatus.UNSAVED_CHANGES) {
+                    this.savingStatus = SavingStatus.SAVED
                 }
             }
         },
@@ -324,11 +324,8 @@ export default {
          * status to "possibly unsaved changes"
          */
         willModify() {
-            if (
-                this.savingStatus === 'draw_file_saved' ||
-                this.savingStatus === 'draw_file_saving'
-            ) {
-                this.savingStatus = ''
+            if (this.savingStatus !== SavingStatus.SAVE_ERROR) {
+                this.savingStatus = SavingStatus.UNSAVED_CHANGES
             }
         },
         onDrawEnd(feature) {

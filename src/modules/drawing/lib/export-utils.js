@@ -11,6 +11,19 @@ const kmlFormat = new KML()
 const gpxFormat = new GPX()
 
 /**
+ * Enum that lists all possible saving statuses.
+ *
+ * @enum
+ */
+export const SavingStatus = {
+    SAVING: 'SAVING',
+    SAVED: 'SAVED',
+    SAVE_ERROR: 'SAVE_ERROR',
+    UNSAVED_CHANGES: 'UNSAVED_CHANGES',
+    INITIAL: 'INITIAL',
+}
+
+/**
  * Returns a string representing the features given in param as a GPX
  *
  * @param features {Feature[]} Features (OpenLayers) to be converted to GPX format

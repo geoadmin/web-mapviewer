@@ -33,7 +33,7 @@
                         </ButtonWithIcon>
                     </div>
                     <div class="d-flex justify-content-center drawing-toolbox-saving-status">
-                        {{ $t(savingStatus) }}
+                        {{ $t(savingStatusMessage) }}
                     </div>
                     <div class="d-flex justify-content-center">
                         <ButtonWithIcon
@@ -102,6 +102,7 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
 import DrawingHeader from './DrawingHeader.vue'
+import { SavingStatus } from '../lib/export-utils'
 
 export default {
     components: {
@@ -125,10 +126,10 @@ export default {
             type: Boolean,
             default: false,
         },
-        /** Translation key for the current kml saving status */
+        /** Current kml saving status */
         savingStatus: {
             type: String,
-            default: '',
+            default: SavingStatus.INITIAL,
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
@@ -148,6 +149,20 @@ export default {
                 this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
                 this.currentDrawingMode === EditableFeatureTypes.MEASURE
             )
+        },
+
+        /** Return a different translation key depending on the saving status */
+        savingStatusMessage() {
+            switch (this.savingStatus) {
+                case SavingStatus.SAVING:
+                    return 'draw_file_saving'
+                case SavingStatus.SAVED:
+                    return 'draw_file_saved'
+                case SavingStatus.SAVE_ERROR:
+                    return 'upload_failed'
+                default:
+                    return ''
+            }
         },
     },
     mounted() {
