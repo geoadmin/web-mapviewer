@@ -51,8 +51,8 @@ export default {
     transition: max-height 0.3s linear;
     button {
         width: 3rem;
-        margin-right: 3px;
-        margin-left: 3px;
+        margin-right: calc($button-spacer / 2);
+        margin-left: calc($button-spacer / 2);
     }
 }
 </style>
