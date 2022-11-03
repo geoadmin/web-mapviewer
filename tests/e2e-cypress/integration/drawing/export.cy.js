@@ -29,9 +29,12 @@ const checkKmlFile = (content) => {
     expect(content).to.contains('"name":"001-marker"')
 }
 const checkGpxFile = (content) => {
-    ;['Polygon', 'Point'].forEach((type) => {
-        expect(content).to.contains(`<type>${type}</type>`)
-    })
+    //2 <rte> (routes), one for LINEPOLYGON and MEASURE
+    expect(content).to.match(/<gpx.*<rte>.*<\/rte>.*<rte>.*<\/rte>.*<\/gpx>/)
+    expect(content).to.not.match(/<gpx.*<rte>.*<\/rte>.*<rte>.*<\/rte>.*<rte>.*<\/rte>.*<\/gpx>/)
+    //2 <wpt> (Waypoints), one for MAKER and ANNOTATION
+    expect(content).to.match(/<gpx.*<wpt.*\/>.*<wpt.*\/>.*<\/gpx>/)
+    expect(content).to.not.match(/<gpx.*<wpt.*\/>.*<wpt.*\/>.*<wpt.*\/>.*<\/gpx>/)
 }
 
 describe('Drawing toolbox actions', () => {

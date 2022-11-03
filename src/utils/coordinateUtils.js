@@ -383,10 +383,14 @@ export const CoordinateSystems = {
         },
     },
     WEBMERCATOR: {
-        id: 'WebMercator',
+        id: 'WEBMERCATOR',
         epsg: 'EPSG:3857',
         epsgNumber: 3857,
         label: 'WebMercator',
+        /* This means that the wgs map extent [-180,-90,180,90] would be
+        [-HALF_SIZE, -HALF_SIZE, HALF_SIZE, HALF_SIZE] in webmercator */
+        halfSize: Math.PI * 6378137,
+        deg360: 2 * Math.PI * 6378137,
         /**
          * @param {Number[]} coordinate Coordinates in WebMercator as [x, y]
          * @returns {String} Human readable formatted coordinate

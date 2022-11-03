@@ -185,7 +185,11 @@ Cypress.Commands.add(
 // cypress-wait-until wrapper to wait for a specific store state.
 // cy.readStoreValue doesn't work as `.its` will prevent retries.
 Cypress.Commands.add('waitUntilState', (predicate) => {
-    cy.waitUntil(() => cy.window().then((win) => predicate(win.store.state)))
+    cy.waitUntil(() => cy.window().then((win) => predicate(win.store.state)), {
+        errorMsg:
+            '"waitUntilState" failed, as the following predicate stayed false: ' +
+            predicate.toString(),
+    })
 })
 
 // Reads a value from the Vuex store

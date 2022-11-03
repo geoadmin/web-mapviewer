@@ -166,7 +166,7 @@ export default {
                 .reduce((max, height) => Math.max(max, height), 0)
             // We set max-height because setting the height would influence the
             // height of the children which in turn breaks this calculation.
-            container.style.maxHeight = `${verticalPadding + childHeight}px`
+            container.style.maxHeight = `min(${verticalPadding + childHeight}px, 35vh)`
         },
     },
 }

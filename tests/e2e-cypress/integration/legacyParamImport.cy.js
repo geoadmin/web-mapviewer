@@ -1,9 +1,6 @@
 /// <reference types="cypress" />
 
-import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { round } from '@/utils/numberUtils'
-
-const kmlServiceBaseUrl = `${Cypress.env('VUE_APP_API_SERVICE_KML_BASE_URL')}api/kml`
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
@@ -74,7 +71,7 @@ describe('Test on legacy param import', () => {
     context('Layers import', () => {
         const adminId = '0987654321'
         const kmlId = '1234567890'
-        const kmlServiceBaseUrl = `${API_SERVICE_KML_BASE_URL}api/kml`
+        const kmlServiceBaseUrl = `**/api/kml`
         const kmlServiceAdminUrl = `${kmlServiceBaseUrl}/admin`
         const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/${kmlId}`
         beforeEach(() => {

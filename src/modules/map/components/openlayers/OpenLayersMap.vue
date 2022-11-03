@@ -139,6 +139,7 @@ export default {
             /** Keeping trace of the starting center in order to place the cross hair */
             initialCenter: null,
             popoverCoordinates: [],
+            animationDuration: IS_TESTING_WITH_CYPRESS ? 0 : 250,
         }
     },
     computed: {
@@ -243,19 +244,19 @@ export default {
         center() {
             this.view.animate({
                 center: this.center,
-                duration: 250,
+                duration: this.animationDuration,
             })
         },
         zoom() {
             this.view.animate({
                 zoom: this.zoom,
-                duration: 250,
+                duration: this.animationDuration,
             })
         },
         rotation() {
             this.view.animate({
                 rotation: this.rotation,
-                duration: 250,
+                duration: this.animationDuration,
             })
         },
         isCurrentlyDrawing(newValue) {

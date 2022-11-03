@@ -3,6 +3,7 @@ import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawi
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
+import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
 
 /**
  * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing
@@ -26,7 +27,11 @@ import { getUid } from 'ol/util'
  * - `onDrawEnd` (function): called after the drawing is done with the drawn feature as argument
  * - `onDrawAbort` (function): called when the drawing is aborted with the aborted feature as argument
  * - `editingStyle` (function): style function used while drawing, if none given
- *   {@link editingFeatureStyleFunction} will be used
+ *   {@link editingFeatureStyleFunction} will be used. Note that the draw interaction passes three
+ *   different types of features to this interaction. The actual feature being drawn (in our case a
+ *   polygon), a Linestring (connecting all points already drawn) and a Point for the last point
+ *   drawn. The two helping features (linestring and point) are automatically deleted when the
+ *   drawing is finished.
  * - `featureStyle` (function): style applied to the feature as soon as it is done being drawn, will
  *   use {@link featureStyleFunction} if none is given
  */
@@ -38,6 +43,8 @@ const drawingInteractionMixin = {
             style: this.editingStyle || editingFeatureStyleFunction,
             type: this.geometryType || 'Point',
             source: this.getDrawingLayer().getSource(),
+            minPoints: 2, // As by default polygon geometries require at least 3 points
+            wrapX: true,
         })
         this.activate()
     },
@@ -84,7 +91,6 @@ const drawingInteractionMixin = {
                 manner. This means that if e.g. a property inside of the editableFeature changes, an
                 update must be triggered manually.*/
                 feature.setProperties({
-                    type: this.geometryType,
                     editableFeature: EditableFeature.constructWithObject(args),
                 })
             }
@@ -110,6 +116,13 @@ const drawingInteractionMixin = {
             if (typeof this.onDrawEndTransformPolygonIntoLineIfNeeded === 'function') {
                 this.onDrawEndTransformPolygonIntoLineIfNeeded(event)
             }
+            /* Normalize the coordinates, as the modify interaction is configured to operate only
+            between -180 and 180 deg (so that the features can be modified even if the view is of
+            by 360deg) */
+            const geometry = feature.getGeometry()
+            const normalizedCoords = wrapWebmercatorCoords(geometry.getCoordinates(), true)
+            geometry.setCoordinates(normalizedCoords) // needed probably to trigger rerender
+
             feature.get('editableFeature').coordinates =
                 extractOpenLayersFeatureCoordinates(feature)
             // removing the flag we've set above in onDrawStart (this feature is now drawn)

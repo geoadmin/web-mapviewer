@@ -42,9 +42,8 @@ describe('Line/Polygon tool', () => {
 
         // Opening line popup
         cy.get(drawingStyleLineButton).click()
-        cy.get(drawingStyleLinePopup).should('be.visible')
 
-        cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click()
+        cy.get(`${drawingStyleLinePopup} [data-cy="color-selector-black"]`).click({ force: true })
         cy.checkDrawnGeoJsonProperty('fillColor.fill', '#000000')
         cy.wait('@update-kml').then((interception) =>
             cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"fill":"#000000"/])
