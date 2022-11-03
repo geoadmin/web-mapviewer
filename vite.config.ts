@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
             },
         },
         define: {
-            __APP_VERSION__: JSON.stringify(gitDescribeSync().raw),
+            __APP_VERSION__: JSON.stringify('v' + gitDescribeSync().semverString),
             VITE_ENVIRONMENT: JSON.stringify(mode),
         },
         test: {
