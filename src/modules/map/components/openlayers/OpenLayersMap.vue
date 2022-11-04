@@ -164,6 +164,7 @@ export default {
             'resolution',
             'isCurrentlyDrawing',
             'backgroundLayers',
+            'isDesktopMode',
         ]),
         crossHairStyle() {
             if (this.crossHair) {
@@ -352,16 +353,17 @@ export default {
             'toggleFloatingTooltip',
             'clearAllSelectedFeatures',
         ]),
+        // Pointer down and up are triggered by both left and right clicks.
         onMapPointerDown() {
-            this.pointerDownStart = performance.now()
-        },
-        onMapPointerUp() {
-            this.lastClickTimeLength = performance.now() - this.pointerDownStart
-            this.pointerDownStart = null
+            /* Flag that inhibits multiple actions for the same mouse down event. So if on mobile,
+            a long click will not trigger single click actions, but only the oncontextmenu actions.
+             */
+            this.isPointerDown = true
         },
         onMapSingleClick(event) {
             // if no drawing is currently made
-            if (!this.isCurrentlyDrawing) {
+            if (!this.isCurrentlyDrawing && this.isPointerDown) {
+                this.isPointerDown = false
                 const geoJsonFeatures = []
                 // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
                 this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
@@ -401,13 +403,12 @@ export default {
                             })
                     }
                 })
-                // publishing click event into the store
                 this.click(
                     new ClickInfo(
                         event.coordinate,
-                        this.lastClickTimeLength,
                         event.pixel,
-                        geoJsonFeatures
+                        geoJsonFeatures,
+                        ClickType.LEFT_SINGLECLICK
                     )
                 )
             }
@@ -438,15 +439,11 @@ export default {
         },
         onContextMenu(event) {
             const screenCoordinates = [event.x, event.y]
-            this.click(
-                new ClickInfo(
-                    this.map.getCoordinateFromPixel(screenCoordinates),
-                    0,
-                    screenCoordinates,
-                    [],
-                    ClickType.RIGHT_CLICK
-                )
-            )
+            const coordinate = this.map.getCoordinateFromPixel(screenCoordinates)
+            if (this.isPointerDown && Array.isArray(coordinate)) {
+                this.isPointerDown = false
+                this.click(new ClickInfo(coordinate, screenCoordinates, [], ClickType.CONTEXTMENU))
+            }
             // we do not want the contextual menu to shows up, so we prevent the event propagation
             event.preventDefault()
             return false

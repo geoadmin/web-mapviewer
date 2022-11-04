@@ -9,12 +9,17 @@
         <HeaderWithSearch v-show="isHeaderShown" class="header" />
         <div class="toolbox-right">
             <GeolocButton
+                v-if="!isFullscreenMode"
                 class="mb-1"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
                 @click="toggleGeolocation"
             />
-            <ZoomButtons @zoom-in="increaseZoom" @zoom-out="decreaseZoom" />
+            <ZoomButtons
+                v-if="!isFullscreenMode"
+                @zoom-in="increaseZoom"
+                @zoom-out="decreaseZoom"
+            />
             <CompassButton />
         </div>
         <div
@@ -76,6 +81,7 @@ export default {
             isGeolocationActive: (state) => state.geolocation.active,
             isGeolocationDenied: (state) => state.geolocation.denied,
             showMenu: (state) => state.ui.showMenu,
+            isFullscreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
             'isHeaderShown',
