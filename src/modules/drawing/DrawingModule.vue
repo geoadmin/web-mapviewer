@@ -5,6 +5,7 @@
             :current-drawing-mode="currentDrawingMode"
             :is-drawing-empty="isDrawingEmpty"
             :kml-ids="kmlIds"
+            :saving-status="savingStatus"
             @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
@@ -20,7 +21,7 @@
             <!-- As modify interaction needs access to the selected features we embed it into
             the select interaction component, this component will share its feature
             through a provide/inject -->
-            <DrawingModifyInteraction @modify-end="onChange" />
+            <DrawingModifyInteraction @modify-end="onChange" @modify-start="willModify" />
         </DrawingSelectInteraction>
         <DrawingMarkerInteraction
             v-if="show && isDrawingModeMarker"
@@ -71,6 +72,7 @@ import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { SavingStatus } from './lib/export-utils'
 
 export default {
     components: {
@@ -99,6 +101,7 @@ export default {
             isLoading: false,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
+            savingStatus: SavingStatus.INITIAL,
         }
     },
     computed: {
@@ -159,6 +162,7 @@ export default {
             this.isLoading = true
             try {
                 if (show) {
+                    this.savingStatus = SavingStatus.INITIAL
                     // Clear the drawing layer, so addSavedKMLLayer() also updates already
                     // existent features
                     this.drawingLayer.getSource().clear()
@@ -289,15 +293,21 @@ export default {
             clearTimeout(this.KMLUpdateTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
             if (kml && kml.length) {
+                this.savingStatus = SavingStatus.SAVING
                 try {
                     await this.saveDrawing(kml)
                 } catch (e) {
                     log.error('Could not save KML layer: ', e)
+                    this.savingStatus = SavingStatus.SAVE_ERROR
                     throw e
+                }
+                if (this.savingStatus !== SavingStatus.UNSAVED_CHANGES) {
+                    this.savingStatus = SavingStatus.SAVED
                 }
             }
         },
         onChange() {
+            this.willModify()
             this.$nextTick(() => {
                 this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
                 this.triggerKMLUpdate()
@@ -305,6 +315,18 @@ export default {
         },
         onDrawStart(feature) {
             this.currentlySketchedFeature = feature
+            /* Do not call willModify() here as we are not sure if there will be any modification
+            (maybe the user decides to cancel the drawing) */
+        },
+
+        /**
+         * Call this method when there are or when there will be unsaved changes. Change the saving
+         * status to "possibly unsaved changes"
+         */
+        willModify() {
+            if (this.savingStatus !== SavingStatus.SAVE_ERROR) {
+                this.savingStatus = SavingStatus.UNSAVED_CHANGES
+            }
         },
         onDrawEnd(feature) {
             this.currentlySketchedFeature = null
@@ -340,6 +362,7 @@ export default {
             }
         },
         clearDrawing: function () {
+            this.willModify()
             this.clearDrawingFeatures()
             this.clearAllSelectedFeatures()
             this.drawingLayer.getSource().clear()

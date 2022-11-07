@@ -32,6 +32,9 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </ButtonWithIcon>
                     </div>
+                    <div class="d-flex justify-content-center drawing-toolbox-saving-status">
+                        {{ $t(savingStatusMessage) }}
+                    </div>
                     <div class="d-flex justify-content-center">
                         <ButtonWithIcon
                             :button-font-awesome-icon="['far', 'trash-alt']"
@@ -99,6 +102,7 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
 import DrawingHeader from './DrawingHeader.vue'
+import { SavingStatus } from '../lib/export-utils'
 
 export default {
     components: {
@@ -122,6 +126,11 @@ export default {
             type: Boolean,
             default: false,
         },
+        /** Current kml saving status */
+        savingStatus: {
+            type: String,
+            default: SavingStatus.INITIAL,
+        },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
     data() {
@@ -140,6 +149,20 @@ export default {
                 this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
                 this.currentDrawingMode === EditableFeatureTypes.MEASURE
             )
+        },
+
+        /** Return a different translation key depending on the saving status */
+        savingStatusMessage() {
+            switch (this.savingStatus) {
+                case SavingStatus.SAVING:
+                    return 'draw_file_saving'
+                case SavingStatus.SAVED:
+                    return 'draw_file_saved'
+                case SavingStatus.SAVE_ERROR:
+                    return 'upload_failed'
+                default:
+                    return ''
+            }
         },
     },
     mounted() {
@@ -204,6 +227,12 @@ $zindex-drawing-toolbox: -1;
     }
     &-disclaimer {
         display: none;
+    }
+    &-saving-status {
+        color: #d3d3d3;
+        font-size: 12px;
+        line-height: 1.25;
+        min-height: 1.25em;
     }
 }
 

@@ -27,7 +27,7 @@ const cursorGrabbingClass = 'cursor-grabbing'
  */
 export default {
     inject: ['getMap', 'getSelectInteraction'],
-    emits: ['modifyEnd'],
+    emits: ['modifyEnd', 'modifyStart'],
     mounted() {
         this.modifyInteraction = new ModifyInteraction({
             // here we can't have the whole drawing layers features (or source)
@@ -84,6 +84,7 @@ export default {
                     isDragged: true,
                 })
                 this.getMap().getTarget().classList.add(cursorGrabbingClass)
+                this.$emit('modifyStart', feature)
             }
         },
         onModifyEnd(event) {
