@@ -1,6 +1,14 @@
 <template>
     <!-- preventing right click (or long left click) to trigger the contextual menu of the browser-->
-    <div id="ol-map" ref="map" @contextmenu="onContextMenu">
+    <div
+        id="ol-map"
+        ref="map"
+        @touchstart="onTouchStart"
+        @touchmove="clearLongPressTimer"
+        @touchend="clearLongPressTimer"
+        @touchcancel="clearLongPressTimer"
+        @contextmenu="onContextMenu"
+    >
         <!-- Adding background layer -->
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
@@ -438,15 +446,31 @@ export default {
             }
         },
         onContextMenu(event) {
-            const screenCoordinates = [event.x, event.y]
+            this.updateContextmenuClickInfo([event.x, event.y])
+            // we do not want the contextual menu to shows up, so we prevent the event propagation
+            event.preventDefault()
+            return false
+        },
+        // These ontouch events are only for IOS devices, as there onContextMenu is not
+        // triggered correctly
+        onTouchStart(event) {
+            this.clearLongPressTimer()
+            if (event.touches.length === 1) {
+                this.contextMenuTimeoutId = setTimeout(() => {
+                    const touch = event.touches[0]
+                    this.updateContextmenuClickInfo([touch.clientX, touch.clientY])
+                }, 500)
+            }
+        },
+        clearLongPressTimer() {
+            clearTimeout(this.contextMenuTimeoutId)
+        },
+        updateContextmenuClickInfo(screenCoordinates) {
             const coordinate = this.map.getCoordinateFromPixel(screenCoordinates)
             if (this.isPointerDown && Array.isArray(coordinate)) {
                 this.isPointerDown = false
                 this.click(new ClickInfo(coordinate, screenCoordinates, [], ClickType.CONTEXTMENU))
             }
-            // we do not want the contextual menu to shows up, so we prevent the event propagation
-            event.preventDefault()
-            return false
         },
     },
 }
