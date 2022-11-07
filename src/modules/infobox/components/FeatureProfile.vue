@@ -267,7 +267,7 @@ export default {
                 return await apiFunction({
                     geom: { type: 'LineString', coordinates: coordinatesLv95 },
                     offset: 0,
-                    sr: CoordinateSystems.LV95.espgNumber,
+                    sr: CoordinateSystems.LV95.epsgNumber,
                     distinct_points: true,
                 })
             } catch (e) {
