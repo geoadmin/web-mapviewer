@@ -88,7 +88,7 @@ describe('Test mouse position', () => {
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)
         })
     })
-    context.skip('LocationPopUp when rightclick on the map', function () {
+    context('LocationPopUp when rightclick on the map', function () {
         const lat = 45
         const lon = 8
         beforeEach(() => {
@@ -140,7 +140,7 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-wgs84"]').contains(
-                    `${lat}° 00′ 00.00″ N ${lon}° 00′ 00.00″ E`
+                    `${lat}° N ${lon}° E`
                 )
             })
             it('Uses the coordination system UTM in the popup', () => {
