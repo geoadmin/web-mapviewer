@@ -127,7 +127,12 @@ export default {
         }
     },
     computed: {
-        featureCoordinates() {
+        featureGeodesicCoordinates() {
+            if (this.feature.geodesicCoordinates) {
+                return this.feature.geodesicCoordinates
+            }
+            // fallback to the drawing coordinates
+            log.error('No Geodesic Coordinate available, falling back to the regular coordinates')
             return this.feature.coordinates
         },
         showProfile() {
@@ -189,7 +194,7 @@ export default {
         },
     },
     watch: {
-        featureCoordinates() {
+        featureGeodesicCoordinates() {
             this.$nextTick(this.updateProfile)
         },
     },
@@ -261,8 +266,11 @@ export default {
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
-        async getProfile(apiFunction = profileJson, coordinates = this.featureCoordinates) {
-            const coordinatesLv95 = toLv95(coordinates, CoordinateSystems.WEBMERCATOR.epsg)
+        async getProfile(apiFunction = profileJson) {
+            const coordinatesLv95 = toLv95(
+                this.featureGeodesicCoordinates,
+                CoordinateSystems.WEBMERCATOR.epsg
+            )
             try {
                 return await apiFunction({
                     geom: { type: 'LineString', coordinates: coordinatesLv95 },
@@ -272,6 +280,7 @@ export default {
                 })
             } catch (e) {
                 log.error('Error while geting profile: ', e)
+                return []
             }
         },
         triggerDownload(blob, fileName) {

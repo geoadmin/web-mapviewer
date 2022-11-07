@@ -1,7 +1,7 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 
 const DEG360 = CoordinateSystems.WEBMERCATOR.deg360
 const olSelector = '.ol-viewport'
@@ -72,7 +72,7 @@ function checkFeatureSelected(featureCoords, precision) {
     cy.readWindowValue('drawingLayer').should((layer) => {
         const features = layer.getSource().getFeatures()
         expect(features, 'Expected the drawing layer to contain exactly one feat').to.have.length(1)
-        const coords = extractOpenLayersFeatureCoordinates(features[0])
+        const coords = extractOlFeatureCoordinates(features[0])
         checkCoordsEqual(coords, featureCoords, precision)
     })
     cy.readStoreValue('state.features.selectedFeatures').then((features) => {

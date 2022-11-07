@@ -1,5 +1,8 @@
 import { EditableFeature } from '@/api/features.api'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
@@ -123,8 +126,10 @@ const drawingInteractionMixin = {
             const normalizedCoords = wrapWebmercatorCoords(geometry.getCoordinates(), true)
             geometry.setCoordinates(normalizedCoords) // needed probably to trigger rerender
 
-            feature.get('editableFeature').coordinates =
-                extractOpenLayersFeatureCoordinates(feature)
+            let editableFeature = feature.get('editableFeature')
+            editableFeature.coordinates = extractOlFeatureCoordinates(feature)
+            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
+
             // removing the flag we've set above in onDrawStart (this feature is now drawn)
             feature.unset('isDrawing')
             // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
