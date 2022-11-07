@@ -128,9 +128,9 @@ export default {
         labelClasses() {
             let className
             if (this.direction === 'column') {
-                className = this.iconsBeforeText ? 'mt-1' : 'mb-1'
+                className = this.iconsBeforeText ? 'mt-2' : 'mb-2'
             } else {
-                className = this.iconsBeforeText ? 'ms-1' : 'me-1'
+                className = this.iconsBeforeText ? 'ms-2' : 'me-2'
             }
             return className
         },

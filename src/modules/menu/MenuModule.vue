@@ -180,6 +180,10 @@ $animation-time: 0.5s;
         .button-open-close-desktop-menu {
             pointer-events: all;
             height: $openCloseButtonHeight;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            padding-left: 2rem;
+            padding-right: 2rem;
         }
     }
 }
