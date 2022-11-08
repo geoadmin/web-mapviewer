@@ -91,7 +91,6 @@ import { mapActions } from 'vuex'
 export default {
     components: { ButtonWithIcon },
     inject: ['getMap'],
-    emits: ['data:valid', 'data:empty'],
     props: {
         feature: {
             type: EditableFeature,
@@ -288,7 +287,7 @@ export default {
                     distinct_points: true,
                 })
             } catch (e) {
-                log.error('Error while geting profile: ', e)
+                log.error('Error while getting profile: ', e)
                 return []
             }
         },
@@ -385,12 +384,6 @@ export default {
         },
         checkIfProfileDataPresent(data) {
             this.profileHasData = data.length > 0
-            // emitting event so that the parent can react, if there's nothing else than the profile to show for instance
-            if (this.profileHasData) {
-                this.$emit('data:valid')
-            } else {
-                this.$emit('data:empty')
-            }
         },
     },
 }
