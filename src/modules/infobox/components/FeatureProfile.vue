@@ -5,10 +5,19 @@
         data-infobox="height-reference"
         class="profile-popup-content"
     >
-        <div ref="profileGraph" class="profile-graph"></div>
-        <div ref="profileTooltipAnchor" class="profile-tooltip-anchor"></div>
         <div
-            v-show="showTooltip"
+            v-show="profileHasData"
+            ref="profileGraph"
+            class="profile-graph"
+            data-cy="profile-popup-graph"
+        ></div>
+        <div
+            v-show="profileHasData"
+            ref="profileTooltipAnchor"
+            class="profile-tooltip-anchor"
+        ></div>
+        <div
+            v-show="profileHasData && showTooltip"
             ref="profileTooltip"
             class="profile-tooltip"
             data-cy="profile-popup-tooltip"
@@ -49,6 +58,7 @@
                 </span>
             </div>
             <ButtonWithIcon
+                v-if="profileHasData"
                 :button-font-awesome-icon="['fas', 'download']"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
@@ -81,6 +91,7 @@ import { mapActions } from 'vuex'
 export default {
     components: { ButtonWithIcon },
     inject: ['getMap'],
+    emits: ['data:valid', 'data:empty'],
     props: {
         feature: {
             type: EditableFeature,
@@ -90,6 +101,7 @@ export default {
     data() {
         return {
             showTooltip: false,
+            profileHasData: true,
             options: {
                 margin: { left: 55, right: 15, bottom: 35, top: 15 },
                 width: 0,
@@ -134,13 +146,6 @@ export default {
             // fallback to the drawing coordinates
             log.error('No Geodesic Coordinate available, falling back to the regular coordinates')
             return this.feature.coordinates
-        },
-        showProfile() {
-            return (
-                this.feature &&
-                (this.feature.featureType === EditableFeatureTypes.MEASURE ||
-                    this.feature.featureType === EditableFeatureTypes.LINEPOLYGON)
-            )
         },
         showDeleteButton() {
             return this.feature && this.feature.featureType === EditableFeatureTypes.MEASURE
@@ -255,6 +260,8 @@ export default {
         },
         async createProfileChart() {
             const data = await this.getProfile()
+            // checking if profile has data, if not (outside CH) we hide the profile
+            this.profileHasData = data.length > 0
             this.profileChart.create(data)
             const areaChartPath = this.profileChart.group.select('.profile-area')
             const glass = this.profileChart.glass
@@ -263,6 +270,8 @@ export default {
         },
         async updateProfileChart(size) {
             const data = await this.getProfile()
+            // checking if profile has data, if not (outside CH) we hide the profile
+            this.profileHasData = data.length > 0
             this.profileChart.update(data, size)
             return this.profileChart.element
         },
@@ -373,6 +382,15 @@ export default {
                 return `${value.toFixed(2)}m`
             }
             return `${format(Math.round(value), 3)}m`
+        },
+        checkIfProfileDataPresent(data) {
+            this.profileHasData = data.length > 0
+            // emitting event so that the parent can react, if there's nothing else than the profile to show for instance
+            if (this.profileHasData) {
+                this.$emit('data:valid')
+            } else {
+                this.$emit('data:empty')
+            }
         },
     },
 }

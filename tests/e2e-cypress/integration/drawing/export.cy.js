@@ -74,18 +74,23 @@ describe('Drawing toolbox actions', () => {
 })
 
 describe('Profile popup actions', () => {
-    beforeEach(() => {
-        cy.task('clearFolder', downloadsFolder)
-        cy.goToDrawing()
-        cy.drawMeasure()
-    })
     it('trigger download of CSV file', () => {
+        cy.task('clearFolder', downloadsFolder)
+        // drawing a measure line
+        cy.goToDrawing()
+        cy.addProfileJsonFixture()
+        cy.drawMeasure()
+        // waiting for service-alti backend
+        cy.wait('@profile')
+        // preparing the CSV request intercept
         cy.intercept('**/rest/services/profile.csv**', {
-            fixture: 'service-alti/profile.fixture',
+            fixture: 'service-alti/profile.fixture.csv',
         }).as('profileAsCsv')
+        // triggering a CSV download
         cy.get('[data-cy="profile-popup-csv-download-button"]').click()
         cy.wait('@profileAsCsv')
-        cy.fixture('service-alti/profile.fixture').then((mockCsv) => {
+        // check CSV content
+        cy.fixture('service-alti/profile.fixture.csv').then((mockCsv) => {
             checkFiles('csv', (content) => {
                 // just in case we are testing from windows we replace all \r\n by \n
                 const agnosticContent = content.replaceAll('\r', '')
