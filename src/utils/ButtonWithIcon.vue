@@ -27,7 +27,7 @@ export default {
         },
         buttonFontAwesomeIcon: {
             type: Array,
-            default: null,
+            required: true,
         },
         iconSize: {
             type: String,

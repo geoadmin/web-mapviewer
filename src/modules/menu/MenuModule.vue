@@ -41,7 +41,7 @@
                     <MenuTray class="menu-tray-content" :compact="isDesktopMode" />
                     <ButtonWithIcon
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu m-auto"
+                        class="button-open-close-desktop-menu m-auto ps-4 pe-4"
                         data-cy="menu-button"
                         :button-font-awesome-icon="['fas', showMenu ? 'caret-up' : 'caret-down']"
                         :button-title="$t(showMenu ? 'close_menu' : 'open_menu')"
@@ -182,8 +182,6 @@ $animation-time: 0.5s;
             height: $openCloseButtonHeight;
             border-top-left-radius: 0;
             border-top-right-radius: 0;
-            padding-left: 2rem;
-            padding-right: 2rem;
         }
     }
 }

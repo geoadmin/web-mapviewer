@@ -76,7 +76,7 @@ export default {
         /** The button should have either a title or icons (or both) */
         buttonFontAwesomeIcon: {
             type: Array,
-            default: null,
+            required: true,
         },
         /** Flag telling if the button should harbor bootstrap's primary color */
         primary: {

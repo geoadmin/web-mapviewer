@@ -25,18 +25,20 @@
                 <div ref="modalContent" class="card-body p-2">
                     <slot />
                     <div v-if="showConfirmationButtons" class="mt-1 d-flex justify-content-end">
-                        <ButtonWithIcon
-                            :button-title="$t('cancel')"
-                            class="me-1"
+                        <button
+                            class="btn btn-light me-2"
                             data-cy="modal-cancel-button"
                             @click="onClose(false)"
-                        />
-                        <ButtonWithIcon
-                            :button-title="$t('success')"
-                            primary
+                        >
+                            {{ $t('cancel') }}
+                        </button>
+                        <button
+                            class="btn btn-primary"
                             data-cy="modal-confirm-button"
                             @click="onClose(true)"
-                        />
+                        >
+                            {{ $t('success') }}
+                        </button>
                     </div>
                 </div>
             </div>
