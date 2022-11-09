@@ -14,8 +14,8 @@ export function toLv95(input, epsg) {
 }
 
 /**
- * Wraps the provided webmercator coordinates in the world extents (i.e. the coordinate range
- * that if equivalent to the wgs84 [-180, 180))
+ * Wraps the provided webmercator coordinates in the world extents (i.e. the coordinate range that
+ * if equivalent to the wgs84 [-180, 180))
  *
  * @param coords The coordinates (or array of coordinates) to wrap
  * @param inPlace If false, the original coordinates remain untouched and only a copy is modified
@@ -102,7 +102,7 @@ export function formatAngle(value, digits = 2) {
     return `${value.toFixed(digits)}°`
 }
 
-export function extractOpenLayersFeatureCoordinates(feature) {
+export function extractOlFeatureCoordinates(feature) {
     let coordinates = feature.getGeometry().getCoordinates()
     if (feature.getGeometry().getType() === 'Polygon') {
         // in case of a polygon, the coordinates structure is
@@ -117,6 +117,10 @@ export function extractOpenLayersFeatureCoordinates(feature) {
         coordinates = coordinates[0]
     }
     return coordinates
+}
+
+export function extractOlFeatureGeodesicCoordinates(feature) {
+    return feature.geodesic?.getGeodesicGeom().getCoordinates()[0]
 }
 
 /**

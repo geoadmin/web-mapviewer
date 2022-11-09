@@ -4,7 +4,10 @@
 
 <script>
 import { DRAWING_HIT_TOLERANCE } from '@/config'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import { noModifierKeys, singleClick } from 'ol/events/condition'
 import ModifyInteraction from '@/modules/drawing/lib/modifyInteraction'
@@ -102,7 +105,8 @@ export default {
                 })
                 this.changeFeatureCoordinates({
                     feature: storeFeature,
-                    coordinates: extractOpenLayersFeatureCoordinates(feature),
+                    coordinates: extractOlFeatureCoordinates(feature),
+                    geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
                 })
                 this.getMap().getTarget().classList.remove(cursorGrabbingClass)
                 this.$emit('modifyEnd', feature)

@@ -60,12 +60,13 @@ export default {
          * @param {EditableFeature} feature
          * @param {Number[][]} coordinates
          */
-        changeFeatureCoordinates({ commit, state }, { feature, coordinates }) {
+        changeFeatureCoordinates({ commit, state }, { feature, coordinates, geodesicCoordinates }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable && Array.isArray(coordinates)) {
                 commit('changeFeatureCoordinates', {
                     feature: selectedFeature,
                     coordinates,
+                    geodesicCoordinates,
                 })
             }
         },
@@ -221,8 +222,9 @@ export default {
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
         },
-        changeFeatureCoordinates(state, { feature, coordinates }) {
+        changeFeatureCoordinates(state, { feature, coordinates, geodesicCoordinates }) {
             feature.coordinates = coordinates
+            feature.geodesicCoordinates = geodesicCoordinates
         },
         changeFeatureTitle(state, { feature, title }) {
             feature.title = title

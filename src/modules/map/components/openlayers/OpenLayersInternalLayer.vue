@@ -11,7 +11,7 @@
             v-if="layerConfig.type === LayerTypes.WMTS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.espgNumber)"
+            :url="layerConfig.getURL(LV95.epsgNumber)"
             :z-index="zIndex"
             :projection="LV95.epsg"
         />
@@ -19,7 +19,7 @@
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.espgNumber)"
+            :url="layerConfig.getURL(LV95.epsgNumber)"
             :gutter="layerConfig.gutter"
             :z-index="zIndex"
             :projection="LV95.epsg"

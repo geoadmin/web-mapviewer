@@ -168,6 +168,7 @@ export class EditableFeature extends Feature {
         this._fillColor = fillColor
         this._icon = icon
         this._iconSize = iconSize
+        this._geodesicCoordinates = null
     }
 
     /**
@@ -370,6 +371,17 @@ export class EditableFeature extends Feature {
     set isDragged(flag) {
         this._isDragged = flag
         this.emitChangeEvent('isDragged')
+    }
+
+    /**
+     * Get/Set the Geodesic Coordinates. Those coordinates are used with a geodesic filling between
+     * the coordinates. Those coordinates are used to draw the feature and for the height profile.
+     */
+    get geodesicCoordinates() {
+        return this._geodesicCoordinates
+    }
+    set geodesicCoordinates(coordinates) {
+        this._geodesicCoordinates = coordinates
     }
 }
 

@@ -345,7 +345,7 @@ export const CoordinateSystems = {
     LV95: {
         id: 'LV95',
         epsg: 'EPSG:2056',
-        espgNumber: 2056,
+        epsgNumber: 2056,
         label: 'CH1903+ / LV95',
         /**
          * @param {Number[]} coordinate Coordinates in LV95 as [easting, northing]

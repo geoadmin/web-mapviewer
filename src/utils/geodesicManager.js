@@ -20,7 +20,7 @@ const DEG360_IN_WEBMERCATOR = CoordinateSystems.WEBMERCATOR.deg360
 /**
  * Class responsible for:
  *
- * - Generating the geodesic geometries of a given Polygon or LineString. The generated geometires are
+ * - Generating the geodesic geometries of a given Polygon or LineString. The generated geometries are
  *   of type "MultiPolygon" / "MultiLineString", so that the 180deg datetime limit is correctly
  *   handled by openlayers.
  * - Generating the measure styles that the measure feature uses to display intermediate distances,
