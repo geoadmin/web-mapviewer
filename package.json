@@ -14,8 +14,10 @@
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
         "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
         "build": "npm run type-check && vite build",
-        "deploy:dev": "DEPLOY=true npm run build -- --mode development && node scripts/deploy.js dev",
-        "deploy:int": "DEPLOY=true npm run build -- --mode development && node scripts/deploy.js int",
+        "build-dev": "npm run build -- --mode development",
+        "build-prod": "npm run build -- --mode production",
+        "deploy:dev": "DEPLOY=true npm run build-dev && node scripts/deploy.js dev",
+        "deploy:int": "DEPLOY=true npm run build-prod && node scripts/deploy.js int",
         "update:translations": "node scripts/generate-i18n-files.js",
         "update:browserlist": "npx browserslist@latest --update-db"
     },
