@@ -36,8 +36,12 @@ phases:
       - |
         if [[ -z "${GIT_BRANCH}" ]];
         then
-          GIT_BRANCH=$(git describe --exact-match --all 2>/dev/null || echo "unknown")
-          export GIT_BRANCH=${GIT_BRANCH#heads/}
+          echo "git rev-parse HEAD"
+          git rev-parse HEAD
+          echo "git show-ref"
+          git show-ref
+          GIT_BRANCH=$(git show-ref | grep "$(git rev-parse HEAD)" | awk '!/refs\/tags\// {print $2}' | head -1)
+          export GIT_BRANCH=${GIT_BRANCH##*/}
         fi
       # if this build has been triggered by a push on master (PR merge on master), we deploy on INT (otherwise everything goes to dev)
       - export DEPLOY_TARGET="dev"
