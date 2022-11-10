@@ -15,6 +15,9 @@ import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
+import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { Point } from 'ol/geom'
+import { getDefaultStyle } from 'ol/format/KML'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
  * edited if the corresponding flag says so (it will then fires "change" events any time one
@@ -136,8 +139,8 @@ export class EditableFeature extends Feature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] coordinates of this feature in EPSG:3857
-     *   (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry coordinates of
+     *   this feature in EPSG:3857 (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
@@ -242,7 +245,10 @@ export class EditableFeature extends Feature {
      * @param {openlayersFeature} olFeature
      */
     static deserialize(olFeature) {
-        const editableFeature = this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
+        const serializedEditableFeature = olFeature.get('editableFeature')
+        const editableFeature = serializedEditableFeature
+            ? this.recreateObject(JSON.parse(serializedEditableFeature))
+            : this.generateEditableFeatureFromOlFeature(olFeature)
         olFeature.set('editableFeature', editableFeature)
         olFeature.setStyle(featureStyleFunction)
         if (editableFeature.isLineOrMeasure()) {
@@ -252,6 +258,51 @@ export class EditableFeature extends Feature {
             the screen)  */
             olFeature.geodesic = new GeodesicGeometries(olFeature)
         }
+    }
+
+    static generateEditableFeatureFromOlFeature(olFeature) {
+        const geom = olFeature.getGeometry()
+        const styles = olFeature.getStyle()(olFeature)
+        const style = Array.isArray(styles) ? (styles.length === 1 ? styles[0] : null) : styles
+        if (!style) {
+            throw new Error('Parsing error: Could not get the style from the ol Feature')
+        }
+        const defStyle = getDefaultStyle()
+        const type = olFeature
+            .getId()
+            .match(/^([a-z]+)_/)[1]
+            .toUpperCase() //only works like this in the old viewer, new viewer simply stores the id number here
+        if (!Object.values(EditableFeatureTypes).includes(type)) {
+            throw new Error('Parsing error: Type of features in kml not recognized')
+        }
+        let coordinates = extractOpenLayersFeatureCoordinates(olFeature)
+        coordinates = Array.isArray(coordinates[0])
+            ? coordinates.map((coord) => coord.slice(0, 2))
+            : coordinates.slice(0, 2)
+        geom.setCoordinates(coordinates)
+        let icon = style.getImage()
+        if (icon?.getSrc()?.match(/google/) || icon?.getSrc() === defStyle?.getImage()?.getSrc()) {
+            icon = null
+        }
+        let textSize = style.getText()?.getScale()
+        if (textSize === defStyle?.getText()?.getScale()) {
+            textSize = 1
+        }
+        const args = {
+            id: olFeature.getId(),
+            coordinates: coordinates,
+            featureType: type,
+            title: olFeature.get('name') ?? '',
+            description: olFeature.get('description') ?? '', // accesses property only set by old viewer
+            textColor: FeatureStyleColor.generateFromFillColorArray(
+                style.getText()?.getFill()?.getColor()
+            ),
+            fillColor: FeatureStyleColor.generateFromFillColorArray(style.getStroke()?.getColor()),
+            icon: Icon.generateFromOlIcon(icon),
+            textSize: FeatureStyleSize.getFromTextScale(textSize),
+            iconSize: MEDIUM,
+        }
+        return this.constructWithObject(args)
     }
 
     isLineOrMeasure() {

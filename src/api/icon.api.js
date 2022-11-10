@@ -101,6 +101,19 @@ export class Icon {
         }
     }
 
+    static generateFromOlIcon(olIcon) {
+        if (!olIcon) {
+            return null
+        }
+        olIcon.setDisplacement([0, 0])
+        const url = olIcon.getSrc()
+        const size = olIcon.getSize()
+        let anchor = olIcon.getAnchor()
+        anchor[0] /= size[0]
+        anchor[1] /= size[1]
+        return url && anchor ? new Icon('unknown', url, url, 'unknown', anchor) : null
+    }
+
     static recreateObject(o) {
         return new Icon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
     }

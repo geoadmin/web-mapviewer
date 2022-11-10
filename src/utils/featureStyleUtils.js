@@ -26,6 +26,20 @@ export class FeatureStyleColor {
         return new FeatureStyleColor(o.name, o.fill, o.border)
     }
 
+    static generateFromFillColorArray(fillColor) {
+        if (!fillColor) {
+            return
+        }
+        const fill =
+            '#' +
+            fillColor
+                .slice(0, 3)
+                .map((color) => ('0' + color.toString(16)).slice(-2))
+                .reduce((prev, current) => prev + current)
+        const matchingColor = allStylingColors.find((color) => color.fill === fill)
+        return matchingColor ?? new FeatureStyleColor('unknown', fill, '#ffffff')
+    }
+
     /** @returns {String} Name of this color in lower case english */
     get name() {
         return this._name
@@ -110,6 +124,21 @@ export class FeatureStyleSize {
         return new FeatureStyleSize(o.label, o.textScale, o.iconScale)
     }
 
+    static getFromTextScale(textScale) {
+        if (!textScale) {
+            return
+        }
+        const matchingScale = allStylingSizes.find((size) => size.textScale === textScale)
+        return matchingScale ?? new FeatureStyleSize('unknown', textScale, 1)
+    }
+
+    static getFromIconScale(iconScale) {
+        if (!iconScale) {
+            return
+        }
+        const matchingScale = allStylingSizes.find((size) => size.iconScale === iconScale)
+        return matchingScale ?? new FeatureStyleSize('unknown', 1, iconScale)
+    }
     /**
      * @returns {String} Translation key for this size (has to go through the i18n service to have a
      *   human-readable value)
