@@ -27,7 +27,7 @@ phases:
       - export GIT_BRANCH="${CODEBUILD_WEBHOOK_HEAD_REF#refs/heads/}"
       - export GIT_BASE_BRANCH="${CODEBUILD_WEBHOOK_BASE_REF#refs/heads/}"
       - export GIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - export GIT_TAG="$(git describe --tags || echo 'unknown')"
+      - export GIT_TAG="$(git describe --tags --dirty || echo 'unknown')"
       - export GIT_DIRTY="$(git status --porcelain)"
       # When build are manually triggered by a user, the CODEBUILD_WEBHOOK_HEAD_REF is not
       # set resulting to an empty GIT_BRANCH. Usually Codebuild don't checkout the branch but
@@ -55,6 +55,8 @@ phases:
       - if [ "${DEPLOY_TARGET}" = "int" ] ; then
           export AWS_ACCOUNT_TO_USE="${AWS_SWISSTOPO_BGDI_ACCOUNT_ID}:role/BgdiCodebuildAccess";
         fi
+      # Set the app version to the git tag
+      - export APP_VERSION=${GIT_TAG}
       - echo "=== Environment Variables ======================================="
       - echo CODEBUILD_INITIATOR=${CODEBUILD_INITIATOR}
       - echo CODEBUILD_RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION}
@@ -76,6 +78,7 @@ phases:
       - echo BUILD_TYPE=${BUILD_TYPE}
       - echo DEPLOY_TARGET=${DEPLOY_TARGET}
       - echo AWS_ACCOUNT_TO_USE=${AWS_ACCOUNT_TO_USE}
+      - echo APP_VERSION=${GIT_TAG}
       # As the cypress/download folder is not added to git, and (somehow) not created by Cypress at startup, we create it
       - mkdir -p cypress/downloads/
 
@@ -84,7 +87,6 @@ phases:
       - echo ===================================================================
       - echo Building application for ${BUILD_TYPE}
       - npm run build-${BUILD_TYPE}
-      - export VERSION=$(jq '.version' -r dist/info.json)
 
 
   post_build:
@@ -109,7 +111,7 @@ phases:
 
 artifacts:
   # The name below is only used for manual build (not by build started by the webhook)
-  name: ${BUILD_TYPE}/web-mapviewer/${VERSION}
+  name: ${BUILD_TYPE}/web-mapviewer/${APP_VERSION}
   files:
     - '**/*'
   base-directory: dist
