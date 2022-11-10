@@ -93,9 +93,15 @@ const drawingInteractionMixin = {
                 automatically redraw the feature if these properties change, but not in a recursive
                 manner. This means that if e.g. a property inside of the editableFeature changes, an
                 update must be triggered manually.*/
-                feature.setProperties({
-                    editableFeature: EditableFeature.constructWithObject(args),
-                })
+                const editableFeature = EditableFeature.constructWithObject(args)
+                /* This type field is used to keep compatibility with the old kml file format.
+                Please do not access this property from the new viewer */
+                const type = {
+                    get value() {
+                        return editableFeature.featureType.toLowerCase()
+                    },
+                }
+                feature.setProperties({ editableFeature, type })
             }
         },
         _onDrawStart(event) {

@@ -250,6 +250,13 @@ export class EditableFeature extends Feature {
             ? this.recreateObject(JSON.parse(serializedEditableFeature))
             : this.generateEditableFeatureFromOlFeature(olFeature)
         olFeature.set('editableFeature', editableFeature)
+        /* This type field is used to keep compatibility with the old kml file format.
+        Please do not access this property from the new viewer */
+        olFeature.set('type', {
+            get value() {
+                return editableFeature.featureType.toLowerCase()
+            },
+        })
         olFeature.setStyle(featureStyleFunction)
         if (editableFeature.isLineOrMeasure()) {
             /* The featureStyleFunction uses the geometries calculated in the geodesic object
@@ -268,10 +275,7 @@ export class EditableFeature extends Feature {
             throw new Error('Parsing error: Could not get the style from the ol Feature')
         }
         const defStyle = getDefaultStyle()
-        const type = olFeature
-            .getId()
-            .match(/^([a-z]+)_/)[1]
-            .toUpperCase() //only works like this in the old viewer, new viewer simply stores the id number here
+        const type = olFeature.get('type').toUpperCase()
         if (!Object.values(EditableFeatureTypes).includes(type)) {
             throw new Error('Parsing error: Type of features in kml not recognized')
         }
