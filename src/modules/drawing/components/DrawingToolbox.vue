@@ -25,7 +25,7 @@
                         <ButtonWithIcon
                             v-if="isDrawingLineOrMeasure"
                             data-cy="drawing-delete-last-point-button"
-                            class="m-1 drawing-toolbox-delete-last-point-button"
+                            class="m-1"
                             outline-danger
                             @click="$emit('deleteLastPoint')"
                         >
@@ -36,18 +36,18 @@
                         {{ $t(savingStatusMessage) }}
                     </div>
                     <div class="d-flex justify-content-center">
-                        <ButtonWithIcon
-                            :button-font-awesome-icon="['far', 'trash-alt']"
+                        <button
                             :disabled="isDrawingEmpty"
-                            outline-light
-                            class="m-1"
+                            class="btn-light btn m-1"
                             data-cy="drawing-toolbox-delete-button"
                             @click="showClearConfirmation"
-                        />
+                        >
+                            {{ $t('delete') }}
+                        </button>
                         <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
                         <button
                             type="button"
-                            class="btn btn-outline-light text-dark m-1"
+                            class="btn btn-light m-1"
                             :disabled="isDrawingEmpty || !kmlIds"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"

@@ -3,17 +3,19 @@
         v-if="hasMultipleTimestamps"
         ref="popover"
         :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
-        danger
         :popover-title="$t('time_select_year')"
         :small="compact"
-        primary
+        secondary
     >
         <div class="timestamps-popover-content p-2" data-cy="time-selection-popup">
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"
-                class="btn btn-timestamp"
-                :class="{ 'btn-danger': timestamp === timeConfig.currentTimestamp }"
+                class="btn"
+                :class="{
+                    'btn-primary': timestamp === timeConfig.currentTimestamp,
+                    'btn-light': timestamp !== timeConfig.currentTimestamp,
+                }"
                 :data-cy="`time-select-${timestamp}`"
                 @click="handleClickOnTimestamp(timestamp)"
             >
