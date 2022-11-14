@@ -9,6 +9,8 @@ import {
     FeatureStyleSize,
     MEDIUM,
     RED,
+    SMALL,
+    LARGE,
 } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
@@ -18,6 +20,7 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { Point } from 'ol/geom'
 import { getDefaultStyle } from 'ol/format/KML'
+import store from '@/store'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
  * edited if the corresponding flag says so (it will then fires "change" events any time one
@@ -244,11 +247,11 @@ export class EditableFeature extends Feature {
      *
      * @param {openlayersFeature} olFeature
      */
-    static deserialize(olFeature) {
+    static async deserialize(olFeature) {
         const serializedEditableFeature = olFeature.get('editableFeature')
         const editableFeature = serializedEditableFeature
             ? this.recreateObject(JSON.parse(serializedEditableFeature))
-            : this.generateEditableFeatureFromOlFeature(olFeature)
+            : await this.generateEditableFeatureFromOlFeature(olFeature)
         olFeature.set('editableFeature', editableFeature)
         /* This type field is used to keep compatibility with the old kml file format.
         Please do not access this property from the new viewer */
@@ -267,8 +270,11 @@ export class EditableFeature extends Feature {
         }
     }
 
-    static generateEditableFeatureFromOlFeature(olFeature) {
+    static async generateEditableFeatureFromOlFeature(olFeature) {
         const geom = olFeature.getGeometry()
+        /*The kml parser automatically created a style based on the "<style>" part of the
+        feature in the kml file. We will now analyse this style to retrieve all information
+        we need to generate the editable feature. */
         const styles = olFeature.getStyle()(olFeature)
         const style = Array.isArray(styles) ? (styles.length === 1 ? styles[0] : null) : styles
         if (!style) {
@@ -280,20 +286,27 @@ export class EditableFeature extends Feature {
             throw new Error('Parsing error: Type of features in kml not recognized')
         }
         let coordinates = extractOpenLayersFeatureCoordinates(olFeature)
+        // We do not want to store the z coordinate (height)
         coordinates = Array.isArray(coordinates[0])
             ? coordinates.map((coord) => coord.slice(0, 2))
             : coordinates.slice(0, 2)
         geom.setCoordinates(coordinates)
         let icon = style.getImage()
+        /* To interpret the kmls the same way as google earth, the kml parser automatically adds
+        a google icon if no icon is present (i.e. for our text feature type), but we do not want
+        that. */
         if (icon?.getSrc()?.match(/google/) || icon?.getSrc() === defStyle?.getImage()?.getSrc()) {
             icon = null
         }
+        /* When exporting the kml, the parser does not put a scale property when the scale is 1.
+        But when importing the kml, it seems that the parser interprets the lack of a scale
+        property as if the scale was 0.8, which is strange. The code below tries to fix that. */
         let textSize = style.getText()?.getScale()
         if (textSize === defStyle?.getText()?.getScale()) {
             textSize = 1
         }
         const args = {
-            id: olFeature.getId(),
+            id: olFeature.getId(), // This is not correct
             coordinates: coordinates,
             featureType: type,
             title: olFeature.get('name') ?? '',
@@ -302,11 +315,72 @@ export class EditableFeature extends Feature {
                 style.getText()?.getFill()?.getColor()
             ),
             fillColor: FeatureStyleColor.generateFromFillColorArray(style.getStroke()?.getColor()),
-            icon: Icon.generateFromOlIcon(icon),
             textSize: FeatureStyleSize.getFromTextScale(textSize),
             iconSize: MEDIUM,
+            // This is at the end as it may overwrite arguments already defined above
+            ...(await this.findIconFromOlIcon(icon)),
         }
         return this.constructWithObject(args)
+    }
+
+    static async findIconFromOlIcon(olIcon) {
+        if (!olIcon) {
+            return {}
+        }
+        olIcon.setDisplacement([0, 0])
+        const url = olIcon.getSrc()
+        const setNameFromNewViewerUrl = url.match(/icons\/sets\/(\w+)\/icons.*\.png$/)?.[1]
+        const setNameFromOldViewerUrl = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
+        const setName = setNameFromNewViewerUrl ?? setNameFromOldViewerUrl
+        if (!store.state.drawing.iconSets?.length) {
+            await store.dispatch('loadAvailableIconSets')
+        }
+        const iconsets = store.state.drawing.iconSets
+        const iconset = iconsets.find((iconset) => iconset.name === setName)
+        if (!iconset) {
+            log.error('Parsing error: Could not retrive icon set from (legacy) icon URL')
+            return { icon: Icon.generateFromOlIcon(olIcon) }
+        }
+        if (setNameFromNewViewerUrl) {
+            // We do not handle the case for a new viewer URL, as for the moment we serialize
+            // the editable feature in this case which has already all infomations
+            return { icon: Icon.generateFromOlIcon(olIcon) }
+        } else {
+            let icon,
+                args = {}
+            if (setName === 'default') {
+                let color = url
+                    .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^\/]+\.png$/)
+                    ?.slice(1, 4)
+                    ?.map((nb) => Math.min(Number(nb), 255))
+                if (!Array.isArray(color) || color.length !== 3) {
+                    log.error('Parsing error: Could not retrive color from legacy icon URL')
+                } else {
+                    args.fillColor = FeatureStyleColor.generateFromFillColorArray(color)
+                }
+                let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
+                icon = iconset.icons.find((icon) => icon.name.match('^[0-9]+-' + iconName + '$'))
+            } else {
+                let iconName = url.match(/images\/\w+\/([\w-]+)\.png$/)?.[1]
+                icon = iconset.icons.find((icon) => icon.name === iconName)
+            }
+            if (!icon) {
+                log.error('Parsing error: Could not retrive icon from legacy icon URL')
+                args.icon = Icon.generateFromOlIcon(olIcon)
+            } else {
+                args.icon = icon
+            }
+            /* For the openlayers scale property and the kml files generated by the old viewer,
+            a scale of 1 is the original size of the icon (which is always 48px for icons used by
+            the old viewer). In the kml format used by the new viewer however, a scale of 1 is
+            always 32px, no matter the size of the icon. So the kml formatter misinterprets the
+            kml scale property for kml files from the old viewer and we have to multiply that scale
+            by 1.5 to get the correct scale again.*/
+            // SMALL = 0.5 , MEDIUM = 0.75 , LARGE = 1 for icons from the old viewer
+            const iconScale = olIcon.getScale() * 1.5
+            args.iconSize = FeatureStyleSize.getFromIconScale(iconScale)
+            return args
+        }
     }
 
     isLineOrMeasure() {
