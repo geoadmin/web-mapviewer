@@ -27,7 +27,7 @@ export default {
         },
         buttonFontAwesomeIcon: {
             type: Array,
-            required: true,
+            default: new Array(),
         },
         iconSize: {
             type: String,
@@ -127,10 +127,12 @@ export default {
         },
         labelClasses() {
             let className
-            if (this.direction === 'column') {
-                className = this.iconsBeforeText ? 'mt-2' : 'mb-2'
-            } else {
-                className = this.iconsBeforeText ? 'ms-2' : 'me-2'
+            if (this.buttonFontAwesomeIcon.length > 0) {
+                if (this.direction === 'column') {
+                    className = this.iconsBeforeText ? 'mt-2' : 'mb-2'
+                } else {
+                    className = this.iconsBeforeText ? 'ms-2' : 'me-2'
+                }
             }
             return className
         },
