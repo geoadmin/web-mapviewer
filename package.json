@@ -16,8 +16,8 @@
         "build": "npm run type-check && vite build",
         "build-dev": "npm run build -- --mode development",
         "build-prod": "npm run build -- --mode production",
-        "deploy:dev": "DEPLOY=true npm run build-dev && node scripts/deploy.js dev",
-        "deploy:int": "DEPLOY=true npm run build-prod && node scripts/deploy.js int",
+        "deploy:dev": "node scripts/deploy.js dev",
+        "deploy:int": "node scripts/deploy.js int",
         "update:translations": "node scripts/generate-i18n-files.js",
         "update:browserlist": "npx browserslist@latest --update-db"
     },

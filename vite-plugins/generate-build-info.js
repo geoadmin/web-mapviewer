@@ -23,7 +23,7 @@ export default function generateBuildInfo(version) {
                 const localChanges = execSync('git status --porcelain').toString().trim()
                 this.emitFile({
                     type: 'asset',
-                    fileName: 'info.json',
+                    fileName: `${version}/info.json`,
                     source: JSON.stringify(
                         {
                             version: version,
