@@ -7,6 +7,7 @@
             :primary="primary"
             :small="small"
             :danger="danger"
+            :secondary="secondary"
         ></ButtonWithIcon>
         <div
             ref="popoverContent"
@@ -79,6 +80,11 @@ export default {
         },
         /** Flag telling if the button should harbor bootstrap's primary color */
         primary: {
+            type: Boolean,
+            default: false,
+        },
+        /** Flag telling if the button should harbor bootstrap's secondary color */
+        secondary: {
             type: Boolean,
             default: false,
         },

@@ -262,7 +262,7 @@ describe('Test of layer handling', () => {
                 timedLayerMetadata.timestamps.forEach((timestamp) => {
                     cy.get(`[data-cy="time-select-${timestamp}"]`).then((timestampButton) => {
                         if (timestamp === defaultTimestamp) {
-                            expect(timestampButton).to.have.class('btn-danger')
+                            expect(timestampButton).to.have.class('btn-primary')
                         }
                     })
                 })

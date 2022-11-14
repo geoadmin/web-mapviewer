@@ -1,7 +1,6 @@
 <template>
     <ButtonWithIcon
         small
-        outline-light
         :button-title="buttonLabel"
         :primary="isActive"
         :button-font-awesome-icon="buttonIcon"
