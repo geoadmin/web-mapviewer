@@ -3,21 +3,6 @@
         <div id="menu-lang-selector">
             <LangSwitchToolbar />
         </div>
-        <div id="ui-mode-selector" class="ui-mode-switch-toolbar p-1">
-            <button
-                v-for="mode in UIModes"
-                :key="mode"
-                class="btn btn-sm"
-                :class="{
-                    'btn-light': currentUiMode !== mode,
-                    'btn-primary': currentUiMode === mode,
-                }"
-                :title="$t(getI18nKeyForUiMode(mode))"
-                @click="setUiMode(mode)"
-            >
-                {{ $t(getI18nKeyForUiMode(mode)) }}
-            </button>
-        </div>
     </div>
 </template>
 
@@ -30,40 +15,7 @@ export default {
     components: {
         LangSwitchToolbar,
     },
-    data() {
-        return {
-            UIModes,
-        }
-    },
-    computed: {
-        ...mapGetters(['isDesktopMode']),
-        ...mapState({
-            currentUiMode: (state) => state.ui.mode,
-        }),
-    },
-    methods: {
-        ...mapActions(['setUiMode']),
-        getI18nKeyForUiMode(mode) {
-            switch (mode) {
-                case UIModes.DESKTOP:
-                    return 'desktop_redirect'
-                case UIModes.PHONE:
-                    return 'mobile_redirect'
-            }
-            return null
-        },
-    },
+    data() {},
+    computed: {},
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-
-.ui-mode-switch-toolbar {
-    transition: max-height 0.3s linear;
-    button {
-        margin-right: calc($button-spacer / 2);
-        margin-left: calc($button-spacer / 2);
-    }
-}
-</style>
