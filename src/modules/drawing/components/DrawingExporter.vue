@@ -2,13 +2,13 @@
     <DropdownButton
         class="m-1"
         :title="$t('export_kml')"
-        :current-value="$t('export_kml')"
+        :current-value="exportSelection"
         :items="exportOptions"
         :disabled="isDrawingEmpty"
         with-toggle-button
         data-cy="drawing-toolbox-export-button"
         @select:item="onExportOptionSelected"
-        @click="exportDrawing(false)"
+        @click="exportDrawing()"
     />
 </template>
 
@@ -32,18 +32,22 @@ export default {
     },
     data() {
         return {
+            exportSelection: 'KML',
             exportOptions: [new DropdownItem('KML'), new DropdownItem('GPX')],
         }
     },
     methods: {
         onExportOptionSelected(dropdownItem) {
-            this.exportDrawing(dropdownItem.title === 'GPX')
+            this.exportSelection = dropdownItem.title
+            this.exportDrawing()
         },
-        exportDrawing(gpx = false) {
+        exportDrawing() {
             // if there's no features, no export
             if (this.isDrawingEmpty) {
                 return
             }
+
+            const gpx = this.exportSelection === 'GPX'
 
             const features = this.getDrawingLayer().getSource().getFeatures()
             let content, type, fileName
