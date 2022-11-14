@@ -88,9 +88,9 @@ const clickOnMapManagementPlugin = (store) => {
             }
             if (isContextMenuClick) {
                 store.dispatch('clearAllSelectedFeatures')
-                store.commit('displayLocationPopup')
+                store.dispatch('displayLocationPopup')
             } else {
-                store.commit('hideLocationPopup')
+                store.dispatch('hideLocationPopup')
             }
             if (isFullscreenMode) {
                 store.dispatch('toggleFullscreenMode')

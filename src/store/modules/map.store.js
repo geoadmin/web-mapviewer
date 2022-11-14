@@ -112,6 +112,13 @@ export default {
                 commit('setDisplayedProjection', CoordinateSystems[projectionId])
             }
         },
+
+        displayLocationPopup({ commit }) {
+            commit('setDisplayLocationPopup', true)
+        },
+        hideLocationPopup({ commit }) {
+            commit('setDisplayLocationPopup', false)
+        },
     },
     mutations: {
         setHighlightedLayer: (state, layer) => (state.highlightedLayer = layer),
@@ -120,7 +127,6 @@ export default {
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
         setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
-        displayLocationPopup: (state) => (state.displayLocationPopup = true),
-        hideLocationPopup: (state) => (state.displayLocationPopup = false),
+        setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
     },
 }

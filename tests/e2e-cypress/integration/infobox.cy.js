@@ -1,14 +1,5 @@
 /// <reference types="cypress" />
 
-function longClickOnMap() {
-    cy.readWindowValue('map').then((map) => {
-        cy.simulateEvent(map, 'pointerdown')
-        cy.wait(500) // eslint-disable-line
-        cy.simulateEvent(map, 'pointerup')
-        cy.simulateEvent(map, 'singleclick')
-    })
-}
-
 describe('The infobox', () => {
     beforeEach(() => {
         const layer = 'test.wmts.layer'
@@ -60,7 +51,7 @@ describe('The infobox', () => {
         cy.get('[data-cy="infobox"]').should('be.visible')
     })
     it('sets its height dynamically if at the bottom', () => {
-        longClickOnMap()
+        cy.get('[data-cy="map"]').click()
         cy.waitUntilState((state) => {
             return state.features.selectedFeatures.length > 0
         })
