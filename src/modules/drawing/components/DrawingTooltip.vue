@@ -89,9 +89,7 @@ export default {
 
             const hasFeatureSelected = this.selectedFeatures.length > 0
             // we only keep track of the first feature's info (the one on top of the stack)
-            const selectedFeatureId = hasFeatureSelected
-                ? this.selectedFeatures[0]?.id.replace('drawing_feature_', '')
-                : null
+            const selectedFeatureId = hasFeatureSelected ? this.selectedFeatures[0]?.id : null
             let featureUnderCursor
 
             map.forEachFeatureAtPixel(

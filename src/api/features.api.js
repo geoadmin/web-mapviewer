@@ -305,8 +305,13 @@ export class EditableFeature extends Feature {
         if (textSize === defStyle?.getText()?.getScale()) {
             textSize = 1
         }
+        /* In the old viewer, the kml feature id is of the form: "<featuretype>_<id>". In the new
+        viewer, it is of the form: "drawing_feature_<id>". This fixes the id for the new viewer
+        in case it is an old kml file. */
+        let id = olFeature.getId().match(type.toLowerCase() + '_([0-9]+)$')?.[1]
+        id = id ? 'drawing_feature_' + id : olFeature.getId()
         const args = {
-            id: olFeature.getId(), // This is not correct
+            id,
             coordinates: coordinates,
             featureType: type,
             title: olFeature.get('name') ?? '',

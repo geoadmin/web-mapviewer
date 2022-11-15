@@ -79,14 +79,20 @@ const drawingInteractionMixin = {
         onAddFeature(event) {
             const feature = event.feature
             if (!feature.getId()) {
-                // setting a unique ID for each feature (using the feature metadata as seed for the UID generation)
-                const uid = getUid(feature)
+                /* setting a unique ID for each feature. getUid() is unique as long as the app
+                isn't reloaded. The first part is a time stamp to guarante uniqueness even after
+                reloading the app. Ps: We can not fully rely on the time stamp as some browsers may
+                make the timestamp less precise to increase privacy. */
+                const uid =
+                    'drawing_feature_' +
+                    Math.trunc(Date.now() / 1000) +
+                    ('000' + getUid(feature)).slice(-3)
                 feature.setId(uid)
                 const args =
                     typeof this.editableFeatureArgs === 'function'
                         ? this.editableFeatureArgs()
                         : this.editableFeatureArgs
-                args.id = `drawing_feature_${uid}`
+                args.id = uid
                 args.coordinates = null
 
                 /* applying extra properties that should be stored with that feature. Openlayers will

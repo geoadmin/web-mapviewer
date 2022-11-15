@@ -200,8 +200,7 @@ export default {
             this.changeFeatureIconSize({ feature: this.feature, iconSize })
         },
         onDelete() {
-            const id = this.feature.id.replace('drawing_feature_', '')
-            this.deleteDrawingFeature(id)
+            this.deleteDrawingFeature(this.feature.id)
         },
     },
 }
