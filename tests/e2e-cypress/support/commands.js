@@ -219,6 +219,18 @@ Cypress.Commands.add('readWindowValue', (key) => {
     return cy.window().its(key)
 })
 
+Cypress.Commands.add('activateFullscreen', () => {
+    cy.readStoreValue('state.ui.fullscreenMode').should('be.false')
+    cy.get('[data-cy="map"]').click('center')
+    cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
+        if (isPhoneMode) {
+            cy.waitUntilState((state) => state.ui.fullscreenMode)
+        } else {
+            cy.readStoreValue('state.ui.fullscreenMode').should('be.false')
+        }
+    })
+})
+
 // from https://github.com/cypress-io/cypress/issues/1123#issuecomment-672640129
 Cypress.Commands.add(
     'paste',

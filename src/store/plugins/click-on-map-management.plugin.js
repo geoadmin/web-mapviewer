@@ -12,7 +12,7 @@ import log from '@/utils/logging'
  *   visible layers on the map
  * @param {String} lang
  */
-const runIdentify = (store, clickInfo, visibleLayers, lang) => {
+const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
     // we run identify only if there are visible layers (other than background)
     if (visibleLayers.length > 0) {
         const allRequests = []
@@ -35,15 +35,11 @@ const runIdentify = (store, clickInfo, visibleLayers, lang) => {
                 log.debug('ignoring layer', layer, 'no tooltip')
             }
         })
-        Promise.all(allRequests).then((values) => {
-            // grouping all features from the different requests
-            const allFeatures = values.flat()
-            // dispatching all features by going through them in order to keep only one time each of them (no double)
-            store.dispatch(
-                'setSelectedFeatures',
-                allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
-            )
-        })
+        const values = await Promise.all(allRequests)
+        // grouping all features from the different requests
+        const allFeatures = values.flat()
+        // dispatching all features by going through them in order to keep only one time each of them (no double)
+        return allFeatures.filter((feature, index) => allFeatures.indexOf(feature) === index)
     }
 }
 
@@ -59,25 +55,45 @@ const clickOnMapManagementPlugin = (store) => {
         // when the user is not currently drawing something on the map
         if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             const clickInfo = mutation.payload
-            const isDesktopMode = store.getters.isDesktopMode
-            const isLeftClick = clickInfo?.clickType === ClickType.LEFT_CLICK
-            const isLongClick = clickInfo?.millisecondsSpentMouseDown >= 500
+            const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
+            const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
+            const isFullscreenMode = store.state.ui.fullscreenMode
 
-            if (
-                (isDesktopMode && isLeftClick) ||
-                (!isDesktopMode && isLeftClick && isLongClick) ||
-                (!isDesktopMode && !isLeftClick)
-            ) {
+            if (isLeftSingleClick) {
+                // Execute this before the then clause, as else the result could be wrong
+                // Still to do: why sometimes two clicks needed to fullscreen?
+                // Why crash when selecting search bar while popup is open?
+                const allowActivateFullscreen =
+                    !isFullscreenMode &&
+                    !state.features.selectedFeatures?.length &&
+                    !state.map.displayLocationPopup &&
+                    !state.search.show
+
                 // if there are some search result shown, we hide the search list
                 if (state.search.show) {
                     store.dispatch('hideSearchResults')
                 }
                 // running an identification of feature even if we cleared the search result
-                runIdentify(store, clickInfo, store.getters.visibleLayers, store.state.i18n.lang)
-            } else if (!isDesktopMode && isLeftClick && !isLongClick) {
-                store.dispatch('toggleFullscreenMode')
-            } else if (isDesktopMode && !isLeftClick) {
+                runIdentify(
+                    store,
+                    clickInfo,
+                    store.getters.visibleLayers,
+                    store.state.i18n.lang
+                ).then((newSelectedFeatures) => {
+                    if (!newSelectedFeatures?.length && allowActivateFullscreen) {
+                        store.dispatch('toggleFullscreenMode')
+                    }
+                    store.dispatch('setSelectedFeatures', newSelectedFeatures)
+                })
+            }
+            if (isContextMenuClick) {
                 store.dispatch('clearAllSelectedFeatures')
+                store.dispatch('displayLocationPopup')
+            } else {
+                store.dispatch('hideLocationPopup')
+            }
+            if (isFullscreenMode) {
+                store.dispatch('toggleFullscreenMode')
             }
         }
     })

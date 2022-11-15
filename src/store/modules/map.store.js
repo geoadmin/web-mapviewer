@@ -2,16 +2,16 @@ import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** @enum */
 export const ClickType = {
-    RIGHT_CLICK: 'RIGHT_CLICK',
-    LEFT_CLICK: 'LEFT_CLICK',
+    /* Any action that triggers the context menu, so for example right click with a mouse or
+    a long click with the finger on a touch device.*/
+    CONTEXTMENU: 'CONTEXTMENU',
+    /* A single click, with the left mouse button or with the finger on a touch device */
+    LEFT_SINGLECLICK: 'LEFT_SINGLECLICK',
 }
 
 export class ClickInfo {
     /**
      * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
-     * @param {Number} millisecondsSpentMouseDown Time spend with the mouse button down for the last
-     *   click. Useful to determine if this was a quick touch or a long press on mobile (not the
-     *   same feedback to the user, see click-on-map-management.plugin .js)
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
      * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the
@@ -20,13 +20,11 @@ export class ClickInfo {
      */
     constructor(
         coordinate = [],
-        millisecondsSpentMouseDown = -1,
         pixelCoordinate = [],
         geoJsonFeatures = [],
-        clickType = ClickType.LEFT_CLICK
+        clickType = ClickType.LEFT_SINGLECLICK
     ) {
         this.coordinate = [...coordinate]
-        this.millisecondsSpentMouseDown = millisecondsSpentMouseDown
         this.pixelCoordinate = [...pixelCoordinate]
         this.geoJsonFeatures = [...geoJsonFeatures]
         this.clickType = clickType
@@ -70,15 +68,8 @@ export default {
          * @type {CoordinateSystems}
          */
         displayedProjection: CoordinateSystems.LV95,
-    },
-    getters: {
-        displayLocationPopup(state, getters) {
-            return (
-                getters.isDesktopMode &&
-                state.clickInfo?.clickType === ClickType.RIGHT_CLICK &&
-                Array.isArray(state.clickInfo?.coordinate)
-            )
-        },
+
+        displayLocationPopup: false,
     },
     actions: {
         /**
@@ -121,6 +112,13 @@ export default {
                 commit('setDisplayedProjection', CoordinateSystems[projectionId])
             }
         },
+
+        displayLocationPopup({ commit }) {
+            commit('setDisplayLocationPopup', true)
+        },
+        hideLocationPopup({ commit }) {
+            commit('setDisplayLocationPopup', false)
+        },
     },
     mutations: {
         setHighlightedLayer: (state, layer) => (state.highlightedLayer = layer),
@@ -129,5 +127,6 @@ export default {
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
         setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
+        setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
     },
 }

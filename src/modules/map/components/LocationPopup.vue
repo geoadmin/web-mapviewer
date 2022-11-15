@@ -103,7 +103,7 @@ import stringifyQuery from '@/router/stringifyQuery'
 import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
@@ -124,8 +124,8 @@ export default {
         ...mapState({
             clickInfo: (state) => state.map.clickInfo,
             currentLang: (state) => state.i18n.lang,
+            displayLocationPopup: (state) => state.map.displayLocationPopup,
         }),
-        ...mapGetters(['displayLocationPopup']),
         clickCoordinates() {
             return this.clickInfo?.coordinate
         },

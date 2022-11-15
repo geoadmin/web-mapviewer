@@ -297,11 +297,14 @@ describe('Test the search bar result handling', () => {
     })
     it('hides the results when the user clicks on the map', () => {
         cy.goToMapView()
+        cy.readStoreValue('state.ui.fullscreenMode').should('be.false')
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
         cy.get('[data-cy="map"]').click()
         cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
+        cy.activateFullscreen()
+        cy.get(searchbarSelector).should('be.hidden')
     })
     it('shows the results once again if the user clicks back on the search input', () => {
         cy.goToMapView()

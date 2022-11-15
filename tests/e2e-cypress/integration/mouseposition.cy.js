@@ -88,7 +88,19 @@ describe('Test mouse position', () => {
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)
         })
     })
-    context.skip('LocationPopUp when rightclick on the map', function () {
+    context('Fullscreen trigger', function () {
+        it('Activates fullscreen when nothing is under the cursor', () => {
+            cy.goToMapView()
+            cy.activateFullscreen()
+            cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
+                if (isPhoneMode) {
+                    cy.get('[data-cy="map"]').click('center')
+                    cy.waitUntilState((state) => !state.ui.fullscreenMode)
+                }
+            })
+        })
+    })
+    context('LocationPopUp when rightclick on the map', function () {
         const lat = 45
         const lon = 8
         beforeEach(() => {
@@ -99,6 +111,12 @@ describe('Test mouse position', () => {
         })
         it('Test the LocationPopUp is visible', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
+        })
+        it('Test that it prevents direct activation of the full screen', () => {
+            cy.get('[data-cy="location-popup"]').should('be.visible')
+            cy.get('[data-cy="map"]').click(150, 150)
+            cy.get('[data-cy="location-popup"]').should('not.exist')
+            cy.activateFullscreen()
         })
         it('Uses the what3words in the popup', () => {
             cy.wait('@convert-to-w3w')
@@ -140,7 +158,7 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-wgs84"]').contains(
-                    `${lat}° 00′ 00.00″ N ${lon}° 00′ 00.00″ E`
+                    `${lat}° N ${lon}° E`
                 )
             })
             it('Uses the coordination system UTM in the popup', () => {

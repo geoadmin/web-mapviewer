@@ -1,14 +1,5 @@
 /// <reference types="cypress" />
 
-function longClickOnMap() {
-    cy.readWindowValue('map').then((map) => {
-        cy.simulateEvent(map, 'pointerdown')
-        cy.wait(500) // eslint-disable-line
-        cy.simulateEvent(map, 'pointerup')
-        cy.simulateEvent(map, 'singleclick')
-    })
-}
-
 describe('The infobox', () => {
     beforeEach(() => {
         const layer = 'test.wmts.layer'
@@ -24,15 +15,26 @@ describe('The infobox', () => {
     it('is visible if features selected', () => {
         cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
-        longClickOnMap()
+        cy.get('[data-cy="map"]').click()
         cy.waitUntilState((state) => {
             return state.features.selectedFeatures.length > 0
         })
 
         cy.get('[data-cy="highlighted-features"]').should('be.visible')
     })
+    it('blocks direct activation of fullscreen', () => {
+        cy.get('[data-cy="map"]').click()
+        cy.waitUntilState((state) => {
+            return state.features.selectedFeatures.length > 0
+        })
+        cy.get('[data-cy="infobox"]').should('be.visible')
+        cy.intercept('**/MapServer/identify**', {})
+        cy.get('[data-cy="map"]').click()
+        cy.get('[data-cy="infobox"]').should('not.be.visible')
+        cy.activateFullscreen()
+    })
     it('can float or stick to the bottom', () => {
-        longClickOnMap()
+        cy.get('[data-cy="map"]').click()
         cy.waitUntilState((state) => {
             return state.features.selectedFeatures.length > 0
         })
@@ -49,7 +51,7 @@ describe('The infobox', () => {
         cy.get('[data-cy="infobox"]').should('be.visible')
     })
     it('sets its height dynamically if at the bottom', () => {
-        longClickOnMap()
+        cy.get('[data-cy="map"]').click()
         cy.waitUntilState((state) => {
             return state.features.selectedFeatures.length > 0
         })
