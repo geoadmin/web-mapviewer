@@ -22,14 +22,6 @@ function getGitBranch(gitHash) {
     return branches[0]
 }
 
-const currentHash = execSync('git rev-parse HEAD').toString().trim()
-
-// We take the version from GIT_BRANCH but if not set, then take it from git show-ref
-let gitBranch = process.env.GIT_BRANCH
-if (!gitBranch) {
-    gitBranch = getGitBranch(currentHash)
-}
-
 /**
  * Small Rollout / Vite plugin that writes a JSON containing build information, such as date or app
  * version.
@@ -43,6 +35,14 @@ export default function generateBuildInfo(version) {
             sequential: true,
             order: 'post',
             async handler() {
+                const currentHash = execSync('git rev-parse HEAD').toString().trim()
+
+                // We take the version from GIT_BRANCH but if not set, then take it from git show-ref
+                let gitBranch = process.env.GIT_BRANCH
+                if (!gitBranch) {
+                    gitBranch = getGitBranch(currentHash)
+                }
+
                 const now = new Date()
                 const localChanges = execSync('git status --porcelain').toString().trim()
                 this.emitFile({
