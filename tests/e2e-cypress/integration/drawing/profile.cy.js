@@ -2,7 +2,15 @@
 
 const olSelector = '.ol-viewport'
 
-const testInfo = ['0.00m', '0.10m', '0.10m', "1'342m", "1'342m", '4.50m', '4.51m']
+const testInfo = {
+    profile_elevation_difference: '0.00m',
+    profile_elevation_down: '0.10m',
+    profile_elevation_up: '0.10m',
+    profile_poi_down: "1'342m",
+    profile_poi_up: "1'342m",
+    profile_distance: '4.50m',
+    profile_slope_distance: '4.51m',
+}
 
 describe('Profile popup', () => {
     const goToDrawingWithMockProfile = (mockValue) => {
@@ -65,7 +73,7 @@ describe('Profile popup', () => {
                         `[data-cy="profile-popup-info-container"] > :nth-child(${i}) [data-cy="profile-popup-info"]`
                     ).should('have.text', '0.00m')
                 }
-                cy.get('[data-cy="profile-popup-area"]').should('not.have.attr', 'd')
+                cy.get('[data-cy="profile-popup-area"]').should('not.exist')
             })
             it('has a functioning delete button', () => {
                 // Delete is currently not implemented. Will be added in a later commit.
@@ -74,22 +82,22 @@ describe('Profile popup', () => {
                 cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
             })
             it('does not show the profile graph', () => {
-                cy.get('[data-cy="profile-popup-graph"]').should('be.hidden')
+                cy.get('[data-cy="profile-popup-graph"]').should('not.exist')
             })
         })
 
         it('test valid profile', () => {
             goToDrawingWithMockProfile()
-            testInfo.forEach((value, index) => {
-                const elementIndex = index + 1
-                cy.get(
-                    `[data-cy="profile-popup-info-container"] > :nth-child(${elementIndex}) [data-cy="profile-popup-info"]`
-                ).should('have.text', value)
+            Object.keys(testInfo).forEach((key) => {
+                cy.get(`[data-cy="profile-popup-info-${key}"]`).should(
+                    'contain.text',
+                    testInfo[key]
+                )
             })
             cy.get('[data-cy="profile-popup-area"]')
                 .trigger('mouseover')
                 .trigger('mousemove', 'center')
-            // Is not 2.25m probably because of trunking and rounding error?
+            // Isn't 2.25m probably because of trunking and rounding error?
             cy.get('[data-cy="profile-popup-tooltip"] .distance')
                 .invoke('text')
                 .should('be.oneOf', ['2.25 m', '2.24 m'])

@@ -26,7 +26,11 @@
                 class="infobox-content card-body"
                 data-cy="infobox-content"
             >
-                <FeatureProfile v-if="isProfile" :feature="selectedFeature" />
+                <FeatureProfile
+                    v-if="isProfile"
+                    :feature="selectedFeature"
+                    @update-profile-plot="setMaxHeight"
+                />
 
                 <FeatureCombo v-else-if="isCombo" :feature="selectedFeature" />
 
