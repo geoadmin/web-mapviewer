@@ -15,7 +15,9 @@ export default {
     components: {
         LangSwitchToolbar,
     },
-    data() {},
+    data() {
+        return {}
+    },
     computed: {},
 }
 </script>

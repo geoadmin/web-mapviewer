@@ -7,11 +7,11 @@
         :small="compact"
         secondary
     >
-        <div class="timestamps-popover-content p-2" data-cy="time-selection-popup">
+        <div class="timestamps-popover-content" data-cy="time-selection-popup">
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"
-                class="btn"
+                class="btn mb-1 me-1"
                 :class="{
                     'btn-primary': timestamp === timeConfig.currentTimestamp,
                     'btn-light': timestamp !== timeConfig.currentTimestamp,

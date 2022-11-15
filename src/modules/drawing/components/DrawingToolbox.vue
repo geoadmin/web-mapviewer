@@ -22,7 +22,7 @@
                         />
                     </div>
                     <div class="d-flex justify-content-center">
-                        <ButtonWithIcon
+                        <button
                             v-if="isDrawingLineOrMeasure"
                             data-cy="drawing-delete-last-point-button"
                             class="m-1"
@@ -30,7 +30,7 @@
                             @click="$emit('deleteLastPoint')"
                         >
                             {{ $t('draw_button_delete_last_point') }}
-                        </ButtonWithIcon>
+                        </button>
                     </div>
                     <div class="d-flex justify-content-center drawing-toolbox-saving-status">
                         {{ $t(savingStatusMessage) }}
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <ButtonWithIcon
-                class="m-auto button-open-close-draw-menu"
+                class="m-auto button-open-close-draw-menu ps-4 pe-4"
                 data-cy="menu-button"
                 :button-font-awesome-icon="['fas', drawMenuOpen ? 'caret-up' : 'caret-down']"
                 :button-title="$t(drawMenuOpen ? 'close_menu' : 'open_menu')"
@@ -218,6 +218,9 @@ $zindex-drawing-toolbox: -1;
     .button-open-close-draw-menu {
         height: $openCloseButtonHeight;
         display: none;
+
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
     }
     &-mode-selector {
         margin: 0.5rem 0;
