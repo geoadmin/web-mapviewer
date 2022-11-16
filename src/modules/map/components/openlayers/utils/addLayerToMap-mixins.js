@@ -40,11 +40,10 @@ const addLayerToMapMixin = {
     methods: {
         addLayerToMap(zIndex, layer) {
             const map = this.getMap()
-            if (zIndex < 0) {
-                map.addLayer(layer)
-            } else {
-                map.getLayers().insertAt(zIndex, layer)
+            if (zIndex >= 0) {
+                layer.setZIndex(zIndex)
             }
+            map.addLayer(layer)
             this.isPresentOnMap = true
         },
         removeLayerFromMap(layer) {
@@ -55,8 +54,7 @@ const addLayerToMapMixin = {
     watch: {
         zIndex(zIndex) {
             if (this.layer) {
-                this.removeLayerFromMap(this.layer)
-                this.addLayerToMap(zIndex, this.layer)
+                this.layer.setZIndex(zIndex)
             }
         },
     },

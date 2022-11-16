@@ -2,6 +2,7 @@
     <div>
         <OpenLayersVectorLayer
             v-if="layerConfig.type === LayerTypes.VECTOR"
+            :z-index="zIndex"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :style-url="layerConfig.getURL()"
