@@ -21,7 +21,7 @@ const sourceFontSize = profilePlotMargin.top - sourceFontMargin
  * This code is mostly a rip-off of mf-geoamin3, with minor adjustments
  *
  * @param {Number} width Width of the chart on screen (px)
- * @param {GeoAdminProfile} profile Profile data to be shown as chart
+ * @param {ElevationProfile} profile Profile data to be shown as chart
  * @param {Number} xAxisMultiplier
  * @returns Definition of X axis for d3
  */
@@ -43,7 +43,7 @@ function getDomainX(width, profile, xAxisMultiplier) {
  * This code is mostly a rip-off of mf-geoamin3, with minor adjustments
  *
  * @param height Width of the chart on screen (px)
- * @param {GeoAdminProfile} profile Profile data to be shown as chart
+ * @param {ElevationProfile} profile Profile data to be shown as chart
  * @returns Definition of Y axis for d3
  */
 function getDomainY(height, profile) {
@@ -66,7 +66,7 @@ const transitionTime = 250
 
 /**
  * @param {HTMLElement} element HTML element in which the plot will be generated
- * @param {GeoAdminProfile} profile Profile data to render as chart
+ * @param {ElevationProfile} profile Profile data to render as chart
  * @param {Number} xAxisMultiplier Multiplier applied to the X axis values (distance). Enables the
  *   switch to kilometers units, if a 0.001 factor is given.
  */

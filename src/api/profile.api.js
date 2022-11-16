@@ -10,7 +10,7 @@ import { LineString } from 'ol/geom'
  * @property {[[Number]]} coordinates
  */
 
-export class ProfilePoint {
+export class ElevationProfilePoint {
     /**
      * @param {Number} dist Distance from first to current point
      * @param {[Number, Number]} coordinate Coordinate of this point in EPSG:3857
@@ -38,10 +38,14 @@ export class ProfilePoint {
     // no setter
 }
 
-export class GeoAdminProfile {
-    /** @param {ProfilePoint[]} points */
+/**
+ * Representation of data coming from `service-alti`'s backend. Also encapsulate most business
+ * calculation related to profile (hiking time, slop/distance, etc...)
+ */
+export class ElevationProfile {
+    /** @param {ElevationProfilePoint[]} points */
     constructor(points) {
-        /** @type {ProfilePoint[]} */
+        /** @type {ElevationProfilePoint[]} */
         this.points = [...points]
     }
 
@@ -128,7 +132,9 @@ export class GeoAdminProfile {
             const elevationDelta = currentPoint.elevation - previousPoint.elevation
             const distanceDelta = currentPoint.dist - previousPoint.dist
             // Pythagorean theorem (hypotenuse: the slope/surface distance)
-            return sumSlopeDist + Math.sqrt(Math.pow(elevationDelta, 2) + Math.pow(distanceDelta, 2))
+            return (
+                sumSlopeDist + Math.sqrt(Math.pow(elevationDelta, 2) + Math.pow(distanceDelta, 2))
+            )
         }, 0)
     }
 
@@ -203,10 +209,14 @@ function parseProfileFromBackendResponse(backendResponse) {
     const points = []
     backendResponse.forEach((rawData) => {
         points.push(
-            new ProfilePoint(rawData.dist, [rawData.easting, rawData.northing], rawData.alts.COMB)
+            new ElevationProfilePoint(
+                rawData.dist,
+                [rawData.easting, rawData.northing],
+                rawData.alts.COMB
+            )
         )
     })
-    return new GeoAdminProfile(points)
+    return new ElevationProfile(points)
 }
 
 /**
@@ -214,7 +224,7 @@ function parseProfileFromBackendResponse(backendResponse) {
  *
  * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
  * @param {String} fileExtension .json (default) and .csv are possible file extensions
- * @returns {Promise<GeoAdminProfile>}
+ * @returns {Promise<ElevationProfile>}
  */
 const profile = (coordinates, fileExtension = '.json') => {
     return new Promise((resolve, reject) => {
@@ -262,7 +272,7 @@ const profile = (coordinates, fileExtension = '.json') => {
  * Gets profile in json format from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
  * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {Promise<ProfilePoint[]>}
+ * @returns {Promise<ElevationProfilePoint[]>}
  */
 export const profileJson = (coordinates) => {
     return profile(coordinates, '.json')
@@ -272,7 +282,7 @@ export const profileJson = (coordinates) => {
  * Gets profile in csv format from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
  * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {Promise<ProfilePoint[]>}
+ * @returns {Promise<ElevationProfilePoint[]>}
  */
 export const profileCsv = (coordinates) => {
     return profile(coordinates, '.csv')

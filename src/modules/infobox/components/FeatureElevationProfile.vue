@@ -4,15 +4,15 @@
         data-infobox="height-reference"
         class="profile-popup-content"
     >
-        <FeatureProfilePlot
-            v-if="profileHasData"
+        <FeatureElevationProfilePlot
+            v-if="elevationProfileHasData"
             :feature="feature"
-            :profile-data="profileData"
-            @update="onProfilePlotUpdate"
+            :elevation-profile="elevationProfile"
+            @update="onElevationProfilePlotUpdate"
         />
-        <FeatureProfileInformation :profile="profileData">
+        <FeatureElevationProfileInformation :profile="elevationProfile">
             <ButtonWithIcon
-                v-if="profileHasData"
+                v-if="elevationProfileHasData"
                 :button-font-awesome-icon="['fas', 'download']"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
@@ -23,7 +23,7 @@
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
             />
-        </FeatureProfileInformation>
+        </FeatureElevationProfileInformation>
     </div>
 </template>
 
@@ -32,15 +32,15 @@ import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { profileCsv, profileJson } from '@/api/profile.api'
 import { toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
-import FeatureProfileInformation from '@/modules/infobox/components/FeatureProfileInformation.vue'
-import FeatureProfilePlot from '@/modules/infobox/components/FeatureProfilePlot.vue'
+import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
+import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import log from '@/utils/logging'
 import { mapActions } from 'vuex'
 
 export default {
-    components: { FeatureProfilePlot, FeatureProfileInformation, ButtonWithIcon },
+    components: { FeatureElevationProfilePlot, FeatureElevationProfileInformation, ButtonWithIcon },
     inject: ['getMap'],
     props: {
         feature: {
@@ -48,16 +48,16 @@ export default {
             required: true,
         },
     },
-    emits: ['updateProfilePlot'],
+    emits: ['updateElevationProfilePlot'],
     data() {
         return {
-            /** @type {GeoAdminProfile} */
-            profileData: null,
+            /** @type {ElevationProfile} */
+            elevationProfile: null,
         }
     },
     computed: {
-        profileHasData() {
-            return this.profileData && this.profileData.hasData
+        elevationProfileHasData() {
+            return this.elevationProfile && this.elevationProfile.hasData
         },
         featureGeodesicCoordinates() {
             if (this.feature.geodesicCoordinates) {
@@ -67,17 +67,24 @@ export default {
             log.error('No Geodesic Coordinate available, falling back to the regular coordinates')
             return this.feature.coordinates
         },
+        /**
+         * We only show the delete button if the feature being shown is of type "measure", for
+         * "line" type, the UI will show a FeatureEdit portion that also includes a delete button
+         * (no duplicate this way)
+         *
+         * @returns {Boolean} True if the feature being shown is of type "measure"
+         */
         showDeleteButton() {
             return this.feature && this.feature.featureType === EditableFeatureTypes.MEASURE
         },
     },
     watch: {
         featureGeodesicCoordinates() {
-            this.updateProfileData()
+            this.updateElevationProfileData()
         },
     },
     mounted() {
-        this.updateProfileData()
+        this.updateElevationProfileData()
     },
     methods: {
         ...mapActions(['deleteDrawingFeature']),
@@ -86,19 +93,19 @@ export default {
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
-            this.getProfile(profileCsv).then((data) => {
+            this.getElevationProfile(profileCsv).then((data) => {
                 const dataBlob = new Blob([data], { type: 'text/csv', endings: 'native' })
                 this.triggerDownload(dataBlob, generateFilename('.csv'))
             })
         },
-        onProfilePlotUpdate() {
+        onElevationProfilePlotUpdate() {
             // bubbling up the event so that the infobox module can set its height accordingly
-            this.$emit('updateProfilePlot')
+            this.$emit('updateElevationProfilePlot')
         },
-        async updateProfileData() {
-            this.profileData = await this.getProfile()
+        async updateElevationProfileData() {
+            this.elevationProfile = await this.getElevationProfile()
         },
-        async getProfile(apiFunction = profileJson) {
+        async getElevationProfile(apiFunction = profileJson) {
             const coordinatesLv95 = toLv95(
                 this.featureGeodesicCoordinates,
                 CoordinateSystems.WEBMERCATOR.epsg
@@ -106,7 +113,7 @@ export default {
             try {
                 return await apiFunction(coordinatesLv95)
             } catch (e) {
-                log.error('Error while getting profile: ', e)
+                log.error('Error while getting elevation profile: ', e)
                 return []
             }
         },

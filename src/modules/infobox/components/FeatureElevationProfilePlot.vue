@@ -61,11 +61,10 @@
 
 <script>
 import { EditableFeature } from '@/api/features.api'
-import { GeoAdminProfile } from '@/api/profile.api'
+import { ElevationProfile } from '@/api/profile.api'
 import { profilePlotMargin, updateD3ProfileChart } from '@/modules/drawing/lib/profileD3Utils'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import * as d3 from 'd3'
-import { LineString } from 'ol/geom'
 import Overlay from 'ol/Overlay'
 import proj4 from 'proj4'
 import { mapState } from 'vuex'
@@ -78,8 +77,8 @@ import { mapState } from 'vuex'
 export default {
     inject: ['getMap'],
     props: {
-        profileData: {
-            type: GeoAdminProfile,
+        elevationProfile: {
+            type: ElevationProfile,
             required: true,
         },
         feature: {
@@ -101,7 +100,7 @@ export default {
          * @returns {string}
          */
         unitUsedOnDistanceAxis() {
-            return this.profileData.maxDist >= 10000 ? 'km' : 'm'
+            return this.elevationProfile.maxDist >= 10000 ? 'km' : 'm'
         },
         factorToUseForDisplayedDistances() {
             return this.unitUsedOnDistanceAxis === 'km' ? 0.001 : 1.0
@@ -111,8 +110,8 @@ export default {
         }),
     },
     watch: {
-        profileData() {
-            this.updateProfileChart()
+        elevationProfile() {
+            this.updateElevationProfilePlot()
         },
     },
     mounted() {
@@ -128,19 +127,19 @@ export default {
         })
         this.currentHoverPosOverlay.getElement().classList.add('profile-circle-current-hover-pos')
 
-        this.updateProfileChart()
+        this.updateElevationProfilePlot()
     },
     unmounted() {
         this.getMap().removeOverlay(this.currentHoverPosOverlay)
     },
     methods: {
         onResize() {
-            this.$nextTick(this.updateProfileChart)
+            this.$nextTick(this.updateElevationProfilePlot)
         },
-        updateProfileChart() {
+        updateElevationProfilePlot() {
             const { domainX, domainY, axisX, axisY } = updateD3ProfileChart(
                 this.$refs.profilePlot,
-                this.profileData,
+                this.elevationProfile,
                 this.factorToUseForDisplayedDistances
             )
             this.d3domainX = domainX
@@ -196,7 +195,7 @@ export default {
             const coords = proj4(
                 CoordinateSystems.LV95.epsg,
                 CoordinateSystems.WEBMERCATOR.epsg,
-                this.profileData.lineString.getCoordinateAt(x / plotWidth)
+                this.elevationProfile.lineString.getCoordinateAt(x / plotWidth)
             )
             this.currentHoverPosOverlay.setPosition(coords)
         },
@@ -217,30 +216,30 @@ export default {
             // Find lowerIndex, such that dist[lowerIndex] <= dist <= dist[lowerIndex + 1] = dist[higherIndex]
             // The distance increase between each index is approximately regular, so we can make a first guess
             // with a complexity of O(1) making sure the dist we are searching is within possible values (>= 0 and <= maxDist)
-            const distToSearch = Math.min(Math.max(rawDist, 0), this.profileData.maxDist)
+            const distToSearch = Math.min(Math.max(rawDist, 0), this.elevationProfile.maxDist)
             let lowerIndex = Math.trunc(
-                ((this.profileData.length - 1) * distToSearch) / this.profileData.maxDist
+                ((this.elevationProfile.length - 1) * distToSearch) / this.elevationProfile.maxDist
             )
-            lowerIndex = Math.min(lowerIndex, this.profileData.length - 1)
+            lowerIndex = Math.min(lowerIndex, this.elevationProfile.length - 1)
             // As it is not perfectly regular (maybe as a result of trunking the decimals in the backend?) we still need to correct our first guess with these two while loops. */
-            while (distToSearch < this.profileData.points[lowerIndex].dist) {
+            while (distToSearch < this.elevationProfile.points[lowerIndex].dist) {
                 lowerIndex--
             }
             while (
-                lowerIndex < this.profileData.length - 1 &&
-                distToSearch > this.profileData.points[lowerIndex + 1].dist
+                lowerIndex < this.elevationProfile.length - 1 &&
+                distToSearch > this.elevationProfile.points[lowerIndex + 1].dist
             ) {
                 lowerIndex++
             }
             // Now we can linearly interpolate between lowerIndex and higherIndex to find the exact altitude.
-            const lowerElevation = this.profileData.points[lowerIndex].elevation
-            const lowerDist = this.profileData.points[lowerIndex].dist
-            if (lowerIndex >= this.profileData.length - 1) {
+            const lowerElevation = this.elevationProfile.points[lowerIndex].elevation
+            const lowerDist = this.elevationProfile.points[lowerIndex].dist
+            if (lowerIndex >= this.elevationProfile.length - 1) {
                 return lowerElevation
             }
             const higherIndex = lowerIndex + 1
-            const higherElevation = this.profileData.points[higherIndex].elevation
-            const higherDist = this.profileData.points[higherIndex].dist
+            const higherElevation = this.elevationProfile.points[higherIndex].elevation
+            const higherDist = this.elevationProfile.points[higherIndex].dist
             const higherRatio = (distToSearch - lowerDist) / (higherDist - lowerDist)
             const lowerRatio = 1 - higherRatio
             return lowerRatio * lowerElevation + higherRatio * higherElevation

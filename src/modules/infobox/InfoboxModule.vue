@@ -26,10 +26,10 @@
                 class="infobox-content card-body"
                 data-cy="infobox-content"
             >
-                <FeatureProfile
-                    v-if="isProfile"
+                <FeatureElevationProfile
+                    v-if="showElevationProfile"
                     :feature="selectedFeature"
-                    @update-profile-plot="setMaxHeight"
+                    @update-elevation-profile-plot="setMaxHeight"
                 />
 
                 <FeatureCombo v-else-if="isCombo" :feature="selectedFeature" />
@@ -49,16 +49,16 @@ import promptUserToPrintHtmlContent from '@/utils/print'
 import { mapActions, mapState } from 'vuex'
 import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
+import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
-import FeatureProfile from './components/FeatureProfile.vue'
 
 export default {
     components: {
         ButtonWithIcon,
         FeatureCombo,
         FeatureEdit,
+        FeatureElevationProfile,
         FeatureList,
-        FeatureProfile,
     },
     data() {
         return {
@@ -83,7 +83,7 @@ export default {
         isEdit() {
             return !this.floatingTooltip && this.selectedFeature?.isEditable
         },
-        isProfile() {
+        showElevationProfile() {
             return (
                 this.selectedFeature &&
                 (this.selectedFeature.featureType === EditableFeatureTypes.MEASURE ||
@@ -98,12 +98,12 @@ export default {
         },
 
         showContainer() {
-            return this.isList || this.isEdit || this.isProfile || this.isCombo
+            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
         },
         showFloatingToggle() {
             return (
                 this.isList ||
-                (this.isEdit && !this.isProfile) ||
+                (this.isEdit && !this.showElevationProfile) ||
                 (this.isCombo && !this.floatingTooltip)
             )
         },

@@ -1,19 +1,19 @@
-import { GeoAdminProfile, ProfilePoint } from '@/api/profile.api'
+import { ElevationProfile, ElevationProfilePoint } from '@/api/profile.api'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-const testProfile = new GeoAdminProfile([
-    new ProfilePoint(0, [0, 0], 100),
-    new ProfilePoint(50, [0, 50], 200),
-    new ProfilePoint(150, [0, 150], 90),
-    new ProfilePoint(200, [50, 150], 210),
+const testProfile = new ElevationProfile([
+    new ElevationProfilePoint(0, [0, 0], 100),
+    new ElevationProfilePoint(50, [0, 50], 200),
+    new ElevationProfilePoint(150, [0, 150], 90),
+    new ElevationProfilePoint(200, [50, 150], 210),
 ])
 
 describe('Profile calculation', () => {
     it('returns 0 for all calculation if there is less than two points', () => {
-        const nearlyEmptyProfile = new GeoAdminProfile([
+        const nearlyEmptyProfile = new ElevationProfile([
             // using 1 everywhere in order to check it won't be used by calculations
-            new ProfilePoint(1, [1, 1], 1),
+            new ElevationProfilePoint(1, [1, 1], 1),
         ])
         expect(nearlyEmptyProfile.hasData).to.be.false
         expect(nearlyEmptyProfile.maxDist).to.eq(0)

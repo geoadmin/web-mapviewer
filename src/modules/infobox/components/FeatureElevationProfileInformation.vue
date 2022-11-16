@@ -28,14 +28,14 @@
 </template>
 
 <script>
-import { GeoAdminProfile } from "@/api/profile.api";
+import { ElevationProfile } from '@/api/profile.api'
 import { formatTime } from '@/modules/drawing/lib/drawingUtils'
 import { format } from '@/utils/numberUtils'
 
 export default {
     props: {
         profile: {
-            type: GeoAdminProfile,
+            type: ElevationProfile,
             default: null,
         },
     },
