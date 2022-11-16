@@ -50,9 +50,9 @@ export class GeoAdminProfile {
         return this.points.length
     }
 
-    /** @returns {Boolean} */
+    /** @returns {Boolean} True if the profile has at least 2 points */
     get hasData() {
-        return this.length > 0
+        return this.length >= 2
     }
 
     /** @returns {Number} */
@@ -84,52 +84,34 @@ export class GeoAdminProfile {
         return this.points[this.points.length - 1].elevation - this.points[0].elevation
     }
 
-    /**
-     * @returns {(number | number)[] | undefined} Up, down (abs) Total positive elevation & total
-     *   negative elevation
-     */
-    get totalElevationDifference() {
-        let sumDown = 0
-        let sumUp = 0
-        for (let i = 0; i < this.points.length - 1; i++) {
-            const h1 = this.points[i].elevation || 0
-            const h2 = this.points[i + 1].elevation || 0
-            const dh = h2 - h1
-            if (dh < 0) {
-                sumDown += dh
-            } else if (dh >= 0) {
-                sumUp += dh
+    get totalAscent() {
+        return this.points.reduce((totalAscent, currentPoint, currentIndex, points) => {
+            if (currentIndex === 0) {
+                // we skip the first element, as we can't calculate the ascent with only one point
+                return totalAscent
             }
-        }
-        return [sumUp, Math.abs(sumDown)]
+            // we only want positive ascent value, so if it's a descent we return 0
+            return (
+                totalAscent +
+                Math.max(currentPoint.elevation - points[currentIndex - 1].elevation, 0)
+            )
+        }, 0)
     }
 
-    /** @returns {Number} The highest elevation in this profile */
-    get highestElevation() {
-        if (this.hasData) {
-            const highestPoint = this.points.reduce((previousPoint, currentPoint) => {
-                if (currentPoint.elevation > previousPoint.elevation) {
-                    return currentPoint
+    get totalDescent() {
+        return Math.abs(
+            this.points.reduce((totalDescent, currentPoint, currentIndex, points) => {
+                if (currentIndex === 0) {
+                    // we skip the first element, as we can't calculate the descent with only one point
+                    return totalDescent
                 }
-                return previousPoint
-            })
-            return highestPoint.elevation
-        }
-        return 0
-    }
-
-    /** @returns {Number} The lowest elevation in this profile */
-    get lowestElevation() {
-        if (this.hasData) {
-            const lowestPoint = this.points.reduce((previousPoint, currentPoint) => {
-                if (currentPoint.elevation < previousPoint.elevation) {
-                    return currentPoint
-                }
-                return previousPoint
-            })
-            return lowestPoint.elevation
-        }
-        return 0
+                // we only want descent value, so if it's an ascent we return 0
+                return (
+                    totalDescent -
+                    Math.min(currentPoint.elevation - points[currentIndex - 1].elevation, 0)
+                )
+            }, 0)
+        )
     }
 
     /** @returns {Number} Sum of slope/surface distances (distance on the ground) */
@@ -137,14 +119,17 @@ export class GeoAdminProfile {
         if (!this.hasData) {
             return 0
         }
-        let sumSlopeDist = 0
-        for (let i = 0; i < this.points.length - 1; i++) {
-            const elevationDelta = this.points[i + 1].elevation - this.points[i].elevation
-            const distanceDelta = this.points[i + 1].dist - this.points[i].dist
+        return this.points.reduce((sumSlopeDist, currentPoint, currentIndex, points) => {
+            if (currentIndex === 0) {
+                // we skip the first element, as we can't calculate slope/distance with only one point
+                return sumSlopeDist
+            }
+            const previousPoint = points[currentIndex - 1]
+            const elevationDelta = currentPoint.elevation - previousPoint.elevation
+            const distanceDelta = currentPoint.dist - previousPoint.dist
             // Pythagorean theorem (hypotenuse: the slope/surface distance)
-            sumSlopeDist += Math.sqrt(Math.pow(elevationDelta, 2) + Math.pow(distanceDelta, 2))
-        }
-        return sumSlopeDist
+            return sumSlopeDist + Math.sqrt(Math.pow(elevationDelta, 2) + Math.pow(distanceDelta, 2))
+        }, 0)
     }
 
     get coordinates() {

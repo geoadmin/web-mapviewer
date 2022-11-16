@@ -57,7 +57,7 @@ export default {
     },
     computed: {
         profileHasData() {
-            return this.profileData && this.profileData.length > 0
+            return this.profileData && this.profileData.hasData
         },
         featureGeodesicCoordinates() {
             if (this.feature.geodesicCoordinates) {

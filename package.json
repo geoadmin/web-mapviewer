@@ -6,6 +6,7 @@
         "dev": "vite --port 8080",
         "preview": "vite build && vite preview --port 8080",
         "test:unit": "vitest --run --environment jsdom",
+        "test:unit:watch": "vitest --environment jsdom",
         "test:e2e": "start-server-and-test dev 8080 'cypress open'",
         "test:e2e:tablet": "start-server-and-test preview 8080 'cypress open --config viewportWidth=768,viewportHeight=1024'",
         "test:e2e:desktop": "start-server-and-test preview 8080 'cypress open --config viewportWidth=1440,viewportHeight=900'",

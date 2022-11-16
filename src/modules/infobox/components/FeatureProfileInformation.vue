@@ -36,7 +36,7 @@ export default {
     props: {
         profile: {
             type: GeoAdminProfile,
-            required: true,
+            default: null,
         },
     },
     computed: {
@@ -51,22 +51,22 @@ export default {
                     {
                         title: 'profile_elevation_up',
                         icons: [['fa', 'sort-amount-up-alt']],
-                        value: this.formatElevation(this.profile.totalElevationDifference[0]),
+                        value: this.formatElevation(this.profile.totalAscent),
                     },
                     {
                         title: 'profile_elevation_down',
                         icons: [['fa', 'sort-amount-down-alt']],
-                        value: this.formatElevation(this.profile.totalElevationDifference[1]),
+                        value: this.formatElevation(this.profile.totalDescent),
                     },
                     {
                         title: 'profile_poi_up',
                         icons: [['fa', 'chevron-up']],
-                        value: this.formatElevation(this.profile.highestElevation),
+                        value: this.formatElevation(this.profile.maxElevation),
                     },
                     {
                         title: 'profile_poi_down',
                         icons: [['fa', 'chevron-down']],
-                        value: this.formatElevation(this.profile.lowestElevation),
+                        value: this.formatElevation(this.profile.minElevation),
                     },
                     {
                         title: 'profile_distance',
