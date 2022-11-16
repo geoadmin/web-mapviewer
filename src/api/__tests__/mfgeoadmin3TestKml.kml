@@ -1,0 +1,267 @@
+﻿<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+    <Document>
+        <name>Dessin</name>
+        <Placemark id="marker_1668530694970">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name>text 1</name>
+            <description>desc 1</description>
+            <Style>
+                <IconStyle>
+                    <scale>0.5</scale>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/color/0,0,255/marker-24@2x.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                    <hotSpot x="24" y="4.799999999999997" xunits="pixels" yunits="pixels" />
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff00ffff</color>
+                    <scale>2</scale>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.174707229645867,47.194765869666504</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="annotation_1668530699494">
+            <ExtendedData>
+                <Data name="type">
+                    <value>annotation</value>
+                </Data>
+            </ExtendedData>
+            <name>text 4</name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <scale>0</scale>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff000000</color>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.676137118359953,47.19033024383702</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="marker_1668530774636">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name>text 2</name>
+            <description>desc 2</description>
+            <Style>
+                <IconStyle>
+                    <scale>0.75</scale>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/color/128,128,128/circle-24@2x.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ffffffff</color>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.156058625106751,46.97884175366133</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="marker_1668530823345">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name>text 3</name>
+            <description>desc 3</description>
+            <Style>
+                <IconStyle>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/images/babs/babs-3.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff0000ff</color>
+                    <scale>1.5</scale>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.173379660436119,46.79897707209845</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="annotation_1668530932170">
+            <ExtendedData>
+                <Data name="type">
+                    <value>annotation</value>
+                </Data>
+            </ExtendedData>
+            <name>text 5</name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <scale>0</scale>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ffff0000</color>
+                    <scale>1.5</scale>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.672124180684182,47.026181008957764</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="annotation_1668530944079">
+            <ExtendedData>
+                <Data name="type">
+                    <value>annotation</value>
+                </Data>
+            </ExtendedData>
+            <name>text 6</name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <scale>0</scale>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff808080</color>
+                    <scale>2</scale>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.645108322032411,46.8418304984009</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="linepolygon_1668530962424">
+            <ExtendedData>
+                <Data name="type">
+                    <value>linepolygon</value>
+                </Data>
+            </ExtendedData>
+            <description>desc 7</description>
+            <Style>
+                <LineStyle>
+                    <color>ff000000</color>
+                    <width>3</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>66000000</color>
+                </PolyStyle>
+            </Style>
+            <LineString>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>8.101911065254011,47.20890519932012 8.78807916898707,47.19841048822741</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="linepolygon_1668530991477">
+            <ExtendedData>
+                <Data name="type">
+                    <value>linepolygon</value>
+                </Data>
+            </ExtendedData>
+            <description>desc 8</description>
+            <Style>
+                <LineStyle>
+                    <color>ffff0000</color>
+                    <width>3</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>66ff0000</color>
+                </PolyStyle>
+            </Style>
+            <LineString>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>8.093138508619504,47.03130065442874 8.809569202680157,47.006985820533394</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="measure_1668531023034">
+            <ExtendedData>
+                <Data name="overlays" />
+                <Data name="type">
+                    <value>measure</value>
+                </Data>
+            </ExtendedData>
+            <Style>
+                <LineStyle>
+                    <color>ff0000ff</color>
+                    <width>3</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>660000ff</color>
+                </PolyStyle>
+            </Style>
+            <LineString>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>8.064599217438573,46.840305862388725 9.029823390790018,46.78371218093456</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="measure_1668531037052">
+            <ExtendedData>
+                <Data name="overlays" />
+                <Data name="type">
+                    <value>measure</value>
+                </Data>
+            </ExtendedData>
+            <Style>
+                <LineStyle>
+                    <color>ff0000ff</color>
+                    <width>3</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>660000ff</color>
+                </PolyStyle>
+            </Style>
+            <LineString>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>8.016572173842913,46.64040453564143 8.499153637515965,46.60544796542086 8.893611064585631,46.589843133245395</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="marker_1668607213404">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name></name>
+            <description>desc 9</description>
+            <Style>
+                <IconStyle>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/color/0,128,0/square-24@2x.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                </IconStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.122730979678771,46.50199343196728</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>
