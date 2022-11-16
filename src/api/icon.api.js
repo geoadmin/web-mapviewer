@@ -101,6 +101,12 @@ export class Icon {
         }
     }
 
+    /**
+     * Generates a new icon that has the url of the given olIcon
+     *
+     * @param {any} olIcon
+     * @returns {Icon}
+     */
     static generateFromOlIcon(olIcon) {
         if (!olIcon) {
             return null

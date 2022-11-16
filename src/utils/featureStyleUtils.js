@@ -26,7 +26,13 @@ export class FeatureStyleColor {
         return new FeatureStyleColor(o.name, o.fill, o.border)
     }
 
-    static generateFromFillColorArray(fillColor) {
+    /**
+     * Return an instance of this class matching the requested fill color
+     *
+     * @param {[Number]} fillColor Rgb array of the requested fill color
+     * @returns {FeatureStyleColor}
+     */
+    static getFromFillColorArray(fillColor) {
         if (!fillColor) {
             return
         }
@@ -124,20 +130,32 @@ export class FeatureStyleSize {
         return new FeatureStyleSize(o.label, o.textScale, o.iconScale)
     }
 
+    /**
+     * Return an instance of this class matching the requested text scale
+     *
+     * @param {Number} textScale The requested text scale
+     * @returns {FeatureStyleSize}
+     */
     static getFromTextScale(textScale) {
         if (!textScale) {
             return
         }
         const matchingScale = allStylingSizes.find((size) => size.textScale === textScale)
-        return matchingScale ?? new FeatureStyleSize('unknown', textScale, 1)
+        return matchingScale ?? new FeatureStyleSize('custom_size', textScale, textScale)
     }
 
+    /**
+     * Return an instance of this class matching the requested icon scale
+     *
+     * @param {Number} iconScale The requested icon scale
+     * @returns {FeatureStyleSize}
+     */
     static getFromIconScale(iconScale) {
         if (!iconScale) {
             return
         }
         const matchingScale = allStylingSizes.find((size) => size.iconScale === iconScale)
-        return matchingScale ?? new FeatureStyleSize('unknown', 1, iconScale)
+        return matchingScale ?? new FeatureStyleSize('custom_size', iconScale, iconScale)
     }
     /**
      * @returns {String} Translation key for this size (has to go through the i18n service to have a
@@ -168,13 +186,14 @@ export class FeatureStyleSize {
     }
 }
 
-export const SMALL = new FeatureStyleSize('small_size', 1.0, 0.5)
+export const VERY_SMALL = new FeatureStyleSize('very_small_size', 1.0, 0.5)
+export const SMALL = new FeatureStyleSize('small_size', 1.25, 0.75)
 export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 1.0)
-export const LARGE = new FeatureStyleSize('big_size', 2.0, 2.0)
+export const LARGE = new FeatureStyleSize('big_size', 2.0, 1.5)
 
 /**
  * List of all available sizes for drawing style
  *
  * @type {FeatureStyleSize[]}
  */
-export const allStylingSizes = [SMALL, MEDIUM, LARGE]
+export const allStylingSizes = [VERY_SMALL, SMALL, MEDIUM, LARGE]

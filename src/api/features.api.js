@@ -18,7 +18,7 @@ import { Icon as openlayersIcon } from 'ol/style'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import { Point } from 'ol/geom'
+import { Point, Polygon } from 'ol/geom'
 import { getDefaultStyle } from 'ol/format/KML'
 import store from '@/store'
 /**
@@ -243,15 +243,19 @@ export class EditableFeature extends Feature {
 
     /**
      * This method deserializes an editable feature that is stored in the extra properties of an
-     * openlayers feature. It then recreates a fully functional olFeature with the correct styling.
+     * openlayers feature. If there is no editable feature to deserialize (e.g. in the case of a kml
+     * that was generated with mf-geoadmin3), the editable feature is instead reconstructed with the
+     * styling information stored in the official '<style>' tag of the kml. It then recreates a
+     * fully functional olFeature with the correct styling.
      *
-     * @param {openlayersFeature} olFeature
+     * @param {openlayersFeature} olFeature An olFeature that was just deserialized with
+     *   {@link ol/format/KML}.
      */
     static async deserialize(olFeature) {
         const serializedEditableFeature = olFeature.get('editableFeature')
         const editableFeature = serializedEditableFeature
             ? this.recreateObject(JSON.parse(serializedEditableFeature))
-            : await this.generateEditableFeatureFromOlFeature(olFeature)
+            : await this._generateEditableFeatureFromKmlStyle(olFeature)
         olFeature.set('editableFeature', editableFeature)
         /* This type field is used to keep compatibility with the old kml file format.
         Please do not access this property from the new viewer */
@@ -270,7 +274,14 @@ export class EditableFeature extends Feature {
         }
     }
 
-    static async generateEditableFeatureFromOlFeature(olFeature) {
+    /**
+     * This is a helper function for {@link deserialize} that generates an editable feature based on
+     * the style stored in the kml '<style>' tag.
+     *
+     * @param {any} olFeature An olFeature that was just deserialized with {@link ol/format/KML}.
+     * @returns {EditableFeature}
+     */
+    static async _generateEditableFeatureFromKmlStyle(olFeature) {
         const geom = olFeature.getGeometry()
         /*The kml parser automatically created a style based on the "<style>" part of the
         feature in the kml file. We will now analyse this style to retrieve all information
@@ -290,7 +301,11 @@ export class EditableFeature extends Feature {
         coordinates = Array.isArray(coordinates[0])
             ? coordinates.map((coord) => coord.slice(0, 2))
             : coordinates.slice(0, 2)
-        geom.setCoordinates(coordinates)
+        if (geom instanceof Polygon) {
+            geom.setCoordinates([coordinates])
+        } else {
+            geom.setCoordinates(coordinates)
+        }
         let icon = style.getImage()
         /* To interpret the kmls the same way as google earth, the kml parser automatically adds
         a google icon if no icon is present (i.e. for our text feature type), but we do not want
@@ -306,29 +321,38 @@ export class EditableFeature extends Feature {
             textSize = 1
         }
         /* In the old viewer, the kml feature id is of the form: "<featuretype>_<id>". In the new
-        viewer, it is of the form: "drawing_feature_<id>". This fixes the id for the new viewer
-        in case it is an old kml file. */
+        viewer, it is of the form: "drawing_feature_<id>". */
         let id = olFeature.getId().match(type.toLowerCase() + '_([0-9]+)$')?.[1]
         id = id ? 'drawing_feature_' + id : olFeature.getId()
+        olFeature.setId(id)
+
+        const title = olFeature.get('name') ?? ''
+        const textColor = title /*facultative on marker, never present on measure and linepolygon*/
+            ? FeatureStyleColor.getFromFillColorArray(style.getText()?.getFill()?.getColor())
+            : undefined
         const args = {
             id,
             coordinates: coordinates,
             featureType: type,
-            title: olFeature.get('name') ?? '',
-            description: olFeature.get('description') ?? '', // accesses property only set by old viewer
-            textColor: FeatureStyleColor.generateFromFillColorArray(
-                style.getText()?.getFill()?.getColor()
-            ),
-            fillColor: FeatureStyleColor.generateFromFillColorArray(style.getStroke()?.getColor()),
-            textSize: FeatureStyleSize.getFromTextScale(textSize),
-            iconSize: MEDIUM,
+            title,
+            description: olFeature.get('description') ?? '', // only set by old viewer
+            textColor,
+            /* Fillcolor can be either the color of the stroke or the color of the icon. If an icon
+            is defined, the following color will be overridden by the icon color. */
+            fillColor: FeatureStyleColor.getFromFillColorArray(style.getStroke()?.getColor()),
+            textSize: title ? FeatureStyleSize.getFromTextScale(textSize) : undefined,
+            iconSize: undefined,
             // This is at the end as it may overwrite arguments already defined above
-            ...(await this.findIconFromOlIcon(icon)),
+            ...(await this._findIconFromOlIcon(icon)),
         }
         return this.constructWithObject(args)
     }
 
-    static async findIconFromOlIcon(olIcon) {
+    /**
+     * @param {any} olIcon An olIcon generated by a kml coming from mf-geoadmin3
+     * @returns A list of arguments that can be passed to {@link constructWithObject}.
+     */
+    static async _findIconFromOlIcon(olIcon) {
         if (!olIcon) {
             return {}
         }
@@ -347,8 +371,8 @@ export class EditableFeature extends Feature {
             return { icon: Icon.generateFromOlIcon(olIcon) }
         }
         if (setNameFromNewViewerUrl) {
-            // We do not handle the case for a new viewer URL, as for the moment we serialize
-            // the editable feature in this case which has already all infomations
+            /* We do not support parsing the URL of the new viewer, as for the moment we serialize
+            the editable Feature so there is no need for parsing. */
             return { icon: Icon.generateFromOlIcon(olIcon) }
         } else {
             let icon,
@@ -361,7 +385,7 @@ export class EditableFeature extends Feature {
                 if (!Array.isArray(color) || color.length !== 3) {
                     log.error('Parsing error: Could not retrive color from legacy icon URL')
                 } else {
-                    args.fillColor = FeatureStyleColor.generateFromFillColorArray(color)
+                    args.fillColor = FeatureStyleColor.getFromFillColorArray(color)
                 }
                 let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
                 icon = iconset.icons.find((icon) => icon.name.match('^[0-9]+-' + iconName + '$'))
