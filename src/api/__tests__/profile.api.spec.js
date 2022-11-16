@@ -4,9 +4,9 @@ import { describe, it } from 'vitest'
 
 const testProfile = new ElevationProfile([
     new ElevationProfilePoint(0, [0, 0], 100),
-    new ElevationProfilePoint(50, [0, 50], 200),
+    new ElevationProfilePoint(50, [0, 50], 210),
     new ElevationProfilePoint(150, [0, 150], 90),
-    new ElevationProfilePoint(200, [50, 150], 210),
+    new ElevationProfilePoint(200, [50, 150], 200),
 ])
 
 describe('Profile calculation', () => {
@@ -32,26 +32,26 @@ describe('Profile calculation', () => {
         expect(testProfile.minElevation).to.eq(90)
     })
     it('calculates elevation difference correctly', () => {
-        // comparing start and finish, so 210 - 100
-        expect(testProfile.elevationDifference).to.eq(110)
+        // comparing start and finish, so 200 - 100
+        expect(testProfile.elevationDifference).to.eq(100)
     })
     it('calculates total ascent correctly', () => {
-        // from point 1 to 2 : 100
-        // from point 3 to 4 : 120
+        // from point 1 to 2 : 110
+        // from point 3 to 4 : 110
         // total: 220
         expect(testProfile.totalAscent).to.eq(220)
     })
     it('calculates total descent correctly', () => {
-        // from 200 to 90, so -110, but it's in absolute form
-        expect(testProfile.totalDescent).to.eq(110)
+        // from 210 to 90, so -120, but it's in absolute form
+        expect(testProfile.totalDescent).to.eq(120)
     })
     it('calculates slope distance correctly', () => {
         // here we calculate with Pythagoras between each point
         // so that we take into account the difference of altitude/elevation
-        // between 1 and 2 : 50m of distance and 100m of elevation, so sqrt(50^2 + 100^2) ~= 111.80m
-        // between 2 and 3 : 100m of distance and -110m of elevation, so sqrt(100^2 + -110^2) ~= 148.66m
-        // between 3 and 4 : 50m of distance and 120m of elevation, so sqrt(50^2 + 120^2) = 130m
-        // total : 390.46m
-        expect(testProfile.slopeDistance).to.approximately(390.46, 0.01)
+        // between 1 and 2 : 50m of distance and 110m of elevation, so sqrt(50^2 + 110^2) ~= 120.83m
+        // between 2 and 3 : 100m of distance and -120m of elevation, so sqrt(100^2 + -120^2) ~= 156.20m
+        // between 3 and 4 : 50m of distance and 110m of elevation, so sqrt(50^2 + 110^2) ~= 120.83m
+        // total : 397.86m
+        expect(testProfile.slopeDistance).to.approximately(397.86, 0.01)
     })
 })
