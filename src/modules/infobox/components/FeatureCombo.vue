@@ -11,7 +11,7 @@
 <script>
 import { EditableFeature } from '@/api/features.api'
 import { mapState } from 'vuex'
-import FeatureProfile from './FeatureProfile.vue'
+import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
 export default {

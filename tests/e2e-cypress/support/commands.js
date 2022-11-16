@@ -312,3 +312,13 @@ Cypress.Commands.add(
         map.handleMapBrowserEvent(simulatedEvent)
     }
 )
+
+Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
+    if (Array.isArray(mockupData)) {
+        cy.mockupBackendResponse('rest/services/profile.json**', mockupData, 'profile')
+    } else {
+        cy.intercept('rest/services/profile.json**', {
+            fixture: 'service-alti/profile.fixture.json',
+        }).as('profile')
+    }
+})
