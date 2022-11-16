@@ -220,6 +220,7 @@ export default {
         this.drawingLayer = new VectorLayer({
             source: new VectorSource({ useSpatialIndex: false, wrapX: true }),
         })
+        this.drawingLayer.setZIndex(9999)
         // if icons have not yet been loaded, we do so
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
