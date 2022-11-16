@@ -22,8 +22,12 @@
                         DHM25
                     </a>
                 </text>
-                <text class="profile-label profile-label-x" text-anchor="middle"></text>
-                <text class="profile-label profile-label-y" text-anchor="middle" dy="0.85em"></text>
+                <text class="profile-label profile-label-x" text-anchor="middle">
+                    {{ $t('profile_x_label') }} [{{ unitUsedOnDistanceAxis }}]
+                </text>
+                <text class="profile-label profile-label-y" text-anchor="middle" dy="0.85em">
+                    {{ $t('profile_y_label') }} [m]
+                </text>
                 <rect
                     ref="profilePopupElement"
                     class="profile-glass"
@@ -100,13 +104,7 @@ export default {
             return this.profileData.maxDist >= 10000 ? 'km' : 'm'
         },
         factorToUseForDisplayedDistances() {
-            return this.unitUsedOnDistanceAxis === 'km' ? 1000.0 : 1.0
-        },
-        maxDistanceInDisplayedUnit() {
-            return this.profileData.maxDist / this.factorToUseForDisplayedDistances
-        },
-        lineString() {
-            return new LineString(data.map((datum) => [datum.easting, datum.northing]))
+            return this.unitUsedOnDistanceAxis === 'km' ? 0.001 : 1.0
         },
         ...mapState({
             currentLang: (state) => state.i18n.lang,
@@ -142,7 +140,8 @@ export default {
         updateProfileChart() {
             const { domainX, domainY, axisX, axisY } = updateD3ProfileChart(
                 this.$refs.profilePlot,
-                this.profileData
+                this.profileData,
+                this.factorToUseForDisplayedDistances
             )
             this.d3domainX = domainX
             this.d3domainY = domainY
@@ -188,7 +187,7 @@ export default {
             // Tooltip text
             profileTooltipElement.querySelector(
                 '.distance'
-            ).innerText = `${distanceUnderMouseCursor.toFixed(2)} m`
+            ).innerText = `${distanceUnderMouseCursor.toFixed(2)} ${this.unitUsedOnDistanceAxis}`
             profileTooltipElement.querySelector(
                 '.elevation'
             ).innerText = `${elevationUnderMouseCursor.toFixed(2)} m`
@@ -214,10 +213,11 @@ export default {
          * @returns The height in meter at the given distance
          */
         getHeightAtDist(dist) {
+            const rawDist = dist / this.factorToUseForDisplayedDistances
             // Find lowerIndex, such that dist[lowerIndex] <= dist <= dist[lowerIndex + 1] = dist[higherIndex]
             // The distance increase between each index is approximately regular, so we can make a first guess
             // with a complexity of O(1) making sure the dist we are searching is within possible values (>= 0 and <= maxDist)
-            const distToSearch = Math.min(Math.max(dist, 0), this.profileData.maxDist)
+            const distToSearch = Math.min(Math.max(rawDist, 0), this.profileData.maxDist)
             let lowerIndex = Math.trunc(
                 ((this.profileData.length - 1) * distToSearch) / this.profileData.maxDist
             )

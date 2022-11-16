@@ -1,4 +1,3 @@
-import i18n from '@/modules/i18n'
 import * as d3 from 'd3'
 
 // look and feel constants
@@ -21,15 +20,16 @@ const sourceFontSize = profilePlotMargin.top - sourceFontMargin
  *
  * This code is mostly a rip-off of mf-geoamin3, with minor adjustments
  *
- * @param width Width of the chart on screen (px)
+ * @param {Number} width Width of the chart on screen (px)
  * @param {GeoAdminProfile} profile Profile data to be shown as chart
+ * @param {Number} xAxisMultiplier
  * @returns Definition of X axis for d3
  */
-function getDomainX(width, profile) {
+function getDomainX(width, profile, xAxisMultiplier) {
     return d3
         .scaleLinear()
         .range([0, width])
-        .domain(d3.extent(profile.points, (point) => point.dist))
+        .domain(d3.extent(profile.points, (point) => point.dist * xAxisMultiplier))
 }
 
 /**
@@ -57,55 +57,40 @@ function getDomainY(height, profile) {
         .domain([yMin, yMax + decile])
 }
 
-function createAxisX(domainX) {
-    return d3.axisBottom(domainX)
-}
+/**
+ * Time between visual updates of the profile in milliseconds
+ *
+ * @type {number}
+ */
+const transitionTime = 250
 
-function createAxisY(domainY) {
-    return d3.axisLeft(domainY).ticks(5)
-}
+/**
+ * @param {HTMLElement} element HTML element in which the plot will be generated
+ * @param {GeoAdminProfile} profile Profile data to render as chart
+ * @param {Number} xAxisMultiplier Multiplier applied to the X axis values (distance). Enables the
+ *   switch to kilometers units, if a 0.001 factor is given.
+ */
+export function updateD3ProfileChart(element, profile, xAxisMultiplier = 1.0) {
+    const width = element.clientWidth - profilePlotMargin.left - profilePlotMargin.right
+    const height = element.clientHeight - profilePlotMargin.top - profilePlotMargin.bottom
 
-function createArea(domainX, domainY, height) {
-    return d3
+    const domainX = getDomainX(width, profile, xAxisMultiplier)
+    const domainY = getDomainY(height, profile)
+
+    const axisX = d3.axisBottom(domainX)
+    const axisY = d3.axisLeft(domainY).ticks(5)
+
+    const d3element = d3.select(element)
+
+    const area = d3
         .area()
         .x(function (d) {
-            return domainX(d.dist)
+            return domainX(d.dist * xAxisMultiplier)
         })
         .y0(height)
         .y1(function (d) {
             return domainY(d.elevation)
         })
-}
-
-/**
- * @param d3element
- * @param {String} unitForDistance
- */
-function updateLabels(d3element, unitForDistance = 'm') {
-    d3element
-        .select('.profile-label-x')
-        .text(`${i18n.global.t('profile_x_label')} [${unitForDistance}]`)
-    d3element.select('.profile-label-y').text(`${i18n.global.t('profile_x_label')} [m]`)
-}
-
-/**
- * @param {HTMLElement} element
- * @param {GeoAdminProfile} profile
- * @param {Number} transitionTime
- */
-export function updateD3ProfileChart(element, profile, transitionTime = 250) {
-    const width = element.clientWidth - profilePlotMargin.left - profilePlotMargin.right
-    const height = element.clientHeight - profilePlotMargin.top - profilePlotMargin.bottom
-
-    const domainX = getDomainX(width, profile)
-    const domainY = getDomainY(height, profile)
-
-    const axisX = createAxisX(domainX)
-    const axisY = createAxisY(domainY)
-
-    const d3element = d3.select(element)
-
-    const area = createArea(domainX, domainY, height)
 
     d3element
         .select('svg')
@@ -181,8 +166,6 @@ export function updateD3ProfileChart(element, profile, transitionTime = 250) {
         .attr('width', width)
         .attr('height', height)
         .style('opacity', 0)
-
-    updateLabels(d3element)
 
     return {
         domainX,
