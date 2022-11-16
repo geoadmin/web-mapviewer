@@ -17,7 +17,7 @@ import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
-import { extractOpenLayersFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { Point, Polygon } from 'ol/geom'
 import { getDefaultStyle } from 'ol/format/KML'
 import store from '@/store'
@@ -296,7 +296,7 @@ export class EditableFeature extends Feature {
         if (!Object.values(EditableFeatureTypes).includes(type)) {
             throw new Error('Parsing error: Type of features in kml not recognized')
         }
-        let coordinates = extractOpenLayersFeatureCoordinates(olFeature)
+        let coordinates = extractOlFeatureCoordinates(olFeature)
         // We do not want to store the z coordinate (height)
         coordinates = Array.isArray(coordinates[0])
             ? coordinates.map((coord) => coord.slice(0, 2))
