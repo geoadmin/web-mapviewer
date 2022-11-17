@@ -247,7 +247,7 @@
                 </Data>
             </ExtendedData>
             <name></name>
-            <description>desc 9</description>
+            <description>desc 10</description>
             <Style>
                 <IconStyle>
                     <Icon>
@@ -262,6 +262,30 @@
                 <altitudeMode>clampToGround</altitudeMode>
                 <coordinates>7.122730979678771,46.50199343196728</coordinates>
             </Point>
+        </Placemark>
+        <Placemark id="linepolygon_1668625663095">
+            <ExtendedData>
+                <Data name="type">
+                    <value>linepolygon</value>
+                </Data>
+            </ExtendedData>
+            <description>desc 9</description>
+            <Style>
+                <LineStyle>
+                    <color>ff00ffff</color>
+                    <width>3</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>6600ffff</color>
+                </PolyStyle>
+            </Style>
+            <Polygon>
+                <outerBoundaryIs>
+                    <LinearRing>
+                        <coordinates>7.51115386937066,47.155696556678855,0 7.274907108447742,46.79579538805226,0 8.574407915810442,46.614843162382584,0 8.616346517727928,47.04174329321305,0 7.51115386937066,47.155696556678855,0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
         </Placemark>
     </Document>
 </kml>

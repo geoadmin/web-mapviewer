@@ -70,7 +70,9 @@ describe('Validate features api', () => {
             let features = []
             for (const olFeature of olFeatures) {
                 await EditableFeature.deserialize(olFeature)
-                features.push(olFeature.get('editableFeature'))
+                const feature = olFeature.get('editableFeature')
+                feature.olFeature = olFeature
+                features.push(feature)
             }
             features.sort((a, b) => {
                 const elemA = Number(
@@ -89,10 +91,18 @@ describe('Validate features api', () => {
             })
             features.forEach((feature, i) => {
                 i++
+                const olCoords = feature.olFeature.getGeometry().getCoordinates()
+                let olCoord = olCoords
+                while (Array.isArray(olCoord?.[0])) {
+                    olCoord = olCoord[0]
+                }
+                //Check that we correctly removed the z coordinate (height)
+                expect(olCoord).to.have.length(2)
                 expect(feature.id).to.match(/^drawing_feature_[0-9]+$/)
                 //Markers
                 if (i <= 3) {
                     expect(feature.coordinates).to.have.length(2)
+                    expect(olCoords).to.have.length(2)
                     expect(feature.title).to.be.equal('text ' + i)
                     expect(feature.description).to.be.equal('desc ' + i)
                     expect(feature.featureType).to.be.equal(EditableFeatureTypes.MARKER)
@@ -127,6 +137,7 @@ describe('Validate features api', () => {
                 //Text fields
                 else if (i <= 6) {
                     expect(feature.coordinates).to.have.length(2)
+                    expect(olCoords).to.have.length(2)
                     expect(feature.title).to.be.equal('text ' + i)
                     expect(feature.description).to.be.equal('')
                     expect(feature.featureType).to.be.equal(EditableFeatureTypes.ANNOTATION)
@@ -149,22 +160,32 @@ describe('Validate features api', () => {
                     expect(feature.icon).to.be.null
                 }
                 //Lines
-                else if (i <= 8) {
-                    expect(feature.coordinates).to.have.length(2)
+                else if (i <= 9) {
+                    // i=9 is a polygon while the other lines are linestrings
+                    expect(feature.coordinates).to.have.length(i === 9 ? 5 : 2)
+                    expect(olCoords).to.have.length(i === 9 ? 1 : 2)
+                    if (i === 9) {
+                        expect(olCoords[0]).to.have.length(5)
+                    }
                     expect(feature.title).to.be.equal('')
                     expect(feature.description).to.be.equal('desc ' + i)
                     expect(feature.featureType).to.be.equal(EditableFeatureTypes.LINEPOLYGON)
                     expect(feature.textColor).to.be.equal(featureStyle.RED)
                     expect(feature.textSize).to.be.equal(featureStyle.MEDIUM)
                     expect(feature.fillColor).to.be.equal(
-                        i === 7 ? featureStyle.BLACK : featureStyle.BLUE
+                        i === 7
+                            ? featureStyle.BLACK
+                            : i === 8
+                            ? featureStyle.BLUE
+                            : featureStyle.YELLOW
                     )
                     expect(feature.iconSize).to.be.equal(featureStyle.MEDIUM)
                     expect(feature.icon).to.be.null
                 }
                 //Marker without text
-                else if (i === 9) {
+                else if (i === 10) {
                     expect(feature.coordinates).to.have.length(2)
+                    expect(olCoords).to.have.length(2)
                     expect(feature.title).to.be.equal('')
                     expect(feature.description).to.be.equal('desc ' + i)
                     expect(feature.featureType).to.be.equal(EditableFeatureTypes.MARKER)
@@ -177,7 +198,8 @@ describe('Validate features api', () => {
                 }
                 //Measures
                 else {
-                    expect(feature.coordinates).to.have.length(i === 10 ? 2 : 3)
+                    expect(feature.coordinates).to.have.length(i === 11 ? 2 : 3)
+                    expect(olCoords).to.have.length(i === 11 ? 2 : 3)
                     expect(feature.title).to.be.equal('')
                     expect(feature.description).to.be.equal('')
                     expect(feature.featureType).to.be.equal(EditableFeatureTypes.MEASURE)
