@@ -1,0 +1,13 @@
+name: on-pr
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+jobs:
+  pr-edit:
+    uses: geoadmin/.github/.github/workflows/pr-auto-semver.yml@master

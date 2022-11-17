@@ -1,0 +1,15 @@
+{
+    "items": [
+        {
+            "colorable": false,
+            "icons_url": "http://localhost:8080/api/icons/sets/second/icons",
+            "name": "second"
+        },
+        {
+            "colorable": true,
+            "icons_url": "http://localhost:8080/api/icons/sets/default/icons",
+            "name": "default"
+        }
+    ],
+    "success": true
+}

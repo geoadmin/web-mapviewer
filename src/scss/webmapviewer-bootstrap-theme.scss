@@ -1,0 +1,25 @@
+
+@import 'src/scss/variables';
+@import 'src/scss/variables-admin';
+
+$component-active-bg: $malibu;
+// https://stackoverflow.com/a/49033912/4840446
+$input-btn-focus-box-shadow: none;
+$input-btn-focus-width: 0;
+$primary: $venetian-red;
+
+@import 'node_modules/bootstrap/scss/functions';
+@import 'node_modules/bootstrap/scss/variables';
+@import 'node_modules/bootstrap/scss/mixins';
+
+$map-button-border-color: $gray-800;
+$map-button-hover-border-color: $gray-700;
+
+.form-control:focus {
+  box-shadow: 0 1px 4px lighten($dark, 8%);
+}
+
+$card-cap-padding-y: 0.25rem;
+$card-spacer-y: 0.75rem;
+
+$caret-spacing: 0.75rem;
