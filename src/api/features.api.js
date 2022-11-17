@@ -254,15 +254,8 @@ export class EditableFeature extends Feature {
         const serializedEditableFeature = olFeature.get('editableFeature')
         const editableFeature = serializedEditableFeature
             ? this.recreateObject(JSON.parse(serializedEditableFeature))
-            : await this._generateEditableFeatureFromKmlStyle(olFeature)
+            : await this._generateEditableFeatureFromMfGeoadmin3KmlStyle(olFeature)
         olFeature.set('editableFeature', editableFeature)
-        /* This type field is used to keep compatibility with the old kml file format.
-        Please do not access this property from the new viewer */
-        olFeature.set('type', {
-            get value() {
-                return editableFeature.featureType.toLowerCase()
-            },
-        })
         olFeature.setStyle(featureStyleFunction)
         if (editableFeature.isLineOrMeasure()) {
             /* The featureStyleFunction uses the geometries calculated in the geodesic object
@@ -275,12 +268,13 @@ export class EditableFeature extends Feature {
 
     /**
      * This is a helper function for {@link deserialize} that generates an editable feature based on
-     * the style stored in the kml '<style>' tag.
+     * the style stored in the kml '<style>' tag. Only works with kmls that were generated with
+     * mf-geoadmin3
      *
      * @param {any} olFeature An olFeature that was just deserialized with {@link ol/format/KML}.
      * @returns {EditableFeature}
      */
-    static async _generateEditableFeatureFromKmlStyle(olFeature) {
+    static async _generateEditableFeatureFromMfGeoadmin3KmlStyle(olFeature) {
         const geom = olFeature.getGeometry()
         /*The kml parser automatically created a style based on the "<style>" part of the
         feature in the kml file. We will now analyse this style to retrieve all information
@@ -291,7 +285,7 @@ export class EditableFeature extends Feature {
             throw new Error('Parsing error: Could not get the style from the ol Feature')
         }
         const defStyle = getDefaultStyle()
-        const type = olFeature.get('type').toUpperCase()
+        const type = olFeature.get('type').toUpperCase() // only set by mf-geoadmin3's kml
         if (!Object.values(EditableFeatureTypes).includes(type)) {
             throw new Error('Parsing error: Type of features in kml not recognized')
         }
@@ -334,7 +328,7 @@ export class EditableFeature extends Feature {
             coordinates: coordinates,
             featureType: type,
             title,
-            description: olFeature.get('description') ?? '', // only set by old viewer
+            description: olFeature.get('description') ?? '', // only set by mf-geoadmin3's kml
             textColor,
             /* Fillcolor can be either the color of the stroke or the color of the icon. If an icon
             is defined, the following color will be overridden by the icon color. */
@@ -357,9 +351,7 @@ export class EditableFeature extends Feature {
         }
         olIcon.setDisplacement([0, 0])
         const url = olIcon.getSrc()
-        const setNameFromNewViewerUrl = url.match(/icons\/sets\/(\w+)\/icons.*\.png$/)?.[1]
-        const setNameFromOldViewerUrl = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
-        const setName = setNameFromNewViewerUrl ?? setNameFromOldViewerUrl
+        const setName = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
         /* Cypress fails with "process not defined" when the store is imported at the top of this
         file. (Maybe it has something to do with cyclic dependencies), so that's why it is only
         imported here. This is a bit ugly so maybe we can find a solution where no store needs
@@ -371,49 +363,43 @@ export class EditableFeature extends Feature {
         const iconsets = store.state.drawing.iconSets
         const iconset = iconsets.find((iconset) => iconset.name === setName)
         if (!iconset) {
-            log.error('Parsing error: Could not retrive icon set from (legacy) icon URL')
+            log.error('Parsing error: Could not retrive icon set from legacy icon URL')
             return { icon: Icon.generateFromOlIcon(olIcon) }
         }
-        if (setNameFromNewViewerUrl) {
-            /* We do not support parsing the URL of the new viewer, as for the moment we serialize
-            the editable Feature so there is no need for parsing. */
-            return { icon: Icon.generateFromOlIcon(olIcon) }
+        let icon,
+            args = {}
+        if (setName === 'default') {
+            let color = url
+                .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^\/]+\.png$/)
+                ?.slice(1, 4)
+                ?.map((nb) => Math.min(Number(nb), 255))
+            if (!Array.isArray(color) || color.length !== 3) {
+                log.error('Parsing error: Could not retrive color from legacy icon URL')
+            } else {
+                args.fillColor = FeatureStyleColor.getFromFillColorArray(color)
+            }
+            let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
+            icon = iconset.icons.find((icon) => icon.name.match('^[0-9]+-' + iconName + '$'))
         } else {
-            let icon,
-                args = {}
-            if (setName === 'default') {
-                let color = url
-                    .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^\/]+\.png$/)
-                    ?.slice(1, 4)
-                    ?.map((nb) => Math.min(Number(nb), 255))
-                if (!Array.isArray(color) || color.length !== 3) {
-                    log.error('Parsing error: Could not retrive color from legacy icon URL')
-                } else {
-                    args.fillColor = FeatureStyleColor.getFromFillColorArray(color)
-                }
-                let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
-                icon = iconset.icons.find((icon) => icon.name.match('^[0-9]+-' + iconName + '$'))
-            } else {
-                let iconName = url.match(/images\/\w+\/([\w-]+)\.png$/)?.[1]
-                icon = iconset.icons.find((icon) => icon.name === iconName)
-            }
-            if (!icon) {
-                log.error('Parsing error: Could not retrive icon from legacy icon URL')
-                args.icon = Icon.generateFromOlIcon(olIcon)
-            } else {
-                args.icon = icon
-            }
-            /* For the openlayers scale property and the kml files generated by the old viewer,
-            a scale of 1 is the original size of the icon (which is always 48px for icons used by
-            the old viewer). In the kml format used by the new viewer however, a scale of 1 is
-            always 32px, no matter the size of the icon. So the kml formatter misinterprets the
-            kml scale property for kml files from the old viewer and we have to multiply that scale
-            by 1.5 to get the correct scale again.*/
-            // SMALL = 0.5 , MEDIUM = 0.75 , LARGE = 1 for icons from the old viewer
-            const iconScale = olIcon.getScale() * 1.5
-            args.iconSize = FeatureStyleSize.getFromIconScale(iconScale)
-            return args
+            let iconName = url.match(/images\/\w+\/([\w-]+)\.png$/)?.[1]
+            icon = iconset.icons.find((icon) => icon.name === iconName)
         }
+        if (!icon) {
+            log.error('Parsing error: Could not retrive icon from legacy icon URL')
+            args.icon = Icon.generateFromOlIcon(olIcon)
+        } else {
+            args.icon = icon
+        }
+        /* For the openlayers scale property and the kml files generated by the old viewer,
+        a scale of 1 is the original size of the icon (which is always 48px for icons used by
+        the old viewer). In the kml format used by the new viewer however, a scale of 1 is
+        always 32px, no matter the size of the icon. So the kml formatter misinterprets the
+        kml scale property for kml files from the old viewer and we have to multiply that scale
+        by 1.5 to get the correct scale again.*/
+        // SMALL = 0.5 , MEDIUM = 0.75 , LARGE = 1 for icons from the old viewer
+        const iconScale = olIcon.getScale() * 1.5
+        args.iconSize = FeatureStyleSize.getFromIconScale(iconScale)
+        return args
     }
 
     isLineOrMeasure() {
