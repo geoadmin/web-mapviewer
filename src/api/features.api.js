@@ -20,7 +20,6 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { Point, Polygon } from 'ol/geom'
 import { getDefaultStyle } from 'ol/format/KML'
-import store from '@/store'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
  * edited if the corresponding flag says so (it will then fires "change" events any time one
@@ -361,6 +360,11 @@ export class EditableFeature extends Feature {
         const setNameFromNewViewerUrl = url.match(/icons\/sets\/(\w+)\/icons.*\.png$/)?.[1]
         const setNameFromOldViewerUrl = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
         const setName = setNameFromNewViewerUrl ?? setNameFromOldViewerUrl
+        /* Cypress fails with "process not defined" when the store is imported at the top of this
+        file. (Maybe it has something to do with cyclic dependencies), so that's why it is only
+        imported here. This is a bit ugly so maybe we can find a solution where no store needs
+        to be imported. */
+        const store = (await import('@/store')).default
         if (!store.state.drawing.iconSets?.length) {
             await store.dispatch('loadAvailableIconSets')
         }
