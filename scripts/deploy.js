@@ -65,7 +65,7 @@ const s3Utils = require('./s3-utils')
 const fileUtils = require('./file-utils')
 
 // Checking if index.html file is present in dist folder (if build has been done beforehand)
-if (!fileUtils.fileExists('./dist/index.html')) {
+if (!fileUtils.fileExists('./dist/development/index.html')) {
     console.error('Please build the project before trying to deploy')
     process.exit(1)
 }
@@ -114,7 +114,7 @@ s3Utils
                 bucketFolder = branch
             }
 
-            const distFolderRelativePath = './dist/'
+            const distFolderRelativePath = './dist/development'
             const distFolderFullPath = resolve(distFolderRelativePath)
 
             let countFileBeingUploaded = 0

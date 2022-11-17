@@ -96,7 +96,7 @@ export const API_SERVICES_BASE_URL = enforceEndingSlashInUrl(
  * @type String
  */
 export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
-    import.meta.env.VITE_API_SERVICE_KML_BASE_URL || API_PUBLIC_URL
+    import.meta.env.VITE_API_SERVICE_KML_BASE_URL
 )
 
 /**
@@ -108,7 +108,7 @@ export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
  * @type String
  */
 export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
-    import.meta.env.VITE_API_SERVICE_KML_STORAGE_BASE_URL || API_SERVICE_KML_BASE_URL
+    import.meta.env.VITE_API_SERVICE_KML_STORAGE_BASE_URL
 )
 
 /**

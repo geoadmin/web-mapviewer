@@ -7,9 +7,9 @@ describe('Testing the share menu', () => {
         cy.get('[data-cy="menu-button"]').click()
         // intercepting short link requests, in order not to have to import the config
         // we check only for the first part of the URL (without the staging)
-        cy.intercept('https://s.geo.admin.ch**', { body: { shorturl: dummyShortLink } }).as(
-            'shortLink'
-        )
+        cy.intercept('POST', /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+            body: { shorturl: dummyShortLink },
+        }).as('shortLink')
     })
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {

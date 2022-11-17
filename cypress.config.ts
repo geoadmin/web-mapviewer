@@ -69,6 +69,6 @@ module.exports = defineConfig({
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/e2e-cypress/integration/**/*.*',
-        supportFile: 'tests/e2e-cypress/support/index.js',
+        supportFile: 'tests/e2e-cypress/support/index.js'
     },
 })
