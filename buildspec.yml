@@ -99,10 +99,9 @@ phases:
       - echo ===================================================================
       - echo Building application for ${BUILD_TYPE_1}
       - npm run build:${BUILD_TYPE_1}
-      - if [[ "${BUILD_TYPE_1}" != "${BUILD_TYPE_2}" ]];
-        then
-          echo -------------------------------------------------------------------
-          echo Building application for ${BUILD_TYPE_2}
+      - if [[ "${BUILD_TYPE_1}" != "${BUILD_TYPE_2}" ]]; then
+          echo -------------------------------------------------------------------;
+          echo Building application for ${BUILD_TYPE_2};
           npm run build:${BUILD_TYPE_2};
         fi
 
