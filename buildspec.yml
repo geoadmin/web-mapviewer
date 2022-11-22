@@ -22,7 +22,7 @@ phases:
 
   pre_build:
     commands:
-      - echo "=========== Configuring stuff ==================================="
+      - #=========== Configuring stuff ===================================
       - export PULL_REQUEST=${CODEBUILD_WEBHOOK_TRIGGER#pr/*}
       - export GIT_BRANCH="${CODEBUILD_WEBHOOK_HEAD_REF#refs/heads/}"
       - export GIT_BASE_BRANCH="${CODEBUILD_WEBHOOK_BASE_REF#refs/heads/}"
@@ -66,8 +66,8 @@ phases:
         fi
       # Set the app version to the git tag
       - export APP_VERSION=${GIT_TAG}
-      - echo "=== Environment Variables ======================================="
-      - echo CODEBUILD_INITIATOR=${CODEBUILD_INITIATOR}
+      - #=== Environment Variables =======================================
+      - #CODEBUILD_INITIATOR=${CODEBUILD_INITIATOR}
       - echo CODEBUILD_RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION}
       - echo CODEBUILD_SOURCE_VERSION=${CODEBUILD_SOURCE_VERSION}
       - echo CODEBUILD_WEBHOOK_EVENT=${CODEBUILD_WEBHOOK_EVENT}

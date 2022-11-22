@@ -18,7 +18,7 @@ jobs:
           head-branch-regex: '.+'
           body-template: |
 
-            [Test link](https://sys-map.dev.bgdi.ch/%headbranch%/index.html)
+            [Test link](https://sys-map.dev.bgdi.ch/preview/%headbranch%/index.html)
           body-update-action: 'suffix'
           body-uppercase-head-match: false
 
