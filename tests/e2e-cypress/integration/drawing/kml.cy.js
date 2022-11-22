@@ -61,7 +61,7 @@ describe('Drawing loading KML', () => {
     it('load kml file, open drawing mode and try to delete a feature', () => {
         //load map with an injected kml layer containing a text
         const kmlFileId = 'test-fileID12345678900'
-        const kmlUrlParam = `KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlFileId}|Dessin`
+        const kmlUrlParam = `KML|https://public.geo.admin.ch/api/kml/files/${kmlFileId}|Dessin`
         cy.intercept(`**/api/kml/files/${kmlFileId}`, {
             fixture: 'service-kml/lonelyMarker.kml',
         }).as('initialKmlFile')
@@ -85,7 +85,7 @@ describe('Drawing loading KML', () => {
             .should('have.length', 1)
         //click on the delete button
         cy.get('[data-cy="drawing-style-delete-button"]').click()
-        //ckeck that the text was correctly deleted
+        //check that the text was correctly deleted
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 0)
         cy.readWindowValue('drawingLayer')

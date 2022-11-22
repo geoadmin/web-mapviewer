@@ -105,6 +105,9 @@ describe('Test mouse position', () => {
         const lon = 8
         beforeEach(() => {
             // Viewport set to see the whole popup
+            cy.intercept(`**/api/qrcode/generate**`, {
+                fixture: 'service-qrcode/position-popup.png',
+            }).as('qrcode')
             cy.viewport(320, 1000)
             cy.goToMapView('en', { lat, lon })
             cy.get('[data-cy="map"]').rightclick()

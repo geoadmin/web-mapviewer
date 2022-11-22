@@ -18,6 +18,7 @@ export default defineConfig(({ command, mode }) => {
         build: {
             emptyOutDir: true,
             assetsDir: `${appVersion}/assets`,
+            outDir: `./dist/${mode}`
         },
         plugins: [vue(), generateBuildInfo(appVersion)],
         resolve: {
