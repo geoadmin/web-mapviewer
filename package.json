@@ -6,7 +6,7 @@
         "dev": "vite --port 8080",
         "preview": "npm run build:prod && vite preview --port 8080 --outDir dist/production",
         "preview:dev": "npm run build:dev && vite preview --port 8080 --outDir dist/development",
-        "preview:int": "npm run build:int && vite preview --port 8080 --outDir dist/development",
+        "preview:int": "npm run build:int && vite preview --port 8080 --outDir dist/integration",
         "test:unit": "vitest --run --environment jsdom",
         "test:unit:watch": "vitest --environment jsdom",
         "test:e2e": "start-server-and-test dev 8080 'cypress open'",
