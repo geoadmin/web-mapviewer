@@ -21,7 +21,9 @@ const defaultCenter = [47.5, 7.5]
  * @param {String} text A string containing an LV95 or LV03 coordinate.
  */
 function parseLV(text) {
-    const matches = text.match(/([-\d'.]+), ([-\d'.]+)$/)
+    const matches = text.match(/([-\d'.]+),\s*([-\d'.]+)$/)
+    expect(matches).be.an('array', `Cannot parse LV coordinate from ${text}`)
+    expect(matches.length).not.be.eq(0, `Cannot parse LV coordinate from ${text}`)
     return matches
         .slice(1)
         .map((value) => value.replace(/'/g, ''))
