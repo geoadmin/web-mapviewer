@@ -2,7 +2,6 @@
 
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
-import { Decoder } from '@nuintun/qrcode'
 import proj4 from 'proj4'
 
 setupProj4()
@@ -183,44 +182,115 @@ describe('Test mouse position', () => {
             it('Uses the coordination system MGRS in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains('32TMQ 21184 83436')
             })
-            it('Tests the link with bowl crosshair gives the right coordinates', () => {
-                cy.get('[data-cy="location-popup-link-bowl-crosshair"]')
-                    .invoke('val')
-                    .then((value) => {
-                        const search = value.split('?')[1]
-                        const params = new URLSearchParams(search)
-                        return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
-                    })
-                    .then(checkXY(lon, lat))
+        })
+    })
+    context('LocationPopUp when rightclick on the map - shortlink and qrcode', function () {
+        const lat = 45
+        const lon = 8
+        beforeEach(() => {
+            cy.viewport(320, 1000)
+            cy.goToMapView('en', { lat, lon })
+        })
+        it('Tests that a link with crosshair and correct position is sent to shortlink', () => {
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: 'https://s.geo.admin.ch/0000000', success: true },
+            }).as('shortlink')
+            cy.get('[data-cy="map"]').rightclick()
+            cy.wait('@shortlink').then((interception) => {
+                expect(interception.request.body.url).be.a('string')
+                const query = interception.request.body.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                const position = [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
+                checkXY(...position)
+                expect(params.get('crosshair')).not.to.be.empty
             })
-            it('The QR code points to the right coordinates and has a crosshair', () => {
-                const decoder = new Decoder()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder
-                        .scan($element.attr('src'))
-                        .then((result) => {
-                            const search = result.data.split('?')[1]
-                            const params = new URLSearchParams(search)
-                            expect(params.get('crosshair')).to.not.be.empty
-                            return [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
-                        })
-                        .then(checkXY(lon, lat))
-                })
+        })
+        it('Tests that the shortlink updates when the layer config changes', () => {
+            const shortUrl1 = 'https://s.geo.admin.ch/0000000'
+            cy.intercept('POST', /^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl1, success: true },
+            }).as('shortlink')
+            cy.intercept(`**/api/qrcode/generate**`, {
+                fixture: 'service-qrcode/position-popup.png',
+            }).as('qrcode')
+
+            cy.get('[data-cy="map"]').rightclick()
+            cy.wait('@shortlink').then((interception) => {
+                expect(interception.request.body.url).be.a('string')
+                const query = interception.request.body.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                expect(params.get('bgLayer')).to.be.equal(
+                    'ch.swisstopo.leichte-basiskarte_world.vt'
+                )
             })
-            it('The QR code updates when the layer config changes', () => {
-                const decoder = new Decoder()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder.scan($element.attr('src')).then((result) => {
-                        result.data.includes('bgLayer=ch.swisstopo.pixelkarte-farbe')
-                    })
-                })
-                cy.get('[data-cy="background-selector').click()
-                cy.get('[data-cy="background-selector-void').click()
-                cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                    decoder.scan($element.attr('src')).then((result) => {
-                        result.data.includes('bgLayer=void')
-                    })
-                })
+            cy.get('[data-cy="location-popup-link-input"]').should('have.value', shortUrl1)
+
+            const shortUrl2 = 'https://s.geo.admin.ch/1111111'
+            cy.intercept('POST', /^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl2, success: true },
+            }).as('shortlink-bg-void')
+            cy.get('[data-cy="background-selector').click()
+            cy.get('[data-cy="background-selector-void').click()
+            cy.wait('@shortlink-bg-void').then((interception) => {
+                expect(interception.request.body.url).be.a('string')
+                const query = interception.request.body.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                expect(params.get('bgLayer')).to.be.equal('void')
+            })
+            cy.get('[data-cy="location-popup-link-input"]').should('have.value', shortUrl2)
+        })
+        it('Tests that a shortlink is passed to qrcode', () => {
+            const shortUrl = 'https://s.geo.admin.ch/0000000'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl, success: true },
+            }).as('shortlink')
+            cy.intercept(`**/api/qrcode/generate**`, {
+                fixture: 'service-qrcode/position-popup.png',
+            }).as('qrcode')
+            cy.get('[data-cy="map"]').rightclick()
+            cy.wait('@qrcode').then((interception) => {
+                expect(interception.request.url).not.to.be.empty
+                expect(interception.request.url).to.include('?')
+                const query = interception.request.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                expect(params.get('url')).to.be.equal(shortUrl)
+            })
+        })
+        it('Tests that the QR code updates when the layer config changes', () => {
+            const shortUrl1 = 'https://s.geo.admin.ch/0000000'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl1, success: true },
+            }).as('shortlink')
+            cy.intercept(`**/api/qrcode/generate**`, {
+                fixture: 'service-qrcode/position-popup.png',
+            }).as('qrcode')
+            cy.get('[data-cy="map"]').rightclick()
+            cy.wait('@qrcode').then((interception) => {
+                expect(interception.request.url).not.to.be.empty
+                expect(interception.request.url).to.include('?')
+                const query = interception.request.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                expect(params.get('url')).to.be.equal(shortUrl1)
+            })
+            cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
+                expect($element.attr('src')).not.to.be.empty
+            })
+
+            const shortUrl2 = 'https://s.geo.admin.ch/1111111'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl2, success: true },
+            }).as('shortlink')
+            cy.get('[data-cy="background-selector').click()
+            cy.get('[data-cy="background-selector-void').click()
+            cy.wait('@qrcode').then((interception) => {
+                expect(interception.request.url).not.to.be.empty
+                expect(interception.request.url).to.include('?')
+                const query = interception.request.url.split('?')[1]
+                const params = new URLSearchParams(query)
+                expect(params.get('url')).to.be.equal(shortUrl2)
+            })
+            cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
+                expect($element.attr('src')).not.to.be.empty
             })
         })
     })

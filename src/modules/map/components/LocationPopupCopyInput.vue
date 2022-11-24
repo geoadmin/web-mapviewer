@@ -7,6 +7,7 @@
             type="text"
             :value="value"
             readonly
+            data-cy="location-popup-link-input"
             @focus="focusSelect"
         />
         <button ref="button" class="btn btn-secondary" type="button" @click="copyValue">
