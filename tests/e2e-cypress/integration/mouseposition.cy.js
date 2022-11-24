@@ -46,11 +46,17 @@ function checkXY(expectedX, expectedY) {
 
 function checkMousePositionStringValue(coordStr) {
     cy.get('[data-cy="map"]').click()
+    cy.waitUntilState((state) => {
+        return state.map.clickInfo !== null
+    })
     cy.get('[data-cy="mouse-position"]').should('contain.text', coordStr)
 }
 
 function checkMousePositionNumberValue(expectedX, expectedY, parser) {
     cy.get('[data-cy="map"]').click()
+    cy.waitUntilState((state) => {
+        return state.map.clickInfo !== null
+    })
     cy.get('[data-cy="mouse-position"]')
         .invoke('text')
         .then(parser)
@@ -113,6 +119,9 @@ describe('Test mouse position', () => {
             cy.viewport(320, 1000)
             cy.goToMapView('en', { lat, lon })
             cy.get('[data-cy="map"]').rightclick()
+            cy.waitUntilState((state) => {
+                return state.map.clickInfo !== null
+            })
         })
         it('Test the LocationPopUp is visible', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
