@@ -4,6 +4,7 @@
     "scripts": {
         "start": "npm run dev",
         "dev": "vite --port 8080",
+        "dev-host": "npm run dev -- --host --cors",
         "preview": "npm run build:prod && vite preview --port 8080 --outDir dist/production",
         "preview:dev": "npm run build:dev && vite preview --port 8080 --outDir dist/development",
         "preview:int": "npm run build:int && vite preview --port 8080 --outDir dist/integration",

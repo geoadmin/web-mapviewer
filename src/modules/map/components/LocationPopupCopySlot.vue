@@ -14,7 +14,7 @@
 export default {
     props: {
         value: {
-            type: String,
+            type: [String, null, undefined],
             required: true,
         },
         resetDelay: {
@@ -35,7 +35,7 @@ export default {
             this.buttonText = 'copy_cta'
         },
         async copyValue() {
-            await navigator.clipboard.writeText(this.value)
+            await navigator.clipboard.writeText(this.value || '')
 
             // Change button text and start the reset timer.
             this.buttonText = 'copy_done'
