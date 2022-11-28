@@ -298,6 +298,7 @@ export default {
         grid-template-columns: min-content auto;
         grid-column-gap: 8px;
         font-size: 0.75rem;
+        grid-row-gap: 2px;
         .lp-label {
             white-space: nowrap;
         }
