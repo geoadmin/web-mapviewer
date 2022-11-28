@@ -218,25 +218,21 @@ export default {
             this.shareLinkUrlShorten = null
             this.shareLinkUrl = null
         },
-        updateWhat3Word(coordinate, lang) {
-            registerWhat3WordsLocation(coordinate, lang)
-                .then((what3word) => {
-                    this.what3Words = what3word
-                })
-                .catch(() => {
-                    log.error(`Failed to retrieve What3Words Location`)
-                    this.what3Words = ''
-                })
+        async updateWhat3Word(coordinate, lang) {
+            try {
+                this.what3Words = await registerWhat3WordsLocation(coordinate, lang)
+            } catch (error) {
+                log.error(`Failed to retrieve What3Words Location`)
+                this.what3Words = ''
+            }
         },
-        updateHeight(coordinate) {
-            requestHeight(coordinate)
-                .then((height) => {
-                    this.height = height
-                })
-                .catch(() => {
-                    log.error(`Failed to get position height`)
-                    this.height = null
-                })
+        async updateHeight(coordinate) {
+            try {
+                this.height = await requestHeight(coordinate)
+            } catch (error) {
+                log.error(`Failed to get position height`)
+                this.height = null
+            }
         },
         updateShareLink(coordinate, routeQuery) {
             let [lon, lat] = reproject(CoordinateSystems.WGS84.epsg, coordinate)
@@ -249,26 +245,22 @@ export default {
             this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
             this.shortenShareLink(this.shareLinkUrl)
         },
-        shortenShareLink(url) {
-            createShortLink(url)
-                .then((shortUrl) => {
-                    this.shareLinkUrlShorten = shortUrl
-                    this.updateQrCode(shortUrl)
-                })
-                .catch((err) => {
-                    log.error(`Failed to shorten Share URL`)
-                    this.shareLinkUrlShorten = null
-                })
+        async shortenShareLink(url) {
+            try {
+                this.shareLinkUrlShorten = await createShortLink(url)
+                await this.updateQrCode(this.shareLinkUrlShorten)
+            } catch (error) {
+                log.error(`Failed to shorten Share URL`)
+                this.shareLinkUrlShorten = null
+            }
         },
-        updateQrCode(url) {
-            generateQrCode(url)
-                .then((image) => {
-                    this.qrCodeImageSrc = image
-                })
-                .catch(() => {
-                    log.error(`Failed to generate qrcode for share url`)
-                    this.qrCodeImageSrc = null
-                })
+        async updateQrCode(url) {
+            try {
+                this.qrCodeImageSrc = await generateQrCode(url)
+            } catch (error) {
+                log.error(`Failed to generate qrcode for share url`)
+                this.qrCodeImageSrc = null
+            }
         },
     },
 }
