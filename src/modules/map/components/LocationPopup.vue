@@ -61,12 +61,13 @@
             <div>
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div>
+            <div v-if="what3Words">
                 <span v-show="what3Words" data-cy="location-popup-w3w">
                     {{ what3Words }}
                 </span>
                 <LocationPopupCopySlot :value="what3Words" />
             </div>
+            <div v-else>-</div>
             <div>
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
