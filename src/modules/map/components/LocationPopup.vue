@@ -78,7 +78,7 @@
             </div>
             <div v-else>-</div>
             <div class="location-popup-link lp-label">
-                {{ $t('link_bowl_crosshair') }}
+                {{ $t('share_link') }}
             </div>
             <div class="location-popup-link lp-data">
                 <LocationPopupCopyInput
