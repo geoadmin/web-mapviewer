@@ -19,6 +19,7 @@
 <script>
 import { Tooltip } from 'bootstrap'
 import { mapGetters } from 'vuex'
+import log from '@/utils/logging'
 
 export default {
     inheritAttrs: false,
@@ -63,11 +64,14 @@ export default {
             event.target.select()
         },
         async copyValue() {
-            await navigator.clipboard.writeText(this.value)
-
-            // Change button text and start the reset timer.
-            this.buttonText = 'copy_success'
-            this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
+            try {
+                await navigator.clipboard.writeText(this.value)
+                // Change button text and start the reset timer.
+                this.buttonText = 'copy_success'
+                this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
+            } catch (error) {
+                log.error(`Failed to copy to clipboard: ${error}`)
+            }
         },
     },
 }

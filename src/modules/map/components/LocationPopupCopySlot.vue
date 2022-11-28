@@ -11,6 +11,8 @@
 </template>
 
 <script>
+import log from '@/utils/logging'
+
 export default {
     props: {
         value: {
@@ -35,11 +37,15 @@ export default {
             this.buttonText = 'copy_cta'
         },
         async copyValue() {
-            await navigator.clipboard.writeText(this.value)
+            try {
+                await navigator.clipboard.writeText(this.value)
 
-            // Change button text and start the reset timer.
-            this.buttonText = 'copy_done'
-            this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
+                // Change button text and start the reset timer.
+                this.buttonText = 'copy_done'
+                this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
+            } catch (error) {
+                log.error(`Failed to copy to clipboard: ${error}`)
+            }
         },
     },
 }
