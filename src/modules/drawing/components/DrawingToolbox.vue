@@ -82,12 +82,7 @@
         >
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
-        <ModalWithBackdrop
-            v-if="showShareModal"
-            :title="$t('share')"
-            data-cy="drawing-toolbox-share-modal"
-            @close="onCloseShare"
-        >
+        <ModalWithBackdrop v-if="showShareModal" :title="$t('share')" @close="onCloseShare">
             <ShareForm :kml-ids="kmlIds" />
         </ModalWithBackdrop>
     </teleport>
