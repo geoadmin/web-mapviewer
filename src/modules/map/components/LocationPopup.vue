@@ -136,7 +136,7 @@ export default {
             displayLocationPopup: (state) => state.map.displayLocationPopup,
         }),
         coordinate() {
-            return this.clickInfo?.coordinate || null
+            return this.clickInfo?.coordinate
         },
         coordinateLV95() {
             return printHumanReadableCoordinates(
