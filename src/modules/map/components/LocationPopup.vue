@@ -325,7 +325,7 @@ export default {
         margin-bottom: 0.1rem;
     }
 }
-@media (min-height: 650px) {
+@media (min-height: 850px) {
     .location-popup-qrcode {
         display: block;
     }
