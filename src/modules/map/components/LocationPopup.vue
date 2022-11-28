@@ -2,10 +2,10 @@
     <OpenLayersPopover
         v-if="displayLocationPopup"
         :title="$t('position')"
-        :coordinates="clickCoordinates"
+        :coordinates="coordinate"
         class="location-popup"
         data-cy="location-popup"
-        @close="clearClick"
+        @close="onClose"
     >
         <div class="location-popup-coordinates ol-selectable">
             <div>
@@ -13,18 +13,18 @@
             </div>
             <div>
                 <span data-cy="location-popup-coordinates-lv95">
-                    {{ clickCoordinatesLV95 }}
+                    {{ coordinateLV95 }}
                 </span>
-                <LocationPopupCopySlot :value="clickCoordinatesLV95" />
+                <LocationPopupCopySlot :value="coordinateLV95" />
             </div>
             <div>
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
             </div>
             <div>
                 <span data-cy="location-popup-coordinates-lv03">
-                    {{ clickCoordinatesLV03 }}
+                    {{ coordinateLV03 }}
                 </span>
-                <LocationPopupCopySlot :value="clickCoordinatesLV03" />
+                <LocationPopupCopySlot :value="coordinateLV03" />
             </div>
             <div>
                 <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
@@ -34,12 +34,12 @@
                     class="location-popup-coordinates-wgs84-plain"
                     data-cy="location-popup-coordinates-plain-wgs84"
                 >
-                    {{ clickCoordinatesPlainWGS84 }}
+                    {{ coordinateWGS84Plain }}
                 </span>
-                <LocationPopupCopySlot :value="clickCoordinatesPlainWGS84" />
+                <LocationPopupCopySlot :value="coordinateWGS84Plain" />
                 <br />
                 <span data-cy="location-popup-coordinates-wgs84">
-                    {{ clickCoordinatesWGS84 }}
+                    {{ coordinateWGS84 }}
                 </span>
             </div>
             <div>
@@ -47,40 +47,42 @@
             </div>
             <div>
                 <span data-cy="location-popup-coordinates-utm">
-                    {{ clickCoordinatesUTM }}
+                    {{ coordinateUTM }}
                 </span>
-                <LocationPopupCopySlot :value="clickCoordinatesUTM" />
+                <LocationPopupCopySlot :value="coordinateUTM" />
             </div>
             <div>{{ 'MGRS' }}</div>
             <div>
                 <span data-cy="location-popup-coordinates-mgrs">
-                    {{ clickCoordinatesMGRS }}
+                    {{ coordinateMGRS }}
                 </span>
-                <LocationPopupCopySlot :value="clickCoordinatesMGRS" />
+                <LocationPopupCopySlot :value="coordinateMGRS" />
             </div>
             <div>
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div>
-                <span v-show="clickWhat3Words" data-cy="location-popup-w3w">
-                    {{ clickWhat3Words }}
+            <div v-if="what3Words">
+                <span v-show="what3Words" data-cy="location-popup-w3w">
+                    {{ what3Words }}
                 </span>
-                <LocationPopupCopySlot :value="clickWhat3Words" />
+                <LocationPopupCopySlot :value="what3Words" />
             </div>
+            <div v-else>-</div>
             <div>
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
-            <div>
-                <span data-cy="location-popup-height"> {{ height?.heightInMeter }} m</span> /
-                <span>{{ height?.heightInFeet }} ft</span>
-                <LocationPopupCopySlot :value="height?.heightInMeter" />
+            <div v-if="height">
+                <span data-cy="location-popup-height"> {{ heightInMeter }} m</span> /
+                <span>{{ heightInFeet }} ft</span>
+                <LocationPopupCopySlot :value="heightInMeter" />
             </div>
+            <div v-else>-</div>
             <div class="location-popup-link">
                 {{ $t('link_bowl_crosshair') }}
             </div>
             <div class="location-popup-link">
                 <LocationPopupCopyInput
-                    :value="shareLinkUrl"
+                    :value="shareLinkUrlDisplay"
                     data-cy="location-popup-link-bowl-crosshair"
                 />
             </div>
@@ -94,6 +96,7 @@
 <script>
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
+import { createShortLink } from '@/api/shortlink.api'
 
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
@@ -104,6 +107,11 @@ import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordi
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
+import log from '@/utils/logging'
+
+function reproject(toEpsg, coordinate) {
+    return proj4(CoordinateSystems.WEBMERCATOR.epsg, toEpsg, coordinate)
+}
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
@@ -115,9 +123,11 @@ export default {
     inject: ['getMap'],
     data() {
         return {
-            clickWhat3Words: null,
+            what3Words: '',
             height: null,
             qrCodeImageSrc: null,
+            shareLinkUrlShorten: null,
+            shareLinkUrl: null,
         }
     },
     computed: {
@@ -126,100 +136,131 @@ export default {
             currentLang: (state) => state.i18n.lang,
             displayLocationPopup: (state) => state.map.displayLocationPopup,
         }),
-        clickCoordinates() {
+        coordinate() {
             return this.clickInfo?.coordinate
         },
-        clickCoordinatesLV95() {
+        coordinateLV95() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates(CoordinateSystems.LV95.epsg),
+                reproject(CoordinateSystems.LV95.epsg, this.coordinate),
                 CoordinateSystems.LV95
             )
         },
-        clickCoordinatesLV03() {
+        coordinateLV03() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates(CoordinateSystems.LV03.epsg),
+                reproject(CoordinateSystems.LV03.epsg, this.coordinate),
                 CoordinateSystems.LV03
             )
         },
-        clickCoordinatesPlainWGS84() {
-            const wgsMetric = this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg)
+        coordinateWGS84Metric() {
+            return reproject(CoordinateSystems.WGS84.epsg, this.coordinate)
+        },
+        coordinateWGS84Plain() {
+            const wgsMetric = this.coordinateWGS84Metric
             return `${round(wgsMetric[1], 5)}, ${round(wgsMetric[0], 5)}`
         },
-        clickCoordinatesWGS84() {
+        coordinateWGS84() {
             const complete = printHumanReadableCoordinates(
-                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
+                this.coordinateWGS84Metric,
                 CoordinateSystems.WGS84
             )
             // Only return the first (HDMS) part here. The other part is in:
-            // this.clickCoordinatesPlainWGS84
+            // this.coordinateWGS84Plain
             return complete.split(' (')[0]
         },
-        clickCoordinatesUTM() {
+        coordinateUTM() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
+                reproject(CoordinateSystems.WGS84.epsg, this.coordinate),
                 CoordinateSystems.UTM
             )
         },
-        clickCoordinatesMGRS() {
+        coordinateMGRS() {
             return printHumanReadableCoordinates(
-                this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg),
+                reproject(CoordinateSystems.WGS84.epsg, this.coordinate),
                 CoordinateSystems.MGRS
             )
         },
-        shareLinkUrl() {
-            let [lon, lat] = this.reprojectClickCoordinates(CoordinateSystems.WGS84.epsg)
-            let query = {
-                ...this.$route.query,
-                crosshair: 'marker',
-                lat,
-                lon,
-            }
-            return `${location.origin}/#/map?${stringifyQuery(query)}`
+        heightInFeet() {
+            return this.height?.heightInFeet || null
+        },
+        heightInMeter() {
+            return this.height?.heightInMeter || null
+        },
+        shareLinkUrlDisplay() {
+            return this.shareLinkUrlShorten || this.shareLinkUrl || ''
         },
     },
     watch: {
-        clickCoordinates() {
-            this.requestWhat3WordBackend()
-            this.registerHeigthFromBackend()
-            this.generateQrCodeFromBackend()
+        clickInfo(newClickInfo) {
+            if (newClickInfo && this.displayLocationPopup) {
+                this.updateWhat3Word(newClickInfo.coordinate, this.currentLang)
+                this.updateHeight(newClickInfo.coordinate)
+                this.updateShareLink(newClickInfo.coordinate, this.$route.query)
+            }
         },
-        currentLang() {
-            this.requestWhat3WordBackend()
-            this.generateQrCodeFromBackend()
+        currentLang(newLang) {
+            if (this.clickInfo && this.displayLocationPopup) {
+                this.updateWhat3Word(this.clickInfo.coordinate, newLang)
+                this.updateShareLink(this.clickInfo.coordinate, this.$route.query)
+            }
         },
-        // Watching shareLinkUrl breaks the component. But we need to react to
-        // changes in the layer config to update the QR code.
-        '$route.query'() {
-            this.generateQrCodeFromBackend()
+        '$route.query'(newQuery) {
+            if (this.clickInfo && this.displayLocationPopup) {
+                this.updateShareLink(this.clickInfo.coordinate, newQuery)
+            }
         },
     },
     methods: {
         ...mapActions(['clearClick']),
         onClose() {
             this.clearClick()
+            this.qrCodeImageSrc = null
+            this.what3Words = ''
+            this.height = null
+            this.shareLinkUrlShorten = null
+            this.shareLinkUrl = null
         },
-        reprojectClickCoordinates(targetEpsg) {
-            return proj4(CoordinateSystems.WEBMERCATOR.epsg, targetEpsg, this.clickCoordinates)
-        },
-        requestWhat3WordBackend() {
-            if (this.displayLocationPopup) {
-                registerWhat3WordsLocation(this.clickCoordinates, this.currentLang).then(
-                    (what3word) => {
-                        this.clickWhat3Words = what3word
-                    }
-                )
+        async updateWhat3Word(coordinate, lang) {
+            try {
+                this.what3Words = await registerWhat3WordsLocation(coordinate, lang)
+            } catch (error) {
+                log.error(`Failed to retrieve What3Words Location`)
+                this.what3Words = ''
             }
         },
-        registerHeigthFromBackend() {
-            if (this.displayLocationPopup) {
-                requestHeight(this.clickCoordinates).then((height) => {
-                    this.height = height
-                })
+        async updateHeight(coordinate) {
+            try {
+                this.height = await requestHeight(coordinate)
+            } catch (error) {
+                log.error(`Failed to get position height`)
+                this.height = null
             }
         },
-        async generateQrCodeFromBackend() {
-            if (this.displayLocationPopup) {
-                this.qrCodeImageSrc = await generateQrCode(this.shareLinkUrl)
+        updateShareLink(coordinate, routeQuery) {
+            let [lon, lat] = reproject(CoordinateSystems.WGS84.epsg, coordinate)
+            let query = {
+                ...routeQuery,
+                crosshair: 'marker',
+                lat,
+                lon,
+            }
+            this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
+            this.shortenShareLink(this.shareLinkUrl)
+        },
+        async shortenShareLink(url) {
+            try {
+                this.shareLinkUrlShorten = await createShortLink(url)
+                await this.updateQrCode(this.shareLinkUrlShorten)
+            } catch (error) {
+                log.error(`Failed to shorten Share URL`)
+                this.shareLinkUrlShorten = null
+            }
+        },
+        async updateQrCode(url) {
+            try {
+                this.qrCodeImageSrc = await generateQrCode(url)
+            } catch (error) {
+                log.error(`Failed to generate qrcode for share url`)
+                this.qrCodeImageSrc = null
             }
         },
     },

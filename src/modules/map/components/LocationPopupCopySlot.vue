@@ -15,7 +15,7 @@ export default {
     props: {
         value: {
             type: String,
-            required: true,
+            default: '',
         },
         resetDelay: {
             type: Number,
