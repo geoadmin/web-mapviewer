@@ -278,7 +278,7 @@ export default {
         left: 50%;
         margin-left: -$arrow-height;
         border: $arrow-height solid transparent;
-        border-bottom-color: var(--bs-border-color-translucent);
+        border-bottom-color: $border-color-translucent;
         pointer-events: none;
         content: '';
     }

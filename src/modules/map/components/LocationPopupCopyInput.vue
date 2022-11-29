@@ -70,7 +70,7 @@ export default {
                 this.buttonText = 'copy_success'
                 this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
             } catch (error) {
-                log.error(`Failed to copy to clipboard: ${error}`)
+                log.error(`Failed to copy to clipboard:`, error)
             }
         },
     },
