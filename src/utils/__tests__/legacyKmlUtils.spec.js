@@ -83,7 +83,12 @@ function performStandardChecks(
     expectedCoordinateCount = 2
 ) {
     expect(feature).to.be.not.null.and.not.undefined
-    expect(feature.coordinates).to.have.length(expectedCoordinateCount)
+    expect(feature.coordinates).to.have.length.greaterThan(0)
+    if (feature.coordinates.length === 1) {
+        expect(feature.coordinates[0]).to.have.length(expectedCoordinateCount)
+    } else {
+        expect(feature.coordinates).to.have.length(expectedCoordinateCount)
+    }
     // checking that it matches also what is defined in the underlying OL object
     const olCoordinates = feature.olFeature.getGeometry().getCoordinates()
     // if olCoordinates is only 1 in length, it means it is a closed polygon and we

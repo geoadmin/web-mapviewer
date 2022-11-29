@@ -44,9 +44,9 @@ export class SelectableFeature extends EventEmitter {
         super()
         this._id = id
         // using the setter for coordinate (see below)
-        this._coordinates = coordinates
-        this._title = title
-        this._description = description
+        this.coordinates = coordinates
+        this.title = title
+        this.description = description
         this._isEditable = !!isEditable
         this._isDragged = false
     }
@@ -97,6 +97,10 @@ export class SelectableFeature extends EventEmitter {
                 this._coordinates = newCoordinates
             }
             this.emitChangeEvent('coordinates')
+        } else if (newCoordinates === null) {
+            this._coordinates = newCoordinates
+        } else {
+            log.error(`feature.api new coordinates is not an array`, newCoordinates)
         }
     }
     get lastCoordinate() {

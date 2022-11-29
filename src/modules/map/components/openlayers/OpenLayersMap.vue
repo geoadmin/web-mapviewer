@@ -385,7 +385,7 @@ export default {
                         this.map
                             .getFeaturesAtPixel(event.pixel, {
                                 // filtering other layers out
-                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.id,
+                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
                             })
                             .forEach((feature) => {
                                 const featureGeometry = feature.getGeometry()
@@ -394,7 +394,8 @@ export default {
                                 // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
                                 const geoJsonFeature = new LayerFeature(
                                     geoJsonLayer,
-                                    feature.get('id') || feature.getId(),
+                                    geoJsonLayer.getID(),
+                                    geoJsonLayer.name,
                                     `<div class="htmlpopup-container">
                                         <div class="htmlpopup-header">
                                             <span>${geoJsonLayer.name}</span>
