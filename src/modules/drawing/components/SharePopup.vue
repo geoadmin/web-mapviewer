@@ -2,7 +2,7 @@
     <div class="ga-share">
         <div class="form-group">
             <label>{{ $t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group mb-3">
                 <input
                     type="text"
                     class="form-control"
@@ -11,21 +11,19 @@
                     @focus="$event.target.select()"
                     @click="copyShareUrl(false)"
                 />
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        data-cy="drawing-share-normal-link"
-                        @click="copyShareUrl(false)"
-                    >
-                        {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-cy="drawing-share-normal-link"
+                    @click="copyShareUrl(false)"
+                >
+                    {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                </button>
             </div>
         </div>
         <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group mb-3">
                 <input
                     type="text"
                     class="form-control"
@@ -34,16 +32,14 @@
                     @focus="$event.target.select()"
                     @click="copyAdminShareUrl()"
                 />
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        data-cy="drawing-share-admin-link"
-                        @click="copyAdminShareUrl()"
-                    >
-                        {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-cy="drawing-share-admin-link"
+                    @click="copyAdminShareUrl()"
+                >
+                    {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                </button>
             </div>
         </div>
     </div>
@@ -151,5 +147,9 @@ export default {
 .ga-share {
     width: 100%;
     text-align: start;
+
+    .input-group {
+        width: 30rem;
+    }
 }
 </style>
