@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { Feature } from '@/api/features.api'
+import { SelectableFeature } from '@/api/features.api'
 import OpenLayersMarker, {
     highlightedFill,
     highlightedStroke,
@@ -56,7 +56,7 @@ export default {
     mixins: [addLayerToMapMixin],
     props: {
         feature: {
-            type: Feature,
+            type: SelectableFeature,
             required: true,
         },
         zIndex: {

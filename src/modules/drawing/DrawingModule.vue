@@ -398,7 +398,7 @@ export default {
                 featureProjection: layer.projection,
             })
             features.forEach((olFeature) => {
-                EditableFeature.deserialize(olFeature)
+                EditableFeature.deserialize(olFeature, this.availableIconSets)
             })
             this.drawingLayer.getSource().addFeatures(features)
         },

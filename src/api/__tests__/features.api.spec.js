@@ -47,7 +47,7 @@ describe('Validate features api', () => {
             expect(reconstructed.description).to.be.equal(testObject.description)
             expect(reconstructed.icon).to.be.equal(testObject.icon)
 
-            /* If theses classes are extended to save more data than what is serialized, these tests
+            /* If these classes are extended to save more data than what is serialized, these tests
             will need to be changed*/
             expect(reconstructed.textColor).to.deep.equal(testObject.textColor)
             expect(reconstructed.textSize).to.deep.equal(testObject.textSize)

@@ -139,13 +139,14 @@ export class FeatureStyleSize {
     }
 }
 
-export const SMALL = new FeatureStyleSize('small_size', 1.0, 0.5)
+export const VERY_SMALL = new FeatureStyleSize('very_small_size', 1.0, 0.5)
+export const SMALL = new FeatureStyleSize('small_size', 1.25, 0.75)
 export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 1.0)
-export const LARGE = new FeatureStyleSize('big_size', 2.0, 2.0)
+export const LARGE = new FeatureStyleSize('big_size', 2.0, 1.5)
 
 /**
  * List of all available sizes for drawing style
  *
  * @type {FeatureStyleSize[]}
  */
-export const allStylingSizes = [SMALL, MEDIUM, LARGE]
+export const allStylingSizes = [VERY_SMALL, SMALL, MEDIUM, LARGE]

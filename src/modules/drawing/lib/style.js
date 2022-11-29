@@ -133,7 +133,8 @@ export function featureStyleFunction(feature, resolution) {
             image: editableFeature.generateOpenlayersIcon(),
             text: new Text({
                 text: editableFeature.title,
-                font: editableFeature.font,
+                //font: editableFeature.font,
+                font: `normal 16px Helvetica`,
                 fill: new Fill({
                     color: editableFeature.textColor.fill,
                 }),

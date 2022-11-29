@@ -89,7 +89,7 @@ export default {
     methods: {
         ...mapActions(['deleteDrawingFeature']),
         onDelete() {
-            const id = this.feature.id.replace('drawing_feature_', '')
+            const id = this.feature.id
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
