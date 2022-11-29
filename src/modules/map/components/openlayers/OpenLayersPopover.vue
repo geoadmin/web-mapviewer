@@ -19,7 +19,12 @@
                     @click="onClose"
                 />
             </div>
-            <div id="mapPopoverContent" ref="mapPopoverContent" class="card-body">
+            <div
+                id="mapPopoverContent"
+                ref="mapPopoverContent"
+                class="map-popover-content"
+                :class="{ 'card-body': useContentPadding }"
+            >
                 <slot />
             </div>
         </div>
@@ -50,6 +55,10 @@ export default {
         title: {
             type: String,
             default: '',
+        },
+        useContentPadding: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ['close'],
@@ -89,11 +98,14 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .map-popover {
-    .card-body {
-        width: $overlay-width;
-        max-width: 100%;
+    .card {
+        max-width: $overlay-width;
+    }
+    .map-popover-content {
         max-height: 350px;
         overflow-y: auto;
+    }
+    .card-body {
         display: flex;
         flex-direction: column;
     }

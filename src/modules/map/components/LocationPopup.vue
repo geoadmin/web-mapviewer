@@ -4,6 +4,7 @@
         :title="$t('position')"
         :coordinates="coordinate"
         class="location-popup"
+        use-content-padding
         data-cy="location-popup"
         @close="onClose"
     >
