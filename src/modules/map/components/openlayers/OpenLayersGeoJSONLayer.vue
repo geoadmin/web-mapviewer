@@ -52,9 +52,15 @@ export default {
         this.layer = new VectorLayer({ id: this.layerId, opacity: this.opacity })
 
         // loading the GeoJSON data and style with and wait for both the be loaded
-        axios
-            .all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
+        // WARNING: axios.get(this.styleUrl) will not work on localhost and will fire a CORS error !!
+        // this is due to the fact that the backend send the styleUrl agnostic whitout HTTP scheme !
+        Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
             .then((responses) => {
+                if (!this.layer) {
+                    // It could be that the layer has been removed meanwhile therefore check for
+                    // its existence
+                    return
+                }
                 const geojsonData = responses[0].data
                 const geojsonStyleLiterals = responses[1].data
                 const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
