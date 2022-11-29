@@ -8,7 +8,7 @@ import axios from 'axios'
  *
  * Some sets are colorable, where other aren't
  */
-export class IconSet {
+export class DrawingIconSet {
     /**
      * @param {String} name Name of this set in the backend, lower cased
      * @param {Boolean} isColorable Tells if this set's icons can be colored differently (if the
@@ -52,14 +52,14 @@ export class IconSet {
         return this._templateURL
     }
 
-    /** @returns {Icon[]} List of all icons from this icon set */
+    /** @returns {DrawingIcon[]} List of all icons from this icon set */
     get icons() {
         return [...this._icons]
     }
     /**
      * Overwrite all icons of this set with the new ones
      *
-     * @param {Icon[]} newIcons
+     * @param {DrawingIcon[]} newIcons
      */
     set icons(newIcons) {
         this._icons = [...newIcons]
@@ -71,12 +71,12 @@ export class IconSet {
  *
  * Each icon has a specific anchor (an offset from the coordinate it is linked to)
  */
-export class Icon {
+export class DrawingIcon {
     /**
      * @param {String} name Name of this icon in the backend (lower cased)
      * @param {String} imageURL URL to the image of this icon itself (with default size and color)
      * @param {String} imageTemplateURL URL template where size and color can be defined (by
-     *   replacing {icon_scale} and {{r},{g},{b}} respectively, see {@link Icon.generateURL})
+     *   replacing {icon_scale} and {{r},{g},{b}} respectively, see {@link DrawingIcon.generateURL})
      * @param {String} iconSetName Name of the icon set in which belongs this icon (an icon can only
      *   belong to one icon set)
      * @param {Number[]} anchor Offset to apply to this icon when placed on a coordinate ([x,y]
@@ -101,27 +101,8 @@ export class Icon {
         }
     }
 
-    /**
-     * Generates a new icon that has the url of the given olIcon
-     *
-     * @param {any} olIcon
-     * @returns {Icon}
-     */
-    static generateFromOlIcon(olIcon) {
-        if (!olIcon) {
-            return null
-        }
-        olIcon.setDisplacement([0, 0])
-        const url = olIcon.getSrc()
-        const size = olIcon.getSize()
-        let anchor = olIcon.getAnchor()
-        anchor[0] /= size[0]
-        anchor[1] /= size[1]
-        return url && anchor ? new Icon('unknown', url, url, 'unknown', anchor) : null
-    }
-
     static recreateObject(o) {
-        return new Icon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
+        return new DrawingIcon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
     }
 
     /** @returns {String} Name of this icon in the backend (lower cased) */
@@ -136,7 +117,7 @@ export class Icon {
 
     /**
      * @returns {String} URL template where size and color can be defined (by replacing {icon_scale}
-     *   and {{r},{g},{b}} respectively, see {@link Icon.generateURL})
+     *   and {{r},{g},{b}} respectively, see {@link DrawingIcon.generateURL})
      */
     get imageTemplateURL() {
         return this._imageTemplateURL
@@ -148,8 +129,8 @@ export class Icon {
     }
 
     /**
-     * @returns {String} Name of the {@link IconSet} in which belongs this icon (an icon can only
-     *   belong to one icon set)
+     * @returns {String} Name of the {@link DrawingIconSet} in which belongs this icon (an icon can
+     *   only belong to one icon set)
      */
     get iconSetName() {
         return this._iconSetName
@@ -190,14 +171,14 @@ export class Icon {
  * Also retrieve all available icons for those icon sets (so no need to do any additional request to
  * the backend after that)
  *
- * @returns {Promise<IconSet[]>}
+ * @returns {Promise<DrawingIconSet[]>}
  */
 export async function loadAllIconSetsFromBackend() {
     const sets = []
     try {
         const rawSets = (await axios.get(`${API_SERVICES_BASE_URL}icons/sets`)).data.items
         for (const rawSet of rawSets) {
-            const iconSet = new IconSet(
+            const iconSet = new DrawingIconSet(
                 rawSet.name,
                 rawSet.colorable,
                 rawSet.icons_url,
@@ -217,7 +198,7 @@ export async function loadAllIconSetsFromBackend() {
 /**
  * Loads all icons from an icon set and attach them to the icon set
  *
- * @param {IconSet} iconSet
+ * @param {DrawingIconSet} iconSet
  * @returns {Promise} Promise resolving when all icons have been attached to the icon set
  */
 function loadIconsForIconSet(iconSet) {
@@ -226,7 +207,7 @@ function loadIconsForIconSet(iconSet) {
         .then((rawIcons) => {
             iconSet.icons = rawIcons.data.items.map(
                 (rawIcon) =>
-                    new Icon(
+                    new DrawingIcon(
                         rawIcon.name,
                         rawIcon.url,
                         rawIcon.template_url,

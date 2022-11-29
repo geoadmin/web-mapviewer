@@ -1,4 +1,4 @@
-import { Icon } from '@/api/icon.api'
+import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
@@ -9,21 +9,18 @@ import {
     FeatureStyleSize,
     MEDIUM,
     RED,
-    SMALL,
-    LARGE,
 } from '@/utils/featureStyleUtils'
+import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
+import Feature from 'ol/Feature'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
-import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import { Point, Polygon } from 'ol/geom'
-import { getDefaultStyle } from 'ol/format/KML'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
- * edited if the corresponding flag says so (it will then fires "change" events any time one
- * property of the instance has changed)
+ * edited if the corresponding flag says so (it will then fire "change" events any time one property
+ * of the instance has changed)
  *
  * This will then be specialized in (at least) two flavor of features, layer feature (coming from
  * our backend, with extra information attached) and drawing feature (that can be modified by the
@@ -31,7 +28,7 @@ import { getDefaultStyle } from 'ol/format/KML'
  *
  * @abstract
  */
-export class Feature extends EventEmitter {
+export class SelectableFeature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
@@ -137,7 +134,7 @@ export const EditableFeatureTypes = {
 }
 
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
-export class EditableFeature extends Feature {
+export class EditableFeature extends SelectableFeature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
@@ -150,7 +147,7 @@ export class EditableFeature extends Feature {
      * @param {FeatureStyleColor} textColor Color for the text of this feature
      * @param {FeatureStyleSize} textSize Size of the text for this feature
      * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
-     * @param {Icon} icon Icon that will be covering this feature, can be null
+     * @param {DrawingIcon} icon Icon that will be covering this feature, can be null
      * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this
      *   feature
      */
@@ -201,7 +198,7 @@ export class EditableFeature extends Feature {
     /**
      * This function returns a stripped down version of this object ready to be serialized.
      *
-     * @returns The version of the object that can be serialized
+     * @returns {Object} The version of the object that can be serialized
      */
     getStrippedObject() {
         /* Warning: Changing this method will break the compability of KML files */
@@ -222,7 +219,7 @@ export class EditableFeature extends Feature {
     /**
      * Regenerates the full version of an editable feature given a stripped version.
      *
-     * @param {stripped EditableFeature} o A stripped down version of the editable Feature
+     * @param {Object} o A stripped down version of the editable Feature
      * @returns The full version of the editable Feature
      */
     static recreateObject(o) {
@@ -235,7 +232,7 @@ export class EditableFeature extends Feature {
             FeatureStyleColor.recreateObject(o.textColor),
             FeatureStyleSize.recreateObject(o.textSize),
             FeatureStyleColor.recreateObject(o.fillColor),
-            o.icon ? Icon.recreateObject(o.icon) : null,
+            o.icon ? DrawingIcon.recreateObject(o.icon) : null,
             FeatureStyleSize.recreateObject(o.iconSize)
         )
     }
@@ -247,159 +244,31 @@ export class EditableFeature extends Feature {
      * styling information stored in the official '<style>' tag of the kml. It then recreates a
      * fully functional olFeature with the correct styling.
      *
-     * @param {openlayersFeature} olFeature An olFeature that was just deserialized with
-     *   {@link ol/format/KML}.
+     * @param {Feature} olFeature An olFeature that was just deserialized with
+     * @param {DrawingIconSet[]} availableIconSets {@link ol/format/KML}.
      */
-    static async deserialize(olFeature) {
+    static deserialize(olFeature, availableIconSets) {
         const serializedEditableFeature = olFeature.get('editableFeature')
-        const editableFeature = serializedEditableFeature
-            ? this.recreateObject(JSON.parse(serializedEditableFeature))
-            : await this._generateEditableFeatureFromMfGeoadmin3KmlStyle(olFeature)
-        olFeature.set('editableFeature', editableFeature)
-        olFeature.setStyle(featureStyleFunction)
-        if (editableFeature.isLineOrMeasure()) {
-            /* The featureStyleFunction uses the geometries calculated in the geodesic object
-            if present. The lines connecting the vertices of the geometry will appear
-            geodesic (follow the shortest path) in this case instead of linear (be straight on
-            the screen)  */
-            olFeature.geodesic = new GeodesicGeometries(olFeature)
-        }
-    }
-
-    /**
-     * This is a helper function for {@link deserialize} that generates an editable feature based on
-     * the style stored in the kml '<style>' tag. Only works with kmls that were generated with
-     * mf-geoadmin3
-     *
-     * @param {any} olFeature An olFeature that was just deserialized with {@link ol/format/KML}.
-     * @returns {EditableFeature}
-     */
-    static async _generateEditableFeatureFromMfGeoadmin3KmlStyle(olFeature) {
-        const geom = olFeature.getGeometry()
-        /*The kml parser automatically created a style based on the "<style>" part of the
-        feature in the kml file. We will now analyse this style to retrieve all information
-        we need to generate the editable feature. */
-        const styles = olFeature.getStyle()(olFeature)
-        const style = Array.isArray(styles) ? (styles.length === 1 ? styles[0] : null) : styles
-        if (!style) {
-            throw new Error('Parsing error: Could not get the style from the ol Feature')
-        }
-        const defStyle = getDefaultStyle()
-        const type = olFeature.get('type').toUpperCase() // only set by mf-geoadmin3's kml
-        if (!Object.values(EditableFeatureTypes).includes(type)) {
-            throw new Error('Parsing error: Type of features in kml not recognized')
-        }
-        let coordinates = extractOlFeatureCoordinates(olFeature)
-        // We do not want to store the z coordinate (height)
-        coordinates = Array.isArray(coordinates[0])
-            ? coordinates.map((coord) => coord.slice(0, 2))
-            : coordinates.slice(0, 2)
-        if (geom instanceof Polygon) {
-            geom.setCoordinates([coordinates])
+        // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
+        // will not be present, and we will have to rebuild one from the styles tags in the KML
+        let editableFeature = null
+        if (!serializedEditableFeature) {
+            editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
         } else {
-            geom.setCoordinates(coordinates)
+            editableFeature = this.recreateObject(JSON.parse(serializedEditableFeature))
         }
-        let icon = style.getImage()
-        /* To interpret the kmls the same way as google earth, the kml parser automatically adds
-        a google icon if no icon is present (i.e. for our text feature type), but we do not want
-        that. */
-        if (icon?.getSrc()?.match(/google/) || icon?.getSrc() === defStyle?.getImage()?.getSrc()) {
-            icon = null
-        }
-        /* When exporting the kml, the parser does not put a scale property when the scale is 1.
-        But when importing the kml, it seems that the parser interprets the lack of a scale
-        property as if the scale was 0.8, which is strange. The code below tries to fix that. */
-        let textSize = style.getText()?.getScale()
-        if (textSize === defStyle?.getText()?.getScale()) {
-            textSize = 1
-        }
-        /* In the old viewer, the kml feature id is of the form: "<featuretype>_<id>". In the new
-        viewer, it is of the form: "drawing_feature_<id>". */
-        let id = olFeature.getId().match(type.toLowerCase() + '_([0-9]+)$')?.[1]
-        id = id ? 'drawing_feature_' + id : olFeature.getId()
-        olFeature.setId(id)
-
-        const title = olFeature.get('name') ?? ''
-        const textColor = title /*facultative on marker, never present on measure and linepolygon*/
-            ? FeatureStyleColor.getFromFillColorArray(style.getText()?.getFill()?.getColor())
-            : undefined
-        const args = {
-            id,
-            coordinates: coordinates,
-            featureType: type,
-            title,
-            description: olFeature.get('description') ?? '', // only set by mf-geoadmin3's kml
-            textColor,
-            /* Fillcolor can be either the color of the stroke or the color of the icon. If an icon
-            is defined, the following color will be overridden by the icon color. */
-            fillColor: FeatureStyleColor.getFromFillColorArray(style.getStroke()?.getColor()),
-            textSize: title ? FeatureStyleSize.getFromTextScale(textSize) : undefined,
-            iconSize: undefined,
-            // This is at the end as it may overwrite arguments already defined above
-            ...(await this._findIconFromOlIcon(icon)),
-        }
-        return this.constructWithObject(args)
-    }
-
-    /**
-     * @param {any} olIcon An olIcon generated by a kml coming from mf-geoadmin3
-     * @returns A list of arguments that can be passed to {@link constructWithObject}.
-     */
-    static async _findIconFromOlIcon(olIcon) {
-        if (!olIcon) {
-            return {}
-        }
-        olIcon.setDisplacement([0, 0])
-        const url = olIcon.getSrc()
-        const setName = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
-        /* Cypress fails with "process not defined" when the store is imported at the top of this
-        file. (Maybe it has something to do with cyclic dependencies), so that's why it is only
-        imported here. This is a bit ugly so maybe we can find a solution where no store needs
-        to be imported. */
-        const store = (await import('@/store')).default
-        if (!store.state.drawing.iconSets?.length) {
-            await store.dispatch('loadAvailableIconSets')
-        }
-        const iconsets = store.state.drawing.iconSets
-        const iconset = iconsets.find((iconset) => iconset.name === setName)
-        if (!iconset) {
-            log.error('Parsing error: Could not retrive icon set from legacy icon URL')
-            return { icon: Icon.generateFromOlIcon(olIcon) }
-        }
-        let icon,
-            args = {}
-        if (setName === 'default') {
-            let color = url
-                .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^\/]+\.png$/)
-                ?.slice(1, 4)
-                ?.map((nb) => Math.min(Number(nb), 255))
-            if (!Array.isArray(color) || color.length !== 3) {
-                log.error('Parsing error: Could not retrive color from legacy icon URL')
-            } else {
-                args.fillColor = FeatureStyleColor.getFromFillColorArray(color)
+        if (editableFeature) {
+            olFeature.set('editableFeature', editableFeature)
+            olFeature.setStyle(featureStyleFunction)
+            if (editableFeature.isLineOrMeasure()) {
+                /* The featureStyleFunction uses the geometries calculated in the geodesic object
+                if present. The lines connecting the vertices of the geometry will appear
+                geodesic (follow the shortest path) in this case instead of linear (be straight on
+                the screen)  */
+                olFeature.geodesic = new GeodesicGeometries(olFeature)
             }
-            let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
-            icon = iconset.icons.find((icon) => icon.name.match('^[0-9]+-' + iconName + '$'))
-        } else {
-            let iconName = url.match(/images\/\w+\/([\w-]+)\.png$/)?.[1]
-            icon = iconset.icons.find((icon) => icon.name === iconName)
         }
-        if (!icon) {
-            log.error('Parsing error: Could not retrive icon from legacy icon URL')
-            args.icon = Icon.generateFromOlIcon(olIcon)
-        } else {
-            args.icon = icon
-        }
-        /* For the openlayers scale property and the kml files generated by the old viewer,
-        a scale of 1 is the original size of the icon (which is always 48px for icons used by
-        the old viewer). In the kml format used by the new viewer however, a scale of 1 is
-        always 32px, no matter the size of the icon. So the kml formatter misinterprets the
-        kml scale property for kml files from the old viewer and we have to multiply that scale
-        by 1.5 to get the correct scale again.*/
-        // SMALL = 0.5 , MEDIUM = 0.75 , LARGE = 1 for icons from the old viewer
-        const iconScale = olIcon.getScale() * 1.5
-        args.iconSize = FeatureStyleSize.getFromIconScale(iconScale)
-        return args
+        return editableFeature
     }
 
     isLineOrMeasure() {
@@ -456,11 +325,11 @@ export class EditableFeature extends Feature {
         return this._textSize?.font
     }
 
-    /** @returns {Icon | null} */
+    /** @returns {DrawingIcon | null} */
     get icon() {
         return this._icon
     }
-    /** @param newIcon {Icon} */
+    /** @param newIcon {DrawingIcon} */
     set icon(newIcon) {
         this._icon = newIcon
         this.emitStylingChangeEvent('icon')
@@ -537,7 +406,7 @@ export class EditableFeature extends Feature {
  * Describe a feature from the backend, so a feature linked to a backend layer (see
  * {@link getFeature}) below
  */
-export class LayerFeature extends Feature {
+export class LayerFeature extends SelectableFeature {
     /**
      * @param {GeoAdminLayer} layer The layer in which this feature belongs
      * @param {Number | String} id The unique feature ID in the layer it is part of

@@ -7,7 +7,7 @@
                     <value>marker</value>
                 </Data>
             </ExtendedData>
-            <name>text 1</name>
+            <name>icon 1</name>
             <description>desc 1</description>
             <Style>
                 <IconStyle>
@@ -36,7 +36,7 @@
                     <value>annotation</value>
                 </Data>
             </ExtendedData>
-            <name>text 4</name>
+            <name>text 1</name>
             <description></description>
             <Style>
                 <IconStyle>
@@ -58,7 +58,7 @@
                     <value>marker</value>
                 </Data>
             </ExtendedData>
-            <name>text 2</name>
+            <name>icon 2</name>
             <description>desc 2</description>
             <Style>
                 <IconStyle>
@@ -85,7 +85,7 @@
                     <value>marker</value>
                 </Data>
             </ExtendedData>
-            <name>text 3</name>
+            <name>icon 3</name>
             <description>desc 3</description>
             <Style>
                 <IconStyle>
@@ -112,7 +112,7 @@
                     <value>annotation</value>
                 </Data>
             </ExtendedData>
-            <name>text 5</name>
+            <name>text 2</name>
             <description></description>
             <Style>
                 <IconStyle>
@@ -135,7 +135,7 @@
                     <value>annotation</value>
                 </Data>
             </ExtendedData>
-            <name>text 6</name>
+            <name>text 3</name>
             <description></description>
             <Style>
                 <IconStyle>
