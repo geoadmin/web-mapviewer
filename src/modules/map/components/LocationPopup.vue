@@ -270,29 +270,6 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .location-popup {
-    // Triangle border
-    &::before {
-        $arrow-height: 15px;
-        position: absolute;
-        top: -($arrow-height * 2);
-        left: 50%;
-        margin-left: -$arrow-height;
-        border: $arrow-height solid transparent;
-        border-bottom-color: $border-color-translucent;
-        pointer-events: none;
-        content: '';
-    }
-    // Triangle background
-    &::after {
-        $arrow-border-height: 14px;
-        content: '';
-        border: $arrow-border-height solid transparent;
-        border-bottom-color: $light;
-        position: absolute;
-        top: -($arrow-border-height * 2);
-        left: 50%;
-        margin-left: -$arrow-border-height;
-    }
     &-coordinates {
         display: grid;
         grid-template-columns: min-content auto;
