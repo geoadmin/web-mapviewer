@@ -8,28 +8,28 @@
         @close="onClose"
     >
         <div class="location-popup-coordinates ol-selectable">
-            <div>
+            <div class="lp-label">
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
-            <div>
+            <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv95">
                     {{ coordinateLV95 }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateLV95" />
             </div>
-            <div>
+            <div class="lp-label">
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
             </div>
-            <div>
+            <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv03">
                     {{ coordinateLV03 }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateLV03" />
             </div>
-            <div>
+            <div class="lp-label">
                 <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
             </div>
-            <div>
+            <div class="lp-data">
                 <span
                     class="location-popup-coordinates-wgs84-plain"
                     data-cy="location-popup-coordinates-plain-wgs84"
@@ -42,45 +42,45 @@
                     {{ coordinateWGS84 }}
                 </span>
             </div>
-            <div>
+            <div class="lp-label">
                 <a href="https://epsg.io/32632" target="_blank">UTM</a>
             </div>
-            <div>
+            <div class="lp-data">
                 <span data-cy="location-popup-coordinates-utm">
                     {{ coordinateUTM }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateUTM" />
             </div>
-            <div>{{ 'MGRS' }}</div>
-            <div>
+            <div class="lp-label">{{ 'MGRS' }}</div>
+            <div class="lp-data">
                 <span data-cy="location-popup-coordinates-mgrs">
                     {{ coordinateMGRS }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateMGRS" />
             </div>
-            <div>
+            <div class="lp-label">
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div v-if="what3Words">
+            <div v-if="what3Words" class="lp-data what-3-words">
                 <span v-show="what3Words" data-cy="location-popup-w3w">
                     {{ what3Words }}
                 </span>
                 <LocationPopupCopySlot :value="what3Words" />
             </div>
             <div v-else>-</div>
-            <div>
+            <div class="lp-label">
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
-            <div v-if="height">
+            <div v-if="height" class="lp-data">
                 <span data-cy="location-popup-height"> {{ heightInMeter }} m</span> /
                 <span>{{ heightInFeet }} ft</span>
                 <LocationPopupCopySlot :value="heightInMeter" />
             </div>
             <div v-else>-</div>
-            <div class="location-popup-link">
-                {{ $t('link_bowl_crosshair') }}
+            <div class="location-popup-link lp-label">
+                {{ $t('share_link') }}
             </div>
-            <div class="location-popup-link">
+            <div class="location-popup-link lp-data">
                 <LocationPopupCopyInput
                     :value="shareLinkUrlDisplay"
                     data-cy="location-popup-link-bowl-crosshair"
@@ -270,6 +270,7 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .location-popup {
+    // Triangle border
     &::before {
         $arrow-height: 15px;
         position: absolute;
@@ -277,14 +278,39 @@ export default {
         left: 50%;
         margin-left: -$arrow-height;
         border: $arrow-height solid transparent;
-        border-bottom-color: $light;
+        border-bottom-color: $border-color-translucent;
         pointer-events: none;
         content: '';
     }
+    // Triangle background
+    &::after {
+        $arrow-border-height: 14px;
+        content: '';
+        border: $arrow-border-height solid transparent;
+        border-bottom-color: $light;
+        position: absolute;
+        top: -($arrow-border-height * 2);
+        left: 50%;
+        margin-left: -$arrow-border-height;
+    }
     &-coordinates {
         display: grid;
-        grid-template-columns: 1fr 2fr;
+        grid-template-columns: min-content auto;
+        grid-column-gap: 8px;
         font-size: 0.75rem;
+        grid-row-gap: 2px;
+        .lp-label {
+            white-space: nowrap;
+        }
+        .lp-data.what-3-words {
+            display: grid;
+            grid-template-columns: auto min-content;
+            span {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
     }
     &-link {
         display: flex;
@@ -300,7 +326,7 @@ export default {
         margin-bottom: 0.1rem;
     }
 }
-@media (min-height: 650px) {
+@media (min-height: 850px) {
     .location-popup-qrcode {
         display: block;
     }

@@ -96,7 +96,6 @@ export default {
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 8px;
     }
     &::before {
         $arrow-height: 15px;
