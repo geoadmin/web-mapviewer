@@ -51,7 +51,7 @@ export default {
             default: false,
         },
     },
-    emits: ['preview'],
+    emits: ['preview', 'previewStart', 'previewStop'],
     data() {
         return {
             showLayerLegendForId: null,
