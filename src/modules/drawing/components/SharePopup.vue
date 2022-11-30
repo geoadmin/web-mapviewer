@@ -2,7 +2,7 @@
     <div class="ga-share">
         <div class="form-group">
             <label>{{ $t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group mb-3">
+            <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
                     class="form-control"
@@ -23,7 +23,7 @@
         </div>
         <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group mb-3">
+            <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
                     class="form-control"
@@ -107,7 +107,7 @@ export default {
                     this.fileUrlCopied = false
                 }, 5000)
             } catch (error) {
-                log.error(`Failed to copy: ${error}`)
+                log.error(`Failed to copy: `, error)
             }
         },
         async copyAdminShareUrl() {
@@ -118,7 +118,7 @@ export default {
                     this.adminUrlCopied = false
                 }, 5000)
             } catch (error) {
-                log.error(`Failed to copy: ${error}`)
+                log.error(`Failed to copy: `, error)
             }
         },
         async updateShareUrl() {
@@ -148,7 +148,7 @@ export default {
     width: 100%;
     text-align: start;
 
-    .input-group {
+    .share-link-input {
         width: 30rem;
     }
 }
