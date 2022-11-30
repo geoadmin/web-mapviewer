@@ -2,48 +2,44 @@
     <div class="ga-share">
         <div class="form-group">
             <label>{{ $t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
                     class="form-control"
-                    :value="fileUrl"
+                    :value="shareUrl"
                     readonly
                     @focus="$event.target.select()"
-                    @click="copyUrl(false)"
+                    @click="copyShareUrl(false)"
                 />
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        data-cy="drawing-share-normal-link"
-                        @click="copyUrl(false)"
-                    >
-                        {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-cy="drawing-share-normal-link"
+                    @click="copyShareUrl(false)"
+                >
+                    {{ fileUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                </button>
             </div>
         </div>
         <div v-if="adminUrl" class="form-group">
             <label>{{ $t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group mb-3 share-link-input">
                 <input
                     type="text"
                     class="form-control"
-                    :value="adminUrl"
+                    :value="adminShareUrl"
                     readonly
                     @focus="$event.target.select()"
-                    @click="copyUrl(true)"
+                    @click="copyAdminShareUrl()"
                 />
-                <div class="input-group-append">
-                    <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        data-cy="drawing-share-admin-link"
-                        @click="copyUrl(true)"
-                    >
-                        {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
-                    </button>
-                </div>
+                <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    data-cy="drawing-share-admin-link"
+                    @click="copyAdminShareUrl()"
+                >
+                    {{ adminUrlCopied ? $t('copy_success') : $t('copy_url') }}
+                </button>
             </div>
         </div>
     </div>
@@ -51,6 +47,8 @@
 
 <script>
 import { getKmlUrl } from '@/api/files.api'
+import { createShortLink } from '@/api/shortlink.api'
+import log from '@/utils/logging'
 
 export default {
     props: {
@@ -63,6 +61,8 @@ export default {
         return {
             adminUrlCopied: false,
             fileUrlCopied: false,
+            shareUrl: ' ',
+            adminShareUrl: ' ',
         }
     },
     computed: {
@@ -80,28 +80,63 @@ export default {
                     this.kmlIds.fileId
                 )}|${this.$t('draw_layer_label')}@adminId=${this.kmlIds.adminId}`
             }
-            // if no adminID is availble don't show the edit share link.
+            // if no adminID is available don't show the edit share link.
             return null
         },
+    },
+    watch: {
+        kmlIds() {
+            this.updateShareUrl()
+            this.updateAdminShareUrl()
+        },
+    },
+    created() {
+        this.updateShareUrl()
+        this.updateAdminShareUrl()
     },
     unmounted() {
         clearTimeout(this.adminTimeout)
         clearTimeout(this.fileTimeout)
     },
     methods: {
-        async copyUrl(adminUrl = false) {
-            if (adminUrl) {
-                await navigator.clipboard.writeText(this.adminUrl)
-                this.adminUrlCopied = true
-                this.adminTimeout = setTimeout(() => {
-                    this.adminUrlCopied = false
-                }, 5000)
-            } else {
-                await navigator.clipboard.writeText(this.fileUrl)
+        async copyShareUrl() {
+            try {
+                await navigator.clipboard.writeText(this.shareUrl)
                 this.fileUrlCopied = true
                 this.fileTimeout = setTimeout(() => {
                     this.fileUrlCopied = false
                 }, 5000)
+            } catch (error) {
+                log.error(`Failed to copy: `, error)
+            }
+        },
+        async copyAdminShareUrl() {
+            try {
+                await navigator.clipboard.writeText(this.adminShareUrl)
+                this.adminUrlCopied = true
+                this.adminTimeout = setTimeout(() => {
+                    this.adminUrlCopied = false
+                }, 5000)
+            } catch (error) {
+                log.error(`Failed to copy: `, error)
+            }
+        },
+        async updateShareUrl() {
+            try {
+                this.shareUrl = await createShortLink(this.fileUrl)
+            } catch (error) {
+                // Fallback to normal url
+                this.shareUrl = this.fileUrl
+            }
+        },
+        async updateAdminShareUrl() {
+            if (this.adminUrl) {
+                try {
+                    this.adminShareUrl = await createShortLink(this.adminUrl)
+                } catch (error) {
+                    // Fallback to normal url
+                    this.adminShareUrl = this.adminUrl
+                }
             }
         },
     },
@@ -112,5 +147,9 @@ export default {
 .ga-share {
     width: 100%;
     text-align: start;
+
+    .share-link-input {
+        width: 30rem;
+    }
 }
 </style>
