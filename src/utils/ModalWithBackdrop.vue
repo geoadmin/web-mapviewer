@@ -94,6 +94,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/variables';
+@import 'src/scss/media-query.mixin';
 .modal-popup {
     position: fixed;
     top: 50%;
@@ -104,8 +105,14 @@ export default {
         min-width: 75vw;
     }
     z-index: $zindex-modal;
-    max-width: 90vw;
     max-height: 90vh;
+    // For phone we set the width fixed to 90% of the view.
+    width: 90vw;
+    @include respond-above(phone) {
+        // But for desktop we let the size be dinamic with max to 90% of the view
+        width: unset;
+        max-width: 90vw;
+    }
     .card {
         max-height: 90vh;
         .card-header {

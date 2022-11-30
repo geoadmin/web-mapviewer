@@ -144,12 +144,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
 .ga-share {
     width: 100%;
     text-align: start;
 
-    .share-link-input {
-        width: 30rem;
+    @include respond-above(phone) {
+        // Do not apply this minimal width on phone otherwise we will have
+        // a scroll bar on phone. On Desktop it looks a bit better to increase
+        // the size of the input.
+        .share-link-input {
+            min-width: 30rem;
+        }
     }
 }
 </style>
