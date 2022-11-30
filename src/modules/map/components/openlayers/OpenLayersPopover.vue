@@ -19,7 +19,7 @@
                     @click="onClose"
                 />
             </div>
-            <div ref="mapPopoverContent" class="card-body">
+            <div id="mapPopoverContent" ref="mapPopoverContent" class="card-body">
                 <slot />
             </div>
         </div>
@@ -79,7 +79,7 @@ export default {
             this.$emit('close')
         },
         printContent() {
-            promptUserToPrintHtmlContent(this.$refs.mapPopoverContent.outerHTML)
+            promptUserToPrintHtmlContent('mapPopoverContent')
         },
     },
 }
