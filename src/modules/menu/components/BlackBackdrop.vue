@@ -14,6 +14,9 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: -1000; //Display behind the current stacking context
+    z-index: 1;
+}
+.modal-view {
+    z-index: $zindex-modal - 1;
 }
 </style>
