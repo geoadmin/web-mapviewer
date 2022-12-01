@@ -1,6 +1,11 @@
 <template>
     <teleport v-if="readyForTeleport" to="#map-footer-middle">
-        <div v-show="showContainer" class="infobox card" data-cy="infobox" @contextmenu.stop>
+        <div
+            v-show="showContainer"
+            class="infobox card rounded-0"
+            data-cy="infobox"
+            @contextmenu.stop
+        >
             <div
                 class="infobox-header card-header"
                 data-cy="infobox-header"
@@ -9,12 +14,18 @@
                 <ButtonWithIcon
                     v-if="showFloatingToggle"
                     :button-font-awesome-icon="['fa', 'caret-up']"
+                    small
                     data-cy="infobox-toggle-floating"
                     @click.stop="onToggleFloating"
                 />
-                <ButtonWithIcon :button-font-awesome-icon="['fa', 'print']" @click.stop="onPrint" />
+                <ButtonWithIcon
+                    :button-font-awesome-icon="['fa', 'print']"
+                    small
+                    @click.stop="onPrint"
+                />
                 <ButtonWithIcon
                     :button-font-awesome-icon="['fa', 'times']"
+                    small
                     data-cy="infobox-close"
                     @click.stop="onClose"
                 />
