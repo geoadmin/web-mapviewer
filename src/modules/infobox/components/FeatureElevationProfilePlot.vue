@@ -137,6 +137,11 @@ export default {
             this.$nextTick(this.updateElevationProfilePlot)
         },
         updateElevationProfilePlot() {
+            if (!this.$refs.profilePlot) {
+                // The $refs.profilePlot might be null because this method is
+                // executed within a Promise on the onResize() method.
+                return
+            }
             const { domainX, domainY, axisX, axisY } = updateD3ProfileChart(
                 this.$refs.profilePlot,
                 this.elevationProfile,
