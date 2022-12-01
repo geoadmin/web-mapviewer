@@ -2,7 +2,7 @@
     <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
         <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
-            <div class="card text-center drawing-toolbox-content">
+            <div class="card text-center drawing-toolbox-content rounded-0">
                 <div class="card-body position-relative">
                     <ButtonWithIcon
                         class="drawing-toolbox-close-button"
