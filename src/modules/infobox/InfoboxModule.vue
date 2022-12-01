@@ -34,18 +34,19 @@
             <div
                 v-show="showContent"
                 ref="content"
-                class="infobox-content card-body"
+                class="infobox-content"
                 data-cy="infobox-content"
             >
                 <FeatureElevationProfile
                     v-if="showElevationProfile"
+                    class="card-body"
                     :feature="selectedFeature"
                     @update-elevation-profile-plot="setMaxHeight"
                 />
 
-                <FeatureCombo v-else-if="isCombo" :feature="selectedFeature" />
+                <FeatureCombo v-else-if="isCombo" class="card-body" :feature="selectedFeature" />
 
-                <FeatureEdit v-else-if="isEdit" :feature="selectedFeature" />
+                <FeatureEdit v-else-if="isEdit" class="card-body" :feature="selectedFeature" />
 
                 <FeatureList v-else-if="isList" />
             </div>

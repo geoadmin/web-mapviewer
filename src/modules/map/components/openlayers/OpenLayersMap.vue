@@ -55,6 +55,7 @@
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
+            :use-content-padding="editFeature"
             @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
