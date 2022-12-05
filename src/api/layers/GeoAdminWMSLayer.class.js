@@ -6,11 +6,12 @@ import { WMS_BASE_URL } from '@/config'
  * Metadata for WMS layer (WMS stands for Web Map Service). It can either be tiled (requested in
  * chunks, usually 4), or single image (only one request fired for the whole map).
  */
-export default class WMSLayer extends GeoAdminLayer {
+export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
      * @param {String} id The unique ID of this layer in the GeoAdmin backends
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
+     * @param {boolean} visible If the layer should be shown on the map
      * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
      *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
@@ -28,16 +29,19 @@ export default class WMSLayer extends GeoAdminLayer {
      *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
+     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this layer
      */
     constructor(
         name,
         id,
         opacity,
+        visible,
         attributionName,
         attributionUrl,
         baseURL,
         format,
         timeConfig,
+        wmsVersion = '1.3.0',
         lang = 'en',
         gutter = -1,
         isHighlightable = false,
@@ -49,34 +53,24 @@ export default class WMSLayer extends GeoAdminLayer {
             LayerTypes.WMS,
             id,
             opacity,
+            visible,
             attributionName,
             attributionUrl,
             false,
             baseURL,
             isHighlightable,
             hasTooltip,
-            topics
+            topics,
+            false // for WMS we do not want a trailing slash in the base URL in case the URL is already defined past the ? portion
         )
         this.format = format
         this.timeConfig = timeConfig
         this.lang = lang
         this.gutter = gutter
+        this.wmsVersion = wmsVersion
     }
 
     getURL() {
-        const url = new URL(this.baseURL ? this.baseURL : WMS_BASE_URL)
-        const params = url.searchParams
-        params.set('SERVICE', 'WMS')
-        params.set('VERSION', '1.3.0')
-        params.set('REQUEST', 'GetMap')
-        params.set('FORMAT', `image/${this.format}`)
-        params.set('TRANSPARENT', 'true')
-        params.set('LAYERS', this.getID())
-        params.set('LANG', this.lang)
-        // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to a WMS, that's the default timestamp used under the hood)
-        if (this.timeConfig && this.timeConfig.currentTimestamp !== 'all') {
-            params.set('TIME', this.timeConfig.currentTimestamp)
-        }
-        return url.toString()
+        return this.baseURL ?? WMS_BASE_URL
     }
 }

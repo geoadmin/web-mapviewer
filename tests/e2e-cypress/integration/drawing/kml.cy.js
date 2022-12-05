@@ -217,18 +217,22 @@ describe('Switching from drawing mode to normal mode', () => {
         cy.get(olSelector).dblclick('center')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
 
+        // waiting for the KML to be saved on the backend
+        cy.wait('@post-kml')
         //Close drawing mode and check that the same number of the features and are displayed
         cy.log('Close drawing mode')
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        // the KML should now be requested from the backend to create the drawing layer
+        cy.wait('@get-kml')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         cy.readWindowValue('kmlLayer').should((layer) => {
             const features = layer.getSource().getFeatures()
             expect(features.length).to.be.equal(1)
         })
 
-        //Hide KML layer and check that kml layer disappeared
+        // Hide KML layer and check that kml layer disappeared
         cy.readWindowValue('kmlLayerUrl').then(function (kmlUrl) {
-            const kmlLayerSelector = `[data-cy^="button-toggle-visibility-layer-KML|${kmlUrl}|`
+            const kmlLayerSelector = `[data-cy^="button-toggle-visibility-layer-KML|${encodeURIComponent(kmlUrl)}|`
             cy.get(kmlLayerSelector).click()
             cy.readWindowValue('kmlLayer').should('not.exist')
         })

@@ -13,14 +13,15 @@ export default class AbstractLayer {
      * @param {LayerTypes} type See {@link LayerTypes}
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
+     * @param {boolean} visible If the layer should be visible on the map or hidden
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      */
-    constructor(name = '', type = null, opacity = 1.0, hasTooltip = false) {
+    constructor(name = '', type = null, opacity = 1.0, visible = false, hasTooltip = false) {
         this.name = name
         this.type = type
         this.opacity = opacity
+        this.visible = visible
         this.hasTooltip = hasTooltip
-        this.visible = false
         // default projection used, as we want to achieve worldwide coverage, is web mercator metric
         this.projection = CoordinateSystems.WEBMERCATOR.epsg
     }

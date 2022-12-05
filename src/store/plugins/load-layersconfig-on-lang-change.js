@@ -1,5 +1,5 @@
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
-import VectorLayer from '@/api/layers/VectorLayer.class'
+import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import { VECTOR_TILES_STYLE_ID, VECTOR_TILES_STYLE_URL } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
@@ -13,21 +13,23 @@ import log from '@/utils/logging'
  */
 const layersConfigByLang = {}
 
-function loadLayersConfig(lang) {
-    return new Promise((resolve, reject) => {
-        if (!layersConfigByLang[lang]) {
-            loadLayersConfigFromBackend(lang)
-                .then((layersConfig) => {
-                    layersConfigByLang[lang] = layersConfig
-                    resolve(layersConfig)
-                })
-                .catch((error) => {
-                    reject(error)
-                })
-        } else {
-            resolve(layersConfigByLang[lang])
-        }
-    })
+/**
+ * Loads the whole config from the backend (aka LayersConfig) for a specific language and store it
+ * in a cache
+ *
+ * If the same language is asked another time later on, the cached version will be given.
+ *
+ * @param lang {String} ISO code for a language
+ * @returns {Promise<GeoAdminLayer[]>}
+ */
+async function loadLayersConfig(lang) {
+    if (!layersConfigByLang[lang]) {
+        const layersConfig = await loadLayersConfigFromBackend(lang)
+        layersConfigByLang[lang] = layersConfig
+        return layersConfig
+    } else {
+        return layersConfigByLang[lang]
+    }
 }
 
 const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
@@ -35,9 +37,10 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         // adding vector tile backend through a hardcoded entry (for now)
         // this should be removed as soon as the backend delivers a proper configuration
         // for our vector tile background layer
-        const bgVectorLayer = new VectorLayer(
+        const bgVectorLayer = new GeoAdminVectorLayer(
             VECTOR_TILES_STYLE_ID,
             1.0,
+            true,
             VECTOR_TILES_STYLE_URL,
             'swisstopo',
             'https://www.swisstopo.admin.ch/en/home.html',

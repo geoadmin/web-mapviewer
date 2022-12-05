@@ -1,6 +1,6 @@
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import WMSLayer from '@/api/layers/WMSLayer.class'
-import WMTSLayer from '@/api/layers/WMTSLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
@@ -8,21 +8,23 @@ import { describe, it } from 'vitest'
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
-            new WMSLayer(
+            new GeoAdminWMSLayer(
                 'Test layer WMS',
                 'test.wms.layer',
                 0.8,
+                true,
                 'attribution.test.wms.layer',
                 null,
                 'https://base-url/',
                 'png',
                 new LayerTimeConfig()
             ),
-            new WMTSLayer('Test layer WMTS', 'test.wmts.layer'),
-            new WMTSLayer(
+            new GeoAdminWMTSLayer('Test layer WMTS', 'test.wmts.layer'),
+            new GeoAdminWMTSLayer(
                 'Test timed layer WMTS',
                 'test.timed.wmts.layer',
                 0.8,
+                true,
                 'attribution.test.timed.wmts.layer',
                 null,
                 'png',

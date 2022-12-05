@@ -1,8 +1,9 @@
+import { getKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
-import { getKmlMetadata } from '@/api/files.api'
 import log from '@/utils/logging'
+
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
  * layer and its state (visibility, opacity, etc...)
@@ -82,9 +83,11 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 const splittedLayerId = layer.id.split('|')
                 const kmlLayer = new KMLLayer(
                     layer.opacity,
+                    true,
                     splittedLayerId[1],
                     null,
-                    layer.customAttributes.adminId
+                    layer.customAttributes.adminId,
+                    splittedLayerId[2]
                 )
 
                 promisesForAllDispatch.push(

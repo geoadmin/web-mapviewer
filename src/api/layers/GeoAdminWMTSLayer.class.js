@@ -3,11 +3,12 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
-export default class WMTSLayer extends GeoAdminLayer {
+export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
      * @param {String} id Unique layer ID used in our backend
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
+     * @param {boolean} visible If the layer should be shown on the map
      * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
      *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
@@ -28,6 +29,7 @@ export default class WMTSLayer extends GeoAdminLayer {
         name = '',
         id = '',
         opacity = 1.0,
+        visible = false,
         attributionName,
         attributionUrl,
         format = 'png',
@@ -43,6 +45,7 @@ export default class WMTSLayer extends GeoAdminLayer {
             LayerTypes.WMTS,
             id,
             opacity,
+            visible,
             attributionName,
             attributionUrl,
             isBackground,

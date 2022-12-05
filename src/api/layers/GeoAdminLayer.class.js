@@ -14,6 +14,7 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   different backends of map.geo.admin.ch
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
+     * @param {boolean} visible If the layer should be shown on the map
      * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
      *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
@@ -28,25 +29,31 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
+     * @param {boolean} ensureTrailingSlashInBaseUrl Flag telling if the base URL must always have a
+     *   trailing slash. It might be sometime the case that this is unwanted (i.e. for an external
+     *   WMS URL already built past the point of URL params, a trailing slash would render this URL
+     *   invalid)
      */
     constructor(
         name = '',
         type = null,
         geoAdminID = '',
         opacity = 1.0,
+        visible = false,
         attributionName = null,
         attributionUrl = null,
         isBackground = false,
         baseURL = null,
         isHighlightable = false,
         hasTooltip = false,
-        topics = []
+        topics = [],
+        ensureTrailingSlashInBaseUrl = true
     ) {
-        super(name, type, opacity, hasTooltip)
+        super(name, type, opacity, visible, hasTooltip)
         this.geoAdminID = geoAdminID
         this.isBackground = isBackground
         this.baseURL = baseURL
-        if (this.baseURL && !this.baseURL.endsWith('/')) {
+        if (ensureTrailingSlashInBaseUrl && this.baseURL && !this.baseURL.endsWith('/')) {
             this.baseURL = this.baseURL + '/'
         }
         this.isHighlightable = isHighlightable

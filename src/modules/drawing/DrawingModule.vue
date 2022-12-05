@@ -201,16 +201,19 @@ export default {
                     await this.saveDrawing(false) // do not retry on error
                 }
 
-                // Only add existing/saved kml to the layer menu. If someone cleared an
-                // existing kml, we want to allow him to re-edit it.
-                if (this.kmlMetadata) {
-                    this.addLayer(
-                        new KMLLayer(
-                            1.0,
-                            getKmlUrl(this.kmlMetadata.id),
-                            this.kmlMetadata.id,
-                            this.kmlMetadata.adminId,
-                            this.kmlMetadata
+                    // Only add existing/saved kml to the layer menu. If someone cleared an
+                    // existing kml, we want to allow him to re-edit it.
+                    if (this.kmlMetadata) {
+                        this.addLayer(
+                            new KMLLayer(
+                                1.0,
+                                true,
+                                getKmlUrl(this.kmlMetadata.id),
+                                this.kmlMetadata.id,
+                                this.kmlMetadata.adminId,
+                                this.$t('draw_layer_label'),
+                                this.kmlMetadata
+                            )
                         )
                     )
                 }

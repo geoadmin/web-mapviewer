@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
@@ -13,6 +14,7 @@ import ImageWMS from 'ol/source/ImageWMS'
 import TileWMS from 'ol/source/TileWMS'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
+import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 /** Renders a WMS layer on the map */
@@ -39,10 +41,27 @@ export default {
             type: Number,
             default: -1,
         },
+        wmsVersion: {
+            type: String,
+            default: '1.3.0',
+        },
+        format: {
+            type: String,
+            default: 'png',
+        },
         gutter: {
             type: Number,
             default: -1,
         },
+        timeConfig: {
+            type: LayerTimeConfig,
+            default: null,
+        },
+    },
+    computed: {
+        ...mapState({
+            currentLang: (state) => state.i18n.lang,
+        }),
     },
     watch: {
         url(newUrl) {
@@ -64,6 +83,20 @@ export default {
             source = new ImageWMS({
                 url: this.url,
                 projection: this.projection,
+                params: {
+                    SERVICE: 'WMS',
+                    REQUEST: 'GetMap',
+                    TRANSPARENT: true,
+                    LAYERS: this.layerId,
+                    FORMAT: `image/${this.format}`,
+                    LANG: this.currentLang,
+                    VERSION: this.wmsVersion,
+                    // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
+                    TIME:
+                        this.timeConfig && this.timeConfig.currentTimestamp !== 'all'
+                            ? this.timeConfig.currentTimestamp
+                            : '',
+                },
             })
         }
         // If we are using LV95, we can constrain the WMS to only request tiles over Switzerland

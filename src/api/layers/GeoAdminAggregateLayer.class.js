@@ -32,11 +32,12 @@ export class AggregateSubLayer {
  * time. Which one is shown is decided by the map resolution, and by the min/max resolution of all
  * sub-layer's config
  */
-export default class AggregateLayer extends GeoAdminLayer {
+export default class GeoAdminAggregateLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer in the given lang
      * @param {String} id The unique ID of this layer in GeoAdmin's backends
      * @param {Number} opacity The opacity to be applied to this layer
+     * @param {boolean} visible If the layer should be shown on the map
      * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
      *   in the UI)
      * @param {String} attributionUrl Link to the data owner website (if there is one)
@@ -52,6 +53,7 @@ export default class AggregateLayer extends GeoAdminLayer {
         name,
         id,
         opacity,
+        visible,
         attributionName,
         attributionUrl,
         timeConfig,
@@ -64,6 +66,7 @@ export default class AggregateLayer extends GeoAdminLayer {
             LayerTypes.AGGREGATE,
             id,
             opacity,
+            visible,
             attributionName,
             attributionUrl,
             false,

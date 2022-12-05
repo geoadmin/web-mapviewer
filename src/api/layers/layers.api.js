@@ -1,9 +1,9 @@
-import AggregateLayer, { AggregateSubLayer } from '@/api/layers/AggregateLayer.class'
-import GeoJsonLayer from '@/api/layers/GeoJsonLayer.class'
+import GeoAdminAggregateLayer, { AggregateSubLayer } from '@/api/layers/GeoAdminAggregateLayer.class'
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import VectorLayer from '@/api/layers/VectorLayer.class'
-import WMSLayer from '@/api/layers/WMSLayer.class'
-import WMTSLayer from '@/api/layers/WMTSLayer.class'
+import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
@@ -11,6 +11,17 @@ import axios from 'axios'
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 // TODO : implement loading of a cached CloudFront version for MVP
 
+/**
+ * Transform the backend metadata JSON object into instances of {@link GeoAdminLayer}, instantiating
+ * the correct type of layer for each entry ({@link GeoAdminAggregateLayer}, {@link GeoAdminWMTSLayer},
+ * {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
+ *
+ * @param layerConfig
+ * @param id
+ * @param allOtherLayers
+ * @param lang
+ * @returns {GeoAdminLayer}
+ */
 const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
     let layer = undefined
     if (layerConfig) {
@@ -25,7 +36,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             attribution: attributionName,
             attributionUrl: potentialAttributionUrl,
         } = layerConfig
-        // checking if attributionUrl is a well formed URL, otherwise we drop it
+        // checking if attributionUrl is a well-formed URL, otherwise we drop it
         let attributionUrl = null
         try {
             new URL(potentialAttributionUrl)
@@ -33,25 +44,27 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             // meaning we have a valid URL in potentialAttributionUrl
             attributionUrl = potentialAttributionUrl
         } catch (_) {
-            // this is not a well formed URL, we do nothing with it
+            // this is not a well-formed URL, we do nothing with it
         }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         switch (type.toLowerCase()) {
             case 'vector':
-                layer = new VectorLayer(
+                layer = new GeoAdminVectorLayer(
                     id,
                     opacity,
+                    false,
                     layerConfig.styleUrl,
                     attributionName,
                     attributionUrl
                 )
                 break
             case 'wmts':
-                layer = new WMTSLayer(
+                layer = new GeoAdminWMTSLayer(
                     name,
                     id,
                     opacity,
+                    false,
                     attributionName,
                     attributionUrl,
                     format,
@@ -64,15 +77,17 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 )
                 break
             case 'wms':
-                layer = new WMSLayer(
+                layer = new GeoAdminWMSLayer(
                     name,
                     id,
                     opacity,
+                    false,
                     attributionName,
                     attributionUrl,
                     layerConfig.wmsUrl,
                     format,
                     timeConfig,
+                    '1.3.0',
                     lang,
                     layerConfig.gutter,
                     isHighlightable,
@@ -81,10 +96,11 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 )
                 break
             case 'geojson':
-                layer = new GeoJsonLayer(
+                layer = new GeoAdminGeoJsonLayer(
                     name,
                     id,
                     opacity,
+                    false,
                     attributionName,
                     attributionUrl,
                     layerConfig.geojsonUrl,
@@ -112,10 +128,11 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 // }
 
                 // here id would be "parent.layer" in the example above
-                layer = new AggregateLayer(
+                layer = new GeoAdminAggregateLayer(
                     name,
                     id,
                     opacity,
+                    false,
                     attributionName,
                     attributionUrl,
                     timeConfig,
@@ -174,10 +191,10 @@ export const getLayerLegend = (lang, layerId) => {
 }
 
 /**
- * Loads the layers config from the backend and transforms it in classes defined in this API file
+ * Loads the layer config from the backend and transforms it in classes defined in this API file
  *
  * @param {String} lang The ISO code for the lang in which the config should be loaded (required)
- * @returns {Promise<Layer[]>}
+ * @returns {Promise<GeoAdminLayer[]>}
  */
 export const loadLayersConfigFromBackend = (lang) => {
     return new Promise((resolve, reject) => {

@@ -6,17 +6,28 @@ import i18n from '@/modules/i18n'
 export default class KMLLayer extends AbstractLayer {
     /**
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
+     * @param {boolean} visible If the layer is visible on the map (or hidden)
      * @param {string} kmlFileUrl The URL to access the KML data
      * @param {string | null} fileId The KML id (which is part of the kmlFileUrl). If null it is
      *   parsed from kmlFileUrl.
      * @param {string | null} adminId The admin id to allow editing. If null then the user is not
      *   allowed to edit the file.
+     * @param {string | null} name Name of this layer, if nothing is given a default name "Drawing"
+     *   (or equivalent in the current UI lang) will be defined
      * @param {object | null} metadata Metadata of the KML drawing. This object contains all the
      *   metadata returned by the backend.
      */
-    constructor(opacity, kmlFileUrl, fileId = null, adminId = null, metadata = null) {
-        super(i18n.global.t('draw_layer_label'), LayerTypes.KML, opacity)
-        this.kmlFileUrl = kmlFileUrl
+    constructor(
+        opacity,
+        visible,
+        kmlFileUrl,
+        fileId = null,
+        adminId = null,
+        name = null,
+        metadata = null
+    ) {
+        super(name ?? i18n.global.t('draw_layer_label'), LayerTypes.KML, opacity, visible)
+        this.kmlFileUrl = decodeURIComponent(kmlFileUrl)
         this.adminId = adminId
         if (fileId) {
             this.fileId = fileId
@@ -29,15 +40,9 @@ export default class KMLLayer extends AbstractLayer {
         this.metadata = metadata
     }
 
-    get name() {
-        return i18n.global.t('draw_layer_label')
-    }
-
-    set name(name) {}
-
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        let id = `KML|${this.kmlFileUrl}|${this.name}`
+        let id = `KML|${encodeURIComponent(this.kmlFileUrl)}|${this.name}`
         if (this.adminId) {
             id += `@adminId=${this.adminId}`
         }

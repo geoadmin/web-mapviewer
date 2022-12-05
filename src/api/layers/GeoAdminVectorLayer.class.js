@@ -2,10 +2,11 @@ import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /** Metadata for a vector tile layer (MapLibre layer) */
-export default class VectorLayer extends GeoAdminLayer {
+export default class GeoAdminVectorLayer extends GeoAdminLayer {
     /**
      * @param {string} layerId The ID of this layer
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
+     * @param {boolean} visible If the layer should be shown on the map
      * @param {string} styleUrl The URL to access the style (Mapbox style JSON)
      * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
      *   in the UI)
@@ -20,6 +21,7 @@ export default class VectorLayer extends GeoAdminLayer {
     constructor(
         layerId,
         opacity,
+        visible,
         styleUrl,
         attributionName,
         attributionUrl,
@@ -31,6 +33,7 @@ export default class VectorLayer extends GeoAdminLayer {
             LayerTypes.VECTOR,
             layerId,
             opacity,
+            visible,
             attributionName,
             attributionUrl,
             isBackground
