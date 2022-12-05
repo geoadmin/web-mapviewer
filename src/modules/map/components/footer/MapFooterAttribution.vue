@@ -7,6 +7,7 @@
                 :href="source.attributionUrl"
                 target="_blank"
                 class="map-footer-attribution-source"
+                :class="{ 'external-source': source.isExternal }"
                 :data-cy="`layer-copyright-${source.attributionName}`"
             >
                 {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
@@ -14,11 +15,19 @@
             <span
                 v-else
                 class="map-footer-attribution-source"
+                :class="{ 'external-source': source.isExternal }"
                 :data-cy="`layer-copyright-${source.attributionName}`"
+                @mouseover="setDisclaimerArrowPosition"
             >
                 {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
             </span>
         </template>
+        <teleport to="#main-component">
+            <div class="external-source-disclaimer card text-white bg-danger">
+                {{ $t('external_data_tooltip') }}
+                <div ref="disclaimerPopoverArrow" class="disclaimer-popover-arrow" />
+            </div>
+        </teleport>
     </div>
 </template>
 
@@ -47,6 +56,7 @@ export default {
                     .map((layer) => ({
                         attributionName: layer.attributionName,
                         attributionUrl: layer.attributionUrl,
+                        isExternal: !!layer.isExternal,
                     }))
             )
         },
@@ -54,6 +64,13 @@ export default {
     methods: {
         getAttributionWithComaIfNeeded(attribution, index) {
             return `${attribution}${index !== this.sources.length - 1 ? ',' : ''}`
+        },
+        setDisclaimerArrowPosition(event) {
+            const currentlyHoveredExternalSource = event.target
+            this.$refs.disclaimerPopoverArrow.style.left = `${
+                currentlyHoveredExternalSource.offsetLeft +
+                currentlyHoveredExternalSource.offsetWidth / 4.0
+            }px`
         },
     },
 }
@@ -67,6 +84,7 @@ export default {
     background: rgba($white, 0.7);
     font-size: 0.7rem;
     text-align: center;
+    position: relative;
 
     &-source {
         margin-left: 2px;
@@ -76,6 +94,38 @@ export default {
         &:hover {
             text-decoration: underline;
         }
+        &.external-source {
+            color: $red;
+        }
     }
+}
+</style>
+<style lang="scss">
+// this needs to be unscoped as we are teleporting this part of the component elsewhere
+.external-source-disclaimer {
+    opacity: 0;
+    display: none !important;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    & .disclaimer-popover-arrow {
+        position: absolute;
+        z-index: -1;
+        content: '';
+        bottom: -8px;
+        border-style: solid;
+        border-width: 0 10px 10px 10px;
+        border-color: transparent transparent red transparent;
+        transform: rotate(180deg);
+        transition-duration: 0.3s;
+        transition-property: transform;
+    }
+}
+:has(.external-source:hover) .external-source-disclaimer {
+    z-index: 10;
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, calc(-100% - 1rem - 8px));
 }
 </style>
