@@ -1,4 +1,5 @@
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { transformParsedExternalLayerIntoObject } from '@/router/storeSync/LayerParamConfig.class'
 import { LayersParsedFromURL } from '@/router/storeSync/layersParamParser'
@@ -37,5 +38,20 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         expect(result.wmsVersion).to.eq(wmsVersion)
         expect(result.geoAdminID).to.eq(wmsLayerId)
         expect(result.name).to.eq(wmsLayerName)
+    })
+    it('parses an external WMTS layer correctly', () => {
+        const wmtsGetCapUrl = 'https://base.wmts.url/getCapabilitiesEndpoint.xml'
+        const wmtsLayerId = 'random.wmts.layer_id'
+        const wmtsLayerName = 'Another random name'
+        const parsedLayer = new LayersParsedFromURL(
+          `WMTS|${encodeURIComponent(wmtsGetCapUrl)}|${wmtsLayerId}|${encodeURIComponent(wmtsLayerName)}`,
+          true,
+          0.8
+        )
+        const result = transformParsedExternalLayerIntoObject(parsedLayer)
+        expect(result).to.be.an.instanceof(ExternalWMTSLayer)
+        expect(result.getCapabilitiesUrl).to.eq(wmtsGetCapUrl)
+        expect(result.externalLayerId).to.eq(wmtsLayerId)
+        expect(result.name).to.eq(wmtsLayerName)
     })
 })

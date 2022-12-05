@@ -65,7 +65,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             wmtsServerGetCapabilitiesUrl,
             wmtsLayerId,
             // grabbing only the host name as attribution
-            new URL(wmtsServerGetCapabilitiesUrl).hostname
+            new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname
         )
     }
     // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
