@@ -34,9 +34,19 @@ export default {
             default: null,
         },
     },
+    computed: {
+        mapLibreInstance() {
+            return this.layer?.mapLibreInstance
+        }
+    },
     watch: {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
+        },
+        styleUrl(newStyleUrl) {
+            if (this.mapLibreInstance) {
+                this.mapLibreInstance.setStyle(newStyleUrl)
+            }
         },
     },
     created() {
@@ -51,7 +61,7 @@ export default {
             axios.get(this.styleUrl).then((response) => {
                 const vectorStyle = response.data
                 vectorStyle.layers = vectorStyle.layers.filter(
-                    (layer) => layer.source !== this.excludeSource
+                  (layer) => layer.source !== this.excludeSource
                 )
                 this.layer.maplibreMap.setStyle(vectorStyle)
             })

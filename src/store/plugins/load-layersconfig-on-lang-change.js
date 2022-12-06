@@ -2,7 +2,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
-import { VECTOR_TILES_STYLE_ID } from '@/config'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -46,13 +46,14 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         // this should be removed as soon as the backend delivers a proper configuration
         // for our vector tile background layer
         const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
-            VECTOR_TILES_STYLE_ID,
-            openStreetMapAndMapTilersAttributions,
+            VECTOR_LIGHT_BASE_MAP_STYLE_ID,
             // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
             'swissmaptiles'
         )
+        const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID)
         const layersConfig = [
             lightBaseMapBackgroundLayer,
+            imageryBackgroundLayer,
             ...(await loadLayersConfig(store.state.i18n.lang)),
         ]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
@@ -62,6 +63,18 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         if (topicEch) {
             topicEch.backgroundLayers.push(lightBaseMapBackgroundLayer)
             topicEch.defaultBackgroundLayer = lightBaseMapBackgroundLayer
+            // replacing the SWISSIMAGE WMTS layer with the SWISSIMAGE vector layer
+            // same as the other one above, this should be removed ASAP (as soon as our backend
+            // is serving this configuration through the standard layersConfig endpoint)
+            const swissimageLayer = topicEch.backgroundLayers.find(
+                (layer) => layer.geoAdminID === 'ch.swisstopo.swissimage'
+            )
+            if (swissimageLayer) {
+                log.debug('replacing SwissImage background layer with vector style equivalent')
+                swissimageLayer.isBackground = false
+                topicEch.backgroundLayers[topicEch.backgroundLayers.indexOf(swissimageLayer)] =
+                    imageryBackgroundLayer
+            }
         }
         store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
