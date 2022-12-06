@@ -36,7 +36,7 @@ export default {
     },
     computed: {
         mapLibreInstance() {
-            return this.layer?.mapLibreInstance
+            return this.layer?.maplibreMap
         }
     },
     watch: {
@@ -44,9 +44,7 @@ export default {
             this.layer.setOpacity(newOpacity)
         },
         styleUrl(newStyleUrl) {
-            if (this.mapLibreInstance) {
-                this.mapLibreInstance.setStyle(newStyleUrl)
-            }
+            this.setMapLibreStyle(newStyleUrl)
         },
     },
     created() {
@@ -56,16 +54,23 @@ export default {
                 style: this.styleUrl,
             },
         })
-        if (this.excludeSource) {
-            // we load the style on the side in order to be able to filter out some source
-            axios.get(this.styleUrl).then((response) => {
-                const vectorStyle = response.data
-                vectorStyle.layers = vectorStyle.layers.filter(
-                  (layer) => layer.source !== this.excludeSource
-                )
-                this.layer.maplibreMap.setStyle(vectorStyle)
-            })
-        }
+        this.setMapLibreStyle(this.styleUrl)
     },
+    methods: {
+        setMapLibreStyle(styleUrl) {
+            if (this.excludeSource) {
+                // we load the style on the side in order to be able to filter out some source
+                axios.get(styleUrl).then((response) => {
+                    const vectorStyle = response.data
+                    vectorStyle.layers = vectorStyle.layers.filter(
+                      (layer) => layer.source !== this.excludeSource
+                    )
+                    this.mapLibreInstance.setStyle(vectorStyle)
+                })
+            } else {
+                this.mapLibreInstance.setStyle(styleUrl)
+            }
+        }
+    }
 }
 </script>
