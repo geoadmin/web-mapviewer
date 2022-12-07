@@ -75,17 +75,10 @@ export default {
                 // we inject a fair-use WMTS that covers the globe under our aerial images
                 axios.get(styleUrl).then((response) => {
                     const vectorStyle = response.data
-                    // settings bounds for swissimage, otherwise it covers the whole world with white tiles
-                    vectorStyle.sources.swissimage_wmts.bounds = [
-                        ...proj4(CoordinateSystems.LV95.epsg, CoordinateSystems.WGS84.epsg, [
-                            TILEGRID_EXTENT[0] + 50000,
-                            TILEGRID_EXTENT[1],
-                        ]),
-                        ...proj4(CoordinateSystems.LV95.epsg, CoordinateSystems.WGS84.epsg, [
-                            TILEGRID_EXTENT[2] - 20000,
-                            TILEGRID_EXTENT[3],
-                        ]),
-                    ]
+                    // settings SwissImage to use the tiled WMS instead
+                    // otherwise it covers the whole world with white tiles (when no data is present)
+                    vectorStyle.sources.swissimage_wmts.tiles = [
+                        'https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.swisstopo.swissimage&LANG=en&WIDTH=256&HEIGHT=256&CRS=EPSG%3A3857&STYLES=&BBOX={bbox-epsg-3857}',                    ]
                     // setting up Sentinel2 WMTS to cover the globe outside of Switzerland
                     vectorStyle.sources['sentinel2_wmts'] = {
                         minzoom: 0,
