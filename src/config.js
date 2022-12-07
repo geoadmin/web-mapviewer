@@ -16,12 +16,6 @@ export const ENVIRONMENT = VITE_ENVIRONMENT
 export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
 
 /**
- * Flag that tells if users should be warned that it is a development site. Also used to hide
- * development specific features in production (like the app version)
- */
-export const DEV_SITE_WARNING = !IS_TESTING_WITH_CYPRESS && ENVIRONMENT !== 'production'
-
-/**
  * Current app version (from package.json)
  *
  * @type {String}
@@ -253,3 +247,19 @@ export const DRAWING_HIT_TOLERANCE = 6
 export const VECTOR_TILES_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_world.vt'
 
 export const VECTOR_TILES_STYLE_URL = `https://vectortiles.geo.admin.ch/styles/${VECTOR_TILES_STYLE_ID}/style.json`
+
+/**
+ * Display a big developpment banner on all but these hosts.
+ *
+ * @type {String[]}
+ */
+ export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
+
+ /**
+ * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop)
+ * corner on all these hosts.
+ *
+ * @type {String[]}
+ */
+
+ export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']

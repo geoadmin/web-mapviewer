@@ -20,7 +20,7 @@
                 <SearchBar />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
-                    v-if="devSiteWarning"
+                    v-if="hasDevSiteWarning"
                     class="header-warning-dev"
                     v-html="$t('test_host_warning')"
                 ></div>
@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import { DEV_SITE_WARNING } from '@/config'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
@@ -49,17 +48,12 @@ export default {
         SwissFlag,
         LoadingBar,
     },
-    data() {
-        return {
-            devSiteWarning: DEV_SITE_WARNING,
-        }
-    },
     computed: {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
             currentLang: (state) => state.i18n.lang,
         }),
-        ...mapGetters(['currentTopicId', 'isPhoneMode']),
+        ...mapGetters(['currentTopicId', 'isPhoneMode', 'hasDevSiteWarning']),
     },
     methods: {
         resetApp() {

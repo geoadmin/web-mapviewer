@@ -1,4 +1,3 @@
-
 /* Z Indices are not an absolute value. Different css attributes (most importantly the z-index
 attribute) can trigger the generation of a new stacking context. An element cannot break out of its
 stacking context, independently of the value of its z-index. Inatall an extension like
@@ -8,6 +7,7 @@ browser dev tools. */
 // Main stacking context
 $zindex-map: 1;
 $zindex-footer: $zindex-map + 1; // The menu should be displayed above the footer in phone mode
+$zindex-warning: 1;
 $zindex-menu: $zindex-footer + 1;
 $zindex-footer-infobox: $zindex-menu + 1; //Is part of the footer, but should be displayed above other menu items
 $zindex-swipable-element: $zindex-menu + 1; //Not used for the moment, please check the value before using it.
