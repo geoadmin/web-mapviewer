@@ -75,20 +75,8 @@ export default {
                 tileSize: WMS_TILE_SIZE,
             })
 
-            if (this.gutter !== -1) {
-                source = new TileWMS({
-                    projection: this.projection,
-                    url: this.url,
-                    gutter: this.gutter,
-                    tileGrid: tileGridLV95,
-                })
-            } else {
-                source = new ImageWMS({
-                    projection: this.projection,
-                    url: this.url,
-                    tileGrid: tileGridLV95,
-                })
-            }
+            source.tileGrid = tileGridLV95
+
             // tile grid and  reprojection to WebMercator is done in analogy to WMTS to prevent
             // that the layer appears twice, once in CH and once near New Zealand.
             // see: https://github.com/geoadmin/web-mapviewer/commit/c689f9a650c546c6e52a91fc2086d7cbbf48faa2
