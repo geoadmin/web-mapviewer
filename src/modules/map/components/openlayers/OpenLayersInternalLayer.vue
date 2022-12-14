@@ -9,16 +9,24 @@
             :exclude-source="layerConfig.excludeSource"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS"
+            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL(LV95.epsgNumber)"
             :z-index="zIndex"
             :projection="LV95.epsg"
         />
+        <OpenLayersExternalWMTSLayer
+            v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
+            :layer-id="layerConfig.externalLayerId"
+            :opacity="layerConfig.opacity"
+            :get-capabilities-url="layerConfig.getURL()"
+            :z-index="zIndex"
+        />
+        <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.getID()"
+            :layer-id="layerConfig.geoAdminID"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL(LV95.epsgNumber)"
             :wms-version="layerConfig.wmsVersion"
@@ -68,13 +76,14 @@
 </template>
 
 <script>
-import LayerTypes from '@/api/layers/LayerTypes.enum'
-import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
-import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+import LayerTypes from "@/api/layers/LayerTypes.enum";
+import OpenLayersExternalWMTSLayer from "@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue";
+import OpenLayersKMLLayer from "@/modules/map/components/openlayers/OpenLayersKMLLayer.vue";
+import { CoordinateSystems } from "@/utils/coordinateUtils";
+import OpenLayersGeoJSONLayer from "./OpenLayersGeoJSONLayer.vue";
+import OpenLayersVectorLayer from "./OpenLayersVectorLayer.vue";
+import OpenLayersWMSLayer from "./OpenLayersWMSLayer.vue";
+import OpenLayersWMTSLayer from "./OpenLayersWMTSLayer.vue";
 
 /**
  * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the
@@ -84,6 +93,7 @@ export default {
     // So that we can recursively call ourselves in the template for aggregate layers
     name: 'OpenLayersInternalLayer',
     components: {
+        OpenLayersExternalWMTSLayer,
         OpenLayersKMLLayer,
         OpenLayersGeoJSONLayer,
         OpenLayersWMSLayer,

@@ -62,6 +62,34 @@ export default {
         ...mapState({
             currentLang: (state) => state.i18n.lang,
         }),
+        /**
+         * Definition of all relevant URL param for our WMS backends. This is because both
+         * https://openlayers.org/en/latest/apidoc/module-ol_source_TileWMS-TileWMS.html and
+         * https://openlayers.org/en/latest/apidoc/module-ol_source_ImageWMS-ImageWMS.html have this
+         * option.
+         *
+         * If we let the URL have all the param beforehand (sending all URL param through the url
+         * option), most of our wanted params will be doubled, resulting in longer and more
+         * difficult to read URLs
+         *
+         * @returns Object
+         */
+        wmsUrlParams() {
+            return {
+                SERVICE: 'WMS',
+                REQUEST: 'GetMap',
+                TRANSPARENT: true,
+                LAYERS: this.layerId,
+                FORMAT: `image/${this.format}`,
+                LANG: this.currentLang,
+                VERSION: this.wmsVersion,
+                // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
+                TIME:
+                    this.timeConfig && this.timeConfig.currentTimestamp !== 'all'
+                        ? this.timeConfig.currentTimestamp
+                        : '',
+            }
+        },
     },
     watch: {
         url(newUrl) {
@@ -78,25 +106,13 @@ export default {
                 projection: this.projection,
                 url: this.url,
                 gutter: this.gutter,
+                params: this.wmsUrlParams,
             })
         } else {
             source = new ImageWMS({
                 url: this.url,
                 projection: this.projection,
-                params: {
-                    SERVICE: 'WMS',
-                    REQUEST: 'GetMap',
-                    TRANSPARENT: true,
-                    LAYERS: this.layerId,
-                    FORMAT: `image/${this.format}`,
-                    LANG: this.currentLang,
-                    VERSION: this.wmsVersion,
-                    // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                    TIME:
-                        this.timeConfig && this.timeConfig.currentTimestamp !== 'all'
-                            ? this.timeConfig.currentTimestamp
-                            : '',
-                },
+                params: this.wmsUrlParams,
             })
         }
         // If we are using LV95, we can constrain the WMS to only request tiles over Switzerland

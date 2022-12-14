@@ -120,6 +120,68 @@ describe('Test of layer handling', () => {
                 })
             })
         })
+        context('External layers', () => {
+            it('reads and adds an external WMS correctly', () => {
+                const fakeWmsBaseUrl = 'https://fake.wms.base.url'
+                const fakeLayerId = 'fake.layer_id'
+                const fakeWmsLayerVersion = '9.9.9'
+                const fakeLayerName = 'Fake layer name'
+                // format is WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
+                const fakeLayerUrlId = `WMS|${encodeURIComponent(fakeWmsBaseUrl)}|${fakeLayerId}|${fakeWmsLayerVersion}|${encodeURIComponent(fakeLayerName)}`
+
+                // intercepting call to our fake WMS
+                cy.intercept(`${fakeWmsBaseUrl}/**`, {
+                    fixture: '256.png',
+                }).as('externalWMS')
+
+                cy.goToMapView(
+                    'en',
+                    {
+                        layers: fakeLayerUrlId,
+                    },
+                    true
+                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                cy.wait('@externalWMS')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(1)
+                    const [externalWmsLayer] = layers
+                    expect(externalWmsLayer.wmsVersion).to.eq(fakeWmsLayerVersion)
+                    expect(externalWmsLayer.name).to.eq(fakeLayerName)
+                    expect(externalWmsLayer.geoAdminID).to.eq(fakeLayerId)
+                    expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
+                    expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
+                })
+            })
+            it('reads and adds an external WMTS correctly', () => {
+                const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
+                const fakeLayerId = 'fakeLayerId'
+                const fakeLayerName = 'Fake layer name'
+                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
+                const fakeLayerUrlId = `WMTS|${encodeURIComponent(fakeGetCapUrl)}|${fakeLayerId}|${encodeURIComponent(fakeLayerName)}`
+
+                // intercepting call to our fake WMTS
+                cy.intercept(`${fakeGetCapUrl}**`, (req) => {
+                    // empty XML as response
+                    req.reply('<Capabilities version="1.0.0" xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/1999/xlink"></Capabilities>')
+                }).as('externalGetCap')
+
+                cy.goToMapView(
+                    'en',
+                    {
+                        layers: fakeLayerUrlId,
+                    },
+                    true
+                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                cy.wait('@externalGetCap')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(1)
+                    const [externalWmtsLayer] = layers
+                    expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
+                    expect(externalWmtsLayer.name).to.eq(fakeLayerName)
+                    expect(externalWmtsLayer.getCapabilitiesUrl).to.eq(fakeGetCapUrl)
+                })
+            })
+        })
     })
     context('Background layer in URL at app startup', () => {
         it('sets the background to the topic default if none is defined in the URL', () => {
@@ -457,7 +519,7 @@ describe('Test of layer handling', () => {
             cy.goToMapView('en', {
                 bgLayer: 'void',
             })
-            cy.get('[data-cy="layers-copyrights"]').should('be.empty')
+            cy.get('[data-cy="layers-copyrights"] a').should('not.exist')
         })
         it('shows the copyright as a link when an attribution URL is available', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {

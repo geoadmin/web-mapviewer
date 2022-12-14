@@ -1,6 +1,6 @@
 import { isNumber } from '@/utils/numberUtils'
 
-class LayersParsedFromURL {
+export class LayersParsedFromURL {
     /**
      * @param {String} id The layer id
      * @param {Boolean} visible Flag telling if the layer should be visible on the map
