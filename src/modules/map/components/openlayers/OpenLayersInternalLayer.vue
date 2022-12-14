@@ -76,14 +76,15 @@
 </template>
 
 <script>
-import LayerTypes from "@/api/layers/LayerTypes.enum";
-import OpenLayersExternalWMTSLayer from "@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue";
-import OpenLayersKMLLayer from "@/modules/map/components/openlayers/OpenLayersKMLLayer.vue";
-import { CoordinateSystems } from "@/utils/coordinateUtils";
-import OpenLayersGeoJSONLayer from "./OpenLayersGeoJSONLayer.vue";
-import OpenLayersVectorLayer from "./OpenLayersVectorLayer.vue";
-import OpenLayersWMSLayer from "./OpenLayersWMSLayer.vue";
-import OpenLayersWMTSLayer from "./OpenLayersWMTSLayer.vue";
+import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
+import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
+import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
+import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
+import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
+import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
 /**
  * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the
@@ -102,7 +103,7 @@ export default {
     },
     props: {
         layerConfig: {
-            type: Object,
+            type: GeoAdminLayer,
             default: null,
         },
         zIndex: {

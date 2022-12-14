@@ -13,23 +13,26 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {String} getCapabilitiesUrl URL to the getCapabilities.xml endpoint of the server for
      *   this layer
      * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
-     * @param {String} attributionName Name to show the user so that he may know who's the data
-     *   holder (it typically is the hostname of the server for this layer)
+     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      */
-    constructor(name, opacity, visible, getCapabilitiesUrl, externalLayerId, attributionName) {
-        // as we are encoding the name in getID(), we must decode it here when receiving it through the URL parser
-        super(decodeURIComponent(name), LayerTypes.WMTS, opacity, visible, attributionName)
-        // same gist with the getCap URL, we encode it in getID, so it must be decoded
-        this.getCapabilitiesUrl = decodeURIComponent(getCapabilitiesUrl)
-        this.externalLayerId = externalLayerId
+    constructor(name, opacity, visible, getCapabilitiesUrl, externalLayerId, attributions) {
+        super(
+            // as we are encoding the name in getID(), we must decode it here when receiving it through the URL parser
+            decodeURIComponent(name),
+            LayerTypes.WMTS,
+            externalLayerId,
+            // same thing with the getCap URL, we encode it in getID, so it must be decoded
+            decodeURIComponent(getCapabilitiesUrl),
+            opacity,
+            visible,
+            attributions
+        )
     }
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `WMTS|${encodeURIComponent(this.getCapabilitiesUrl)}|${this.externalLayerId}|${encodeURIComponent(this.name)}`
-    }
-
-    getURL() {
-        return this.getCapabilitiesUrl
+        return `WMTS|${encodeURIComponent(this.baseURL)}|${
+            this.externalLayerId
+        }|${encodeURIComponent(this.name)}`
     }
 }

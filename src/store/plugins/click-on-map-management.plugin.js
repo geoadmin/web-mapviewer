@@ -8,8 +8,7 @@ import log from '@/utils/logging'
  *
  * @param {Vuex.Store} store
  * @param {ClickInfo} clickInfo Store mutation payload
- * @param {(WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer)[]} visibleLayers All currently
- *   visible layers on the map
+ * @param {GeoAdminLayer[]} visibleLayers All currently visible layers on the map
  * @param {String} lang
  */
 const runIdentify = async (store, clickInfo, visibleLayers, lang) => {

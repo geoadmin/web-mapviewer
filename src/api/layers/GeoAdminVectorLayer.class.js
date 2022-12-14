@@ -1,48 +1,34 @@
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import GeoAdminLayer, { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-/** Metadata for a vector tile layer (MapLibre layer) */
+/** Metadata for a vector tile layer (MapLibre layer) served by our backend */
 export default class GeoAdminVectorLayer extends GeoAdminLayer {
     /**
      * @param {string} layerId The ID of this layer
-     * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {string} styleUrl The URL to access the style (Mapbox style JSON)
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
-     *   in the UI)
-     * @param {String} attributionUrl Link to the data owner website (if there is one)
-     * @param {Boolean} isBackground If this layer is to be used as a background layer or not
-     *   (background layer are stored in the background wheel on the side of the UI)
+     * @param {LayerAttribution[]} extraAttributions Extra attribution in case this vector layer is
+     *   a mix of many sources
      * @param {String} excludeSource Tells the app to filter out Maplibre layers that have this
      *   source (so no tiles will be loaded from this source). Is used to hack the LightBaseMap
      *   style and remove Swisstopo data, so that we only keep what's outside Switzerland (the
      *   rastered national map covers our territory)
      */
-    constructor(
-        layerId,
-        opacity,
-        visible,
-        styleUrl,
-        attributionName,
-        attributionUrl,
-        isBackground = false,
-        excludeSource = null
-    ) {
+    constructor(layerId, extraAttributions = [], excludeSource = null) {
         super(
             layerId,
             LayerTypes.VECTOR,
             layerId,
-            opacity,
-            visible,
-            attributionName,
-            attributionUrl,
-            isBackground
+            1.0,
+            true,
+            [
+                ...extraAttributions,
+                new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),
+            ],
+            true
         )
-        this.styleUrl = styleUrl
         this.excludeSource = excludeSource
     }
 
     getURL() {
-        return this.styleUrl
+        return `https://vectortiles.geo.admin.ch/styles/${this.geoAdminID}/style.json`
     }
 }

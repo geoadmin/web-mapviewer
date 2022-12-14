@@ -1,6 +1,7 @@
 import { getKmlMetadata } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { LayerAttribution } from "@/api/layers/GeoAdminLayer.class";
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
@@ -65,7 +66,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             wmtsServerGetCapabilitiesUrl,
             wmtsLayerId,
             // grabbing only the host name as attribution
-            new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname
+            [new LayerAttribution(new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname)]
         )
     }
     // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
@@ -78,7 +79,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             parsedLayer.visible,
             wmsServerBaseURL,
             wmsLayerIds,
-            new URL(decodeURIComponent(wmsServerBaseURL)).hostname,
+            [new LayerAttribution(new URL(decodeURIComponent(wmsServerBaseURL)).hostname)],
             wmsVersion
         )
     }

@@ -1,4 +1,5 @@
 import GeoAdminAggregateLayer, { AggregateSubLayer } from '@/api/layers/GeoAdminAggregateLayer.class'
+import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
@@ -13,8 +14,8 @@ import axios from 'axios'
 
 /**
  * Transform the backend metadata JSON object into instances of {@link GeoAdminLayer}, instantiating
- * the correct type of layer for each entry ({@link GeoAdminAggregateLayer}, {@link GeoAdminWMTSLayer},
- * {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
+ * the correct type of layer for each entry ({@link GeoAdminAggregateLayer},
+ * {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
  *
  * @param layerConfig
  * @param id
@@ -48,16 +49,13 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
+        const attributions = []
+        if (attributionName) {
+            attributions.push(new LayerAttribution(attributionName, attributionUrl))
+        }
         switch (type.toLowerCase()) {
             case 'vector':
-                layer = new GeoAdminVectorLayer(
-                    id,
-                    opacity,
-                    false,
-                    layerConfig.styleUrl,
-                    attributionName,
-                    attributionUrl
-                )
+                layer = new GeoAdminVectorLayer(id, opacity, layerConfig.styleUrl, attributions)
                 break
             case 'wmts':
                 layer = new GeoAdminWMTSLayer(
@@ -65,8 +63,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     id,
                     opacity,
                     false,
-                    attributionName,
-                    attributionUrl,
+                    attributions,
                     format,
                     timeConfig,
                     !!background,
@@ -82,8 +79,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     id,
                     opacity,
                     false,
-                    attributionName,
-                    attributionUrl,
+                    attributions,
                     layerConfig.wmsUrl,
                     format,
                     timeConfig,
@@ -101,8 +97,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     id,
                     opacity,
                     false,
-                    attributionName,
-                    attributionUrl,
+                    attributions,
                     layerConfig.geojsonUrl,
                     layerConfig.styleUrl
                 )
@@ -129,16 +124,15 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
 
                 // here id would be "parent.layer" in the example above
                 layer = new GeoAdminAggregateLayer(
-                    name,
-                    id,
-                    opacity,
-                    false,
-                    attributionName,
-                    attributionUrl,
-                    timeConfig,
-                    isHighlightable,
-                    hasTooltip,
-                    topics
+                  name,
+                  id,
+                  opacity,
+                  false,
+                  attributions,
+                  timeConfig,
+                  isHighlightable,
+                  hasTooltip,
+                  topics
                 )
                 layerConfig.subLayersIds.forEach((subLayerId) => {
                     // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above

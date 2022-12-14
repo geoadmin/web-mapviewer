@@ -1,5 +1,6 @@
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { LayerAttribution } from "@/api/layers/GeoAdminLayer.class";
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -15,8 +16,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 'test.wms.layer',
                 0.8,
                 true,
-                'attribution.test.wms.layer',
-                null,
+                [new LayerAttribution('attribution.test.wms.layer')],
                 'https://base-url/',
                 'png',
                 new LayerTimeConfig()
@@ -27,8 +27,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 'test.timed.wmts.layer',
                 0.8,
                 true,
-                'attribution.test.timed.wmts.layer',
-                null,
+                [new LayerAttribution('attribution.test.timed.wmts.layer')],
                 'png',
                 new LayerTimeConfig('123', ['123', '456', '789'])
             ),
@@ -160,7 +159,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmsLayer).to.be.instanceof(ExternalWMSLayer)
                 expect(externalWmsLayer.opacity).to.eq(0.45)
                 expect(externalWmsLayer.wmsVersion).to.eq(wmsVersion)
-                expect(externalWmsLayer.geoAdminID).to.eq(wmsLayerId)
+                expect(externalWmsLayer.externalLayerId).to.eq(wmsLayerId)
                 expect(externalWmsLayer.name).to.eq(wmsLayerName)
                 expect(externalWmsLayer.baseURL).to.eq(wmsBaseUrl)
                 // see ID format in adr/2021_03_16_url_param_structure.md
@@ -187,7 +186,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmtsLayer.opacity).to.eq(0.77)
                 expect(externalWmtsLayer.visible).to.be.false
                 expect(externalWmtsLayer.externalLayerId).to.eq(wmtsLayerId)
-                expect(externalWmtsLayer.getCapabilitiesUrl).to.eq(wmtsGetCapabilitesUrl)
+                expect(externalWmtsLayer.baseURL).to.eq(wmtsGetCapabilitesUrl)
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // as there was no definition of the layer name in the URL with the old external layer URL structure, we end up with the layer ID as name too
                 expect(externalWmtsLayer.getID()).to.eq(

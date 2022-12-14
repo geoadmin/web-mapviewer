@@ -1,25 +1,25 @@
 <template>
     <div class="map-footer-attribution" data-cy="layers-copyrights">
         <span v-if="sources.length > 0">{{ $t('copyright_data') }}</span>
-        <template v-for="(source, index) in sources" :key="source.attributionName">
+        <template v-for="(source, index) in sources" :key="source.name">
             <a
-                v-if="source.attributionUrl"
-                :href="source.attributionUrl"
+                v-if="source.url"
+                :href="source.url"
                 target="_blank"
                 class="map-footer-attribution-source"
                 :class="{ 'external-source': source.isExternal }"
-                :data-cy="`layer-copyright-${source.attributionName}`"
+                :data-cy="`layer-copyright-${source.name}`"
             >
-                {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
+                {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </a>
             <span
                 v-else
                 class="map-footer-attribution-source"
                 :class="{ 'external-source': source.isExternal }"
-                :data-cy="`layer-copyright-${source.attributionName}`"
+                :data-cy="`layer-copyright-${source.name}`"
                 @mouseover="setDisclaimerArrowPosition"
             >
-                {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
+                {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </span>
         </template>
         <teleport to="#main-component">
@@ -44,20 +44,16 @@ export default {
             return (
                 this.layers
                     // Discard layers without attribution. (eg. drawing layer)
-                    .filter((layer) => layer.attributionName)
+                    .filter((layer) => layer.attributions.length > 0)
                     // Only keeping one attribution of the same data owner.
-                    .filter((layer, index, array) => {
+                    .map((layer) => layer.attributions)
+                    .flat()
+                    .filter((attribution, index, array) => {
                         const firstIndex = array.findIndex(
-                            (item) => item.attributionName === layer.attributionName
+                            (item) => item.name === attribution.name
                         )
                         return index === firstIndex
                     })
-                    // Drop everything but the name and URL.
-                    .map((layer) => ({
-                        attributionName: layer.attributionName,
-                        attributionUrl: layer.attributionUrl,
-                        isExternal: !!layer.isExternal,
-                    }))
             )
         },
     },

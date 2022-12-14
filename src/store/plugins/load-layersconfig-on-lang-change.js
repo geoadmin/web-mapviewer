@@ -1,3 +1,4 @@
+import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
@@ -34,30 +35,35 @@ async function loadLayersConfig(lang) {
 
 const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
     try {
+        const openStreetMapAndMapTilersAttributions = [
+            new LayerAttribution('MapTiler', 'https://www.maptiler.com/copyright/'),
+            new LayerAttribution(
+                'OpenStreetMap contributors',
+                'https://www.openstreetmap.org/copyright'
+            ),
+        ]
         // adding vector tile backend through a hardcoded entry (for now)
         // this should be removed as soon as the backend delivers a proper configuration
         // for our vector tile background layer
-        const bgVectorLayer = new GeoAdminVectorLayer(
+        const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
             VECTOR_TILES_STYLE_ID,
-            1.0,
-            true,
-            VECTOR_TILES_STYLE_URL,
-            'swisstopo',
-            'https://www.swisstopo.admin.ch/en/home.html',
-            true,
+            openStreetMapAndMapTilersAttributions,
             // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
             'swissmaptiles'
         )
-        const layersConfig = [bgVectorLayer, ...(await loadLayersConfig(store.state.i18n.lang))]
-        store.dispatch('setLayerConfig', layersConfig)
+        const layersConfig = [
+            lightBaseMapBackgroundLayer,
+            ...(await loadLayersConfig(store.state.i18n.lang)),
+        ]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
         // as we want the vector tile background as default, we edit on the fly
         // the default topic ECH to have the vector layer as its default background
         const topicEch = topicsConfig.find((topic) => topic.id === 'ech')
         if (topicEch) {
-            topicEch.backgroundLayers.push(bgVectorLayer)
-            topicEch.defaultBackgroundLayer = bgVectorLayer
+            topicEch.backgroundLayers.push(lightBaseMapBackgroundLayer)
+            topicEch.defaultBackgroundLayer = lightBaseMapBackgroundLayer
         }
+        store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
         if (store.state.topics.current) {
             const tree = await loadTopicTreeForTopic(
@@ -66,6 +72,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
             )
             store.dispatch('setTopicTree', tree)
         } else {
+            // if no topic was set in the URL, we load the default topic ECH
             store.dispatch(
                 'changeTopic',
                 topicsConfig.find((topic) => topic.id === 'ech')

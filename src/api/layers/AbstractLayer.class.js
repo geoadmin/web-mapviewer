@@ -2,8 +2,8 @@ import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /**
  * Base class for layers' config description, must be extended to a more specific flavor of Layer
- * (e.g. {@link WMTSLayer}, {@link WMSLayer}, {@link GeoJsonLayer}, {@link AggregateLayer} or
- * {@link KMLLayer})
+ * (e.g. {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer}, {@link GeoAdminGeoJsonLayer},
+ * {@link GeoAdminAggregateLayer} or {@link KMLLayer})
  *
  * @abstract
  */
@@ -14,14 +14,27 @@ export default class AbstractLayer {
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
      * @param {boolean} visible If the layer should be visible on the map or hidden
+     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
+     * @param {Boolean} isExternal Define if this layer comes from our backend, or is from another
+     *   (external) source
      */
-    constructor(name = '', type = null, opacity = 1.0, visible = false, hasTooltip = false) {
+    constructor(
+        name = '',
+        type = null,
+        opacity = 1.0,
+        visible = false,
+        attributions = [],
+        hasTooltip = false,
+        isExternal = false
+    ) {
         this.name = name
         this.type = type
         this.opacity = opacity
         this.visible = visible
+        this.attributions = attributions
         this.hasTooltip = hasTooltip
+        this.isExternal = isExternal
         // default projection used, as we want to achieve worldwide coverage, is web mercator metric
         this.projection = CoordinateSystems.WEBMERCATOR.epsg
     }

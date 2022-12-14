@@ -147,7 +147,7 @@ describe('Test of layer handling', () => {
                     const [externalWmsLayer] = layers
                     expect(externalWmsLayer.wmsVersion).to.eq(fakeWmsLayerVersion)
                     expect(externalWmsLayer.name).to.eq(fakeLayerName)
-                    expect(externalWmsLayer.geoAdminID).to.eq(fakeLayerId)
+                    expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
                     expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
                     expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
                 })
@@ -178,7 +178,8 @@ describe('Test of layer handling', () => {
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
                     expect(externalWmtsLayer.name).to.eq(fakeLayerName)
-                    expect(externalWmtsLayer.getCapabilitiesUrl).to.eq(fakeGetCapUrl)
+                    expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
+                    expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
                 })
             })
         })

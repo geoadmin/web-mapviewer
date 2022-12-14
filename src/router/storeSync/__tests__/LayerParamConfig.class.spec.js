@@ -36,7 +36,7 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         expect(result).to.be.an.instanceof(ExternalWMSLayer)
         expect(result.baseURL).to.eq(wmsBaseUrl)
         expect(result.wmsVersion).to.eq(wmsVersion)
-        expect(result.geoAdminID).to.eq(wmsLayerId)
+        expect(result.externalLayerId).to.eq(wmsLayerId)
         expect(result.name).to.eq(wmsLayerName)
     })
     it('parses an external WMTS layer correctly', () => {
@@ -50,7 +50,7 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         )
         const result = transformParsedExternalLayerIntoObject(parsedLayer)
         expect(result).to.be.an.instanceof(ExternalWMTSLayer)
-        expect(result.getCapabilitiesUrl).to.eq(wmtsGetCapUrl)
+        expect(result.baseURL).to.eq(wmtsGetCapUrl)
         expect(result.externalLayerId).to.eq(wmtsLayerId)
         expect(result.name).to.eq(wmtsLayerName)
     })

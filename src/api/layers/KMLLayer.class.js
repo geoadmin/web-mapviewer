@@ -16,6 +16,8 @@ export default class KMLLayer extends AbstractLayer {
      *   (or equivalent in the current UI lang) will be defined
      * @param {object | null} metadata Metadata of the KML drawing. This object contains all the
      *   metadata returned by the backend.
+     * @param {boolean} isExternal Flag telling if this KML comes from our backend (false) or is
+     *   loaded from a different source (true)
      */
     constructor(
         opacity,
@@ -24,9 +26,18 @@ export default class KMLLayer extends AbstractLayer {
         fileId = null,
         adminId = null,
         name = null,
-        metadata = null
+        metadata = null,
+        isExternal = false
     ) {
-        super(name ?? i18n.global.t('draw_layer_label'), LayerTypes.KML, opacity, visible)
+        super(
+            name ?? i18n.global.t('draw_layer_label'),
+            LayerTypes.KML,
+            opacity,
+            visible,
+            [], // no attributions set for KML layer (for now)
+            false,
+            isExternal
+        )
         this.kmlFileUrl = decodeURIComponent(kmlFileUrl)
         this.adminId = adminId
         if (fileId) {

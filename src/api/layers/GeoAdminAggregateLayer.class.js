@@ -8,8 +8,8 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 export class AggregateSubLayer {
     /**
      * @param {String} subLayerId The ID used in the GeoAdmin's backend to describe this sub-layer
-     * @param {Layer} layer The sub-layer config (can be a {@link GeoJsonLayer}, a {@link WMTSLayer}
-     *   or a {@link WMTSLayer})
+     * @param {Layer} layer The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a
+     *   {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer})
      * @param {Number} minResolution In meter/px, at which resolution this sub-layer should start to
      *   be visible
      * @param {Number} maxResolution In meter/px, from which resolution the layer should be hidden
@@ -38,9 +38,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
      * @param {String} id The unique ID of this layer in GeoAdmin's backends
      * @param {Number} opacity The opacity to be applied to this layer
      * @param {boolean} visible If the layer should be shown on the map
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
-     *   in the UI)
-     * @param {String} attributionUrl Link to the data owner website (if there is one)
+     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {LayerTimeConfig} timeConfig Time series config (if available)
      * @param {Boolean} isHighlightable Tells if this layer possess features that should be
      *   highlighted on the map after a click (and if the backend will provide valuable information
@@ -54,8 +52,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
         id,
         opacity,
         visible,
-        attributionName,
-        attributionUrl,
+        attributions,
         timeConfig,
         isHighlightable = false,
         hasTooltip = false,
@@ -67,8 +64,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             id,
             opacity,
             visible,
-            attributionName,
-            attributionUrl,
+            attributions,
             false,
             null,
             isHighlightable,
