@@ -8,12 +8,15 @@
     >
         <div
             class="menu-section-header"
+            :class="{
+                disabled: disabled,
+            }"
             data-cy="menu-section-header"
             data-toggle="collapse"
             @click="toggleShowBody"
         >
             <span class="menu-section-title">
-                <button class="btn menu-section-title-icon" type="button">
+                <button class="btn menu-section-title-icon" type="button" :disabled="disabled">
                     <font-awesome-icon :icon="['fas', titleCaretIcon]" />
                 </button>
                 <span class="menu-section-title-text">{{ title }}</span>
@@ -65,6 +68,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     expose: ['close'],
     emits: ['openMenuSection', 'click:header'],
@@ -88,6 +95,10 @@ export default {
     },
     methods: {
         toggleShowBody() {
+            if (this.disabled) {
+                return
+            }
+
             if (!this.alwaysKeepClosed) {
                 this.showBody = !this.showBody
             }
@@ -126,6 +137,10 @@ $section-border: 1px;
         border-bottom: $section-border solid $gray-400;
         background-color: $white;
     }
+
+    &.disabled {
+        cursor: not-allowed;
+    }
 }
 .menu-section-title {
     flex-grow: 1;
@@ -144,6 +159,12 @@ $section-border: 1px;
         .menu-section-open & {
             font-weight: bold;
         }
+    }
+}
+
+.menu-section-title-icon {
+    &:disabled {
+        border-color: transparent;
     }
 }
 .menu-section-body {

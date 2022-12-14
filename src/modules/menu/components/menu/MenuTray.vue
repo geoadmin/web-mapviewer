@@ -23,7 +23,7 @@
             :always-keep-closed="true"
             secondary
             data-cy="menu-tray-drawing-section"
-            @click="toggleDrawingOverlay"
+            @click:header="toggleDrawingOverlay"
         />
         <MenuTopicSection
             id="topicsSection"
