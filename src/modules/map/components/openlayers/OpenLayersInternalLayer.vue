@@ -26,7 +26,7 @@
         <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.geoAdminID"
+            :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL(LV95.epsgNumber)"
             :wms-version="layerConfig.wmsVersion"
