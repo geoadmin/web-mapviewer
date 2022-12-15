@@ -8,7 +8,87 @@ const olSelector = '.ol-viewport'
 const markerLatitude = 46.883715999352546
 const markerLongitude = 7.656108679791837
 
-describe('Drawing saving KML', () => {
+describe('Drawing KML', () => {
+    it("Don't save new empty drawing", () => {
+        const addFileAPIFixtureAndIntercept = () => {
+            cy.intercept('**/api/kml/admin**', (req) => {
+                expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
+            }).as('post-put-kml')
+        }
+        cy.goToDrawing({ fixturesAndIntercepts: { addFileAPIFixtureAndIntercept } })
+        cy.readStoreValue('state.drawing').then((drawing) => {
+            expect(drawing.drawingKmlIds).to.be.null
+        })
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.readStoreValue('state.drawing').then((drawing) => {
+            expect(drawing.drawingKmlIds).to.be.null
+        })
+    })
+    it("Don't save non modified drawing", () => {
+        const addFileAPIFixtureAndIntercept = () => {
+            cy.intercept('**/api/kml/admin**', (req) => {
+                expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
+            }).as('post-put-kml')
+        }
+        const kmlFileId = 'test-fileID12345678900'
+        const kmlUrlParam = `KML|https://public.geo.admin.ch/api/kml/files/${kmlFileId}|Dessin`
+        cy.intercept(`**/api/kml/files/${kmlFileId}`, {
+            fixture: 'service-kml/lonelyMarker.kml',
+        }).as('initialKmlFile')
+        //open drawing mode
+        cy.goToDrawing({
+            lang: 'fr',
+            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
+            withHash: true,
+            fixturesAndIntercepts: { addFileAPIFixtureAndIntercept },
+        })
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+    })
+
+    it('Save existing kml when it has been emptied', () => {
+        const kmlFileId = 'test-fileID12345678900'
+        const kmlFileAdminId = 'test-fileAdminID12345678900'
+        const addFileAPIFixtureAndIntercept = () => {
+            cy.intercept('**/api/kml/admin', (req) => {
+                expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
+            }).as('post-kml')
+            cy.intercept(
+                { method: 'PUT', url: '**/api/kml/admin/**' },
+                {
+                    statusCode: 200,
+                    body: {
+                        admin_id: kmlFileAdminId,
+                        author: 'web-mapviewer',
+                        author_version: '0.0.0',
+                        id: kmlFileId,
+                    },
+                }
+            ).as('put-kml')
+        }
+        const kmlUrlParam = `KML|https://public.geo.admin.ch/api/kml/files/${kmlFileId}|Dessin@adminId=${kmlFileAdminId}`
+        cy.intercept(`**/api/kml/files/${kmlFileId}`, {
+            fixture: 'service-kml/lonelyMarker.kml',
+        }).as('initialKmlFile')
+        //open drawing mode
+        cy.goToDrawing({
+            lang: 'fr',
+            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
+            withHash: true,
+            fixturesAndIntercepts: { addFileAPIFixtureAndIntercept },
+        })
+        // delete the drawing
+        cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+        cy.get('[data-cy="drawing-toolbox-delete-confirmation-modal"]')
+            .get('[data-cy="modal-confirm-button"]')
+            .click()
+        cy.wait('@put-kml')
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+    })
+})
+
+describe('Drawing save KML', () => {
     beforeEach(() => {
         cy.goToDrawing()
     })
@@ -85,12 +165,15 @@ describe('Drawing loading KML', () => {
             .should('have.length', 1)
         //click on the delete button
         cy.get('[data-cy="drawing-style-delete-button"]').click()
+        cy.wait('@post-kml').then((interception) => cy.checkKMLRequest(interception, [], true))
         //check that the text was correctly deleted
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 0)
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .should('have.length', 0)
+        //check that the files api was triggered
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
     })
 })
 
