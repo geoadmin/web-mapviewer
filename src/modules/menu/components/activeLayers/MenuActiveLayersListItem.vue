@@ -1,5 +1,5 @@
 <template>
-    <div class="menu-layer-item" :class="{ compact: compact }">
+    <div ref="menuLayerItem" class="menu-layer-item" :class="{ compact: compact }">
         <div class="menu-layer-item-title">
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'times-circle']"
@@ -19,15 +19,16 @@
                 class="menu-layer-item-name"
                 :data-cy="`visible-layer-name-${id}`"
                 @click="onToggleLayerVisibility"
-                >{{ name }}</span
+                >{{ layer.name }}</span
             >
             <MenuActiveLayersListItemTimeSelector
-                v-if="timeConfig"
+                v-if="layer.timeConfig"
                 :data-cy="`time-selector-${id}`"
-                :time-config="timeConfig"
+                :time-config="layer.timeConfig"
                 :compact="compact"
                 @timestamp-change="onTimestampChange"
             />
+            <FontAwesomeIcon class="text-danger mx-2" icon="user" @click="showExternalSourceDisclaimer" />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
                 class="menu-layer-item-details-toggle"
@@ -53,7 +54,7 @@
                 min="0.0"
                 max="1.0"
                 step="0.01"
-                :value="opacity"
+                :value="layer.opacity"
                 :data-cy="`slider-opacity-layer-${id}`"
                 @change="onOpacityChange"
             />
@@ -85,9 +86,10 @@
 </template>
 
 <script>
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import tippy, {followCursor} from 'tippy.js'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -96,25 +98,9 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 export default {
     components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector },
     props: {
-        id: {
-            type: String,
+        layer: {
+            type: AbstractLayer,
             required: true,
-        },
-        visible: {
-            type: Boolean,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 1.0,
-        },
-        timeConfig: {
-            type: LayerTimeConfig,
-            default: null,
         },
         showDetails: {
             type: Boolean,
@@ -148,8 +134,11 @@ export default {
         }
     },
     computed: {
+        id() {
+            return this.layer?.getID()
+        },
         checkboxIcon() {
-            if (this.visible) {
+            if (this.layer.visible) {
                 return 'check-square'
             }
             return 'square'
@@ -163,6 +152,30 @@ export default {
             }
             return transformation
         },
+    },
+    mounted() {
+        if (this.layer.isExternal) {
+            this.externalDisclaimerPopup = tippy(this.$refs.menuLayerItem, {
+                content: this.$i18n.t('external_data_tooltip'),
+                arrow: true,
+                placement: this.compact ? 'right' : 'bottom',
+                plugins: this.compact ? [] : [followCursor],
+                followCursor: 'initial',
+                theme: 'danger',
+                offset: this.compact ? [0, 0] : [0, 20],
+                onShow(instance) {
+                    // for mobile (non-compact) we hide the tooltip after 5sec
+                    if (!this.compact) {
+                        setTimeout(() => {
+                            instance.hide()
+                        }, 5000)
+                    }
+                },
+            })
+        }
+    },
+    beforeUnmount() {
+        this.externalDisclaimerPopup?.destroy()
     },
     methods: {
         onToggleLayerDetails() {
@@ -187,6 +200,9 @@ export default {
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
+        showExternalSourceDisclaimer() {
+            this.externalDisclaimerPopup?.show()
+        }
     },
 }
 </script>

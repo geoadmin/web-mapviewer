@@ -7,12 +7,8 @@
         >
             <MenuActiveLayersListItem
                 v-for="layer in activeLayers"
-                :id="layer.getID()"
                 :key="layer.getID()"
-                :visible="layer.visible"
-                :opacity="layer.opacity"
-                :name="layer.name"
-                :time-config="layer.timeConfig"
+                :layer="layer"
                 :show-details="showLayerDetailsForId === layer.getID()"
                 :is-first-layer="isFirstLayer(layer.getID())"
                 :is-last-layer="isLastLayer(layer.getID())"

@@ -44,6 +44,7 @@ import {
     faT,
     faTimes,
     faTimesCircle,
+    faUser,
     faWindowMinimize,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -84,6 +85,7 @@ library.add(
     faT,
     faTimes,
     faTimesCircle,
+    faUser,
     faWindowMinimize,
     // Regular
     faCheckSquare,
