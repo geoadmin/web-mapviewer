@@ -148,7 +148,7 @@ export default {
             return null
         },
         isNewDrawing() {
-            return !!this.kmlIds
+            return !this.kmlIds
         },
         isDrawingModified() {
             return this.savingStatus !== SavingStatus.INITIAL
