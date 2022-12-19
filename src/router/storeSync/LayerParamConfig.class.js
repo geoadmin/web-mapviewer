@@ -1,6 +1,7 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
+import { getKmlMetadata } from '@/api/files.api'
 import log from '@/utils/logging'
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
@@ -85,7 +86,18 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                     null,
                     layer.customAttributes.adminId
                 )
-                promisesForAllDispatch.push(store.dispatch('addLayer', kmlLayer))
+
+                promisesForAllDispatch.push(
+                    getKmlMetadata(kmlLayer.fileId, kmlLayer.adminId)
+                        .then((metadata) => {
+                            kmlLayer.metadata = metadata
+                            return store.dispatch('addLayer', kmlLayer)
+                        })
+                        .catch((error) => {
+                            log.error(`Failed to get KML metadata for ${splittedLayerId[1]}`, error)
+                            return store.dispatch('addLayer', kmlLayer)
+                        })
+                )
             } else {
                 // if internal (or BOD) layer, we add it through its config we have stored previously
                 promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))

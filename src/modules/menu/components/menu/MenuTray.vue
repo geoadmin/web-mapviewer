@@ -22,6 +22,7 @@
             :title="$t('draw_panel_title')"
             :always-keep-closed="true"
             secondary
+            :disabled="disableDrawing"
             data-cy="menu-tray-drawing-section"
             @click:header="toggleDrawingOverlay"
         />
@@ -51,6 +52,8 @@ import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import { mapActions, mapState } from 'vuex'
+import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -77,9 +80,23 @@ export default {
     computed: {
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
+            activeKmlLayer: (state) => state.drawing.activeKmlLayer,
+            hostname: (state) => state.ui.hostname,
         }),
         showLayerList() {
             return this.activeLayers.length > 0
+        },
+        disableDrawing() {
+            if (
+                DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
+                    (hostname) => hostname === this.hostname
+                )
+            ) {
+                if (this.activeKmlLayer && this.activeKmlLayer.isLegacy()) {
+                    return true
+                }
+            }
+            return false
         },
     },
     methods: {
