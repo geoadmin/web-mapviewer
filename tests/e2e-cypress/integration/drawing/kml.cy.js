@@ -16,14 +16,8 @@ describe('Drawing KML', () => {
             }).as('post-put-kml')
         }
         cy.goToDrawing({ fixturesAndIntercepts: { addFileAPIFixtureAndIntercept } })
-        cy.readStoreValue('state.drawing').then((drawing) => {
-            expect(drawing.drawingKmlIds).to.be.null
-        })
         cy.clickDrawingTool(EditableFeatureTypes.MARKER)
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-        cy.readStoreValue('state.drawing').then((drawing) => {
-            expect(drawing.drawingKmlIds).to.be.null
-        })
     })
     it("Don't save non modified drawing", () => {
         const addFileAPIFixtureAndIntercept = () => {
@@ -47,49 +41,43 @@ describe('Drawing KML', () => {
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
     })
 
-    // TODO re-enable this test with BGDIINF_SB-2729. Apparently it works when done manually but
-    // with the cypress the `kmlIds` on the drawing module is null due to the complex event logic
-    // to set them which trigger a new kml instead of an update. In BGDIINF_SB-2729 the idea is
-    // to simplify the whole kmlIds management which should fix this issue.
-    // it('Save existing kml when it has been emptied', () => {
-    //     const kmlFileId = 'test-fileID12345678900'
-    //     const kmlFileAdminId = 'test-fileAdminID12345678900'
-    //     const addFileAPIFixtureAndIntercept = () => {
-    //         cy.intercept('**/api/kml/admin', (req) => {
-    //             expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
-    //         }).as('post-kml')
-    //         cy.intercept(
-    //             { method: 'PUT', url: '**/api/kml/admin/**' },
-    //             {
-    //                 statusCode: 200,
-    //                 body: {
-    //                     admin_id: kmlFileAdminId,
-    //                     author: 'web-mapviewer',
-    //                     author_version: '0.0.0',
-    //                     id: kmlFileId,
-    //                 },
-    //             }
-    //         ).as('put-kml')
-    //     }
-    //     const kmlUrlParam = `KML|https://public.geo.admin.ch/api/kml/files/${kmlFileId}|Dessin@adminId=${kmlFileAdminId}`
-    //     cy.intercept(`**/api/kml/files/${kmlFileId}`, {
-    //         fixture: 'service-kml/lonelyMarker.kml',
-    //     }).as('initialKmlFile')
-    //     //open drawing mode
-    //     cy.goToDrawing({
-    //         lang: 'fr',
-    //         otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-    //         withHash: true,
-    //         fixturesAndIntercepts: { addFileAPIFixtureAndIntercept },
-    //     })
-    //     // delete the drawing
-    //     cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
-    //     cy.get('[data-cy="drawing-toolbox-delete-confirmation-modal"]')
-    //         .get('[data-cy="modal-confirm-button"]')
-    //         .click()
-    //     cy.wait('@put-kml')
-    //     cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-    // })
+    it('Save existing kml when it has been emptied', () => {
+        const kmlFileId = 'test-fileID12345678900'
+        const kmlFileAdminId = 'test-fileAdminID12345678900'
+        const addFileAPIFixtureAndIntercept = () => {
+            cy.intercept('**/api/kml/admin', (req) => {
+                expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
+            }).as('post-kml')
+            cy.intercept(
+                { method: 'PUT', url: '**/api/kml/admin/**' },
+                {
+                    statusCode: 200,
+                    body: {
+                        admin_id: kmlFileAdminId,
+                        author: 'web-mapviewer',
+                        author_version: '0.0.0',
+                        id: kmlFileId,
+                    },
+                }
+            ).as('put-kml')
+        }
+        const kmlUrlParam = `KML|https://public.geo.admin.ch/api/kml/files/${kmlFileId}|Dessin@adminId=${kmlFileAdminId}`
+        cy.intercept(`**/api/kml/files/${kmlFileId}`, {
+            fixture: 'service-kml/lonelyMarker.kml',
+        }).as('initialKmlFile')
+        //open drawing mode
+        cy.goToDrawing({
+            lang: 'fr',
+            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
+            withHash: true,
+            fixturesAndIntercepts: { addFileAPIFixtureAndIntercept },
+        })
+        // delete the drawing
+        cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+        cy.get('[data-cy="modal-confirm-button"]').click()
+        cy.wait('@put-kml')
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+    })
 })
 
 describe('Drawing save KML', () => {
@@ -103,10 +91,6 @@ describe('Drawing save KML', () => {
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(interception, [EditableFeatureTypes.MARKER], true)
         )
-        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
-            expect(ids.adminId).to.eq('1234_adminId')
-            expect(ids.fileId).to.eq('1234_fileId')
-        })
     })
     it('update the previously saved KML if anything is added to the drawing', () => {
         // drawing a marker and waiting for the KML to be posted (created)
@@ -133,11 +117,6 @@ describe('Drawing save KML', () => {
                 EditableFeatureTypes.LINEPOLYGON,
             ])
         )
-        // verifying that we still have the same KML file/admin ID from the backend
-        cy.readStoreValue('state.drawing.drawingKmlIds').then((ids) => {
-            expect(ids.adminId).to.eq('1234_adminId')
-            expect(ids.fileId).to.eq('1234_fileId')
-        })
     })
 })
 

@@ -1,7 +1,7 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
-
+import log from '@/utils/logging'
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
  * layer and its state (visibility, opacity, etc...)
@@ -32,8 +32,10 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
 function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     const parsedLayers = layersParamParser(urlParamValue)
     const promisesForAllDispatch = []
+    log.debug(`Dispatch Layers from URL into store: ${urlParamValue}`, store, parsedLayers)
     // going through layers that are already present to set opacity / visibility
     store.state.layers.activeLayers.forEach((activeLayer) => {
+        log.debug(`  Active Layer ${activeLayer.getID()}`)
         const matchingLayerMetadata = parsedLayers.find((layer) => layer.id === activeLayer.getID())
         if (matchingLayerMetadata) {
             if (matchingLayerMetadata.opacity) {
@@ -64,6 +66,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             }
         } else {
             // this layer has to be removed (not present in the URL anymore)
+            log.debug(`Layer ${activeLayer.getID()} has been removed from URL`)
             promisesForAllDispatch.push(store.dispatch('removeLayer', activeLayer.getID()))
         }
     })
@@ -72,6 +75,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         if (
             !store.state.layers.activeLayers.find((activeLayer) => activeLayer.getID() === layer.id)
         ) {
+            log.debug(`  Add layer ${layer.id} if not present`)
             // checking if it is an external layer first
             if (layer.id.startsWith('KML|') && layer.id.split('|').length === 3) {
                 const splittedLayerId = layer.id.split('|')
@@ -82,13 +86,6 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                     layer.customAttributes.adminId
                 )
                 promisesForAllDispatch.push(store.dispatch('addLayer', kmlLayer))
-                // Set the kmlIds in the drawing module in order to edit it.
-                promisesForAllDispatch.push(
-                    store.dispatch('setKmlIds', {
-                        fileId: splittedLayerId[1].split('/').pop(),
-                        adminId: layer.customAttributes.adminId,
-                    })
-                )
             } else {
                 // if internal (or BOD) layer, we add it through its config we have stored previously
                 promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))

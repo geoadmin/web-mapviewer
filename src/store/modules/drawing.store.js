@@ -1,17 +1,10 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { getKmlUrl } from '@/api/files.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 
 /**
  * @typedef SelectedFeatureData
  * @property {[number, number]} coordinate
  * @property {string} featureId
- */
-
-/**
- * @typedef DrawingKmlIds
- * @property {string} adminId
- * @property {string} fileId
  */
 
 export default {
@@ -22,12 +15,6 @@ export default {
          * @type {String | null}
          */
         mode: null,
-        /**
-         * Ids of stored KML file. Format is: {adminId, fileId}
-         *
-         * @type {DrawingKmlIds | null}
-         */
-        drawingKmlIds: null,
         /**
          * List of all available icon sets for drawing (loaded from the backend service-icons)
          *
@@ -45,12 +32,6 @@ export default {
         featureIds: [],
     },
     getters: {
-        getDrawingPublicFileUrl(state) {
-            if (state.drawingKmlIds) {
-                return getKmlUrl(state.drawingKmlIds.fileId)
-            }
-            return null
-        },
         isCurrentlyDrawing(state) {
             return state.mode !== null
         },
@@ -60,9 +41,6 @@ export default {
             if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', mode)
             }
-        },
-        setKmlIds({ commit }, drawingKmlIds) {
-            commit('setKmlIds', drawingKmlIds)
         },
         async loadAvailableIconSets({ commit }) {
             const iconSets = await loadAllIconSetsFromBackend()
@@ -86,7 +64,6 @@ export default {
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
-        setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
         setIconSets: (state, iconSets) => (state.iconSets = iconSets),
         addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, featureId) =>
