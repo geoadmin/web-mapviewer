@@ -4,7 +4,7 @@
             v-if="show"
             :current-drawing-mode="currentDrawingMode"
             :is-drawing-empty="isDrawingEmpty"
-            :kml-ids="kmlIds"
+            :kml-metadata="kmlMetadata"
             :saving-status="savingStatus"
             @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
@@ -54,7 +54,7 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { createKml, getKml, updateKml, getKmlUrl } from '@/api/files.api'
+import { createKml, getKml, updateKml, getKmlUrl, getKmlMetadata } from '@/api/files.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
@@ -72,7 +72,7 @@ import log from '@/utils/logging'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { SavingStatus } from './lib/export-utils'
 
 export default {
@@ -103,7 +103,7 @@ export default {
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
             savingStatus: SavingStatus.INITIAL,
-            kmlIds: null,
+            kmlMetadata: null,
             isNewDrawing: true,
         }
     },
@@ -170,7 +170,7 @@ export default {
                 if (show) {
                     this.savingStatus = SavingStatus.INITIAL
                     this.isNewDrawing = true
-                    this.kmlIds = null
+                    this.kmlMetadata = null
 
                     // if a KML was previously created with the drawing module
                     // we add it back for further editing
@@ -178,7 +178,7 @@ export default {
                         // always edit the last visible kml layer
                         const layer = this.visibleKmlLayers[this.visibleKmlLayers.length - 1]
                         this.isNewDrawing = layer.adminId ? false : true
-                        this.kmlIds = { adminId: layer.adminId, fileId: layer.fileId }
+                        this.kmlMetadata = await getKmlMetadata(layer.fileId, layer.adminId)
                         await this.addKmlLayerToDrawing(layer)
                     }
                     this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
@@ -199,13 +199,13 @@ export default {
 
                     // Only add existing/saved kml to the layer menu. If someone cleared an
                     // existing kml, we want to allow him to re-edit it.
-                    if (this.kmlIds) {
+                    if (this.kmlMetadata) {
                         this.addLayer(
                             new KMLLayer(
                                 1.0,
-                                getKmlUrl(this.kmlIds.fileId),
-                                this.kmlIds.fileId,
-                                this.kmlIds.adminId
+                                getKmlUrl(this.kmlMetadata.id),
+                                this.kmlMetadata.id,
+                                this.kmlMetadata.adminId
                             )
                         )
                     }
@@ -379,15 +379,13 @@ export default {
         },
         async saveDrawing(kml) {
             let metadata
-            if (!this.kmlIds || !this.kmlIds.adminId) {
+            if (!this.kmlMetadata || !this.kmlMetadata.adminId) {
                 // if we don't have an adminId then create a new KML File
                 metadata = await createKml(kml)
-                if (metadata) {
-                    this.kmlIds = { adminId: metadata.adminId, fileId: metadata.id }
-                }
             } else {
-                metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
+                metadata = await updateKml(this.kmlMetadata.id, this.kmlMetadata.adminId, kml)
             }
+            this.kmlMetadata = metadata
         },
         clearDrawing: function () {
             this.willModify()
