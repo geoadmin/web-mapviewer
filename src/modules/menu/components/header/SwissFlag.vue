@@ -1,7 +1,7 @@
 <template>
     <img
         class="swiss-flag"
-        :class="{ 'dev-site': devSiteWarning }"
+        :class="{ 'dev-site': hasDevSiteWarning }"
         :src="swissFlagIcon"
         alt="swiss-flag"
         @click="$emit('click', $event)"
@@ -10,16 +10,21 @@
 
 <script>
 import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
-import { DEV_SITE_WARNING } from '@/config'
+import { mapGetters } from 'vuex'
 
 export default {
     emits: ['click'],
     data() {
         return {
             swissFlagIcon,
-            devSiteWarning: DEV_SITE_WARNING,
+
         }
     },
+    computed: {
+      ...mapGetters([
+        'hasDevSiteWarning',
+      ]),
+    }
 }
 </script>
 

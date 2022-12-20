@@ -5,15 +5,17 @@
             <slot />
             <LocationPopup />
         </OpenLayersMap>
+        <WarningRibbon />
     </div>
 </template>
 
 <script>
 import LocationPopup from './components/LocationPopup.vue'
 import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
+import WarningRibbon from './components/WarningRibbon.vue'
 
 export default {
-    components: { OpenLayersMap, LocationPopup },
+    components: { OpenLayersMap, LocationPopup, WarningRibbon },
 }
 </script>
 
