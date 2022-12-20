@@ -125,7 +125,7 @@ export default {
          * Generate an icon URL with medium size (so that the size doesn't change in the icon
          * selector, even when the user selects a different size for the icon the map)
          *
-         * @param {Icon} icon
+         * @param {DrawingIcon} icon
          * @returns {String} An icon URL
          */
         generateColorizedURL(icon) {

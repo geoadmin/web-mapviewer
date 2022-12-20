@@ -21,5 +21,6 @@ describe('Testing the footer content', () => {
             cy.get(dezoomSelector).click().click().click()
             cy.get(scaleLineSelector).should('not.be.visible')
         })
+
     })
 })

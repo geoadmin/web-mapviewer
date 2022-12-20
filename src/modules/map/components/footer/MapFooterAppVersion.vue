@@ -3,15 +3,20 @@
 </template>
 
 <script>
-import { APP_VERSION, DEV_SITE_WARNING } from '@/config'
+import { APP_VERSION } from '@/config'
+import { mapGetters } from 'vuex'
 
 export default {
     data() {
         return {
             appVersion: APP_VERSION,
-            showAppVersion: DEV_SITE_WARNING,
         }
     },
+    computed: {
+      ...mapGetters({
+        showAppVersion: 'hasDevSiteWarning'
+      }),
+    }
 }
 </script>
 

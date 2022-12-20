@@ -19,7 +19,12 @@
                     @click="onClose"
                 />
             </div>
-            <div ref="mapPopoverContent" class="card-body">
+            <div
+                id="mapPopoverContent"
+                ref="mapPopoverContent"
+                class="map-popover-content"
+                :class="{ 'card-body': useContentPadding }"
+            >
                 <slot />
             </div>
         </div>
@@ -51,6 +56,10 @@ export default {
             type: String,
             default: '',
         },
+        useContentPadding: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     watch: {
@@ -79,7 +88,7 @@ export default {
             this.$emit('close')
         },
         printContent() {
-            promptUserToPrintHtmlContent(this.$refs.mapPopoverContent.outerHTML)
+            promptUserToPrintHtmlContent('mapPopoverContent')
         },
     },
 }
@@ -89,15 +98,18 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .map-popover {
-    .card-body {
-        width: $overlay-width;
-        max-width: 100%;
+    .card {
+        max-width: $overlay-width;
+    }
+    .map-popover-content {
         max-height: 350px;
         overflow-y: auto;
+    }
+    .card-body {
         display: flex;
         flex-direction: column;
-        gap: 8px;
     }
+    // Triangle border
     &::before {
         $arrow-height: 15px;
         position: absolute;
@@ -105,9 +117,20 @@ export default {
         left: 50%;
         margin-left: -$arrow-height;
         border: $arrow-height solid transparent;
-        border-bottom-color: $light;
+        border-bottom-color: $border-color-translucent;
         pointer-events: none;
         content: '';
+    }
+    // Triangle background
+    &::after {
+        $arrow-border-height: 14px;
+        content: '';
+        border: $arrow-border-height solid transparent;
+        border-bottom-color: $light;
+        position: absolute;
+        top: -($arrow-border-height * 2);
+        left: 50%;
+        margin-left: -$arrow-border-height;
     }
 }
 @media (min-height: 600px) {

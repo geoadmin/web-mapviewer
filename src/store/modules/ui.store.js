@@ -1,4 +1,4 @@
-import { BREAKPOINT_TABLET } from '@/config'
+import { BREAKPOINT_TABLET, WARNING_RIBBON_HOSTNAMES, NO_WARNING_BANNER_HOSTNAMES } from '@/config'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
@@ -77,6 +77,13 @@ export default {
          * @type Boolean
          */
         floatingTooltip: false, // Configured in screen-size-management.plugin.js
+        /**
+         * Hostname on which the application is running (use to display warnings to the user on
+         * 'non-production' hosts)
+         *
+         * @type String
+         */
+        hostname: window.location.hostname,
     },
     getters: {
         screenDensity(state) {
@@ -133,6 +140,19 @@ export default {
         },
         isTraditionalDesktopSize(state, getters) {
             return getters.isDesktopMode && state.width >= BREAKPOINT_TABLET
+        },
+        /**
+         * Flag to display a warning ribbon ('TEST') at the top/bottom right corner
+         */
+        hasWarningRibbon(state) {
+            return WARNING_RIBBON_HOSTNAMES.some(hostname=>state.hostname.includes(hostname))
+        },
+        /**
+        * Flag that tells if users should be warned that it is a development site. Also used to hide
+        * development specific features in production (like the app version)
+        */
+        hasDevSiteWarning(state) {
+            return true //!NO_WARNING_BANNER_HOSTNAMES.some(hostname=>state.hostname.includes(hostname))
         },
     },
     actions: {

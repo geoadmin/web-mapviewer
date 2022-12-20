@@ -2,43 +2,45 @@
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
-        <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
-            <BlackBackdrop @click="onClose(false)" />
-            <div class="card">
-                <div class="card-header d-flex align-middle">
-                    <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
-                    <ButtonWithIcon
-                        v-if="allowPrint"
-                        small
-                        :button-font-awesome-icon="['fa', 'print']"
-                        data-cy="modal-print-button"
-                        @click="printModalContent"
-                    />
-                    <ButtonWithIcon
-                        :button-font-awesome-icon="['fa', 'times']"
-                        small
-                        class="float-end"
-                        data-cy="modal-close-button"
-                        @click="onClose(false)"
-                    />
-                </div>
-                <div ref="modalContent" class="card-body p-2">
-                    <slot />
-                    <div v-if="showConfirmationButtons" class="mt-1 d-flex justify-content-end">
-                        <button
-                            class="btn btn-light me-2"
-                            data-cy="modal-cancel-button"
+        <div>
+            <BlackBackdrop class="modal-view" @click="onClose(false)" />
+            <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
+                <div class="card">
+                    <div class="card-header d-flex align-middle">
+                        <span v-if="title" class="flex-grow-1 text-start mt-1">{{ title }}</span>
+                        <ButtonWithIcon
+                            v-if="allowPrint"
+                            small
+                            :button-font-awesome-icon="['fa', 'print']"
+                            data-cy="modal-print-button"
+                            @click="printModalContent"
+                        />
+                        <ButtonWithIcon
+                            :button-font-awesome-icon="['fa', 'times']"
+                            small
+                            class="float-end"
+                            data-cy="modal-close-button"
                             @click="onClose(false)"
-                        >
-                            {{ $t('cancel') }}
-                        </button>
-                        <button
-                            class="btn btn-primary"
-                            data-cy="modal-confirm-button"
-                            @click="onClose(true)"
-                        >
-                            {{ $t('success') }}
-                        </button>
+                        />
+                    </div>
+                    <div ref="modalContent" class="card-body pt-3 ps-4 pe-4">
+                        <slot />
+                        <div v-if="showConfirmationButtons" class="mt-1 d-flex justify-content-end">
+                            <button
+                                class="btn btn-light me-2"
+                                data-cy="modal-cancel-button"
+                                @click="onClose(false)"
+                            >
+                                {{ $t('cancel') }}
+                            </button>
+                            <button
+                                class="btn btn-primary"
+                                data-cy="modal-confirm-button"
+                                @click="onClose(true)"
+                            >
+                                {{ $t('success') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -92,6 +94,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/variables';
+@import 'src/scss/media-query.mixin';
 .modal-popup {
     position: fixed;
     top: 50%;
@@ -102,8 +105,14 @@ export default {
         min-width: 75vw;
     }
     z-index: $zindex-modal;
-    max-width: 90vw;
     max-height: 90vh;
+    // For phone we set the width fixed to 90% of the view.
+    width: 90vw;
+    @include respond-above(phone) {
+        // But for desktop we let the size be dinamic with max to 90% of the view
+        width: unset;
+        max-width: 90vw;
+    }
     .card {
         max-height: 90vh;
         .card-header {

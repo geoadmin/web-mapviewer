@@ -32,6 +32,7 @@
             <div class="d-flex feature-style-edit-control">
                 <PopoverButton
                     v-if="isFeatureMarker || isFeatureText"
+                    class="control-button"
                     data-cy="drawing-style-text-button"
                     with-close-button
                     popover-position="top"
@@ -52,6 +53,7 @@
 
                 <PopoverButton
                     v-if="isFeatureMarker"
+                    class="control-button"
                     data-cy="drawing-style-marker-button"
                     with-close-button
                     popover-position="top"
@@ -71,6 +73,7 @@
                     v-if="isFeatureLine"
                     data-cy="drawing-style-line-button"
                     popover-position="top"
+                    class="control-button"
                     with-close-button
                     :popover-title="$t('modify_color_label')"
                     :button-font-awesome-icon="['fas', 'paint-brush']"
@@ -83,6 +86,7 @@
                 </PopoverButton>
 
                 <ButtonWithIcon
+                    class="control-button"
                     data-cy="drawing-style-delete-button"
                     :button-font-awesome-icon="['far', 'trash-alt']"
                     @click="onDelete"
@@ -200,8 +204,7 @@ export default {
             this.changeFeatureIconSize({ feature: this.feature, iconSize })
         },
         onDelete() {
-            const id = this.feature.id.replace('drawing_feature_', '')
-            this.deleteDrawingFeature(id)
+            this.deleteDrawingFeature(this.feature.id)
         },
     },
 }
@@ -210,8 +213,7 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/variables';
 
-.feature-style-edit-control button,
-div {
+.control-button {
     margin-right: $button-spacer;
 }
 </style>

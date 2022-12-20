@@ -1,4 +1,4 @@
-import { Icon } from '@/api/icon.api'
+import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
@@ -10,15 +10,17 @@ import {
     MEDIUM,
     RED,
 } from '@/utils/featureStyleUtils'
+import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
+import Feature from 'ol/Feature'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
- * edited if the corresponding flag says so (it will then fires "change" events any time one
- * property of the instance has changed)
+ * edited if the corresponding flag says so (it will then fire "change" events any time one property
+ * of the instance has changed)
  *
  * This will then be specialized in (at least) two flavor of features, layer feature (coming from
  * our backend, with extra information attached) and drawing feature (that can be modified by the
@@ -26,7 +28,7 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
  *
  * @abstract
  */
-export class Feature extends EventEmitter {
+export class SelectableFeature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
@@ -42,9 +44,9 @@ export class Feature extends EventEmitter {
         super()
         this._id = id
         // using the setter for coordinate (see below)
-        this._coordinates = coordinates
-        this._title = title
-        this._description = description
+        this.coordinates = coordinates
+        this.title = title
+        this.description = description
         this._isEditable = !!isEditable
         this._isDragged = false
     }
@@ -95,6 +97,10 @@ export class Feature extends EventEmitter {
                 this._coordinates = newCoordinates
             }
             this.emitChangeEvent('coordinates')
+        } else if (newCoordinates === null) {
+            this._coordinates = newCoordinates
+        } else {
+            log.error(`feature.api new coordinates is not an array`, newCoordinates)
         }
     }
     get lastCoordinate() {
@@ -132,12 +138,12 @@ export const EditableFeatureTypes = {
 }
 
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
-export class EditableFeature extends Feature {
+export class EditableFeature extends SelectableFeature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] coordinates of this feature in EPSG:3857
-     *   (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry coordinates of
+     *   this feature in EPSG:3857 (metric mercator)
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
@@ -145,7 +151,7 @@ export class EditableFeature extends Feature {
      * @param {FeatureStyleColor} textColor Color for the text of this feature
      * @param {FeatureStyleSize} textSize Size of the text for this feature
      * @param {FeatureStyleColor} fillColor Color of the icon (if defined)
-     * @param {Icon} icon Icon that will be covering this feature, can be null
+     * @param {DrawingIcon} icon Icon that will be covering this feature, can be null
      * @param {FeatureStyleSize} iconSize Size of the icon (if defined) that will be covering this
      *   feature
      */
@@ -196,7 +202,7 @@ export class EditableFeature extends Feature {
     /**
      * This function returns a stripped down version of this object ready to be serialized.
      *
-     * @returns The version of the object that can be serialized
+     * @returns {Object} The version of the object that can be serialized
      */
     getStrippedObject() {
         /* Warning: Changing this method will break the compability of KML files */
@@ -217,7 +223,7 @@ export class EditableFeature extends Feature {
     /**
      * Regenerates the full version of an editable feature given a stripped version.
      *
-     * @param {stripped EditableFeature} o A stripped down version of the editable Feature
+     * @param {Object} o A stripped down version of the editable Feature
      * @returns The full version of the editable Feature
      */
     static recreateObject(o) {
@@ -230,28 +236,43 @@ export class EditableFeature extends Feature {
             FeatureStyleColor.recreateObject(o.textColor),
             FeatureStyleSize.recreateObject(o.textSize),
             FeatureStyleColor.recreateObject(o.fillColor),
-            o.icon ? Icon.recreateObject(o.icon) : null,
+            o.icon ? DrawingIcon.recreateObject(o.icon) : null,
             FeatureStyleSize.recreateObject(o.iconSize)
         )
     }
 
     /**
      * This method deserializes an editable feature that is stored in the extra properties of an
-     * openlayers feature. It then recreates a fully functional olFeature with the correct styling.
+     * openlayers feature. If there is no editable feature to deserialize (e.g. in the case of a kml
+     * that was generated with mf-geoadmin3), the editable feature is instead reconstructed with the
+     * styling information stored in the official '<style>' tag of the kml. It then recreates a
+     * fully functional olFeature with the correct styling.
      *
-     * @param {openlayersFeature} olFeature
+     * @param {Feature} olFeature An olFeature that was just deserialized with
+     * @param {DrawingIconSet[]} availableIconSets {@link ol/format/KML}.
      */
-    static deserialize(olFeature) {
-        const editableFeature = this.recreateObject(JSON.parse(olFeature.get('editableFeature')))
-        olFeature.set('editableFeature', editableFeature)
-        olFeature.setStyle(featureStyleFunction)
-        if (editableFeature.isLineOrMeasure()) {
-            /* The featureStyleFunction uses the geometries calculated in the geodesic object
-            if present. The lines connecting the vertices of the geometry will appear
-            geodesic (follow the shortest path) in this case instead of linear (be straight on
-            the screen)  */
-            olFeature.geodesic = new GeodesicGeometries(olFeature)
+    static deserialize(olFeature, availableIconSets) {
+        const serializedEditableFeature = olFeature.get('editableFeature')
+        // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
+        // will not be present, and we will have to rebuild one from the styles tags in the KML
+        let editableFeature = null
+        if (!serializedEditableFeature) {
+            editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
+        } else {
+            editableFeature = this.recreateObject(JSON.parse(serializedEditableFeature))
         }
+        if (editableFeature) {
+            olFeature.set('editableFeature', editableFeature)
+            olFeature.setStyle(featureStyleFunction)
+            if (editableFeature.isLineOrMeasure()) {
+                /* The featureStyleFunction uses the geometries calculated in the geodesic object
+                if present. The lines connecting the vertices of the geometry will appear
+                geodesic (follow the shortest path) in this case instead of linear (be straight on
+                the screen)  */
+                olFeature.geodesic = new GeodesicGeometries(olFeature)
+            }
+        }
+        return editableFeature
     }
 
     isLineOrMeasure() {
@@ -308,11 +329,11 @@ export class EditableFeature extends Feature {
         return this._textSize?.font
     }
 
-    /** @returns {Icon | null} */
+    /** @returns {DrawingIcon | null} */
     get icon() {
         return this._icon
     }
-    /** @param newIcon {Icon} */
+    /** @param newIcon {DrawingIcon} */
     set icon(newIcon) {
         this._icon = newIcon
         this.emitStylingChangeEvent('icon')
@@ -389,7 +410,7 @@ export class EditableFeature extends Feature {
  * Describe a feature from the backend, so a feature linked to a backend layer (see
  * {@link getFeature}) below
  */
-export class LayerFeature extends Feature {
+export class LayerFeature extends SelectableFeature {
     /**
      * @param {GeoAdminLayer} layer The layer in which this feature belongs
      * @param {Number | String} id The unique feature ID in the layer it is part of

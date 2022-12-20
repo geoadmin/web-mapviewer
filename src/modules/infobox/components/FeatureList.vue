@@ -93,9 +93,7 @@ export default {
     margin-bottom: 7px;
     font-weight: 700;
 }
-.htmlpopup-content table {
-    width: 100%;
-    border: 0;
-    margin: 0 7px;
+.htmlpopup-content {
+    padding: 7px;
 }
 </style>

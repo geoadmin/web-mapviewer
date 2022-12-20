@@ -11,6 +11,7 @@ import { CoordinateSystems } from '@/utils/coordinateUtils'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import { mapState } from "vuex";
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { getKmlFromUrl } from '@/api/files.api'
 
@@ -40,6 +41,11 @@ export default {
             default: -1,
         },
     },
+    computed: {
+        ...mapState({
+            availableIconSets: (state) => state.drawing.iconSets,
+        })
+    },
     watch: {
         url(newUrl) {
             this.layer.getSource().clear()
@@ -67,17 +73,16 @@ export default {
         }
     },
     methods: {
-        loadKml(url) {
-            getKmlFromUrl(url).then((kml) => {
-                const features = new KML().readFeatures(kml, {
-                    // Reproject all features to webmercator, as this is the projection used for the view
-                    featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
-                })
-                features.forEach((olFeature) => {
-                    EditableFeature.deserialize(olFeature)
-                })
-                this.layer.getSource().addFeatures(features)
+        async loadKml(url) {
+            const kml = await getKmlFromUrl(url)
+            const features = new KML().readFeatures(kml, {
+                // Reproject all features to webmercator, as this is the projection used for the view
+                featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
             })
+            features.forEach((olFeature) => {
+                EditableFeature.deserialize(olFeature, this.availableIconSets)
+            })
+            this.layer.getSource().addFeatures(features)
 
             if (IS_TESTING_WITH_CYPRESS) {
                 window.kmlLayer = this.layer

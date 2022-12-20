@@ -2,7 +2,7 @@
     <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
         <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
-            <div class="card text-center drawing-toolbox-content">
+            <div class="card text-center drawing-toolbox-content rounded-0">
                 <div class="card-body position-relative">
                     <ButtonWithIcon
                         class="drawing-toolbox-close-button"
@@ -77,17 +77,13 @@
         <ModalWithBackdrop
             v-if="showClearConfirmationModal"
             show-confirmation-buttons
+            fluid
             data-cy="drawing-toolbox-delete-confirmation-modal"
             @close="onCloseClearConfirmation"
         >
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
-        <ModalWithBackdrop
-            v-if="showShareModal"
-            :title="$t('share')"
-            data-cy="drawing-toolbox-share-modal"
-            @close="onCloseShare"
-        >
+        <ModalWithBackdrop v-if="showShareModal" fluid :title="$t('share')" @close="onCloseShare">
             <ShareForm :kml-ids="kmlIds" />
         </ModalWithBackdrop>
     </teleport>

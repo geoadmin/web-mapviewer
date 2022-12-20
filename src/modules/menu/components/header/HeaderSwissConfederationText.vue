@@ -1,7 +1,7 @@
 <template>
     <div
         class="swiss-confederation-text"
-        :class="{ 'dev-site': devSiteWarning }"
+        :class="{ 'dev-site': hasDevSiteWarning }"
         @click="$emit('click', $event)"
     >
         <div class="multi-lang-title"></div>
@@ -13,9 +13,10 @@
 </template>
 
 <script>
-import { DEV_SITE_WARNING } from '@/config'
+import { mapGetters } from 'vuex'
 
 export default {
+
     props: {
         currentLang: {
             type: String,
@@ -23,12 +24,11 @@ export default {
         },
     },
     emits: ['click'],
-    data() {
-        return {
-            devSiteWarning: DEV_SITE_WARNING,
-        }
-    },
+    computed: {
+      ...mapGetters(['hasDevSiteWarning']),
+    }
 }
+
 </script>
 
 <style lang="scss" scoped>
