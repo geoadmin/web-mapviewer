@@ -23,7 +23,7 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
   - [Tooling for translation update](#tooling-for-translation-update)
   - [List of npm scripts](#list-of-npm-scripts)
   - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
-  - [What does the deploy script do?](#what-does-the-deploy-script-do)
+- [Project deployment](#project-deployment)
 
 ## Roadmap
 
@@ -140,18 +140,18 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 ### List of npm scripts
 
 <!-- prettier-ignore -->
-| command                       | what it does                                 |
-| ----------------------------- | -------------------------------------------- |
-| `npm run start`               | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `npm run build`               | Compiles all file without bundling and minification |
-| `npm run lint`                | Lints and fixes files                        |
-| `npm run test:unit`           | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
-| `npm run test:e2e`            | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
-| `npm run test:e2e:tablet`     | Opens up the cypress app that lets you run tests with Chrome using tablet view (or Firefox, but support is still in beta) |
-| `npm run test:e2e:ci`         | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests) |
-| `npm run test:ci`             | Runs both `npm run test:unit` and `npm run test:ci`, this is a shortcut for the CI to run all tests at once |
-| `npm run deploy:#target#`     | Target can be `dev`, `int` or `prod`. Build the app and deploys it on the target S3 Bucket. You need to have an AWS profile that has writing rights on the bucket. If you need to use another profile than the default one, use `AWS_PROFILE=another_profile_name npm run deploy:#target#`. For more information on what the deploy script does, [see below](#what-does-the-deploy-script-do). |
-| `npm run update:translations` | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
+| command                          | what it does                                 |
+| ---------------------------------| -------------------------------------------- |
+| `npm run start`                  | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
+| `npm run build`                  | Compiles all file without bundling and minification |
+| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`    
+| `npm run lint`                   | Lints and fixes files                        |
+| `npm run test:unit`              | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
+| `npm run test:e2e`               | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
+| `npm run test:e2e:tablet`        | Opens up the cypress app that lets you run tests with Chrome using tablet view (or Firefox, but support is still in beta) |
+| `npm run test:e2e:ci`            | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests) |
+| `npm run test:ci`                | Runs both `npm run test:unit` and `npm run test:ci`, this is a shortcut for the CI to run all tests at once |
+| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
 All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
@@ -161,12 +161,50 @@ The CI uses this file to ensure it will not stumble upon a minor version of a li
 
 The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `package-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
 
-### What does the deploy script do?
+## Project deployement
 
-Depending on the target (`dev|int|prod`) it will build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`).
-Then it will detect on which git branch you are, and deploy in a subfolder in the bucket if you are not on either `master` or `develop` (`master` and `develop` are deployed at the root of the bucket).
+The application is deployed on three targets :  `dev|int|prod`
 
-The target bucket will be defined by the target you've specified (`npm run deploy:dev|int`).
+### Automatic deploy
 
+After every successful build, a version of `develop` and `master` are deployed
+automatically.
+
+| environment 	| hostname             	| path                  	| branch       	|
+|-------------	|----------------------	|-------------------------|--------------	|
+| PR          	| sys-map.dev.bgdi.ch  	| /preview/<branch_name> 	| <bug-*/feat-*>|
+| dev         	| sys-map.dev.bgdi.ch  	| /             	        | develop      	|
+| int         	| sys-map.int.bgdi.ch  	| /             	        | master       	|
+| prod        	| sys-map.prod.bgdi.ch 	| /             	        | master       	|
+
+
+On the `dev` and `int` targets, deployement is done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#ci-for-web-mapviewer).
+
+A [test link](https://github.com/geoadmin/web-mapviewer/blob/bug_update_doc_regarding_deploy/.github/workflows/add-testlink-to-pr.yml) is also added to the description of every PR.
+
+
+### Manual deploy
+
+A bash script [deploy.sh](https://github.com/geoadmin/infra-terraform-bgdi-builder/blob/master/projects/web_mapviewer/scripts/deploy.sh)
+is used for manual deploy, either from a local directory or a bucket from the CI.
+
+    ./scripts/deploy.sh: --staging STAGING {--version VERSION | --local-src DIR} [--preview TEST_LINK]
+    
+    Deploy web-mapviewer on the given staging. Either deploy a version from the
+    build-artifacts-swisstopo bucket (with --version option), or a local build version
+    using the --local-src DIR option.
+    
+    OPTIONS:
+      -h|--help               Print the help and exit.
+      -s|--staging STAGING    Staging to deploy; dev|int|prod. Default; dev
+      -v|--version VERSION    Version to deploy.
+
+
+On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#deploy-on-prod) and use the script from within `infra-terraform-bgdi-builder/projects/web_mapviewer` to deploy **manually**.
+
+> **_NOTE:_**  
+> If deploying manually to `prod`, wait until the CI has finished building the project, as the deploy script only copy files.
+
+Depending on the target (`dev|int|prod`), you will have to build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`) prior to deplay (`npm run build:(dev|int|prod)`)
 - Only `develop` branch can be deployed at the root of the `dev` bucket.
 - Only `master` branch can be deployed at the root of `int` and `prod` buckets.
