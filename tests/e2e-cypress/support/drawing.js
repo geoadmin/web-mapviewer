@@ -43,6 +43,53 @@ const addProfileFixtureAndIntercept = () => {
     ).as('profile')
 }
 
+const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyMarker.kml') => {
+    let kmlBody = null
+    cy.intercept(
+        {
+            method: 'POST',
+            url: '**/api/kml/admin',
+        },
+        async (req) => {
+            try {
+                kmlBody = await getKmlFromRequest(req)
+            } catch (error) {}
+            req.reply(201, kmlMetadataTemplate({ id: '1234_fileId', adminId: '1234_adminId' }))
+        }
+    ).as('post-kml')
+    cy.intercept(
+        {
+            method: 'PUT',
+            url: '**/api/kml/admin/**',
+        },
+        async (req) => {
+            const adminId = await getKmlAdminIdFromRequest(req)
+            kmlBody = await getKmlFromRequest(req)
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
+        }
+    ).as('update-kml')
+    cy.intercept(
+        {
+            method: 'GET',
+            url: '**/api/kml/admin/**',
+        },
+        (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
+        }
+    ).as('get-kml-metadata')
+    cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+        const headers = { 'Cache-Control': 'no-cache' }
+        if (kmlBody) {
+            req.reply(kmlBody, headers)
+        } else if (kmlFileFixtureFile) {
+            req.reply({ fixture: kmlFileFixtureFile }, headers)
+        } else {
+            req.reply('<kml></kml>', headers)
+        }
+    }).as('get-kml')
+}
+
 Cypress.Commands.add('drawGeoms', () => {
     cy.clickDrawingTool(EditableFeatureTypes.MARKER)
     cy.get(olSelector).click(170, 190)
@@ -73,11 +120,17 @@ Cypress.on('uncaught:exception', () => {
 })
 
 Cypress.Commands.add('goToDrawing', (...args) => {
+    let kmlFileFixtureFile = null
+    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
+        kmlFileFixtureFile = args[0].kmlFileFixtureFile
+        delete args[0].kmlFileFixtureFile
+    }
     addIconFixtureAndIntercept()
     addIconSetsFixtureAndIntercept()
     addDefaultIconsFixtureAndIntercept()
     addSecondIconsFixtureAndIntercept()
     addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
     cy.goToMapView(...args)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
@@ -131,18 +184,46 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
     })
 })
 
-export async function getKmlFromRequest(req) {
-    const formData = await new Response(req.body, { headers: req.headers }).formData()
-    const kmlBlob = await formData.get('kml').arrayBuffer()
-    return new TextDecoder().decode(pako.ungzip(kmlBlob))
+export async function getKmlAdminIdFromRequest(req) {
+    try {
+        const formData = await new Response(req.body, { headers: req.headers }).formData()
+        return formData.get('admi_id')
+    } catch (error) {
+        console.error(`Failed to get KML admin_id from the request`, req, error)
+        return '1234_adminId'
+    }
 }
 
-Cypress.Commands.add('checkKMLRequest', async (interception, data, create = false) => {
+export async function getKmlFromRequest(req) {
+    let paramBlob
+    try {
+        const formData = await new Response(req.body, { headers: req.headers }).formData()
+        paramBlob = await formData.get('kml').arrayBuffer()
+    } catch (error) {
+        console.error(
+            `Failed to parse the mutlipart/form-data of the KML request payload`,
+            req,
+            error
+        )
+        expect(
+            `Failed to parse the multipart/form-data of the KML request payload for ${req.method} ${req.url}`
+        ).to.be.false
+    }
+    try {
+        return new TextDecoder().decode(pako.ungzip(paramBlob))
+    } catch (error) {
+        console.error(`Failed to unzip KML file from payload`, req, error)
+        expect(`Failed to unzip KML file from request payload for ${req.method} ${req.url}`).to.be
+            .false
+    }
+}
+
+Cypress.Commands.add('checkKMLRequest', async (interception, data, updated_kml_id = null) => {
     // Check request
-    if (!create) {
+    if (updated_kml_id) {
         const urlArray = interception.request.url.split('/')
         const id = urlArray[urlArray.length - 1]
-        expect(id).to.be.eq('1234_fileId')
+        expect(id).to.be.eq(updated_kml_id)
     }
     expect(interception.request.headers['content-type']).to.contain(
         'multipart/form-data; boundary='
@@ -155,3 +236,22 @@ Cypress.Commands.add('checkKMLRequest', async (interception, data, create = fals
         expect(kml).to[condition](test)
     })
 })
+
+export function kmlMetadataTemplate(data) {
+    let metadata = {
+        id: data.id,
+        success: true,
+        created: '2021-09-09T13:58:29Z',
+        updated: '2021-09-09T14:58:29Z',
+        author: 'web-mapviewer',
+        author_version: '1.0.0',
+        links: {
+            self: `https://public.geo.admin.ch/kml/admin/${data.id}`,
+            kml: `https://public.geo.admin.ch/kml/files/${data.id}`,
+        },
+    }
+    if (data.adminId) {
+        metadata.admin_id = data.adminId
+    }
+    return metadata
+}

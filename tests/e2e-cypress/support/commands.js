@@ -17,35 +17,6 @@ const addLayerTileFixture = () => {
     })
 }
 
-const addFileAPIFixtureAndIntercept = () => {
-    cy.intercept(
-        {
-            method: 'POST',
-            url: '**/api/kml/admin',
-        },
-        {
-            statusCode: 201,
-            fixture: 'service-kml/create-file.fixture.json',
-        }
-    ).as('post-kml')
-    cy.intercept(
-        {
-            method: 'PUT',
-            url: '**/api/kml/admin/**',
-        },
-        {
-            statusCode: 200,
-            fixture: 'service-kml/update-file.fixture.json',
-        }
-    ).as('update-kml')
-    // intercepting now the call to the file itself
-    cy.fixture('service-kml/create-file.fixture.json').then((fileFixture) => {
-        cy.intercept(`**/api/kml/files/${fileFixture.fileId}`, {
-            body: '<kml></kml>',
-        }).as('get-kml')
-    })
-}
-
 const addLayerFixtureAndIntercept = () => {
     cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
         fixture: 'layers.fixture',
@@ -86,7 +57,6 @@ const addWhat3WordFixtureAndIntercept = () => {
 export function getDefaultFixturesAndIntercepts() {
     return {
         addLayerTileFixture,
-        addFileAPIFixtureAndIntercept,
         addLayerFixtureAndIntercept,
         addTopicFixtureAndIntercept,
         addCatalogFixtureAndIntercept,
@@ -137,6 +107,7 @@ Cypress.Commands.add(
                 defIntercepts[intercept]()
             }
         }
+
         let flattenedOtherParams = ''
         Object.keys(otherParams).forEach((key) => {
             flattenedOtherParams += `&${key}=${otherParams[key]}`

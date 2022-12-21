@@ -16,6 +16,7 @@ const drawingStyleColorBox = '[data-cy="drawing-style-color-select-box"]'
 const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 
 const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
+    let kmlId
     cy.clickDrawingTool(kind)
     cy.readWindowValue('map').then((map) => {
         // Create a point, a geojson will appear in the store
@@ -27,17 +28,26 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
             expect(coos[0]).to.be.closeTo(xx, 0.1, `bad: ${JSON.stringify(coos)}`)
             expect(coos[1]).to.be.closeTo(yy, 0.1, `bad: ${JSON.stringify(coos)}`)
         })
-        cy.wait('@post-kml').then((interception) =>
-            cy.checkKMLRequest(interception, ['Placemark'], true)
-        )
+        cy.wait('@post-kml').then((interception) => {
+            cy.checkKMLRequest(interception, ['Placemark'])
+            kmlId = interception.response.body.id
+        })
     })
+    return kmlId
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
-    createAPoint(EditableFeatureTypes.MARKER, 0, -200, MAP_CENTER[0], 6156527.960512564)
+    const kmlId = createAPoint(
+        EditableFeatureTypes.MARKER,
+        0,
+        -200,
+        MAP_CENTER[0],
+        6156527.960512564
+    )
     cy.wait('@iconSets')
     cy.wait('@iconSet-default')
     cy.get('[data-cy="drawing-style-marker-button"]').click()
+    return kmlId
 }
 
 /** @param {FeatureStyleColor} color */
@@ -116,10 +126,10 @@ describe('Drawing marker/points', () => {
                 cy.wait('@icon-default-green')
             })
             it('Modify the KML file whenever the color of the icon changes', () => {
-                createMarkerAndOpenIconStylePopup()
+                const kmlId = createMarkerAndOpenIconStylePopup()
                 clickOnAColor(GREEN)
                 cy.wait('@update-kml').then((interception) => {
-                    cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"name":"green"/])
+                    cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"name":"green"/], kmlId)
                 })
             })
         })
@@ -145,14 +155,18 @@ describe('Drawing marker/points', () => {
                 cy.wait('@large-icon')
             })
             it('Updates the KML with the new icon size whenever it changes in the UI', () => {
-                createMarkerAndOpenIconStylePopup()
+                const kmlId = createMarkerAndOpenIconStylePopup()
                 changeIconSize(SMALL)
                 cy.wait('@small-icon')
                 cy.wait('@update-kml').then((interception) => {
-                    cy.checkKMLRequest(interception, [
-                        /"iconSize":{[^}]*"label":"small_size"/,
-                        /"fillColor":{[^}]*"fill":"#ff0000"/,
-                    ])
+                    cy.checkKMLRequest(
+                        interception,
+                        [
+                            /"iconSize":{[^}]*"label":"small_size"/,
+                            /"fillColor":{[^}]*"fill":"#ff0000"/,
+                        ],
+                        kmlId
+                    )
                 })
             })
         })
@@ -188,7 +202,7 @@ describe('Drawing marker/points', () => {
             })
             // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
             it.skip('Changes the marker icon when a new one is selected in the icon selector', () => {
-                createMarkerAndOpenIconStylePopup()
+                const kmlId = createMarkerAndOpenIconStylePopup()
                 cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 // showing all icons of this sets so that we may choose a new one
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`).click()
@@ -200,9 +214,11 @@ describe('Drawing marker/points', () => {
                     ).click()
                     cy.checkDrawnGeoJsonProperty('icon.name', fourthIcon.name, true)
                     cy.wait('@update-kml').then((interception) =>
-                        cy.checkKMLRequest(interception, [
-                            new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`),
-                        ])
+                        cy.checkKMLRequest(
+                            interception,
+                            [new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`)],
+                            kmlId
+                        )
                     )
                 })
             })
