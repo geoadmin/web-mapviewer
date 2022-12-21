@@ -43,8 +43,8 @@ export default {
         })
     },
     unmounted() {
-        this.copyTooltip?.destroy()
-        this.copiedTooltip?.destroy()
+        this.copyTooltip?.forEach((tooltip) => tooltip.destroy())
+        this.copiedTooltip?.forEach((tooltip) => tooltip.destroy())
     },
     methods: {
         async copyValue() {
