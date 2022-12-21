@@ -48,7 +48,7 @@
                         <button
                             type="button"
                             class="btn btn-light m-1"
-                            :disabled="isDrawingEmpty || !kmlIds"
+                            :disabled="isDrawingEmpty || !kmlMetadata"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"
                         >
@@ -84,7 +84,7 @@
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
         <ModalWithBackdrop v-if="showShareModal" fluid :title="$t('share')" @close="onCloseShare">
-            <ShareForm :kml-ids="kmlIds" />
+            <ShareForm :kml-metadata="kmlMetadata" />
         </ModalWithBackdrop>
     </teleport>
 </template>
@@ -110,7 +110,7 @@ export default {
         DrawingHeader,
     },
     props: {
-        kmlIds: {
+        kmlMetadata: {
             type: Object,
             default: null,
         },

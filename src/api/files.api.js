@@ -36,6 +36,8 @@ export class KmlLinks {
  * @property {FileLinks} links Links to the ressource
  * @property {string} created Date time in ISO format of the ressource creation
  * @property {string} updated Date time in ISO format of the ressource has been modified
+ * @property {string} author Author of the KML
+ * @property {string} authorVersion Version of the KML drawing
  */
 export class KmlMetadata {
     /**
@@ -57,6 +59,8 @@ export class KmlMetadata {
         obj.links = KmlLinks.fromApiData(data.links)
         obj.created = data.created
         obj.updated = data.updated
+        obj.author = data.author
+        obj.authorVersion = data.author_version
         return obj
     }
 }
@@ -126,6 +130,7 @@ export const createKml = (kml) => {
     return new Promise((resolve, reject) => {
         const form = buildKmlForm(kml)
         form.append('author', 'web-mapviewer')
+        form.append('author_version', '1.0.0')
         axios
             .post(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin`, form)
             .then((response) => {
@@ -143,7 +148,7 @@ export const createKml = (kml) => {
                 }
             })
             .catch((error) => {
-                log.error('Error while creating a file', kml)
+                log.error('Error while creating a file', kml, error)
                 reject(error)
             })
     })
@@ -180,7 +185,7 @@ export const updateKml = (id, adminId, kml) => {
                 }
             })
             .catch((error) => {
-                log.error(`Error while updating file with id=${id}`, kml)
+                log.error(`Error while updating file with id=${id}`, kml, error)
                 reject(error)
             })
     })
@@ -199,7 +204,7 @@ const _getKml = (url, resolve, reject) => {
             }
         })
         .catch((error) => {
-            log.error(`Error while getting file with url=${url}`)
+            log.error(`Error while getting file with url=${url}`, error)
             reject(error)
         })
 }
@@ -248,7 +253,39 @@ export const getKmlMetadataByAdminId = (adminId) => {
                 }
             })
             .catch((error) => {
-                log.error(`Error while getting metadata for kml admin_id=${adminId}`)
+                log.error(`Error while getting metadata for kml admin_id=${adminId}`, error)
+                reject(error)
+            })
+    })
+}
+
+/**
+ * Get KML metadata by fileId
+ *
+ * @param {string} fileId KML ID
+ * @param {string} adminId OPTIONAL KML admin ID
+ * @returns {Promise<KmlMetadata>} KML metadata
+ */
+export const getKmlMetadata = (fileId, adminId = null) => {
+    return new Promise((resolve, reject) => {
+        validateId(fileId, reject)
+        axios
+            .get(getKmlMetadataUrl(fileId))
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    let metadata = KmlMetadata.fromApiData(response.data)
+                    if (adminId) {
+                        metadata.adminId = adminId
+                    }
+                    resolve(metadata)
+                } else {
+                    const msg = `Incorrect response while getting metadata for kml id=${fileId}`
+                    log.error(msg, response)
+                    reject(msg)
+                }
+            })
+            .catch((error) => {
+                log.error(`Error while getting metadata for kml id=${fileId}`, error)
                 reject(error)
             })
     })

@@ -25,9 +25,6 @@ describe('A drawing is cleared on layer removal', () => {
         cy.readStoreValue('state.layers.activeLayers').then((layers) => {
             expect(layers).to.be.an('Array').lengthOf(0)
         })
-        cy.readStoreValue('state.drawing').then((drawing) => {
-            expect(drawing.drawingKmlIds).to.be.null
-        })
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .then((features) => expect(features).to.have.length(0))

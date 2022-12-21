@@ -52,7 +52,7 @@ import log from '@/utils/logging'
 
 export default {
     props: {
-        kmlIds: {
+        kmlMetadata: {
             type: Object,
             default: null,
         },
@@ -67,25 +67,25 @@ export default {
     },
     computed: {
         fileUrl() {
-            if (this.kmlIds && this.kmlIds.fileId) {
+            if (this.kmlMetadata && this.kmlMetadata.id) {
                 return `${location.origin}/#/map?layers=KML|${getKmlUrl(
-                    this.kmlIds.fileId
+                    this.kmlMetadata.id
                 )}|${this.$t('draw_layer_label')}`
             }
             return ''
         },
         adminUrl() {
-            if (this.kmlIds && this.kmlIds.fileId && this.kmlIds.adminId) {
+            if (this.kmlMetadata && this.kmlMetadata.id && this.kmlMetadata.adminId) {
                 return `${location.origin}/#/map?layers=KML|${getKmlUrl(
-                    this.kmlIds.fileId
-                )}|${this.$t('draw_layer_label')}@adminId=${this.kmlIds.adminId}`
+                    this.kmlMetadata.id
+                )}|${this.$t('draw_layer_label')}@adminId=${this.kmlMetadata.adminId}`
             }
             // if no adminID is available don't show the edit share link.
             return null
         },
     },
     watch: {
-        kmlIds() {
+        kmlMetadata() {
             this.updateShareUrl()
             this.updateAdminShareUrl()
         },
