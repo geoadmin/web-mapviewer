@@ -147,6 +147,12 @@ export default {
             }
             return null
         },
+        isNewDrawing() {
+            return !this.kmlIds
+        },
+        isDrawingModified() {
+            return this.savingStatus !== SavingStatus.INITIAL
+        },
     },
     watch: {
         async show(show) {
@@ -168,26 +174,38 @@ export default {
                     this.drawingLayer.getSource().clear()
                     // if a KML was previously created with the drawing module
                     // we add it back for further editing
-                    await this.addSavedKmlLayer()
+                    await this.addKmlLayerToDrawing()
                     this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
                     this.getMap().addLayer(this.drawingLayer)
                 } else {
                     this.clearAllSelectedFeatures()
                     this.setDrawingMode(null)
-                    await this.triggerImmediateKMLUpdate()
+                    // We only trigger a kml save onClose drawing menu when the drawing has been
+                    // modified and that it is either not empty or not a new drawing. We don't
+                    // want to save new empty drawing but we want to allow to clear existing
+                    // drawing.
+                    if (this.isDrawingModified && (!this.isNewDrawing || !this.isDrawingEmpty)) {
+                        await this.triggerImmediateKMLUpdate()
+                    }
+
+                    // Only add existing/saved kml to the layer men. If someone cleared an
+                    // existing kml, we want to allow him to re-edit it.
+                    if (this.kmlIds) {
+                        this.addLayer(
+                            new KMLLayer(
+                                1.0,
+                                this.getDrawingPublicFileUrl,
+                                this.kmlIds.fileId,
+                                this.kmlIds.adminId
+                            )
+                        )
+                    }
+
                     // Next tick is needed to wait that all overlays are correctly updated so that
                     // they can be correctly removed with the map
                     this.$nextTick(() => {
                         this.getMap().removeLayer(this.drawingLayer)
                     })
-                    this.addLayer(
-                        new KMLLayer(
-                            1.0,
-                            this.getDrawingPublicFileUrl,
-                            this.kmlIds.fileId,
-                            this.kmlIds.adminId
-                        )
-                    )
                 }
             } catch (e) {
                 // Here a better logic for handeling network errors could be added
@@ -207,6 +225,7 @@ export default {
         featureIds(next, last) {
             const removed = last.filter((id) => !next.includes(id))
             if (removed.length > 0) {
+                log.debug(`${removed.length} have been removed`)
                 const source = this.drawingLayer.getSource()
                 source
                     .getFeatures()
@@ -308,6 +327,7 @@ export default {
             }
         },
         onChange() {
+            log.debug(`Drawing changed`)
             this.willModify()
             this.$nextTick(() => {
                 this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
@@ -330,6 +350,7 @@ export default {
             }
         },
         onDrawEnd(feature) {
+            log.debug(`Drawing ended`)
             this.currentlySketchedFeature = null
             this.$refs.selectInteraction.selectFeature(feature)
             // de-selecting the current tool (drawing mode)
@@ -369,7 +390,7 @@ export default {
             this.drawingLayer.getSource().clear()
             this.onChange()
         },
-        async addSavedKmlLayer() {
+        async addKmlLayerToDrawing() {
             if (!this.kmlLayers?.length) {
                 return
             }
@@ -381,10 +402,7 @@ export default {
 
             // If KML layer exists add to drawing manager
             if (layer) {
-                await this.addKmlLayer(layer)
-                if (!this.kmlIds) {
-                    this.triggerKMLUpdate()
-                }
+                await this.addKmlDrawingLayer(layer)
                 // Remove the layer to not have an overlap with the drawing from
                 // the drawing manager
                 this.removeLayer(layer)
@@ -392,7 +410,7 @@ export default {
             const features = this.drawingLayer.getSource().getFeatures()
             this.setDrawingFeatures(features.map((feature) => feature.getId()))
         },
-        async addKmlLayer(layer) {
+        async addKmlDrawingLayer(layer) {
             const kml = await getKml(layer.fileId)
             const features = new KML().readFeatures(kml, {
                 featureProjection: layer.projection,
