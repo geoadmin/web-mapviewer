@@ -253,13 +253,13 @@ export const VECTOR_TILES_STYLE_URL = `https://vectortiles.geo.admin.ch/styles/$
  *
  * @type {String[]}
  */
- export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
+export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
 
- /**
- * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop)
- * corner on all these hosts.
+/**
+ * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop) corner on all
+ * these hosts.
  *
  * @type {String[]}
  */
 
- export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
+export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
