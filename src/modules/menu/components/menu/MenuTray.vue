@@ -17,15 +17,17 @@
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
-        <MenuSection
-            id="drawSection"
-            :title="$t('draw_panel_title')"
-            :always-keep-closed="true"
-            secondary
-            :disabled="disableDrawing"
-            data-cy="menu-tray-drawing-section"
-            @click:header="toggleDrawingOverlay"
-        />
+        <div id="drawSectionTooltip" tabindex="0">
+            <MenuSection
+                id="drawSection"
+                :title="$t('draw_panel_title')"
+                :always-keep-closed="true"
+                secondary
+                :disabled="disableDrawing"
+                data-cy="menu-tray-drawing-section"
+                @click:header="toggleDrawingOverlay"
+            />
+        </div>
         <MenuTopicSection
             id="topicsSection"
             ref="topicsSection"
@@ -53,6 +55,8 @@ import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.v
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import { mapActions, mapState } from 'vuex'
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
+import tippy, { followCursor } from 'tippy.js'
+import 'tippy.js/dist/tippy.css' // optional for styling
 import log from '@/utils/logging'
 
 export default {
@@ -97,6 +101,27 @@ export default {
                 }
             }
             return false
+        },
+    },
+    watch: {
+        disableDrawing(disableDrawing) {
+            if (disableDrawing) {
+                this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
+                    content:
+                        'You are not allowed to edit drawing created by map.geo.admin.ch on the test.map.geo.admin.ch.\n' +
+                        'If you want to create a new drawing, either remove the current drawing or deselect it.',
+                    arrow: true,
+                    followCursor: 'initial',
+                    plugins: [followCursor],
+                    touch: 'hold',
+                    delay: 500,
+                })
+            } else {
+                if (this.disableDrawingTooltip) {
+                    this.disableDrawingTooltip.forEach((tooltip) => tooltip.destroy())
+                    this.disableDrawingTooltip = null
+                }
+            }
         },
     },
     methods: {

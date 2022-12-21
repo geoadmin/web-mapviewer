@@ -140,6 +140,7 @@ $section-border: 1px;
 
     &.disabled {
         cursor: not-allowed;
+        user-select: none;
     }
 }
 .menu-section-title {

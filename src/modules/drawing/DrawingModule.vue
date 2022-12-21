@@ -168,8 +168,6 @@ export default {
                     // we add it back for further editing
                     if (this.activeKmlLayer) {
                         log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
-                        // always edit the last visible kml layer
-                        const layer = this.visibleKmlLayers[this.visibleKmlLayers.length - 1]
                         this.isNewDrawing = this.activeKmlLayer.adminId ? false : true
                         this.kmlMetadata = this.activeKmlLayer.metadata
                         await this.addKmlLayerToDrawing(this.activeKmlLayer)
