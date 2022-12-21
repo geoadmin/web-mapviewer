@@ -141,18 +141,18 @@ export default {
         isTraditionalDesktopSize(state, getters) {
             return getters.isDesktopMode && state.width >= BREAKPOINT_TABLET
         },
-        /**
-         * Flag to display a warning ribbon ('TEST') at the top/bottom right corner
-         */
+        /** Flag to display a warning ribbon ('TEST') at the top/bottom right corner */
         hasWarningRibbon(state) {
-            return WARNING_RIBBON_HOSTNAMES.some(hostname=>state.hostname.includes(hostname))
+            return WARNING_RIBBON_HOSTNAMES.some((hostname) => state.hostname.includes(hostname))
         },
         /**
-        * Flag that tells if users should be warned that it is a development site. Also used to hide
-        * development specific features in production (like the app version)
-        */
+         * Flag that tells if users should be warned that it is a development site. Also used to
+         * hide development specific features in production (like the app version)
+         */
         hasDevSiteWarning(state) {
-            return true //!NO_WARNING_BANNER_HOSTNAMES.some(hostname=>state.hostname.includes(hostname))
+            return !NO_WARNING_BANNER_HOSTNAMES.some((hostname) =>
+                state.hostname.includes(hostname)
+            )
         },
     },
     actions: {
