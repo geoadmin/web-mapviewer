@@ -156,15 +156,6 @@ export default {
     },
     watch: {
         async show(show) {
-            /**
-             * Makes it possible to abort the toggle on error by setting
-             * "this.abortedToggleOverlay=true" before calling "this.toggleDrawingOverlay()", as
-             * calling "this.toggleDrawingOverlay()" will retrigger this function.
-             */
-            if (this.abortedToggleOverlay) {
-                this.abortedToggleOverlay = false
-                return
-            }
             this.isLoading = true
             try {
                 if (show) {
@@ -225,10 +216,6 @@ export default {
                     ? 'Aborted opening of drawing mode. Could not add existent KML layer: '
                     : 'Aborted closing of drawing mode. Could not save KML layer: '
                 log.error(e_msg, e.code, e)
-                // Abort the toggle to give the user a chance to reconnect to the internet and
-                // so to not loose his drawing
-                this.abortedToggleOverlay = true
-                this.toggleDrawingOverlay()
             } finally {
                 this.isLoading = false
             }
@@ -321,13 +308,12 @@ export default {
                 this.savingStatus = SavingStatus.SAVING
                 try {
                     await this.saveDrawing(kml)
+                    this.savingStatus = SavingStatus.SAVED
                 } catch (e) {
                     log.error('Could not save KML layer: ', e)
                     this.savingStatus = SavingStatus.SAVE_ERROR
-                    throw e
-                }
-                if (this.savingStatus !== SavingStatus.UNSAVED_CHANGES) {
-                    this.savingStatus = SavingStatus.SAVED
+                    // Retry saving later on
+                    this.triggerKMLUpdate()
                 }
             }
         },
