@@ -178,6 +178,8 @@ export default {
                     log.debug(
                         `Closing drawing menu: isModified=${this.isDrawingModified}, isNew=${this.isNewDrawing}, isEmpty=${this.isDrawingEmpty}`
                     )
+                    // be sure to cancel all auto retry when leaving the drawing mode
+                    clearTimeout(this.differSaveDrawingTimeout)
                     this.clearAllSelectedFeatures()
                     this.setDrawingMode(null)
                     // We only trigger a kml save onClose drawing menu when the drawing has been
@@ -185,7 +187,7 @@ export default {
                     // want to save new empty drawing but we want to allow to clear existing
                     // drawing.
                     if (this.isDrawingModified && (!this.isNewDrawing || !this.isDrawingEmpty)) {
-                        await this.triggerImmediateKMLUpdate()
+                        await this.saveDrawing(false)
                     }
 
                     // Only add existing/saved kml to the layer menu. If someone cleared an
@@ -203,6 +205,7 @@ export default {
                     }
 
                     this.drawingLayer.getSource().clear()
+                    this.kmlMetadata = null
 
                     // Next tick is needed to wait that all overlays are correctly updated so that
                     // they can be correctly removed with the map
@@ -273,7 +276,7 @@ export default {
     },
     unmounted() {
         document.removeEventListener('keyup', this.onKeyUp)
-        clearTimeout(this.KMLUpdateTimeout)
+        clearTimeout(this.differSaveDrawingTimeout)
 
         if (IS_TESTING_WITH_CYPRESS) {
             delete window.drawingLayer
@@ -301,28 +304,35 @@ export default {
                 this.setDrawingMode(mode)
             }
         },
-        triggerKMLUpdate() {
-            clearTimeout(this.KMLUpdateTimeout)
-            this.KMLUpdateTimeout = setTimeout(
-                this.triggerImmediateKMLUpdate,
+        differSaveDrawing() {
+            clearTimeout(this.differSaveDrawingTimeout)
+            this.differSaveDrawingTimeout = setTimeout(
+                this.saveDrawing,
                 // when testing, speed up and avoid race conditions
                 // by only waiting for next tick
                 IS_TESTING_WITH_CYPRESS ? 0 : 2000
             )
         },
-        async triggerImmediateKMLUpdate() {
-            clearTimeout(this.KMLUpdateTimeout)
+        async saveDrawing(retryOnError = true) {
+            this.savingStatus = SavingStatus.SAVING
+            clearTimeout(this.differSaveDrawingTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
-            if (kml && kml.length) {
-                this.savingStatus = SavingStatus.SAVING
-                try {
-                    await this.saveDrawing(kml)
-                    this.savingStatus = SavingStatus.SAVED
-                } catch (e) {
-                    log.error('Could not save KML layer: ', e)
-                    this.savingStatus = SavingStatus.SAVE_ERROR
+            try {
+                let metadata
+                if (!this.kmlMetadata || !this.kmlMetadata.adminId) {
+                    // if we don't have an adminId then create a new KML File
+                    metadata = await createKml(kml)
+                } else {
+                    metadata = await updateKml(this.kmlMetadata.id, this.kmlMetadata.adminId, kml)
+                }
+                this.kmlMetadata = metadata
+                this.savingStatus = SavingStatus.SAVED
+            } catch (e) {
+                log.error('Could not save KML layer: ', e)
+                this.savingStatus = SavingStatus.SAVE_ERROR
+                if (retryOnError) {
                     // Retry saving later on
-                    this.triggerKMLUpdate()
+                    this.differSaveDrawing()
                 }
             }
         },
@@ -334,7 +344,7 @@ export default {
             // the new/updated/deleted feature
             this.$nextTick(() => {
                 this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
-                this.triggerKMLUpdate()
+                this.differSaveDrawing()
             })
         },
         onDrawStart(feature) {
@@ -371,16 +381,6 @@ export default {
             if (this.isDrawingModeMeasure || this.isDrawingModeLine) {
                 this.currentInteraction.removeLastPoint()
             }
-        },
-        async saveDrawing(kml) {
-            let metadata
-            if (!this.kmlMetadata || !this.kmlMetadata.adminId) {
-                // if we don't have an adminId then create a new KML File
-                metadata = await createKml(kml)
-            } else {
-                metadata = await updateKml(this.kmlMetadata.id, this.kmlMetadata.adminId, kml)
-            }
-            this.kmlMetadata = metadata
         },
         clearDrawing: function () {
             this.willModify()
