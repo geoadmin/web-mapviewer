@@ -158,9 +158,9 @@ export default {
                 case DrawingState.SAVED:
                     return 'draw_file_saved'
                 case DrawingState.SAVE_ERROR:
-                    return 'upload_failed'
+                    return 'draw_file_load_error'
                 case DrawingState.LOAD_ERROR:
-                    return 'loading_failed'
+                    return 'draw_file_save_error'
                 default:
                     return ''
             }
