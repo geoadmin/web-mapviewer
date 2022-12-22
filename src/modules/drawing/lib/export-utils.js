@@ -15,13 +15,24 @@ const gpxFormat = new GPX()
  *
  * @enum
  */
-export const SavingStatus = {
-    SAVING: 'SAVING',
-    SAVED: 'SAVED',
-    SAVE_ERROR: 'SAVE_ERROR',
-    UNSAVED_CHANGES: 'UNSAVED_CHANGES',
-    INITIAL: 'INITIAL',
-}
+export const DrawingState = Object.freeze({
+    // First state when entering the drawing mode
+    INITIAL: 0,
+    // Drawing has been loaded
+    LOADED: 1,
+    // Pending changes -> drawing has been modified and is not saved
+    UNSAVED_CHANGES: 2,
+    // Drawing is being saved
+    SAVING: 3,
+    // Drawing has been saved and no pending changes are remaining
+    SAVED: 4,
+    // ------------------------------------------------------------------------
+    // ERROR states should always be negative !
+    // Could not save drawing
+    SAVE_ERROR: -1,
+    // Could not load drawing
+    LOAD_ERROR: -2,
+})
 
 /**
  * Returns a string representing the features given in param as a GPX

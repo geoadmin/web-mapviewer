@@ -32,8 +32,11 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </button>
                     </div>
-                    <div class="d-flex justify-content-center drawing-toolbox-saving-status">
-                        {{ $t(savingStatusMessage) }}
+                    <div
+                        class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                        :class="{ 'text-danger': isDrawingStateError }"
+                    >
+                        {{ $t(drawingStateMessage) }}
                     </div>
                     <div class="d-flex justify-content-center">
                         <button
@@ -98,7 +101,7 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
 import DrawingHeader from './DrawingHeader.vue'
-import { SavingStatus } from '../lib/export-utils'
+import { DrawingState } from '../lib/export-utils'
 
 export default {
     components: {
@@ -123,9 +126,9 @@ export default {
             default: false,
         },
         /** Current kml saving status */
-        savingStatus: {
+        drawingState: {
             type: String,
-            default: SavingStatus.INITIAL,
+            default: DrawingState.INITIAL,
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
@@ -148,17 +151,22 @@ export default {
         },
 
         /** Return a different translation key depending on the saving status */
-        savingStatusMessage() {
-            switch (this.savingStatus) {
-                case SavingStatus.SAVING:
+        drawingStateMessage() {
+            switch (this.drawingState) {
+                case DrawingState.SAVING:
                     return 'draw_file_saving'
-                case SavingStatus.SAVED:
+                case DrawingState.SAVED:
                     return 'draw_file_saved'
-                case SavingStatus.SAVE_ERROR:
+                case DrawingState.SAVE_ERROR:
                     return 'upload_failed'
+                case DrawingState.LOAD_ERROR:
+                    return 'loading_failed'
                 default:
                     return ''
             }
+        },
+        isDrawingStateError() {
+            return this.drawingState < 0
         },
     },
     mounted() {
@@ -227,7 +235,7 @@ $zindex-drawing-toolbox: -1;
     &-disclaimer {
         display: none;
     }
-    &-saving-status {
+    &-drawing-state {
         color: #d3d3d3;
         font-size: 12px;
         line-height: 1.25;
