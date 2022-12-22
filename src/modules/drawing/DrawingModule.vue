@@ -152,7 +152,14 @@ export default {
             return null
         },
         isDrawingModified() {
-            return this.drawingState !== DrawingState.INITIAL
+            switch (this.drawingState) {
+                case DrawingState.INITIAL:
+                case DrawingState.LOADED:
+                case DrawingState.LOAD_ERROR:
+                    return false
+                default:
+                    return true
+            }
         },
     },
     watch: {
