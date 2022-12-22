@@ -68,7 +68,7 @@ export default {
                     vectorStyle.layers = vectorStyle.layers.filter(
                         (layer) => layer.source !== this.excludeSource
                     )
-                    this.mapLibreInstance.setStyle(vectorStyle)
+                    this.mapLibreInstance?.setStyle(vectorStyle)
                 })
             } else if (this.layerId === VECTOR_TILES_IMAGERY_STYLE_ID) {
                 // special case here, as the imagery is only over Switzerland (for now)
@@ -94,10 +94,10 @@ export default {
                         source: 'sentinel2_wmts',
                         type: 'raster',
                     })
-                    this.mapLibreInstance.setStyle(vectorStyle)
+                    this.mapLibreInstance?.setStyle(vectorStyle)
                 })
             } else {
-                this.mapLibreInstance.setStyle(styleUrl)
+                this.mapLibreInstance?.setStyle(styleUrl)
             }
         },
     },

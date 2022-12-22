@@ -1,6 +1,6 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
+import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
@@ -47,10 +47,17 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         // for our vector tile background layer
         const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
             VECTOR_LIGHT_BASE_MAP_STYLE_ID,
+            openStreetMapAndMapTilersAttributions,
             // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
             'swissmaptiles'
         )
-        const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID)
+        const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID, [
+            ...openStreetMapAndMapTilersAttributions,
+            new LayerAttribution(
+                'Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020)',
+                'https://s2maps.eu/'
+            ),
+        ])
         const layersConfig = [
             lightBaseMapBackgroundLayer,
             imageryBackgroundLayer,
