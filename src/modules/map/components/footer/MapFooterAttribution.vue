@@ -32,7 +32,13 @@ export default {
     computed: {
         ...mapGetters(['visibleLayers', 'currentBackgroundLayer']),
         layers() {
-            return [this.currentBackgroundLayer, ...this.visibleLayers]
+            const layers = []
+            // when the background is void, we receive `undefined` here
+            if (this.currentBackgroundLayer) {
+                layers.push(this.currentBackgroundLayer)
+            }
+            layers.push(...this.visibleLayers)
+            return layers
         },
         sources() {
             return (

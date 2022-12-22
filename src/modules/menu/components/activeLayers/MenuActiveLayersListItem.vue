@@ -1,5 +1,10 @@
 <template>
-    <div ref="menuLayerItem" class="menu-layer-item" :class="{ compact: compact }">
+    <div
+        ref="menuLayerItem"
+        class="menu-layer-item"
+        :class="{ compact: compact }"
+        :data-cy="`menu-active-layer-${id}`"
+    >
         <div class="menu-layer-item-title">
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'times-circle']"
@@ -28,7 +33,13 @@
                 :compact="compact"
                 @timestamp-change="onTimestampChange"
             />
-            <FontAwesomeIcon class="text-danger mx-2" icon="user" @click="showExternalSourceDisclaimer" />
+            <FontAwesomeIcon
+                v-if="layer.isExternal"
+                class="text-danger mx-2"
+                icon="user"
+                data-cy="menu-external-disclaimer-icon"
+                @click="showExternalSourceDisclaimer"
+            />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
                 class="menu-layer-item-details-toggle"
@@ -89,7 +100,7 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import tippy, {followCursor} from 'tippy.js'
+import tippy, { followCursor } from 'tippy.js'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -202,7 +213,7 @@ export default {
         },
         showExternalSourceDisclaimer() {
             this.externalDisclaimerPopup?.show()
-        }
+        },
     },
 }
 </script>

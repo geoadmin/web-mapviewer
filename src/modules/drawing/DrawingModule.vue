@@ -215,7 +215,6 @@ export default {
                                 this.kmlMetadata
                             )
                         )
-                    )
                 }
 
                 this.drawingLayer.getSource().clear()
@@ -340,7 +339,7 @@ export default {
             } catch (e) {
                 log.error('Could not save KML layer: ', e)
                 this.drawingState = DrawingState.SAVE_ERROR
-                if (retryOnError) {
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                     // Retry saving in 5 seconds
                     this.differSaveDrawing(5000)
                 }
@@ -418,7 +417,7 @@ export default {
             } catch (error) {
                 log.error(`Failed to load KML ${layer.fileId}`, error, layer)
                 this.drawingState = DrawingState.LOAD_ERROR
-                if (retryOnError) {
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                     this.differAddKmlLayerToDrawing(layer)
                 }
             }

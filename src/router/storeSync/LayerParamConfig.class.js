@@ -1,7 +1,7 @@
 import { getKmlMetadata } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { LayerAttribution } from "@/api/layers/GeoAdminLayer.class";
+import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
@@ -52,7 +52,8 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             parsedLayer.visible,
             splitLayerId[1],
             null,
-            parsedLayer.customAttributes.adminId
+            parsedLayer.customAttributes.adminId,
+            splitLayerId[2]
         )
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
@@ -66,7 +67,11 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             wmtsServerGetCapabilitiesUrl,
             wmtsLayerId,
             // grabbing only the host name as attribution
-            [new LayerAttribution(new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname)]
+            [
+                new LayerAttribution(
+                    new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname
+                ),
+            ]
         )
     }
     // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
@@ -135,24 +140,25 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             // checking if it is an external layer first
             const externalLayer = transformParsedExternalLayerIntoObject(layer)
             if (externalLayer) {
-                promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
                 // special case for KML :
                 // Set the kmlIds in the drawing module in order to edit it.
                 if (externalLayer.type === LayerTypes.KML) {
                     promisesForAllDispatch.push(
-                        getKmlMetadata(kmlLayer.fileId, kmlLayer.adminId)
+                        getKmlMetadata(externalLayer.fileId, externalLayer.adminId)
                             .then((metadata) => {
-                                kmlLayer.metadata = metadata
-                                return store.dispatch('addLayer', kmlLayer)
+                                externalLayer.metadata = metadata
+                                return store.dispatch('addLayer', externalLayer)
                             })
                             .catch((error) => {
                                 log.error(
-                                    `Failed to get KML metadata for ${kmlLayer.fileId}`,
+                                    `Failed to get KML metadata for ${externalLayer.fileId}`,
                                     error
                                 )
-                                return store.dispatch('addLayer', kmlLayer)
+                                return store.dispatch('addLayer', externalLayer)
                             })
                     )
+                } else {
+                    promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
                 }
             } else {
                 // if internal (or BOD) layer, we add it through its config we have stored previously
