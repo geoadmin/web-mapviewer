@@ -107,14 +107,17 @@ export default {
         disableDrawing(disableDrawing) {
             if (disableDrawing) {
                 this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
-                    content:
-                        'You are not allowed to edit drawing created by map.geo.admin.ch on the test.map.geo.admin.ch.\n' +
-                        'If you want to create a new drawing, either remove the current drawing or deselect it.',
+                    content: this.$i18n.t('legacy_drawing_warning'),
                     arrow: true,
                     followCursor: 'initial',
                     plugins: [followCursor],
                     touch: 'hold',
                     delay: 500,
+                    onShow: (instance) => {
+                        // On show we might need to update the content to the correct language
+                        // if its changed since last display
+                        instance.setContent(this.$i18n.t('legacy_drawing_warning'))
+                    },
                 })
             } else {
                 if (this.disableDrawingTooltip) {
