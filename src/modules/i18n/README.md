@@ -14,7 +14,13 @@ Current locale can be accessed through
 <span>Current locale is {{ $i18n.locale }}</span>
 ```
 
-### update translations
+Within your Vue Component javascript code you can access translation like this
+
+```javascript
+this.$i18n.t('a_translation_key')
+```
+
+## update translations
 
 See [the main README.md's section on that](../../../README.md#tooling-for-translation-update)
 

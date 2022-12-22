@@ -11,8 +11,10 @@ export default class KMLLayer extends AbstractLayer {
      *   parsed from kmlFileUrl.
      * @param {string | null} adminId The admin id to allow editing. If null then the user is not
      *   allowed to edit the file.
+     * @param {object | null} metadata Metadata of the KML drawing. This object contains all the
+     *   metadata returned by the backend.
      */
-    constructor(opacity, kmlFileUrl, fileId = null, adminId = null) {
+    constructor(opacity, kmlFileUrl, fileId = null, adminId = null, metadata = null) {
         super(i18n.global.t('draw_layer_label'), LayerTypes.KML, opacity)
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
@@ -24,6 +26,7 @@ export default class KMLLayer extends AbstractLayer {
             // or <base-url>/{kml_id} for legacy files, those one are redirected to <base-url>/kml/files/{kml_id}
             this.fileId = kmlFileUrl.split('/').pop()
         }
+        this.metadata = metadata
     }
 
     get name() {
@@ -43,5 +46,17 @@ export default class KMLLayer extends AbstractLayer {
 
     getURL() {
         return this.kmlFileUrl
+    }
+
+    /**
+     * Return True if the KML Layer has not been drawned by this viewer.
+     *
+     * @returns {boolean}
+     */
+    isLegacy() {
+        if (this.metadata?.author === 'web-mapviewer') {
+            return false
+        }
+        return true
     }
 }

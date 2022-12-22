@@ -115,6 +115,7 @@ export default {
                 state.layers.activeLayers.filter(
                     (layer) => layer.visible && layer.type === LayerTypes.KML
                 ),
+            activeKmlLayer: (state) => state.drawing.activeKmlLayer,
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
@@ -165,12 +166,11 @@ export default {
 
                     // if a KML was previously created with the drawing module
                     // we add it back for further editing
-                    if (this.visibleKmlLayers.length) {
-                        // always edit the last visible kml layer
-                        const layer = this.visibleKmlLayers[this.visibleKmlLayers.length - 1]
-                        this.isNewDrawing = layer.adminId ? false : true
-                        this.kmlMetadata = await getKmlMetadata(layer.fileId, layer.adminId)
-                        await this.addKmlLayerToDrawing(layer)
+                    if (this.activeKmlLayer) {
+                        log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
+                        this.isNewDrawing = this.activeKmlLayer.adminId ? false : true
+                        this.kmlMetadata = this.activeKmlLayer.metadata
+                        await this.addKmlLayerToDrawing(this.activeKmlLayer)
                     }
                     this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
                     this.getMap().addLayer(this.drawingLayer)
@@ -196,7 +196,8 @@ export default {
                                 1.0,
                                 getKmlUrl(this.kmlMetadata.id),
                                 this.kmlMetadata.id,
-                                this.kmlMetadata.adminId
+                                this.kmlMetadata.adminId,
+                                this.kmlMetadata
                             )
                         )
                     }
@@ -232,6 +233,13 @@ export default {
                     .filter((feature) => removed.includes(feature.getId()))
                     .forEach((feature) => source.removeFeature(feature))
                 this.onChange()
+            }
+        },
+        visibleKmlLayers(next) {
+            if (next.length > 0) {
+                this.setActiveKmlLayer(next[next.length - 1])
+            } else {
+                this.setActiveKmlLayer(null)
             }
         },
     },
@@ -282,6 +290,7 @@ export default {
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
+            'setActiveKmlLayer',
         ]),
         changeDrawingMode(mode) {
             // we de-activate the mode if the same button is pressed twice

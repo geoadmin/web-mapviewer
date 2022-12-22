@@ -17,14 +17,17 @@
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
-        <MenuSection
-            id="drawSection"
-            :title="$t('draw_panel_title')"
-            :always-keep-closed="true"
-            secondary
-            data-cy="menu-tray-drawing-section"
-            @click="toggleDrawingOverlay"
-        />
+        <div id="drawSectionTooltip" tabindex="0">
+            <MenuSection
+                id="drawSection"
+                :title="$t('draw_panel_title')"
+                :always-keep-closed="true"
+                secondary
+                :disabled="disableDrawing"
+                data-cy="menu-tray-drawing-section"
+                @click:header="toggleDrawingOverlay"
+            />
+        </div>
         <MenuTopicSection
             id="topicsSection"
             ref="topicsSection"
@@ -51,6 +54,10 @@ import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import { mapActions, mapState } from 'vuex'
+import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
+import tippy, { followCursor } from 'tippy.js'
+import 'tippy.js/dist/tippy.css' // optional for styling
+import log from '@/utils/logging'
 
 export default {
     components: {
@@ -77,9 +84,47 @@ export default {
     computed: {
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
+            activeKmlLayer: (state) => state.drawing.activeKmlLayer,
+            hostname: (state) => state.ui.hostname,
         }),
         showLayerList() {
             return this.activeLayers.length > 0
+        },
+        disableDrawing() {
+            if (
+                DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
+                    (hostname) => hostname === this.hostname
+                )
+            ) {
+                if (this.activeKmlLayer && this.activeKmlLayer.isLegacy()) {
+                    return true
+                }
+            }
+            return false
+        },
+    },
+    watch: {
+        disableDrawing(disableDrawing) {
+            if (disableDrawing) {
+                this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
+                    content: this.$i18n.t('legacy_drawing_warning'),
+                    arrow: true,
+                    followCursor: 'initial',
+                    plugins: [followCursor],
+                    touch: 'hold',
+                    delay: 500,
+                    onShow: (instance) => {
+                        // On show we might need to update the content to the correct language
+                        // if its changed since last display
+                        instance.setContent(this.$i18n.t('legacy_drawing_warning'))
+                    },
+                })
+            } else {
+                if (this.disableDrawingTooltip) {
+                    this.disableDrawingTooltip.forEach((tooltip) => tooltip.destroy())
+                    this.disableDrawingTooltip = null
+                }
+            }
         },
     },
     methods: {
