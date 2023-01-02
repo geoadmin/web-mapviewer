@@ -51,9 +51,17 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
  */
 const clickOnMapManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
+        if (
+            mutation.type === 'setShowDrawingOverlay' &&
+            mutation.payload &&
+            state.map.displayLocationPopup
+        ) {
+            // when entering the drawing menu we need to clear the location popup
+            store.dispatch('hideLocationPopup')
+        }
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
-        // when the user is not currently drawing something on the map
-        if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
+        // when the user is not currently drawing something on the map.
+        else if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             const clickInfo = mutation.payload
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
@@ -61,8 +69,6 @@ const clickOnMapManagementPlugin = (store) => {
 
             if (isLeftSingleClick) {
                 // Execute this before the then clause, as else the result could be wrong
-                // Still to do: why sometimes two clicks needed to fullscreen?
-                // Why crash when selecting search bar while popup is open?
                 const allowActivateFullscreen =
                     !isFullscreenMode &&
                     !state.features.selectedFeatures?.length &&
