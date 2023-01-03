@@ -87,7 +87,7 @@ export default {
             required: true,
         },
         currentValue: {
-            type: Object,
+            type: [Object, null],
             required: true,
         },
         items: {

@@ -125,9 +125,8 @@ export default {
             type: Boolean,
             default: false,
         },
-        /** Current kml saving status */
         drawingState: {
-            type: String,
+            type: Number,
             default: DrawingState.INITIAL,
         },
     },

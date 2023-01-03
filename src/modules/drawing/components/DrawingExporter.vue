@@ -31,9 +31,10 @@ export default {
         },
     },
     data() {
+        const options = [new DropdownItem('KML'), new DropdownItem('GPX')]
         return {
-            exportSelection: 'KML',
-            exportOptions: [new DropdownItem('KML'), new DropdownItem('GPX')],
+            exportSelection: options[0],
+            exportOptions: options,
         }
     },
     methods: {
