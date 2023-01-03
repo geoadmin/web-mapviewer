@@ -2,6 +2,7 @@
 
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
+import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import proj4 from 'proj4'
 
 setupProj4()
@@ -115,6 +116,7 @@ describe('Test mouse position', () => {
             cy.intercept(`**/api/qrcode/generate**`, {
                 fixture: 'service-qrcode/position-popup.png',
             }).as('qrcode')
+            cy.intercept(`**/api/icons/*`, { statusCode: 200 }).as('icons')
             cy.viewport(320, 1000)
             cy.goToMapView('en', { lat, lon })
             cy.get('[data-cy="map"]').rightclick()
@@ -124,6 +126,16 @@ describe('Test mouse position', () => {
         })
         it('Test the LocationPopUp is visible', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
+        })
+        it('Test that LocationPopUp is hidden on entering drawing mode', () => {
+            cy.get('[data-cy="location-popup"]').should('be.visible')
+            const viewportWidth = Cypress.config('viewportWidth')
+            if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            cy.get('[data-cy="menu-tray-drawing-section"]').click()
+            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
+            cy.get('[data-cy="location-popup"]').should('not.exist')
         })
         it('Test that it prevents direct activation of the full screen', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
