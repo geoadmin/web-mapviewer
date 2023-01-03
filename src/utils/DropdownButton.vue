@@ -12,7 +12,7 @@
             :aria-expanded="withToggleButton ? null : expanded"
             @click="onMainButtonClick"
         >
-            {{ $t(title) }}
+            {{ title }}
         </button>
         <button
             v-if="withToggleButton"
@@ -37,7 +37,7 @@
                     :data-cy="`dropdown-item-${item.title.toLowerCase()}`"
                     @click="selectItem(item)"
                 >
-                    {{ $t(item.title) }}
+                    {{ item.title }}
                 </a>
             </li>
         </ul>
