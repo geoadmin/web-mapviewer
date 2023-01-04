@@ -30,11 +30,13 @@ function getGitBranch(gitHash) {
  */
 export default function generateBuildInfo(version) {
     return {
-        name: 'generateBuildInfo',
+        name: 'vite-plugin-generate-build-info',
         buildEnd: {
-            sequential: true,
             order: 'post',
             async handler() {
+                if (process.env.TEST) {
+                    return
+                }
                 const currentHash = execSync('git rev-parse HEAD').toString().trim()
 
                 // We take the version from GIT_BRANCH but if not set, then take it from git show-ref
@@ -66,6 +68,7 @@ export default function generateBuildInfo(version) {
                         2
                     ),
                 })
+                console.log(`Created ${version}/info.json`)
             },
         },
     }

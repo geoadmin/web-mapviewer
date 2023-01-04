@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from 'url'
 import { gitDescribeSync } from 'git-describe'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import generateBuildInfo from './vite-plugins/generate-build-info'
+import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
 // We take the version from APP_VERSION but if not set, then take
 // it from git describe command
