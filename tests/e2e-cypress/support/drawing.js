@@ -187,7 +187,7 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
 export async function getKmlAdminIdFromRequest(req) {
     try {
         const formData = await new Response(req.body, { headers: req.headers }).formData()
-        return formData.get('admi_id')
+        return formData.get('admin_id')
     } catch (error) {
         console.error(`Failed to get KML admin_id from the request`, req, error)
         return '1234_adminId'
