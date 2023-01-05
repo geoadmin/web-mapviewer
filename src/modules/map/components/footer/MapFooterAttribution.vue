@@ -25,11 +25,14 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import tippy from 'tippy.js'
 
 export default {
     computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
         ...mapGetters(['visibleLayers', 'currentBackgroundLayer']),
         layers() {
             const layers = []
@@ -63,27 +66,37 @@ export default {
             )
         },
     },
-    mounted() {
+    watch: {
+        lang(lang) {
+            this.externalDisclaimerTooltip?.forEach((instance) => {
+                instance.setContent(this.getExternalDisclaimerPopupContent())
+            })
+        },
+    },
+    updated() {
+        // We need to destroy and recreate the tippy tooltip on each update
+        // otherwise when removing/adding the external layer (e.g. visibility toggle) the
+        // tippy won't work anymore.
+        this.externalDisclaimerTooltip?.forEach((instance) => {
+            instance.destroy()
+        })
         this.externalDisclaimerTooltip = tippy('.external-source', {
-            content: this.$i18n.t('external_data_tooltip'),
+            content: this.getExternalDisclaimerPopupContent(),
             arrow: true,
             placement: 'top',
-            theme: 'danger',
         })
     },
-    beforeUnmount() {
-        if (this.externalDisclaimerTooltip && this.externalDisclaimerTooltip.length > 1) {
-            // there could be multiple instances of tippy as we are selecting based on a class name
-            this.externalDisclaimerTooltip.forEach((instance) => {
-                instance.destroy()
-            })
-        } else {
-            this.externalDisclaimerTooltip?.destroy()
-        }
+    unmount() {
+        this.externalDisclaimerTooltip?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         getAttributionWithComaIfNeeded(attribution, index) {
             return `${attribution}${index !== this.sources.length - 1 ? ',' : ''}`
+        },
+        getExternalDisclaimerPopupContent() {
+            return this.$i18n.t('external_data_tooltip')
         },
     },
 }
@@ -108,7 +121,7 @@ export default {
             text-decoration: underline;
         }
         &.external-source {
-            color: $red;
+            color: $primary;
         }
     }
 }

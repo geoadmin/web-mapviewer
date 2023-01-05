@@ -35,10 +35,10 @@
             />
             <FontAwesomeIcon
                 v-if="layer.isExternal"
-                class="text-danger mx-2"
+                id="externalDisclaimerIcon"
+                class="text-primary p-2"
                 icon="user"
                 data-cy="menu-external-disclaimer-icon"
-                @click="showExternalSourceDisclaimer"
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
@@ -100,7 +100,8 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import tippy, { followCursor } from 'tippy.js'
+import tippy from 'tippy.js'
+import { mapState } from 'vuex'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -145,6 +146,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
         id() {
             return this.layer?.getID()
         },
@@ -164,17 +168,27 @@ export default {
             return transformation
         },
     },
+    watch: {
+        compact(compact) {
+            this.externalDisclaimerPopup?.forEach((instance) => {
+                instance.setProps({ placement: compact ? 'right' : 'bottom' })
+            })
+        },
+        lang(lang) {
+            this.externalDisclaimerPopup?.forEach((instance) => {
+                instance.setContent(this.getExternalDisclaimerPopupContent())
+            })
+        },
+    },
     mounted() {
         if (this.layer.isExternal) {
-            this.externalDisclaimerPopup = tippy(this.$refs.menuLayerItem, {
-                content: this.$i18n.t('external_data_tooltip'),
+            this.externalDisclaimerPopup = tippy('#externalDisclaimerIcon', {
+                content: this.getExternalDisclaimerPopupContent(),
                 arrow: true,
                 placement: this.compact ? 'right' : 'bottom',
-                plugins: this.compact ? [] : [followCursor],
-                followCursor: 'initial',
-                theme: 'danger',
-                offset: this.compact ? [0, 0] : [0, 20],
-                onShow(instance) {
+                hideOnClick: false,
+                trigger: 'mouseenter focus click',
+                onShow: (instance) => {
                     // for mobile (non-compact) we hide the tooltip after 5sec
                     if (!this.compact) {
                         setTimeout(() => {
@@ -182,11 +196,18 @@ export default {
                         }, 5000)
                     }
                 },
+                onClickOutside: (instance, event) => {
+                    // because on mobile we hide it after a 5 seconds timeout
+                    // we need to hide it when click outside, e.g. click on close menu
+                    instance.hide()
+                },
             })
         }
     },
     beforeUnmount() {
-        this.externalDisclaimerPopup?.destroy()
+        this.externalDisclaimerPopup?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         onToggleLayerDetails() {
@@ -211,8 +232,8 @@ export default {
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
-        showExternalSourceDisclaimer() {
-            this.externalDisclaimerPopup?.show()
+        getExternalDisclaimerPopupContent() {
+            return this.$i18n.t('external_data_tooltip')
         },
     },
 }
