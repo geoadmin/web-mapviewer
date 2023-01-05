@@ -43,7 +43,7 @@
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
                 class="menu-layer-item-details-toggle"
-                :class="{ 'text-danger': showDetails, flip: showLayerDetails }"
+                :class="{ 'text-primary': showDetails, flip: showLayerDetails }"
                 transparent
                 :data-cy="`button-open-visible-layer-settings-${id}`"
                 :large="!compact"
