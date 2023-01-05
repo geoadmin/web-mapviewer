@@ -111,7 +111,7 @@ export default {
                     arrow: true,
                     followCursor: 'initial',
                     plugins: [followCursor],
-                    touch: 'hold',
+                    hideOnClick: false,
                     delay: 500,
                     onShow: (instance) => {
                         // On show we might need to update the content to the correct language
