@@ -1,13 +1,7 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-/**
- * Metadata for an external WMS layer, we can use mostly what is already done in the class
- * GeoAdminWMSLayer, except the ID definition. With an external WMS, we need to declare the ID as
- * described in adr/2021_03_16_url_param_structure.md, not just the ID of the layer requested on the
- * server.
- */
+/** Metadata for an external WMS layer. */
 export default class ExternalWMSLayer extends ExternalLayer {
     /**
      * @param {String} name Name of this layer to be shown to the user

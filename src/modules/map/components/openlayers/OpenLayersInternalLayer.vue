@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
@@ -103,7 +103,7 @@ export default {
     },
     props: {
         layerConfig: {
-            type: GeoAdminLayer,
+            type: AbstractLayer,
             default: null,
         },
         zIndex: {

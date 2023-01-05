@@ -141,7 +141,8 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             const externalLayer = transformParsedExternalLayerIntoObject(layer)
             if (externalLayer) {
                 // special case for KML :
-                // Set the kmlIds in the drawing module in order to edit it.
+                // Get and attached KML metadata from backend,
+                // this is needed for the drawing module in order to allow (or not) kml editing
                 if (externalLayer.type === LayerTypes.KML) {
                     promisesForAllDispatch.push(
                         getKmlMetadata(externalLayer.fileId, externalLayer.adminId)
