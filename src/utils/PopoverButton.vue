@@ -14,7 +14,7 @@
             class="popover-container"
             @click="!withCloseButton && hidePopover()"
         >
-            <div class="card">
+            <div class="card border-0">
                 <div
                     v-if="popoverTitle || withCloseButton"
                     class="card-header d-flex align-items-center"
@@ -33,7 +33,7 @@
                         @click="hidePopover"
                     />
                 </div>
-                <div class="card-body">
+                <div class="card-body" :class="bodyClass">
                     <slot />
                 </div>
             </div>
@@ -120,6 +120,11 @@ export default {
             type: Boolean,
             default: false,
         },
+        /** Additional Class to add to the card-body element */
+        bodyClass: {
+            type: String,
+            default: '',
+        },
     },
     watch: {
         popoverPosition(newValue) {
@@ -133,6 +138,7 @@ export default {
     mounted() {
         // creating the TippyJS instance
         this.popover = tippy(this.$refs.popoverButton.$el, {
+            theme: 'popover-button light-border',
             content: this.$refs.popoverContent,
             // so that it doesn't sanitize the content of the slot
             allowHTML: true,
@@ -158,7 +164,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-@import 'tippy.js/dist/svg-arrow.css';
-</style>
