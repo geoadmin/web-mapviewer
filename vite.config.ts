@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from 'url'
 import { gitDescribeSync } from 'git-describe'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import generateBuildInfo from './vite-plugins/generate-build-info'
+import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
 // We take the version from APP_VERSION but if not set, then take
 // it from git describe command
@@ -33,6 +33,8 @@ export default defineConfig(({ command, mode }) => {
         },
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+            reporter: ['default', 'junit'],
+            outputFile: 'tests/results/unit/unit-test-report.xml'
         },
     }
 })

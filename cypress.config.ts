@@ -12,6 +12,12 @@ module.exports = defineConfig({
         runMode: 5,
         openMode: 0,
     },
+    reporter: 'junit',
+    reporterOptions: {
+        mochaFile: `./tests/results/e2e/e2e-test-report-[hash].xml`,
+        includePending: true,
+        outputs: true
+    },
     viewportWidth: 320,
     viewportHeight: 568,
     downloadsFolder: 'tests/e2e-cypress/downloads',
