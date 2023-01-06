@@ -3,6 +3,8 @@ import log from '@/utils/logging'
 
 const getActiveLayerById = (state, layerId) =>
     state.activeLayers.find((layer) => layer.getID() === layerId)
+const removeActiveLayerById = (state, layerId) =>
+    state.activeLayers.filter((layer) => layer.getID() !== layerId)
 
 const state = {
     /**
@@ -254,16 +256,9 @@ const mutations = {
         }
     },
     addLayerWithConfig(state, config) {
-        const activeLayer = getActiveLayerById(state, config.getID())
-        // if the layer is already active, we only make sure it is visible again
-        if (activeLayer) {
-            activeLayer.visible = true
-        } else {
-            // otherwise cloning layer config so that we keep the one we received pristine
-            const layerClone = config.clone()
-            layerClone.visible = true
-            state.activeLayers.push(layerClone)
-        }
+        // first remove it if already present
+        state.activeLayers = removeActiveLayerById(state, config.getID())
+        state.activeLayers.push(config.clone())
     },
     addLocation(state, { x, y }) {
         state.pinLocation = { x, y }

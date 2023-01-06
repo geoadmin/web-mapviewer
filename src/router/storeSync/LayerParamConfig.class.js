@@ -93,7 +93,11 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
 function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     const parsedLayers = layersParamParser(urlParamValue)
     const promisesForAllDispatch = []
-    log.debug(`Dispatch Layers from URL into store: ${urlParamValue}`, store, parsedLayers)
+    log.debug(
+        `Dispatch Layers from URL into store: ${urlParamValue}`,
+        store.state.layers.activeLayers,
+        parsedLayers
+    )
     // going through layers that are already present to set opacity / visibility
     store.state.layers.activeLayers.forEach((activeLayer) => {
         log.debug(`  Active Layer ${activeLayer.getID()}`)
@@ -122,7 +126,10 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             }
             if (activeLayer.visible !== matchingLayerMetadata.visible) {
                 promisesForAllDispatch.push(
-                    store.dispatch('toggleLayerVisibility', activeLayer.getID())
+                    store.dispatch('setLayerVisibility', {
+                        layerId: activeLayer.getID(),
+                        visible: matchingLayerMetadata.visible,
+                    })
                 )
             }
         } else {
@@ -174,7 +181,12 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 )
             }
             if (!layer.visible) {
-                promisesForAllDispatch.push(store.dispatch('toggleLayerVisibility', layer.id))
+                promisesForAllDispatch.push(
+                    store.dispatch('setLayerVisibility', {
+                        layerId: layer.id,
+                        visible: layer.visible,
+                    })
+                )
             }
         }
     })
