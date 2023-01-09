@@ -38,10 +38,14 @@
                     }"
                     data-cy="menu-tray"
                 >
-                    <MenuTray class="menu-tray-content" :compact="isDesktopMode" />
+                    <MenuTray
+                        class="menu-tray-content"
+                        :class="{ 'shadow-lg': isDesktopMode, 'rounded-bottom': isDesktopMode }"
+                        :compact="isDesktopMode"
+                    />
                     <ButtonWithIcon
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu m-auto ps-4 pe-4"
+                        class="button-open-close-desktop-menu m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         :button-font-awesome-icon="['fas', showMenu ? 'caret-up' : 'caret-down']"
                         :button-title="$t(showMenu ? 'close_menu' : 'open_menu')"
