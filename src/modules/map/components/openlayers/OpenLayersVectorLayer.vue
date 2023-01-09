@@ -5,11 +5,10 @@
 </template>
 
 <script>
-import { TILEGRID_EXTENT, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
+import log from '@/utils/logging'
 import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
-import proj4 from 'proj4'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 /** Renders a Vector layer on the map with MapLibre */
@@ -37,11 +36,6 @@ export default {
             default: null,
         },
     },
-    computed: {
-        mapLibreInstance() {
-            return this.layer?.maplibreMap
-        },
-    },
     watch: {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
@@ -57,6 +51,9 @@ export default {
                 style: this.styleUrl,
             },
         })
+        if (!this.layer.maplibreMap) {
+            log.error('MapLibre instance is not attached to the layer')
+        }
         this.setMapLibreStyle(this.styleUrl)
     },
     methods: {
@@ -68,7 +65,7 @@ export default {
                     vectorStyle.layers = vectorStyle.layers.filter(
                         (layer) => layer.source !== this.excludeSource
                     )
-                    this.mapLibreInstance?.setStyle(vectorStyle)
+                    this.layer.maplibreMap.setStyle(vectorStyle)
                 })
             } else if (this.layerId === VECTOR_TILES_IMAGERY_STYLE_ID) {
                 // special case here, as the imagery is only over Switzerland (for now)
@@ -78,7 +75,8 @@ export default {
                     // settings SwissImage to use the tiled WMS instead
                     // otherwise it covers the whole world with white tiles (when no data is present)
                     vectorStyle.sources.swissimage_wmts.tiles = [
-                        'https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.swisstopo.swissimage&LANG=en&WIDTH=256&HEIGHT=256&CRS=EPSG%3A3857&STYLES=&BBOX={bbox-epsg-3857}',                    ]
+                        'https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.swisstopo.swissimage&LANG=en&WIDTH=256&HEIGHT=256&CRS=EPSG%3A3857&STYLES=&BBOX={bbox-epsg-3857}',
+                    ]
                     // setting up Sentinel2 WMTS to cover the globe outside of Switzerland
                     vectorStyle.sources['sentinel2_wmts'] = {
                         minzoom: 0,
@@ -94,10 +92,10 @@ export default {
                         source: 'sentinel2_wmts',
                         type: 'raster',
                     })
-                    this.mapLibreInstance?.setStyle(vectorStyle)
+                    this.layer.maplibreMap.setStyle(vectorStyle)
                 })
             } else {
-                this.mapLibreInstance?.setStyle(styleUrl)
+                this.layer.maplibreMap.setStyle(styleUrl)
             }
         },
     },
