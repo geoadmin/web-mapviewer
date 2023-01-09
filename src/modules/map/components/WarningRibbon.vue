@@ -6,13 +6,9 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  computed: {
-      ...mapGetters([
-            'hasWarningRibbon',
-      ]),
-
-    }
-
+    computed: {
+        ...mapGetters(['hasWarningRibbon']),
+    },
 }
 </script>
 
@@ -26,31 +22,30 @@ export default {
 */
 
 .corner-ribbon {
-  position: absolute;
-  /* top-left */
-  top: 78px;
-  bottom: auto;
-  left: -50px;
-  width: 200px;
-  transform: rotate(-45deg);
-  z-index: $zindex-warning;
-  background: $red;
-  color: white;
-  text-align: center;
-  line-height: 50px;
-  letter-spacing: 1px;
-  font-weight: bold;
+    position: absolute;
+    /* top-left */
+    top: 78px;
+    bottom: auto;
+    left: -50px;
+    width: 200px;
+    transform: rotate(-45deg);
+    z-index: $zindex-warning;
+    background: $danger;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    letter-spacing: 1px;
+    font-weight: bold;
 }
 
-
 @include respond-above(phone) {
-  .corner-ribbon {
-    /* bottom-left */
-    top: auto;
-    bottom: 50px; /* Under cesium inspectors */
-    left: -100px;
-    width: 300px;
-    transform: rotate(45deg);
-  }
+    .corner-ribbon {
+        /* bottom-left */
+        top: auto;
+        bottom: 50px; /* Under cesium inspectors */
+        left: -100px;
+        width: 300px;
+        transform: rotate(45deg);
+    }
 }
 </style>

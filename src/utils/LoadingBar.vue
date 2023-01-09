@@ -35,7 +35,7 @@ $loading-bar-animation-duration: 2s;
         right: auto;
         width: 100%;
         height: 100%;
-        background: $red;
+        background: $primary;
         transform-origin: 0 0;
     }
     .loading-bar-inner-1 {

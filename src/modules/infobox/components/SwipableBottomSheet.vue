@@ -200,7 +200,7 @@ export default {
         width: 45px;
         height: 8px;
         border-radius: 14px;
-        background: $red;
+        background: $primary;
         margin: 0 auto;
         cursor: pointer;
     }
