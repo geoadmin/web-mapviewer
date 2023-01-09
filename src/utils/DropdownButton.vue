@@ -51,10 +51,6 @@ import { Dropdown } from 'bootstrap'
 /**
  * Represents an option in the select made for a dropdown. If no value is given, the title of the
  * item will be considered the value.
- *
- * All given title (for main button or items) will go through the i18n services before being
- * rendered (it's not mandatory to directly pass a translated string, the translation key is
- * sufficient)
  */
 export class DropdownItem {
     constructor(title, value = null) {
@@ -87,7 +83,7 @@ export default {
             required: true,
         },
         currentValue: {
-            type: [Object, null],
+            type: [Object, String, Number, Boolean, null],
             required: true,
         },
         items: {
