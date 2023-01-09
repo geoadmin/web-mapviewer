@@ -2,7 +2,7 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { transformParsedExternalLayerIntoObject } from '@/router/storeSync/LayerParamConfig.class'
-import { LayersParsedFromURL } from '@/router/storeSync/layersParamParser'
+import { ActiveLayerConfig } from '@/store/modules/layers.store'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
@@ -12,7 +12,7 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         const kmlFileUrl = `https://totally.random.kml.url/${kmlFileId}`
         const kmlLayerName = 'What about some name?'
         const result = transformParsedExternalLayerIntoObject(
-            new LayersParsedFromURL(`KML|${kmlFileUrl}|${kmlLayerName}`, true, 0.8)
+            new ActiveLayerConfig(`KML|${kmlFileUrl}|${kmlLayerName}`, true, 0.8)
         )
         expect(result).to.be.an.instanceof(KMLLayer)
         expect(result.opacity).to.eq(0.8)
@@ -27,8 +27,10 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         const wmsVersion = '4.5.6'
         const wmsLayerId = 'random.wms.layer_id'
         const wmsLayerName = 'Totally random name'
-        const parsedLayer = new LayersParsedFromURL(
-            `WMS|${encodeURIComponent(wmsBaseUrl)}|${wmsLayerId}|${wmsVersion}|${encodeURIComponent(wmsLayerName)}`,
+        const parsedLayer = new ActiveLayerConfig(
+            `WMS|${encodeURIComponent(wmsBaseUrl)}|${wmsLayerId}|${wmsVersion}|${encodeURIComponent(
+                wmsLayerName
+            )}`,
             true,
             0.8
         )
@@ -43,10 +45,12 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         const wmtsGetCapUrl = 'https://base.wmts.url/getCapabilitiesEndpoint.xml'
         const wmtsLayerId = 'random.wmts.layer_id'
         const wmtsLayerName = 'Another random name'
-        const parsedLayer = new LayersParsedFromURL(
-          `WMTS|${encodeURIComponent(wmtsGetCapUrl)}|${wmtsLayerId}|${encodeURIComponent(wmtsLayerName)}`,
-          true,
-          0.8
+        const parsedLayer = new ActiveLayerConfig(
+            `WMTS|${encodeURIComponent(wmtsGetCapUrl)}|${wmtsLayerId}|${encodeURIComponent(
+                wmtsLayerName
+            )}`,
+            true,
+            0.8
         )
         const result = transformParsedExternalLayerIntoObject(parsedLayer)
         expect(result).to.be.an.instanceof(ExternalWMTSLayer)

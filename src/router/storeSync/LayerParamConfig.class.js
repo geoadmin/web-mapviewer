@@ -39,7 +39,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
  *
- * @param {LayersParsedFromURL} parsedLayer
+ * @param {ActiveLayerConfig} parsedLayer
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
  *   corresponding layer if the given layer is an external one, otherwise returns `null`
  */
@@ -100,9 +100,14 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     )
     // going through layers that are already present to set opacity / visibility
     store.state.layers.activeLayers.forEach((activeLayer) => {
-        log.debug(`  Active Layer ${activeLayer.getID()}`)
         const matchingLayerMetadata = parsedLayers.find((layer) => layer.id === activeLayer.getID())
         if (matchingLayerMetadata) {
+            log.debug(
+                `  Update layer ${activeLayer.getID()} parameters (visible, opacity,...); new:`,
+                matchingLayerMetadata,
+                `current:`,
+                activeLayer
+            )
             if (matchingLayerMetadata.opacity) {
                 if (activeLayer.opacity !== matchingLayerMetadata.opacity) {
                     promisesForAllDispatch.push(
@@ -134,7 +139,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             }
         } else {
             // this layer has to be removed (not present in the URL anymore)
-            log.debug(`Layer ${activeLayer.getID()} has been removed from URL`)
+            log.debug(`  Remove layer ${activeLayer.getID()} from active layers`)
             promisesForAllDispatch.push(store.dispatch('removeLayer', activeLayer.getID()))
         }
     })
@@ -143,10 +148,10 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         if (
             !store.state.layers.activeLayers.find((activeLayer) => activeLayer.getID() === layer.id)
         ) {
-            log.debug(`  Add layer ${layer.id} if not present`)
             // checking if it is an external layer first
             const externalLayer = transformParsedExternalLayerIntoObject(layer)
             if (externalLayer) {
+                log.debug(`  Add external layer ${layer.id} to active layers`, externalLayer)
                 // special case for KML :
                 // Get and attached KML metadata from backend,
                 // this is needed for the drawing module in order to allow (or not) kml editing
@@ -169,24 +174,9 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                     promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
                 }
             } else {
-                // if internal (or BOD) layer, we add it through its config we have stored previously
-                promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))
-            }
-            if (layer.opacity) {
-                promisesForAllDispatch.push(
-                    store.dispatch('setLayerOpacity', {
-                        layerId: layer.id,
-                        opacity: layer.opacity,
-                    })
-                )
-            }
-            if (!layer.visible) {
-                promisesForAllDispatch.push(
-                    store.dispatch('setLayerVisibility', {
-                        layerId: layer.id,
-                        visible: layer.visible,
-                    })
-                )
+                // if internal (or BOD) layer, we add it through its parsed config
+                log.debug(`  Add layer ${layer.id} to active layers`, layer)
+                promisesForAllDispatch.push(store.dispatch('addLayer', layer))
             }
         }
     })
@@ -194,6 +184,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     parsedLayers
         .filter((layer) => layer.customAttributes && layer.customAttributes.time)
         .forEach((timedLayer) => {
+            log.debug(`  Set timestamp to timed layer ${timedLayer.id}`, timedLayer)
             promisesForAllDispatch.push(
                 store.dispatch('setTimedLayerCurrentTimestamp', {
                     layerId: timedLayer.id,
