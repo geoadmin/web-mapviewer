@@ -33,7 +33,7 @@
                         @click="hidePopover"
                     />
                 </div>
-                <div class="card-body" :class="bodyClass">
+                <div class="popover-content card-body rounded-bottom" :class="bodyClass">
                     <slot />
                 </div>
             </div>
@@ -164,3 +164,10 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.popover-content {
+    // avoid scrollbar corner if the content has one, the corners get with this hidden.
+    overflow-y: hidden;
+}
+</style>
