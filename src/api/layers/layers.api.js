@@ -1,5 +1,5 @@
 import GeoAdminAggregateLayer, { AggregateSubLayer } from '@/api/layers/GeoAdminAggregateLayer.class'
-import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'

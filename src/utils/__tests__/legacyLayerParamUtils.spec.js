@@ -1,6 +1,6 @@
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { LayerAttribution } from "@/api/layers/GeoAdminLayer.class";
+import { LayerAttribution } from "@/api/layers/AbstractLayer.class";
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'

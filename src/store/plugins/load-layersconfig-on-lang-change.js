@@ -1,8 +1,8 @@
-import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
-import { VECTOR_TILES_STYLE_ID, VECTOR_TILES_STYLE_URL } from '@/config'
+import { VECTOR_TILES_STYLE_ID } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 

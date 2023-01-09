@@ -1,7 +1,7 @@
 import { getKmlMetadata } from '@/api/files.api'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { LayerAttribution } from '@/api/layers/GeoAdminLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'

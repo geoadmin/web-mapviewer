@@ -1,5 +1,17 @@
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
+/** Name (or description) of a data holder for a layer, with the possibility to define a URL */
+export class LayerAttribution {
+    /**
+     * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
+     * @param {String} url Link to the data owner website (if there is one)
+     */
+    constructor(name, url = null) {
+        this.name = name
+        this.url = url
+    }
+}
+
 /**
  * Base class for layers' config description, must be extended to a more specific flavor of Layer
  * (e.g. {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer}, {@link GeoAdminGeoJsonLayer},

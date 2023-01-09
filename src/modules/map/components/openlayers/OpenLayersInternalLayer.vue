@@ -24,6 +24,8 @@
             :z-index="zIndex"
         />
         <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
+        <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
+             we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
@@ -87,8 +89,8 @@ import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
 /**
- * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the
- * layer type.
+ * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
+ * correct OpenLayers counterpart depending on the layer type.
  */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers

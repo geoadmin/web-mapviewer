@@ -1,16 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
-export class LayerAttribution {
-    /**
-     * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
-     * @param {String} url Link to the data owner website (if there is one)
-     */
-    constructor(name, url = null) {
-        this.name = name
-        this.url = url
-    }
-}
-
 /**
  * @abstract
  * @class GeoAdminLayer Base class for layer coming from our backend, must be extended to a more
