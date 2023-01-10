@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { VECTOR_TILES_STYLE_ID } from '@/config'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 const voidLayer = {
@@ -107,8 +107,9 @@ export default {
                 case 'ch.swisstopo.pixelkarte-grau':
                     return 'bg_pixel_grey'
                 case 'ch.swisstopo.swissimage':
+                case VECTOR_TILES_IMAGERY_STYLE_ID:
                     return 'bg_luftbild'
-                case VECTOR_TILES_STYLE_ID:
+                case VECTOR_LIGHT_BASE_MAP_STYLE_ID:
                     return 'basis'
                 default:
                     return layer.name || layer.getID()

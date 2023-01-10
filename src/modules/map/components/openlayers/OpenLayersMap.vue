@@ -91,7 +91,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -202,7 +202,7 @@ export default {
             // we currently only have the case of a light base map vector tile background with our national map on top
             if (
                 this.isBackgroundVectorTile &&
-                this.currentBackgroundLayer.getID() === VECTOR_TILES_STYLE_ID
+                this.currentBackgroundLayer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
             ) {
                 return this.backgroundLayers.find(
                     (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'

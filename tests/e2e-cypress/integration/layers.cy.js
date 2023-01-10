@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET, VECTOR_TILES_STYLE_ID } from '@/config'
+import { BREAKPOINT_TABLET, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 /**
@@ -233,7 +233,7 @@ describe('Test of layer handling', () => {
                     'eq',
                     // for no we force the background to be the VT layer as we can't rely on the backend to give it to us
                     // (otherwise mf-geoadmin3 PROD will also receive it...)
-                    VECTOR_TILES_STYLE_ID
+                    VECTOR_LIGHT_BASE_MAP_STYLE_ID
                 )
             })
         })
@@ -246,7 +246,7 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('state.layers.backgroundLayerId').should(
                     'eq',
                     // same remark as above, we now overwrite the default BG given by the backend to the vector tile layer
-                    VECTOR_TILES_STYLE_ID
+                    VECTOR_LIGHT_BASE_MAP_STYLE_ID
                 )
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')
