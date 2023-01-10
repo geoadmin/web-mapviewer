@@ -5,8 +5,11 @@ import {
     allStylingColors,
     allStylingSizes,
     FeatureStyleColor,
-    FeatureStyleSize, MEDIUM, RED, SMALL
-} from "@/utils/featureStyleUtils";
+    FeatureStyleSize,
+    MEDIUM,
+    RED,
+    SMALL,
+} from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import Feature from 'ol/Feature'
 import { getDefaultStyle } from 'ol/format/KML'
@@ -29,6 +32,11 @@ export function getEditableFeatureFromLegacyKmlFeature(legacyKmlFeature, availab
         !Array.isArray(availableIconSets) ||
         availableIconSets.length === 0
     ) {
+        log.error(
+            `Cannot generate EditableFeature from Legacy KML feature`,
+            legacyKmlFeature,
+            availableIconSets
+        )
         return null
     }
     const geom = legacyKmlFeature.getGeometry()
