@@ -36,7 +36,7 @@
                         class="d-flex justify-content-center drawing-toolbox-drawing-state"
                         :class="{ 'text-danger': isDrawingStateError }"
                     >
-                        {{ $t(drawingStateMessage) }}
+                        {{ drawingStateMessage }}
                     </div>
                     <div class="d-flex justify-content-center">
                         <button
@@ -125,9 +125,8 @@ export default {
             type: Boolean,
             default: false,
         },
-        /** Current kml saving status */
         drawingState: {
-            type: String,
+            type: Number,
             default: DrawingState.INITIAL,
         },
     },
@@ -154,13 +153,13 @@ export default {
         drawingStateMessage() {
             switch (this.drawingState) {
                 case DrawingState.SAVING:
-                    return 'draw_file_saving'
+                    return this.$i18n.t('draw_file_saving')
                 case DrawingState.SAVED:
-                    return 'draw_file_saved'
+                    return this.$i18n.t('draw_file_saved')
                 case DrawingState.SAVE_ERROR:
-                    return 'draw_file_load_error'
+                    return this.$i18n.t('draw_file_load_error')
                 case DrawingState.LOAD_ERROR:
-                    return 'draw_file_save_error'
+                    return this.$i18n.t('draw_file_save_error')
                 default:
                     return ''
             }

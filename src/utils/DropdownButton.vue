@@ -9,10 +9,10 @@
             type="button"
             data-cy="dropdown-main-button"
             :data-bs-toggle="withToggleButton ? null : 'dropdown'"
-            :aria-expanded="withToggleButton ? null : expanded"
+            :aria-expanded="false"
             @click="onMainButtonClick"
         >
-            {{ $t(title) }}
+            {{ title }}
         </button>
         <button
             v-if="withToggleButton"
@@ -24,12 +24,11 @@
             data-cy="dropdown-toggle-button"
             data-bs-toggle="dropdown"
             data-bs-reference="parent"
-            :aria-expanded="expanded"
-            @click="toggleExpanded"
+            :aria-expanded="false"
         >
             <span class="visually-hidden">Toggle Dropdown</span>
         </button>
-        <ul class="dropdown-menu" :class="{ show: expanded }" :aria-labelledby="uniqueHtmlId">
+        <ul ref="dropdownMenu" class="dropdown-menu" :aria-labelledby="uniqueHtmlId">
             <li v-for="item in items" :key="item.value">
                 <a
                     class="dropdown-item"
@@ -37,7 +36,7 @@
                     :data-cy="`dropdown-item-${item.title.toLowerCase()}`"
                     @click="selectItem(item)"
                 >
-                    {{ $t(item.title) }}
+                    {{ item.title }}
                 </a>
             </li>
         </ul>
@@ -51,10 +50,6 @@ import { Dropdown } from 'bootstrap'
 /**
  * Represents an option in the select made for a dropdown. If no value is given, the title of the
  * item will be considered the value.
- *
- * All given title (for main button or items) will go through the i18n services before being
- * rendered (it's not mandatory to directly pass a translated string, the translation key is
- * sufficient)
  */
 export class DropdownItem {
     constructor(title, value = null) {
@@ -87,7 +82,7 @@ export default {
             required: true,
         },
         currentValue: {
-            type: Object,
+            type: [Object, String, Number, Boolean, null],
             required: true,
         },
         items: {
@@ -117,14 +112,13 @@ export default {
         return {
             // generating a unique HTML ID for this dropdown
             uniqueHtmlId: `dropdown-${randomIntBetween(0, 10000)}`,
-            expanded: false,
         }
     },
     watch: {
         disabled(isDisabled) {
-            if (isDisabled && this.expanded) {
+            if (isDisabled) {
                 // hiding the dropdown body if component becomes disabled
-                this.toggleExpanded()
+                this.$refs.dropdownMenu.classList.remove('show')
             }
         },
     },
@@ -144,17 +138,10 @@ export default {
             if (this.withToggleButton) {
                 // letting the parent component handle what to do by sending an event
                 this.$emit('click')
-            } else {
-                this.toggleExpanded()
             }
-        },
-        toggleExpanded() {
-            this.expanded = !this.expanded
         },
         selectItem(item) {
             this.$emit('select:item', item)
-            // hiding the dropdown body as soon as a choice is made
-            this.expanded = false
         },
     },
 }

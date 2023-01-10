@@ -1,0 +1,89 @@
+{
+    "items": [
+        {
+            "icon_set": "babs",
+            "name": "babs-1",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-1.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-10",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-10.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-100",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-100.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-101",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-101.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-102",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-102.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-103",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-103.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-104",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-104.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-105",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-105.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-106",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-106.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-107",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-107.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-108",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-108.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-109",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-109.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-11",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-11.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        },
+        {
+            "icon_set": "babs",
+            "name": "babs-160",
+            "url": "http://localhost:8080/api/icons/sets/babs/icons/babs-160.png",
+            "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}.png"
+        }
+    ],
+    "success": true
+}

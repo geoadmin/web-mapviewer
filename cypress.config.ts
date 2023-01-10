@@ -13,6 +13,7 @@ module.exports = defineConfig({
         runMode: 5,
         openMode: 0,
     },
+    numTestsKeptInMemory: 5,
     reporter: 'junit',
     reporterOptions: {
         mochaFile: `./tests/results/e2e/e2e-test-report-[hash].xml`,

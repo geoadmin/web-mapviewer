@@ -17,18 +17,18 @@ const addDefaultIconsFixtureAndIntercept = () => {
 }
 
 const addSecondIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/second/icons`, {
-        fixture: 'service-icons/set-second.fixture.json',
-    }).as('iconSet-second')
+    cy.intercept(`**/api/icons/sets/babs/icons`, {
+        fixture: 'service-icons/set-babs.fixture.json',
+    }).as('iconSet-babs')
 }
 
 const addIconFixtureAndIntercept = () => {
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/second/icons/**@1x.png`, {
+    cy.intercept(`**/api/icons/sets/babs/icons/**@1x.png`, {
         fixture: 'service-icons/placeholder.png',
-    }).as('icon-second')
+    }).as('icon-babs')
 }
 
 const addProfileFixtureAndIntercept = () => {
@@ -187,7 +187,7 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
 export async function getKmlAdminIdFromRequest(req) {
     try {
         const formData = await new Response(req.body, { headers: req.headers }).formData()
-        return formData.get('admi_id')
+        return formData.get('admin_id')
     } catch (error) {
         console.error(`Failed to get KML admin_id from the request`, req, error)
         return '1234_adminId'

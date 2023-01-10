@@ -2,8 +2,8 @@
     "items": [
         {
             "colorable": false,
-            "icons_url": "http://localhost:8080/api/icons/sets/second/icons",
-            "name": "second"
+            "icons_url": "http://localhost:8080/api/icons/sets/babs/icons",
+            "name": "babs"
         },
         {
             "colorable": true,

@@ -142,6 +142,9 @@ export default {
             // shows an arrow at the border of the popover that points to the button location
             arrow: true,
             trigger: 'click',
+            // We need a large popover to display the BABS icon set label which is quite big, see
+            // modify_icon_category_babs_label
+            maxWidth: 450,
         })
     },
     beforeUnmount() {

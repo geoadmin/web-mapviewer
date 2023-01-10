@@ -313,8 +313,10 @@ export default {
             this.differSaveDrawingTimeout = setTimeout(
                 this.saveDrawing,
                 // when testing, speed up and avoid race conditions
-                // by only waiting for next tick
-                IS_TESTING_WITH_CYPRESS ? 0 : time
+                // by only waiting for a small amount of time.
+                // WARNING: don't use 0 here otherwise on CYPRESS you will end up with more request
+                // than needed!
+                IS_TESTING_WITH_CYPRESS ? 100 : time
             )
         },
         async saveDrawing(retryOnError = true) {

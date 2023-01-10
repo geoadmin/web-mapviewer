@@ -58,14 +58,27 @@ const clickOnAColor = (color) => {
     cy.checkDrawnGeoJsonProperty('iconUrl', `-${color.rgbString}.png`, true)
 }
 
-/** @param {FeatureStyleSize} size */
+/** @param {String} size Translated in english */
 const changeIconSize = (size) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
     ).click({ force: true })
     cy.get(
-        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size.label}"]`
+        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size}"]`
     ).click()
+}
+
+const getCyDropdownItemIconSetName = (name) => {
+    let translatedName
+    switch (name) {
+        case 'default':
+            translatedName = 'default'
+            break
+        case 'babs':
+            translatedName = 'civil symbols'
+            break
+    }
+    return `[data-cy="dropdown-item-${translatedName}"]`
 }
 
 describe('Drawing marker/points', () => {
@@ -151,12 +164,12 @@ describe('Drawing marker/points', () => {
             })
             it('changes the GeoJSON size when changed on the UI', () => {
                 createMarkerAndOpenIconStylePopup()
-                changeIconSize(LARGE)
+                changeIconSize('large')
                 cy.wait('@large-icon')
             })
             it('Updates the KML with the new icon size whenever it changes in the UI', () => {
                 const kmlId = createMarkerAndOpenIconStylePopup()
-                changeIconSize(SMALL)
+                changeIconSize('small')
                 cy.wait('@small-icon')
                 cy.wait('@update-kml').then((interception) => {
                     cy.checkKMLRequest(
@@ -184,20 +197,20 @@ describe('Drawing marker/points', () => {
                 cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
-                        cy.get(`[data-cy="dropdown-item-${iconSet.name}"]`).should('be.visible')
+                        cy.get(getCyDropdownItemIconSetName(iconSet.name)).should('be.visible')
                     })
                 })
             })
             it('Changes the icon selector box content when the icon set changes', () => {
                 createMarkerAndOpenIconStylePopup()
                 cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
-                cy.get('[data-cy="dropdown-item-second"]').click()
-                cy.wait('@iconSet-second')
-                cy.wait('@icon-second')
+                cy.get('[data-cy="dropdown-item-civil symbols"]').click()
+                cy.wait('@iconSet-babs')
+                cy.wait('@icon-babs')
                     .its('request.url')
-                    .should('include', '/api/icons/sets/second/icons/')
+                    .should('include', '/api/icons/sets/babs/icons/')
                     .should('include', '.png')
-                // as second icon set is not colorable, the color box should have disappeared
+                // as babs icon set is not colorable, the color box should have disappeared
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleColorBox}`).should('not.exist')
             })
             // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
@@ -241,7 +254,7 @@ describe('Drawing marker/points', () => {
                     `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
                 ).click({ force: true })
                 cy.get(
-                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${MEDIUM.label}"]`
+                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-medium"]`
                 ).click({ force: true })
                 cy.checkDrawnGeoJsonProperty('iconSize.textScale', MEDIUM.textScale)
 

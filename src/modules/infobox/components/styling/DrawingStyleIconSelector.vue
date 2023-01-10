@@ -108,11 +108,16 @@ export default {
     },
     computed: {
         currentIconSetName() {
-            return this.currentIconSet ? this.currentIconSet.name : ''
+            return this.currentIconSet
+                ? this.$i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
+                : ''
         },
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
-                return new DropdownItem(iconSet.name, iconSet)
+                return new DropdownItem(
+                    this.$i18n.t(`modify_icon_category_${iconSet.name}_label`),
+                    iconSet
+                )
             })
         },
     },
