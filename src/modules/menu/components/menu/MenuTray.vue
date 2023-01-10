@@ -56,8 +56,6 @@ import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.
 import { mapActions, mapState } from 'vuex'
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import tippy, { followCursor } from 'tippy.js'
-import 'tippy.js/dist/tippy.css' // optional for styling
-import log from '@/utils/logging'
 
 export default {
     components: {
@@ -86,6 +84,7 @@ export default {
             activeLayers: (state) => state.layers.activeLayers,
             activeKmlLayer: (state) => state.drawing.activeKmlLayer,
             hostname: (state) => state.ui.hostname,
+            lang: (state) => state.i18n.lang,
         }),
         showLayerList() {
             return this.activeLayers.length > 0
@@ -107,24 +106,24 @@ export default {
         disableDrawing(disableDrawing) {
             if (disableDrawing) {
                 this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
-                    content: this.$i18n.t('legacy_drawing_warning'),
+                    theme: 'danger',
                     arrow: true,
                     followCursor: 'initial',
                     plugins: [followCursor],
-                    touch: 'hold',
+                    hideOnClick: false,
                     delay: 500,
-                    onShow: (instance) => {
-                        // On show we might need to update the content to the correct language
-                        // if its changed since last display
-                        instance.setContent(this.$i18n.t('legacy_drawing_warning'))
-                    },
+                    offset: [15, 15],
                 })
+                this.setDisableDrawingTooltipContent()
             } else {
                 if (this.disableDrawingTooltip) {
                     this.disableDrawingTooltip.forEach((tooltip) => tooltip.destroy())
                     this.disableDrawingTooltip = null
                 }
             }
+        },
+        lang() {
+            this.setDisableDrawingTooltipContent()
         },
     },
     methods: {
@@ -135,6 +134,11 @@ export default {
                 toClose = toClose.concat(this.scrollableMenuSections)
             }
             toClose.forEach((section) => this.$refs[section].close())
+        },
+        setDisableDrawingTooltipContent() {
+            this.disableDrawingTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('legacy_drawing_warning'))
+            })
         },
     },
 }

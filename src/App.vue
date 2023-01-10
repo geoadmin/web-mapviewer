@@ -70,6 +70,9 @@ export default {
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'node_modules/bootstrap/scss/bootstrap';
+// tippy-theme needs to be imported once and for the whole app in order to work
+// properly therefore it is imported here in the un-scoped app styling.
+@import 'src/scss/tippy-theme';
 
 #main-component {
     font-family: $frutiger;
@@ -83,27 +86,6 @@ export default {
     .outlines & {
         outline-offset: 1px;
         outline: $focus-outline;
-    }
-}
-
-// Importing Tippy globally, so that we do not need to import it in each component using it
-@import 'tippy.js/dist/tippy.css';
-// Tippy custom style, with a red background color
-.tippy-box[data-theme~='danger'] {
-    $bgColor: $danger;
-    background-color: $bgColor;
-    color: $white;
-    &[data-placement^='top'] > .tippy-arrow::before {
-        border-top-color: $bgColor;
-    }
-    &[data-placement^='bottom'] > .tippy-arrow::before {
-        border-bottom-color: $bgColor;
-    }
-    &[data-placement^='left'] > .tippy-arrow::before {
-        border-left-color: $bgColor;
-    }
-    &[data-placement^='right'] > .tippy-arrow::before {
-        border-right-color: $bgColor;
     }
 }
 </style>

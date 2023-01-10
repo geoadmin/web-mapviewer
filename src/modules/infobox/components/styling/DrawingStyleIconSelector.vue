@@ -29,11 +29,11 @@
 
         <div
             v-if="currentIconSet && currentIconSet.icons.length > 0"
-            class="border-2 bg-light rounded"
+            class="icon-selector border-2 bg-light rounded"
             :class="{ 'transparent-bottom': !showAllSymbols }"
         >
             <div
-                class="bg-light d-flex align-content-center p-2"
+                class="rounded d-flex align-content-center p-2"
                 data-cy="drawing-style-show-all-icons-button"
                 @click="showAllSymbols = !showAllSymbols"
             >
@@ -168,6 +168,9 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
+.icon-selector {
+    overflow-y: hidden;
+}
 .transparent-overlay {
     display: none;
 }

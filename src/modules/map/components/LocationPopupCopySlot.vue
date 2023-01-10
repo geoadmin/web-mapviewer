@@ -13,7 +13,7 @@
 <script>
 import log from '@/utils/logging'
 import tippy from 'tippy.js'
-import 'tippy.js/dist/tippy.css' // optional for styling
+import { mapState } from 'vuex'
 
 export default {
     props: {
@@ -22,15 +22,24 @@ export default {
             default: '',
         },
     },
+    computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
+    },
+    watch: {
+        lang() {
+            this.setTooltipContent()
+        },
+    },
     mounted() {
         this.copyTooltip = tippy('#copyButton', {
-            content: this.$i18n.t('copy_cta'),
             arrow: true,
             placement: 'right',
             touch: 'hold',
         })
+
         this.copiedTooltip = tippy('#copyButton', {
-            content: this.$i18n.t('copy_done'),
             arrow: true,
             placement: 'right',
             trigger: 'click',
@@ -41,6 +50,7 @@ export default {
             },
             allowHTML: true,
         })
+        this.setTooltipContent()
     },
     unmounted() {
         this.copyTooltip?.forEach((tooltip) => tooltip.destroy())
@@ -53,6 +63,14 @@ export default {
             } catch (error) {
                 log.error(`Failed to copy to clipboard:`, error)
             }
+        },
+        setTooltipContent() {
+            this.copyTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('copy_cta'))
+            })
+            this.copiedTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('copy_done'))
+            })
         },
     },
 }
