@@ -1,8 +1,26 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import log from '@/utils/logging'
 
+export class ActiveLayerConfig {
+    /**
+     * @param {String} id The layer id
+     * @param {Boolean} visible Flag telling if the layer should be visible on the map
+     * @param {Number | undefined} opacity The opacity that the layers should have, when `undefined`
+     *   uses the default opacity for the layer.
+     * @param {Object} customAttributes Other attributes relevant for this layer, such as time
+     */
+    constructor(id, visible, opacity = undefined, customAttributes = {}) {
+        this.id = id
+        this.visible = visible
+        this.opacity = opacity
+        this.customAttributes = customAttributes
+    }
+}
+
 const getActiveLayerById = (state, layerId) =>
     state.activeLayers.find((layer) => layer.getID() === layerId)
+const removeActiveLayerById = (state, layerId) =>
+    state.activeLayers.filter((layer) => layer.getID() !== layerId)
 
 const state = {
     /**
@@ -102,15 +120,28 @@ const actions = {
     },
     addLayer({ commit, getters }, layerIdOrConfig) {
         let layerConfig = null
-        if (typeof layerIdOrConfig === 'string') {
-            layerConfig = getters.getLayerConfigById(layerIdOrConfig)
-        } else if (layerIdOrConfig instanceof AbstractLayer) {
+        if (layerIdOrConfig instanceof AbstractLayer) {
             layerConfig = layerIdOrConfig
+        } else if (layerIdOrConfig instanceof ActiveLayerConfig) {
+            // Get the AbstractLayer Config object, we need to clone it in order
+            // to update the config (opacity/visible) if needed.
+            layerConfig = getters.getLayerConfigById(layerIdOrConfig.id)?.clone()
+
+            if (layerConfig) {
+                if (layerIdOrConfig.visible !== undefined) {
+                    layerConfig.visible = layerIdOrConfig.visible
+                }
+                if (layerIdOrConfig.opacity !== undefined) {
+                    layerConfig.opacity = layerIdOrConfig.opacity
+                }
+            }
+        } else if (typeof layerIdOrConfig === 'string') {
+            layerConfig = getters.getLayerConfigById(layerIdOrConfig)
         }
         if (layerConfig) {
             commit('addLayerWithConfig', layerConfig)
         } else {
-            log.error('no layer found with ID', layerIdOrConfig)
+            log.error('no layer found for param:', layerIdOrConfig)
         }
     },
     addLocation({ commit }, coordsEPSG3857) {
@@ -136,7 +167,7 @@ const actions = {
             const layerConfig = getters.getLayerConfigById(layer.getID())
             if (layerConfig) {
                 // If we found a layer config we use as it might have change the i18n translation
-                commit('addLayerWithConfig', layerConfig)
+                commit('addLayerWithConfig', layerConfig.clone())
                 commit('setLayerVisibility', { layerId: layer.getID(), visible: layer.visible })
                 commit('setLayerOpacity', { layerId: layer.getID(), opacity: layer.opacity })
                 if (layer.timeConfig) {
@@ -150,7 +181,7 @@ const actions = {
                 // the KML layers, in this case we take the old active configuration as fallback.
                 // For KML layers the configuration doesn't requires translation as they only have
                 // the layer name to be translated and it is done dynamically using a getter name()
-                commit('addLayerWithConfig', layer)
+                commit('addLayerWithConfig', layer.clone())
             }
         })
     },
@@ -254,16 +285,9 @@ const mutations = {
         }
     },
     addLayerWithConfig(state, config) {
-        const activeLayer = getActiveLayerById(state, config.getID())
-        // if the layer is already active, we only make sure it is visible again
-        if (activeLayer) {
-            activeLayer.visible = true
-        } else {
-            // otherwise cloning layer config so that we keep the one we received pristine
-            const layerClone = config.clone()
-            layerClone.visible = true
-            state.activeLayers.push(layerClone)
-        }
+        // first remove it if already present in order to avoid duplicate layers
+        state.activeLayers = removeActiveLayerById(state, config.getID())
+        state.activeLayers.push(config)
     },
     addLocation(state, { x, y }) {
         state.pinLocation = { x, y }
@@ -272,7 +296,7 @@ const mutations = {
         state.activeLayers = []
     },
     removeLayerWithId(state, layerId) {
-        state.activeLayers = state.activeLayers.filter((layer) => layer.getID() !== layerId)
+        state.activeLayers = removeActiveLayerById(state, layerId)
     },
     setLayerConfig(state, config) {
         state.config = config

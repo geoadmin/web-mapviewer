@@ -1,5 +1,10 @@
 <template>
-    <div class="menu-layer-item" :class="{ compact: compact }">
+    <div
+        ref="menuLayerItem"
+        class="menu-layer-item"
+        :class="{ compact: compact }"
+        :data-cy="`menu-active-layer-${id}`"
+    >
         <div class="menu-layer-item-title">
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'times-circle']"
@@ -17,21 +22,28 @@
             />
             <span
                 class="menu-layer-item-name"
-                :data-cy="`visible-layer-name-${id}`"
+                :data-cy="`active-layer-name${id}`"
                 @click="onToggleLayerVisibility"
-                >{{ name }}</span
+                >{{ layer.name }}</span
             >
             <MenuActiveLayersListItemTimeSelector
-                v-if="timeConfig"
+                v-if="layer.timeConfig"
                 :data-cy="`time-selector-${id}`"
-                :time-config="timeConfig"
+                :time-config="layer.timeConfig"
                 :compact="compact"
                 @timestamp-change="onTimestampChange"
+            />
+            <FontAwesomeIcon
+                v-if="layer.isExternal"
+                id="externalDisclaimerIcon"
+                class="text-primary p-2"
+                icon="user"
+                data-cy="menu-external-disclaimer-icon"
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
                 class="menu-layer-item-details-toggle"
-                :class="{ 'text-danger': showDetails, flip: showLayerDetails }"
+                :class="{ 'text-primary': showDetails, flip: showLayerDetails }"
                 transparent
                 :data-cy="`button-open-visible-layer-settings-${id}`"
                 :large="!compact"
@@ -53,7 +65,7 @@
                 min="0.0"
                 max="1.0"
                 step="0.01"
-                :value="opacity"
+                :value="layer.opacity"
                 :data-cy="`slider-opacity-layer-${id}`"
                 @change="onOpacityChange"
             />
@@ -85,9 +97,11 @@
 </template>
 
 <script>
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import tippy from 'tippy.js'
+import { mapState } from 'vuex'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -96,25 +110,9 @@ import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 export default {
     components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector },
     props: {
-        id: {
-            type: String,
+        layer: {
+            type: AbstractLayer,
             required: true,
-        },
-        visible: {
-            type: Boolean,
-            required: true,
-        },
-        name: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 1.0,
-        },
-        timeConfig: {
-            type: LayerTimeConfig,
-            default: null,
         },
         showDetails: {
             type: Boolean,
@@ -148,8 +146,14 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
+        id() {
+            return this.layer?.getID()
+        },
         checkboxIcon() {
-            if (this.visible) {
+            if (this.layer.visible) {
                 return 'check-square'
             }
             return 'square'
@@ -163,6 +167,47 @@ export default {
             }
             return transformation
         },
+    },
+    watch: {
+        compact(compact) {
+            this.externalDisclaimerPopup?.forEach((instance) => {
+                instance.setProps({ placement: compact ? 'right' : 'bottom' })
+            })
+        },
+        lang(lang) {
+            this.externalDisclaimerPopup?.forEach((instance) => {
+                instance.setContent(this.getExternalDisclaimerPopupContent())
+            })
+        },
+    },
+    mounted() {
+        if (this.layer.isExternal) {
+            this.externalDisclaimerPopup = tippy('#externalDisclaimerIcon', {
+                content: this.getExternalDisclaimerPopupContent(),
+                arrow: true,
+                placement: this.compact ? 'right' : 'bottom',
+                hideOnClick: false,
+                trigger: 'mouseenter focus click',
+                onShow: (instance) => {
+                    // for mobile (non-compact) we hide the tooltip after 5sec
+                    if (!this.compact) {
+                        setTimeout(() => {
+                            instance.hide()
+                        }, 5000)
+                    }
+                },
+                onClickOutside: (instance, event) => {
+                    // because on mobile we hide it after a 5 seconds timeout
+                    // we need to hide it when click outside, e.g. click on close menu
+                    instance.hide()
+                },
+            })
+        }
+    },
+    beforeUnmount() {
+        this.externalDisclaimerPopup?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         onToggleLayerDetails() {
@@ -186,6 +231,9 @@ export default {
         },
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
+        },
+        getExternalDisclaimerPopupContent() {
+            return this.$i18n.t('external_data_tooltip')
         },
     },
 }

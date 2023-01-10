@@ -7,6 +7,7 @@ const DEG360 = CoordinateSystems.WEBMERCATOR.deg360
 const olSelector = '.ol-viewport'
 
 function moveMapPos(newCenter) {
+
     cy.writeStoreValue('setCenter', newCenter)
     /* In headed mode, the tests work perfectly fine even without these waits. In headless mode
     hovewer, they are needed, as else, the mouse click event following may not be registered
@@ -136,6 +137,9 @@ describe('Correct handling of geodesic geometries', () => {
                 // As the line is not linear, clicking where the linear line passes should not trigger the
                 // select interaction (tests the select interaction)
                 moveMapPos(centerOfLinearLine)
+                // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
+                // by the very long attribution string (with VT multiple attributions)
+                cy.get('[data-cy="infobox-header"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
 
@@ -145,9 +149,12 @@ describe('Correct handling of geodesic geometries', () => {
                 cy.get(olSelector).click('center')
                 checkFeatureSelected(lineDrawn)
 
-                // Clicking again should add a point (this tests that the modify interaction is aware that
-                // the feature is geodesic)
+                // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
+                // by the very long attribution string (with VT multiple attributions)
+                cy.get('[data-cy="infobox-header"]').click()
                 cy.get(olSelector).click('center')
+                // opening the infobox again
+                cy.get('[data-cy="infobox-header"]').click()
                 /* As explained in geodesicManager.js, the maximal discrepancy should be about 2.1cm for
             a line at 47° less than 1000km long. But as 1 equatorial meter < 1 meter at 47°, we are a
             bit more tolerant and allow 0.04 equatorial meters */
@@ -156,18 +163,25 @@ describe('Correct handling of geodesic geometries', () => {
                 // As the line is not linear, clicking where the linear line passes should not create a new
                 // point when the line is already selected (tests the modify interaction)
                 moveMapPos(offsetX(centerOfLinearLine, selectOffset))
+                // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
+                // by the very long attribution string (with VT multiple attributions)
+                cy.get('[data-cy="infobox-header"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
             }
             // Check the measure feature
             const x = 773900
             const locDesc = 'in switzerland (measure feature)'
-            //main test case (draw in switzerland)
-            generateTest(0, 0, x, locDesc, testFunc)
-            //edge cases (draw in switzerland and select the feature in switzerland, but rotated by 360°)
-            generateTest(1, 0, x, locDesc, testFunc)
-            generateTest(0, 1, x, locDesc, testFunc)
-            generateTestsInPacific(testFunc)
+            // main test case (draw in switzerland)
+            context('Drawing in Switzerland', () => {
+                generateTest(0, 0, x, locDesc, testFunc)
+                // edge cases (draw in switzerland and select the feature in switzerland, but rotated by 360°)
+                generateTest(1, 0, x, locDesc, testFunc)
+                generateTest(0, 1, x, locDesc, testFunc)
+            })
+            context('Drawing in the Pacific', () => {
+                generateTestsInPacific(testFunc)
+            })
             /* As the underlying code is the same, all the tests should run exactly the same
             for the line feature. So here we run only one test for the line feature to be
             sure that the geodesic drawing is also enabled for them. */
@@ -207,6 +221,9 @@ describe('Correct handling of geodesic geometries', () => {
                 const inGeodesicPolygon = [x + 500000 + selectOffset, centerOfGeodesicLineY + 50000]
 
                 moveMapPos(inLinearPolygon)
+                // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
+                // by the very long attribution string (with VT multiple attributions)
+                cy.get('[data-cy="infobox-header"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
 
@@ -218,17 +235,24 @@ describe('Correct handling of geodesic geometries', () => {
                 calculated with enough tolerance to accommodate possible imprecisions in the
                 calculations. */
                 moveMapPos(lineToDraw[2])
+                // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
+                // by the very long attribution string (with VT multiple attributions)
+                cy.get('[data-cy="infobox-header"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureSelected([lineDrawn[0], lineDrawn[1], lineDrawn[3], lineDrawn[4]])
             }
             const x = 773900
             const locDesc = 'in switzerland (measure feature)'
-            //main test case (draw in switzerland)
-            generateTest(0, 0, x, locDesc, testFunc)
-            //edge cases (draw in switzerland and select the feature in switzerland, but rotated by 360°)
-            generateTest(-1, 0, x, locDesc, testFunc)
-            generateTest(0, -1, x, locDesc, testFunc)
-            generateTestsInPacific(testFunc)
+            context('Drawing in Switzerland', () => {
+                //main test case (draw in switzerland)
+                generateTest(0, 0, x, locDesc, testFunc)
+                //edge cases (draw in switzerland and select the feature in switzerland, but rotated by 360°)
+                generateTest(-1, 0, x, locDesc, testFunc)
+                generateTest(0, -1, x, locDesc, testFunc)
+            })
+            context('Drawing in the Pacific', () => {
+                generateTestsInPacific(testFunc)
+            })
             it('Check that the line feature is also geodesic', () => {
                 cy.readStoreValue('state.ui.floatingTooltip').then(
                     (tooltip) => tooltip && cy.writeStoreValue('toggleFloatingTooltip')

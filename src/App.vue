@@ -85,4 +85,25 @@ export default {
         outline: $focus-outline;
     }
 }
+
+// Importing Tippy globally, so that we do not need to import it in each component using it
+@import 'tippy.js/dist/tippy.css';
+// Tippy custom style, with a red background color
+.tippy-box[data-theme~='danger'] {
+    $bgColor: $danger;
+    background-color: $bgColor;
+    color: $white;
+    &[data-placement^='top'] > .tippy-arrow::before {
+        border-top-color: $bgColor;
+    }
+    &[data-placement^='bottom'] > .tippy-arrow::before {
+        border-bottom-color: $bgColor;
+    }
+    &[data-placement^='left'] > .tippy-arrow::before {
+        border-left-color: $bgColor;
+    }
+    &[data-placement^='right'] > .tippy-arrow::before {
+        border-right-color: $bgColor;
+    }
+}
 </style>

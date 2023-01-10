@@ -1,8 +1,13 @@
+import { getKmlMetadata } from '@/api/files.api'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
-import { getKmlMetadata } from '@/api/files.api'
 import log from '@/utils/logging'
+
 /**
  * Transform a layer metadata into a string. This value can then be used in the URL to describe a
  * layer and its state (visibility, opacity, etc...)
@@ -30,15 +35,79 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     return layerUrlString
 }
 
+/**
+ * Parse layers such as described in
+ * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
+ *
+ * @param {ActiveLayerConfig} parsedLayer
+ * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
+ *   corresponding layer if the given layer is an external one, otherwise returns `null`
+ */
+export function transformParsedExternalLayerIntoObject(parsedLayer) {
+    // format is :  KML|FILE_URL|LAYER_NAME
+    if (parsedLayer.id.startsWith('KML|') && parsedLayer.id.split('|').length === 3) {
+        const splitLayerId = parsedLayer.id.split('|')
+        return new KMLLayer(
+            parsedLayer.opacity,
+            parsedLayer.visible,
+            splitLayerId[1],
+            null,
+            parsedLayer.customAttributes.adminId,
+            splitLayerId[2]
+        )
+    }
+    // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
+    else if (parsedLayer.id.startsWith('WMTS|')) {
+        const [externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId, layerName] =
+            parsedLayer.id.split('|')
+        return new ExternalWMTSLayer(
+            layerName,
+            parsedLayer.opacity,
+            parsedLayer.visible,
+            wmtsServerGetCapabilitiesUrl,
+            wmtsLayerId,
+            // grabbing only the host name as attribution
+            [
+                new LayerAttribution(
+                    new URL(decodeURIComponent(wmtsServerGetCapabilitiesUrl)).hostname
+                ),
+            ]
+        )
+    }
+    // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
+    else if (parsedLayer.id.startsWith('WMS|')) {
+        const [externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
+            parsedLayer.id.split('|')
+        return new ExternalWMSLayer(
+            layerName,
+            parsedLayer.opacity,
+            parsedLayer.visible,
+            wmsServerBaseURL,
+            wmsLayerIds,
+            [new LayerAttribution(new URL(decodeURIComponent(wmsServerBaseURL)).hostname)],
+            wmsVersion
+        )
+    }
+}
+
 function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     const parsedLayers = layersParamParser(urlParamValue)
     const promisesForAllDispatch = []
-    log.debug(`Dispatch Layers from URL into store: ${urlParamValue}`, store, parsedLayers)
+    log.debug(
+        `Dispatch Layers from URL into store: ${urlParamValue}`,
+        store.state.layers.activeLayers,
+        parsedLayers
+    )
     // going through layers that are already present to set opacity / visibility
     store.state.layers.activeLayers.forEach((activeLayer) => {
-        log.debug(`  Active Layer ${activeLayer.getID()}`)
         const matchingLayerMetadata = parsedLayers.find((layer) => layer.id === activeLayer.getID())
         if (matchingLayerMetadata) {
+            log.debug(
+                `  Update layer ${activeLayer.getID()} parameters (visible, opacity,...); new:`,
+                matchingLayerMetadata,
+                `current:`,
+                activeLayer
+            )
             if (matchingLayerMetadata.opacity) {
                 if (activeLayer.opacity !== matchingLayerMetadata.opacity) {
                     promisesForAllDispatch.push(
@@ -62,12 +131,15 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             }
             if (activeLayer.visible !== matchingLayerMetadata.visible) {
                 promisesForAllDispatch.push(
-                    store.dispatch('toggleLayerVisibility', activeLayer.getID())
+                    store.dispatch('setLayerVisibility', {
+                        layerId: activeLayer.getID(),
+                        visible: matchingLayerMetadata.visible,
+                    })
                 )
             }
         } else {
             // this layer has to be removed (not present in the URL anymore)
-            log.debug(`Layer ${activeLayer.getID()} has been removed from URL`)
+            log.debug(`  Remove layer ${activeLayer.getID()} from active layers`)
             promisesForAllDispatch.push(store.dispatch('removeLayer', activeLayer.getID()))
         }
     })
@@ -76,42 +148,35 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         if (
             !store.state.layers.activeLayers.find((activeLayer) => activeLayer.getID() === layer.id)
         ) {
-            log.debug(`  Add layer ${layer.id} if not present`)
             // checking if it is an external layer first
-            if (layer.id.startsWith('KML|') && layer.id.split('|').length === 3) {
-                const splittedLayerId = layer.id.split('|')
-                const kmlLayer = new KMLLayer(
-                    layer.opacity,
-                    splittedLayerId[1],
-                    null,
-                    layer.customAttributes.adminId
-                )
-
-                promisesForAllDispatch.push(
-                    getKmlMetadata(kmlLayer.fileId, kmlLayer.adminId)
-                        .then((metadata) => {
-                            kmlLayer.metadata = metadata
-                            return store.dispatch('addLayer', kmlLayer)
-                        })
-                        .catch((error) => {
-                            log.error(`Failed to get KML metadata for ${splittedLayerId[1]}`, error)
-                            return store.dispatch('addLayer', kmlLayer)
-                        })
-                )
+            const externalLayer = transformParsedExternalLayerIntoObject(layer)
+            if (externalLayer) {
+                log.debug(`  Add external layer ${layer.id} to active layers`, externalLayer)
+                // special case for KML :
+                // Get and attached KML metadata from backend,
+                // this is needed for the drawing module in order to allow (or not) kml editing
+                if (externalLayer.type === LayerTypes.KML) {
+                    promisesForAllDispatch.push(
+                        getKmlMetadata(externalLayer.fileId, externalLayer.adminId)
+                            .then((metadata) => {
+                                externalLayer.metadata = metadata
+                                return store.dispatch('addLayer', externalLayer)
+                            })
+                            .catch((error) => {
+                                log.error(
+                                    `Failed to get KML metadata for ${externalLayer.fileId}`,
+                                    error
+                                )
+                                return store.dispatch('addLayer', externalLayer)
+                            })
+                    )
+                } else {
+                    promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
+                }
             } else {
-                // if internal (or BOD) layer, we add it through its config we have stored previously
-                promisesForAllDispatch.push(store.dispatch('addLayer', layer.id))
-            }
-            if (layer.opacity) {
-                promisesForAllDispatch.push(
-                    store.dispatch('setLayerOpacity', {
-                        layerId: layer.id,
-                        opacity: layer.opacity,
-                    })
-                )
-            }
-            if (!layer.visible) {
-                promisesForAllDispatch.push(store.dispatch('toggleLayerVisibility', layer.id))
+                // if internal (or BOD) layer, we add it through its parsed config
+                log.debug(`  Add layer ${layer.id} to active layers`, layer)
+                promisesForAllDispatch.push(store.dispatch('addLayer', layer))
             }
         }
     })
@@ -119,6 +184,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     parsedLayers
         .filter((layer) => layer.customAttributes && layer.customAttributes.time)
         .forEach((timedLayer) => {
+            log.debug(`  Set timestamp to timed layer ${timedLayer.id}`, timedLayer)
             promisesForAllDispatch.push(
                 store.dispatch('setTimedLayerCurrentTimestamp', {
                     layerId: timedLayer.id,

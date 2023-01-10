@@ -46,17 +46,7 @@ const topicChangeManagementPlugin = (store) => {
             // after init we always add all layers from topic
             if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
                 currentTopic.layersToActivate.forEach((layer) => {
-                    store.dispatch('addLayer', layer.getID())
-                    store.dispatch('setLayerOpacity', {
-                        layerId: layer.getID(),
-                        opacity: layer.opacity,
-                    })
-                    // if layer should be in the list of activated layers but not visible on the map
-                    // we toggle its visibility
-                    store.dispatch('setLayerVisibility', {
-                        layerId: layer.getID(),
-                        visible: layer.visible,
-                    })
+                    store.dispatch('addLayer', layer)
                 })
             }
             // loading topic tree

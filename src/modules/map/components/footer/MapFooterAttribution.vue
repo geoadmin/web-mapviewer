@@ -1,59 +1,102 @@
 <template>
     <div class="map-footer-attribution" data-cy="layers-copyrights">
         <span v-if="sources.length > 0">{{ $t('copyright_data') }}</span>
-        <template v-for="(source, index) in sources" :key="source.attributionName">
+        <template v-for="(source, index) in sources" :key="source.name">
             <a
-                v-if="source.attributionUrl"
-                :href="source.attributionUrl"
+                v-if="source.url"
+                :href="source.url"
                 target="_blank"
                 class="map-footer-attribution-source"
-                :data-cy="`layer-copyright-${source.attributionName}`"
+                :class="{ 'external-source': source.isExternal }"
+                :data-cy="`layer-copyright-${source.name}`"
             >
-                {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
+                {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </a>
             <span
                 v-else
                 class="map-footer-attribution-source"
-                :data-cy="`layer-copyright-${source.attributionName}`"
+                :class="{ 'external-source': source.isExternal }"
+                :data-cy="`layer-copyright-${source.name}`"
             >
-                {{ getAttributionWithComaIfNeeded(source.attributionName, index) }}
+                {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </span>
         </template>
     </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
+import tippy from 'tippy.js'
 
 export default {
     computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
         ...mapGetters(['visibleLayers', 'currentBackgroundLayer']),
         layers() {
-            return [this.currentBackgroundLayer, ...this.visibleLayers].filter(Boolean)
+            const layers = []
+            // when the background is void, we receive `undefined` here
+            if (this.currentBackgroundLayer) {
+                layers.push(this.currentBackgroundLayer)
+            }
+            layers.push(...this.visibleLayers)
+            return layers
         },
         sources() {
             return (
                 this.layers
                     // Discard layers without attribution. (eg. drawing layer)
-                    .filter((layer) => layer.attributionName)
+                    .filter((layer) => layer.attributions.length > 0)
                     // Only keeping one attribution of the same data owner.
-                    .filter((layer, index, array) => {
-                        const firstIndex = array.findIndex(
-                            (item) => item.attributionName === layer.attributionName
-                        )
+                    .map((layer) => {
+                        return layer.attributions.map((attribution) => {
+                            return {
+                                name: attribution.name,
+                                url: attribution.url,
+                                isExternal: layer.isExternal,
+                            }
+                        })
+                    })
+                    .flat()
+                    .filter((attribution, index, array) => {
+                        const firstIndex = array.findIndex((item) => item.name === attribution.name)
                         return index === firstIndex
                     })
-                    // Drop everything but the name and URL.
-                    .map((layer) => ({
-                        attributionName: layer.attributionName,
-                        attributionUrl: layer.attributionUrl,
-                    }))
             )
         },
+    },
+    watch: {
+        lang(lang) {
+            this.externalDisclaimerTooltip?.forEach((instance) => {
+                instance.setContent(this.getExternalDisclaimerPopupContent())
+            })
+        },
+    },
+    updated() {
+        // We need to destroy and recreate the tippy tooltip on each update
+        // otherwise when removing/adding the external layer (e.g. visibility toggle) the
+        // tippy won't work anymore.
+        this.externalDisclaimerTooltip?.forEach((instance) => {
+            instance.destroy()
+        })
+        this.externalDisclaimerTooltip = tippy('.external-source', {
+            content: this.getExternalDisclaimerPopupContent(),
+            arrow: true,
+            placement: 'top',
+        })
+    },
+    unmount() {
+        this.externalDisclaimerTooltip?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         getAttributionWithComaIfNeeded(attribution, index) {
             return `${attribution}${index !== this.sources.length - 1 ? ',' : ''}`
+        },
+        getExternalDisclaimerPopupContent() {
+            return this.$i18n.t('external_data_tooltip')
         },
     },
 }
@@ -67,6 +110,7 @@ export default {
     background: rgba($white, 0.7);
     font-size: 0.7rem;
     text-align: center;
+    position: relative;
 
     &-source {
         margin-left: 2px;
@@ -75,6 +119,9 @@ export default {
 
         &:hover {
             text-decoration: underline;
+        }
+        &.external-source {
+            color: $primary;
         }
     }
 }

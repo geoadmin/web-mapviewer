@@ -201,18 +201,20 @@ export default {
                     await this.saveDrawing(false) // do not retry on error
                 }
 
-                // Only add existing/saved kml to the layer menu. If someone cleared an
-                // existing kml, we want to allow him to re-edit it.
-                if (this.kmlMetadata) {
-                    this.addLayer(
-                        new KMLLayer(
-                            1.0,
-                            getKmlUrl(this.kmlMetadata.id),
-                            this.kmlMetadata.id,
-                            this.kmlMetadata.adminId,
-                            this.kmlMetadata
+                    // Only add existing/saved kml to the layer menu. If someone cleared an
+                    // existing kml, we want to allow him to re-edit it.
+                    if (this.kmlMetadata) {
+                        this.addLayer(
+                            new KMLLayer(
+                                1.0,
+                                true,
+                                getKmlUrl(this.kmlMetadata.id),
+                                this.kmlMetadata.id,
+                                this.kmlMetadata.adminId,
+                                this.$t('draw_layer_label'),
+                                this.kmlMetadata
+                            )
                         )
-                    )
                 }
 
                 this.drawingLayer.getSource().clear()
@@ -337,7 +339,7 @@ export default {
             } catch (e) {
                 log.error('Could not save KML layer: ', e)
                 this.drawingState = DrawingState.SAVE_ERROR
-                if (retryOnError) {
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                     // Retry saving in 5 seconds
                     this.differSaveDrawing(5000)
                 }
@@ -415,7 +417,7 @@ export default {
             } catch (error) {
                 log.error(`Failed to load KML ${layer.fileId}`, error, layer)
                 this.drawingState = DrawingState.LOAD_ERROR
-                if (retryOnError) {
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                     this.differAddKmlLayerToDrawing(layer)
                 }
             }

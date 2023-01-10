@@ -1,6 +1,6 @@
 /**
  * @class
- * @name layers:LayerTimeConfig Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will
+ * @name layers:LayerTimeConfig Time configuration for a {@link GeoAdminWMTSLayer} or {@link GeoAdminWMSLayer}. It will
  *   determine which "timestamp" to add to the URL used to request tiles/image.
  */
 export default class LayerTimeConfig {
