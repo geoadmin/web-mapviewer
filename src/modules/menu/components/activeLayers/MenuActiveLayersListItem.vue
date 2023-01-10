@@ -22,7 +22,7 @@
             />
             <span
                 class="menu-layer-item-name"
-                :data-cy="`visible-layer-name-${id}`"
+                :data-cy="`active-layer-name${id}`"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</span
             >
