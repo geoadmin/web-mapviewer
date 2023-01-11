@@ -177,7 +177,7 @@ export default {
     @extend .menu-title;
     cursor: pointer;
     .menu-topic-item-active & {
-        color: $red;
+        color: $primary;
     }
     .menu-topic-item-theme & {
         border-bottom: 1px solid $gray-400;

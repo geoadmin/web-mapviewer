@@ -196,7 +196,7 @@ $menu-button-diameter: 3px;
         bottom: 0;
 
         &.active {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 }
@@ -257,14 +257,14 @@ $menu-button-diameter: 3px;
         }
 
         &:hover {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 
     .bg-selector-trigger {
         border-width: $menu-button-diameter;
         &:hover {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 
