@@ -250,6 +250,8 @@ export class EditableFeature extends SelectableFeature {
      *
      * @param {Feature} olFeature An olFeature that was just deserialized with
      * @param {DrawingIconSet[]} availableIconSets {@link ol/format/KML}.
+     * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
+     *   otherwise
      */
     static deserialize(olFeature, availableIconSets) {
         const serializedEditableFeature = olFeature.get('editableFeature')

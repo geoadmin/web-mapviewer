@@ -11,7 +11,7 @@ import { CoordinateSystems } from '@/utils/coordinateUtils'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapState } from "vuex";
+import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { getKmlFromUrl } from '@/api/files.api'
 
@@ -44,7 +44,7 @@ export default {
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
-        })
+        }),
     },
     watch: {
         url(newUrl) {
@@ -53,6 +53,9 @@ export default {
         },
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
+        },
+        availableIconSets(availableIconSets) {
+            this.updateFeatures(availableIconSets)
         },
     },
     created() {
@@ -79,15 +82,20 @@ export default {
                 // Reproject all features to webmercator, as this is the projection used for the view
                 featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
             })
-            features.forEach((olFeature) => {
-                EditableFeature.deserialize(olFeature, this.availableIconSets)
-            })
             this.layer.getSource().addFeatures(features)
+            if (this.availableIconSets && this.availableIconSets.length) {
+                this.updateFeatures(this.availableIconSets)
+            }
 
             if (IS_TESTING_WITH_CYPRESS) {
                 window.kmlLayer = this.layer
                 window.kmlLayerUrl = url
             }
+        },
+        updateFeatures(availableIconSets) {
+            this.layer.getSource().forEachFeature((feature) => {
+                EditableFeature.deserialize(feature, availableIconSets)
+            })
         },
     },
 }
