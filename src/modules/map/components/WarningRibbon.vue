@@ -1,11 +1,20 @@
 <template>
-    <div v-if="hasWarningRibbon" class="corner-ribbon" data-cy="warning-ribbon">TEST</div>
+    <div v-if="hasWarningRibbon" class="corner-ribbon" data-cy="warning-ribbon">TEST -
+    <a :href="mailTo"><FontAwesomeIcon :icon="['fas', 'comments']" />{{ $t('app_feedback') }}</a> </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {
+    components: { FontAwesomeIcon },
+    data() {
+      return {
+        mailTo: "mailto:webgis@swisstopo.ch?subject=" +
+          encodeURIComponent("Feedback to new viewer"),
+      }
+  },
     computed: {
         ...mapGetters(['hasWarningRibbon']),
     },
@@ -21,13 +30,21 @@ export default {
 * mobile: ribbon top left, desktop: bottom left
 */
 
+
+.corner-ribbon > a {
+  color: inherit;
+  text-decoration: inherit;
+}
+.fa-comments {
+    margin: 5px;
+}
 .corner-ribbon {
     position: absolute;
     /* top-left */
-    top: 78px;
+    top: 100px;
     bottom: auto;
-    left: -50px;
-    width: 200px;
+    left: -70px;
+    width: 300px;
     transform: rotate(-45deg);
     z-index: $zindex-warning;
     background: $danger;
@@ -36,14 +53,15 @@ export default {
     line-height: 50px;
     letter-spacing: 1px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 @include respond-above(phone) {
     .corner-ribbon {
         /* bottom-left */
         top: auto;
-        bottom: 50px; /* Under cesium inspectors */
-        left: -100px;
+        bottom: 70px; /* Under cesium inspectors */
+        left: -70px;
         width: 300px;
         transform: rotate(45deg);
     }

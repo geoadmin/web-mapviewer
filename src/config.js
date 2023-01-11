@@ -283,7 +283,7 @@ export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.ad
  *
  * @type {String[]}
  */
-export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
+export const WARNING_RIBBON_HOSTNAMES = ['sys-map.dev.bgdi.ch','test.map.geo.admin.ch']
 
 /**
  * To avoid breaking legacy KML drawing during an MVP (test phases) we disable the drawing menu for
