@@ -25,6 +25,12 @@ export class AggregateSubLayer {
         this.minResolution = minResolution
         this.maxResolution = maxResolution
     }
+
+    clone() {
+        let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        clone.layer = this.layer.clone()
+        return clone
+    }
 }
 
 /**
@@ -84,5 +90,12 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
         throw new Error(
             "Aggregate layers shouldn't be asked directly for URL, but sub-layers should"
         )
+    }
+
+    clone() {
+        let clone = super.clone()
+        clone.timeConfig = this.timeConfig.clone()
+        clone.subLayers = this.subLayers.map((subLayer) => subLayer.clone())
+        return clone
     }
 }
