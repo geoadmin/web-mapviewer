@@ -86,7 +86,7 @@
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
         <ModalWithBackdrop v-if="showShareModal" fluid :title="$t('share')" @close="onCloseShare">
-            <ShareForm :kml-metadata="kmlMetadata" />
+            <SharePopup :kml-metadata="kmlMetadata" />
         </ModalWithBackdrop>
     </teleport>
 </template>
@@ -95,7 +95,7 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
-import ShareForm from '@/modules/drawing/components/SharePopup.vue'
+import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
@@ -108,7 +108,7 @@ export default {
         ModalWithBackdrop,
         ButtonWithIcon,
         DrawingToolboxButton,
-        ShareForm,
+        SharePopup,
         DrawingHeader,
     },
     props: {
