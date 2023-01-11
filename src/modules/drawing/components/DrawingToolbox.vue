@@ -81,7 +81,6 @@
             v-if="showClearConfirmationModal"
             show-confirmation-buttons
             fluid
-            data-cy="drawing-toolbox-delete-confirmation-modal"
             @close="onCloseClearConfirmation"
         >
             {{ $t('confirm_remove_all_features') }}
