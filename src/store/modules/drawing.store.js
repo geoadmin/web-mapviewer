@@ -30,12 +30,6 @@ export default {
          * @type {String[]}
          */
         featureIds: [],
-        /**
-         * Current active KML layer
-         *
-         * @type {KMLLayer | null}
-         */
-        activeKmlLayer: null,
     },
     getters: {
         isCurrentlyDrawing(state) {
@@ -67,9 +61,6 @@ export default {
         setDrawingFeatures({ commit }, featureIds) {
             commit('setDrawingFeatures', featureIds)
         },
-        setActiveKmlLayer({ commit }, activeKmlLayer) {
-            commit('setActiveKmlLayer', activeKmlLayer)
-        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
@@ -78,6 +69,5 @@ export default {
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
         setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
-        setActiveKmlLayer: (state, activeKmlLayer) => (state.activeKmlLayer = activeKmlLayer),
     },
 }

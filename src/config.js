@@ -294,4 +294,5 @@ export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
 export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
     'test.map.geo.admin.ch',
     'sys-map.dev.bgdi.ch',
+    'localhost',
 ]

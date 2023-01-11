@@ -1,28 +1,32 @@
+import { getKmlMetadata } from '@/api/files.api'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import i18n from '@/modules/i18n'
+import log from '@/utils/logging'
 
 /** Metadata for an external KML layer, mostly used to show drawing */
 export default class KMLLayer extends AbstractLayer {
     /**
-     * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
-     * @param {boolean} visible If the layer is visible on the map (or hidden)
-     * @param {string} kmlFileUrl The URL to access the KML data
-     * @param {string | null} fileId The KML id (which is part of the kmlFileUrl). If null it is
-     *   parsed from kmlFileUrl.
-     * @param {string | null} adminId The admin id to allow editing. If null then the user is not
-     *   allowed to edit the file.
-     * @param {string | null} name Name of this layer, if nothing is given a default name "Drawing"
-     *   (or equivalent in the current UI lang) will be defined
-     * @param {object | null} metadata Metadata of the KML drawing. This object contains all the
-     *   metadata returned by the backend.
-     * @param {boolean} isExternal Flag telling if this KML comes from our backend (false) or is
-     *   loaded from a different source (true)
+     * @param {string} kmlFileUrl The URL to access the KML data.
+     * @param {boolean} visible If the layer is visible on the map (or hidden).
+     * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
+     *   1.0 (opaque). When `null` is given, then it uses the default value which is `1.0`. Default
+     *   is `1.0`. Default is `1.0`
+     * @param {string | null} [fileId=null] The KML id (which is part of the kmlFileUrl). If null it
+     *   is parsed from kmlFileUrl. Default is `null`
+     * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
+     *   not allowed to edit the file. Default is `null`
+     * @param {string | null} [name=nul] Name of this layer, if nothing is given a default name
+     *   "Drawing" (or equivalent in the current UI lang) will be defined. Default is `nul`
+     * @param {object | null} [metadata=null] Metadata of the KML drawing. This object contains all
+     *   the metadata returned by the backend. Default is `null`
+     * @param {boolean} [isExternal=false] Flag telling if this KML comes from our backend (false)
+     *   or is loaded from a different source (true). Default is `false`
      */
     constructor(
-        opacity,
-        visible,
         kmlFileUrl,
+        visible,
+        opacity = null,
         fileId = null,
         adminId = null,
         name = null,
@@ -32,7 +36,7 @@ export default class KMLLayer extends AbstractLayer {
         super(
             name ?? i18n.global.t('draw_layer_label'),
             LayerTypes.KML,
-            opacity,
+            opacity ?? 1.0,
             visible,
             [], // no attributions set for KML layer (for now)
             false,
@@ -53,11 +57,7 @@ export default class KMLLayer extends AbstractLayer {
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        let id = `KML|${encodeURIComponent(this.kmlFileUrl)}|${this.name}`
-        if (this.adminId) {
-            id += `@adminId=${this.adminId}`
-        }
-        return id
+        return `KML|${encodeURIComponent(this.kmlFileUrl)}|${this.name}`
     }
 
     getURL() {
@@ -70,10 +70,31 @@ export default class KMLLayer extends AbstractLayer {
      * @returns {boolean}
      */
     isLegacy() {
-        if (this.metadata?.author === 'web-mapviewer') {
-            return false
+        return !!(this.metadata?.author !== 'web-mapviewer')
+    }
+
+    /**
+     * Clear the KML Admin ID
+     *
+     * Once the admin id has been cleared we cannot modify this KML anymore
+     */
+    clearAdminId() {
+        this.adminId = null
+        if (this.metadata) {
+            this.metadata.adminId = null
         }
-        return true
+    }
+
+    /**
+     * Get the KML layer metadata from backend or from cache
+     *
+     * @returns {Promise<Object>}
+     */
+    async getMetadata() {
+        if (this.metadata) {
+            return this.metadata
+        }
+        return await getKmlMetadata(this.fileId, this.adminId)
     }
 
     clone() {

@@ -176,6 +176,9 @@ export default {
         toggleDrawingOverlay({ commit, state }) {
             commit('setShowDrawingOverlay', !state.showDrawingOverlay)
         },
+        setShowDrawingOverlay({ commit }, value) {
+            commit('setShowDrawingOverlay', !!value)
+        },
         toggleFloatingTooltip({ commit, state }) {
             commit('setFloatingTooltip', !state.floatingTooltip)
         },

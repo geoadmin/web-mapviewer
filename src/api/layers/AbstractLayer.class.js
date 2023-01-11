@@ -79,4 +79,13 @@ export default class AbstractLayer {
         clone.attributions = this.attributions.map((attribution) => attribution.clone())
         return clone
     }
+
+    /**
+     * Get layer metadata
+     *
+     * @returns {Object | null} Metadata object
+     */
+    async getMetadata() {
+        return null
+    }
 }

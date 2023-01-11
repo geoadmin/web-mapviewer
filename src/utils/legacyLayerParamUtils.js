@@ -86,7 +86,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                     }
                     if (layerId.startsWith('KML||')) {
                         const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                        layer = new KMLLayer(1.0, true, kmlLayerParts[1])
+                        layer = new KMLLayer(kmlLayerParts[1] /* kml url */, true /* visible */)
                     }
                     if (layerId.startsWith('WMTS||')) {
                         const wmtsLayerParts = decodeURIComponent(layerId).split('||')
@@ -174,5 +174,11 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
-    return new KMLLayer(1.0, true, kmlMetaData.links.kml, kmlMetaData.id, kmlMetaData.adminId)
+    return new KMLLayer(
+        kmlMetaData.links.kml,
+        true, // visible
+        null, // opacity, null := use default
+        kmlMetaData.id,
+        kmlMetaData.adminId
+    )
 }

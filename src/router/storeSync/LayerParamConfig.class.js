@@ -1,9 +1,8 @@
-import { getKmlMetadata } from '@/api/files.api'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
+
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
@@ -13,7 +12,7 @@ import log from '@/utils/logging'
  * layer and its state (visibility, opacity, etc...)
  *
  * @param {AbstractLayer} layer
- * @param {GeoAdminLayer[]} defaultLayerConfig
+ * @param {GeoAdminLayer} [defaultLayerConfig]
  * @returns {string}
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
@@ -31,7 +30,6 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
         }
         layerUrlString += `,${layer.opacity}`
     }
-    // TODO: handle custom param
     return layerUrlString
 }
 
@@ -48,12 +46,12 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
     if (parsedLayer.id.startsWith('KML|') && parsedLayer.id.split('|').length === 3) {
         const splitLayerId = parsedLayer.id.split('|')
         return new KMLLayer(
-            parsedLayer.opacity,
+            splitLayerId[1], // kml url
             parsedLayer.visible,
-            splitLayerId[1],
-            null,
+            parsedLayer.opacity,
+            null, // fileId, null := parsed from url
             parsedLayer.customAttributes.adminId,
-            splitLayerId[2]
+            splitLayerId[2] // name
         )
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
@@ -152,27 +150,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             const externalLayer = transformParsedExternalLayerIntoObject(layer)
             if (externalLayer) {
                 log.debug(`  Add external layer ${layer.id} to active layers`, externalLayer)
-                // special case for KML :
-                // Get and attached KML metadata from backend,
-                // this is needed for the drawing module in order to allow (or not) kml editing
-                if (externalLayer.type === LayerTypes.KML) {
-                    promisesForAllDispatch.push(
-                        getKmlMetadata(externalLayer.fileId, externalLayer.adminId)
-                            .then((metadata) => {
-                                externalLayer.metadata = metadata
-                                return store.dispatch('addLayer', externalLayer)
-                            })
-                            .catch((error) => {
-                                log.error(
-                                    `Failed to get KML metadata for ${externalLayer.fileId}`,
-                                    error
-                                )
-                                return store.dispatch('addLayer', externalLayer)
-                            })
-                    )
-                } else {
-                    promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
-                }
+                promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
             } else {
                 // if internal (or BOD) layer, we add it through its parsed config
                 log.debug(`  Add layer ${layer.id} to active layers`, layer)
@@ -212,7 +190,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             'layers',
             [
                 'toggleLayerVisibility',
-                'addLayerWithConfig',
+                'addLayer',
                 'removeLayerWithId',
                 'clearLayers',
                 'moveActiveLayerFromIndexToIndex',
