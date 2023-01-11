@@ -2,7 +2,7 @@
 
 const searchbarSelector = '[data-cy="searchbar"]'
 
-describe('Testing coordinates typing in search bar', () => {
+describe('Testing coordinates typing in search bar', { testIsolation: false }, () => {
     // in order to ease test run, we only load the page once at the begining of this context
     // so that it doesn't load the page for each copy/paste in the search bar
     before(() => {
@@ -172,9 +172,8 @@ describe('Testing coordinates typing in search bar', () => {
             map: `https://w3w.co/${what3words}`,
         }
         it('Calls the what3words backend when a what3words is entered in the searchbar', () => {
-            // starting a server to catch what3words request and stub it with whatever we want
-            cy.server()
-            cy.route('**/convert-to-coordinates**', w3wStub).as('w3w-convert')
+            // intercepting what3words request and stub it with whatever we want
+            cy.intercept('**/convert-to-coordinates**', w3wStub).as('w3w-convert')
             cy.get(searchbarSelector).paste(what3words)
             // checking that the request to W3W has been made (and caught by Cypress)
             cy.wait('@w3w-convert')
