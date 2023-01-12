@@ -43,4 +43,8 @@ export default class LayerTimeConfig {
             this.currentTimestamp = 'current'
         }
     }
+
+    clone() {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+    }
 }

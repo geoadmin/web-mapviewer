@@ -10,6 +10,10 @@ export class LayerAttribution {
         this.name = name
         this.url = url
     }
+
+    clone() {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+    }
 }
 
 /**
@@ -71,6 +75,8 @@ export default class AbstractLayer {
     }
 
     clone() {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        clone.attributions = this.attributions.map((attribution) => attribution.clone())
+        return clone
     }
 }

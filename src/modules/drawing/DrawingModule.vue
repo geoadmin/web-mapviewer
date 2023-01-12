@@ -259,12 +259,6 @@ export default {
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
         }
-
-        /**
-         * Flag used internally in the "show(show)" watcher function. Look at the comment at the top
-         * of the beforementioned function to understand how this flag is used.
-         */
-        this.abortedToggleOverlay = false
     },
     mounted() {
         // We can enable the teleport after the view has been rendered.
