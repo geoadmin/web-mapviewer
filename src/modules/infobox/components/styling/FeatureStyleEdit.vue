@@ -7,6 +7,7 @@
             <textarea
                 id="drawing-style-feature-title"
                 v-model="text"
+                :read-only="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="form-control"
                 rows="1"
@@ -20,6 +21,7 @@
             <textarea
                 id="drawing-style-feature-description"
                 v-model="description"
+                :read-only="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="form-control"
                 rows="2"
@@ -29,7 +31,7 @@
         <div class="d-flex">
             <SelectedFeatureProfile :feature="feature" />
 
-            <div class="d-flex feature-style-edit-control">
+            <div v-if="!readOnly" class="d-flex feature-style-edit-control">
                 <PopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     class="control-button"
@@ -132,6 +134,10 @@ export default {
         availableIconSets: {
             type: Array,
             required: true,
+        },
+        readOnly: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ['close'],

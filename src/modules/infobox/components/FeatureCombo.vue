@@ -1,10 +1,14 @@
 <template>
     <div class="edit-feature" data-infobox="height-reference">
         <div class="edit-feature-form">
-            <FeatureStyleEdit :feature="feature" :available-icon-sets="availableIconSets" />
+            <FeatureStyleEdit
+                :feature="feature"
+                :available-icon-sets="availableIconSets"
+                :read-only="readOnly"
+            />
         </div>
 
-        <FeatureProfile class="edit-feature-plot" :feature="feature" />
+        <FeatureProfile class="edit-feature-plot" :feature="feature" :read-only="readOnly" />
     </div>
 </template>
 
@@ -23,6 +27,10 @@ export default {
         feature: {
             type: EditableFeature,
             required: true,
+        },
+        readOnly: {
+            type: Boolean,
+            default: false,
         },
     },
     computed: {

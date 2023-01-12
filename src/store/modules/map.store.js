@@ -14,19 +14,19 @@ export class ClickInfo {
      * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
-     * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the
+     * @param {Object[]} features List of potential features (geoJSON or KML) that where under the
      *   click
      * @param {ClickType} clickType Which button of the mouse has been used to make this click
      */
     constructor(
         coordinate = [],
         pixelCoordinate = [],
-        geoJsonFeatures = [],
+        features = [],
         clickType = ClickType.LEFT_SINGLECLICK
     ) {
         this.coordinate = [...coordinate]
         this.pixelCoordinate = [...pixelCoordinate]
-        this.geoJsonFeatures = [...geoJsonFeatures]
+        this.features = [...features]
         this.clickType = clickType
     }
 }

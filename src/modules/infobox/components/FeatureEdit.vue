@@ -1,6 +1,10 @@
 <template>
     <div class="feature-edit" data-infobox="height-reference">
-        <FeatureStyleEdit :feature="feature" :available-icon-sets="availableIconSets" />
+        <FeatureStyleEdit
+            :feature="feature"
+            :available-icon-sets="availableIconSets"
+            :read-only="readOnly"
+        />
     </div>
 </template>
 
@@ -17,6 +21,10 @@ export default {
         feature: {
             type: EditableFeature,
             required: true,
+        },
+        readOnly: {
+            type: Boolean,
+            default: false,
         },
     },
     computed: {
