@@ -14,6 +14,7 @@ import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import { getKmlFromUrl } from '@/api/files.api'
+import log from '@/utils/logging'
 
 /** Renders a KML file on the map */
 export default {
@@ -83,23 +84,27 @@ export default {
     },
     methods: {
         async loadKml(url) {
-            const kml = await getKmlFromUrl(url)
-            const features = new KML().readFeatures(kml, {
-                // Reproject all features to webmercator, as this is the projection used for the view
-                featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
-            })
-            // We cannot add the KML features without deserializing it and to deserialize we need
-            // the icon sets which might not be yet available, therefore we keep the raw kml features
-            // in memory when the icon sets is not yet available.
-            if (this.availableIconSets && this.availableIconSets.length) {
-                this.addFeatures(this.availableIconSets, features)
-            } else {
-                this.rawKmlFeatures = features
-            }
+            try {
+                const kml = await getKmlFromUrl(url)
+                const features = new KML().readFeatures(kml, {
+                    // Reproject all features to webmercator, as this is the projection used for the view
+                    featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
+                })
+                // We cannot add the KML features without deserializing it and to deserialize we need
+                // the icon sets which might not be yet available, therefore we keep the raw kml features
+                // in memory when the icon sets is not yet available.
+                if (this.availableIconSets && this.availableIconSets.length) {
+                    this.addFeatures(this.availableIconSets, features)
+                } else {
+                    this.rawKmlFeatures = features
+                }
 
-            if (IS_TESTING_WITH_CYPRESS) {
-                window.kmlLayer = this.layer
-                window.kmlLayerUrl = url
+                if (IS_TESTING_WITH_CYPRESS) {
+                    window.kmlLayer = this.layer
+                    window.kmlLayerUrl = url
+                }
+            } catch (error) {
+                log.error(`Failed to load kml from ${url}`, error)
             }
         },
         addFeatures(availableIconSets, features) {
