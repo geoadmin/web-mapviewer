@@ -144,8 +144,8 @@ Cypress.Commands.add(
             // There are situations where neither value is falsey.
             // But the higher value seems to always be the right one.
             let target = Math.max(targetTopic, targetLayers)
-            // If a layer has been set via adminid we just increment by one.
-            target += Boolean(otherParams.adminid)
+            // If a layer has been set via adminId we just increment by one.
+            target += Boolean(otherParams.adminId)
 
             return active === target
         })

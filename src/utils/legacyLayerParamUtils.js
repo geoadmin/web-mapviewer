@@ -166,7 +166,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 }
 
 /**
- * Returns a KML Layer from the legacy adminid url param.
+ * Returns a KML Layer from the legacy adminId url param.
  *
  * @param {String} adminId KML admin ID
  * @returns {Promise<AbstractLayer>} KML Layer
