@@ -10,17 +10,23 @@
         @contextmenu="onContextMenu"
     >
         <!-- Adding background layer -->
-        <OpenLayersInternalLayer
-            v-if="currentBackgroundLayer"
-            :layer-config="currentBackgroundLayer"
+        <!-- Placing LightBaseMap first if needed, while excluding sources that covers Switzerland
+             (as they are not needed when this layer is added to achieve world-wide coverage while another
+             BG layers covers Switzerland)
+             see load-layersconfig-on-lang-change.js for exclusion definition
+        -->
+        <OpenLayersVectorLayer
+            v-if="lightBaseMapConfigUnderMainBackgroundLayer"
+            :layer-id="lightBaseMapConfigUnderMainBackgroundLayer.getID()"
+            :opacity="lightBaseMapConfigUnderMainBackgroundLayer.opacity"
+            :style-url="lightBaseMapConfigUnderMainBackgroundLayer.getURL()"
+            :exclude-source="lightBaseMapConfigUnderMainBackgroundLayer.excludeSource"
             :z-index="0"
         />
         <OpenLayersInternalLayer
-            v-if="isBackgroundVectorTile && backgroundLayerOnTopOfVectorBackground"
-            :key="backgroundLayerOnTopOfVectorBackground.getID()"
-            :layer-config="backgroundLayerOnTopOfVectorBackground"
-            :current-map-resolution="resolution"
-            :z-index="1"
+            v-if="currentBackgroundLayer"
+            :layer-config="currentBackgroundLayer"
+            :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
         />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
@@ -99,6 +105,7 @@ import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/confi
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
@@ -138,6 +145,7 @@ export default {
         OpenLayersInternalLayer,
         OpenLayersMarker,
         OpenLayersPopover,
+        OpenLayersVectorLayer,
     },
     provide() {
         return {
@@ -197,28 +205,26 @@ export default {
             }
             return null
         },
-        isBackgroundVectorTile() {
-            return (
-                this.currentBackgroundLayer &&
-                this.currentBackgroundLayer.type === LayerTypes.VECTOR
-            )
-        },
-        backgroundLayerOnTopOfVectorBackground() {
-            // we currently only have the case of a light base map vector tile background with our national map on top
-            if (
-                this.isBackgroundVectorTile &&
-                this.currentBackgroundLayer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
-            ) {
+        /**
+         * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
+         * current BG layer is pixelkarte-farbe. We place it this way so that we can keep
+         * pixelkarte-farbe while achieving world-wide coverage (while waiting to receive a
+         * full-fledged VT layer with more details than light base map)
+         *
+         * @returns {GeoAdminVectorLayer | null}
+         */
+        lightBaseMapConfigUnderMainBackgroundLayer() {
+            if (this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe') {
                 return this.backgroundLayers.find(
-                    (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'
+                    (layer) => layer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
                 )
             }
             return null
         },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
-            // checking if the BG layer is a vector layer that has anoter
-            if (this.isBackgroundVectorTile && this.backgroundLayerOnTopOfVectorBackground) {
+            // checking if light base map is used under another layer (we need to start counting from 2 then)
+            if (this.lightBaseMapConfigUnderMainBackgroundLayer) {
                 return 2
             }
             return this.currentBackgroundLayer ? 1 : 0

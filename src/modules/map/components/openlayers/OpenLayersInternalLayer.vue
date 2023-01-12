@@ -1,12 +1,13 @@
 <template>
     <div>
+        <!-- no source exclusion when adding VT layer through here, this is only required in the case the layer is under
+             another (see OpenLayersMap main component)-->
         <OpenLayersVectorLayer
             v-if="layerConfig.type === LayerTypes.VECTOR"
             :z-index="zIndex"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :style-url="layerConfig.getURL()"
-            :exclude-source="layerConfig.excludeSource"
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
