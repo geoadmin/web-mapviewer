@@ -152,7 +152,7 @@ function urlQueryWatcher(store, to) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
-        if (to.name === 'MapView' && from.name !== to.name) {
+        if (to.name === 'MapView' && from.name !== to.name && !unsubscribeStoreMutation) {
             log.debug('Entering MapView, register store mutation watcher')
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) =>
