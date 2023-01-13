@@ -51,6 +51,7 @@ export default {
     },
     created() {
         this.layer = new MapLibreLayer({
+            id: this.layerId,
             opacity: this.opacity,
             maplibreOptions: {
                 style: this.styleUrl,
