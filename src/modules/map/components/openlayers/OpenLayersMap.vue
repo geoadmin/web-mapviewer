@@ -66,7 +66,11 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <FeatureEdit v-if="editFeature" :feature="editFeature" />
+            <FeatureEdit
+                v-if="editFeature"
+                :read-only="!showDrawingOverlay"
+                :feature="editFeature"
+            />
             <FeatureList v-else direction="column" />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
@@ -165,6 +169,7 @@ export default {
             crossHair: (state) => state.position.crossHair,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             clickInfo: (state) => state.map.clickInfo,
+            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -229,6 +234,9 @@ export default {
         },
         zIndexAccuracyCircle() {
             return this.startingZIndexForHighlightedFeatures + this.selectedFeatures.length
+        },
+        visibleKMLLayers() {
+            return this.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
         },
         visibleGeoJsonLayers() {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
@@ -369,60 +377,98 @@ export default {
              */
             this.isPointerDown = true
         },
+        handleClickOnKMLLayer(event, KMLLayer) {
+            // retrieving OpenLayers layer object for this layer
+            let features = []
+            const olLayer = this.map
+                .getLayers()
+                .getArray()
+                .find((layer) => layer.get('id') === KMLLayer.getID())
+            if (olLayer) {
+                // looking at this layer under the mouse cursor
+                this.map
+                    .getFeaturesAtPixel(event.pixel, {
+                        // filtering other layers out
+                        layerFilter: (layer) => layer.get('id') === KMLLayer.getID(),
+                    })
+                    .forEach((feature) => {
+                        const editableFeature = feature.get('editableFeature')
+                        if (editableFeature) {
+                            features.push(editableFeature)
+                        } else {
+                            log.debug(
+                                'KMLs which are not editable Features are not supported for selection'
+                            )
+                        }
+                    })
+            }
+            return features
+        },
+
+        handleClickOnGeoJsonLayer(event, geoJsonLayer) {
+            // retrieving OpenLayers layer object for this layer
+            let features = []
+            const olLayer = this.map
+                .getLayers()
+                .getArray()
+                .find((layer) => layer.get('id') === geoJsonLayer.getID())
+            if (olLayer) {
+                // looking at features for this specific layer under the mouse cursor
+                this.map
+                    .getFeaturesAtPixel(event.pixel, {
+                        // filtering other layers out
+                        layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
+                    })
+                    .forEach((feature) => {
+                        const featureGeometry = feature.getGeometry()
+                        // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+                        // we have to wrap it around the "usual" wrapper from the backend
+                        // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+                        const geoJsonFeature = new LayerFeature(
+                            geoJsonLayer,
+                            geoJsonLayer.getID(),
+                            geoJsonLayer.name,
+                            `<div class="htmlpopup-container">
+                                <div class="htmlpopup-header">
+                                    <span>${geoJsonLayer.name}</span>
+                                </div>
+                                <div class="htmlpopup-content">
+                                    ${feature.get('description')}
+                                </div>
+                            </div>`,
+                            featureGeometry.flatCoordinates,
+                            featureGeometry.getExtent()
+                        )
+                        log.debug('GeoJSON feature found', geoJsonFeature)
+                        features.push(geoJsonFeature)
+                    })
+            }
+            return features
+        },
         onMapSingleClick(event) {
             // if no drawing is currently made
             if (!this.isCurrentlyDrawing && this.isPointerDown) {
                 this.isPointerDown = false
-                const geoJsonFeatures = []
+                const features = []
                 // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-                this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
-                    // retrieving OpenLayers layer object for this layer
-                    const olLayer = this.map
-                        .getLayers()
-                        .getArray()
-                        .find((layer) => layer.get('id') === geoJsonLayer.getID())
-                    if (olLayer) {
-                        // looking at features for this specific layer under the mouse cursor
-                        this.map
-                            .getFeaturesAtPixel(event.pixel, {
-                                // filtering other layers out
-                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
-                            })
-                            .forEach((feature) => {
-                                const featureGeometry = feature.getGeometry()
-                                // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                                // we have to wrap it around the "usual" wrapper from the backend
-                                // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                                const geoJsonFeature = new LayerFeature(
-                                    geoJsonLayer,
-                                    geoJsonLayer.getID(),
-                                    geoJsonLayer.name,
-                                    `<div class="htmlpopup-container">
-                                        <div class="htmlpopup-header">
-                                            <span>${geoJsonLayer.name}</span>
-                                        </div>
-                                        <div class="htmlpopup-content">
-                                            ${feature.get('description')}
-                                        </div>
-                                    </div>`,
-                                    featureGeometry.flatCoordinates,
-                                    featureGeometry.getExtent()
-                                )
-                                log.debug('GeoJSON feature found', geoJsonFeature)
-                                geoJsonFeatures.push(geoJsonFeature)
-                            })
-                    }
+
+                this.visibleGeoJsonLayers.forEach((geoJSonLayer) => {
+                    features.push(...this.handleClickOnGeoJsonLayer(event, geoJSonLayer))
+                })
+                this.visibleKMLLayers.forEach((KMLLayer) => {
+                    features.push(...this.handleClickOnKMLLayer(event, KMLLayer))
                 })
                 this.click(
                     new ClickInfo(
                         event.coordinate,
                         event.pixel,
-                        geoJsonFeatures,
+                        features,
                         ClickType.LEFT_SINGLECLICK
                     )
                 )
             }
         },
+
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
                 this.mapStartBeingDragged()

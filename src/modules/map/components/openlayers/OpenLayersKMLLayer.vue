@@ -64,6 +64,7 @@ export default {
         the getExtent() function and a wrong extent causes the features to sometimes disappear
         from the screen.  */
         this.layer = new VectorLayer({
+            id: this.layerId,
             opacity: this.opacity,
             source: new VectorSource({ wrapX: true }),
         })

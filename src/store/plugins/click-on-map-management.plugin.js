@@ -17,9 +17,12 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
         const allRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
-            if (layer.type === LayerTypes.GEOJSON) {
-                allRequests.push(new Promise((resolve) => resolve(clickInfo.geoJsonFeatures)))
-            } else if (layer.hasTooltip) {
+
+            if (layer.type === LayerTypes.GEOJSON || layer.type === LayerTypes.KML) {
+                allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
+
+            }
+            else if (layer.hasTooltip) {
                 allRequests.push(
                     identify(
                         layer,
@@ -85,9 +88,12 @@ const clickOnMapManagementPlugin = (store) => {
                     store.getters.visibleLayers,
                     store.state.i18n.lang
                 ).then((newSelectedFeatures) => {
+
                     if (!newSelectedFeatures?.length && allowActivateFullscreen) {
+
                         store.dispatch('toggleFullscreenMode')
                     }
+
                     store.dispatch('setSelectedFeatures', newSelectedFeatures)
                 })
             }
