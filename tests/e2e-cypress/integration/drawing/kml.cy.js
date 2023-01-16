@@ -133,7 +133,7 @@ describe('Drawing existing KML - with adminId', () => {
         const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin@adminId=${kmlFileAdminId}`
 
         //open drawing mode
-        cy.goToDrawing({
+        cy.goToMapViewWithDrawingIntercept({
             lang: 'fr',
             otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
             withHash: true,
@@ -187,14 +187,14 @@ describe('Drawing loading KML', () => {
             .should('have.length', 1)
     })
 
-    it('Load kml file with adminId', () => {
+    it('Load kml file with adminId and open drawing mode', () => {
         //load map with an injected kml layer containing a text
         const kmlFileId = 'test-fileID12345678900'
         const kmlFileAdminId = 'test-fileAdminID12345678900'
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
         const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin@adminId=${kmlFileAdminId}`
         //open drawing mode
-        cy.goToDrawing({
+        cy.goToMapViewWithDrawingIntercept({
             lang: 'fr',
             otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
             withHash: true,

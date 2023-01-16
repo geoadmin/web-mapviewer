@@ -1,22 +1,7 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
-
-export class ActiveLayerConfig {
-    /**
-     * @param {String} id The layer id
-     * @param {Boolean} visible Flag telling if the layer should be visible on the map
-     * @param {Number | undefined} opacity The opacity that the layers should have, when `undefined`
-     *   uses the default opacity for the layer.
-     * @param {Object} customAttributes Other attributes relevant for this layer, such as time
-     */
-    constructor(id, visible, opacity = undefined, customAttributes = {}) {
-        this.id = id
-        this.visible = visible
-        this.opacity = opacity
-        this.customAttributes = customAttributes
-    }
-}
 
 const getActiveLayerById = (state, layerId) =>
     state.activeLayers.find((layer) => layer.getID() === layerId)
@@ -71,16 +56,14 @@ const getters = {
      *
      * That is the KML layer that will be used when the drawing mode is opened.
      *
-     * When no KML layer is visible in active layer then null is returned.
+     * When no KML layer is in active layers then null is returned.
      *
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) => {
-        const visibleKmlLayers = state.activeLayers.filter(
-            (layer) => layer.visible && layer.type === LayerTypes.KML
-        )
-        if (visibleKmlLayers.length > 0) {
-            return visibleKmlLayers[visibleKmlLayers.length - 1]
+        const kmlLayers = state.activeLayers.filter((layer) => layer.type === LayerTypes.KML)
+        if (kmlLayers.length > 0) {
+            return kmlLayers[kmlLayers.length - 1]
         }
         return null
     },
@@ -158,8 +141,13 @@ const actions = {
             layer = getters.getLayerConfigById(payload)
         }
         if (layer) {
-            const metadata = await layer.getMetadata()
-            commit('addLayer', { layer: layer, metadata: metadata })
+            try {
+                const metadata = await layer.getMetadata()
+                commit('addLayer', { layer: layer, metadata: metadata })
+            } catch (error) {
+                log.error(`Failed to retrieve layer ${layer.getID()} metadata`, error)
+                commit('addLayer', { layer: layer, metadata: null })
+            }
         } else {
             log.error('no layer found for payload:', payload)
         }

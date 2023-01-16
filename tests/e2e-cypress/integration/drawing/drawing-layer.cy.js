@@ -12,7 +12,23 @@ describe('A drawing layer is added at the end of the drawing session', () => {
             expect(layers).to.be.an('Array').lengthOf(1)
             const [drawingLayer] = layers
             expect(drawingLayer.getID()).to.include('KML|')
+            expect(drawingLayer.visible).to.be.true
         })
+    })
+    it("don't add layer adminId to the url", () => {
+        cy.goToDrawing()
+        cy.drawGeoms()
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.waitUntilState((state) => {
+            return state.layers.activeLayers.length === 1
+        })
+        cy.url().should('not.contain', 'adminId')
+    })
+    it('add kml file id in url while in drawing mode', () => {
+        cy.goToDrawing()
+        cy.drawGeoms()
+        cy.wait('@post-kml')
+        cy.url().should('match', /layers=[^;&]*KML|[^|Drawing,f,1]+/)
     })
 })
 

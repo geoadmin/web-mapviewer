@@ -2,7 +2,7 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { transformParsedExternalLayerIntoObject } from '@/router/storeSync/LayerParamConfig.class'
-import { ActiveLayerConfig } from '@/store/modules/layers.store'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 

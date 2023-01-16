@@ -241,6 +241,7 @@ export default {
             'clearDrawingFeatures',
             'setDrawingFeatures',
             'setShowDrawingOverlay',
+            'setLayerVisibility',
         ]),
         async showDrawingOverlay() {
             this.drawingState = DrawingState.INITIAL
@@ -252,12 +253,17 @@ export default {
                 log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
                 this.isNewDrawing = this.activeKmlLayer.adminId ? false : true
                 await this.addKmlLayerToDrawing(this.activeKmlLayer)
-                // Take ownership of the KML Layer before removing it from the active layers
-                this.kmlLayer = this.activeKmlLayer
-                // Remove the layer to not have an overlap with the drawing from
-                // the drawing manager. We even remove this if the kml load failed as
-                // this layer is not selectable.
-                this.removeLayer(this.activeKmlLayer.getID())
+                // Here we clone the active KML layer in order to be able to change it here
+                // (update metadata) without interfering with the store.
+                this.kmlLayer = this.activeKmlLayer.clone()
+                // to avoid layer superposition of the kml drawing layer and the kml map overlay
+                // we set the kml map overlay to invisible. It is important to keep it in the
+                // active layer in order to keep it in the URL, otherwise if the user reload the
+                // page he loose his drawing.
+                this.setLayerVisibility({
+                    layerId: this.activeKmlLayer.getID(),
+                    visible: false,
+                })
             }
             this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
             this.getMap().addLayer(this.drawingLayer)
@@ -283,10 +289,8 @@ export default {
             // Only add existing/saved kml to the layer menu. If someone cleared an
             // existing kml, we want to allow him to re-edit it.
             if (this.kmlLayer) {
-                // We clear the admind ID, so that by next drawing mode enter we start with
-                // a copy and not overwrite the drawing. To modify the drawing again we need to
-                // set the adminId in the url again.
-                this.kmlLayer.clearAdminId()
+                // make sure that the layer is visible !
+                this.kmlLayer.visible = true
                 this.addLayer(this.kmlLayer)
                 this.kmlLayer = null
             }
@@ -328,13 +332,18 @@ export default {
                     const metadata = await createKml(kml)
                     this.kmlLayer = new KMLLayer(
                         getKmlUrl(metadata.id),
-                        true, // visible
+                        false, // visible to false to not interfere with the drawing
                         null, // opacity, null := use default
                         metadata.id,
                         metadata.adminId,
                         this.$t('draw_layer_label'),
                         metadata
                     )
+                    // Add the new layer to the active layer, this way the layer is present in the
+                    // URL and if the user reload the page it doesn't loose its drawing. We need to
+                    // add a clone to avoid interference with the store.
+                    const layerCloned = this.kmlLayer.clone()
+                    this.addLayer(layerCloned)
                 } else {
                     const metadata = await updateKml(
                         this.kmlLayer.fileId,

@@ -1,5 +1,5 @@
 import { isNumber } from '@/utils/numberUtils'
-import { ActiveLayerConfig } from '@/store/modules/layers.store'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 
 /**
  * Parses the URL param value for `layers` as described in the ADR :

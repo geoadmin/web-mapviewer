@@ -123,6 +123,18 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
+Cypress.Commands.add('goToMapViewWithDrawingIntercept', (...args) => {
+    let kmlFileFixtureFile = null
+    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
+        kmlFileFixtureFile = args[0].kmlFileFixtureFile
+        delete args[0].kmlFileFixtureFile
+    }
+    addIconFixtureAndIntercept()
+    addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
+    cy.goToMapView(...args)
+})
+
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).click()

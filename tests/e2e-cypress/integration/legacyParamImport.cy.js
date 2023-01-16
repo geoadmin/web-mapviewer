@@ -69,8 +69,8 @@ describe('Test on legacy param import', () => {
     })
 
     context('Layers import', () => {
-        const adminId = '0987654321'
-        const kmlId = '1234567890'
+        const adminId = 'ABC0987654321'
+        const kmlId = 'ABC1234567890'
         const kmlServiceBaseUrl = `**/api/kml`
         const kmlServiceAdminUrl = `${kmlServiceBaseUrl}/admin`
         const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/${kmlId}`
@@ -131,7 +131,24 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.adminId).to.equal(adminId)
             })
+        })
+        it("don't keep KML adminId in URL after import", () => {
+            cy.goToMapView('en', {
+                adminId: adminId,
+            })
+            cy.wait('@getKML_ID')
+            cy.wait('@getKML')
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(1)
+                const [kmlLayer] = activeLayers
+                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
+                expect(kmlLayer.opacity).to.eq(1)
+                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.adminId).to.be.equal(adminId)
+            })
+            cy.url().should('not.contain', adminId)
         })
         it('is able to import an external KML from a legacy adminId query param with other layers', () => {
             cy.goToMapView('en', {
