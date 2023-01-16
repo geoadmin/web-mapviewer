@@ -74,7 +74,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         if (layerIdsUrlParam) {
             layerIdsUrlParam
                 .split(',')
-                .map(decodeURI)
+                .map(decodeURIComponent)
                 .forEach((layerId, index) => {
                     let layer = layersConfig.find((layer) => layer.getID() === layerId)
                     // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
@@ -85,11 +85,11 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         layer = layer.clone()
                     }
                     if (layerId.startsWith('KML||')) {
-                        const kmlLayerParts = decodeURIComponent(layerId).split('||')
+                        const kmlLayerParts = layerId.split('||')
                         layer = new KMLLayer(kmlLayerParts[1] /* kml url */, true /* visible */)
                     }
                     if (layerId.startsWith('WMTS||')) {
-                        const wmtsLayerParts = decodeURIComponent(layerId).split('||')
+                        const wmtsLayerParts = layerId.split('||')
                         if (wmtsLayerParts.length >= 3) {
                             layer = new ExternalWMTSLayer(
                                 wmtsLayerParts[1],
@@ -102,7 +102,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         }
                     }
                     if (layerId.startsWith('WMS||')) {
-                        const wmsLayerParts = decodeURIComponent(layerId).split('||')
+                        const wmsLayerParts = layerId.split('||')
                         // we only decode if we have enough material
                         if (wmsLayerParts.length >= 5) {
                             layer = new ExternalWMSLayer(

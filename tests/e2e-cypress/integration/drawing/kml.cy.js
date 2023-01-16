@@ -69,7 +69,7 @@ describe('Drawing new KML', () => {
 describe('Drawing existing KML - without adminId (copy)', () => {
     const kmlFileId = 'test-fileID12345678900'
     const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
-    const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin`
+    const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
     beforeEach(() => {
         //open drawing mode
         cy.goToDrawing({
@@ -130,7 +130,7 @@ describe('Drawing existing KML - with adminId', () => {
         cy.intercept('PUT', new RegExp(`.*/api/kml/admin/(?!${kmlFileId})`), (req) => {
             expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
         }).as('put-kml-not-allowed')
-        const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin@adminId=${kmlFileAdminId}`
+        const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
 
         //open drawing mode
         cy.goToMapViewWithDrawingIntercept({
@@ -165,7 +165,7 @@ describe('Drawing loading KML', () => {
         //load map with an injected kml layer containing a text
         const kmlFileId = 'test-fileID12345678900'
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
-        const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin`
+        const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
 
         //open drawing mode
         cy.goToDrawing({
@@ -192,7 +192,7 @@ describe('Drawing loading KML', () => {
         const kmlFileId = 'test-fileID12345678900'
         const kmlFileAdminId = 'test-fileAdminID12345678900'
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
-        const kmlUrlParam = `KML|${encodeURIComponent(kmlFileUrl)}|Dessin@adminId=${kmlFileAdminId}`
+        const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
         //open drawing mode
         cy.goToMapViewWithDrawingIntercept({
             lang: 'fr',
@@ -247,9 +247,7 @@ describe('Switching from drawing mode to normal mode', () => {
 
         // Hide KML layer and check that kml layer disappeared
         cy.readWindowValue('kmlLayerUrl').then(function (kmlUrl) {
-            const kmlLayerSelector = `[data-cy^="button-toggle-visibility-layer-KML|${encodeURIComponent(
-                kmlUrl
-            )}|`
+            const kmlLayerSelector = `[data-cy^="button-toggle-visibility-layer-KML|${kmlUrl}|`
             cy.get(kmlLayerSelector).click()
             cy.readWindowValue('kmlLayer').should('not.exist')
         })

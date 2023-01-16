@@ -42,7 +42,7 @@ export default class KMLLayer extends AbstractLayer {
             false,
             isExternal
         )
-        this.kmlFileUrl = decodeURIComponent(kmlFileUrl)
+        this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
         if (fileId) {
             this.fileId = fileId
@@ -57,7 +57,7 @@ export default class KMLLayer extends AbstractLayer {
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `KML|${encodeURIComponent(this.kmlFileUrl)}|${this.name}`
+        return `KML|${this.kmlFileUrl}|${this.name}`
     }
 
     getURL() {

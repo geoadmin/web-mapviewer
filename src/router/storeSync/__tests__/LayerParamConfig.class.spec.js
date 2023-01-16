@@ -28,9 +28,7 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         const wmsLayerId = 'random.wms.layer_id'
         const wmsLayerName = 'Totally random name'
         const parsedLayer = new ActiveLayerConfig(
-            `WMS|${encodeURIComponent(wmsBaseUrl)}|${wmsLayerId}|${wmsVersion}|${encodeURIComponent(
-                wmsLayerName
-            )}`,
+            `WMS|${wmsBaseUrl}|${wmsLayerId}|${wmsVersion}|${wmsLayerName}`,
             true,
             0.8
         )
@@ -46,9 +44,7 @@ describe('External layer parsing with transformParsedExternalLayerIntoObject', (
         const wmtsLayerId = 'random.wmts.layer_id'
         const wmtsLayerName = 'Another random name'
         const parsedLayer = new ActiveLayerConfig(
-            `WMTS|${encodeURIComponent(wmtsGetCapUrl)}|${wmtsLayerId}|${encodeURIComponent(
-                wmtsLayerName
-            )}`,
+            `WMTS|${wmtsGetCapUrl}|${wmtsLayerId}|${wmtsLayerName}`,
             true,
             0.8
         )

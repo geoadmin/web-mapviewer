@@ -1,6 +1,6 @@
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { LayerAttribution } from "@/api/layers/AbstractLayer.class";
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -126,11 +126,11 @@ describe('Test parsing of legacy URL param into new params', () => {
                 const kmlFileUrl = 'https://public.geo.admin.ch/super-legit-file-id'
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=KML||${encodeURIComponent(kmlFileUrl)}`
+                    `layers=KML||${kmlFileUrl}`
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
-                expect(kmlLayer.getID()).to.eq(`KML|${encodeURIComponent(kmlFileUrl)}|Drawing`)
+                expect(kmlLayer.getID()).to.eq(`KML|${kmlFileUrl}|Drawing`)
                 expect(kmlLayer.getURL()).to.eq(kmlFileUrl)
             })
             it('Handles opacity/visibility correctly with external layers', () => {
@@ -165,9 +165,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // base URL must be encoded so that no & sign is present, otherwise it would break the URL param parsing
                 expect(externalWmsLayer.getID()).to.eq(
-                    `WMS|${encodeURIComponent(
-                        wmsBaseUrl
-                    )}|${wmsLayerId}|${wmsVersion}|${encodeURIComponent(wmsLayerName)}`
+                    `WMS|${wmsBaseUrl}|${wmsLayerId}|${wmsVersion}|${wmsLayerName}`
                 )
             })
             it('parses a legacy external WMTS layer correctly', () => {
@@ -190,7 +188,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // as there was no definition of the layer name in the URL with the old external layer URL structure, we end up with the layer ID as name too
                 expect(externalWmtsLayer.getID()).to.eq(
-                    `WMTS|${encodeURIComponent(wmtsGetCapabilitesUrl)}|${wmtsLayerId}|${encodeURIComponent(wmtsLayerId)}`
+                    `WMTS|${wmtsGetCapabilitesUrl}|${wmtsLayerId}|${wmtsLayerId}`
                 )
             })
             it('does not parse an external layer if it is in the current format', () => {
@@ -201,9 +199,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(wmtsResult).to.be.an('Array').empty
                 const wmsResult = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `WMS|${encodeURIComponent(
-                        'https://wms.server.url?PARAM1=x&'
-                    )}|layer.id|5.4.3|LayerName`
+                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id|5.4.3|LayerName`
                 )
                 expect(wmsResult).to.be.an('Array').empty
             })

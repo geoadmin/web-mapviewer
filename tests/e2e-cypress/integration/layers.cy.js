@@ -127,9 +127,7 @@ describe('Test of layer handling', () => {
                 const fakeWmsLayerVersion = '9.9.9'
                 const fakeLayerName = 'Fake layer name'
                 // format is WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
-                const fakeLayerUrlId = `WMS|${encodeURIComponent(
-                    fakeWmsBaseUrl
-                )}|${fakeLayerId}|${fakeWmsLayerVersion}|${encodeURIComponent(fakeLayerName)}`
+                const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}|${fakeWmsLayerVersion}|${fakeLayerName}`
 
                 // intercepting call to our fake WMS
                 cy.intercept(`${fakeWmsBaseUrl}/**`, {
@@ -159,9 +157,7 @@ describe('Test of layer handling', () => {
                 const fakeLayerId = 'fakeLayerId'
                 const fakeLayerName = 'Fake layer name'
                 // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
-                const fakeLayerUrlId = `WMTS|${encodeURIComponent(
-                    fakeGetCapUrl
-                )}|${fakeLayerId}|${encodeURIComponent(fakeLayerName)}`
+                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}|${fakeLayerName}`
 
                 // intercepting call to our fake WMTS
                 cy.intercept(`${fakeGetCapUrl}**`, (req) => {
@@ -193,9 +189,7 @@ describe('Test of layer handling', () => {
                 const fakeLayerId = 'fakeLayerId'
                 const fakeLayerName = 'Fake layer name'
                 // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
-                const fakeLayerUrlId = `WMTS|${encodeURIComponent(
-                    fakeGetCapUrl
-                )}|${fakeLayerId}|${encodeURIComponent(fakeLayerName)}`
+                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}|${fakeLayerName}`
 
                 // intercepting call to our fake WMTS
                 cy.intercept(`${fakeGetCapUrl}**`, (req) => {
@@ -610,9 +604,7 @@ describe('Test of layer handling', () => {
             })
             it('shows a red icon to signify a layer is from an external source', () => {
                 const fakeExternalServerUrl = 'https://fake.wms.url'
-                const layerId = `WMS|${encodeURIComponent(
-                    fakeExternalServerUrl
-                )}|fake.wms.layerid|1.3.0|${encodeURIComponent('Fake layer name')}`
+                const layerId = `WMS|${fakeExternalServerUrl}|fake.wms.layerid|1.3.0|${'Fake layer name'}`
                 cy.intercept(`${fakeExternalServerUrl}**`, {
                     fixture: '256.png',
                 })

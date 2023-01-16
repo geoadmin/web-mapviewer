@@ -107,7 +107,7 @@ describe('Test on legacy param import', () => {
         })
         it('is able to import an external KML from a legacy param', () => {
             cy.goToMapView('en', {
-                layers: encodeURIComponent(`KML||${kmlServiceFileUrl}`),
+                layers: `KML||${kmlServiceFileUrl}`,
                 layers_opacity: '0.6',
                 layers_visibility: 'true',
             })
