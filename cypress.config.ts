@@ -13,12 +13,9 @@ module.exports = defineConfig({
         runMode: 5,
         openMode: 0,
     },
-    numTestsKeptInMemory: 5,
-    reporter: 'junit',
+    reporter: 'cypress-multi-reporters',
     reporterOptions: {
-        mochaFile: `./tests/results/e2e/e2e-test-report-[hash].xml`,
-        includePending: true,
-        outputs: true
+        configFile: `./tests/reporter.config.js`,
     },
     viewportWidth: 320,
     viewportHeight: 568,

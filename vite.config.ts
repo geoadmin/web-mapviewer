@@ -34,7 +34,8 @@ export default defineConfig(({ command, mode }) => {
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
             reporter: ['default', 'junit'],
-            outputFile: 'tests/results/unit/unit-test-report.xml'
+            outputFile: 'tests/results/unit/unit-test-report.xml',
+            silent: true,
         },
     }
 })
