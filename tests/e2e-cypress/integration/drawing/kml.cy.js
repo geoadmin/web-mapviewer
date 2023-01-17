@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 import { EditableFeatureTypes } from '@/api/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const olSelector = '.ol-viewport'
 
@@ -23,6 +24,38 @@ describe('Drawing new KML', () => {
         cy.wait('@post-kml').then((interception) =>
             cy.checkKMLRequest(interception, [EditableFeatureTypes.ANNOTATION])
         )
+    })
+    it('keep KML after a page reload', () => {
+        cy.goToDrawing()
+        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.get(olSelector).click('center')
+        cy.wait('@post-kml').then((interception) =>
+            cy.checkKMLRequest(interception, [EditableFeatureTypes.ANNOTATION])
+        )
+        cy.reload(true)
+        cy.waitUntilState((state) => {
+            return state.layers.activeLayers.length > 0
+        })
+        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+            expect(activeLayers.filter((layer) => layer.type === LayerTypes.KML)).to.be.not.empty
+        })
+    })
+    it('edit a copy of drawing after page reload', () => {
+        cy.goToDrawing()
+        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.get(olSelector).click('center')
+        cy.wait('@post-kml').then((interception) =>
+            cy.checkKMLRequest(interception, [EditableFeatureTypes.ANNOTATION])
+        )
+        cy.reload(true)
+        cy.waitUntilState((state) => {
+            return state.layers.activeLayers.length > 0
+        })
+        cy.openDrawingMode()
+        cy.wait('@get-kml')
+        cy.readWindowValue('drawingLayer')
+            .then((layer) => layer.getSource().getFeatures())
+            .should('have.length', 1)
     })
 
     it('Update the previously saved KML if anything is added to the drawing', () => {
