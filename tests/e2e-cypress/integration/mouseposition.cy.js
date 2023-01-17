@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
+import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
-import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import proj4 from 'proj4'
 
 setupProj4()
@@ -231,9 +231,10 @@ describe('Test mouse position', () => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]
                 const params = new URLSearchParams(query)
-                expect(params.get('bgLayer')).to.be.equal(
-                    'ch.swisstopo.leichte-basiskarte_world.vt'
-                )
+                cy.fixture('topics.fixture').then((data) => {
+                    const [defaultTopic] = data.topics
+                    expect(params.get('bgLayer')).to.be.equal(defaultTopic.defaultBackground)
+                })
             })
             cy.get('[data-cy="location-popup-link-input"]').should('have.value', shortUrl1)
 

@@ -42,13 +42,17 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
                 'https://www.openstreetmap.org/copyright'
             ),
         ]
-        // adding vector tile backend through a hardcoded entry (for now)
-        // this should be removed as soon as the backend delivers a proper configuration
-        // for our vector tile background layer
+        /*
+         * adding vector tile backend through a hardcoded entry (for now)
+         *
+         * this should be removed as soon as the backend delivers a proper configuration for our vector tile background layer
+         */
         const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
             VECTOR_LIGHT_BASE_MAP_STYLE_ID,
             openStreetMapAndMapTilersAttributions,
             // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
+            // will be used when this layer is placed under pixelkarte-farbe, this should improve performances as lesser
+            // data will be on-screen hidden by the WMTS tiles
             'swissmaptiles'
         )
         const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID, [
@@ -68,8 +72,8 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         // the default topic ECH to have the vector layer as its default background
         const topicEch = topicsConfig.find((topic) => topic.id === 'ech')
         if (topicEch) {
+            // adding light base map as a background option
             topicEch.backgroundLayers.push(lightBaseMapBackgroundLayer)
-            topicEch.defaultBackgroundLayer = lightBaseMapBackgroundLayer
             // replacing the SWISSIMAGE WMTS layer with the SWISSIMAGE vector layer
             // same as the other one above, this should be removed ASAP (as soon as our backend
             // is serving this configuration through the standard layersConfig endpoint)
