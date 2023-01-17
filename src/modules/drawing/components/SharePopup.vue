@@ -47,6 +47,7 @@
 
 <script>
 import { createShortLink } from '@/api/shortlink.api'
+import { stringifyQuery } from '@/utils/url'
 import log from '@/utils/logging'
 
 export default {
@@ -69,15 +70,20 @@ export default {
         }
     },
     computed: {
+        baseUrl() {
+            return `${location.origin}${location.pathname}#/map`
+        },
         fileUrl() {
             if (this.kmlLayerId) {
-                return `${location.origin}${location.pathname}#/map?layers=${this.kmlLayerId}`
+                const query = { layers: this.kmlLayerId }
+                return `${this.baseUrl}?${stringifyQuery(query)}`
             }
             return ''
         },
         adminUrl() {
             if (this.kmlLayerId && this.kmlAdminId) {
-                return `${this.fileUrl}@adminId=${this.kmlAdminId}`
+                const query = { layers: `${this.kmlLayerId}@adminId=${this.kmlAdminId}` }
+                return `${this.baseUrl}?${stringifyQuery(query)}`
             }
             // if no adminID is available don't show the edit share link.
             return null

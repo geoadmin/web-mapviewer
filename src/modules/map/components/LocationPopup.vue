@@ -105,6 +105,7 @@ import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlo
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
+import { stringifyQuery } from '@/utils/url'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 import log from '@/utils/logging'
@@ -243,7 +244,7 @@ export default {
                 lat,
                 lon,
             }
-            this.shareLinkUrl = `${location.origin}/#/map?${new URLSearchParams(query).toString()}`
+            this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
             this.shortenShareLink(this.shareLinkUrl)
         },
         async shortenShareLink(url) {
