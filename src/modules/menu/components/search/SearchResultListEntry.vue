@@ -1,7 +1,7 @@
 <template>
     <li
         ref="item"
-        class="search-category-entry border-bottom border-light"
+        class="search-category-entry d-flex"
         :data-cy="`search-result-entry-${resultType}`"
         :tabindex="index === 0 ? 0 : -1"
         @keydown.up.prevent="goToPrevious"
@@ -13,9 +13,13 @@
         @mouseleave="stopResultPreview"
     >
         <!-- eslint-disable vue/no-v-html-->
-        <div class="search-category-entry-main p-2" @click="selectItem" v-html="entry.title"></div>
+        <div
+            class="search-category-entry-main p-2 flex-grow-1"
+            @click="selectItem"
+            v-html="entry.title"
+        ></div>
 
-        <div v-if="resultType === 'layer'" class="search-category-entry-controls">
+        <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
             <button
                 class="btn btn-default"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"
@@ -95,20 +99,12 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/scss/media-query.mixin';
 .search-category-entry {
-    display: flex;
-    align-items: center;
     &-main {
-        flex-grow: 1;
         cursor: pointer;
-    }
-    .btn {
-        padding-top: 0;
-        padding-bottom: 0;
-        line-height: 1;
     }
     @include respond-above(phone) {
         &:hover {
-            background-color: $dark;
+            background-color: $secondary;
             color: $light;
             .btn {
                 color: $light;
