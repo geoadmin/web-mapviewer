@@ -128,109 +128,92 @@ let cancelToken = null
  * @param {String} lang The lang ISO code in which the search must be conducted
  * @returns {Promise<CombinedSearchResults>}
  */
-const search = (queryString = '', lang = '') => {
-    return new Promise((resolve, reject) => {
-        if (!lang || lang.length !== 2) {
-            const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
-            log.error(errorMessage)
-            reject(errorMessage)
-        }
-        if (!queryString || queryString.length < 2) {
-            const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
-            log.error(errorMessage)
-            reject(errorMessage)
-        }
-        // if a request is currently pending, we cancel it to start the new one
-        if (cancelToken) {
-            cancelToken.cancel('new search query')
-        }
-        cancelToken = axios.CancelToken.source()
+async function search(queryString = '', lang = '') {
+    if (!lang || lang.length !== 2) {
+        const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
+        log.error(errorMessage)
+        throw Error(errorMessage)
+    }
+    if (!queryString || queryString.length < 2) {
+        const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
+        log.error(errorMessage)
+        throw Error(errorMessage)
+    }
+    // if a request is currently pending, we cancel it to start the new one
+    if (cancelToken) {
+        cancelToken.cancel('new search query')
+    }
+    cancelToken = axios.CancelToken.source()
 
-        // combining the two types backend requests (locations and layers) with axios
-        axios
-            .all([
-                generateAxiosSearchRequest(queryString, lang, 'locations', cancelToken.token),
-                generateAxiosSearchRequest(queryString, lang, 'layers', cancelToken.token),
-            ])
-            .then((responses) => {
-                const layerResults = []
-                const locationResults = []
-                if (responses && responses.length >= 2) {
-                    // reading location results
-                    if (responses[0].data && responses[0].data.results) {
-                        responses[0].data.results.forEach((location) => {
-                            // if the 'attrs' object is not present, we ignore the result (that's where all the juice is)
-                            if (!location.attrs) {
-                                return
-                            }
-                            // reading the main values from the attrs
-                            const { label: title, detail: description, featureId } = location.attrs
-                            // reading coordinates (if defined)
-                            const coordinate = []
-                            if (location.attrs.x && location.attrs.y) {
-                                coordinate.push(location.attrs.x)
-                                coordinate.push(location.attrs.y)
-                            }
-                            // reading the extent from the LineString (if defined)
-                            const extent = []
-                            const zoom = translateSwisstopoPyramidZoomToMercatorZoom(
-                                location.attrs.zoomlevel
-                            )
-                            if (location.attrs.geom_st_box2d) {
-                                const extentMatches = Array.from(
-                                    location.attrs.geom_st_box2d.matchAll(
-                                        /BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g
-                                    )
-                                )[0]
-                                const bottomLeft = [
-                                    Number(extentMatches[1]),
-                                    Number(extentMatches[2]),
-                                ]
-                                const topRight = [
-                                    Number(extentMatches[3]),
-                                    Number(extentMatches[4]),
-                                ]
-                                // checking if both point are the same (can happen if what is shown is a point of interest)
-                                if (
-                                    bottomLeft[0] !== topRight[0] &&
-                                    bottomLeft[1] !== topRight[1]
-                                ) {
-                                    extent.push(bottomLeft, topRight)
-                                }
-                            }
-                            locationResults.push(
-                                new FeatureSearchResult(
-                                    title,
-                                    description,
-                                    featureId,
-                                    coordinate,
-                                    extent,
-                                    zoom
-                                )
-                            )
-                        })
-                    }
-                    // reading layer results
-                    if (responses[1].data && responses[1].data.results) {
-                        responses[1].data.results.forEach((layer) => {
-                            // if object 'attrs' is not defined, we ignore this result
-                            if (!layer.attrs) {
-                                return
-                            }
-                            // reading attrs
-                            const {
-                                label: title,
-                                detail: description,
-                                layer: layerId,
-                            } = layer.attrs
-                            layerResults.push(new LayerSearchResult(title, description, layerId))
-                        })
-                    }
+    // combining the two types backend requests (locations and layers) with axios
+    const layerResponsePromise = generateAxiosSearchRequest(
+        queryString,
+        lang,
+        'layers',
+        cancelToken.token
+    )
+    const locationResponsePromise = generateAxiosSearchRequest(
+        queryString,
+        lang,
+        'locations',
+        cancelToken.token
+    )
+    const layerResults = []
+    const locationResults = []
+    try {
+        const layerResponse = await layerResponsePromise
+        layerResponse?.data.results?.forEach((layer) => {
+            // if object 'attrs' is not defined, we ignore this result
+            if (!layer.attrs) {
+                return
+            }
+            // reading attrs
+            const { label: title, detail: description, layer: layerId } = layer.attrs
+            layerResults.push(new LayerSearchResult(title, description, layerId))
+        })
+    } catch (error) {
+        log.error(`Failed to search layer, fallback to empty result`, error)
+    }
+    try {
+        const locationResponse = await locationResponsePromise
+        locationResponse?.data.results?.forEach((location) => {
+            // if the 'attrs' object is not present, we ignore the result (that's where all the juice is)
+            if (!location.attrs) {
+                return
+            }
+            // reading the main values from the attrs
+            const { label: title, detail: description, featureId } = location.attrs
+            // reading coordinates (if defined)
+            const coordinate = []
+            if (location.attrs.x && location.attrs.y) {
+                coordinate.push(location.attrs.x)
+                coordinate.push(location.attrs.y)
+            }
+            // reading the extent from the LineString (if defined)
+            const extent = []
+            const zoom = translateSwisstopoPyramidZoomToMercatorZoom(location.attrs.zoomlevel)
+            if (location.attrs.geom_st_box2d) {
+                const extentMatches = Array.from(
+                    location.attrs.geom_st_box2d.matchAll(
+                        /BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g
+                    )
+                )[0]
+                const bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
+                const topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
+                // checking if both point are the same (can happen if what is shown is a point of interest)
+                if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
+                    extent.push(bottomLeft, topRight)
                 }
-                resolve(new CombinedSearchResults(layerResults, locationResults))
-                cancelToken = null
-            })
-    })
+            }
+            locationResults.push(
+                new FeatureSearchResult(title, description, featureId, coordinate, extent, zoom)
+            )
+        })
+    } catch (error) {
+        log.error(`Failed to search locations, fallback to empty result`, error)
+    }
+    cancelToken = null
+    return new CombinedSearchResults(layerResults, locationResults)
 }
 
 export default search
