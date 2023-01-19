@@ -23,3 +23,7 @@ $card-cap-padding-y: 0.25rem;
 $card-spacer-y: 0.75rem;
 
 $caret-spacing: 0.75rem;
+
+.btn-xs {
+  @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius)
+}

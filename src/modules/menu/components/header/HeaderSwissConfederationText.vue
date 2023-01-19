@@ -16,7 +16,6 @@
 import { mapGetters } from 'vuex'
 
 export default {
-
     props: {
         currentLang: {
             type: String,
@@ -25,10 +24,9 @@ export default {
     },
     emits: ['click'],
     computed: {
-      ...mapGetters(['hasDevSiteWarning']),
-    }
+        ...mapGetters(['hasDevSiteWarning']),
+    },
 }
-
 </script>
 
 <style lang="scss" scoped>

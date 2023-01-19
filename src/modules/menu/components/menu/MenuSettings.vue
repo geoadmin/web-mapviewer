@@ -8,8 +8,6 @@
 
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
-import { UIModes } from '@/store/modules/ui.store'
-import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

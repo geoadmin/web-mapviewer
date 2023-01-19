@@ -125,14 +125,7 @@ $animation-time: 0.5s;
         z-index: $zindex-drawing-toolbox;
     }
     .header {
-        transition: height $animation-time;
-        width: 100%;
-        background: rgba($white, 0.9);
-        box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
         position: relative;
-        .header-content {
-            transition: height $animation-time;
-        }
     }
     .toolbox-right {
         float: right;

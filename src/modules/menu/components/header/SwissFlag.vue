@@ -17,29 +17,10 @@ export default {
     data() {
         return {
             swissFlagIcon,
-
         }
     },
     computed: {
-      ...mapGetters([
-        'hasDevSiteWarning',
-      ]),
-    }
+        ...mapGetters(['hasDevSiteWarning']),
+    },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-@import 'src/scss/media-query.mixin';
-.swiss-flag {
-    height: 21px;
-    &.dev-site {
-        filter: hue-rotate(225deg);
-    }
-}
-@include respond-above(tablet) {
-    .swiss-flag {
-        height: 34px;
-    }
-}
-</style>

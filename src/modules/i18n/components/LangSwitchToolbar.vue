@@ -1,15 +1,17 @@
 <template>
-    <div class="lang-switch-toolbar p-1">
+    <div
+        :class="{
+            'lang-switch-menu': !isDesktopMode,
+            'p-1': !isDesktopMode,
+            'lang-switch-header': isDesktopMode,
+        }"
+    >
         <button
             v-for="lang in languages"
             :key="lang"
-            class="btn btn-sm"
-            :class="{
-                'btn-light': lang !== currentLang,
-                'btn-primary': lang === currentLang,
-            }"
+            :class="buttonClass(lang)"
             :title="lang.toUpperCase()"
-            :data-cy="'menu-lang-' + lang"
+            :data-cy="`menu-lang-${lang}`"
             @click="changeLang(lang)"
         >
             {{ lang.toUpperCase() }}
@@ -40,6 +42,25 @@ export default {
             this.setLang(lang)
         },
         ...mapActions(['setLang']),
+        buttonClass(lang) {
+            let classes = 'btn'
+            if (this.isDesktopMode) {
+                classes += ' btn-xs btn-link custom-text-decoration'
+                if (lang === this.currentLang) {
+                    classes += ' text-primary'
+                } else {
+                    classes += ' text-black'
+                }
+            } else {
+                classes += ' btn-sm ms-2 me-2'
+                if (lang === this.currentLang) {
+                    classes += ' btn-primary'
+                } else {
+                    classes += ' btn-light'
+                }
+            }
+            return classes
+        },
     },
 }
 </script>
@@ -47,12 +68,13 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-.lang-switch-toolbar {
-    transition: max-height 0.3s linear;
-    button {
-        width: 3rem;
-        margin-right: calc($button-spacer / 2);
-        margin-left: calc($button-spacer / 2);
+.custom-text-decoration {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
     }
+}
+.lang-switch-menu {
+    transition: max-height 0.3s linear;
 }
 </style>

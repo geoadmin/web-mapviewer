@@ -1,6 +1,7 @@
 <template>
     <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
         <MenuSection
+            v-if="isPhoneMode"
             id="settingsSection"
             ref="settingsSection"
             :title="$t('settings')"
@@ -53,7 +54,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import tippy, { followCursor } from 'tippy.js'
 
@@ -86,6 +87,7 @@ export default {
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
         }),
+        ...mapGetters(['isPhoneMode']),
         showLayerList() {
             return this.activeLayers.length > 0
         },
@@ -133,7 +135,7 @@ export default {
             if (this.nonScrollableMenuSections.includes(id)) {
                 toClose = toClose.concat(this.scrollableMenuSections)
             }
-            toClose.forEach((section) => this.$refs[section].close())
+            toClose.forEach((section) => this.$refs[section]?.close())
         },
         setDisableDrawingTooltipContent() {
             this.disableDrawingTooltip?.forEach((instance) => {
