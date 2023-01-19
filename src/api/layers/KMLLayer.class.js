@@ -10,8 +10,8 @@ export default class KMLLayer extends AbstractLayer {
      * @param {string} kmlFileUrl The URL to access the KML data.
      * @param {boolean} visible If the layer is visible on the map (or hidden).
      * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
-     *   1.0 (opaque). When `null` is given, then it uses the default value which is `1.0`. Default
-     *   is `1.0`. Default is `1.0`
+     *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`.
+     *   Default is `1.0`
      * @param {string | null} [fileId=null] The KML id (which is part of the kmlFileUrl). If null it
      *   is parsed from kmlFileUrl. Default is `null`
      * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
@@ -71,18 +71,6 @@ export default class KMLLayer extends AbstractLayer {
      */
     isLegacy() {
         return !!(this.metadata?.author !== 'web-mapviewer')
-    }
-
-    /**
-     * Clear the KML Admin ID
-     *
-     * Once the admin id has been cleared we cannot modify this KML anymore
-     */
-    clearAdminId() {
-        this.adminId = null
-        if (this.metadata) {
-            this.metadata.adminId = null
-        }
     }
 
     /**

@@ -17,11 +17,9 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      */
     constructor(name, opacity, visible, getCapabilitiesUrl, externalLayerId, attributions) {
         super(
-            // as we are encoding the name in getID(), we must decode it here when receiving it through the URL parser
             name,
             LayerTypes.WMTS,
             externalLayerId,
-            // same thing with the getCap URL, we encode it in getID, so it must be decoded
             getCapabilitiesUrl,
             opacity,
             visible,

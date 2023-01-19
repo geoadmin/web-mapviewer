@@ -188,8 +188,6 @@ const actions = {
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                // For KML layers the configuration doesn't requires translation as they only have
-                // the layer name to be translated and it is done dynamically using a getter name()
                 commit('addLayer', { layer: layer.clone() })
             }
         }
