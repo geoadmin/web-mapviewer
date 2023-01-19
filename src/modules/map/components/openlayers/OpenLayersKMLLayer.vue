@@ -55,7 +55,12 @@ export default {
             this.layer.setOpacity(newOpacity)
         },
         availableIconSets(availableIconSets) {
-            this.updateFeatures(availableIconSets)
+            // If we have previously loaded raw kml features, see loadKml(), then
+            // add them to the vector source.
+            if (this.rawKmlFeatures) {
+                this.addFeatures(availableIconSets, this.rawKmlFeatures)
+                this.rawKmlFeatures = null
+            }
         },
     },
     created() {
@@ -83,9 +88,13 @@ export default {
                 // Reproject all features to webmercator, as this is the projection used for the view
                 featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
             })
-            this.layer.getSource().addFeatures(features)
+            // We cannot add the KML features without deserializing it and to deserialize we need
+            // the icon sets which might not be yet available, therefore we keep the raw kml features
+            // in memory when the icon sets is not yet available.
             if (this.availableIconSets && this.availableIconSets.length) {
-                this.updateFeatures(this.availableIconSets)
+                this.addFeatures(this.availableIconSets, features)
+            } else {
+                this.rawKmlFeatures = features
             }
 
             if (IS_TESTING_WITH_CYPRESS) {
@@ -93,10 +102,18 @@ export default {
                 window.kmlLayerUrl = url
             }
         },
-        updateFeatures(availableIconSets) {
-            this.layer.getSource().forEachFeature((feature) => {
-                EditableFeature.deserialize(feature, availableIconSets)
-            })
+        addFeatures(availableIconSets, features) {
+            if (features) {
+                features.forEach((olFeature) => {
+                    EditableFeature.deserialize(olFeature, availableIconSets)
+                })
+                // remove all old features first
+                this.layer.getSource().clear()
+                // add the deserialized features
+                this.layer.getSource().addFeatures(features)
+            } else {
+                log.error(`No KML features available to add`, features)
+            }
         },
     },
 }
