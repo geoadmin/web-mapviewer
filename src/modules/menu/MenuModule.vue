@@ -6,7 +6,7 @@
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-show="isHeaderShown" class="header" />
+        <HeaderWithSearch v-if="isHeaderShown" class="header" />
         <div class="toolbox-right">
             <GeolocButton
                 v-if="!isFullscreenMode"
