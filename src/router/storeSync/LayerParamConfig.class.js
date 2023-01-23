@@ -53,7 +53,9 @@ export function createLayerObject(parsedLayer) {
             parsedLayer.opacity,
             null, // fileId, null := parsed from url
             parsedLayer.customAttributes.adminId,
-            splitLayerId[2] // name
+            splitLayerId[2], // name
+            null, // metadata
+            [new LayerAttribution(new URL(splitLayerId[1]).hostname)]
         )
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME

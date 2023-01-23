@@ -33,6 +33,7 @@ export default class KMLLayer extends AbstractLayer {
         adminId = null,
         name = null,
         metadata = null,
+        attribution = [],
         isExternal = false,
         addToMap = true
     ) {
@@ -41,7 +42,7 @@ export default class KMLLayer extends AbstractLayer {
             LayerTypes.KML,
             opacity ?? 1.0,
             visible,
-            [], // no attributions set for KML layer (for now)
+            attribution, // no attributions set for KML layer (for now)
             false,
             isExternal
         )

@@ -56,6 +56,7 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, updateKml, getKmlUrl } from '@/api/files.api'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
@@ -345,7 +346,6 @@ export default {
                         this.$t('draw_layer_label'),
                         metadata,
                         false, // external
-                        // do not add the drawing to the openlayer map overlay yet
                         // to not interfer with the drawing overlay.
                         false // addToMap
                     )

@@ -35,10 +35,21 @@
             />
             <FontAwesomeIcon
                 v-if="layer.isExternal"
-                id="externalDisclaimerIcon"
-                class="text-primary p-2"
+                class="disclaimer-icon text-primary p-2"
                 icon="user"
                 data-cy="menu-external-disclaimer-icon"
+            />
+            <FontAwesomeIcon
+                v-if="isKmlLayer"
+                class="disclaimer-icon me-2"
+                :class="{
+                    'text-dark': isKmlEditable,
+                    'text-primary': !isKmlEditable,
+                    // 'external-kml-disclaimer': !isKmlEditable,
+                    // 'editable-kml-disclaimer': isKmlEditable,
+                }"
+                :icon="kmlLayerIcon"
+                data-cy="menu-kml-disclaimer-icon"
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
@@ -100,8 +111,10 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import tippy from 'tippy.js'
 import { mapState } from 'vuex'
+import log from '@/utils/logging'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -167,6 +180,18 @@ export default {
             }
             return transformation
         },
+        isKmlLayer() {
+            return this.layer.type === LayerTypes.KML
+        },
+        kmlLayerIcon() {
+            return this.layer.adminId ? 'user-pen' : 'user-lock'
+        },
+        isKmlEditable() {
+            if (this.isKmlLayer) {
+                return !!this.layer.adminId
+            }
+            return false
+        },
     },
     watch: {
         compact(compact) {
@@ -175,26 +200,33 @@ export default {
             })
         },
         lang(lang) {
-            this.externalDisclaimerPopup?.forEach((instance) => {
-                instance.setContent(this.getExternalDisclaimerPopupContent())
+            this.disclaimerPopup?.forEach((instance) => {
+                instance.setContent(this.getDisclaimerPopupContent())
             })
         },
     },
     mounted() {
-        if (this.layer.isExternal) {
-            this.externalDisclaimerPopup = tippy('#externalDisclaimerIcon', {
-                content: this.getExternalDisclaimerPopupContent(),
+        this.disclaimerPopup = []
+        if (this.layer.isExternal || this.isKmlLayer) {
+            this.disclaimerPopup = tippy('.disclaimer-icon', {
+                content: this.getDisclaimerPopupContent(),
                 arrow: true,
                 placement: this.compact ? 'right' : 'bottom',
                 hideOnClick: false,
                 trigger: 'mouseenter focus click',
                 onShow: (instance) => {
+                    log.debug(
+                        `Show tippy: ${this.getDisclaimerPopupContent()}`,
+                        instance,
+                        this.layer
+                    )
                     // for mobile (non-compact) we hide the tooltip after 5sec
                     if (!this.compact) {
                         setTimeout(() => {
                             instance.hide()
                         }, 5000)
                     }
+                    // instance.setContent(this.getDisclaimerPopupContent())
                 },
                 onClickOutside: (instance, event) => {
                     // because on mobile we hide it after a 5 seconds timeout
@@ -205,7 +237,7 @@ export default {
         }
     },
     beforeUnmount() {
-        this.externalDisclaimerPopup?.forEach((instance) => {
+        this.disclaimerPopup.forEach((instance) => {
             instance.destroy()
         })
     },
@@ -232,8 +264,14 @@ export default {
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
-        getExternalDisclaimerPopupContent() {
+        getDisclaimerPopupContent() {
+            // if (this.isExternal) {
             return this.$i18n.t('external_data_tooltip')
+            // } else if (this.isKmlLayer && this.layer.adminId) {
+            //     return `KML Drawing can be edited by entering drawing menu`
+            // } else if (this.isKmlLayer) {
+            //     return `KML Drawing provided by third party`
+            // }
         },
     },
 }

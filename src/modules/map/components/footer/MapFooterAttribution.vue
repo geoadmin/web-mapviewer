@@ -7,7 +7,7 @@
                 :href="source.url"
                 target="_blank"
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'external-source': hasExternalDisclaimer(source) }"
                 :data-cy="`layer-copyright-${source.name}`"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
@@ -15,7 +15,7 @@
             <span
                 v-else
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'external-source': hasExternalDisclaimer(source) }"
                 :data-cy="`layer-copyright-${source.name}`"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
@@ -27,6 +27,8 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import tippy from 'tippy.js'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import log from '@/utils/logging'
 
 export default {
     computed: {
@@ -50,11 +52,12 @@ export default {
                     .filter((layer) => layer.attributions.length > 0)
                     // Only keeping one attribution of the same data owner.
                     .map((layer) => {
+                        log.debug(`==map layer`, layer)
                         return layer.attributions.map((attribution) => {
                             return {
                                 name: attribution.name,
                                 url: attribution.url,
-                                isExternal: layer.isExternal,
+                                isExternal: layer.isExternal || layer.type === LayerTypes.KML,
                             }
                         })
                     })
@@ -97,6 +100,10 @@ export default {
         },
         getExternalDisclaimerPopupContent() {
             return this.$i18n.t('external_data_tooltip')
+        },
+        hasExternalDisclaimer(source) {
+            log.debug(`====source`, source)
+            return source.isExternal || source.type === LayerTypes.KML
         },
     },
 }
