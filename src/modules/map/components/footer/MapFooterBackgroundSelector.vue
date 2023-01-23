@@ -13,7 +13,7 @@
                 :class="[
                     getLayerClass(background),
                     `bg-index-${index}`,
-                    { active: background.getID() === currentBackgroundLayerId },
+                    { active: background.getID() === currentBackgroundLayerWithVoid.getID() },
                 ]"
                 type="button"
                 :tabindex="showBgWheel ? 0 : -1"
@@ -29,7 +29,7 @@
             class="bg-selector-trigger"
             :class="[
                 { 'bigger-pulse': animateMainButton },
-                getLayerClass(currentBackgroundLayerWithVoid),
+                'bg-ch-swisstopo-leichte-basiskarte-imagery_world-vt',
             ]"
             type="button"
             :title="$t('bg_toggle')"
