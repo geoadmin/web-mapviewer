@@ -30,6 +30,15 @@ export default {
          * @type {String[]}
          */
         featureIds: [],
+        /**
+         * Open drawing mode on Admin ID parsed from URL
+         *
+         * This flag is set to true when an Admin ID has been parsed and removed from URL. In this
+         * case we should open the drawing mode.
+         *
+         * @type {boolean}
+         */
+        openOnAdminId: false,
     },
     getters: {
         isCurrentlyDrawing(state) {
@@ -61,6 +70,9 @@ export default {
         setDrawingFeatures({ commit }, featureIds) {
             commit('setDrawingFeatures', featureIds)
         },
+        setOpenOnAdminId({ commit }, value) {
+            commit('setOpenOnAdminId', value)
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
@@ -69,5 +81,6 @@ export default {
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
         setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
+        setOpenOnAdminId: (state, value) => (state.openOnAdminId = value),
     },
 }

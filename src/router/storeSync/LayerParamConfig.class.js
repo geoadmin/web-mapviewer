@@ -2,6 +2,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
@@ -41,11 +42,12 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
  *   corresponding layer if the given layer is an external one, otherwise returns `null`
  */
-export function transformParsedExternalLayerIntoObject(parsedLayer) {
+export function createLayerObject(parsedLayer) {
+    let layer = parsedLayer
     // format is :  KML|FILE_URL|LAYER_NAME
     if (parsedLayer.id.startsWith('KML|') && parsedLayer.id.split('|').length === 3) {
         const splitLayerId = parsedLayer.id.split('|')
-        return new KMLLayer(
+        layer = new KMLLayer(
             splitLayerId[1], // kml url
             parsedLayer.visible,
             parsedLayer.opacity,
@@ -58,7 +60,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
     else if (parsedLayer.id.startsWith('WMTS|')) {
         const [externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId, layerName] =
             parsedLayer.id.split('|')
-        return new ExternalWMTSLayer(
+        layer = new ExternalWMTSLayer(
             layerName,
             parsedLayer.opacity,
             parsedLayer.visible,
@@ -72,7 +74,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
     else if (parsedLayer.id.startsWith('WMS|')) {
         const [externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
             parsedLayer.id.split('|')
-        return new ExternalWMSLayer(
+        layer = new ExternalWMSLayer(
             layerName,
             parsedLayer.opacity,
             parsedLayer.visible,
@@ -82,6 +84,7 @@ export function transformParsedExternalLayerIntoObject(parsedLayer) {
             wmsVersion
         )
     }
+    return layer
 }
 
 function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
@@ -138,20 +141,18 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         }
     })
     // adding any layer that is not present yet
-    parsedLayers.forEach((layer) => {
+    parsedLayers.forEach((parsedLayer) => {
         if (
-            !store.state.layers.activeLayers.find((activeLayer) => activeLayer.getID() === layer.id)
+            !store.state.layers.activeLayers.find(
+                (activeLayer) => activeLayer.getID() === parsedLayer.id
+            )
         ) {
-            // checking if it is an external layer first
-            const externalLayer = transformParsedExternalLayerIntoObject(layer)
-            if (externalLayer) {
-                log.debug(`  Add external layer ${layer.id} to active layers`, externalLayer)
-                promisesForAllDispatch.push(store.dispatch('addLayer', externalLayer))
-            } else {
-                // if internal (or BOD) layer, we add it through its parsed config
-                log.debug(`  Add layer ${layer.id} to active layers`, layer)
-                promisesForAllDispatch.push(store.dispatch('addLayer', layer))
+            const layerObject = createLayerObject(parsedLayer)
+            if (layerObject.type == LayerTypes.KML && layerObject.adminId) {
+                promisesForAllDispatch.push(store.dispatch('setOpenOnAdminId', true))
             }
+            log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
+            promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
         }
     })
     // setting timestamps fore timed layers if specified in the URL

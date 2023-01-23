@@ -115,6 +115,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
+            openOnAdminId: (state) => state.drawing.openOnAdminId,
         }),
         kmlLayerId() {
             return this.kmlLayer?.getID()
@@ -242,6 +243,7 @@ export default {
             'setDrawingFeatures',
             'setShowDrawingOverlay',
             'setLayerVisibility',
+            'setOpenOnAdminId',
         ]),
         async showDrawingOverlay() {
             this.drawingState = DrawingState.INITIAL
@@ -445,7 +447,10 @@ export default {
             }
         },
         async openDrawingOnAdminId(layer) {
-            if (layer?.adminId && !this.isDrawingOpen && !layer?.isLegacy()) {
+            if (layer?.adminId && !this.isDrawingOpen && this.openOnAdminId && !layer?.isLegacy()) {
+                // clear the openOnAdminId flag to avoid re-opening
+                // the drawing menu once closed and the active layers is updated.
+                this.setOpenOnAdminId(false)
                 await this.setShowDrawingOverlay(true)
             }
         },
