@@ -1,9 +1,9 @@
 <template>
     <div data-cy="menu-tray-inner" :class="[{ 'menu-tray-compact': compact }, 'menu-tray-inner']">
         <MenuSection
-            v-if="isPhoneMode"
             id="settingsSection"
             ref="settingsSection"
+            class="settings-section"
             :title="$t('settings')"
             :show-content="false"
             secondary
@@ -147,6 +147,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+
 .menu-tray-inner {
     display: grid;
     overflow: hidden;
@@ -159,5 +161,12 @@ export default {
 // UI is compact if in desktop mode
 .menu-tray-compact {
     font-size: 0.825rem;
+}
+
+@include respond-above(lg) {
+    .settings-section {
+        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+        display: none;
+    }
 }
 </style>

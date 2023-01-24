@@ -29,7 +29,7 @@
                 />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <div v-if="!isPhoneMode" class="d-flex flex-shrink-0 flex-grow-0 ms-auto">
+            <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto">
                 <LangSwitchToolbar id="menu-lang-selector" />
             </div>
             <HeaderMenuButton v-if="isPhoneMode" />
@@ -106,6 +106,13 @@ $animation-time: 0.5s;
 .search-header-swiss-confederation-text,
 .search-title {
     display: none;
+}
+
+@include respond-below(lg) {
+    .header-settings-section {
+        // See MenuTray.vue where the settings section is enable above lg
+        display: none !important;
+    }
 }
 
 @include respond-above(lg) {
