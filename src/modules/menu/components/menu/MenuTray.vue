@@ -149,11 +149,11 @@ export default {
 <style lang="scss" scoped>
 .menu-tray-inner {
     display: grid;
-    /* One entry for each menu section.
-    - "min-content" means the menu section is non-scrollable (intrinsic size i.e. based solely on content)
-    - "auto" means the menu section is scrollable (size based on content and the container) */
-    grid-template-rows: min-content min-content min-content auto auto;
     overflow: hidden;
+
+    // Each menu section is in a grid row, to make them scrollable independently of each other we
+    // use the grid-auto-rows: auto
+    grid-auto-rows: auto;
 }
 
 // UI is compact if in desktop mode
