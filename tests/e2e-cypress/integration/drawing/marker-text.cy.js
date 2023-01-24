@@ -44,8 +44,8 @@ const createMarkerAndOpenIconStylePopup = () => {
         MAP_CENTER[0],
         6156527.960512564
     )
-    cy.wait('@iconSets')
-    cy.wait('@iconSet-default')
+    cy.wait('@icon-sets')
+    cy.wait('@icon-set-default')
     cy.get('[data-cy="drawing-style-marker-button"]').click()
     return kmlId
 }
@@ -205,7 +205,7 @@ describe('Drawing marker/points', () => {
                 createMarkerAndOpenIconStylePopup()
                 cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
                 cy.get('[data-cy="dropdown-item-civil symbols"]').click()
-                cy.wait('@iconSet-babs')
+                cy.wait('@icon-set-babs')
                 cy.wait('@icon-babs')
                     .its('request.url')
                     .should('include', '/api/icons/sets/babs/icons/')

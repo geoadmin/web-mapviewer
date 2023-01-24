@@ -54,6 +54,24 @@ const addWhat3WordFixtureAndIntercept = () => {
     }).as('coordinates-for-w3w')
 }
 
+const addIconsSetIntercept = () => {
+    cy.intercept(`**/api/icons/sets`, {
+        fixture: 'service-icons/sets.fixture.json',
+    }).as('icon-sets')
+}
+
+const addDefaultIconsFixtureAndIntercept = () => {
+    cy.intercept(`**/api/icons/sets/default/icons`, {
+        fixture: 'service-icons/set-default.fixture.json',
+    }).as('icon-set-default')
+}
+
+const addSecondIconsFixtureAndIntercept = () => {
+    cy.intercept(`**/api/icons/sets/babs/icons`, {
+        fixture: 'service-icons/set-babs.fixture.json',
+    }).as('icon-set-babs')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addLayerTileFixture,
@@ -62,6 +80,9 @@ export function getDefaultFixturesAndIntercepts() {
         addCatalogFixtureAndIntercept,
         addHeightFixtureAndIntercept,
         addWhat3WordFixtureAndIntercept,
+        addIconsSetIntercept,
+        addDefaultIconsFixtureAndIntercept,
+        addSecondIconsFixtureAndIntercept,
     }
 }
 

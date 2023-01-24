@@ -4,24 +4,6 @@ import pako from 'pako'
 
 const olSelector = '.ol-viewport'
 
-const addIconSetsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets`, {
-        fixture: 'service-icons/sets.fixture.json',
-    }).as('iconSets')
-}
-
-const addDefaultIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/default/icons`, {
-        fixture: 'service-icons/set-default.fixture.json',
-    }).as('iconSet-default')
-}
-
-const addSecondIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/babs/icons`, {
-        fixture: 'service-icons/set-babs.fixture.json',
-    }).as('iconSet-babs')
-}
-
 const addIconFixtureAndIntercept = () => {
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
         fixture: 'service-icons/placeholder.png',
@@ -126,9 +108,6 @@ Cypress.Commands.add('goToDrawing', (...args) => {
         delete args[0].kmlFileFixtureFile
     }
     addIconFixtureAndIntercept()
-    addIconSetsFixtureAndIntercept()
-    addDefaultIconsFixtureAndIntercept()
-    addSecondIconsFixtureAndIntercept()
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
     cy.goToMapView(...args)
