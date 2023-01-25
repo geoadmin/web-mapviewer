@@ -46,14 +46,17 @@
 </template>
 
 <script>
-import { getKmlUrl } from '@/api/files.api'
 import { createShortLink } from '@/api/shortlink.api'
 import log from '@/utils/logging'
 
 export default {
     props: {
-        kmlMetadata: {
-            type: Object,
+        kmlLayerId: {
+            type: String,
+            default: '',
+        },
+        kmlAdminId: {
+            type: [String, null],
             default: null,
         },
     },
@@ -67,25 +70,24 @@ export default {
     },
     computed: {
         fileUrl() {
-            if (this.kmlMetadata && this.kmlMetadata.id) {
-                return `${location.origin}/#/map?layers=KML|${getKmlUrl(
-                    this.kmlMetadata.id
-                )}|${this.$t('draw_layer_label')}`
+            if (this.kmlLayerId) {
+                return `${location.origin}${location.pathname}#/map?layers=${this.kmlLayerId}`
             }
             return ''
         },
         adminUrl() {
-            if (this.kmlMetadata && this.kmlMetadata.id && this.kmlMetadata.adminId) {
-                return `${location.origin}/#/map?layers=KML|${getKmlUrl(
-                    this.kmlMetadata.id
-                )}|${this.$t('draw_layer_label')}@adminId=${this.kmlMetadata.adminId}`
+            if (this.kmlLayerId && this.kmlAdminId) {
+                return `${this.fileUrl}@adminId=${this.kmlAdminId}`
             }
             // if no adminID is available don't show the edit share link.
             return null
         },
     },
     watch: {
-        kmlMetadata() {
+        kmlAdminId() {
+            this.updateAdminShareUrl()
+        },
+        kmlLayerId() {
             this.updateShareUrl()
             this.updateAdminShareUrl()
         },

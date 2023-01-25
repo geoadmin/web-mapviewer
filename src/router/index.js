@@ -1,7 +1,6 @@
 import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
-import stringifyQuery from '@/router/stringifyQuery'
 import store from '@/store'
 import LoadingView from '@/views/LoadingView.vue'
 
@@ -35,8 +34,6 @@ const router = createRouter({
             },
         },
     ],
-    // we add a custom stringifier so that the `layers=` param is left untouched by the URL encoder
-    stringifyQuery: stringifyQuery,
 })
 
 appLoadingManagementRouterPlugin(router, store)

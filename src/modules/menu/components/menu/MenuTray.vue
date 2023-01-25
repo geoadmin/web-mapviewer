@@ -81,9 +81,9 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['activeKmlLayer']),
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
-            activeKmlLayer: (state) => state.drawing.activeKmlLayer,
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
         }),
@@ -97,7 +97,7 @@ export default {
                     (hostname) => hostname === this.hostname
                 )
             ) {
-                if (this.activeKmlLayer && this.activeKmlLayer.isLegacy()) {
+                if (this.activeKmlLayer?.adminId && this.activeKmlLayer?.isLegacy()) {
                     return true
                 }
             }

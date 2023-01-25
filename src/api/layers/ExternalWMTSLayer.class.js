@@ -17,12 +17,10 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      */
     constructor(name, opacity, visible, getCapabilitiesUrl, externalLayerId, attributions) {
         super(
-            // as we are encoding the name in getID(), we must decode it here when receiving it through the URL parser
-            decodeURIComponent(name),
+            name,
             LayerTypes.WMTS,
             externalLayerId,
-            // same thing with the getCap URL, we encode it in getID, so it must be decoded
-            decodeURIComponent(getCapabilitiesUrl),
+            getCapabilitiesUrl,
             opacity,
             visible,
             attributions
@@ -31,8 +29,6 @@ export default class ExternalWMTSLayer extends ExternalLayer {
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `WMTS|${encodeURIComponent(this.baseURL)}|${
-            this.externalLayerId
-        }|${encodeURIComponent(this.name)}`
+        return `WMTS|${this.baseURL}|${this.externalLayerId}|${this.name}`
     }
 }

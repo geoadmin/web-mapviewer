@@ -1,5 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
+import log from '@/utils/logging'
 
 /**
  * @typedef SelectedFeatureData
@@ -31,11 +32,14 @@ export default {
          */
         featureIds: [],
         /**
-         * Current active KML layer
+         * Open drawing mode on Admin ID parsed from URL
          *
-         * @type {KMLLayer | null}
+         * This flag is set to true when an Admin ID has been parsed and removed from URL. In this
+         * case we should open the drawing mode.
+         *
+         * @type {boolean}
          */
-        activeKmlLayer: null,
+        openOnAdminId: false,
     },
     getters: {
         isCurrentlyDrawing(state) {
@@ -67,8 +71,23 @@ export default {
         setDrawingFeatures({ commit }, featureIds) {
             commit('setDrawingFeatures', featureIds)
         },
-        setActiveKmlLayer({ commit }, activeKmlLayer) {
-            commit('setActiveKmlLayer', activeKmlLayer)
+        setOpenOnAdminId({ commit }, value) {
+            commit('setOpenOnAdminId', value)
+        },
+        setKmlLayerAddToMap({ commit, rootGetters }, payload) {
+            if ('addToMap' in payload && 'layerId' in payload) {
+                const layer = rootGetters.getActiveLayerById(payload.layerId)?.clone()
+                if (layer) {
+                    layer.addToMap = payload.addToMap
+                    commit('addLayer', { layer: layer, metadata: null })
+                } else {
+                    log.error(
+                        `KML Layer ID ${payload.layerId} not found in active layers, cannot change its addToMap flag`
+                    )
+                }
+            } else {
+                log.error('Cannot set KML layer addToMap invalid payload', payload)
+            }
         },
     },
     mutations: {
@@ -78,6 +97,6 @@ export default {
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
         setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
-        setActiveKmlLayer: (state, activeKmlLayer) => (state.activeKmlLayer = activeKmlLayer),
+        setOpenOnAdminId: (state, value) => (state.openOnAdminId = value),
     },
 }

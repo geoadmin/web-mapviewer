@@ -163,7 +163,7 @@ Cypress.Commands.add(
                         ? otherParams.layers.split(',').length
                         : otherParams.layers.split(';').length
                     : 0
-            // There are situations where neither value is falsey.
+            // There are situations where neither value is falsy.
             // But the higher value seems to always be the right one.
             let target = Math.max(targetTopic, targetLayers)
             // If a layer has been set via adminId we just increment by one.

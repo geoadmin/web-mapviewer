@@ -1,4 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import pako from 'pako'
 
@@ -60,6 +61,16 @@ const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyM
             req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
         }
     ).as('get-kml-metadata')
+    cy.intercept(
+        {
+            method: 'GET',
+            url: '**/api/kml/admin?admin_id=*',
+        },
+        (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(kmlMetadataTemplate({ id: 'dummy-id', adminId: req.query.admin_id }), headers)
+        }
+    ).as('get-kml-metadata-by-admin-id')
     cy.intercept('GET', `**/api/kml/files/**`, (req) => {
         const headers = { 'Cache-Control': 'no-cache' }
         if (kmlBody) {
@@ -121,6 +132,26 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+})
+
+Cypress.Commands.add('openDrawingMode', (...args) => {
+    const viewportWidth = Cypress.config('viewportWidth')
+    if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
+        cy.get('[data-cy="menu-button"]').click()
+    }
+    cy.get('[data-cy="menu-tray-drawing-section"]').click()
+})
+
+Cypress.Commands.add('goToMapViewWithDrawingIntercept', (...args) => {
+    let kmlFileFixtureFile = null
+    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
+        kmlFileFixtureFile = args[0].kmlFileFixtureFile
+        delete args[0].kmlFileFixtureFile
+    }
+    addIconFixtureAndIntercept()
+    addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
+    cy.goToMapView(...args)
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
@@ -234,3 +265,12 @@ export function kmlMetadataTemplate(data) {
     }
     return metadata
 }
+
+Cypress.Commands.add('waitUntilDrawingIsAdded', () => {
+    cy.waitUntilState(
+        (state) =>
+            state.layers.activeLayers.filter(
+                (layer) => layer.visible && layer.type === LayerTypes.KML
+            ).length > 0
+    )
+})

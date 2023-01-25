@@ -103,7 +103,6 @@ import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import stringifyQuery from '@/router/stringifyQuery'
 import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordinateUtils'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -244,7 +243,7 @@ export default {
                 lat,
                 lon,
             }
-            this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
+            this.shareLinkUrl = `${location.origin}/#/map?${new URLSearchParams(query).toString()}`
             this.shortenShareLink(this.shareLinkUrl)
         },
         async shortenShareLink(url) {

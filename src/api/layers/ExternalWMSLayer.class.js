@@ -26,17 +26,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
         wmsVersion = '1.3.0',
         format = 'png'
     ) {
-        super(
-            // we are encoding name in getID(), we must decode it to remove Unicode escaped chars
-            decodeURIComponent(name),
-            LayerTypes.WMS,
-            layerId,
-            // same as name, as we are encoding it in getID() we must decode it
-            decodeURIComponent(serverBaseURL),
-            opacity,
-            visible,
-            attributions
-        )
+        super(name, LayerTypes.WMS, layerId, serverBaseURL, opacity, visible, attributions)
         this.wmsVersion = wmsVersion
         this.format = format
     }
@@ -44,8 +34,6 @@ export default class ExternalWMSLayer extends ExternalLayer {
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
         // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
-        return `WMS|${encodeURIComponent(this.baseURL)}|${this.externalLayerId}|${
-            this.wmsVersion
-        }|${encodeURIComponent(this.name)}`
+        return `WMS|${this.baseURL}|${this.externalLayerId}|${this.wmsVersion}|${this.name}`
     }
 }
