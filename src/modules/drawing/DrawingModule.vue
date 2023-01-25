@@ -194,7 +194,10 @@ export default {
             }
         },
         activeKmlLayer(layer) {
-            this.openDrawingOnAdminId(layer)
+            this.openDrawingOnAdminId(layer, this.openOnAdminId)
+        },
+        openOnAdminId(value) {
+            this.openDrawingOnAdminId(this.activeKmlLayer, value)
         },
     },
     created() {
@@ -457,8 +460,8 @@ export default {
                 }
             }
         },
-        async openDrawingOnAdminId(layer) {
-            if (layer?.adminId && !this.isDrawingOpen && this.openOnAdminId && !layer?.isLegacy()) {
+        async openDrawingOnAdminId(layer, openOnAdminId) {
+            if (layer?.adminId && !this.isDrawingOpen && openOnAdminId && !layer?.isLegacy()) {
                 // clear the openOnAdminId flag to avoid re-opening
                 // the drawing menu once closed and the active layers is updated.
                 this.setOpenOnAdminId(false)
