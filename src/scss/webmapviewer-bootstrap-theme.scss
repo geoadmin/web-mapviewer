@@ -12,6 +12,11 @@ $primary: $venetian-red;
 @import 'node_modules/bootstrap/scss/variables';
 @import 'node_modules/bootstrap/scss/mixins';
 
+.btn-outline-group {
+  @include button-outline-variant($gray-400);
+  border-color: $gray-400 !important;
+}
+
 $map-button-border-color: $gray-800;
 $map-button-hover-border-color: $gray-700;
 
@@ -23,3 +28,7 @@ $card-cap-padding-y: 0.25rem;
 $card-spacer-y: 0.75rem;
 
 $caret-spacing: 0.75rem;
+
+.btn-xs {
+  @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius)
+}

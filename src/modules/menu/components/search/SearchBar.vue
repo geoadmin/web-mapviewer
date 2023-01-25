@@ -1,5 +1,5 @@
 <template>
-    <div class="input-group d-flex" :class="{ 'search-bar-filled': searchQuery?.length > 0 }">
+    <div class="search-bar input-group d-flex rounded">
         <span class="input-group-text">
             <FontAwesomeIcon :icon="['fas', 'search']" />
         </span>
@@ -7,9 +7,10 @@
             ref="search"
             type="text"
             class="form-control"
+            :class="{ 'rounded-end': searchQuery?.length == 0 }"
             :placeholder="$t('search_placeholder')"
             aria-label="Search"
-            aria-describedby="search-icon"
+            aria-describedby="button-addon1"
             :value="searchQuery"
             data-cy="searchbar"
             @input="updateSearchQuery"
@@ -17,27 +18,27 @@
             @keydown.down.prevent="goToFirstResult"
             @keydown.esc.prevent="closeSearchResults"
         />
-        <SearchResultList ref="results" @close="closeSearchResults" />
-        <ButtonWithIcon
+        <button
             v-if="searchQuery?.length > 0"
-            :button-font-awesome-icon="['fas', 'times-circle']"
-            class="flex-shrink-1"
+            id="button-addon1"
+            class="btn btn-outline-group rounded-end"
+            type="button"
             data-cy="searchbar-clear"
-            transparent
             @click="clearSearchQuery"
-        />
+        >
+            <FontAwesomeIcon :icon="['fas', 'times-circle']" />
+        </button>
+        <SearchResultList v-show="resultsShown" ref="results" @close="closeSearchResults" />
     </div>
 </template>
 
 <script>
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { mapActions, mapState } from 'vuex'
 
 export default {
     components: {
         SearchResultList,
-        ButtonWithIcon,
     },
     computed: {
         ...mapState({

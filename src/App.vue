@@ -84,7 +84,7 @@ export default {
 :focus {
     outline-style: none;
     .outlines & {
-        outline-offset: 1px;
+        outline-offset: 0px;
         outline: $focus-outline;
     }
 }

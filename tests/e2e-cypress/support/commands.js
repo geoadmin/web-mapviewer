@@ -1,5 +1,6 @@
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
+import { BREAKPOINT_TABLET } from '@/config'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -173,6 +174,29 @@ Cypress.Commands.add(
         cy.get('[data-cy="map"]').should('be.visible')
     }
 )
+
+/**
+ * Click on language command
+ *
+ * This command change the application to the given language independently of the ui mode
+ * (mobile/tablet/desktop)
+ *
+ * @param {string} lang Language to click; de, fr, it, en or rm
+ */
+Cypress.Commands.add('clickOnLanguage', (lang) => {
+    let menuSection = null
+    const width = Cypress.config('viewportWidth')
+    if (width < BREAKPOINT_TABLET) {
+        // mobile/tablet : clicking on the menu button first
+        menuSection = cy.get('[data-cy="menu-settings-section"]')
+        menuSection.click()
+    } else {
+        // desktop
+        menuSection = cy.get('[data-cy="header-settings-section"]')
+    }
+    menuSection.should('be.visible')
+    menuSection.find(`[data-cy="menu-lang-${lang}"]`).click()
+})
 
 // cypress-wait-until wrapper to wait for a specific store state.
 // cy.readStoreValue doesn't work as `.its` will prevent retries.

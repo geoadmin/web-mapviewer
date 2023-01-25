@@ -3,6 +3,7 @@
         <MenuSection
             id="settingsSection"
             ref="settingsSection"
+            class="settings-section"
             :title="$t('settings')"
             :show-content="false"
             secondary
@@ -53,7 +54,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import tippy, { followCursor } from 'tippy.js'
 
@@ -86,6 +87,7 @@ export default {
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
         }),
+        ...mapGetters(['isPhoneMode']),
         showLayerList() {
             return this.activeLayers.length > 0
         },
@@ -133,7 +135,7 @@ export default {
             if (this.nonScrollableMenuSections.includes(id)) {
                 toClose = toClose.concat(this.scrollableMenuSections)
             }
-            toClose.forEach((section) => this.$refs[section].close())
+            toClose.forEach((section) => this.$refs[section]?.close())
         },
         setDisableDrawingTooltipContent() {
             this.disableDrawingTooltip?.forEach((instance) => {
@@ -145,17 +147,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+
 .menu-tray-inner {
     display: grid;
-    /* One entry for each menu section.
-    - "min-content" means the menu section is non-scrollable (intrinsic size i.e. based solely on content)
-    - "auto" means the menu section is scrollable (size based on content and the container) */
-    grid-template-rows: min-content min-content min-content auto auto;
     overflow: hidden;
+
+    // Each menu section is in a grid row, to make them scrollable independently of each other we
+    // use the grid-auto-rows: auto
+    grid-auto-rows: auto;
 }
 
 // UI is compact if in desktop mode
 .menu-tray-compact {
     font-size: 0.825rem;
+}
+
+@include respond-above(lg) {
+    .settings-section {
+        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+        display: none;
+    }
 }
 </style>

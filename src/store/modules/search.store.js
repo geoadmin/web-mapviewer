@@ -3,6 +3,7 @@ import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words
 import { ActiveLayerConfig } from '@/store/modules/layers.store'
 import { coordinateFromString } from '@/utils/coordinateUtils'
 import { ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
+import log from '@/utils/logging'
 
 const state = {
     /**
@@ -61,14 +62,16 @@ const actions = {
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {
-                search(query, rootState.i18n.lang).then((searchResults) => {
-                    if (searchResults) {
-                        commit('setSearchResults', searchResults)
-                        if (showResultsAfterRequest && searchResults.count() > 0) {
-                            commit('showSearchResults')
+                search(query, rootState.i18n.lang)
+                    .then((searchResults) => {
+                        if (searchResults) {
+                            commit('setSearchResults', searchResults)
+                            if (showResultsAfterRequest && searchResults.count() > 0) {
+                                commit('showSearchResults')
+                            }
                         }
-                    }
-                })
+                    })
+                    .catch((error) => log.error(`Search failed`, error))
             }
         } else if (query.length === 0) {
             dispatch('clearPinnedLocation')

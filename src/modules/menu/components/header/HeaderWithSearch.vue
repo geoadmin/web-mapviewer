@@ -1,30 +1,36 @@
 <template>
-    <div class="header">
+    <div class="header d-flex">
         <LoadingBar v-if="showLoadingBar" />
-        <div class="header-content align-items-center p-1 d-flex justify-content-between">
-            <div class="justify-content-start d-flex">
+        <div class="header-content w-100 p-1 d-flex justify-content-start">
+            <div class="justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <SwissFlag
-                    class="swiss-flag ms-1 me-2 cursor-pointer"
+                    class="ms-1 me-2 cursor-pointer"
                     data-cy="menu-swiss-flag"
                     @click="resetApp"
                 />
                 <HeaderSwissConfederationText
                     :current-lang="currentLang"
-                    class="me-2 cursor-pointer search-header-swiss-confederation-text"
+                    class="mx-2 cursor-pointer search-header-swiss-confederation-text"
                     data-cy="menu-swiss-confederation-text"
                     @click="resetApp"
                 />
             </div>
-            <div class="mx-2 flex-grow-1 position-relative">
+            <div
+                class="search-bar-section mx-2 d-flex-column flex-grow-1"
+                :class="{ 'align-self-center': !hasDevSiteWarning }"
+            >
                 <span class="float-start search-title">{{ $t('search_title') }}</span>
                 <SearchBar />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
                     v-if="hasDevSiteWarning"
-                    class="header-warning-dev"
+                    class="header-warning-dev bg-danger rounded text-white text-center text-wrap text-truncate fw-bold overflow-hidden p-1"
                     v-html="$t('test_host_warning')"
-                ></div>
+                />
                 <!-- eslint-enable vue/no-v-html-->
+            </div>
+            <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto" data-cy="header-settings-section">
+                <LangSwitchToolbar id="menu-lang-selector" />
             </div>
             <HeaderMenuButton v-if="isPhoneMode" />
         </div>
@@ -36,6 +42,7 @@ import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 
 import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapGetters, mapState } from 'vuex'
@@ -47,6 +54,7 @@ export default {
         HeaderSwissConfederationText,
         SwissFlag,
         LoadingBar,
+        LangSwitchToolbar,
     },
     computed: {
         ...mapState({
@@ -67,41 +75,32 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
+
+$animation-time: 0.5s;
+
 .header {
-    height: $header-height;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba($white, 0.9);
     box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
-    position: relative;
+    height: $header-height;
+    transition: height $animation-time;
     z-index: $zindex-menu-header;
     .header-content {
         height: $header-height;
+        transition: height $animation-time;
     }
     &-warning-dev {
-        border-radius: 0.25rem;
-        background-color: $danger;
-        color: $white;
-        text-align: center;
-        font-weight: bold;
-        // Position element below its parent.
-        position: absolute;
-        top: 100%;
-        left: 0;
-        // Set width and cut off overflowing text with ellipsis.
-        width: 40em;
-        max-width: 100%;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        // (line-)height and padding work together to cut off the second line.
-        padding: 0.2em 0.5em;
         height: 1.5em;
         line-height: 1.2;
         &:hover {
             height: auto;
-            white-space: normal;
         }
     }
+}
+
+.search-bar-section {
+    // On desktop we limit hte maximum size of the search bar just
+    // to have a better look and feel.
+    max-width: 800px;
 }
 
 .search-header-swiss-confederation-text,
@@ -109,15 +108,18 @@ export default {
     display: none;
 }
 
+@include respond-below(lg) {
+    .header-settings-section {
+        // See MenuTray.vue where the settings section is enable above lg
+        display: none !important;
+    }
+}
+
 @include respond-above(lg) {
     .header {
         height: 2 * $header-height;
         .header-content {
             height: 2 * $header-height;
-            .swiss-flag {
-                margin-top: 0.4rem;
-                align-self: flex-start;
-            }
             .menu-tray {
                 top: 2 * $header-height;
             }
@@ -126,6 +128,20 @@ export default {
     .search-header-swiss-confederation-text,
     .search-title {
         display: block;
+    }
+}
+
+// WARNING: We cannot use bootstrap img-fluid to automatically set the height of the swiss-flag
+// as it totally breaks the header and menu on Iphone !
+.swiss-flag {
+    height: 21px;
+    &.dev-site {
+        filter: hue-rotate(225deg);
+    }
+}
+@include respond-above(lg) {
+    .swiss-flag {
+        height: 34px;
     }
 }
 </style>

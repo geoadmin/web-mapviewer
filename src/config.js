@@ -255,7 +255,7 @@ export const DRAWING_HIT_TOLERANCE = 6
 /**
  * Light base map style ID
  *
- * from https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_lightbase.html
+ * From https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_lightbase.html
  *
  * @type {string}
  */
@@ -264,7 +264,7 @@ export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_w
 /**
  * Imagery base map style ID
  *
- * from https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_imagerybase.html
+ * From https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_imagerybase.html
  *
  * @type {string}
  */

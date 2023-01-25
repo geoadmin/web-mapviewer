@@ -659,8 +659,7 @@ describe('Test of layer handling', () => {
 
             // Open the menu and change the language.
             clickOnMenuButtonIfMobile()
-            cy.get('[data-cy="menu-settings-section"]').click()
-            cy.get(`[data-cy="menu-lang-${langAfter}"`).click()
+            cy.clickOnLanguage(langAfter)
 
             // Wait until the active layers are updated.
             cy.waitUntilState((state) => {
