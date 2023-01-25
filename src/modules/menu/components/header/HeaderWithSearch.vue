@@ -30,6 +30,7 @@
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto" data-cy="header-settings-section">
+                <FeedbackToolbar id="menu-feedback" />
                 <LangSwitchToolbar id="menu-lang-selector" />
             </div>
             <HeaderMenuButton v-if="isPhoneMode" />
@@ -43,6 +44,7 @@ import HeaderSwissConfederationText from '@/modules/menu/components/header/Heade
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
+import FeedbackToolbar from '@/modules/menu/components/menu/FeedbackToolbar.vue'
 
 import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapGetters, mapState } from 'vuex'
@@ -55,6 +57,7 @@ export default {
         SwissFlag,
         LoadingBar,
         LangSwitchToolbar,
+        FeedbackToolbar
     },
     computed: {
         ...mapState({
