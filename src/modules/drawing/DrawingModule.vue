@@ -242,7 +242,7 @@ export default {
             'clearDrawingFeatures',
             'setDrawingFeatures',
             'setShowDrawingOverlay',
-            'setLayerVisibility',
+            'setKmlLayerAddToMap',
             'setOpenOnAdminId',
         ]),
         async showDrawingOverlay() {
@@ -258,13 +258,14 @@ export default {
                 // Here we clone the active KML layer in order to be able to change it here
                 // (update metadata) without interfering with the store.
                 this.kmlLayer = this.activeKmlLayer.clone()
-                // to avoid layer superposition of the kml drawing layer and the kml map overlay
-                // we set the kml map overlay to invisible. It is important to keep it in the
-                // active layer in order to keep it in the URL, otherwise if the user reload the
-                // page he loose his drawing.
-                this.setLayerVisibility({
+                // To avoid layer superposition of the kml drawing layer and the kml map overlay,
+                // the kml layer is not added to the map `addToMap=false`. It is important to keep
+                // the kml layer in the active layer in order to keep it in the URL, otherwise if
+                // the user reload the page he loose his drawing. We also keep the visible flag so
+                // that after a reload the drawing layer is still visible.
+                this.setKmlLayerAddToMap({
                     layerId: this.activeKmlLayer.getID(),
-                    visible: false,
+                    addToMap: false,
                 })
             }
             this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
@@ -291,8 +292,7 @@ export default {
             // Only add existing/saved kml to the layer menu. If someone cleared an
             // existing kml, we want to allow him to re-edit it.
             if (this.kmlLayer) {
-                // make sure that the layer is visible !
-                this.kmlLayer.visible = true
+                this.kmlLayer.addToMap = true
                 this.addLayer(this.kmlLayer)
                 this.kmlLayer = null
             }
@@ -329,23 +329,34 @@ export default {
             clearTimeout(this.differSaveDrawingTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
             try {
-                if (!this.kmlLayer?.adminId) {
+                if (!this.kmlAdminId) {
+                    const oldKmlId = this.kmlLayerId
                     // if we don't have an adminId then create a new KML File
                     const metadata = await createKml(kml)
                     this.kmlLayer = new KMLLayer(
                         getKmlUrl(metadata.id),
-                        false, // visible to false to not interfere with the drawing
-                        null, // opacity, null := use default
+                        true, // visible
+                        null, // opacity, null means use default
                         metadata.id,
                         metadata.adminId,
                         this.$t('draw_layer_label'),
-                        metadata
+                        metadata,
+                        false, // external
+                        // do not add the drawing to the openlayer map overlay yet
+                        // to not interfer with the drawing overlay.
+                        false // addToMap
                     )
                     // Add the new layer to the active layer, this way the layer is present in the
                     // URL and if the user reload the page it doesn't loose its drawing. We need to
                     // add a clone to avoid interference with the store.
                     const layerCloned = this.kmlLayer.clone()
                     this.addLayer(layerCloned)
+                    // We also need to remove the old layer to avoid to have multiple drawing in
+                    // the active layers. NOTE this is done to keep the same behavior as on the old
+                    // viewer.
+                    if (oldKmlId) {
+                        this.removeLayer(oldKmlId)
+                    }
                 } else {
                     const metadata = await updateKml(
                         this.kmlLayer.fileId,

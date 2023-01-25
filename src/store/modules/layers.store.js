@@ -110,15 +110,40 @@ const getters = {
 }
 
 const actions = {
-    toggleLayerVisibility({ commit }, layerId) {
-        commit('toggleLayerVisibility', layerId)
+    addLocation({ commit }, coordsEPSG3857) {
+        commit('addLocation', coordsEPSG3857)
     },
-    setLayerVisibility({ commit }, payload) {
-        if ('visible' in payload && 'layerId' in payload) {
-            commit('setLayerVisibility', payload)
+    setBackground({ commit }, bgLayerId) {
+        if (bgLayerId === 'void') {
+            commit('setBackground', null)
         } else {
-            log.error('Failed to set layer visibility, invalid payload', payload)
+            commit('setBackground', bgLayerId)
         }
+    },
+    setLayerConfig({ commit, state, getters }, config) {
+        const activeLayerBeforeConfigChange = Array.from(state.activeLayers)
+        commit('clearLayers')
+        commit('setLayerConfig', config)
+        activeLayerBeforeConfigChange.forEach((layer) => {
+            const layerConfig = getters.getLayerConfigById(layer.getID())
+            if (layerConfig) {
+                // If we found a layer config we use as it might have change the i18n translation
+                const clone = layerConfig.clone()
+                clone.visible = layer.visible
+                clone.opacity = layer.opacity
+                commit('addLayer', { layer: clone })
+                if (layer.timeConfig) {
+                    commit('setLayerTimestamp', {
+                        layerId: clone.getID(),
+                        timestamp: layer.timeConfig.currentTimestamp,
+                    })
+                }
+            } else {
+                // if no config is found, then it is a layer that is not managed, like for example
+                // the KML layers, in this case we take the old active configuration as fallback.
+                commit('addLayer', { layer: layer.clone() })
+            }
+        })
     },
     async addLayer({ commit, getters }, payload) {
         let layer = null
@@ -152,9 +177,6 @@ const actions = {
             log.error('no layer found for payload:', payload)
         }
     },
-    addLocation({ commit }, coordsEPSG3857) {
-        commit('addLocation', coordsEPSG3857)
-    },
     removeLayer({ commit }, layerIdOrObject) {
         if (typeof layerIdOrObject === 'string') {
             commit('removeLayerWithId', layerIdOrObject)
@@ -167,36 +189,14 @@ const actions = {
     clearLayers({ commit }) {
         commit('clearLayers')
     },
-    setLayerConfig({ commit, state, getters }, config) {
-        const activeLayerBeforeConfigChange = Array.from(state.activeLayers)
-        commit('clearLayers')
-        commit('setLayerConfig', config)
-        for (const layer of activeLayerBeforeConfigChange) {
-            const layerConfig = getters.getLayerConfigById(layer.getID())
-            if (layerConfig) {
-                // If we found a layer config we use as it might have change the i18n translation
-                const clone = layerConfig.clone()
-                clone.visible = layer.visible
-                clone.opacity = layer.opacity
-                commit('addLayer', { layer: clone })
-                if (layer.timeConfig) {
-                    commit('setLayerTimestamp', {
-                        layerId: clone.getID(),
-                        timestamp: layer.timeConfig.currentTimestamp,
-                    })
-                }
-            } else {
-                // if no config is found, then it is a layer that is not managed, like for example
-                // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', { layer: layer.clone() })
-            }
-        }
+    toggleLayerVisibility({ commit }, layerId) {
+        commit('toggleLayerVisibility', layerId)
     },
-    setBackground({ commit }, bgLayerId) {
-        if (bgLayerId === 'void') {
-            commit('setBackground', null)
+    setLayerVisibility({ commit }, payload) {
+        if ('visible' in payload && 'layerId' in payload) {
+            commit('setLayerVisibility', payload)
         } else {
-            commit('setBackground', bgLayerId)
+            log.error('Failed to set layer visibility, invalid payload', payload)
         }
     },
     setLayerOpacity({ commit }, payload) {
@@ -279,6 +279,29 @@ const actions = {
 }
 
 const mutations = {
+    addLocation(state, { x, y }) {
+        state.pinLocation = { x, y }
+    },
+    setBackground(state, bgLayerId) {
+        state.backgroundLayerId = bgLayerId
+    },
+    setLayerConfig(state, config) {
+        state.config = config
+    },
+    addLayer(state, { layer: layer, metadata: metadata }) {
+        // first remove it if already present in order to avoid duplicate layers
+        state.activeLayers = removeActiveLayerById(state, layer.getID())
+        if (metadata) {
+            layer.metadata = metadata
+        }
+        state.activeLayers.push(layer)
+    },
+    removeLayerWithId(state, layerId) {
+        state.activeLayers = removeActiveLayerById(state, layerId)
+    },
+    clearLayers(state) {
+        state.activeLayers = []
+    },
     toggleLayerVisibility(state, layerId) {
         const layer = getActiveLayerById(state, layerId)
         if (layer) {
@@ -290,29 +313,6 @@ const mutations = {
         if (activeLayer) {
             activeLayer.visible = visible
         }
-    },
-    addLayer(state, { layer: layer, metadata: metadata }) {
-        // first remove it if already present in order to avoid duplicate layers
-        state.activeLayers = removeActiveLayerById(state, layer.getID())
-        if (metadata) {
-            layer.metadata = metadata
-        }
-        state.activeLayers.push(layer)
-    },
-    addLocation(state, { x, y }) {
-        state.pinLocation = { x, y }
-    },
-    clearLayers(state) {
-        state.activeLayers = []
-    },
-    removeLayerWithId(state, layerId) {
-        state.activeLayers = removeActiveLayerById(state, layerId)
-    },
-    setLayerConfig(state, config) {
-        state.config = config
-    },
-    setBackground(state, bgLayerId) {
-        state.backgroundLayerId = bgLayerId
     },
     setLayerOpacity(state, { layerId, opacity }) {
         const layerMatchingId = getActiveLayerById(state, layerId)

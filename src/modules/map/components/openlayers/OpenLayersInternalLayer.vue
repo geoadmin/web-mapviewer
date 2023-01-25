@@ -68,7 +68,7 @@
             </div>
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML"
+            v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"

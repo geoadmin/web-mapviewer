@@ -10,18 +10,20 @@ export default class KMLLayer extends AbstractLayer {
      * @param {string} kmlFileUrl The URL to access the KML data.
      * @param {boolean} visible If the layer is visible on the map (or hidden).
      * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
-     *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`.
-     *   Default is `1.0`
+     *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`
      * @param {string | null} [fileId=null] The KML id (which is part of the kmlFileUrl). If null it
      *   is parsed from kmlFileUrl. Default is `null`
      * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
      *   not allowed to edit the file. Default is `null`
-     * @param {string | null} [name=nul] Name of this layer, if nothing is given a default name
-     *   "Drawing" (or equivalent in the current UI lang) will be defined. Default is `nul`
+     * @param {string | null} [name=null] Name of this layer, if nothing is given a default name
+     *   "Drawing" (or equivalent in the current UI lang) will be defined. Default is `null`
      * @param {object | null} [metadata=null] Metadata of the KML drawing. This object contains all
      *   the metadata returned by the backend. Default is `null`
      * @param {boolean} [isExternal=false] Flag telling if this KML comes from our backend (false)
      *   or is loaded from a different source (true). Default is `false`
+     * @param {boolean} [addToMap=true] Flag telling if the KML should be added to map by the layer
+     *   management. When in drawing mode this flag is set to false to prevent layer map overlay to
+     *   interfere with the drawing overlay. Default is `true`
      */
     constructor(
         kmlFileUrl,
@@ -31,7 +33,8 @@ export default class KMLLayer extends AbstractLayer {
         adminId = null,
         name = null,
         metadata = null,
-        isExternal = false
+        isExternal = false,
+        addToMap = true
     ) {
         super(
             name ?? i18n.global.t('draw_layer_label'),
@@ -53,6 +56,7 @@ export default class KMLLayer extends AbstractLayer {
             this.fileId = this.kmlFileUrl.split('/').pop()
         }
         this.metadata = metadata
+        this.addToMap = addToMap
     }
 
     getID() {
