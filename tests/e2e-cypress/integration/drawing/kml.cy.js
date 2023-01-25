@@ -48,6 +48,7 @@ describe('Drawing new KML', () => {
             cy.checkKMLRequest(interception, [EditableFeatureTypes.ANNOTATION])
         )
         cy.reload(true)
+        cy.wait('@get-kml')
         cy.waitUntilState((state) => {
             return state.layers.activeLayers.length > 0
         })
@@ -56,6 +57,15 @@ describe('Drawing new KML', () => {
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .should('have.length', 1)
+        // Add another feature
+        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.get(olSelector).click('center')
+        cy.wait('@post-kml').then((interception) =>
+            cy.checkKMLRequest(interception, [
+                EditableFeatureTypes.ANNOTATION,
+                EditableFeatureTypes.ANNOTATION,
+            ])
+        )
     })
 
     it('Update the previously saved KML if anything is added to the drawing', () => {
