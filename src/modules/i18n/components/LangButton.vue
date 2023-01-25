@@ -4,11 +4,11 @@
         :class="{
             // Desktop mode classes
             'm-0 px-1 btn-xs btn-link custom-text-decoration': isDesktopMode,
-            'text-black': isDesktopMode,
+            'text-black': isDesktopMode && !selected,
             'text-primary': isDesktopMode && selected,
             // Mobile/tablet mode classes
             'mobile-view btn-sm mx-1': !isDesktopMode,
-            'btn-light': !isDesktopMode,
+            'btn-light': !isDesktopMode && !selected,
             'btn-primary': !isDesktopMode && selected,
         }"
         :title="lang.toUpperCase()"
