@@ -1,5 +1,5 @@
 import { getKmlMetadata } from '@/api/files.api'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import i18n from '@/modules/i18n'
 import log from '@/utils/logging'
@@ -41,7 +41,7 @@ export default class KMLLayer extends AbstractLayer {
             LayerTypes.KML,
             opacity ?? 1.0,
             visible,
-            [], // no attributions set for KML layer (for now)
+            [new LayerAttribution(new URL(kmlFileUrl).hostname)],
             false,
             isExternal
         )

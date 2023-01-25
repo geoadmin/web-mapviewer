@@ -136,7 +136,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             it('Handles opacity/visibility correctly with external layers', () => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    'layers=KML||we-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
+                    'layers=KML||https://we-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
@@ -152,7 +152,9 @@ describe('Test parsing of legacy URL param into new params', () => {
 
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=${encodeURIComponent(legacyLayerUrlString)}&layers_opacity=0.45&layers_visibility=true`
+                    `layers=${encodeURIComponent(
+                        legacyLayerUrlString
+                    )}&layers_opacity=0.45&layers_visibility=true`
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmsLayer] = result

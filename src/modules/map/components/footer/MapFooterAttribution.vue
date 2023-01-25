@@ -4,18 +4,20 @@
         <template v-for="(source, index) in sources" :key="source.name">
             <a
                 v-if="source.url"
+                :id="`source-${source.id}`"
                 :href="source.url"
                 target="_blank"
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'data-disclaimer': source.hasDataDisclaimer }"
                 :data-cy="`layer-copyright-${source.name}`"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </a>
             <span
                 v-else
+                :id="`source-${source.id}`"
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'data-disclaimer': source.hasDataDisclaimer }"
                 :data-cy="`layer-copyright-${source.name}`"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
@@ -27,13 +29,14 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import tippy from 'tippy.js'
+import log from '@/utils/logging'
 
 export default {
     computed: {
         ...mapState({
             lang: (state) => state.i18n.lang,
         }),
-        ...mapGetters(['visibleLayers', 'currentBackgroundLayer']),
+        ...mapGetters(['visibleLayers', 'currentBackgroundLayer', 'hasDataDisclaimer']),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here
@@ -52,9 +55,10 @@ export default {
                     .map((layer) => {
                         return layer.attributions.map((attribution) => {
                             return {
+                                id: attribution.name.replace(/[._]/g, '-'),
                                 name: attribution.name,
                                 url: attribution.url,
-                                isExternal: layer.isExternal,
+                                hasDataDisclaimer: this.hasDataDisclaimer(layer.getID()),
                             }
                         })
                     })
@@ -68,26 +72,17 @@ export default {
     },
     watch: {
         lang(lang) {
-            this.externalDisclaimerTooltip?.forEach((instance) => {
-                instance.setContent(this.getExternalDisclaimerPopupContent())
-            })
+            this.updateDataDisclaimer()
         },
     },
     updated() {
         // We need to destroy and recreate the tippy tooltip on each update
         // otherwise when removing/adding the external layer (e.g. visibility toggle) the
         // tippy won't work anymore.
-        this.externalDisclaimerTooltip?.forEach((instance) => {
-            instance.destroy()
-        })
-        this.externalDisclaimerTooltip = tippy('.external-source', {
-            content: this.getExternalDisclaimerPopupContent(),
-            arrow: true,
-            placement: 'top',
-        })
+        this.updateDataDisclaimer()
     },
     unmount() {
-        this.externalDisclaimerTooltip?.forEach((instance) => {
+        this.dataDisclaimerTooltip?.forEach((instance) => {
             instance.destroy()
         })
     },
@@ -95,8 +90,36 @@ export default {
         getAttributionWithComaIfNeeded(attribution, index) {
             return `${attribution}${index !== this.sources.length - 1 ? ',' : ''}`
         },
-        getExternalDisclaimerPopupContent() {
-            return this.$i18n.t('external_data_tooltip')
+        getDataDisclaimerPopupContent(sourceName) {
+            return this.$i18n.t('external_data_warning').replace('--URL--', sourceName)
+        },
+        updateDataDisclaimer() {
+            this.dataDisclaimerTooltip?.forEach((instance) => {
+                instance.destroy()
+            })
+            this.dataDisclaimerTooltip = []
+            this.sources.forEach((source) => {
+                this.dataDisclaimerTooltip.concat(
+                    tippy(`#source-${source.id}.data-disclaimer`, {
+                        theme: 'primary',
+                        content: this.getDataDisclaimerPopupContent(source.name),
+                        arrow: true,
+                        placement: 'top',
+                        hideOnClick: false,
+                        trigger: 'mouseenter focus click',
+                        onShow: (instance) => {
+                            setTimeout(() => {
+                                instance.hide()
+                            }, 5000)
+                        },
+                        onClickOutside: (instance, event) => {
+                            // because on mobile we hide it after a 5 seconds timeout
+                            // we need to hide it when click outside, e.g. click on close menu
+                            instance.hide()
+                        },
+                    })
+                )
+            })
         },
     },
 }
@@ -120,7 +143,7 @@ export default {
         &:hover {
             text-decoration: underline;
         }
-        &.external-source {
+        &.data-disclaimer {
             color: $primary;
         }
     }

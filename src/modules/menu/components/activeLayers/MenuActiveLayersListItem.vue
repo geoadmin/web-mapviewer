@@ -34,9 +34,9 @@
                 @timestamp-change="onTimestampChange"
             />
             <FontAwesomeIcon
-                v-if="layer.isExternal"
-                id="externalDisclaimerIcon"
-                class="text-primary p-2"
+                v-if="hasDataDisclaimer(layer.getID())"
+                :id="disclaimerTooltipId"
+                class="disclaimer-icon text-primary p-2"
                 icon="user"
                 data-cy="menu-external-disclaimer-icon"
             />
@@ -100,8 +100,9 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import log from '@/utils/logging'
 import tippy from 'tippy.js'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -146,11 +147,18 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['hasDataDisclaimer']),
         ...mapState({
             lang: (state) => state.i18n.lang,
         }),
         id() {
             return this.layer?.getID()
+        },
+        AttributionName() {
+            return this.layer.attributions.map((attribution) => attribution.name).join(', ')
+        },
+        disclaimerTooltipId() {
+            return `disclaimer-tooltip-${this.AttributionName.replace(/[._]/g, '-')}`
         },
         checkboxIcon() {
             if (this.layer.visible) {
@@ -170,20 +178,22 @@ export default {
     },
     watch: {
         compact(compact) {
-            this.externalDisclaimerPopup?.forEach((instance) => {
+            this.disclaimerPopup?.forEach((instance) => {
                 instance.setProps({ placement: compact ? 'right' : 'bottom' })
             })
         },
-        lang(lang) {
-            this.externalDisclaimerPopup?.forEach((instance) => {
-                instance.setContent(this.getExternalDisclaimerPopupContent())
+        lang() {
+            this.disclaimerPopup?.forEach((instance) => {
+                instance.setContent(this.getDisclaimerPopupContent())
             })
         },
     },
     mounted() {
-        if (this.layer.isExternal) {
-            this.externalDisclaimerPopup = tippy('#externalDisclaimerIcon', {
-                content: this.getExternalDisclaimerPopupContent(),
+        this.disclaimerPopup = []
+        if (this.hasDataDisclaimer(this.layer.getID())) {
+            this.disclaimerPopup = tippy(`#${this.disclaimerTooltipId}`, {
+                theme: 'primary',
+                content: this.getDisclaimerPopupContent(),
                 arrow: true,
                 placement: this.compact ? 'right' : 'bottom',
                 hideOnClick: false,
@@ -205,7 +215,7 @@ export default {
         }
     },
     beforeUnmount() {
-        this.externalDisclaimerPopup?.forEach((instance) => {
+        this.disclaimerPopup?.forEach((instance) => {
             instance.destroy()
         })
     },
@@ -232,8 +242,8 @@ export default {
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
-        getExternalDisclaimerPopupContent() {
-            return this.$i18n.t('external_data_tooltip')
+        getDisclaimerPopupContent() {
+            return this.$i18n.t('external_data_warning').replace('--URL--', this.AttributionName)
         },
     },
 }
