@@ -29,7 +29,7 @@
                 />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto">
+            <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto" data-cy="header-settings-section">
                 <LangSwitchToolbar id="menu-lang-selector" />
             </div>
             <HeaderMenuButton v-if="isPhoneMode" />
