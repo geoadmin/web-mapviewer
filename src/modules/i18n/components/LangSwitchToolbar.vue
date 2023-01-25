@@ -1,10 +1,8 @@
 <template>
     <div
         :class="{
-            'lang-switch-menu': !isDesktopMode,
-            'p-1': !isDesktopMode,
-            'lang-switch-header': isDesktopMode,
-            'me-2': isDesktopMode,
+            'lang-switch-menu p-1': !isDesktopMode,
+            'lang-switch-header me-2': isDesktopMode,
         }"
     >
         <LangButton v-for="lang in languages" :key="lang" :lang="lang" />

@@ -1,7 +1,16 @@
 <template>
     <button
         class="language-btn btn"
-        :class="buttonClass"
+        :class="{
+            // Desktop mode classes
+            'm-0 px-1 btn-xs btn-link custom-text-decoration': isDesktopMode,
+            'text-black': isDesktopMode,
+            'text-primary': isDesktopMode && selected,
+            // Mobile/tablet mode classes
+            'mobile-view btn-sm mx-1': !isDesktopMode,
+            'btn-light': !isDesktopMode,
+            'btn-primary': !isDesktopMode && selected,
+        }"
         :title="lang.toUpperCase()"
         :data-cy="`menu-lang-${lang}`"
         @click="changeLang"
@@ -31,25 +40,6 @@ export default {
         ...mapState({
             currentLang: (state) => state.i18n.lang,
         }),
-        buttonClass() {
-            let classes = ''
-            if (this.isDesktopMode) {
-                classes += 'm-0 px-1 btn-xs btn-link custom-text-decoration'
-                if (this.selected) {
-                    classes += ' text-primary'
-                } else {
-                    classes += ' text-black'
-                }
-            } else {
-                classes += ' mobile-view btn-sm mx-1'
-                if (this.selected) {
-                    classes += ' btn-primary'
-                } else {
-                    classes += ' btn-light'
-                }
-            }
-            return classes
-        },
     },
     watch: {
         currentLang(newLang) {
