@@ -57,15 +57,15 @@ $breakpoint_tablet: 768px;
     $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
 
     // Write the media query.
-    @media (max-width: ($breakpoint-value - 1)) or (max-height: ($breakpoint_phone_height - 1)) {
+    @media (max-width: ($breakpoint-value - 1)), (max-height: ($breakpoint_phone_height - 1)) {
       @content;
     }
   } @else if $breakpoint == phone {
-    @media (max-width: ($breakpoint_phone_width - 1)) or (max-height: ($breakpoint_phone_height - 1)) {
+    @media (max-width: ($breakpoint_phone_width - 1)), (max-height: ($breakpoint_phone_height - 1)) {
       @content;
     }
   } @else if $breakpoint == tablet {
-    @media (max-width: ($breakpoint_tablet - 1)) or (max-height: ($breakpoint_phone_height - 1)) {
+    @media (max-width: ($breakpoint_tablet - 1)), (max-height: ($breakpoint_phone_height - 1)) {
       @content;
     }
   // If the breakpoint doesn't exist in the map.
