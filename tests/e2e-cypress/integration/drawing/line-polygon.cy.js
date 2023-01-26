@@ -50,7 +50,7 @@ describe('Line/Polygon tool', () => {
         )
     })
     it('creates a line with double click', () => {
-        cy.get(olSelector).dblclick(120, 240, { force: true })
+        cy.get(olSelector).should('be.visible').dblclick(120, 240, { force: true })
         cy.wait('@post-kml')
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()
@@ -60,7 +60,7 @@ describe('Line/Polygon tool', () => {
     it('delete last point', () => {
         cy.get(olSelector).click(180, 200)
         cy.get(drawingDeleteLastPointButton).click()
-        cy.get(olSelector).dblclick(120, 240, { force: true })
+        cy.get(olSelector).should('be.visible').dblclick(120, 240, { force: true })
         cy.wait('@post-kml')
         cy.readDrawingFeatures('LineString', (features) => {
             const coos = features[0].getGeometry().getCoordinates()

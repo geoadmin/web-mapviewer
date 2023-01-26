@@ -62,7 +62,9 @@ const clickOnAColor = (color) => {
 const changeIconSize = (size) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
-    ).click({ force: true })
+    )
+        .should('be.visible')
+        .click({ force: true })
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size}"]`
     ).click()
@@ -88,12 +90,11 @@ describe('Drawing marker/points', () => {
         }).as('icon-default-green')
         cy.goToDrawing()
     })
-    // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
-    // it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
-    //     createMarkerAndOpenIconStylePopup()
-    //     clickOnAColor(GREEN)
-    //     cy.wait('@icon-default-green')
-    // })
+    it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
+        createMarkerAndOpenIconStylePopup()
+        clickOnAColor(GREEN)
+        cy.wait('@icon-default-green')
+    })
     context('simple interaction with a marker', () => {
         it('toggles the marker symbol popup when clicking button', () => {
             createMarkerAndOpenIconStylePopup()
@@ -194,7 +195,9 @@ describe('Drawing marker/points', () => {
             })
             it('Shows all available icon sets in the selector', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
                         cy.get(getCyDropdownItemIconSetName(iconSet.name)).should('be.visible')
@@ -203,7 +206,9 @@ describe('Drawing marker/points', () => {
             })
             it('Changes the icon selector box content when the icon set changes', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
                 cy.get('[data-cy="dropdown-item-civil symbols"]').click()
                 cy.wait('@icon-set-babs')
                 cy.wait('@icon-babs')
@@ -213,10 +218,11 @@ describe('Drawing marker/points', () => {
                 // as babs icon set is not colorable, the color box should have disappeared
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleColorBox}`).should('not.exist')
             })
-            // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
-            it.skip('Changes the marker icon when a new one is selected in the icon selector', () => {
+            it('Changes the marker icon when a new one is selected in the icon selector', () => {
                 const kmlId = createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
                 // showing all icons of this sets so that we may choose a new one
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`).click()
                 cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
@@ -224,7 +230,9 @@ describe('Drawing marker/points', () => {
                     const fourthIcon = defaultIconSet.items[3]
                     cy.get(
                         `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                    ).click()
+                    )
+                        .should('be.visible')
+                        .click({ force: true })
                     cy.checkDrawnGeoJsonProperty('icon.name', fourthIcon.name, true)
                     cy.wait('@update-kml').then((interception) =>
                         cy.checkKMLRequest(
