@@ -1,15 +1,13 @@
 <template>
+    <HeaderLink v-if="isDesktopMode" :selected="currentLang === lang" @click="changeLang">
+        {{ lang.toUpperCase() }}
+    </HeaderLink>
     <button
-        class="language-btn btn"
+        v-else
+        class="btn mx-1"
         :class="{
-            // Desktop mode classes
-            'm-0 px-1 btn-xs btn-link custom-text-decoration': isDesktopMode,
-            'text-black': isDesktopMode && !selected,
-            'text-primary': isDesktopMode && selected,
-            // Mobile/tablet mode classes
-            'mobile-view btn-sm mx-1': !isDesktopMode,
-            'btn-light': !isDesktopMode && !selected,
-            'btn-primary': !isDesktopMode && selected,
+            'btn-light': currentLang !== lang,
+            'btn-primary': currentLang === lang,
         }"
         :title="lang.toUpperCase()"
         :data-cy="`menu-lang-${lang}`"
@@ -20,20 +18,17 @@
 </template>
 
 <script>
+import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import log from '@/utils/logging'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
+    components: { HeaderLink },
     props: {
         lang: {
             type: String,
             required: true,
         },
-    },
-    data() {
-        return {
-            selected: false,
-        }
     },
     computed: {
         ...mapGetters(['isDesktopMode']),
@@ -41,43 +36,12 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
     },
-    watch: {
-        currentLang(newLang) {
-            this.updateSelection(newLang)
-        },
-    },
-    mounted() {
-        this.updateSelection(this.currentLang)
-    },
     methods: {
         ...mapActions(['setLang']),
         changeLang() {
             log.debug('switching locale', this.lang)
-            this.selected = true
             this.setLang(this.lang)
-        },
-        updateSelection(currentLang) {
-            if (currentLang === this.lang) {
-                this.selected = true
-            } else {
-                this.selected = false
-            }
         },
     },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-
-.mobile-view {
-    width: 40px;
-}
-
-.custom-text-decoration {
-    text-decoration: none;
-    &:hover {
-        text-decoration: underline;
-    }
-}
-</style>
