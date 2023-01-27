@@ -2,23 +2,23 @@
     <div
         :class="{
             'feedback-menu p-1': !isDesktopMode,
-            'feedback-header me-2': isDesktopMode,
+            'me-2': isDesktopMode,
         }"
     >
         <FeedbackButton  />
-        <LinkButton />
+        <MoreInfo />
     </div>
 </template>
 
 <script>
 import FeedbackButton from '@/modules/menu/components/menu/FeedbackButton.vue'
-import LinkButton from '@/modules/menu/components/menu/LinkButton.vue'
+import MoreInfo from '@/modules/menu/components/menu/MoreInfo.vue'
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
         FeedbackButton,
-        LinkButton,
+        MoreInfo,
     },
     computed: {
         ...mapGetters(['isDesktopMode']),
