@@ -1,6 +1,6 @@
 <template>
-    <HeaderLink v-if="isDesktopMode" :selected="true" @click="sendFeedback">
-        {{ $t('test_map_give_feedback') }}
+    <HeaderLink v-if="isDesktopMode" :primary="true" @click="sendFeedback">
+        <strong>{{ $t('test_map_give_feedback') }}</strong>
     </HeaderLink>
     <button v-else class="btn btn-primary btn-sm mx-1" @click="sendFeedback">
         {{ $t('test_map_give_feedback') }}

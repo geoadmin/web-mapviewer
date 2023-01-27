@@ -2,8 +2,9 @@
     <button
         class="btn btn-xs btn-link m-0 px-1 custom-text-decoration"
         :class="{
-            'text-black': !selected,
-            'text-primary': selected,
+            'text-black': !primary && !secondary,
+            'text-primary': primary,
+            'text-secondary': secondary,
         }"
         @click="forwardClickEvent"
     >
@@ -18,7 +19,11 @@
  */
 export default {
     props: {
-        selected: {
+        primary: {
+            type: Boolean,
+            default: false,
+        },
+        secondary: {
             type: Boolean,
             default: false,
         },

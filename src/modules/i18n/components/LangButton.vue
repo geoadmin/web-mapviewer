@@ -1,5 +1,5 @@
 <template>
-    <HeaderLink v-if="isDesktopMode" :selected="currentLang === lang" @click="changeLang">
+    <HeaderLink v-if="isDesktopMode" :primary="currentLang === lang" @click="changeLang">
         {{ lang.toUpperCase() }}
     </HeaderLink>
     <button

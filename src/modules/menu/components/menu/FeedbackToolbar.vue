@@ -6,19 +6,19 @@
         }"
     >
         <FeedbackButton  />
-        <FeedbackMoreInfo />
+        <MoreInfo />
     </div>
 </template>
 
 <script>
 import FeedbackButton from '@/modules/menu/components/menu/FeedbackButton.vue'
-import FeedbackMoreInfo from '@/modules/menu/components/menu/FeedbackMoreInfo.vue'
+import MoreInfo from '@/modules/menu/components/menu/MoreInfo.vue'
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
         FeedbackButton,
-        FeedbackMoreInfo,
+        MoreInfo,
     },
     computed: {
         ...mapGetters(['isDesktopMode']),
