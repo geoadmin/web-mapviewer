@@ -60,6 +60,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        outlinePrimary: {
+            type: Boolean,
+            default: false,
+        },
         outlineSecondary: {
             type: Boolean,
             default: false,
@@ -106,6 +110,8 @@ export default {
                 classes.push('btn-danger')
             } else if (this.outlineDanger) {
                 classes.push('btn-outline-danger')
+            } else if (this.outlinePrimary) {
+                classes.push('btn-outline-primary')
             } else if (this.outlineSecondary) {
                 classes.push('btn-outline-secondary')
             } else if (this.outlineLight) {

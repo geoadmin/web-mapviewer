@@ -34,11 +34,11 @@
                 @timestamp-change="onTimestampChange"
             />
             <FontAwesomeIcon
-                v-if="layer.isExternal"
-                id="externalDisclaimerIcon"
-                class="text-primary p-2"
+                v-if="hasDataDisclaimer(layer.getID())"
+                class="data-disclaimer-tooltip text-primary p-2"
                 icon="user"
                 data-cy="menu-external-disclaimer-icon"
+                @click="onDataDisclaimerClick()"
             />
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'cog']"
@@ -93,6 +93,15 @@
                 @click="showLayerLegendPopup"
             />
         </div>
+        <ModalWithBackdrop
+            v-if="showDataDisclaimer"
+            :title="$t('alert_title')"
+            header-primary
+            fluid
+            @close="onDataDisclaimerClose()"
+        >
+            {{ getDataDisclaimerContent }}
+        </ModalWithBackdrop>
     </div>
 </template>
 
@@ -100,15 +109,16 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import tippy from 'tippy.js'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)
  */
 export default {
-    components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector },
+    components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector, ModalWithBackdrop },
     props: {
         layer: {
             type: AbstractLayer,
@@ -143,14 +153,19 @@ export default {
     data() {
         return {
             showLayerDetails: false,
+            showDataDisclaimer: false,
         }
     },
     computed: {
+        ...mapGetters(['hasDataDisclaimer']),
         ...mapState({
             lang: (state) => state.i18n.lang,
         }),
         id() {
             return this.layer?.getID()
+        },
+        attributionName() {
+            return this.layer.attributions.map((attribution) => attribution.name).join(', ')
         },
         checkboxIcon() {
             if (this.layer.visible) {
@@ -167,45 +182,38 @@ export default {
             }
             return transformation
         },
+        getDataDisclaimerTooltipContent() {
+            return this.$i18n.t('external_data_tooltip')
+        },
+        getDataDisclaimerContent() {
+            return this.$i18n.t('external_data_warning').replace('--URL--', this.attributionName)
+        },
     },
     watch: {
         compact(compact) {
-            this.externalDisclaimerPopup?.forEach((instance) => {
+            this.disclaimerPopup?.forEach((instance) => {
                 instance.setProps({ placement: compact ? 'right' : 'bottom' })
             })
         },
-        lang(lang) {
-            this.externalDisclaimerPopup?.forEach((instance) => {
-                instance.setContent(this.getExternalDisclaimerPopupContent())
+        lang() {
+            this.disclaimerPopup?.forEach((instance) => {
+                instance.setContent(this.getDataDisclaimerTooltipContent)
             })
         },
     },
     mounted() {
-        if (this.layer.isExternal) {
-            this.externalDisclaimerPopup = tippy('#externalDisclaimerIcon', {
-                content: this.getExternalDisclaimerPopupContent(),
+        if (this.hasDataDisclaimer(this.layer.getID())) {
+            this.disclaimerPopup = tippy(`.data-disclaimer-tooltip`, {
+                theme: 'primary',
+                content: this.getDataDisclaimerTooltipContent,
                 arrow: true,
                 placement: this.compact ? 'right' : 'bottom',
-                hideOnClick: false,
-                trigger: 'mouseenter focus click',
-                onShow: (instance) => {
-                    // for mobile (non-compact) we hide the tooltip after 5sec
-                    if (!this.compact) {
-                        setTimeout(() => {
-                            instance.hide()
-                        }, 5000)
-                    }
-                },
-                onClickOutside: (instance, event) => {
-                    // because on mobile we hide it after a 5 seconds timeout
-                    // we need to hide it when click outside, e.g. click on close menu
-                    instance.hide()
-                },
+                touch: false,
             })
         }
     },
     beforeUnmount() {
-        this.externalDisclaimerPopup?.forEach((instance) => {
+        this.disclaimerPopup?.forEach((instance) => {
             instance.destroy()
         })
     },
@@ -232,8 +240,11 @@ export default {
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
         },
-        getExternalDisclaimerPopupContent() {
-            return this.$i18n.t('external_data_tooltip')
+        onDataDisclaimerClick() {
+            this.showDataDisclaimer = true
+        },
+        onDataDisclaimerClose() {
+            this.showDataDisclaimer = false
         },
     },
 }
@@ -242,6 +253,10 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
+
+.data-disclaimer-tooltip {
+    cursor: pointer;
+}
 
 .menu-layer-item {
     border-bottom: 1px solid $gray-400;

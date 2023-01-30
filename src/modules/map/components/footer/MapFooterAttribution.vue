@@ -4,23 +4,36 @@
         <template v-for="(source, index) in sources" :key="source.name">
             <a
                 v-if="source.url"
+                :id="`source-${source.id}`"
                 :href="source.url"
                 target="_blank"
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'data-disclaimer': source.hasDataDisclaimer }"
                 :data-cy="`layer-copyright-${source.name}`"
+                @click="onSourceClick(source)"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </a>
             <span
                 v-else
+                :id="`source-${source.id}`"
                 class="map-footer-attribution-source"
-                :class="{ 'external-source': source.isExternal }"
+                :class="{ 'data-disclaimer': source.hasDataDisclaimer }"
                 :data-cy="`layer-copyright-${source.name}`"
+                @click="onSourceClick(source)"
             >
                 {{ getAttributionWithComaIfNeeded(source.name, index) }}
             </span>
         </template>
+        <ModalWithBackdrop
+            v-if="showDataDisclaimer"
+            :title="$t('alert_title')"
+            header-primary
+            fluid
+            @close="onCloseDataDisclaimer()"
+        >
+            {{ getDataDisclaimerContent }}
+        </ModalWithBackdrop>
     </div>
 </template>
 
@@ -28,12 +41,18 @@
 import { mapGetters, mapState } from 'vuex'
 import tippy from 'tippy.js'
 
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
 export default {
+    components: { ModalWithBackdrop },
+    data() {
+        return { clickedSource: null }
+    },
     computed: {
         ...mapState({
             lang: (state) => state.i18n.lang,
         }),
-        ...mapGetters(['visibleLayers', 'currentBackgroundLayer']),
+        ...mapGetters(['visibleLayers', 'currentBackgroundLayer', 'hasDataDisclaimer']),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here
@@ -52,9 +71,10 @@ export default {
                     .map((layer) => {
                         return layer.attributions.map((attribution) => {
                             return {
+                                id: attribution.name.replace(/[._]/g, '-'),
                                 name: attribution.name,
                                 url: attribution.url,
-                                isExternal: layer.isExternal,
+                                hasDataDisclaimer: this.hasDataDisclaimer(layer.getID()),
                             }
                         })
                     })
@@ -65,38 +85,55 @@ export default {
                     })
             )
         },
+        showDataDisclaimer() {
+            return this.clickedSource?.hasDataDisclaimer
+        },
+        getDataDisclaimerTooltipContent() {
+            return this.$i18n.t('external_data_tooltip')
+        },
+        getDataDisclaimerContent() {
+            return this.$i18n
+                .t('external_data_warning')
+                .replace('--URL--', this.clickedSource?.name)
+        },
     },
     watch: {
-        lang(lang) {
-            this.externalDisclaimerTooltip?.forEach((instance) => {
-                instance.setContent(this.getExternalDisclaimerPopupContent())
-            })
+        lang() {
+            this.updateDataDisclaimerTooltip()
         },
     },
     updated() {
         // We need to destroy and recreate the tippy tooltip on each update
         // otherwise when removing/adding the external layer (e.g. visibility toggle) the
         // tippy won't work anymore.
-        this.externalDisclaimerTooltip?.forEach((instance) => {
-            instance.destroy()
-        })
-        this.externalDisclaimerTooltip = tippy('.external-source', {
-            content: this.getExternalDisclaimerPopupContent(),
-            arrow: true,
-            placement: 'top',
-        })
+        this.updateDataDisclaimerTooltip()
     },
     unmount() {
-        this.externalDisclaimerTooltip?.forEach((instance) => {
+        this.dataDisclaimerTooltip?.forEach((instance) => {
             instance.destroy()
         })
     },
     methods: {
+        onSourceClick(source) {
+            this.clickedSource = source
+        },
+        onCloseDataDisclaimer() {
+            this.clickedSource = null
+        },
         getAttributionWithComaIfNeeded(attribution, index) {
             return `${attribution}${index !== this.sources.length - 1 ? ',' : ''}`
         },
-        getExternalDisclaimerPopupContent() {
-            return this.$i18n.t('external_data_tooltip')
+        updateDataDisclaimerTooltip() {
+            this.dataDisclaimerTooltip?.forEach((instance) => {
+                instance.destroy()
+            })
+            this.dataDisclaimerTooltip = tippy(`.data-disclaimer`, {
+                theme: 'primary',
+                content: this.getDataDisclaimerTooltipContent,
+                arrow: true,
+                placement: 'top',
+                touch: false,
+            })
         },
     },
 }
@@ -111,6 +148,7 @@ export default {
     font-size: 0.7rem;
     text-align: center;
     position: relative;
+    cursor: pointer;
 
     &-source {
         margin-left: 2px;
@@ -120,7 +158,7 @@ export default {
         &:hover {
             text-decoration: underline;
         }
-        &.external-source {
+        &.data-disclaimer {
             color: $primary;
         }
     }

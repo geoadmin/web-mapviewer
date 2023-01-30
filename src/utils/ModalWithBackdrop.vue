@@ -5,12 +5,21 @@
         <div>
             <BlackBackdrop class="modal-view" @click="onClose(false)" />
             <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
-                <div class="card">
-                    <div class="card-header d-flex align-middle">
+                <div
+                    class="card"
+                    :class="{
+                        'border-primary': headerPrimary,
+                    }"
+                >
+                    <div
+                        class="card-header d-flex align-middle"
+                        :class="{ 'bg-primary text-white border-primary': headerPrimary }"
+                    >
                         <span v-if="title" class="flex-grow-1 text-start mt-1">{{ title }}</span>
                         <ButtonWithIcon
                             v-if="allowPrint"
                             small
+                            :primary="headerPrimary"
                             :button-font-awesome-icon="['fa', 'print']"
                             data-cy="modal-print-button"
                             @click="printModalContent"
@@ -18,6 +27,7 @@
                         <ButtonWithIcon
                             :button-font-awesome-icon="['fa', 'times']"
                             small
+                            :primary="headerPrimary"
                             class="float-end"
                             data-cy="modal-close-button"
                             @click="onClose(false)"
@@ -73,6 +83,10 @@ export default {
             default: false,
         },
         fluid: {
+            type: Boolean,
+            default: false,
+        },
+        headerPrimary: {
             type: Boolean,
             default: false,
         },
