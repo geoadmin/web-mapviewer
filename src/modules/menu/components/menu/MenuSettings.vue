@@ -11,7 +11,7 @@
 
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
-import FeedbackToolbar from '@/modules/menu/components/menu/FeedbackToolbar.vue'
+import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 
 export default {
     components: {
