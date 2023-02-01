@@ -26,26 +26,40 @@
                 <small v-html="$t('feedback_disclaimer')" />
                 <!-- eslint-enable vue/no-v-html-->
             </div>
-            <button
-                :disabled="!feedbackCanBeSent"
-                class="float-end btn btn-primary"
-                @click="sendFeedback"
-            >
-                {{ $t('send') }}
-            </button>
-            <button class="float-end btn btn-light mx-2" @click="showFeedbackForm = false">
-                {{ $t('cancel') }}
-            </button>
+            <div class="text-end">
+                <button class="btn btn-light mx-2" @click="closeAndCleanForm">
+                    <span v-if="request.completed">{{ $t('close') }}</span>
+                    <span v-else>{{ $t('cancel') }}</span>
+                </button>
+                <button
+                    :disabled="!feedbackCanBeSent"
+                    class="btn btn-primary"
+                    @click="sendFeedback"
+                >
+                    <FontAwesomeIcon v-if="request.pending" icon="spinner" pulse />
+                    <FontAwesomeIcon v-else-if="request.completed" icon="check" />
+                    <span v-else-if="request.failed">{{ $t('upload_failed') }}</span>
+                    <span v-else>{{ $t('send') }}</span>
+                </button>
+            </div>
+            <div v-if="request.completed || request.failed" class="text-end mt-3">
+                <span>
+                    <small v-if="request.failed" class="text-danger">
+                        {{ $t('upload_failed') }}
+                    </small>
+                    <small v-if="request.completed">{{ $t('feedback_success_message') }}</small>
+                </span>
+            </div>
         </div>
     </ModalWithBackdrop>
 </template>
 
 <script>
+import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import log from '@/utils/logging'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
-import sendFeedback from '@/api/feedback.api'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -62,40 +76,54 @@ export default {
             rating: 0,
             maxRating: 5,
             feedback: null,
-            mailTo:
-                'mailto:webgis@swisstopo.ch?subject=' +
-                encodeURIComponent('Feedback to new viewer'),
+            request: {
+                pending: false,
+                failed: false,
+                completed: false,
+            },
         }
     },
     computed: {
         ...mapGetters(['activeKmlLayer']),
         feedbackCanBeSent() {
-            return this.rating !== 0
-        },
-        mailToLink() {
-            const rating =
-                this.rating === 0 ? '[no rating]' : `[rating:${this.rating}/${this.maxRating}]`
-            const title = encodeURIComponent(`[web-mapviewer] ${rating} Feedback`)
-            return `mailto:webgis@swisstopo.ch?subject=${title}`
+            return this.rating !== 0 && !this.request.pending
         },
     },
     methods: {
         ratingChange(newRating) {
             this.rating = newRating
         },
-        sendFeedback() {
-            log.debug('sending feedback with', {
-                rating: this.rating,
-                feedback: this.feedback,
-            })
-            sendFeedback(
-                this.rating,
-                this.maxRating,
-                this.feedback,
-                this.activeKmlLayer?.kmlFileUrl
-            ).then(() => {
-                this.showFeedbackForm = false
-            })
+        async sendFeedback() {
+            // if the request was already sent, we don't allow the user to double send
+            if (this.request.completed) {
+                // we instead close the modal if he/she clicks on the check mark
+                this.closeAndCleanForm()
+                return
+            }
+            this.request.pending = true
+            try {
+                const feedbackSentSuccessfully = await sendFeedback(
+                    this.rating,
+                    this.maxRating,
+                    this.feedback,
+                    this.activeKmlLayer?.kmlFileUrl
+                )
+                this.request.completed = feedbackSentSuccessfully
+                this.request.failed = !feedbackSentSuccessfully
+            } catch (err) {
+                log.error('Error while sending feedback', err)
+                this.request.failed = true
+            } finally {
+                this.request.pending = false
+            }
+        },
+        closeAndCleanForm() {
+            this.showFeedbackForm = false
+            this.rating = 0
+            this.feedback = null
+            // reset also the completed/failed state, so that the user can send another feedback later on
+            this.request.failed = false
+            this.request.completed = false
         },
     },
 }
