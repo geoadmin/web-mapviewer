@@ -1,23 +1,16 @@
 <template>
-    <div
-        class="container-fluid text-secondary"
-        :class="{ pristine: pristine }"
-        @mouseleave="setPreviewRating(0)"
-    >
+    <div class="container-fluid ratings">
         <FontAwesomeIcon
             v-for="note in maxRating"
             :key="note"
-            size="xl"
+            size="2x"
             icon="star"
+            class="star"
             :class="{
-                checked: shouldStarBeChecked(note),
+                checked: rating >= note,
             }"
-            @mouseenter="setPreviewRating(note)"
             @click="setRating(note)"
         />
-        <span v-show="!pristine" class="ms-2">
-            <strong>{{ rating }} / {{ maxRating }}</strong>
-        </span>
     </div>
 </template>
 
@@ -33,24 +26,18 @@ export default {
     data() {
         return {
             rating: 0,
-            previewedRating: 0,
             pristine: true,
         }
     },
     methods: {
         setRating(rating) {
-            this.rating = rating
             this.pristine = false
-            this.$emit('ratingChange', this.rating)
-        },
-        setPreviewRating(rating) {
-            this.previewedRating = rating
-        },
-        shouldStarBeChecked(ratingForStar) {
-            if (this.previewedRating === 0) {
-                return this.rating >= ratingForStar
+            if (this.rating === rating) {
+                this.rating = 0
+            } else {
+                this.rating = rating
             }
-            return this.previewedRating >= ratingForStar
+            this.$emit('ratingChange', this.rating)
         },
     },
 }
@@ -59,7 +46,13 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-.checked {
-    color: $orange;
+.ratings {
+    color: $gray-500;
+    .heart.checked {
+        color: $danger;
+    }
+    .star.checked {
+        color: $orange;
+    }
 }
 </style>
