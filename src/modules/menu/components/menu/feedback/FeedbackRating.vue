@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid ratings">
+    <div class="container-fluid ratings" @mouseleave="previewRating = 0">
         <FontAwesomeIcon
             v-for="note in maxRating"
             :key="note"
@@ -8,8 +8,9 @@
             class="star"
             :data-cy="`rate-feedback-${note}`"
             :class="{
-                checked: rating >= note,
+                checked: shouldStarBeChecked(note),
             }"
+            @mouseenter="previewRating = note"
             @click="setRating(note)"
         />
     </div>
@@ -27,6 +28,7 @@ export default {
     data() {
         return {
             rating: 0,
+            previewRating: 0,
             pristine: true,
         }
     },
@@ -40,6 +42,12 @@ export default {
             }
             this.$emit('ratingChange', this.rating)
         },
+        shouldStarBeChecked(starRating) {
+            return (
+                (this.previewRating > 0 && this.previewRating >= starRating) ||
+                (this.previewRating === 0 && this.rating >= starRating)
+            )
+        },
     },
 }
 </script>
@@ -49,9 +57,6 @@ export default {
 
 .ratings {
     color: $gray-500;
-    .heart.checked {
-        color: $danger;
-    }
     .star.checked {
         color: $orange;
     }

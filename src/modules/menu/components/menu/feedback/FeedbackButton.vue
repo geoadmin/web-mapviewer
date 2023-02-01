@@ -17,18 +17,20 @@
     </button>
     <ModalWithBackdrop
         v-if="showFeedbackForm"
-        :title="$t('feedback_rating_title')"
+        :title="$t('test_map_give_feedback')"
+        fluid
         @close="showFeedbackForm = false"
     >
         <div class="p-2" data-cy="feedback-form">
+            <span>{{ $t('feedback_rating_title') }}</span>
             <FeedbackRating
-                class="mb-3 text-center"
+                class="my-4 text-center"
                 :max-rating="maxRating"
                 @rating-change="ratingChange"
             />
             <textarea
                 v-model="feedback"
-                class="form-control"
+                class="form-control feedback-text"
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
@@ -65,9 +67,11 @@
             <div v-if="request.completed || request.failed" class="text-end mt-3">
                 <span>
                     <small v-if="request.failed" class="text-danger" data-cy="feedback-failed-text">
-                        {{ $t('upload_failed') }}
+                        {{ $t('send_failed') }}
                     </small>
-                    <small v-if="request.completed" data-cy="feedback-success-text">{{ $t('feedback_success_message') }}</small>
+                    <small v-if="request.completed" data-cy="feedback-success-text">{{
+                        $t('feedback_success_message')
+                    }}</small>
                 </span>
             </div>
         </div>
@@ -123,9 +127,9 @@ export default {
             this.request.pending = true
             try {
                 const feedbackSentSuccessfully = await sendFeedback(
+                    this.feedback,
                     this.rating,
                     this.maxRating,
-                    this.feedback,
                     this.activeKmlLayer?.kmlFileUrl
                 )
                 this.request.completed = feedbackSentSuccessfully
@@ -148,3 +152,9 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.feedback-text {
+    min-height: 7rem;
+}
+</style>

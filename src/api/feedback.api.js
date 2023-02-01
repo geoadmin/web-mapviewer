@@ -5,21 +5,48 @@ import log from '@/utils/logging'
 import axios from 'axios'
 
 /**
- * @param {Number} rating
- * @param {Number} maxRating
- * @param {String} text
- * @param {String} kmlFileUrl
+ * @param {String} text mandatory
+ * @param {Number} rating optional
+ * @param {Number} maxRating optional
+ * @param {String} kmlFileUrl optional
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
-export default async function sendFeedback(rating, maxRating, text, kmlFileUrl) {
+export default async function sendFeedback(
+    text,
+    rating = null,
+    maxRating = null,
+    kmlFileUrl = null
+) {
     try {
-        const shortLink = await createShortLink(window.location.href)
+        let shortLink = null
+        try {
+            shortLink = await createShortLink(window.location.href)
+        } catch (err) {
+            log.error('could not generate a short link, will not send it with feedback', err)
+        }
+
         let kml = null
         if (kmlFileUrl) {
-            kml = await getKmlFromUrl(kmlFileUrl)
+            try {
+                kml = await getKmlFromUrl(kmlFileUrl)
+            } catch (err) {
+                log.error(
+                    'could not load KML from URL',
+                    kmlFileUrl,
+                    'will not send KML with feedback',
+                    err
+                )
+            }
         }
+
+        let subject = '[web-mapviewer]'
+        if (rating && maxRating) {
+            subject += ` [rating: ${rating}/${maxRating}]`
+        }
+        subject += ' User feedback'
+
         const data = {
-            subject: `[web-mapviewer] [rating: ${rating}/${maxRating}] User feedback`,
+            subject,
             feedback: text,
             version: APP_VERSION,
             ua: navigator.userAgent,
@@ -36,10 +63,11 @@ export default async function sendFeedback(rating, maxRating, text, kmlFileUrl) 
         if (success) {
             log.info('Feedback sent successfully')
         } else {
-            log.error('Something went wrong while processing this feedback')
+            log.error('Something went wrong while processing this feedback', response)
         }
         return success
     } catch (err) {
         log.error('Error while sending feedback', err)
+        return false
     }
 }

@@ -120,10 +120,10 @@ export default {
     }
     z-index: $zindex-modal;
     max-height: 90vh;
-    // For phone we set the width fixed to 90% of the view.
-    width: 90vw;
+    // For phone we set the width fixed to 95% of the view.
+    width: 95vw;
     @include respond-above(phone) {
-        // But for desktop we let the size be dinamic with max to 90% of the view
+        // But for desktop we let the size be dynamic with max to 90% of the view
         width: unset;
         max-width: 90vw;
     }
