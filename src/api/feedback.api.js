@@ -27,11 +27,12 @@ export default async function sendFeedback(rating, maxRating, text, kmlFileUrl) 
             kml,
         }
         log.debug('sending feedback with', data)
-        const { success } = await axios.post(`${API_SERVICES_BASE_URL}feedback`, data, {
+        const response = await axios.post(`${API_SERVICES_BASE_URL}feedback`, data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         })
+        const success = response?.data?.success
         if (success) {
             log.info('Feedback sent successfully')
         } else {

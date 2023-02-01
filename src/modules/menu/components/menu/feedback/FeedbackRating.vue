@@ -6,6 +6,7 @@
             size="2x"
             icon="star"
             class="star"
+            :data-cy="`rate-feedback-${note}`"
             :class="{
                 checked: rating >= note,
             }"

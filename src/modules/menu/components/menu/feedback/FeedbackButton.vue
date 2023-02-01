@@ -1,8 +1,18 @@
 <template>
-    <HeaderLink v-if="showAsLink" :primary="true" @click="showFeedbackForm = true">
+    <HeaderLink
+        v-if="showAsLink"
+        :primary="true"
+        data-cy="feedback-link-button"
+        @click="showFeedbackForm = true"
+    >
         <strong>{{ $t('test_map_give_feedback') }}</strong>
     </HeaderLink>
-    <button v-else class="btn btn-primary btn-sm mx-1" @click="showFeedbackForm = true">
+    <button
+        v-else
+        class="btn btn-primary btn-sm mx-1"
+        data-cy="feedback-button"
+        @click="showFeedbackForm = true"
+    >
         {{ $t('test_map_give_feedback') }}
     </button>
     <ModalWithBackdrop
@@ -10,7 +20,7 @@
         :title="$t('feedback_rating_title')"
         @close="showFeedbackForm = false"
     >
-        <div class="p-2">
+        <div class="p-2" data-cy="feedback-form">
             <FeedbackRating
                 class="mb-3 text-center"
                 :max-rating="maxRating"
@@ -19,6 +29,7 @@
             <textarea
                 v-model="feedback"
                 class="form-control"
+                data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
             <div class="my-4">
@@ -34,20 +45,29 @@
                 <button
                     :disabled="!feedbackCanBeSent"
                     class="btn btn-primary"
+                    data-cy="submit-feedback-button"
                     @click="sendFeedback"
                 >
-                    <FontAwesomeIcon v-if="request.pending" icon="spinner" pulse />
-                    <FontAwesomeIcon v-else-if="request.completed" icon="check" />
-                    <span v-else-if="request.failed">{{ $t('upload_failed') }}</span>
-                    <span v-else>{{ $t('send') }}</span>
+                    <FontAwesomeIcon
+                        v-if="request.pending"
+                        icon="spinner"
+                        pulse
+                        data-cy="feedback-pending-icon"
+                    />
+                    <FontAwesomeIcon
+                        v-else-if="request.completed"
+                        icon="check"
+                        data-cy="feedback-success-icon"
+                    />
+                    <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
                 </button>
             </div>
             <div v-if="request.completed || request.failed" class="text-end mt-3">
                 <span>
-                    <small v-if="request.failed" class="text-danger">
+                    <small v-if="request.failed" class="text-danger" data-cy="feedback-failed-text">
                         {{ $t('upload_failed') }}
                     </small>
-                    <small v-if="request.completed">{{ $t('feedback_success_message') }}</small>
+                    <small v-if="request.completed" data-cy="feedback-success-text">{{ $t('feedback_success_message') }}</small>
                 </span>
             </div>
         </div>
