@@ -35,11 +35,7 @@ export default {
     methods: {
         setRating(rating) {
             this.pristine = false
-            if (this.rating === rating) {
-                this.rating = 0
-            } else {
-                this.rating = rating
-            }
+            this.rating = rating
             this.$emit('ratingChange', this.rating)
         },
         shouldStarBeChecked(starRating) {

@@ -37,12 +37,6 @@ describe('Testing the feedback form', () => {
             cy.get('[data-cy="rate-feedback-5"').click()
             cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
         })
-        it('resets the rating if the same star is clicked twice', () => {
-            cy.get('[data-cy="rate-feedback-2"').click()
-            cy.get('[data-cy="submit-feedback-button"]').should('be.enabled')
-            cy.get('[data-cy="rate-feedback-2"').click()
-            cy.get('[data-cy="submit-feedback-button"]').should('be.disabled')
-        })
     })
     context('backend interaction', () => {
         beforeEach(() => {
