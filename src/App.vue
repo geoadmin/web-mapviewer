@@ -70,6 +70,9 @@ export default {
 // this import needs to happen only once, otherwise bootstrap is import/added
 // to the output CSS as many time as this file is imported
 @import 'node_modules/bootstrap/scss/bootstrap';
+// tippy-theme needs to be imported once and for the whole app in order to work
+// properly therefore it is imported here in the un-scoped app styling.
+@import 'src/scss/tippy-theme';
 
 #main-component {
     font-family: $frutiger;
@@ -81,7 +84,7 @@ export default {
 :focus {
     outline-style: none;
     .outlines & {
-        outline-offset: 1px;
+        outline-offset: 0px;
         outline: $focus-outline;
     }
 }

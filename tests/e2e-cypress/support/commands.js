@@ -1,5 +1,6 @@
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
+import { BREAKPOINT_TABLET } from '@/config'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -14,35 +15,6 @@ const addLayerTileFixture = () => {
     })
     cy.intercept(`**/3857/**/**/**/**.png`, {
         fixture: '256.png',
-    })
-}
-
-const addFileAPIFixtureAndIntercept = () => {
-    cy.intercept(
-        {
-            method: 'POST',
-            url: '**/api/kml/admin',
-        },
-        {
-            statusCode: 201,
-            fixture: 'service-kml/create-file.fixture.json',
-        }
-    ).as('post-kml')
-    cy.intercept(
-        {
-            method: 'PUT',
-            url: '**/api/kml/admin/**',
-        },
-        {
-            statusCode: 200,
-            fixture: 'service-kml/update-file.fixture.json',
-        }
-    ).as('update-kml')
-    // intercepting now the call to the file itself
-    cy.fixture('service-kml/create-file.fixture.json').then((fileFixture) => {
-        cy.intercept(`**/api/kml/files/${fileFixture.fileId}`, {
-            body: '<kml></kml>',
-        }).as('get-kml')
     })
 }
 
@@ -83,15 +55,35 @@ const addWhat3WordFixtureAndIntercept = () => {
     }).as('coordinates-for-w3w')
 }
 
+const addIconsSetIntercept = () => {
+    cy.intercept(`**/api/icons/sets`, {
+        fixture: 'service-icons/sets.fixture.json',
+    }).as('icon-sets')
+}
+
+const addDefaultIconsFixtureAndIntercept = () => {
+    cy.intercept(`**/api/icons/sets/default/icons`, {
+        fixture: 'service-icons/set-default.fixture.json',
+    }).as('icon-set-default')
+}
+
+const addSecondIconsFixtureAndIntercept = () => {
+    cy.intercept(`**/api/icons/sets/babs/icons`, {
+        fixture: 'service-icons/set-babs.fixture.json',
+    }).as('icon-set-babs')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addLayerTileFixture,
-        addFileAPIFixtureAndIntercept,
         addLayerFixtureAndIntercept,
         addTopicFixtureAndIntercept,
         addCatalogFixtureAndIntercept,
         addHeightFixtureAndIntercept,
         addWhat3WordFixtureAndIntercept,
+        addIconsSetIntercept,
+        addDefaultIconsFixtureAndIntercept,
+        addSecondIconsFixtureAndIntercept,
     }
 }
 
@@ -137,6 +129,7 @@ Cypress.Commands.add(
                 defIntercepts[intercept]()
             }
         }
+
         let flattenedOtherParams = ''
         Object.keys(otherParams).forEach((key) => {
             flattenedOtherParams += `&${key}=${otherParams[key]}`
@@ -170,17 +163,40 @@ Cypress.Commands.add(
                         ? otherParams.layers.split(',').length
                         : otherParams.layers.split(';').length
                     : 0
-            // There are situations where neither value is falsey.
+            // There are situations where neither value is falsy.
             // But the higher value seems to always be the right one.
             let target = Math.max(targetTopic, targetLayers)
-            // If a layer has been set via adminid we just increment by one.
-            target += Boolean(otherParams.adminid)
+            // If a layer has been set via adminId we just increment by one.
+            target += Boolean(otherParams.adminId)
 
             return active === target
         })
         cy.get('[data-cy="map"]').should('be.visible')
     }
 )
+
+/**
+ * Click on language command
+ *
+ * This command change the application to the given language independently of the ui mode
+ * (mobile/tablet/desktop)
+ *
+ * @param {string} lang Language to click; de, fr, it, en or rm
+ */
+Cypress.Commands.add('clickOnLanguage', (lang) => {
+    let menuSection = null
+    const width = Cypress.config('viewportWidth')
+    if (width < BREAKPOINT_TABLET) {
+        // mobile/tablet : clicking on the menu button first
+        menuSection = cy.get('[data-cy="menu-settings-section"]')
+        menuSection.click()
+    } else {
+        // desktop
+        menuSection = cy.get('[data-cy="header-settings-section"]')
+    }
+    menuSection.should('be.visible')
+    menuSection.find(`[data-cy="menu-lang-${lang}"]`).click()
+})
 
 // cypress-wait-until wrapper to wait for a specific store state.
 // cy.readStoreValue doesn't work as `.its` will prevent retries.

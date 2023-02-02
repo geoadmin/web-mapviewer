@@ -8,9 +8,14 @@ module.exports = defineConfig({
     video: false,
     defaultCommandTimeout: 10000,
     requestTimeout: 15000,
+    numTestsKeptInMemory: 5,
     retries: {
         runMode: 5,
         openMode: 0,
+    },
+    reporter: 'cypress-multi-reporters',
+    reporterOptions: {
+        configFile: `./tests/reporter.config.js`,
     },
     viewportWidth: 320,
     viewportHeight: 568,

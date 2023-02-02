@@ -27,17 +27,17 @@ const parseLegacyParams = (search) => {
 }
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
-    log.debug('Transforming legacy kml adminid, get KML ID from adminId...')
-    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams['adminid'])
-    log.debug('Adding KML layer from legacy kml adminid')
+    log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
+    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams['adminId'])
+    log.debug('Adding KML layer from legacy kml adminId')
     if (newQuery.layers) {
-        newQuery.layers = `${newQuery.layers};${transformLayerIntoUrlString(kmlLayer)}`
+        newQuery.layers = `${newQuery.layers};${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
     } else {
-        newQuery.layers = transformLayerIntoUrlString(kmlLayer)
+        newQuery.layers = `${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
     }
 
     // remove the legacy param from the newQuery
-    delete newQuery.adminid
+    delete newQuery.adminId
 
     return newQuery
 }
@@ -123,8 +123,8 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
 
-    if ('adminid' in legacyParams) {
-        // adminid legacy param cannot be handle above in the loop because it needs to add a layer
+    if ('adminId' in legacyParams) {
+        // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         handleLegacyKmlAdminIdParam(legacyParams, newQuery)
             .then((updatedQuery) => {
@@ -135,8 +135,8 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             })
             .catch((error) => {
                 log.error(`Failed to retrieve KML from admin_id: ${error}`)
-                // make sure to remove the adminid from the query
-                delete newQuery.adminid
+                // make sure to remove the adminId from the query
+                delete newQuery.adminId
                 next({
                     name: 'MapView',
                     query: newQuery,

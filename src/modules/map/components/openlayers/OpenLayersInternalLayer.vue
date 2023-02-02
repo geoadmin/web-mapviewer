@@ -1,26 +1,40 @@
 <template>
     <div>
+        <!-- no source exclusion when adding VT layer through here, this is only required in the case the layer is under
+             another (see OpenLayersMap main component)-->
         <OpenLayersVectorLayer
             v-if="layerConfig.type === LayerTypes.VECTOR"
             :z-index="zIndex"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :style-url="layerConfig.getURL()"
-            :exclude-source="layerConfig.excludeSource"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS"
+            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL(LV95.epsgNumber)"
             :z-index="zIndex"
             :projection="LV95.epsg"
         />
+        <OpenLayersExternalWMTSLayer
+            v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
+            :layer-id="layerConfig.externalLayerId"
+            :opacity="layerConfig.opacity"
+            :get-capabilities-url="layerConfig.getURL()"
+            :z-index="zIndex"
+        />
+        <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
+        <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
+             we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.getID()"
+            :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL(LV95.epsgNumber)"
+            :wms-version="layerConfig.wmsVersion"
+            :time-config="layerConfig.timeConfig"
+            :format="layerConfig.format"
             :gutter="layerConfig.gutter"
             :z-index="zIndex"
             :projection="LV95.epsg"
@@ -54,7 +68,7 @@
             </div>
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML"
+            v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
@@ -65,7 +79,9 @@
 </template>
 
 <script>
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
@@ -74,13 +90,14 @@ import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
 /**
- * Transforms a layer config (metadata) into the correct OpenLayers counterpart depending on the
- * layer type.
+ * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
+ * correct OpenLayers counterpart depending on the layer type.
  */
 export default {
     // So that we can recursively call ourselves in the template for aggregate layers
     name: 'OpenLayersInternalLayer',
     components: {
+        OpenLayersExternalWMTSLayer,
         OpenLayersKMLLayer,
         OpenLayersGeoJSONLayer,
         OpenLayersWMSLayer,
@@ -89,7 +106,7 @@ export default {
     },
     props: {
         layerConfig: {
-            type: Object,
+            type: AbstractLayer,
             default: null,
         },
         zIndex: {

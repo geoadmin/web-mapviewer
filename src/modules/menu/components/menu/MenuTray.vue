@@ -3,6 +3,7 @@
         <MenuSection
             id="settingsSection"
             ref="settingsSection"
+            class="settings-section"
             :title="$t('settings')"
             :show-content="false"
             secondary
@@ -17,14 +18,17 @@
             @open-menu-section="onOpenMenuSection"
         />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
-        <MenuSection
-            id="drawSection"
-            :title="$t('draw_panel_title')"
-            :always-keep-closed="true"
-            secondary
-            data-cy="menu-tray-drawing-section"
-            @click="toggleDrawingOverlay"
-        />
+        <div id="drawSectionTooltip" tabindex="0">
+            <MenuSection
+                id="drawSection"
+                :title="$t('draw_panel_title')"
+                :always-keep-closed="true"
+                secondary
+                :disabled="disableDrawing"
+                data-cy="menu-tray-drawing-section"
+                @click:header="toggleDrawingOverlay"
+            />
+        </div>
         <MenuTopicSection
             id="topicsSection"
             ref="topicsSection"
@@ -50,7 +54,9 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
+import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
+import tippy, { followCursor } from 'tippy.js'
 
 export default {
     components: {
@@ -75,11 +81,51 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['activeKmlLayer']),
         ...mapState({
             activeLayers: (state) => state.layers.activeLayers,
+            hostname: (state) => state.ui.hostname,
+            lang: (state) => state.i18n.lang,
         }),
+        ...mapGetters(['isPhoneMode']),
         showLayerList() {
             return this.activeLayers.length > 0
+        },
+        disableDrawing() {
+            if (
+                DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
+                    (hostname) => hostname === this.hostname
+                )
+            ) {
+                if (this.activeKmlLayer?.adminId && this.activeKmlLayer?.isLegacy()) {
+                    return true
+                }
+            }
+            return false
+        },
+    },
+    watch: {
+        disableDrawing(disableDrawing) {
+            if (disableDrawing) {
+                this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
+                    theme: 'danger',
+                    arrow: true,
+                    followCursor: 'initial',
+                    plugins: [followCursor],
+                    hideOnClick: false,
+                    delay: 500,
+                    offset: [15, 15],
+                })
+                this.setDisableDrawingTooltipContent()
+            } else {
+                if (this.disableDrawingTooltip) {
+                    this.disableDrawingTooltip.forEach((tooltip) => tooltip.destroy())
+                    this.disableDrawingTooltip = null
+                }
+            }
+        },
+        lang() {
+            this.setDisableDrawingTooltipContent()
         },
     },
     methods: {
@@ -89,24 +135,38 @@ export default {
             if (this.nonScrollableMenuSections.includes(id)) {
                 toClose = toClose.concat(this.scrollableMenuSections)
             }
-            toClose.forEach((section) => this.$refs[section].close())
+            toClose.forEach((section) => this.$refs[section]?.close())
+        },
+        setDisableDrawingTooltipContent() {
+            this.disableDrawingTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('legacy_drawing_warning'))
+            })
         },
     },
 }
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+
 .menu-tray-inner {
     display: grid;
-    /* One entry for each menu section.
-    - "min-content" means the menu section is non-scrollable (intrinsic size i.e. based solely on content)
-    - "auto" means the menu section is scrollable (size based on content and the container) */
-    grid-template-rows: min-content min-content min-content auto auto;
     overflow: hidden;
+
+    // Each menu section is in a grid row, to make them scrollable independently of each other we
+    // use the grid-auto-rows: auto
+    grid-auto-rows: auto;
 }
 
 // UI is compact if in desktop mode
 .menu-tray-compact {
     font-size: 0.825rem;
+}
+
+@include respond-above(lg) {
+    .settings-section {
+        // See HeaderWithSearch.vue css where the settings-section is enable below lg
+        display: none;
+    }
 }
 </style>

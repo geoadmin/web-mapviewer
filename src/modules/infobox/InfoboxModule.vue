@@ -41,12 +41,23 @@
                     v-if="showElevationProfile"
                     class="card-body"
                     :feature="selectedFeature"
+                    :read-only="!showDrawingOverlay"
                     @update-elevation-profile-plot="setMaxHeight"
                 />
 
-                <FeatureCombo v-else-if="isCombo" class="card-body" :feature="selectedFeature" />
+                <FeatureCombo
+                    v-else-if="isCombo"
+                    class="card-body"
+                    :feature="selectedFeature"
+                    :read-only="!showDrawingOverlay"
+                />
 
-                <FeatureEdit v-else-if="isEdit" class="card-body" :feature="selectedFeature" />
+                <FeatureEdit
+                    v-else-if="isEdit"
+                    class="card-body"
+                    :feature="selectedFeature"
+                    :read-only="!showDrawingOverlay"
+                />
 
                 <FeatureList v-else-if="isList" />
             </div>
@@ -63,7 +74,6 @@ import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
-
 export default {
     components: {
         ButtonWithIcon,
@@ -84,6 +94,7 @@ export default {
         ...mapState({
             selectedFeatures: (state) => state.features.selectedFeatures,
             floatingTooltip: (state) => state.ui.floatingTooltip,
+            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
 
         selectedFeature() {

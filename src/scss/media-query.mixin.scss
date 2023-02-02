@@ -41,3 +41,36 @@ $breakpoint_tablet: 768px;
     @warn 'Invalid breakpoint: #{$breakpoint}.';
   }
 }
+
+/**
+* Automatically selects the correct media tag to respond below the specified threshold
+*
+* @param breakpoint 'phone' for the phone threshold, 'tablet' for the tablet threshold. The function
+                    also accepts the bootstrap values sm, md, lg, xl, xxl
+*/
+@mixin respond-below($breakpoint) {
+
+  // If the breakpoint exists in the map.
+  @if map-has-key($grid-breakpoints, $breakpoint) {
+
+    // Get the breakpoint value.
+    $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+
+    // Write the media query.
+    @media (max-width: ($breakpoint-value - 1)), (max-height: ($breakpoint_phone_height - 1)) {
+      @content;
+    }
+  } @else if $breakpoint == phone {
+    @media (max-width: ($breakpoint_phone_width - 1)), (max-height: ($breakpoint_phone_height - 1)) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (max-width: ($breakpoint_tablet - 1)), (max-height: ($breakpoint_phone_height - 1)) {
+      @content;
+    }
+  // If the breakpoint doesn't exist in the map.
+  } @else {
+    // Log a warning.
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}

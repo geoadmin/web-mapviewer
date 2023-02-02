@@ -32,6 +32,7 @@ import 'animate.css'
 
 import { createApp } from 'vue'
 import VueSocialSharing from 'vue-social-sharing'
+import tippy from 'tippy.js'
 
 import App from './App.vue'
 // setting up font awesome vue component
@@ -59,6 +60,7 @@ log.debug('Config is', {
     BREAKPOINT_TABLET,
 })
 
+tippy.setDefaultProps({ theme: 'light-border' })
 setupProj4()
 
 const app = createApp(App)

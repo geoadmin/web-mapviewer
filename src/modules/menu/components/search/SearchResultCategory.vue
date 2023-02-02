@@ -7,7 +7,7 @@
         <div class="search-category-header p-2">
             {{ title }}
         </div>
-        <ul class="search-category-body bg-white">
+        <ul class="search-category-body">
             <SearchResultListEntry
                 v-for="(entry, index) in entries"
                 :key="index"

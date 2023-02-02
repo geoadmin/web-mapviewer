@@ -22,7 +22,7 @@ export default {
     methods: {
         editableFeatureArgs() {
             const defaultIconSet = this.availableIconSets.find((set) => set.name === 'default')
-            const defaultIcon = defaultIconSet.icons[0]
+            const defaultIcon = defaultIconSet?.icons[0]
             return {
                 icon: defaultIcon,
                 featureType: EditableFeatureTypes.MARKER,

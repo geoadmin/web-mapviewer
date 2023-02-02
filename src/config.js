@@ -202,6 +202,14 @@ export const TILEGRID_RESOLUTIONS = [
 export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
 
 /**
+ * Bounds of the LV95 projection expressed in metric mercator (WGS84). It is essentially
+ * TILEGRID_EXTENT (defined above) reprojected in EPSG:3857 through epsg.io website.
+ *
+ * @type {Number[]}
+ */
+export const LV95_EXTENT = [572215.44, 5684416.96, 1277662.37, 6145307.4]
+
+/**
  * Map center default value is the center of switzerland LV:95 projection's extent (from
  * {@link https://epsg.io/2056}) re-projected in EPSG:3857
  */
@@ -244,22 +252,47 @@ export const BREAKPOINT_TABLET = 768
  */
 export const DRAWING_HIT_TOLERANCE = 6
 
-export const VECTOR_TILES_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_world.vt'
+/**
+ * Light base map style ID
+ *
+ * From https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_lightbase.html
+ *
+ * @type {string}
+ */
+export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_world.vt'
 
-export const VECTOR_TILES_STYLE_URL = `https://vectortiles.geo.admin.ch/styles/${VECTOR_TILES_STYLE_ID}/style.json`
+/**
+ * Imagery base map style ID
+ *
+ * From https://www.swisstopo.admin.ch/de/geodata/maps/smw/smw_imagerybase.html
+ *
+ * @type {string}
+ */
+export const VECTOR_TILES_IMAGERY_STYLE_ID = 'ch.swisstopo.leichte-basiskarte-imagery_world.vt'
 
 /**
  * Display a big developpment banner on all but these hosts.
  *
  * @type {String[]}
  */
- export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
+export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.admin.ch']
 
- /**
- * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop)
- * corner on all these hosts.
+/**
+ * Display a warning ribbon ('TEST') on the top-left (mobile) or bottom-left (desktop) corner on all
+ * these hosts.
  *
  * @type {String[]}
  */
+export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
 
- export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
+/**
+ * To avoid breaking legacy KML drawing during an MVP (test phases) we disable the drawing menu for
+ * those ones on test.map.geo.admin.ch
+ *
+ * @type {String[]}
+ */
+export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
+    'test.map.geo.admin.ch',
+    'sys-map.dev.bgdi.ch',
+    'localhost',
+]

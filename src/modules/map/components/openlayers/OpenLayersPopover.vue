@@ -69,7 +69,10 @@ export default {
     },
     beforeCreate() {
         this.overlay = new Overlay({
-            offset: [0, 15],
+            // NOTE: the 12 offset is due to the arrow size $arrow-height in css and must always
+            // equal this variable in order to have the arrow point to the center of the selected
+            // element.
+            offset: [0, 12],
             positioning: 'top-center',
             className: 'map-popover-overlay',
             autoPan: { margin: 0 },
@@ -98,8 +101,10 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .map-popover {
+    pointer-events: none;
     .card {
         max-width: $overlay-width;
+        pointer-events: auto;
     }
     .map-popover-content {
         max-height: 350px;
@@ -110,20 +115,19 @@ export default {
         flex-direction: column;
     }
     // Triangle border
+    $arrow-height: 12px;
     &::before {
-        $arrow-height: 15px;
         position: absolute;
         top: -($arrow-height * 2);
         left: 50%;
         margin-left: -$arrow-height;
         border: $arrow-height solid transparent;
         border-bottom-color: $border-color-translucent;
-        pointer-events: none;
         content: '';
     }
     // Triangle background
     &::after {
-        $arrow-border-height: 14px;
+        $arrow-border-height: $arrow-height - 1;
         content: '';
         border: $arrow-border-height solid transparent;
         border-bottom-color: $light;

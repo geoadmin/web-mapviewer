@@ -1,7 +1,9 @@
 import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { coordinateFromString } from '@/utils/coordinateUtils'
 import { ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
+import log from '@/utils/logging'
 
 const state = {
     /**
@@ -60,14 +62,16 @@ const actions = {
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {
-                search(query, rootState.i18n.lang).then((searchResults) => {
-                    if (searchResults) {
-                        commit('setSearchResults', searchResults)
-                        if (showResultsAfterRequest && searchResults.count() > 0) {
-                            commit('showSearchResults')
+                search(query, rootState.i18n.lang)
+                    .then((searchResults) => {
+                        if (searchResults) {
+                            commit('setSearchResults', searchResults)
+                            if (showResultsAfterRequest && searchResults.count() > 0) {
+                                commit('showSearchResults')
+                            }
                         }
-                    }
-                })
+                    })
+                    .catch((error) => log.error(`Search failed`, error))
             }
         } else if (query.length === 0) {
             dispatch('clearPinnedLocation')
@@ -84,7 +88,7 @@ const actions = {
     selectResultEntry: ({ commit, dispatch }, entry) => {
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
-                dispatch('addLayer', entry.layerId)
+                dispatch('addLayer', new ActiveLayerConfig(entry.layerId, true))
                 break
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {

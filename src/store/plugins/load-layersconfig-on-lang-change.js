@@ -1,7 +1,8 @@
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
-import VectorLayer from '@/api/layers/VectorLayer.class'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
-import { VECTOR_TILES_STYLE_ID, VECTOR_TILES_STYLE_URL } from '@/config'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -13,48 +14,80 @@ import log from '@/utils/logging'
  */
 const layersConfigByLang = {}
 
-function loadLayersConfig(lang) {
-    return new Promise((resolve, reject) => {
-        if (!layersConfigByLang[lang]) {
-            loadLayersConfigFromBackend(lang)
-                .then((layersConfig) => {
-                    layersConfigByLang[lang] = layersConfig
-                    resolve(layersConfig)
-                })
-                .catch((error) => {
-                    reject(error)
-                })
-        } else {
-            resolve(layersConfigByLang[lang])
-        }
-    })
+/**
+ * Loads the whole config from the backend (aka LayersConfig) for a specific language and store it
+ * in a cache
+ *
+ * If the same language is asked another time later on, the cached version will be given.
+ *
+ * @param lang {String} ISO code for a language
+ * @returns {Promise<GeoAdminLayer[]>}
+ */
+async function loadLayersConfig(lang) {
+    if (!layersConfigByLang[lang]) {
+        const layersConfig = await loadLayersConfigFromBackend(lang)
+        layersConfigByLang[lang] = layersConfig
+        return layersConfig
+    } else {
+        return layersConfigByLang[lang]
+    }
 }
 
 const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
     try {
-        // adding vector tile backend through a hardcoded entry (for now)
-        // this should be removed as soon as the backend delivers a proper configuration
-        // for our vector tile background layer
-        const bgVectorLayer = new VectorLayer(
-            VECTOR_TILES_STYLE_ID,
-            1.0,
-            VECTOR_TILES_STYLE_URL,
-            'swisstopo',
-            'https://www.swisstopo.admin.ch/en/home.html',
-            true,
+        const openStreetMapAndMapTilersAttributions = [
+            new LayerAttribution('MapTiler', 'https://www.maptiler.com/copyright/'),
+            new LayerAttribution(
+                'OpenStreetMap contributors',
+                'https://www.openstreetmap.org/copyright'
+            ),
+        ]
+        /*
+         * adding vector tile backend through a hardcoded entry (for now)
+         *
+         * this should be removed as soon as the backend delivers a proper configuration for our vector tile background layer
+         */
+        const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
+            VECTOR_LIGHT_BASE_MAP_STYLE_ID,
+            openStreetMapAndMapTilersAttributions,
             // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
+            // will be used when this layer is placed under pixelkarte-farbe, this should improve performances as lesser
+            // data will be on-screen hidden by the WMTS tiles
             'swissmaptiles'
         )
-        const layersConfig = [bgVectorLayer, ...(await loadLayersConfig(store.state.i18n.lang))]
-        store.dispatch('setLayerConfig', layersConfig)
+        const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID, [
+            ...openStreetMapAndMapTilersAttributions,
+            new LayerAttribution(
+                'Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020)',
+                'https://s2maps.eu/'
+            ),
+        ])
+        const layersConfig = [
+            lightBaseMapBackgroundLayer,
+            imageryBackgroundLayer,
+            ...(await loadLayersConfig(store.state.i18n.lang)),
+        ]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
         // as we want the vector tile background as default, we edit on the fly
         // the default topic ECH to have the vector layer as its default background
         const topicEch = topicsConfig.find((topic) => topic.id === 'ech')
         if (topicEch) {
-            topicEch.backgroundLayers.push(bgVectorLayer)
-            topicEch.defaultBackgroundLayer = bgVectorLayer
+            // adding light base map as a background option
+            topicEch.backgroundLayers.push(lightBaseMapBackgroundLayer)
+            // replacing the SWISSIMAGE WMTS layer with the SWISSIMAGE vector layer
+            // same as the other one above, this should be removed ASAP (as soon as our backend
+            // is serving this configuration through the standard layersConfig endpoint)
+            const swissimageLayer = topicEch.backgroundLayers.find(
+                (layer) => layer.geoAdminID === 'ch.swisstopo.swissimage'
+            )
+            if (swissimageLayer) {
+                log.debug('replacing SwissImage background layer with vector style equivalent')
+                swissimageLayer.isBackground = false
+                topicEch.backgroundLayers[topicEch.backgroundLayers.indexOf(swissimageLayer)] =
+                    imageryBackgroundLayer
+            }
         }
+        store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
         if (store.state.topics.current) {
             const tree = await loadTopicTreeForTopic(
@@ -63,6 +96,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
             )
             store.dispatch('setTopicTree', tree)
         } else {
+            // if no topic was set in the URL, we load the default topic ECH
             store.dispatch(
                 'changeTopic',
                 topicsConfig.find((topic) => topic.id === 'ech')

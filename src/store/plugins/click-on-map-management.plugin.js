@@ -8,8 +8,7 @@ import log from '@/utils/logging'
  *
  * @param {Vuex.Store} store
  * @param {ClickInfo} clickInfo Store mutation payload
- * @param {(WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer)[]} visibleLayers All currently
- *   visible layers on the map
+ * @param {GeoAdminLayer[]} visibleLayers All currently visible layers on the map
  * @param {String} lang
  */
 const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
@@ -18,9 +17,12 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
         const allRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
-            if (layer.type === LayerTypes.GEOJSON) {
-                allRequests.push(new Promise((resolve) => resolve(clickInfo.geoJsonFeatures)))
-            } else if (layer.hasTooltip) {
+
+            if (layer.type === LayerTypes.GEOJSON || layer.type === LayerTypes.KML) {
+                allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
+
+            }
+            else if (layer.hasTooltip) {
                 allRequests.push(
                     identify(
                         layer,
@@ -51,9 +53,17 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
  */
 const clickOnMapManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
+        if (
+            mutation.type === 'setShowDrawingOverlay' &&
+            mutation.payload &&
+            state.map.displayLocationPopup
+        ) {
+            // when entering the drawing menu we need to clear the location popup
+            store.dispatch('hideLocationPopup')
+        }
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
-        // when the user is not currently drawing something on the map
-        if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
+        // when the user is not currently drawing something on the map.
+        else if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
             const clickInfo = mutation.payload
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
@@ -61,8 +71,6 @@ const clickOnMapManagementPlugin = (store) => {
 
             if (isLeftSingleClick) {
                 // Execute this before the then clause, as else the result could be wrong
-                // Still to do: why sometimes two clicks needed to fullscreen?
-                // Why crash when selecting search bar while popup is open?
                 const allowActivateFullscreen =
                     !isFullscreenMode &&
                     !state.features.selectedFeatures?.length &&
@@ -80,9 +88,12 @@ const clickOnMapManagementPlugin = (store) => {
                     store.getters.visibleLayers,
                     store.state.i18n.lang
                 ).then((newSelectedFeatures) => {
+
                     if (!newSelectedFeatures?.length && allowActivateFullscreen) {
+
                         store.dispatch('toggleFullscreenMode')
                     }
+
                     store.dispatch('setSelectedFeatures', newSelectedFeatures)
                 })
             }

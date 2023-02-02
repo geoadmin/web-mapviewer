@@ -32,8 +32,11 @@
                             {{ $t('draw_button_delete_last_point') }}
                         </button>
                     </div>
-                    <div class="d-flex justify-content-center drawing-toolbox-saving-status">
-                        {{ $t(savingStatusMessage) }}
+                    <div
+                        class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                        :class="{ 'text-danger': isDrawingStateError }"
+                    >
+                        {{ drawingStateMessage }}
                     </div>
                     <div class="d-flex justify-content-center">
                         <button
@@ -48,7 +51,7 @@
                         <button
                             type="button"
                             class="btn btn-light m-1"
-                            :disabled="isDrawingEmpty || !kmlIds"
+                            :disabled="isDrawingEmpty || !kmlLayerId"
                             data-cy="drawing-toolbox-share-button"
                             @click="openShare"
                         >
@@ -78,13 +81,12 @@
             v-if="showClearConfirmationModal"
             show-confirmation-buttons
             fluid
-            data-cy="drawing-toolbox-delete-confirmation-modal"
             @close="onCloseClearConfirmation"
         >
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
         <ModalWithBackdrop v-if="showShareModal" fluid :title="$t('share')" @close="onCloseShare">
-            <ShareForm :kml-ids="kmlIds" />
+            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlAdminId" />
         </ModalWithBackdrop>
     </teleport>
 </template>
@@ -93,12 +95,12 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
-import ShareForm from '@/modules/drawing/components/SharePopup.vue'
+import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
 import DrawingHeader from './DrawingHeader.vue'
-import { SavingStatus } from '../lib/export-utils'
+import { DrawingState } from '../lib/export-utils'
 
 export default {
     components: {
@@ -106,12 +108,16 @@ export default {
         ModalWithBackdrop,
         ButtonWithIcon,
         DrawingToolboxButton,
-        ShareForm,
+        SharePopup,
         DrawingHeader,
     },
     props: {
-        kmlIds: {
-            type: Object,
+        kmlLayerId: {
+            type: String,
+            default: null,
+        },
+        kmlAdminId: {
+            type: String,
             default: null,
         },
         currentDrawingMode: {
@@ -122,10 +128,9 @@ export default {
             type: Boolean,
             default: false,
         },
-        /** Current kml saving status */
-        savingStatus: {
-            type: String,
-            default: SavingStatus.INITIAL,
+        drawingState: {
+            type: Number,
+            default: DrawingState.INITIAL,
         },
     },
     emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
@@ -148,17 +153,22 @@ export default {
         },
 
         /** Return a different translation key depending on the saving status */
-        savingStatusMessage() {
-            switch (this.savingStatus) {
-                case SavingStatus.SAVING:
-                    return 'draw_file_saving'
-                case SavingStatus.SAVED:
-                    return 'draw_file_saved'
-                case SavingStatus.SAVE_ERROR:
-                    return 'upload_failed'
+        drawingStateMessage() {
+            switch (this.drawingState) {
+                case DrawingState.SAVING:
+                    return this.$i18n.t('draw_file_saving')
+                case DrawingState.SAVED:
+                    return this.$i18n.t('draw_file_saved')
+                case DrawingState.SAVE_ERROR:
+                    return this.$i18n.t('draw_file_load_error')
+                case DrawingState.LOAD_ERROR:
+                    return this.$i18n.t('draw_file_save_error')
                 default:
                     return ''
             }
+        },
+        isDrawingStateError() {
+            return this.drawingState < 0
         },
     },
     mounted() {
@@ -227,7 +237,7 @@ $zindex-drawing-toolbox: -1;
     &-disclaimer {
         display: none;
     }
-    &-saving-status {
+    &-drawing-state {
         color: #d3d3d3;
         font-size: 12px;
         line-height: 1.25;

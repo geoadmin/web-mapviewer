@@ -1,17 +1,11 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { getKmlUrl } from '@/api/files.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
+import log from '@/utils/logging'
 
 /**
  * @typedef SelectedFeatureData
  * @property {[number, number]} coordinate
  * @property {string} featureId
- */
-
-/**
- * @typedef DrawingKmlIds
- * @property {string} adminId
- * @property {string} fileId
  */
 
 export default {
@@ -22,12 +16,6 @@ export default {
          * @type {String | null}
          */
         mode: null,
-        /**
-         * Ids of stored KML file. Format is: {adminId, fileId}
-         *
-         * @type {DrawingKmlIds | null}
-         */
-        drawingKmlIds: null,
         /**
          * List of all available icon sets for drawing (loaded from the backend service-icons)
          *
@@ -43,14 +31,17 @@ export default {
          * @type {String[]}
          */
         featureIds: [],
+        /**
+         * Open drawing mode on Admin ID parsed from URL
+         *
+         * This flag is set to true when an Admin ID has been parsed and removed from URL. In this
+         * case we should open the drawing mode.
+         *
+         * @type {boolean}
+         */
+        openOnAdminId: false,
     },
     getters: {
-        getDrawingPublicFileUrl(state) {
-            if (state.drawingKmlIds) {
-                return getKmlUrl(state.drawingKmlIds.fileId)
-            }
-            return null
-        },
         isCurrentlyDrawing(state) {
             return state.mode !== null
         },
@@ -60,9 +51,6 @@ export default {
             if (mode in EditableFeatureTypes || mode === null) {
                 commit('setDrawingMode', mode)
             }
-        },
-        setKmlIds({ commit }, drawingKmlIds) {
-            commit('setKmlIds', drawingKmlIds)
         },
         async loadAvailableIconSets({ commit }) {
             const iconSets = await loadAllIconSetsFromBackend()
@@ -83,14 +71,32 @@ export default {
         setDrawingFeatures({ commit }, featureIds) {
             commit('setDrawingFeatures', featureIds)
         },
+        setOpenOnAdminId({ commit }, value) {
+            commit('setOpenOnAdminId', value)
+        },
+        setKmlLayerAddToMap({ commit, rootGetters }, payload) {
+            if ('addToMap' in payload && 'layerId' in payload) {
+                const layer = rootGetters.getActiveLayerById(payload.layerId)?.clone()
+                if (layer) {
+                    layer.addToMap = payload.addToMap
+                    commit('addLayer', { layer: layer, metadata: null })
+                } else {
+                    log.error(
+                        `KML Layer ID ${payload.layerId} not found in active layers, cannot change its addToMap flag`
+                    )
+                }
+            } else {
+                log.error('Cannot set KML layer addToMap invalid payload', payload)
+            }
+        },
     },
     mutations: {
         setDrawingMode: (state, mode) => (state.mode = mode),
-        setKmlIds: (state, drawingKmlIds) => (state.drawingKmlIds = drawingKmlIds),
         setIconSets: (state, iconSets) => (state.iconSets = iconSets),
         addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
         deleteDrawingFeature: (state, featureId) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
         setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
+        setOpenOnAdminId: (state, value) => (state.openOnAdminId = value),
     },
 }

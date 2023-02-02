@@ -1,45 +1,30 @@
 <template>
-    <div class="lang-switch-toolbar p-1">
-        <button
-            v-for="lang in languages"
-            :key="lang"
-            class="btn btn-sm"
-            :class="{
-                'btn-light': lang !== currentLang,
-                'btn-primary': lang === currentLang,
-            }"
-            :title="lang.toUpperCase()"
-            :data-cy="'menu-lang-' + lang"
-            @click="changeLang(lang)"
-        >
-            {{ lang.toUpperCase() }}
-        </button>
+    <div
+        :class="{
+            'lang-switch-menu p-1': !isDesktopMode,
+            'lang-switch-header me-2': isDesktopMode,
+        }"
+    >
+        <LangButton v-for="lang in languages" :key="lang" :lang="lang" />
     </div>
 </template>
 
 <script>
-import log from '@/utils/logging'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import LangButton from './LangButton.vue'
+import { mapGetters } from 'vuex'
 import { languages } from '../index'
 
 export default {
+    components: {
+        LangButton,
+    },
     data() {
         return {
             languages: Object.keys(languages),
         }
     },
     computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-        }),
         ...mapGetters(['isDesktopMode']),
-    },
-    methods: {
-        changeLang(lang) {
-            log.debug('switching locale', lang)
-            this.setLang(lang)
-        },
-        ...mapActions(['setLang']),
     },
 }
 </script>
@@ -47,12 +32,7 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
-.lang-switch-toolbar {
+.lang-switch-menu {
     transition: max-height 0.3s linear;
-    button {
-        width: 3rem;
-        margin-right: calc($button-spacer / 2);
-        margin-left: calc($button-spacer / 2);
-    }
 }
 </style>

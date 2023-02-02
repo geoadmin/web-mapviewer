@@ -69,23 +69,38 @@ describe('Test on legacy param import', () => {
     })
 
     context('Layers import', () => {
-        const adminId = '0987654321'
-        const kmlId = '1234567890'
-        const kmlServiceBaseUrl = `**/api/kml`
-        const kmlServiceAdminUrl = `${kmlServiceBaseUrl}/admin`
-        const kmlServiceFileUrl = `${kmlServiceBaseUrl}/files/${kmlId}`
+        const adminId = 'ABC0987654321'
+        const kmlId = 'ABC1234567890'
+        const kmlServiceBaseUrl = 'https://url-for-test'
+        const kmlServiceBasePath = `/api/kml`
+        const kmlServiceAdminPath = `${kmlServiceBasePath}/admin`
+        const kmlServiceFilePath = `${kmlServiceBasePath}/files/${kmlId}`
         beforeEach(() => {
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(kmlServiceFileUrl, '<kml />').as('getKML')
-            cy.intercept(`${kmlServiceAdminUrl}?admin_id=${adminId}`, (request) => {
+            cy.intercept(`**/${kmlServiceFilePath}`, '<kml />').as('get-kml')
+            cy.intercept(`**/${kmlServiceAdminPath}?admin_id=${adminId}`, (request) => {
                 request.reply({
                     id: kmlId,
                     admin_id: adminId,
-                    links: { self: `${request.url}/${kmlId}`, kml: kmlServiceFileUrl },
+                    links: {
+                        self: `${kmlServiceBaseUrl}/api/kml/admin/${kmlId}`,
+                        kml: `${kmlServiceBaseUrl}/api/kml/files/${kmlId}`,
+                    },
                     created: '',
                     updated: '',
                 })
-            }).as('getKML_ID')
+            }).as('get-kml-metada-by-admin-id')
+            cy.intercept(`**/${kmlServiceAdminPath}/${kmlId}`, (request) => {
+                request.reply({
+                    id: kmlId,
+                    links: {
+                        self: `${kmlServiceBaseUrl}/api/kml/admin/${kmlId}`,
+                        kml: `${kmlServiceBaseUrl}/api/kml/files/${kmlId}`,
+                    },
+                    created: '',
+                    updated: '',
+                })
+            }).as('get-kml-metada')
         })
 
         it('Combines all old layers_*** params into the new one', () => {
@@ -107,42 +122,58 @@ describe('Test on legacy param import', () => {
         })
         it('is able to import an external KML from a legacy param', () => {
             cy.goToMapView('en', {
-                layers: encodeURIComponent(`KML||${kmlServiceFileUrl}`),
+                layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
                 layers_opacity: '0.6',
                 layers_visibility: 'true',
             })
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
+                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.visible).to.be.true
             })
         })
-        it('is able to import an external KML from a legacy adminid query param', () => {
+        it('is able to import an external KML from a legacy adminId query param', () => {
             cy.goToMapView('en', {
-                adminid: adminId,
+                adminId: adminId,
             })
-            cy.wait('@getKML_ID')
-            cy.wait('@getKML')
+            cy.wait('@get-kml-metada-by-admin-id')
+            cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
-                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
+                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.adminId).to.equal(adminId)
             })
         })
-        // TODO: reactivate this test while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2610
-        it.skip('is able to import an external KML from a legacy adminid query param with other layers', () => {
+        it("don't keep KML adminId in URL after import", () => {
             cy.goToMapView('en', {
-                adminid: adminId,
+                adminId: adminId,
+            })
+            cy.wait('@get-kml-metada-by-admin-id')
+            cy.wait('@get-kml')
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(1)
+                const [kmlLayer] = activeLayers
+                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer.opacity).to.eq(1)
+                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.adminId).to.be.equal(adminId)
+            })
+            cy.url().should('not.contain', adminId)
+        })
+        it('is able to import an external KML from a legacy adminId query param with other layers', () => {
+            cy.goToMapView('en', {
+                adminId: adminId,
                 layers: 'test.wms.layer,test.wmts.layer',
                 layers_opacity: '0.6,0.5',
                 layers_visibility: 'true,false',
             })
-            cy.wait('@getKML_ID')
-            cy.wait('@getKML')
+            cy.wait('@get-kml-metada-by-admin-id')
+            cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(3)
                 const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
@@ -152,7 +183,7 @@ describe('Test on legacy param import', () => {
                 expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
-                expect(kmlLayer.getURL()).to.eq(kmlServiceFileUrl)
+                expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.visible).to.be.true
             })

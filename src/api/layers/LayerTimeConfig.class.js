@@ -1,6 +1,6 @@
 /**
  * @class
- * @name layers:LayerTimeConfig Time configuration for a {@link WMTSLayer} or {@link WMSLayer}. It will
+ * @name layers:LayerTimeConfig Time configuration for a {@link GeoAdminWMTSLayer} or {@link GeoAdminWMSLayer}. It will
  *   determine which "timestamp" to add to the URL used to request tiles/image.
  */
 export default class LayerTimeConfig {
@@ -42,5 +42,9 @@ export default class LayerTimeConfig {
             // the layer configuration (coming from the backend), so this is for WMTS layer without time configuration
             this.currentTimestamp = 'current'
         }
+    }
+
+    clone() {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
     }
 }

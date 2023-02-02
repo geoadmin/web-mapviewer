@@ -13,7 +13,7 @@
                 :class="[
                     getLayerClass(background),
                     `bg-index-${index}`,
-                    { active: background.getID() === currentBackgroundLayerId },
+                    { active: background.getID() === currentBackgroundLayerWithVoid.getID() },
                 ]"
                 type="button"
                 :tabindex="showBgWheel ? 0 : -1"
@@ -29,7 +29,7 @@
             class="bg-selector-trigger"
             :class="[
                 { 'bigger-pulse': animateMainButton },
-                getLayerClass(currentBackgroundLayerWithVoid),
+                'bg-ch-swisstopo-leichte-basiskarte-imagery_world-vt',
             ]"
             type="button"
             :title="$t('bg_toggle')"
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { VECTOR_TILES_STYLE_ID } from '@/config'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 const voidLayer = {
@@ -107,8 +107,9 @@ export default {
                 case 'ch.swisstopo.pixelkarte-grau':
                     return 'bg_pixel_grey'
                 case 'ch.swisstopo.swissimage':
+                case VECTOR_TILES_IMAGERY_STYLE_ID:
                     return 'bg_luftbild'
-                case VECTOR_TILES_STYLE_ID:
+                case VECTOR_LIGHT_BASE_MAP_STYLE_ID:
                     return 'basis'
                 default:
                     return layer.name || layer.getID()
@@ -195,7 +196,7 @@ $menu-button-diameter: 3px;
         bottom: 0;
 
         &.active {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 }
@@ -256,14 +257,14 @@ $menu-button-diameter: 3px;
         }
 
         &:hover {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 
     .bg-selector-trigger {
         border-width: $menu-button-diameter;
         &:hover {
-            border-color: $red;
+            border-color: $primary;
         }
     }
 

@@ -3,14 +3,13 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
-export default class WMTSLayer extends GeoAdminLayer {
+export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
      * @param {String} id Unique layer ID used in our backend
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
-     * @param {String} attributionName Name of the data owner of this layer (can be displayed as is
-     *   in the UI)
-     * @param {String} attributionUrl Link to the data owner website (if there is one)
+     * @param {boolean} visible If the layer should be shown on the map
+     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {String} format Image format for this WMTS layer (jpeg or png)
      * @param {LayerTimeConfig} timeConfig Settings telling which timestamp has to be used when
      *   request tiles to the backend
@@ -25,31 +24,31 @@ export default class WMTSLayer extends GeoAdminLayer {
      * @param {String[]} topics All the topics in which belongs this layer
      */
     constructor(
-        name = '',
-        id = '',
-        opacity = 1.0,
-        attributionName,
-        attributionUrl,
-        format = 'png',
-        timeConfig = null,
-        isBackground = false,
-        baseURL = null,
-        isHighlightable = false,
-        hasTooltip = false,
-        topics = []
+      name = '',
+      id = '',
+      opacity = 1.0,
+      visible = false,
+      attributions,
+      format = 'png',
+      timeConfig = null,
+      isBackground = false,
+      baseURL = null,
+      isHighlightable = false,
+      hasTooltip = false,
+      topics = []
     ) {
         super(
-            name,
-            LayerTypes.WMTS,
-            id,
-            opacity,
-            attributionName,
-            attributionUrl,
-            isBackground,
-            baseURL,
-            isHighlightable,
-            hasTooltip,
-            topics
+          name,
+          LayerTypes.WMTS,
+          id,
+          opacity,
+          visible,
+          attributions,
+          isBackground,
+          baseURL,
+          isHighlightable,
+          hasTooltip,
+          topics
         )
         this.format = format
         this.timeConfig = timeConfig
@@ -58,7 +57,7 @@ export default class WMTSLayer extends GeoAdminLayer {
     /** @returns {String} A XYZ type URL to request this WMTS layer's tiles */
     getURL(epsgNumber = CoordinateSystems.WEBMERCATOR.epsgNumber) {
         return `${this.baseURL}1.0.0/${this.getID()}/default/${
-            this.timeConfig.currentTimestamp
+          this.timeConfig.currentTimestamp
         }/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 }

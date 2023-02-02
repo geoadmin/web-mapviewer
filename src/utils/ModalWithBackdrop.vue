@@ -5,12 +5,21 @@
         <div>
             <BlackBackdrop class="modal-view" @click="onClose(false)" />
             <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
-                <div class="card">
-                    <div class="card-header d-flex align-middle">
-                        <span v-if="title" class="flex-grow-1 text-start mt-1">{{ title }}</span>
+                <div
+                    class="card"
+                    :class="{
+                        'border-primary': headerPrimary,
+                    }"
+                >
+                    <div
+                        class="card-header d-flex align-middle"
+                        :class="{ 'bg-primary text-white border-primary': headerPrimary }"
+                    >
+                        <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
                         <ButtonWithIcon
                             v-if="allowPrint"
                             small
+                            :primary="headerPrimary"
                             :button-font-awesome-icon="['fa', 'print']"
                             data-cy="modal-print-button"
                             @click="printModalContent"
@@ -18,6 +27,7 @@
                         <ButtonWithIcon
                             :button-font-awesome-icon="['fa', 'times']"
                             small
+                            :primary="headerPrimary"
                             class="float-end"
                             data-cy="modal-close-button"
                             @click="onClose(false)"
@@ -76,6 +86,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        headerPrimary: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     methods: {
@@ -106,10 +120,10 @@ export default {
     }
     z-index: $zindex-modal;
     max-height: 90vh;
-    // For phone we set the width fixed to 90% of the view.
-    width: 90vw;
+    // For phone we set the width fixed to 95% of the view.
+    width: 95vw;
     @include respond-above(phone) {
-        // But for desktop we let the size be dinamic with max to 90% of the view
+        // But for desktop we let the size be dynamic with max to 90% of the view
         width: unset;
         max-width: 90vw;
     }

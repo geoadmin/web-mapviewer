@@ -4,8 +4,9 @@
             v-if="show"
             :current-drawing-mode="currentDrawingMode"
             :is-drawing-empty="isDrawingEmpty"
-            :kml-ids="kmlIds"
-            :saving-status="savingStatus"
+            :kml-layer-id="kmlLayerId"
+            :kml-admin-id="kmlAdminId"
+            :drawing-state="drawingState"
             @close="toggleDrawingOverlay"
             @set-drawing-mode="changeDrawingMode"
             @clear-drawing="clearDrawing"
@@ -54,7 +55,7 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { createKml, getKml, updateKml } from '@/api/files.api'
+import { createKml, getKml, updateKml, getKmlUrl } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
@@ -71,8 +72,8 @@ import log from '@/utils/logging'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapGetters, mapState } from 'vuex'
-import { SavingStatus } from './lib/export-utils'
+import { mapActions, mapState, mapGetters } from 'vuex'
+import { DrawingState } from './lib/export-utils'
 
 export default {
     components: {
@@ -101,21 +102,27 @@ export default {
             isLoading: false,
             /** Delay teleport until view is rendered. Updated in mounted-hook. */
             readyForTeleport: false,
-            savingStatus: SavingStatus.INITIAL,
+            drawingState: DrawingState.INITIAL,
+            kmlLayer: null,
+            isNewDrawing: true,
         }
     },
     computed: {
+        ...mapGetters(['activeKmlLayer']),
         ...mapState({
             show: (state) => state.ui.showDrawingOverlay,
             currentDrawingMode: (state) => state.drawing.mode,
-            kmlIds: (state) => state.drawing.drawingKmlIds,
-            kmlLayers: (state) =>
-                state.layers.activeLayers.filter((layer) => layer.visible && layer.kmlFileUrl),
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
+            openOnAdminId: (state) => state.drawing.openOnAdminId,
         }),
-        ...mapGetters(['getDrawingPublicFileUrl']),
+        kmlLayerId() {
+            return this.kmlLayer?.getID()
+        },
+        kmlAdminId() {
+            return this.kmlLayer?.adminId
+        },
         isDrawingModeMarker() {
             return this.currentDrawingMode === EditableFeatureTypes.MARKER
         },
@@ -147,66 +154,37 @@ export default {
             }
             return null
         },
+        isDrawingModified() {
+            switch (this.drawingState) {
+                case DrawingState.INITIAL:
+                case DrawingState.LOADED:
+                case DrawingState.LOAD_ERROR:
+                    return false
+                default:
+                    return true
+            }
+        },
     },
     watch: {
         async show(show) {
-            /**
-             * Makes it possible to abort the toggle on error by setting
-             * "this.abortedToggleOverlay=true" before calling "this.toggleDrawingOverlay()", as
-             * calling "this.toggleDrawingOverlay()" will retrigger this function.
-             */
-            if (this.abortedToggleOverlay) {
-                this.abortedToggleOverlay = false
-                return
-            }
-            this.isLoading = true
-            try {
-                if (show) {
-                    this.savingStatus = SavingStatus.INITIAL
-                    // Clear the drawing layer, so addSavedKMLLayer() also updates already
-                    // existent features
-                    this.drawingLayer.getSource().clear()
-                    // if a KML was previously created with the drawing module
-                    // we add it back for further editing
-                    await this.addSavedKmlLayer()
-                    this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
-                    this.getMap().addLayer(this.drawingLayer)
-                } else {
-                    this.clearAllSelectedFeatures()
-                    this.setDrawingMode(null)
-                    await this.triggerImmediateKMLUpdate()
-                    // Next tick is needed to wait that all overlays are correctly updated so that
-                    // they can be correctly removed with the map
-                    this.$nextTick(() => {
-                        this.getMap().removeLayer(this.drawingLayer)
-                    })
-                    this.addLayer(
-                        new KMLLayer(
-                            1.0,
-                            this.getDrawingPublicFileUrl,
-                            this.kmlIds.fileId,
-                            this.kmlIds.adminId
-                        )
-                    )
-                }
-            } catch (e) {
-                // Here a better logic for handeling network errors could be added
-                // (e.g. user feedback)
-                const e_msg = show
-                    ? 'Aborted opening of drawing mode. Could not add existent KML layer: '
-                    : 'Aborted closing of drawing mode. Could not save KML layer: '
-                log.error(e_msg, e.code, e)
-                // Abort the toggle to give the user a chance to reconnect to the internet and
-                // so to not loose his drawing
-                this.abortedToggleOverlay = true
-                this.toggleDrawingOverlay()
-            } finally {
+            if (show) {
+                this.isLoading = true
+                this.isDrawingOpen = true
+                await this.showDrawingOverlay()
+                this.isLoading = false
+            } else {
+                this.isLoading = true
+                await this.hideDrawingOverlay()
+                this.isDrawingOpen = false
                 this.isLoading = false
             }
         },
         featureIds(next, last) {
             const removed = last.filter((id) => !next.includes(id))
             if (removed.length > 0) {
+                log.debug(
+                    `${removed.length} feature(s) have been removed, removing them from source`
+                )
                 const source = this.drawingLayer.getSource()
                 source
                     .getFeatures()
@@ -214,6 +192,12 @@ export default {
                     .forEach((feature) => source.removeFeature(feature))
                 this.onChange()
             }
+        },
+        activeKmlLayer(layer) {
+            this.openDrawingOnAdminId(layer, this.openOnAdminId)
+        },
+        openOnAdminId(value) {
+            this.openDrawingOnAdminId(this.activeKmlLayer, value)
         },
     },
     created() {
@@ -225,12 +209,9 @@ export default {
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
         }
-
-        /**
-         * Flag used internally in the "show(show)" watcher function. Look at the comment at the top
-         * of the beforementioned function to understand how this flag is used.
-         */
-        this.abortedToggleOverlay = false
+        // we might have passed some notification from watcher before the create
+        // event, therefore handle them once here
+        this.openDrawingOnAdminId(this.activeKmlLayer)
     },
     mounted() {
         // We can enable the teleport after the view has been rendered.
@@ -239,12 +220,6 @@ export default {
         })
         // listening for "Delete" keystroke (in order to remove last point when drawing lines or measure)
         document.addEventListener('keyup', this.onKeyUp)
-        // We need to clear the vector source when the drawing layer is removed from the active layers.
-        this.unsubscribeKmlIds = this.$store.subscribe((mutation) => {
-            if (mutation.type === 'setKmlIds' && mutation.payload === null) {
-                this.drawingLayer.getSource().clear()
-            }
-        })
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.drawingLayer = this.drawingLayer
@@ -252,8 +227,7 @@ export default {
     },
     unmounted() {
         document.removeEventListener('keyup', this.onKeyUp)
-        clearTimeout(this.KMLUpdateTimeout)
-        this.unsubscribeKmlIds()
+        clearTimeout(this.differSaveDrawingTimeout)
 
         if (IS_TESTING_WITH_CYPRESS) {
             delete window.drawingLayer
@@ -263,7 +237,6 @@ export default {
         ...mapActions([
             'toggleDrawingOverlay',
             'setDrawingMode',
-            'setKmlIds',
             'removeLayer',
             'addLayer',
             'loadAvailableIconSets',
@@ -271,7 +244,68 @@ export default {
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
+            'setShowDrawingOverlay',
+            'setKmlLayerAddToMap',
+            'setOpenOnAdminId',
         ]),
+        async showDrawingOverlay() {
+            this.drawingState = DrawingState.INITIAL
+            this.isNewDrawing = true
+
+            // if a KML was previously created with the drawing module
+            // we add it back for further editing
+            if (this.activeKmlLayer) {
+                log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
+                this.isNewDrawing = this.activeKmlLayer.adminId ? false : true
+                await this.addKmlLayerToDrawing(this.activeKmlLayer)
+                // Here we clone the active KML layer in order to be able to change it here
+                // (update metadata) without interfering with the store.
+                this.kmlLayer = this.activeKmlLayer.clone()
+                // To avoid layer superposition of the kml drawing layer and the kml map overlay,
+                // the kml layer is not added to the map `addToMap=false`. It is important to keep
+                // the kml layer in the active layer in order to keep it in the URL, otherwise if
+                // the user reload the page he loose his drawing. We also keep the visible flag so
+                // that after a reload the drawing layer is still visible.
+                this.setKmlLayerAddToMap({
+                    layerId: this.activeKmlLayer.getID(),
+                    addToMap: false,
+                })
+            }
+            this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
+            this.getMap().addLayer(this.drawingLayer)
+        },
+        async hideDrawingOverlay() {
+            log.debug(
+                `Closing drawing menu: isModified=${this.isDrawingModified}, isNew=${this.isNewDrawing}, isEmpty=${this.isDrawingEmpty}`
+            )
+            // be sure to cancel all auto retry when leaving the drawing mode
+            clearTimeout(this.differSaveDrawingTimeout)
+            clearTimeout(this.addKmlLayerTimeout)
+            this.clearAllSelectedFeatures()
+            this.setDrawingMode(null)
+
+            // We only trigger a kml save onClose drawing menu when the drawing has been
+            // modified and that it is either not empty or not a new drawing. We don't
+            // want to save new empty drawing but we want to allow to clear existing
+            // drawing.
+            if (this.isDrawingModified && (!this.isNewDrawing || !this.isDrawingEmpty)) {
+                await this.saveDrawing(false) // do not retry on error
+            }
+
+            // Only add existing/saved kml to the layer menu. If someone cleared an
+            // existing kml, we want to allow him to re-edit it.
+            if (this.kmlLayer) {
+                this.kmlLayer.addToMap = true
+                this.addLayer(this.kmlLayer)
+                this.kmlLayer = null
+            }
+
+            // Next tick is needed to wait that all overlays are correctly updated so that
+            // they can be correctly removed with the map
+            await this.$nextTick()
+            this.drawingLayer.getSource().clear()
+            this.getMap().removeLayer(this.drawingLayer)
+        },
         changeDrawingMode(mode) {
             // we de-activate the mode if the same button is pressed twice
             // (if the current mode is equal to the one received)
@@ -281,37 +315,83 @@ export default {
                 this.setDrawingMode(mode)
             }
         },
-        triggerKMLUpdate() {
-            clearTimeout(this.KMLUpdateTimeout)
-            this.KMLUpdateTimeout = setTimeout(
-                this.triggerImmediateKMLUpdate,
+        differSaveDrawing(time = 2000) {
+            clearTimeout(this.differSaveDrawingTimeout)
+            this.differSaveDrawingTimeout = setTimeout(
+                this.saveDrawing,
                 // when testing, speed up and avoid race conditions
-                // by only waiting for next tick
-                IS_TESTING_WITH_CYPRESS ? 0 : 2000
+                // by only waiting for a small amount of time.
+                // WARNING: don't use 0 here otherwise on CYPRESS you will end up with more request
+                // than needed!
+                IS_TESTING_WITH_CYPRESS ? 100 : time
             )
         },
-        async triggerImmediateKMLUpdate() {
-            clearTimeout(this.KMLUpdateTimeout)
+        async saveDrawing(retryOnError = true) {
+            log.debug(`Save drawing retryOnError ${retryOnError}`)
+            this.drawingState = DrawingState.SAVING
+            clearTimeout(this.differSaveDrawingTimeout)
             const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
-            if (kml && kml.length) {
-                this.savingStatus = SavingStatus.SAVING
-                try {
-                    await this.saveDrawing(kml)
-                } catch (e) {
-                    log.error('Could not save KML layer: ', e)
-                    this.savingStatus = SavingStatus.SAVE_ERROR
-                    throw e
+            try {
+                if (!this.kmlAdminId) {
+                    const oldKmlId = this.kmlLayerId
+                    // if we don't have an adminId then create a new KML File
+                    const metadata = await createKml(kml)
+                    this.kmlLayer = new KMLLayer(
+                        getKmlUrl(metadata.id),
+                        true, // visible
+                        null, // opacity, null means use default
+                        metadata.id,
+                        metadata.adminId,
+                        this.$t('draw_layer_label'),
+                        metadata,
+                        false, // external
+                        // do not add the drawing to the openlayer map overlay yet
+                        // to not interfer with the drawing overlay.
+                        false // addToMap
+                    )
+                    // Add the new layer to the active layer, this way the layer is present in the
+                    // URL and if the user reload the page it doesn't loose its drawing. We need to
+                    // add a clone to avoid interference with the store.
+                    const layerCloned = this.kmlLayer.clone()
+                    this.addLayer(layerCloned)
+                    // We also need to remove the old layer to avoid to have multiple drawing in
+                    // the active layers. NOTE this is done to keep the same behavior as on the old
+                    // viewer.
+                    if (oldKmlId) {
+                        this.removeLayer(oldKmlId)
+                    }
+                } else {
+                    const metadata = await updateKml(
+                        this.kmlLayer.fileId,
+                        this.kmlLayer.adminId,
+                        kml
+                    )
+                    this.kmlLayer.metadata = metadata
                 }
-                if (this.savingStatus !== SavingStatus.UNSAVED_CHANGES) {
-                    this.savingStatus = SavingStatus.SAVED
+
+                // New pending changes might have occurred during the saving, therefore do not
+                // overwrite this state.
+                if (this.drawingState !== DrawingState.UNSAVED_CHANGES) {
+                    this.drawingState = DrawingState.SAVED
+                }
+            } catch (e) {
+                log.error('Could not save KML layer: ', e)
+                this.drawingState = DrawingState.SAVE_ERROR
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
+                    // Retry saving in 5 seconds
+                    this.differSaveDrawing(5000)
                 }
             }
         },
         onChange() {
+            log.debug(`Drawing changed`)
             this.willModify()
+            // Here we need to do the onChange() event work in next tick in order to have the
+            // drawingLayer source updated otherwise the source might not yet be updated with
+            // the new/updated/deleted feature
             this.$nextTick(() => {
                 this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
-                this.triggerKMLUpdate()
+                this.differSaveDrawing()
             })
         },
         onDrawStart(feature) {
@@ -325,18 +405,18 @@ export default {
          * status to "possibly unsaved changes"
          */
         willModify() {
-            if (this.savingStatus !== SavingStatus.SAVE_ERROR) {
-                this.savingStatus = SavingStatus.UNSAVED_CHANGES
+            if (this.drawingState !== DrawingState.SAVE_ERROR) {
+                this.drawingState = DrawingState.UNSAVED_CHANGES
             }
         },
         onDrawEnd(feature) {
+            log.debug(`Drawing ended`, feature)
             this.currentlySketchedFeature = null
             this.$refs.selectInteraction.selectFeature(feature)
             // de-selecting the current tool (drawing mode)
             this.setDrawingMode(null)
-            this.onChange()
-
             this.addDrawingFeature(feature.getId())
+            this.onChange()
         },
         onKeyUp(event) {
             if (event.key === 'Delete') {
@@ -349,19 +429,6 @@ export default {
                 this.currentInteraction.removeLastPoint()
             }
         },
-        async saveDrawing(kml) {
-            let metadata
-            if (!this.kmlIds || !this.kmlIds.adminId) {
-                // if we don't have an adminId then create a new KML File
-                metadata = await createKml(kml)
-            } else {
-                metadata = await updateKml(this.kmlIds.fileId, this.kmlIds.adminId, kml)
-            }
-
-            if (metadata) {
-                this.setKmlIds({ adminId: metadata.adminId, fileId: metadata.id })
-            }
-        },
         clearDrawing: function () {
             this.willModify()
             this.clearDrawingFeatures()
@@ -369,38 +436,37 @@ export default {
             this.drawingLayer.getSource().clear()
             this.onChange()
         },
-        async addSavedKmlLayer() {
-            if (!this.kmlLayers?.length) {
-                return
-            }
-            // Search for a layer with corresponding fileId or take last
-            const index = this.kmlIds?.fileId
-                ? this.kmlLayers.findIndex((l) => l.fileId === this.kmlIds.fileId)
-                : this.kmlLayers.length - 1
-            const layer = this.kmlLayers[index]
-
-            // If KML layer exists add to drawing manager
-            if (layer) {
-                await this.addKmlLayer(layer)
-                if (!this.kmlIds) {
-                    this.triggerKMLUpdate()
-                }
-                // Remove the layer to not have an overlap with the drawing from
-                // the drawing manager
-                this.removeLayer(layer)
-            }
-            const features = this.drawingLayer.getSource().getFeatures()
-            this.setDrawingFeatures(features.map((feature) => feature.getId()))
+        differAddKmlLayerToDrawing(layer, time = 2000) {
+            this.addKmlLayerTimeout = setTimeout(this.addKmlLayerToDrawing, time, layer)
         },
-        async addKmlLayer(layer) {
-            const kml = await getKml(layer.fileId)
-            const features = new KML().readFeatures(kml, {
-                featureProjection: layer.projection,
-            })
-            features.forEach((olFeature) => {
-                EditableFeature.deserialize(olFeature, this.availableIconSets)
-            })
-            this.drawingLayer.getSource().addFeatures(features)
+        async addKmlLayerToDrawing(layer, retryOnError = true) {
+            clearTimeout(this.addKmlLayerTimeout)
+            try {
+                const kml = await getKml(layer.fileId)
+                const features = new KML().readFeatures(kml, {
+                    featureProjection: layer.projection,
+                })
+                features.forEach((olFeature) => {
+                    EditableFeature.deserialize(olFeature, this.availableIconSets)
+                })
+                this.drawingLayer.getSource().addFeatures(features)
+                this.setDrawingFeatures(features.map((feature) => feature.getId()))
+                this.drawingState = DrawingState.LOADED
+            } catch (error) {
+                log.error(`Failed to load KML ${layer.fileId}`, error, layer)
+                this.drawingState = DrawingState.LOAD_ERROR
+                if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
+                    this.differAddKmlLayerToDrawing(layer)
+                }
+            }
+        },
+        async openDrawingOnAdminId(layer, openOnAdminId) {
+            if (layer?.adminId && !this.isDrawingOpen && openOnAdminId && !layer?.isLegacy()) {
+                // clear the openOnAdminId flag to avoid re-opening
+                // the drawing menu once closed and the active layers is updated.
+                this.setOpenOnAdminId(false)
+                await this.setShowDrawingOverlay(true)
+            }
         },
     },
 }

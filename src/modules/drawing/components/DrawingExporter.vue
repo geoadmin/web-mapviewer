@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         onExportOptionSelected(dropdownItem) {
-            this.exportSelection = dropdownItem.title
+            this.exportSelection = dropdownItem.value
             this.exportDrawing()
         },
         exportDrawing() {

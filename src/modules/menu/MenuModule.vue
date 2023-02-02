@@ -6,7 +6,7 @@
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch v-show="isHeaderShown" class="header" />
+        <HeaderWithSearch v-if="isHeaderShown" class="header" />
         <div class="toolbox-right">
             <GeolocButton
                 v-if="!isFullscreenMode"
@@ -38,10 +38,14 @@
                     }"
                     data-cy="menu-tray"
                 >
-                    <MenuTray class="menu-tray-content" :compact="isDesktopMode" />
+                    <MenuTray
+                        class="menu-tray-content"
+                        :class="{ 'shadow-lg': isDesktopMode, 'rounded-bottom': isDesktopMode }"
+                        :compact="isDesktopMode"
+                    />
                     <ButtonWithIcon
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu m-auto ps-4 pe-4"
+                        class="button-open-close-desktop-menu m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         :button-font-awesome-icon="['fas', showMenu ? 'caret-up' : 'caret-down']"
                         :button-title="$t(showMenu ? 'close_menu' : 'open_menu')"
@@ -121,14 +125,7 @@ $animation-time: 0.5s;
         z-index: $zindex-drawing-toolbox;
     }
     .header {
-        transition: height $animation-time;
-        width: 100%;
-        background: rgba($white, 0.9);
-        box-shadow: 6px 6px 12px rgb(0 0 0 / 18%);
         position: relative;
-        .header-content {
-            transition: height $animation-time;
-        }
     }
     .toolbox-right {
         float: right;

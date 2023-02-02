@@ -1,4 +1,6 @@
 import { getKmlMetadataByAdminId } from '@/api/files.api'
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 
 function readUrlParamValue(url, paramName) {
@@ -15,9 +17,18 @@ function readUrlParamValue(url, paramName) {
 
 const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
 
+function isExternalLayer(layerId) {
+    return (
+        layerId &&
+        (layerId.startsWith('WMS|') || layerId.startsWith('WMTS|')) &&
+        layerId.indexOf('||') === -1
+    )
+}
+
 export function isLayersUrlParamLegacy(layersParamValue) {
-    const layers = layersParamValue.split(';')
-    return !layers.some((layer) => newLayerParamRegex.test(layer))
+    return !layersParamValue.split(';').some((layer) => {
+        return isExternalLayer(layer) || newLayerParamRegex.test(layer)
+    })
 }
 
 /**
@@ -63,7 +74,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         if (layerIdsUrlParam) {
             layerIdsUrlParam
                 .split(',')
-                .map(decodeURI)
+                .map(decodeURIComponent)
                 .forEach((layerId, index) => {
                     let layer = layersConfig.find((layer) => layer.getID() === layerId)
                     // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
@@ -74,8 +85,36 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         layer = layer.clone()
                     }
                     if (layerId.startsWith('KML||')) {
-                        const kmlLayerParts = decodeURIComponent(layerId).split('||')
-                        layer = new KMLLayer(1.0, kmlLayerParts[1])
+                        const kmlLayerParts = layerId.split('||')
+                        layer = new KMLLayer(kmlLayerParts[1] /* kml url */, true /* visible */)
+                    }
+                    if (layerId.startsWith('WMTS||')) {
+                        const wmtsLayerParts = layerId.split('||')
+                        if (wmtsLayerParts.length >= 3) {
+                            layer = new ExternalWMTSLayer(
+                                wmtsLayerParts[1],
+                                1.0,
+                                true,
+                                wmtsLayerParts[2],
+                                wmtsLayerParts[1],
+                                wmtsLayerParts[2]
+                            )
+                        }
+                    }
+                    if (layerId.startsWith('WMS||')) {
+                        const wmsLayerParts = layerId.split('||')
+                        // we only decode if we have enough material
+                        if (wmsLayerParts.length >= 5) {
+                            layer = new ExternalWMSLayer(
+                                wmsLayerParts[1],
+                                1.0,
+                                true,
+                                wmsLayerParts[2],
+                                wmsLayerParts[3],
+                                wmsLayerParts[2],
+                                wmsLayerParts[4]
+                            )
+                        }
                     }
                     if (layer) {
                         // checking if visibility is set in URL
@@ -127,7 +166,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 }
 
 /**
- * Returns a KML Layer from the legacy adminid url param.
+ * Returns a KML Layer from the legacy adminId url param.
  *
  * @param {String} adminId KML admin ID
  * @returns {Promise<AbstractLayer>} KML Layer
@@ -135,5 +174,11 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
-    return new KMLLayer(1.0, kmlMetaData.links.kml, kmlMetaData.id, kmlMetaData.adminId)
+    return new KMLLayer(
+        kmlMetaData.links.kml,
+        true, // visible
+        null, // opacity, null := use default
+        kmlMetaData.id,
+        kmlMetaData.adminId
+    )
 }

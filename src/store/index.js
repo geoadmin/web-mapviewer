@@ -14,7 +14,6 @@ import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin'
-import drawingLayerManagementPlugin from './plugins/drawing-layer-management.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
 
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
@@ -36,7 +35,6 @@ export default createStore({
         geolocationManagementPlugin,
         topicChangeManagementPlugin,
         loadingBarManagementPlugin,
-        drawingLayerManagementPlugin,
         screenSizeManagementPlugin,
     ],
     modules: {

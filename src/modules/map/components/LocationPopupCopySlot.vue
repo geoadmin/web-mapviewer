@@ -1,17 +1,19 @@
 <template>
-    <!-- eslint-disable vue/no-v-html-->
     <button
+        id="copyButton"
         ref="button"
         class="btn btn-light btn-sm"
         type="button"
         @click="copyValue"
-        v-html="$t(buttonText)"
-    />
-    <!-- eslint-enable vue/no-v-html-->
+    >
+        <FontAwesomeIcon class="icon" :icon="['far', 'copy']" />
+    </button>
 </template>
 
 <script>
 import log from '@/utils/logging'
+import tippy from 'tippy.js'
+import { mapState } from 'vuex'
 
 export default {
     props: {
@@ -19,40 +21,63 @@ export default {
             type: String,
             default: '',
         },
-        resetDelay: {
-            type: Number,
-            default: 1000,
+    },
+    computed: {
+        ...mapState({
+            lang: (state) => state.i18n.lang,
+        }),
+    },
+    watch: {
+        lang() {
+            this.setTooltipContent()
         },
     },
-    data() {
-        return {
-            buttonText: 'copy_cta',
-        }
+    mounted() {
+        this.copyTooltip = tippy('#copyButton', {
+            arrow: true,
+            placement: 'right',
+            touch: 'hold',
+        })
+
+        this.copiedTooltip = tippy('#copyButton', {
+            arrow: true,
+            placement: 'right',
+            trigger: 'click',
+            onShow(instance) {
+                setTimeout(() => {
+                    instance.hide()
+                }, 1000)
+            },
+            allowHTML: true,
+        })
+        this.setTooltipContent()
     },
     unmounted() {
-        clearTimeout(this.resetTimeout)
+        this.copyTooltip?.forEach((tooltip) => tooltip.destroy())
+        this.copiedTooltip?.forEach((tooltip) => tooltip.destroy())
     },
     methods: {
-        resetButton() {
-            this.buttonText = 'copy_cta'
-        },
         async copyValue() {
             try {
                 await navigator.clipboard.writeText(this.value)
-
-                // Change button text and start the reset timer.
-                this.buttonText = 'copy_done'
-                this.resetTimeout = setTimeout(this.resetButton, this.resetDelay)
             } catch (error) {
                 log.error(`Failed to copy to clipboard:`, error)
             }
+        },
+        setTooltipContent() {
+            this.copyTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('copy_cta'))
+            })
+            this.copiedTooltip?.forEach((instance) => {
+                instance.setContent(this.$i18n.t('copy_done'))
+            })
         },
     },
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables.scss';
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .btn-sm {
     float: right;
     margin-top: -0.1rem;
@@ -64,5 +89,6 @@ export default {
     @media (min-width: $overlay-width) {
         display: block;
     }
+    color: $empress;
 }
 </style>

@@ -89,11 +89,13 @@ The timestamp format must be ISO8601 compliant, i.e.
 
 External Layers are in the following format (note that only one `|` is used and the WMS order is changed to have consistently `TYPE|URL|OTHER OPTIONS`)
 
-- an external WMS:  `WMS|wms.geo.gr.ch%2Fadmineinteilung%3F|Gemeinden,layerb,layerc|1.3.0|Gemeinden`
+- an external WMS: `WMS|wms.geo.gr.ch%2Fadmineinteilung%3F|Gemeinden,layerb,layerc|1.3.0|Gemeinden`
 - an external WMTS: `WMTS|wmts.geo.ti.ch%2Fwmts%2F1.0.0%2FWMTSCapabilities.xml|ch.ti.051_1.piano_registro_fondiario_catasto_rdpp@time=18641231|Optionales Label`
-- an external KML:  `KML|www.slf.ch/avalanche/accidents/accidents_season_de.kml|Mein Titel`
-- an external GPX:  `GPX|www.slf.ch/avalanche/accidents/accidents_season_de.gpx`
-- an external KMZ:  `KMZ|www.slf.ch/avalanche/accidents/accidents_season_de.kmz` (needs to pass by proxy to be unzipped)
+- an external KML: `KML|www.slf.ch/avalanche/accidents/accidents_season_de.kml|Mein Titel`
+- a geoadmin KML: `KML|public.geo.admin.ch/api/files/KML_ID|Mein Titel`
+- a geoadmin KML with adminId: `KML|public.geo.admin.ch/api/files/KML_ID|Mein Titel@adminId=ADMIN_ID`
+- an external GPX: `GPX|www.slf.ch/avalanche/accidents/accidents_season_de.gpx`
+- an external KMZ: `KMZ|www.slf.ch/avalanche/accidents/accidents_season_de.kmz` (needs to pass by proxy to be unzipped)
 
 ## Consequences
 

@@ -16,6 +16,7 @@ const drawingStyleColorBox = '[data-cy="drawing-style-color-select-box"]'
 const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 
 const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
+    let kmlId
     cy.clickDrawingTool(kind)
     cy.readWindowValue('map').then((map) => {
         // Create a point, a geojson will appear in the store
@@ -27,17 +28,26 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
             expect(coos[0]).to.be.closeTo(xx, 0.1, `bad: ${JSON.stringify(coos)}`)
             expect(coos[1]).to.be.closeTo(yy, 0.1, `bad: ${JSON.stringify(coos)}`)
         })
-        cy.wait('@post-kml').then((interception) =>
-            cy.checkKMLRequest(interception, ['Placemark'], true)
-        )
+        cy.wait('@post-kml').then((interception) => {
+            cy.checkKMLRequest(interception, ['Placemark'])
+            kmlId = interception.response.body.id
+        })
     })
+    return kmlId
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
-    createAPoint(EditableFeatureTypes.MARKER, 0, -200, MAP_CENTER[0], 6156527.960512564)
-    cy.wait('@iconSets')
-    cy.wait('@iconSet-default')
+    const kmlId = createAPoint(
+        EditableFeatureTypes.MARKER,
+        0,
+        -200,
+        MAP_CENTER[0],
+        6156527.960512564
+    )
+    cy.wait('@icon-sets')
+    cy.wait('@icon-set-default')
     cy.get('[data-cy="drawing-style-marker-button"]').click()
+    return kmlId
 }
 
 /** @param {FeatureStyleColor} color */
@@ -48,14 +58,29 @@ const clickOnAColor = (color) => {
     cy.checkDrawnGeoJsonProperty('iconUrl', `-${color.rgbString}.png`, true)
 }
 
-/** @param {FeatureStyleSize} size */
+/** @param {String} size Translated in english */
 const changeIconSize = (size) => {
     cy.get(
         `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
-    ).click({ force: true })
+    )
+        .should('be.visible')
+        .click({ force: true })
     cy.get(
-        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size.label}"]`
+        `${drawingStyleMarkerPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${size}"]`
     ).click()
+}
+
+const getCyDropdownItemIconSetName = (name) => {
+    let translatedName
+    switch (name) {
+        case 'default':
+            translatedName = 'default'
+            break
+        case 'babs':
+            translatedName = 'civil symbols'
+            break
+    }
+    return `[data-cy="dropdown-item-${translatedName}"]`
 }
 
 describe('Drawing marker/points', () => {
@@ -65,12 +90,11 @@ describe('Drawing marker/points', () => {
         }).as('icon-default-green')
         cy.goToDrawing()
     })
-    // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
-    // it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
-    //     createMarkerAndOpenIconStylePopup()
-    //     clickOnAColor(GREEN)
-    //     cy.wait('@icon-default-green')
-    // })
+    it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
+        createMarkerAndOpenIconStylePopup()
+        clickOnAColor(GREEN)
+        cy.wait('@icon-default-green')
+    })
     context('simple interaction with a marker', () => {
         it('toggles the marker symbol popup when clicking button', () => {
             createMarkerAndOpenIconStylePopup()
@@ -116,10 +140,10 @@ describe('Drawing marker/points', () => {
                 cy.wait('@icon-default-green')
             })
             it('Modify the KML file whenever the color of the icon changes', () => {
-                createMarkerAndOpenIconStylePopup()
+                const kmlId = createMarkerAndOpenIconStylePopup()
                 clickOnAColor(GREEN)
                 cy.wait('@update-kml').then((interception) => {
-                    cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"name":"green"/])
+                    cy.checkKMLRequest(interception, [/"fillColor":{[^}]*"name":"green"/], kmlId)
                 })
             })
         })
@@ -141,18 +165,22 @@ describe('Drawing marker/points', () => {
             })
             it('changes the GeoJSON size when changed on the UI', () => {
                 createMarkerAndOpenIconStylePopup()
-                changeIconSize(LARGE)
+                changeIconSize('large')
                 cy.wait('@large-icon')
             })
             it('Updates the KML with the new icon size whenever it changes in the UI', () => {
-                createMarkerAndOpenIconStylePopup()
-                changeIconSize(SMALL)
+                const kmlId = createMarkerAndOpenIconStylePopup()
+                changeIconSize('small')
                 cy.wait('@small-icon')
                 cy.wait('@update-kml').then((interception) => {
-                    cy.checkKMLRequest(interception, [
-                        /"iconSize":{[^}]*"label":"small_size"/,
-                        /"fillColor":{[^}]*"fill":"#ff0000"/,
-                    ])
+                    cy.checkKMLRequest(
+                        interception,
+                        [
+                            /"iconSize":{[^}]*"label":"small_size"/,
+                            /"fillColor":{[^}]*"fill":"#ff0000"/,
+                        ],
+                        kmlId
+                    )
                 })
             })
         })
@@ -167,29 +195,34 @@ describe('Drawing marker/points', () => {
             })
             it('Shows all available icon sets in the selector', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
                 cy.fixture('service-icons/sets.fixture.json').then((iconSets) => {
                     iconSets.items.forEach((iconSet) => {
-                        cy.get(`[data-cy="dropdown-item-${iconSet.name}"]`).should('be.visible')
+                        cy.get(getCyDropdownItemIconSetName(iconSet.name)).should('be.visible')
                     })
                 })
             })
             it('Changes the icon selector box content when the icon set changes', () => {
                 createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
-                cy.get('[data-cy="dropdown-item-second"]').click()
-                cy.wait('@iconSet-second')
-                cy.wait('@icon-second')
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
+                cy.get('[data-cy="dropdown-item-civil symbols"]').click()
+                cy.wait('@icon-set-babs')
+                cy.wait('@icon-babs')
                     .its('request.url')
-                    .should('include', '/api/icons/sets/second/icons/')
+                    .should('include', '/api/icons/sets/babs/icons/')
                     .should('include', '.png')
-                // as second icon set is not colorable, the color box should have disappeared
+                // as babs icon set is not colorable, the color box should have disappeared
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleColorBox}`).should('not.exist')
             })
-            // see : https://jira.swisstopo.ch/browse/BGDIINF_SB-2182
-            it.skip('Changes the marker icon when a new one is selected in the icon selector', () => {
-                createMarkerAndOpenIconStylePopup()
-                cy.get(drawingStyleMarkerIconSetSelector).click({ force: true })
+            it('Changes the marker icon when a new one is selected in the icon selector', () => {
+                const kmlId = createMarkerAndOpenIconStylePopup()
+                cy.get(drawingStyleMarkerIconSetSelector)
+                    .should('be.visible')
+                    .click({ force: true })
                 // showing all icons of this sets so that we may choose a new one
                 cy.get(`${drawingStyleMarkerPopup} ${drawingStyleMarkerShowAllIconsButton}`).click()
                 cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
@@ -197,12 +230,16 @@ describe('Drawing marker/points', () => {
                     const fourthIcon = defaultIconSet.items[3]
                     cy.get(
                         `${drawingStyleMarkerPopup} [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                    ).click()
+                    )
+                        .should('be.visible')
+                        .click({ force: true })
                     cy.checkDrawnGeoJsonProperty('icon.name', fourthIcon.name, true)
                     cy.wait('@update-kml').then((interception) =>
-                        cy.checkKMLRequest(interception, [
-                            new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`),
-                        ])
+                        cy.checkKMLRequest(
+                            interception,
+                            [new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`)],
+                            kmlId
+                        )
                     )
                 })
             })
@@ -225,7 +262,7 @@ describe('Drawing marker/points', () => {
                     `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-main-button"]`
                 ).click({ force: true })
                 cy.get(
-                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-${MEDIUM.label}"]`
+                    `${drawingStyleTextPopup} ${drawingStyleSizeSelector} [data-cy="dropdown-item-medium"]`
                 ).click({ force: true })
                 cy.checkDrawnGeoJsonProperty('iconSize.textScale', MEDIUM.textScale)
 

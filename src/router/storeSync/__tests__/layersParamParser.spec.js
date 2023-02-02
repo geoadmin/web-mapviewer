@@ -1,3 +1,4 @@
+import ExternalWMTSLayer from "@/api/layers/ExternalWMTSLayer.class";
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
@@ -29,75 +30,12 @@ describe('Testing layersParamParser', () => {
         expect(layersParamParser(null)).to.be.an('Array').empty
         expect(layersParamParser(null)).to.be.an('Array').empty
     })
-
     it('Returns an object containing the layer info if a layer ID is in the query', () => {
         const layerId = 'fake-layer-id'
         const result = layersParamParser(layerId)
         expect(result).to.be.an('Array').length(1)
         checkLayer(result[0], layerId, true)
     })
-
-    it('Parses correctly the visible when specified', () => {
-        const layerId = 'fake-layer-id'
-        const result = layersParamParser(`${layerId},f`)
-        checkLayer(result[0], layerId, false)
-    })
-
-    it('Parses correctly the visible and opacity when both specified', () => {
-        const layerId = 'fake-layer-id'
-        const opacity = 0.36
-        const result = layersParamParser(`${layerId},f,${opacity}`)
-        checkLayer(result[0], layerId, false, opacity)
-    })
-
-    it('Sets default value to visible if it is ignored and opacity is set', () => {
-        const layerId = 'fake-layer-id'
-        const opacity = 0.5
-        const result = layersParamParser(`${layerId},,${opacity}`)
-        checkLayer(result[0], layerId, true, opacity)
-    })
-
-    it('Parses correctly one custom params (integer)', () => {
-        checkSingleCustomParam(2021)
-    })
-
-    it('Parses correctly one custom params (boolean)', () => {
-        checkSingleCustomParam(true)
-    })
-
-    it('Parses correctly one custom params (string)', () => {
-        checkSingleCustomParam('testTestTest')
-    })
-
-    it('Parses correctly multiple custom params with visible and opacity set', () => {
-        const layerId = 'fake-layer-id'
-        const customParams = {
-            test: true,
-            year: 2020,
-            customString: 'oneTwoThreeTest',
-        }
-        const opacity = 0.25
-        // creating a queryString that looks like "fake-layer-id@test=true@year=2020@customString=oneTwoThreeTest,f,0.25"
-        let queryString = layerId
-        Object.keys(customParams).forEach((key) => {
-            queryString += `@${key}=${customParams[key]}`
-        })
-        queryString += `,f,${opacity}`
-        const [layer] = layersParamParser(queryString)
-        checkLayer(layer, layerId, false, opacity, customParams)
-    })
-
-    it('parse correctly an external KML layer', () => {
-        const externalLayerId = 'KML|https://somerandomurl.ch/file.kml|Some custom label'
-        const result = layersParamParser(`${externalLayerId},f,0.6`)
-        expect(result).to.be.an('Array').with.lengthOf(1)
-        const [layer] = result
-        expect(layer).to.be.an('Object')
-        expect(layer.id).to.eq(externalLayerId)
-        expect(layer.visible).to.be.false
-        expect(layer.opacity).to.eq(0.6)
-    })
-
     it('Parses correctly multiple layers with different types of configuration', () => {
         const layers = [
             {
@@ -128,6 +66,10 @@ describe('Testing layersParamParser', () => {
                 id: 'KML|somerandomurl.ch/file.kml|An external KML',
                 opacity: 0.4,
             },
+            {
+                id: 'WMTS|https://totally.fake.wmts.url/WMTSGetCapabilties.xml|a.layer.id|A name for the external WMTS layer',
+                opacity: 0.8,
+            }
         ]
         // building query string
         let queryString = ''
@@ -160,6 +102,88 @@ describe('Testing layersParamParser', () => {
                 layer.opacity,
                 layer.customAttributes
             )
+        })
+    })
+
+    describe('Visibility/Opacity parsing', () => {
+        it('Parses correctly the visible when specified', () => {
+            const layerId = 'fake-layer-id'
+            const result = layersParamParser(`${layerId},f`)
+            checkLayer(result[0], layerId, false)
+        })
+        it('Parses correctly the visible and opacity when both specified', () => {
+            const layerId = 'fake-layer-id'
+            const opacity = 0.36
+            const result = layersParamParser(`${layerId},f,${opacity}`)
+            checkLayer(result[0], layerId, false, opacity)
+        })
+        it('Sets default value to visible if it is ignored and opacity is set', () => {
+            const layerId = 'fake-layer-id'
+            const opacity = 0.5
+            const result = layersParamParser(`${layerId},,${opacity}`)
+            checkLayer(result[0], layerId, true, opacity)
+        })
+    })
+
+    describe('Custom params', () => {
+        it('Parses correctly one custom params (integer)', () => {
+            checkSingleCustomParam(2021)
+        })
+        it('Parses correctly one custom params (boolean)', () => {
+            checkSingleCustomParam(true)
+        })
+        it('Parses correctly one custom params (string)', () => {
+            checkSingleCustomParam('testTestTest')
+        })
+        it('Parses correctly multiple custom params with visible and opacity set', () => {
+            const layerId = 'fake-layer-id'
+            const customParams = {
+                test: true,
+                year: 2020,
+                customString: 'oneTwoThreeTest',
+            }
+            const opacity = 0.25
+            // creating a queryString that looks like "fake-layer-id@test=true@year=2020@customString=oneTwoThreeTest,f,0.25"
+            let queryString = layerId
+            Object.keys(customParams).forEach((key) => {
+                queryString += `@${key}=${customParams[key]}`
+            })
+            queryString += `,f,${opacity}`
+            const [layer] = layersParamParser(queryString)
+            checkLayer(layer, layerId, false, opacity, customParams)
+        })
+    })
+
+    describe('External layer management', () => {
+        it('parse correctly an external KML layer', () => {
+            const externalLayerId = 'KML|https://somerandomurl.ch/file.kml|Some custom label'
+            const result = layersParamParser(`${externalLayerId},f,0.6`)
+            expect(result).to.be.an('Array').with.lengthOf(1)
+            const [layer] = result
+            expect(layer).to.be.an('Object')
+            expect(layer.id).to.eq(externalLayerId)
+            expect(layer.visible).to.be.false
+            expect(layer.opacity).to.eq(0.6)
+        })
+        it('parses an external WMTS layer correctly', () => {
+            const externalLayerIdInUrl = 'WMTS|https://fake.wmts.admin.ch|some_fake_layer_id|Fake WMTS Layer'
+            const results = layersParamParser(`${externalLayerIdInUrl},t,1.0`)
+            expect(results).to.be.an('Array').length(1)
+            const [externalWMTSLayer] = results
+            expect(externalWMTSLayer).to.be.an('Object')
+            expect(externalWMTSLayer.id).to.eq(externalLayerIdInUrl)
+            expect(externalWMTSLayer.visible).to.be.true
+            expect(externalWMTSLayer.opacity).to.eq(1.0)
+        })
+        it('parses an external WMS layer correctly', () => {
+            const externalLayerIdInUrl = 'WMS|https://fake.wms.admin.ch|some_fake_layer_id|0.0.0|Fake WMS Layer'
+            const results = layersParamParser(`${externalLayerIdInUrl},t,0.8`)
+            expect(results).to.be.an('Array').length(1)
+            const [externalWMSLayer] = results
+            expect(externalWMSLayer).to.be.an('Object')
+            expect(externalWMSLayer.id).to.eq(externalLayerIdInUrl)
+            expect(externalWMSLayer.visible).to.be.true
+            expect(externalWMSLayer.opacity).to.eq(0.8)
         })
     })
 })

@@ -1,34 +1,17 @@
 import { EditableFeatureTypes } from '@/api/features.api'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import pako from 'pako'
 
 const olSelector = '.ol-viewport'
 
-const addIconSetsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets`, {
-        fixture: 'service-icons/sets.fixture.json',
-    }).as('iconSets')
-}
-
-const addDefaultIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/default/icons`, {
-        fixture: 'service-icons/set-default.fixture.json',
-    }).as('iconSet-default')
-}
-
-const addSecondIconsFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/second/icons`, {
-        fixture: 'service-icons/set-second.fixture.json',
-    }).as('iconSet-second')
-}
-
 const addIconFixtureAndIntercept = () => {
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/second/icons/**@1x.png`, {
+    cy.intercept(`**/api/icons/sets/babs/icons/**@1x.png`, {
         fixture: 'service-icons/placeholder.png',
-    }).as('icon-second')
+    }).as('icon-babs')
 }
 
 const addProfileFixtureAndIntercept = () => {
@@ -41,6 +24,63 @@ const addProfileFixtureAndIntercept = () => {
             body: [],
         }
     ).as('profile')
+}
+
+const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyMarker.kml') => {
+    let kmlBody = null
+    cy.intercept(
+        {
+            method: 'POST',
+            url: '**/api/kml/admin',
+        },
+        async (req) => {
+            try {
+                kmlBody = await getKmlFromRequest(req)
+            } catch (error) {}
+            req.reply(201, kmlMetadataTemplate({ id: '1234_fileId', adminId: '1234_adminId' }))
+        }
+    ).as('post-kml')
+    cy.intercept(
+        {
+            method: 'PUT',
+            url: '**/api/kml/admin/**',
+        },
+        async (req) => {
+            const adminId = await getKmlAdminIdFromRequest(req)
+            kmlBody = await getKmlFromRequest(req)
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
+        }
+    ).as('update-kml')
+    cy.intercept(
+        {
+            method: 'GET',
+            url: '**/api/kml/admin/**',
+        },
+        (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
+        }
+    ).as('get-kml-metadata')
+    cy.intercept(
+        {
+            method: 'GET',
+            url: '**/api/kml/admin?admin_id=*',
+        },
+        (req) => {
+            const headers = { 'Cache-Control': 'no-cache' }
+            req.reply(kmlMetadataTemplate({ id: 'dummy-id', adminId: req.query.admin_id }), headers)
+        }
+    ).as('get-kml-metadata-by-admin-id')
+    cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+        const headers = { 'Cache-Control': 'no-cache' }
+        if (kmlBody) {
+            req.reply(kmlBody, headers)
+        } else if (kmlFileFixtureFile) {
+            req.reply({ fixture: kmlFileFixtureFile }, headers)
+        } else {
+            req.reply('<kml></kml>', headers)
+        }
+    }).as('get-kml')
 }
 
 Cypress.Commands.add('drawGeoms', () => {
@@ -73,11 +113,14 @@ Cypress.on('uncaught:exception', () => {
 })
 
 Cypress.Commands.add('goToDrawing', (...args) => {
+    let kmlFileFixtureFile = null
+    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
+        kmlFileFixtureFile = args[0].kmlFileFixtureFile
+        delete args[0].kmlFileFixtureFile
+    }
     addIconFixtureAndIntercept()
-    addIconSetsFixtureAndIntercept()
-    addDefaultIconsFixtureAndIntercept()
-    addSecondIconsFixtureAndIntercept()
     addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
     cy.goToMapView(...args)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
@@ -89,6 +132,26 @@ Cypress.Commands.add('goToDrawing', (...args) => {
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+})
+
+Cypress.Commands.add('openDrawingMode', (...args) => {
+    const viewportWidth = Cypress.config('viewportWidth')
+    if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
+        cy.get('[data-cy="menu-button"]').click()
+    }
+    cy.get('[data-cy="menu-tray-drawing-section"]').click()
+})
+
+Cypress.Commands.add('goToMapViewWithDrawingIntercept', (...args) => {
+    let kmlFileFixtureFile = null
+    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
+        kmlFileFixtureFile = args[0].kmlFileFixtureFile
+        delete args[0].kmlFileFixtureFile
+    }
+    addIconFixtureAndIntercept()
+    addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
+    cy.goToMapView(...args)
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
@@ -131,18 +194,46 @@ Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContain
     })
 })
 
-export async function getKmlFromRequest(req) {
-    const formData = await new Response(req.body, { headers: req.headers }).formData()
-    const kmlBlob = await formData.get('kml').arrayBuffer()
-    return new TextDecoder().decode(pako.ungzip(kmlBlob))
+export async function getKmlAdminIdFromRequest(req) {
+    try {
+        const formData = await new Response(req.body, { headers: req.headers }).formData()
+        return formData.get('admin_id')
+    } catch (error) {
+        console.error(`Failed to get KML admin_id from the request`, req, error)
+        return '1234_adminId'
+    }
 }
 
-Cypress.Commands.add('checkKMLRequest', async (interception, data, create = false) => {
+export async function getKmlFromRequest(req) {
+    let paramBlob
+    try {
+        const formData = await new Response(req.body, { headers: req.headers }).formData()
+        paramBlob = await formData.get('kml').arrayBuffer()
+    } catch (error) {
+        console.error(
+            `Failed to parse the mutlipart/form-data of the KML request payload`,
+            req,
+            error
+        )
+        expect(
+            `Failed to parse the multipart/form-data of the KML request payload for ${req.method} ${req.url}`
+        ).to.be.false
+    }
+    try {
+        return new TextDecoder().decode(pako.ungzip(paramBlob))
+    } catch (error) {
+        console.error(`Failed to unzip KML file from payload`, req, error)
+        expect(`Failed to unzip KML file from request payload for ${req.method} ${req.url}`).to.be
+            .false
+    }
+}
+
+Cypress.Commands.add('checkKMLRequest', async (interception, data, updated_kml_id = null) => {
     // Check request
-    if (!create) {
+    if (updated_kml_id) {
         const urlArray = interception.request.url.split('/')
         const id = urlArray[urlArray.length - 1]
-        expect(id).to.be.eq('1234_fileId')
+        expect(id).to.be.eq(updated_kml_id)
     }
     expect(interception.request.headers['content-type']).to.contain(
         'multipart/form-data; boundary='
@@ -154,4 +245,32 @@ Cypress.Commands.add('checkKMLRequest', async (interception, data, create = fals
         const condition = test instanceof RegExp ? 'match' : 'contain'
         expect(kml).to[condition](test)
     })
+})
+
+export function kmlMetadataTemplate(data) {
+    let metadata = {
+        id: data.id,
+        success: true,
+        created: '2021-09-09T13:58:29Z',
+        updated: '2021-09-09T14:58:29Z',
+        author: 'web-mapviewer',
+        author_version: '1.0.0',
+        links: {
+            self: `https://public.geo.admin.ch/kml/admin/${data.id}`,
+            kml: `https://public.geo.admin.ch/kml/files/${data.id}`,
+        },
+    }
+    if (data.adminId) {
+        metadata.admin_id = data.adminId
+    }
+    return metadata
+}
+
+Cypress.Commands.add('waitUntilDrawingIsAdded', () => {
+    cy.waitUntilState(
+        (state) =>
+            state.layers.activeLayers.filter(
+                (layer) => layer.visible && layer.type === LayerTypes.KML
+            ).length > 0
+    )
 })

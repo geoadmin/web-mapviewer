@@ -10,17 +10,23 @@
         @contextmenu="onContextMenu"
     >
         <!-- Adding background layer -->
-        <OpenLayersInternalLayer
-            v-if="currentBackgroundLayer"
-            :layer-config="currentBackgroundLayer"
+        <!-- Placing LightBaseMap first if needed, while excluding sources that covers Switzerland
+             (as they are not needed when this layer is added to achieve world-wide coverage while another
+             BG layers covers Switzerland)
+             see load-layersconfig-on-lang-change.js for exclusion definition
+        -->
+        <OpenLayersVectorLayer
+            v-if="lightBaseMapConfigUnderMainBackgroundLayer"
+            :layer-id="lightBaseMapConfigUnderMainBackgroundLayer.getID()"
+            :opacity="lightBaseMapConfigUnderMainBackgroundLayer.opacity"
+            :style-url="lightBaseMapConfigUnderMainBackgroundLayer.getURL()"
+            :exclude-source="lightBaseMapConfigUnderMainBackgroundLayer.excludeSource"
             :z-index="0"
         />
         <OpenLayersInternalLayer
-            v-if="isBackgroundVectorTile && backgroundLayerOnTopOfVectorBackground"
-            :key="backgroundLayerOnTopOfVectorBackground.getID()"
-            :layer-config="backgroundLayerOnTopOfVectorBackground"
-            :current-map-resolution="resolution"
-            :z-index="1"
+            v-if="currentBackgroundLayer"
+            :layer-config="currentBackgroundLayer"
+            :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
         />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
@@ -55,7 +61,7 @@
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
-            :use-content-padding="editFeature"
+            :use-content-padding="!!editFeature"
             @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
@@ -66,7 +72,11 @@
                     @click="toggleFloatingTooltip"
                 />
             </template>
-            <FeatureEdit v-if="editFeature" :feature="editFeature" />
+            <FeatureEdit
+                v-if="editFeature"
+                :read-only="!showDrawingOverlay"
+                :feature="editFeature"
+            />
             <FeatureList v-else direction="column" />
         </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
@@ -91,10 +101,11 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_TILES_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, LV95_EXTENT, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
@@ -134,6 +145,7 @@ export default {
         OpenLayersInternalLayer,
         OpenLayersMarker,
         OpenLayersPopover,
+        OpenLayersVectorLayer,
     },
     provide() {
         return {
@@ -165,6 +177,7 @@ export default {
             crossHair: (state) => state.position.crossHair,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             clickInfo: (state) => state.map.clickInfo,
+            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters([
             'visibleLayers',
@@ -192,28 +205,38 @@ export default {
             }
             return null
         },
-        isBackgroundVectorTile() {
-            return (
-                this.currentBackgroundLayer &&
-                this.currentBackgroundLayer.type === LayerTypes.VECTOR
-            )
-        },
-        backgroundLayerOnTopOfVectorBackground() {
-            // we currently only have the case of a light base map vector tile background with our national map on top
-            if (
-                this.isBackgroundVectorTile &&
-                this.currentBackgroundLayer.getID() === VECTOR_TILES_STYLE_ID
-            ) {
-                return this.backgroundLayers.find(
-                    (layer) => layer.getID() === 'ch.swisstopo.pixelkarte-farbe'
-                )
+        /**
+         * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
+         * current BG layer is pixelkarte-farbe. We place it this way so that we can keep
+         * pixelkarte-farbe while achieving world-wide coverage (while waiting to receive a
+         * full-fledged VT layer with more details than light base map)
+         *
+         * @returns {GeoAdminVectorLayer | null}
+         */
+        lightBaseMapConfigUnderMainBackgroundLayer() {
+            if (this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe') {
+                // we only want LightBaseMap behind pixelkarte-farbe when the map is showing things outside
+                // LV95 extent (outside of Switzerland)
+                const [currentExtentBottomLeft, currentExtentTopRight] = this.extent
+                if (
+                    currentExtentBottomLeft[0] >= LV95_EXTENT[0] &&
+                    currentExtentBottomLeft[1] >= LV95_EXTENT[1] &&
+                    currentExtentTopRight[0] <= LV95_EXTENT[2] &&
+                    currentExtentTopRight[1] <= LV95_EXTENT[3]
+                ) {
+                    log.debug('no need to show MapLibre, we are totally within LV95 extent')
+                } else {
+                    return this.backgroundLayers.find(
+                        (layer) => layer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
+                    )
+                }
             }
             return null
         },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
-            // checking if the BG layer is a vector layer that has anoter
-            if (this.isBackgroundVectorTile && this.backgroundLayerOnTopOfVectorBackground) {
+            // checking if light base map is used under another layer (we need to start counting from 2 then)
+            if (this.lightBaseMapConfigUnderMainBackgroundLayer) {
                 return 2
             }
             return this.currentBackgroundLayer ? 1 : 0
@@ -229,6 +252,9 @@ export default {
         },
         zIndexAccuracyCircle() {
             return this.startingZIndexForHighlightedFeatures + this.selectedFeatures.length
+        },
+        visibleKMLLayers() {
+            return this.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
         },
         visibleGeoJsonLayers() {
             return this.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
@@ -369,60 +395,98 @@ export default {
              */
             this.isPointerDown = true
         },
+        handleClickOnKMLLayer(event, KMLLayer) {
+            // retrieving OpenLayers layer object for this layer
+            let features = []
+            const olLayer = this.map
+                .getLayers()
+                .getArray()
+                .find((layer) => layer.get('id') === KMLLayer.getID())
+            if (olLayer) {
+                // looking at this layer under the mouse cursor
+                this.map
+                    .getFeaturesAtPixel(event.pixel, {
+                        // filtering other layers out
+                        layerFilter: (layer) => layer.get('id') === KMLLayer.getID(),
+                    })
+                    .forEach((feature) => {
+                        const editableFeature = feature.get('editableFeature')
+                        if (editableFeature) {
+                            features.push(editableFeature)
+                        } else {
+                            log.debug(
+                                'KMLs which are not editable Features are not supported for selection'
+                            )
+                        }
+                    })
+            }
+            return features
+        },
+
+        handleClickOnGeoJsonLayer(event, geoJsonLayer) {
+            // retrieving OpenLayers layer object for this layer
+            let features = []
+            const olLayer = this.map
+                .getLayers()
+                .getArray()
+                .find((layer) => layer.get('id') === geoJsonLayer.getID())
+            if (olLayer) {
+                // looking at features for this specific layer under the mouse cursor
+                this.map
+                    .getFeaturesAtPixel(event.pixel, {
+                        // filtering other layers out
+                        layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
+                    })
+                    .forEach((feature) => {
+                        const featureGeometry = feature.getGeometry()
+                        // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+                        // we have to wrap it around the "usual" wrapper from the backend
+                        // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+                        const geoJsonFeature = new LayerFeature(
+                            geoJsonLayer,
+                            geoJsonLayer.getID(),
+                            geoJsonLayer.name,
+                            `<div class="htmlpopup-container">
+                                <div class="htmlpopup-header">
+                                    <span>${geoJsonLayer.name}</span>
+                                </div>
+                                <div class="htmlpopup-content">
+                                    ${feature.get('description')}
+                                </div>
+                            </div>`,
+                            featureGeometry.flatCoordinates,
+                            featureGeometry.getExtent()
+                        )
+                        log.debug('GeoJSON feature found', geoJsonFeature)
+                        features.push(geoJsonFeature)
+                    })
+            }
+            return features
+        },
         onMapSingleClick(event) {
             // if no drawing is currently made
             if (!this.isCurrentlyDrawing && this.isPointerDown) {
                 this.isPointerDown = false
-                const geoJsonFeatures = []
+                const features = []
                 // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-                this.visibleGeoJsonLayers.forEach((geoJsonLayer) => {
-                    // retrieving OpenLayers layer object for this layer
-                    const olLayer = this.map
-                        .getLayers()
-                        .getArray()
-                        .find((layer) => layer.get('id') === geoJsonLayer.getID())
-                    if (olLayer) {
-                        // looking at features for this specific layer under the mouse cursor
-                        this.map
-                            .getFeaturesAtPixel(event.pixel, {
-                                // filtering other layers out
-                                layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
-                            })
-                            .forEach((feature) => {
-                                const featureGeometry = feature.getGeometry()
-                                // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                                // we have to wrap it around the "usual" wrapper from the backend
-                                // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                                const geoJsonFeature = new LayerFeature(
-                                    geoJsonLayer,
-                                    geoJsonLayer.getID(),
-                                    geoJsonLayer.name,
-                                    `<div class="htmlpopup-container">
-                                        <div class="htmlpopup-header">
-                                            <span>${geoJsonLayer.name}</span>
-                                        </div>
-                                        <div class="htmlpopup-content">
-                                            ${feature.get('description')}
-                                        </div>
-                                    </div>`,
-                                    featureGeometry.flatCoordinates,
-                                    featureGeometry.getExtent()
-                                )
-                                log.debug('GeoJSON feature found', geoJsonFeature)
-                                geoJsonFeatures.push(geoJsonFeature)
-                            })
-                    }
+
+                this.visibleGeoJsonLayers.forEach((geoJSonLayer) => {
+                    features.push(...this.handleClickOnGeoJsonLayer(event, geoJSonLayer))
+                })
+                this.visibleKMLLayers.forEach((KMLLayer) => {
+                    features.push(...this.handleClickOnKMLLayer(event, KMLLayer))
                 })
                 this.click(
                     new ClickInfo(
                         event.coordinate,
                         event.pixel,
-                        geoJsonFeatures,
+                        features,
                         ClickType.LEFT_SINGLECLICK
                     )
                 )
             }
         },
+
         onMapPointerDrag() {
             if (!this.mapIsBeingDragged) {
                 this.mapStartBeingDragged()

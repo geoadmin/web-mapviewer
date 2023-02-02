@@ -3,17 +3,20 @@
         <div id="menu-lang-selector">
             <LangSwitchToolbar />
         </div>
+        <div id="menu-feedback">
+             <FeedbackToolbar />
+        </div>
     </div>
 </template>
 
 <script>
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
-import { UIModes } from '@/store/modules/ui.store'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 
 export default {
     components: {
         LangSwitchToolbar,
+        FeedbackToolbar,
     },
     data() {
         return {}

@@ -1,27 +1,12 @@
 import { isNumber } from '@/utils/numberUtils'
-
-class LayersParsedFromURL {
-    /**
-     * @param {String} id The layer id
-     * @param {Boolean} visible Flag telling if the layer should be visible on the map
-     * @param {Number | undefined} opacity The opacity that the layers should have, if no opacity is
-     *   set in the URL this `undefined`
-     * @param {Object} customAttributes Other attributes relevant for this layer, such as time
-     */
-    constructor(id, visible, opacity, customAttributes = {}) {
-        this.id = id
-        this.visible = visible
-        this.opacity = opacity
-        this.customAttributes = customAttributes
-    }
-}
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 
 /**
  * Parses the URL param value for `layers` as described in the ADR :
  * `/adr/2021_03_16_url_param_structure.md`
  *
  * @param {String} queryValue The value of the `layers` URL param
- * @returns {LayersParsedFromURL[]} Metadata for layers that must be activated in the app
+ * @returns {ActiveLayerConfig[]} Metadata for layers that must be activated in the app
  */
 const parseLayersParam = (queryValue) => {
     const parsedLayer = []
@@ -45,7 +30,7 @@ const parseLayersParam = (queryValue) => {
                 })
             }
             parsedLayer.push(
-                new LayersParsedFromURL(
+                new ActiveLayerConfig(
                     layerId,
                     !visible || visible === 't',
                     isNumber(opacity) ? Number(opacity) : undefined,

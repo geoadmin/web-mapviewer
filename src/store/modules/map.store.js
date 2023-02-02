@@ -14,19 +14,19 @@ export class ClickInfo {
      * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
-     * @param {Object[]} geoJsonFeatures List of potential GeoJSON features that where under the
+     * @param {Object[]} features List of potential features (geoJSON or KML) that where under the
      *   click
      * @param {ClickType} clickType Which button of the mouse has been used to make this click
      */
     constructor(
         coordinate = [],
         pixelCoordinate = [],
-        geoJsonFeatures = [],
+        features = [],
         clickType = ClickType.LEFT_SINGLECLICK
     ) {
         this.coordinate = [...coordinate]
         this.pixelCoordinate = [...pixelCoordinate]
-        this.geoJsonFeatures = [...geoJsonFeatures]
+        this.features = [...features]
         this.clickType = clickType
     }
 }
@@ -38,17 +38,6 @@ export class ClickInfo {
  */
 export default {
     state: {
-        /**
-         * @type Array<Feature> List of features to highlight on the map (features that are
-         *   currently shown in the tooltip)
-         */
-        highlightedFeatures: [],
-        /**
-         * @type WMSLayer|WMTSLayer|GeoJsonLayer|AggregateLayer Layer that will be highlighted (put
-         *   on top of all other layers) on the map. Used to show a layer from the search result
-         *   when hovered by the mouse cursor.
-         */
-        highlightedLayer: null,
         /**
          * @type Boolean Whether the map is being dragged right now or not (if the mouse/touch is
          *   down and cursor moving)
@@ -72,15 +61,6 @@ export default {
         displayLocationPopup: false,
     },
     actions: {
-        /**
-         * Tells the map to show a layer that is not (yet) in the visible layers on the map. This is
-         * useful to make a quick overview of the layer while hovering it in the search results.
-         *
-         * @param commit
-         * @param {WMSLayer | WMTSLayer | GeoJsonLayer | AggregateLayer} layer The layer to be
-         *   highlighted
-         */
-        highlightLayer: ({ commit }, layer) => commit('setHighlightedFeature', layer),
         /**
          * Sets all information about the last click that occurred on the map
          *
@@ -121,7 +101,6 @@ export default {
         },
     },
     mutations: {
-        setHighlightedLayer: (state, layer) => (state.highlightedLayer = layer),
         setClickInfo: (state, clickInfo) => (state.clickInfo = clickInfo),
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),

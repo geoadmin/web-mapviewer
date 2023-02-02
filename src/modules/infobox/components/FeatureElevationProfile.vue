@@ -47,6 +47,10 @@ export default {
             type: EditableFeature,
             required: true,
         },
+        readOnly: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['updateElevationProfilePlot'],
     data() {
@@ -75,7 +79,11 @@ export default {
          * @returns {Boolean} True if the feature being shown is of type "measure"
          */
         showDeleteButton() {
-            return this.feature && this.feature.featureType === EditableFeatureTypes.MEASURE
+            return (
+                !this.readOnly &&
+                this.feature &&
+                this.feature.featureType === EditableFeatureTypes.MEASURE
+            )
         },
     },
     watch: {

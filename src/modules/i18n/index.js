@@ -6,7 +6,7 @@ import fr from './locales/fr.json'
 import it from './locales/it.json'
 import rm from './locales/rm.json'
 
-export const languages = { en, de, fr, it, rm }
+export const languages = { de, fr, it, en, rm }
 
 // detecting navigator's locale as the default language
 // (if it is a language served by this app)
