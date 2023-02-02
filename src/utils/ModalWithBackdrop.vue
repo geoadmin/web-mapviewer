@@ -15,7 +15,7 @@
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                     >
-                        <span v-if="title" class="flex-grow-1 text-start mt-1">{{ title }}</span>
+                        <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
                         <ButtonWithIcon
                             v-if="allowPrint"
                             small
@@ -120,10 +120,10 @@ export default {
     }
     z-index: $zindex-modal;
     max-height: 90vh;
-    // For phone we set the width fixed to 90% of the view.
-    width: 90vw;
+    // For phone we set the width fixed to 95% of the view.
+    width: 95vw;
     @include respond-above(phone) {
-        // But for desktop we let the size be dinamic with max to 90% of the view
+        // But for desktop we let the size be dynamic with max to 90% of the view
         width: unset;
         max-width: 90vw;
     }
