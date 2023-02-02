@@ -5,10 +5,10 @@ import log from '@/utils/logging'
 import axios from 'axios'
 
 /**
- * @param {String} text mandatory
- * @param {Number} rating optional
- * @param {Number} maxRating optional
- * @param {String} kmlFileUrl optional
+ * @param {String} text Mandatory
+ * @param {Number} rating Optional
+ * @param {Number} maxRating Optional
+ * @param {String} kmlFileUrl Optional
  * @returns {Promise<Boolean>} True if successful, false otherwise
  */
 export default async function sendFeedback(
@@ -22,7 +22,12 @@ export default async function sendFeedback(
         try {
             shortLink = await createShortLink(window.location.href)
         } catch (err) {
-            log.error('could not generate a short link, will not send it with feedback', err)
+            log.error(
+                'could not generate a short link, will send the full URL to service feedback',
+                err
+            )
+            // fallback to full URL
+            shortLink = window.location.href
         }
 
         let kml = null
