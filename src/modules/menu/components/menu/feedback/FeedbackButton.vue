@@ -29,11 +29,20 @@
                 @rating-change="ratingChange"
             />
             <textarea
-                v-model="feedback"
+                v-model="feedback.message"
                 class="form-control feedback-text"
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
+            <div class="my-3">
+                <span>{{ $t('feedback_email') }}</span>
+                <input
+                    v-model="feedback.email"
+                    type="email"
+                    class="form-control"
+                    data-cy="feedback-email"
+                />
+            </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_disclaimer')" />
@@ -64,7 +73,11 @@
                     <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
                 </button>
             </div>
-            <div v-if="request.completed || request.failed" class="text-end mt-3">
+            <div
+                v-if="request.completed || request.failed"
+                ref="requestResults"
+                class="text-end mt-3"
+            >
                 <span>
                     <small v-if="request.failed" class="text-danger" data-cy="feedback-failed-text">
                         {{ $t('send_failed') }}
@@ -86,6 +99,10 @@ import log from '@/utils/logging'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { mapGetters } from 'vuex'
 
+// comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
+const EMAIL_REGEX =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 export default {
     components: { FeedbackRating, ModalWithBackdrop, HeaderLink },
     props: {
@@ -97,9 +114,12 @@ export default {
     data() {
         return {
             showFeedbackForm: false,
-            rating: 0,
             maxRating: 5,
-            feedback: null,
+            feedback: {
+                rating: 0,
+                message: null,
+                email: null,
+            },
             request: {
                 pending: false,
                 failed: false,
@@ -110,12 +130,19 @@ export default {
     computed: {
         ...mapGetters(['activeKmlLayer']),
         feedbackCanBeSent() {
-            return this.rating !== 0 && !this.request.pending
+            return (
+                this.feedback.rating !== 0 &&
+                !this.request.pending &&
+                (!this.feedback.email || this.isEmailValid)
+            )
+        },
+        isEmailValid() {
+            return EMAIL_REGEX.test(this.feedback.email)
         },
     },
     methods: {
         ratingChange(newRating) {
-            this.rating = newRating
+            this.feedback.rating = newRating
         },
         async sendFeedback() {
             // if the request was already sent, we don't allow the user to double send
@@ -127,10 +154,11 @@ export default {
             this.request.pending = true
             try {
                 const feedbackSentSuccessfully = await sendFeedback(
-                    this.feedback,
-                    this.rating,
+                    this.feedback.message,
+                    this.feedback.rating,
                     this.maxRating,
-                    this.activeKmlLayer?.kmlFileUrl
+                    this.activeKmlLayer?.kmlFileUrl,
+                    this.feedback.email
                 )
                 this.request.completed = feedbackSentSuccessfully
                 this.request.failed = !feedbackSentSuccessfully
@@ -140,11 +168,14 @@ export default {
             } finally {
                 this.request.pending = false
             }
+            await this.$nextTick()
+            // scrolling down to make sure the message with request results is visible to the user
+            this.$refs.requestResults.scrollIntoView()
         },
         closeAndCleanForm() {
             this.showFeedbackForm = false
-            this.rating = 0
-            this.feedback = null
+            this.feedback.rating = 0
+            this.feedback.message = null
             // reset also the completed/failed state, so that the user can send another feedback later on
             this.request.failed = false
             this.request.completed = false
