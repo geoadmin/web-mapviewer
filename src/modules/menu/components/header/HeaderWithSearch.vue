@@ -17,7 +17,7 @@
                 class="search-bar-section d-flex-column flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
-                <span class="float-start search-title">{{ $t('search_title') }}</span>
+
                 <SearchBar />
             </div>
             <div
