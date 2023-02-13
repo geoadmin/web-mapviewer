@@ -19,7 +19,7 @@
         v-if="showFeedbackForm"
         :title="$t('test_map_give_feedback')"
         fluid
-        @close="showFeedbackForm = false"
+        @close="closeAndCleanForm"
     >
         <div class="p-2" data-cy="feedback-form">
             <span>{{ $t('feedback_rating_title') }}</span>
@@ -30,18 +30,26 @@
             />
             <textarea
                 v-model="feedback.message"
+                :disabled="request.completed"
                 class="form-control feedback-text"
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
             ></textarea>
             <div class="my-3">
                 <span>{{ $t('feedback_email') }}</span>
-                <input
-                    v-model="feedback.email"
-                    type="email"
-                    class="form-control"
-                    data-cy="feedback-email"
-                />
+                <div class="input-group has-validation">
+                    <input
+                        v-model="feedback.email"
+                        :disabled="request.completed"
+                        :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
+                        type="email"
+                        class="form-control"
+                        data-cy="feedback-email"
+                        @focusin="userIsTypingEmail = true"
+                        @focusout="userIsTypingEmail = false"
+                    />
+                    <div class="invalid-feedback">{{ $t('feedback_invalid_email') }}</div>
+                </div>
             </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
@@ -115,6 +123,7 @@ export default {
         return {
             showFeedbackForm: false,
             maxRating: 5,
+            userIsTypingEmail: false,
             feedback: {
                 rating: 0,
                 message: null,
@@ -130,14 +139,10 @@ export default {
     computed: {
         ...mapGetters(['activeKmlLayer']),
         feedbackCanBeSent() {
-            return (
-                this.feedback.rating !== 0 &&
-                !this.request.pending &&
-                (!this.feedback.email || this.isEmailValid)
-            )
+            return this.feedback.rating !== 0 && !this.request.pending && this.isEmailValid
         },
         isEmailValid() {
-            return EMAIL_REGEX.test(this.feedback.email)
+            return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
         },
     },
     methods: {
@@ -176,6 +181,7 @@ export default {
             this.showFeedbackForm = false
             this.feedback.rating = 0
             this.feedback.message = null
+            this.feedback.email = null
             // reset also the completed/failed state, so that the user can send another feedback later on
             this.request.failed = false
             this.request.completed = false
