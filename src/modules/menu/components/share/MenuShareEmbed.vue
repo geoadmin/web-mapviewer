@@ -1,14 +1,9 @@
 <template>
     <div class="menu-share-embed">
-        <ButtonWithIcon
-            class="embedded-button"
-            :button-title="$t('share_more')"
-            :button-font-awesome-icon="['fas', 'plus']"
-            icons-before-text
-            round
-            transparent
-            @click="toggleEmbedSharing"
-        />
+        <button class="btn btn-light embedded-button" @click="toggleEmbedSharing">
+            <FontAwesomeIcon icon="plus" />
+            <span class="ms-1">{{ $t('share_more') }}</span>
+        </button>
         <CollapseTransition :duration="200">
             <div v-show="showEmbedSharing" class="p-2">
                 <div class="input-group input-group-sm">
@@ -65,8 +60,8 @@
 
 <script>
 import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareShortLinkInput.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
@@ -104,7 +99,12 @@ const EmbedSizes = {
  * This iFrame generator comes with a modal that helps the user select the size he prefers.
  */
 export default {
-    components: { MenuShareShortLinkInput, ModalWithBackdrop, ButtonWithIcon, CollapseTransition },
+    components: {
+        FontAwesomeIcon,
+        MenuShareShortLinkInput,
+        ModalWithBackdrop,
+        CollapseTransition,
+    },
     props: {
         shortLink: {
             type: String,

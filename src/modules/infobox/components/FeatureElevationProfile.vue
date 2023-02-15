@@ -11,18 +11,22 @@
             @update="onElevationProfilePlotUpdate"
         />
         <FeatureElevationProfileInformation :profile="elevationProfile">
-            <ButtonWithIcon
+            <button
                 v-if="elevationProfileHasData"
-                :button-font-awesome-icon="['fas', 'download']"
+                class="btn btn-light d-flex align-items-center"
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
-            />
-            <ButtonWithIcon
+            >
+                <FontAwesomeIcon icon="download" />
+            </button>
+            <button
                 v-if="showDeleteButton"
-                :button-font-awesome-icon="['far', 'trash-alt']"
+                class="btn btn-light d-flex align-items-center"
                 data-cy="profile-popup-delete-button"
                 @click="onDelete"
-            />
+            >
+                <FontAwesomeIcon icon="far fa-trash-alt" />
+            </button>
         </FeatureElevationProfileInformation>
     </div>
 </template>
@@ -34,13 +38,17 @@ import { toLv95 } from '@/modules/drawing/lib/drawingUtils'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import log from '@/utils/logging'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions } from 'vuex'
 
 export default {
-    components: { FeatureElevationProfilePlot, FeatureElevationProfileInformation, ButtonWithIcon },
+    components: {
+        FontAwesomeIcon,
+        FeatureElevationProfilePlot,
+        FeatureElevationProfileInformation,
+    },
     inject: ['getMap'],
     props: {
         feature: {

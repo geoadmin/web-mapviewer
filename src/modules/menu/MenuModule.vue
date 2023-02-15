@@ -49,17 +49,15 @@
                         :class="{ 'shadow-lg': isDesktopMode, 'rounded-bottom': isDesktopMode }"
                         :compact="isDesktopMode"
                     />
-                    <ButtonWithIcon
+                    <button
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu m-auto ps-4 pe-4 shadow-lg"
+                        class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
-                        :button-font-awesome-icon="['fas', showMenu ? 'caret-up' : 'caret-down']"
-                        :button-title="$t(showMenu ? 'close_menu' : 'open_menu')"
-                        icons-before-text
-                        dark
                         @click="toggleMenu"
                     >
-                    </ButtonWithIcon>
+                        <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
+                        <span class="ms-1">{{ $t(showMenu ? 'close_menu' : 'open_menu') }}</span>
+                    </button>
                 </div>
             </transition>
         </div>
@@ -73,17 +71,17 @@ import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
+        FontAwesomeIcon,
         HeaderWithSearch,
         BlackBackdrop,
         CompassButton,
         ZoomButtons,
         GeolocButton,
-        ButtonWithIcon,
         MenuTray,
     },
     computed: {

@@ -2,6 +2,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons'
 import {
     faCheckSquare,
+    faCircle as faRegularCircle,
     faClock,
     faCopy,
     faEye,
@@ -96,6 +97,7 @@ library.add(
     faClock,
     faCopy,
     faEye,
+    faRegularCircle,
     faSquare,
     faTrashAlt,
     // Brands

@@ -16,22 +16,29 @@
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                     >
                         <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
-                        <ButtonWithIcon
+                        <button
                             v-if="allowPrint"
-                            small
-                            :primary="headerPrimary"
-                            :button-font-awesome-icon="['fa', 'print']"
+                            class="btn btn-sm"
+                            :class="{
+                                'btn-light': !headerPrimary,
+                                'btn-primary': headerPrimary,
+                            }"
                             data-cy="modal-print-button"
                             @click="printModalContent"
-                        />
-                        <ButtonWithIcon
-                            :button-font-awesome-icon="['fa', 'times']"
-                            small
-                            :primary="headerPrimary"
-                            class="float-end"
+                        >
+                            <FontAwesomeIcon icon="print" />
+                        </button>
+                        <button
+                            class="btn btn-sm"
+                            :class="{
+                                'btn-light': !headerPrimary,
+                                'btn-primary': headerPrimary,
+                            }"
                             data-cy="modal-close-button"
                             @click="onClose(false)"
-                        />
+                        >
+                            <FontAwesomeIcon icon="times" />
+                        </button>
                     </div>
                     <div ref="modalContent" class="card-body pt-3 ps-4 pe-4">
                         <slot />
@@ -60,15 +67,15 @@
 
 <script>
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
  * map
  */
 export default {
-    components: { BlackBackdrop, ButtonWithIcon },
+    components: { FontAwesomeIcon, BlackBackdrop },
     props: {
         title: {
             type: String,

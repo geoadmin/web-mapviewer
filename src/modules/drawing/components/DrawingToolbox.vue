@@ -3,78 +3,96 @@
         <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content rounded-0">
-                <div class="card-body position-relative">
-                    <ButtonWithIcon
-                        class="drawing-toolbox-close-button"
-                        data-cy="drawing-toolbox-close-button"
-                        :button-font-awesome-icon="['fas', 'times']"
-                        transparent
-                        @click="emitCloseEvent"
-                    />
-                    <div class="drawing-toolbox-mode-selector">
-                        <DrawingToolboxButton
+                <div class="card-body position-relative container">
+                    <div class="row justify-content-start row-cols-md-2 g-2">
+                        <div
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
-                            :drawing-mode="drawingMode"
-                            :is-active="currentDrawingMode === drawingMode"
-                            :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                            @set-drawing-mode="bubbleSetDrawingEventToParent"
-                        />
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <button
-                            v-if="isDrawingLineOrMeasure"
-                            data-cy="drawing-delete-last-point-button"
-                            class="btn btn-outline-danger m-1"
-                            @click="$emit('deleteLastPoint')"
+                            class="col d-grid"
                         >
-                            {{ $t('draw_button_delete_last_point') }}
+                            <DrawingToolboxButton
+                                :drawing-mode="drawingMode"
+                                :is-active="currentDrawingMode === drawingMode"
+                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                                @set-drawing-mode="bubbleSetDrawingEventToParent"
+                            />
+                        </div>
+                        <button
+                            class="btn col-2 d-md-none d-flex align-items-center"
+                            data-cy="drawing-toolbox-close-button"
+                            @click="emitCloseEvent"
+                        >
+                            <FontAwesomeIcon icon="times" />
                         </button>
                     </div>
-                    <div
-                        class="d-flex justify-content-center drawing-toolbox-drawing-state"
-                        :class="{ 'text-danger': isDrawingStateError }"
-                    >
-                        {{ drawingStateMessage }}
+                    <div class="row mt-md-2 mt-1 g-2">
+                        <div class="col d-grid">
+                            <button
+                                :disabled="isDrawingEmpty"
+                                class="btn-light btn"
+                                data-cy="drawing-toolbox-delete-button"
+                                @click="showClearConfirmation"
+                            >
+                                {{ $t('delete') }}
+                            </button>
+                        </div>
+                        <div class="col d-grid">
+                            <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
+                        </div>
+                        <div class="col d-grid">
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                :disabled="isDrawingEmpty || !kmlLayerId"
+                                data-cy="drawing-toolbox-share-button"
+                                @click="openShare"
+                            >
+                                {{ $t('share') }}
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <button
-                            :disabled="isDrawingEmpty"
-                            class="btn-light btn m-1"
-                            data-cy="drawing-toolbox-delete-button"
-                            @click="showClearConfirmation"
-                        >
-                            {{ $t('delete') }}
-                        </button>
-                        <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
-                        <button
-                            type="button"
-                            class="btn btn-light m-1"
-                            :disabled="isDrawingEmpty || !kmlLayerId"
-                            data-cy="drawing-toolbox-share-button"
-                            @click="openShare"
-                        >
-                            {{ $t('share') }}
-                        </button>
+                    <div v-if="drawingStateMessage" class="row">
+                        <div class="col mt-2">
+                            <div
+                                v-if="drawingStateMessage"
+                                class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                                :class="{ 'text-danger': isDrawingStateError }"
+                            >
+                                {{ drawingStateMessage }}
+                            </div>
+                        </div>
                     </div>
-                    <!-- eslint-disable vue/no-v-html-->
-                    <small
-                        class="text-center text-muted drawing-toolbox-disclaimer"
-                        v-html="$t('share_file_disclaimer')"
-                    ></small>
-                    <!-- eslint-enable vue/no-v-html-->
+                    <div v-if="isDrawingLineOrMeasure" class="row mt-2">
+                        <div class="col d-grid">
+                            <button
+                                v-if="isDrawingLineOrMeasure"
+                                data-cy="drawing-delete-last-point-button"
+                                class="btn btn-outline-danger"
+                                @click="$emit('deleteLastPoint')"
+                            >
+                                {{ $t('draw_button_delete_last_point') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-2 d-none d-md-block">
+                        <div class="col text-center text-muted">
+                            <!-- eslint-disable vue/no-v-html-->
+                            <small v-html="$t('share_file_disclaimer')" />
+                            <!-- eslint-enable vue/no-v-html-->
+                        </div>
+                    </div>
                 </div>
             </div>
-            <ButtonWithIcon
-                class="m-auto button-open-close-draw-menu ps-4 pe-4"
-                data-cy="menu-button"
-                :button-font-awesome-icon="['fas', drawMenuOpen ? 'caret-up' : 'caret-down']"
-                :button-title="$t(drawMenuOpen ? 'close_menu' : 'open_menu')"
-                icons-before-text
-                dark
-                @click="drawMenuOpen = !drawMenuOpen"
-            >
-            </ButtonWithIcon>
+            <div class="text-center d-none d-md-block">
+                <button
+                    class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
+                    data-cy="menu-button"
+                    @click="drawMenuOpen = !drawMenuOpen"
+                >
+                    <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
+                    <span class="ms-1">{{ $t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
+                </button>
+            </div>
         </div>
         <ModalWithBackdrop
             v-if="showClearConfirmationModal"
@@ -95,17 +113,17 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapGetters } from 'vuex'
-import DrawingHeader from './DrawingHeader.vue'
 import { DrawingState } from '../lib/export-utils'
+import DrawingHeader from './DrawingHeader.vue'
 
 export default {
     components: {
+        FontAwesomeIcon,
         DrawingExporter,
         ModalWithBackdrop,
-        ButtonWithIcon,
         DrawingToolboxButton,
         SharePopup,
         DrawingHeader,
@@ -163,7 +181,7 @@ export default {
                 case DrawingState.LOAD_ERROR:
                     return this.$i18n.t('draw_file_save_error')
                 default:
-                    return ''
+                    return null
             }
         },
         isDrawingStateError() {
@@ -215,17 +233,8 @@ $zindex-drawing-toolbox: -1;
     position: relative;
     z-index: $zindex-drawing-toolbox;
     transition: transform $animation-time;
-    &-close-button {
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
     .button-open-close-draw-menu {
         height: $openCloseButtonHeight;
-        display: none;
-
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
     }
     &-mode-selector {
         margin: 0.5rem 0;
@@ -250,12 +259,6 @@ $zindex-drawing-toolbox: -1;
         max-width: $menu-tray-width;
         .drawing-toolbox-content {
             transition: opacity $animation-time;
-        }
-        &-close-button {
-            display: none;
-        }
-        .button-open-close-draw-menu {
-            display: block;
         }
         &-closed {
             .drawing-toolbox-content {

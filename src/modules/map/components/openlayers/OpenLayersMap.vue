@@ -65,12 +65,13 @@
             @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fa', 'caret-down']"
-                    small
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
                     @click="toggleFloatingTooltip"
-                />
+                >
+                    <FontAwesomeIcon icon="caret-down" />
+                </button>
             </template>
             <FeatureEdit
                 v-if="editFeature"
@@ -108,9 +109,9 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Map, View } from 'ol'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions } from 'ol/interaction'
@@ -137,7 +138,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
-        ButtonWithIcon,
+        FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
         OpenLayersAccuracyCircle,
