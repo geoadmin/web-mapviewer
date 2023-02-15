@@ -137,14 +137,9 @@ $animation-time: 0.5s;
 // WARNING: We cannot use bootstrap img-fluid to automatically set the height of the swiss-flag
 // as it totally breaks the header and menu on Iphone !
 .swiss-flag {
-    height: 21px;
+    height: 34px;
     &.dev-site {
         filter: hue-rotate(225deg);
-    }
-}
-@include respond-above(lg) {
-    .swiss-flag {
-        height: 34px;
     }
 }
 </style>
