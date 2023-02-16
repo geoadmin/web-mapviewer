@@ -1,13 +1,11 @@
 <template>
-    <div class="header d-flex">
+    <div class="header">
         <LoadingBar v-if="showLoadingBar" />
-        <div class="header-content w-100 p-1 d-flex justify-content-start">
+        <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
-                <SwissFlag
-                    class="ms-1 me-2 cursor-pointer"
-                    data-cy="menu-swiss-flag"
-                    @click="resetApp"
-                />
+                <div class="p-1 cursor-pointer text-center" data-cy="menu-swiss-flag" @click="resetApp">
+                    <SwissFlag />
+                </div>
                 <HeaderSwissConfederationText
                     :current-lang="currentLang"
                     class="mx-2 cursor-pointer search-header-swiss-confederation-text"
@@ -16,35 +14,38 @@
                 />
             </div>
             <div
-                class="search-bar-section mx-2 d-flex-column flex-grow-1"
+                class="search-bar-section d-flex-column flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
                 <span class="float-start search-title">{{ $t('search_title') }}</span>
                 <SearchBar />
-                <!-- eslint-disable vue/no-v-html-->
-                <div
-                    v-if="hasDevSiteWarning"
-                    class="header-warning-dev bg-danger rounded text-white text-center text-wrap text-truncate fw-bold overflow-hidden p-1"
-                    v-html="$t('test_host_warning')"
-                />
-                <!-- eslint-enable vue/no-v-html-->
             </div>
-            <div class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto" data-cy="header-settings-section">
+            <div
+                class="header-settings-section align-self-start d-flex flex-shrink-0 flex-grow-0 ms-auto"
+                data-cy="header-settings-section"
+            >
                 <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
                 <LangSwitchToolbar id="menu-lang-selector" />
             </div>
-            <HeaderMenuButton v-if="isPhoneMode" />
+            <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
         </div>
+        <!-- eslint-disable vue/no-v-html-->
+        <div
+          v-if="hasDevSiteWarning"
+          class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+          v-html="$t('test_host_warning')"
+        />
+        <!-- eslint-enable vue/no-v-html-->
     </div>
 </template>
 
 <script>
+import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
-import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
+import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 
 import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapGetters, mapState } from 'vuex'
@@ -57,7 +58,7 @@ export default {
         SwissFlag,
         LoadingBar,
         LangSwitchToolbar,
-        FeedbackToolbar
+        FeedbackToolbar,
     },
     computed: {
         ...mapState({
@@ -91,12 +92,12 @@ $animation-time: 0.5s;
         height: $header-height;
         transition: height $animation-time;
     }
-    &-warning-dev {
-        height: 1.5em;
-        line-height: 1.2;
-        &:hover {
-            height: auto;
-        }
+}
+.header-warning-dev {
+    height: $dev-disclaimer-height;
+    line-height: 1.1;
+    &:hover {
+        height: auto;
     }
 }
 
@@ -131,20 +132,6 @@ $animation-time: 0.5s;
     .search-header-swiss-confederation-text,
     .search-title {
         display: block;
-    }
-}
-
-// WARNING: We cannot use bootstrap img-fluid to automatically set the height of the swiss-flag
-// as it totally breaks the header and menu on Iphone !
-.swiss-flag {
-    height: 21px;
-    &.dev-site {
-        filter: hue-rotate(225deg);
-    }
-}
-@include respond-above(lg) {
-    .swiss-flag {
-        height: 34px;
     }
 }
 </style>
