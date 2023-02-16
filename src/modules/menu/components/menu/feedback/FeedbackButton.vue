@@ -26,6 +26,7 @@
             <FeedbackRating
                 class="my-4 text-center"
                 :max-rating="maxRating"
+                :disabled="request.completed"
                 @rating-change="ratingChange"
             />
             <textarea
