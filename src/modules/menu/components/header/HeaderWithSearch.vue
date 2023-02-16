@@ -1,7 +1,7 @@
 <template>
-    <div class="header d-flex">
+    <div class="header">
         <LoadingBar v-if="showLoadingBar" />
-        <div class="header-content w-100 p-1 d-flex justify-content-start">
+        <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <div class="p-1 cursor-pointer text-center" data-cy="menu-swiss-flag" @click="resetApp">
                     <SwissFlag />
@@ -14,21 +14,14 @@
                 />
             </div>
             <div
-                class="search-bar-section mx-2 d-flex-column flex-grow-1"
+                class="search-bar-section d-flex-column flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
                 <span class="float-start search-title">{{ $t('search_title') }}</span>
                 <SearchBar />
-                <!-- eslint-disable vue/no-v-html-->
-                <div
-                    v-if="hasDevSiteWarning"
-                    class="header-warning-dev bg-danger rounded text-white text-center text-wrap text-truncate fw-bold overflow-hidden p-1"
-                    v-html="$t('test_host_warning')"
-                />
-                <!-- eslint-enable vue/no-v-html-->
             </div>
             <div
-                class="header-settings-section d-flex flex-shrink-0 flex-grow-0 ms-auto"
+                class="header-settings-section align-self-start d-flex flex-shrink-0 flex-grow-0 ms-auto"
                 data-cy="header-settings-section"
             >
                 <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
@@ -36,6 +29,13 @@
             </div>
             <HeaderMenuButton v-if="isPhoneMode" />
         </div>
+        <!-- eslint-disable vue/no-v-html-->
+        <div
+          v-if="hasDevSiteWarning"
+          class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+          v-html="$t('test_host_warning')"
+        />
+        <!-- eslint-enable vue/no-v-html-->
     </div>
 </template>
 
@@ -92,12 +92,12 @@ $animation-time: 0.5s;
         height: $header-height;
         transition: height $animation-time;
     }
-    &-warning-dev {
-        height: 1.5em;
-        line-height: 1.2;
-        &:hover {
-            height: auto;
-        }
+}
+.header-warning-dev {
+    height: $dev-disclaimer-height;
+    line-height: 1.1;
+    &:hover {
+        height: auto;
     }
 }
 
