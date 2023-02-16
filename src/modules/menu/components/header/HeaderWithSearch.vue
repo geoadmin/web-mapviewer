@@ -27,7 +27,7 @@
                 <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
                 <LangSwitchToolbar id="menu-lang-selector" />
             </div>
-            <HeaderMenuButton v-if="isPhoneMode" />
+            <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div
