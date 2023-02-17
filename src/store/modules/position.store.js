@@ -1,4 +1,4 @@
-import { MAP_CENTER } from '@/config'
+import { LV95_EXTENT, MAP_CENTER } from '@/config'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -140,6 +140,23 @@ const getters = {
             round(state.center[1] + halfScreenInMeter.height, 2),
         ]
         return [bottomLeft, topRight]
+    },
+    /**
+     * Flag telling if the current extent is contained into the LV95 bounds (meaning only things
+     * from our LV 95 services are currently in display)
+     *
+     * @param state
+     * @param getters
+     * @returns {Boolean}
+     */
+    isExtentOnlyWithinLV95Bounds(state, getters) {
+        const [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
+        return (
+            currentExtentBottomLeft[0] >= LV95_EXTENT[0] &&
+            currentExtentBottomLeft[1] >= LV95_EXTENT[1] &&
+            currentExtentTopRight[0] <= LV95_EXTENT[2] &&
+            currentExtentTopRight[1] <= LV95_EXTENT[3]
+        )
     },
 }
 
