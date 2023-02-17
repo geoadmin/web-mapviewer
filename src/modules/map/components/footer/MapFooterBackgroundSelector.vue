@@ -104,8 +104,6 @@ export default {
                     return 'void_layer'
                 case 'ch.swisstopo.pixelkarte-farbe':
                     return 'bg_pixel_color'
-                case 'ch.swisstopo.pixelkarte-grau':
-                    return 'bg_pixel_grey'
                 case 'ch.swisstopo.swissimage':
                 case VECTOR_TILES_IMAGERY_STYLE_ID:
                     return 'bg_luftbild'
@@ -126,6 +124,12 @@ export default {
 $transition-duration: 0.3s;
 $map-button-gap: 0.5rem;
 $menu-button-diameter: 3px;
+
+// Number of background layers (in addition to 'blank')
+// Caveat: the background layers are dynamically defined in the
+// layersConfig.js files, but how and if they will be displayed is pretty much
+// fixed.
+$numberOfBackgrounds: 3;
 
 .bg-selector {
     position: relative;
@@ -206,7 +210,7 @@ $menu-button-diameter: 3px;
         bottom: calc($map-button-diameter + $map-button-gap);
         opacity: 1;
     }
-    $numberOfBackgrounds: 4;
+
     @for $i from 0 through $numberOfBackgrounds {
         .bg-index-#{$i} {
             $offset: calc(($map-button-diameter + $map-button-gap) * ($i - $numberOfBackgrounds));
@@ -241,12 +245,12 @@ $menu-button-diameter: 3px;
         border-radius: initial;
         background-image: url('../../../menu/assets/backgrounds.jpg');
         background-size: 392px;
-        // Original size: 180px x 4 = 720px image, 5px x 3 = 15px border => 735px (100%)
-        // Size after reducing the size: 96px image x 4 = 384px, 2.666px x 3 = 8px => 392px (x0.5333)
+        // Original size: 180px x 3 = 540px image, 5px x 2 = 10px border => 550px (100%)
+        // Size after reducing the size: 96px image x 3 = 288px, 2.666px x 2= 5.3333px => 293px (x0.5333)
         &.bg-ch-swisstopo-swissimage {
             background-position: 0 0;
         }
-        &.bg-ch-swisstopo-pixelkarte-grau {
+        &.bg-ch-swisstopo-pixelkarte-grau{
             background-position: -98.6667px 0; // 96px (image) + 2.6667 (border)
         }
         &.bg-ch-swisstopo-pixelkarte-farbe {
@@ -255,7 +259,6 @@ $menu-button-diameter: 3px;
         &.bg-ch-swisstopo-leichte-basiskarte_world-vt {
             background-position: -296px 0; // 288px (3 images) + 8 (3 borders)
         }
-
         &:hover {
             border-color: $primary;
         }
@@ -279,7 +282,7 @@ $menu-button-diameter: 3px;
             left: calc(($desktop-map-button-width + $map-button-gap) * -1);
             bottom: 0;
         }
-        $numberOfBackgrounds: 4;
+
         @for $i from 0 through $numberOfBackgrounds {
             .bg-index-#{$i} {
                 $offset: calc(

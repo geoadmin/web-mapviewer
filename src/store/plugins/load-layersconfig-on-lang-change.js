@@ -86,6 +86,15 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
                 topicEch.backgroundLayers[topicEch.backgroundLayers.indexOf(swissimageLayer)] =
                     imageryBackgroundLayer
             }
+            // removing the Pixelkarte Grau from the background layers. Same hack as
+            // for the SWISSIMAGE above)
+            const pixelgreyLayer = topicEch.backgroundLayers.find(
+                (layer) => layer.geoAdminID === 'ch.swisstopo.pixelkarte-grau'
+            )
+            if (swissimageLayer) {
+                log.debug('removing "ch.swisstopo.pixelkarte-grau" from background layer')
+                pixelgreyLayer.isBackground = false
+            }
         }
         store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
