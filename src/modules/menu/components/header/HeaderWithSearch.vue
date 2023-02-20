@@ -3,7 +3,11 @@
         <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
-                <div class="p-1 cursor-pointer text-center" data-cy="menu-swiss-flag" @click="resetApp">
+                <div
+                    class="p-1 cursor-pointer text-center"
+                    data-cy="menu-swiss-flag"
+                    @click="resetApp"
+                >
                     <SwissFlag />
                 </div>
                 <HeaderSwissConfederationText
@@ -17,7 +21,6 @@
                 class="search-bar-section d-flex-column flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
-
                 <SearchBar />
             </div>
             <div
@@ -31,9 +34,9 @@
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div
-          v-if="hasDevSiteWarning"
-          class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
-          v-html="$t('test_host_warning')"
+            v-if="hasDevSiteWarning"
+            class="header-warning-dev bg-danger text-white text-center text-wrap text-truncate overflow-hidden fw-bold p-1"
+            v-html="$t('test_host_warning')"
         />
         <!-- eslint-enable vue/no-v-html-->
     </div>
