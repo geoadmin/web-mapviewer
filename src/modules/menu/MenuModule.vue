@@ -40,7 +40,7 @@
                     class="menu-tray"
                     :class="{
                         'desktop-mode': isDesktopMode,
-                        'desktop-menu-closed': isDesktopMode && !showMenu,
+                        'desktop-menu-closed': isDesktopMode && !isMenuShown,
                     }"
                     data-cy="menu-tray"
                 >
