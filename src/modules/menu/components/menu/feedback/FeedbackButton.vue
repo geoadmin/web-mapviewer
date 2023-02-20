@@ -17,21 +17,21 @@
     </button>
     <ModalWithBackdrop
         v-if="showFeedbackForm"
-        :title="$t('test_map_give_feedback')"
+        :title="request.completed ? '' : $t('test_map_give_feedback')"
         fluid
         @close="closeAndCleanForm"
     >
-        <div class="p-2" data-cy="feedback-form">
+        <div v-if="!request.completed" class="p-2" data-cy="feedback-form">
             <span>{{ $t('feedback_rating_title') }}</span>
             <FeedbackRating
                 class="my-4 text-center"
                 :max-rating="maxRating"
-                :disabled="request.completed"
+                :disabled="request.pending"
                 @rating-change="ratingChange"
             />
             <textarea
                 v-model="feedback.message"
-                :disabled="request.completed"
+                :disabled="request.pending"
                 class="form-control feedback-text"
                 data-cy="feedback-text"
                 :placeholder="$t('feedback_rating_text')"
@@ -41,7 +41,7 @@
                 <div class="input-group has-validation">
                     <input
                         v-model="feedback.email"
-                        :disabled="request.completed"
+                        :disabled="request.pending"
                         :class="{ 'is-invalid': !userIsTypingEmail && !isEmailValid }"
                         type="email"
                         class="form-control"
@@ -59,8 +59,7 @@
             </div>
             <div class="text-end">
                 <button class="btn btn-light mx-2" @click="closeAndCleanForm">
-                    <span v-if="request.completed">{{ $t('close') }}</span>
-                    <span v-else>{{ $t('cancel') }}</span>
+                    {{ $t('cancel') }}
                 </button>
                 <button
                     :disabled="!feedbackCanBeSent"
@@ -74,28 +73,29 @@
                         pulse
                         data-cy="feedback-pending-icon"
                     />
-                    <FontAwesomeIcon
-                        v-else-if="request.completed"
-                        icon="check"
-                        data-cy="feedback-success-icon"
-                    />
                     <span v-else data-cy="feedback-send-text">{{ $t('send') }}</span>
                 </button>
             </div>
             <div
-                v-if="request.completed || request.failed"
+                v-if="request.failed"
                 ref="requestResults"
-                class="text-end mt-3"
+                class="text-end text-danger mt-3"
+                data-cy="feedback-failed-text"
             >
-                <span>
-                    <small v-if="request.failed" class="text-danger" data-cy="feedback-failed-text">
-                        {{ $t('send_failed') }}
-                    </small>
-                    <small v-if="request.completed" data-cy="feedback-success-text">{{
-                        $t('feedback_success_message')
-                    }}</small>
-                </span>
+                <small>{{ $t('send_failed') }}</small>
             </div>
+        </div>
+        <div v-else class="p-2">
+            <h6 class="text-success" data-cy="feedback-success-text">
+                {{ $t('feedback_success_message') }}
+            </h6>
+            <button
+                class="my-2 btn btn-light float-end"
+                data-cy="feedback-close-successful"
+                @click="closeAndCleanForm"
+            >
+                {{ $t('close') }}
+            </button>
         </div>
     </ModalWithBackdrop>
 </template>

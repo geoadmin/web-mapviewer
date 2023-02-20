@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { API_SERVICE_SHORTLINK_BASE_URL, APP_VERSION } from '@/config'
+import { APP_VERSION } from '@/config'
 
 describe('Testing the feedback form', () => {
     beforeEach(() => {
@@ -139,14 +139,12 @@ describe('Testing the feedback form', () => {
                     '[data-cy="submit-feedback-button"] [data-cy="feedback-pending-icon"]'
                 ).should('be.visible')
                 cy.wait('@feedback')
-                cy.get(
-                    '[data-cy="submit-feedback-button"] [data-cy="feedback-success-icon"]'
-                ).should('be.visible')
+                cy.get('[data-cy="feedback-form"]').should('not.exist')
                 cy.get('[data-cy="feedback-success-text"]').should('be.visible')
             })
-            it('closes the modal if the check mark button is clicked', () => {
+            it('closes the modal if the close button is clicked', () => {
                 cy.wait('@feedback')
-                cy.get('[data-cy="submit-feedback-button"]').click()
+                cy.get('[data-cy="feedback-close-successful"]').click()
                 cy.get('[data-cy="feedback-form"]').should('not.exist')
             })
         })
