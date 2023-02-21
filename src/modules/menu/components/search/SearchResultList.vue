@@ -1,7 +1,11 @@
 <template>
     <div
         id="search-results"
-        class="bg-light border rounded overflow-hidden"
+        :class="[
+            isPhoneMode ? ['border-top', 'border-bottom', 'rounded-bottom'] : ['border', 'rounded'],
+            { 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode },
+            ['bg-light'],
+        ]"
         data-cy="search-results"
         @keydown.esc.prevent="$emit('close')"
     >
@@ -25,7 +29,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import SearchResultCategory from './SearchResultCategory.vue'
 
 /**
@@ -40,6 +44,7 @@ export default {
             results: (state) => state.search.results,
             showResults: (state) => state.search.show,
         }),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
     },
     methods: {
         ...mapActions([
@@ -54,14 +59,34 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
 
 #search-results {
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: $header-height;
+    overflow: hidden;
     left: 0%;
     width: 100%;
     max-height: calc(75vh - 3rem);
+    margin: 0; //overwrites a bootstrap property from parent module
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.search-results-dev-site-warning {
+    // Must be important as it needs to overrite the top defined in #search-results
+    top: $header-height + $dev-disclaimer-height !important;
+    // Put the search results under the rest of the header so hovering over the warning works
+    // correctly
+    z-index: -1;
+}
+@include respond-above(phone) {
+    #search-results {
+        position: absolute;
+        top: 100%;
+    }
+    .search-results-dev-site-warning {
+        z-index: initial;
+    }
 }
 @include respond-above(lg) {
     #search-results {
