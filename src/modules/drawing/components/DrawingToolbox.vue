@@ -25,8 +25,7 @@
                         <button
                             v-if="isDrawingLineOrMeasure"
                             data-cy="drawing-delete-last-point-button"
-                            class="m-1"
-                            outline-danger
+                            class="btn btn-outline-danger m-1"
                             @click="$emit('deleteLastPoint')"
                         >
                             {{ $t('draw_button_delete_last_point') }}

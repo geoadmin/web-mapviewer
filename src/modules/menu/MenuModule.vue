@@ -7,7 +7,12 @@
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
         <HeaderWithSearch v-if="isHeaderShown" class="header" />
-        <div class="toolbox-right">
+        <div
+            class="toolbox-right"
+            :class="{
+                'dev-disclaimer-present': hasDevSiteWarning,
+            }"
+        >
             <GeolocButton
                 v-if="!isFullscreenMode"
                 class="mb-1"
@@ -26,6 +31,7 @@
             class="menu-tray-container"
             :class="{
                 'desktop-mode': isDesktopMode,
+                'dev-disclaimer-present': hasDevSiteWarning,
             }"
         >
             <transition name="slide-up">
@@ -34,7 +40,7 @@
                     class="menu-tray"
                     :class="{
                         'desktop-mode': isDesktopMode,
-                        'desktop-menu-closed': isDesktopMode && !showMenu,
+                        'desktop-menu-closed': isDesktopMode && !isMenuShown,
                     }"
                     data-cy="menu-tray"
                 >
@@ -93,6 +99,7 @@ export default {
             'isDesktopMode',
             'isMenuShown',
             'isMenuTrayShown',
+            'hasDevSiteWarning',
         ]),
     },
     methods: {
@@ -131,6 +138,9 @@ $animation-time: 0.5s;
         float: right;
         position: relative;
         margin: $screen-padding-for-ui-elements;
+        &.dev-disclaimer-present {
+            margin-top: $screen-padding-for-ui-elements + $dev-disclaimer-height;
+        }
     }
     .menu-tray-container {
         pointer-events: none;
@@ -139,6 +149,9 @@ $animation-time: 0.5s;
         bottom: 0;
         left: 0;
         width: 100%;
+        &.dev-disclaimer-present {
+            top: $header-height + $dev-disclaimer-height;
+        }
         &.desktop-mode {
             bottom: 70px;
         }
@@ -186,6 +199,9 @@ $animation-time: 0.5s;
     .menu {
         .menu-tray-container {
             top: 2 * $header-height;
+            &.dev-disclaimer-present {
+                top: 2 * $header-height + $dev-disclaimer-height;
+            }
         }
     }
 }

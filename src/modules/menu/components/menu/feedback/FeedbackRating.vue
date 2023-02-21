@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid ratings" @mouseleave="previewRating = 0">
+    <div class="container-fluid ratings" :class="{ disabled }" @mouseleave="setPreviewRating(0)">
         <FontAwesomeIcon
             v-for="note in maxRating"
             :key="note"
@@ -10,7 +10,7 @@
             :class="{
                 checked: shouldStarBeChecked(note),
             }"
-            @mouseenter="previewRating = note"
+            @mouseenter="setPreviewRating(note)"
             @click="setRating(note)"
         />
     </div>
@@ -23,6 +23,10 @@ export default {
             type: Number,
             default: 5,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['ratingChange'],
     data() {
@@ -32,17 +36,32 @@ export default {
             pristine: true,
         }
     },
+    watch: {
+        disabled(isNowDisabled) {
+            if (isNowDisabled) {
+                // removing any previewed rating if the rating switches to its disabled mode
+                this.previewRating = 0
+            }
+        },
+    },
     methods: {
+        setPreviewRating(rating) {
+            if (!this.disabled) {
+                this.previewRating = rating
+            }
+        },
         setRating(rating) {
-            this.pristine = false
-            this.rating = rating
-            this.$emit('ratingChange', this.rating)
+            if (!this.disabled) {
+                this.pristine = false
+                this.rating = rating
+                this.$emit('ratingChange', this.rating)
+            }
         },
         shouldStarBeChecked(starRating) {
-            return (
-                (this.previewRating > 0 && this.previewRating >= starRating) ||
-                (this.previewRating === 0 && this.rating >= starRating)
-            )
+            if (this.previewRating > 0) {
+                return this.previewRating >= starRating
+            }
+            return this.rating >= starRating
         },
     },
 }
@@ -55,6 +74,11 @@ export default {
     color: $gray-500;
     .star.checked {
         color: $orange;
+    }
+    &.disabled {
+        .star.checked {
+            color: $gray-600;
+        }
     }
 }
 </style>

@@ -101,7 +101,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, LV95_EXTENT, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -182,7 +182,7 @@ export default {
         ...mapGetters([
             'visibleLayers',
             'currentBackgroundLayer',
-            'extent',
+            'isExtentOnlyWithinLV95Bounds',
             'resolution',
             'isCurrentlyDrawing',
             'backgroundLayers',
@@ -217,13 +217,7 @@ export default {
             if (this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe') {
                 // we only want LightBaseMap behind pixelkarte-farbe when the map is showing things outside
                 // LV95 extent (outside of Switzerland)
-                const [currentExtentBottomLeft, currentExtentTopRight] = this.extent
-                if (
-                    currentExtentBottomLeft[0] >= LV95_EXTENT[0] &&
-                    currentExtentBottomLeft[1] >= LV95_EXTENT[1] &&
-                    currentExtentTopRight[0] <= LV95_EXTENT[2] &&
-                    currentExtentTopRight[1] <= LV95_EXTENT[3]
-                ) {
+                if (this.isExtentOnlyWithinLV95Bounds) {
                     log.debug('no need to show MapLibre, we are totally within LV95 extent')
                 } else {
                     return this.backgroundLayers.find(

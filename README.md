@@ -161,7 +161,7 @@ The CI uses this file to ensure it will not stumble upon a minor version of a li
 
 The CI will use `npm ci`, which act like `npm install` but it ignores the file `package.json` and loads all libraries versions found in `package-lock.json` (which are not volatile, e.g. `^1.0.0` or `~1.0.0.`, but fixed).
 
-## Project deployement
+## Project deployment
 
 The application is deployed on three targets :  `dev|int|prod`
 
