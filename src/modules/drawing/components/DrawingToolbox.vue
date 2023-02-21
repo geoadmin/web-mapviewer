@@ -4,7 +4,7 @@
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content rounded-0">
                 <div class="card-body position-relative container">
-                    <div class="row justify-content-start row-cols-md-2 g-2">
+                    <div class="row justify-content-start row-cols-sm-2 g-2">
                         <div
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
@@ -18,14 +18,25 @@
                             />
                         </div>
                         <button
-                            class="btn col-2 d-md-none d-flex align-items-center"
+                            class="btn col-2 d-sm-none d-flex align-items-center justify-content-center"
                             data-cy="drawing-toolbox-close-button"
                             @click="emitCloseEvent"
                         >
                             <FontAwesomeIcon icon="times" />
                         </button>
                     </div>
-                    <div class="row mt-md-2 mt-1 g-2">
+                    <div class="row mt-1">
+                        <div class="col">
+                            <div
+                              v-show="drawingStateMessage"
+                              class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                              :class="{ 'text-danger': isDrawingStateError }"
+                            >
+                                {{ drawingStateMessage }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2">
                         <div class="col d-grid">
                             <button
                                 :disabled="isDrawingEmpty"
@@ -51,17 +62,6 @@
                             </button>
                         </div>
                     </div>
-                    <div v-if="drawingStateMessage" class="row">
-                        <div class="col mt-2">
-                            <div
-                                v-if="drawingStateMessage"
-                                class="d-flex justify-content-center drawing-toolbox-drawing-state"
-                                :class="{ 'text-danger': isDrawingStateError }"
-                            >
-                                {{ drawingStateMessage }}
-                            </div>
-                        </div>
-                    </div>
                     <div v-if="isDrawingLineOrMeasure" class="row mt-2">
                         <div class="col d-grid">
                             <button
@@ -74,7 +74,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="row mt-2 d-none d-md-block">
+                    <div class="row mt-2 d-none d-sm-block">
                         <div class="col text-center text-muted">
                             <!-- eslint-disable vue/no-v-html-->
                             <small v-html="$t('share_file_disclaimer')" />
@@ -83,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center d-none d-md-block">
+            <div class="text-center d-none d-sm-block">
                 <button
                     class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
                     data-cy="menu-button"

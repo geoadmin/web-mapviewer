@@ -8,7 +8,7 @@
         @click="emitSetDrawingMode"
     >
         <FontAwesomeIcon :icon="buttonIcon" :size="isPhoneMode ? '1x' : '2x'" />
-        <span v-if="!isPhoneMode" class="d-md-block">{{
+        <span v-if="!isPhoneMode" class="d-sm-block">{{
             $t(`draw_${drawingMode.toLowerCase()}`)
         }}</span>
     </button>
