@@ -23,7 +23,9 @@ const menuSearchBarInteractionManagementPlugin = (store) => {
                 }
                 break
             case 'showSearchResults':
-                hideMenuIfShown()
+                if (store.getters.isPhoneMode) {
+                    hideMenuIfShown()
+                }
                 break
         }
     })

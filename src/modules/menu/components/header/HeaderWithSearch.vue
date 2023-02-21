@@ -2,7 +2,7 @@
     <div class="header">
         <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
-            <div class="justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
+            <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
                 <div
                     class="p-1 cursor-pointer text-center"
                     data-cy="menu-swiss-flag"
@@ -23,14 +23,11 @@
             >
                 <SearchBar />
             </div>
-            <div
-                class="header-settings-section align-self-start d-flex flex-shrink-0 flex-grow-0 ms-auto"
-                data-cy="header-settings-section"
-            >
-                <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
-                <LangSwitchToolbar id="menu-lang-selector" />
-            </div>
             <HeaderMenuButton v-if="isPhoneMode" class="mx-1" />
+        </div>
+        <div class="header-settings-section" data-cy="header-settings-section">
+            <FeedbackToolbar id="menu-feedback" :show-as-links="true" />
+            <LangSwitchToolbar id="menu-lang-selector" />
         </div>
         <!-- eslint-disable vue/no-v-html-->
         <div
@@ -110,6 +107,18 @@ $animation-time: 0.5s;
     max-width: 800px;
 }
 
+.header-settings-section {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    display: flex;
+}
+
+.logo-section {
+    min-width: $menu-tray-width;
+}
+
 .search-header-swiss-confederation-text,
 .search-title {
     display: none;
@@ -119,6 +128,10 @@ $animation-time: 0.5s;
     .header-settings-section {
         // See MenuTray.vue where the settings section is enable above lg
         display: none !important;
+    }
+
+    .logo-section {
+        min-width: auto;
     }
 }
 
