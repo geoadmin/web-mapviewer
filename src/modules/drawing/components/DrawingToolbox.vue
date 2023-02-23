@@ -8,13 +8,13 @@
                         <div
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
-                            class="col d-grid"
+                            class="col d-grid d-sm-block"
                         >
                             <DrawingToolboxButton
-                                :drawing-mode="drawingMode"
-                                :is-active="currentDrawingMode === drawingMode"
-                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                                @set-drawing-mode="bubbleSetDrawingEventToParent"
+                              :drawing-mode="drawingMode"
+                              :is-active="currentDrawingMode === drawingMode"
+                              :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                              @set-drawing-mode="bubbleSetDrawingEventToParent"
                             />
                         </div>
                         <button

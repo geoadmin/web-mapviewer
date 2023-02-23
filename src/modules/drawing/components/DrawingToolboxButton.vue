@@ -1,16 +1,17 @@
 <template>
     <button
-        class="btn"
+        class="drawing-mode-button btn"
         :class="{
             'btn-primary': isActive,
             'btn-light': !isActive,
+            'btn-lg py-3': !isPhoneMode,
         }"
         @click="emitSetDrawingMode"
     >
-        <FontAwesomeIcon :icon="buttonIcon" :size="isPhoneMode ? '1x' : '2x'" />
-        <span v-if="!isPhoneMode" class="d-sm-block">{{
+        <FontAwesomeIcon :icon="buttonIcon" />
+        <small v-if="!isPhoneMode" class="d-sm-block">{{
             $t(`draw_${drawingMode.toLowerCase()}`)
-        }}</span>
+        }}</small>
     </button>
 </template>
 
@@ -55,3 +56,11 @@ export default {
     },
 }
 </script>
+<style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
+@include respond-above(phone) {
+    .drawing-mode-button {
+        min-width: 7rem;
+    }
+}
+</style>
