@@ -1,6 +1,8 @@
+import { LV95_EXTENT } from '@/config'
 import {
     coordinateFromString,
     reprojectUnknownSrsCoordsToWebMercator,
+    splitIfOutOfLV95Bounds,
 } from '@/utils/coordinateUtils'
 import setupProj4 from '@/utils/setupProj4'
 import { expect } from 'chai'
@@ -449,10 +451,110 @@ describe('Unit test functions from coordinateUtils.js', () => {
             // value from https://www.earthpoint.us/Convert.aspx
             const MGRS = '32TLT 44918 30553'
             it('Returns coordinates in EPSG:4326 when MGRS string is entered', () => {
-                // as MGRS is a grid based system, what is return is essentially a 1 meter box.
-                // So depending which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
+                // as MGRS is a grid based system, what is return is essentially a 1-meter box.
+                // So depending on which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
                 checkText(MGRS, EPSG3857, 'MGRS not supported', 1)
             })
+        })
+    })
+    describe('splitIfOutOfLV95Bounds(coordinates)', () => {
+        it('returns null if invalid/malformed coordinates are given', () => {
+            expect(splitIfOutOfLV95Bounds(null)).to.be.null
+            expect(splitIfOutOfLV95Bounds(1)).to.be.null
+            expect(splitIfOutOfLV95Bounds('test')).to.be.null
+            expect(splitIfOutOfLV95Bounds([1, 2])).to.be.null
+            expect(splitIfOutOfLV95Bounds([[3]])).to.be.null
+            expect(splitIfOutOfLV95Bounds([[1, 2, 3]])).to.be.null
+        })
+        it('returns a single CoordinatesChunk if no split is needed', () => {
+            const coordinatesWithinSwissBounds = [
+                [760000, 6000000],
+                [780000, 5980000],
+                [800000, 5960000],
+                [820000, 5940000],
+                [840000, 5920000],
+                [860000, 5900000],
+                [880000, 5880000],
+            ]
+            const result = splitIfOutOfLV95Bounds(coordinatesWithinSwissBounds)
+            expect(result).to.be.an('Array').of.length(1)
+            const [singleChunk] = result
+            expect(singleChunk).to.be.an('Object').that.hasOwnProperty('coordinates')
+            expect(singleChunk).to.haveOwnProperty('isWithinLV95Bounds')
+            expect(singleChunk.isWithinLV95Bounds).to.be.true
+            expect(singleChunk.coordinates).to.eql(coordinatesWithinSwissBounds)
+        })
+        it('splits the given coordinates in two chunks if part of it is outside LV95 bounds', () => {
+            const yValue = 6000000
+            const coordinatesOverlappingSwissBounds = [
+                [500000, yValue],
+                [600000, yValue],
+                [700000, yValue],
+                [800000, yValue],
+                [900000, yValue],
+                [1000000, yValue],
+            ]
+            const result = splitIfOutOfLV95Bounds(coordinatesOverlappingSwissBounds)
+            expect(result).to.be.an('Array').of.length(2)
+            const [outOfBoundChunk, inBoundChunk] = result
+            expect(outOfBoundChunk).to.haveOwnProperty('isWithinLV95Bounds')
+            expect(outOfBoundChunk.isWithinLV95Bounds).to.be.false
+            expect(outOfBoundChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(outOfBoundChunk.coordinates[0]).to.eql(coordinatesOverlappingSwissBounds[0])
+            // checking that the split happened on the LV95 bounds
+            const intersectingCoordinate = outOfBoundChunk.coordinates[1]
+            expect(intersectingCoordinate).to.be.an('Array').of.length(2)
+            expect(intersectingCoordinate).to.eql([LV95_EXTENT[0], yValue])
+            // next chunk must start by the intersecting coordinate
+            expect(inBoundChunk).to.haveOwnProperty('isWithinLV95Bounds')
+            expect(inBoundChunk.isWithinLV95Bounds).to.be.true
+            expect(inBoundChunk.coordinates).to.be.an('Array').of.length(6)
+            const [firstInBoundCoordinate] = inBoundChunk.coordinates
+            expect(firstInBoundCoordinate).to.be.an('Array').of.length(2)
+            expect(firstInBoundCoordinate).to.eql([LV95_EXTENT[0], yValue])
+            // checking that further coordinates have been correctly copied
+            coordinatesOverlappingSwissBounds.slice(1).forEach((coordinate, index) => {
+                expect(inBoundChunk.coordinates[index + 1][0]).to.eq(coordinate[0])
+                expect(inBoundChunk.coordinates[index + 1][1]).to.eq(coordinate[1])
+            })
+        })
+        it('handles properly a linestring going multiple times out of LV95 bounds', () => {
+            const coordinatesGoingBackAndForth = [
+                [500000, 6000000], // outside
+                [800000, 6000000], // inside
+                [800000, 500000], // outside
+                [700000, 500000], // outside
+                [700000, 6000000], // inside
+                [1000000, 6000000], // inside
+            ]
+            const expectedFirstIntersection = [LV95_EXTENT[0], 6000000]
+            const expectedSecondIntersection = [800000, LV95_EXTENT[1]]
+            const expectedThirdIntersection = [700000, LV95_EXTENT[1]]
+
+            const result = splitIfOutOfLV95Bounds(coordinatesGoingBackAndForth)
+            expect(result).to.be.an('Array').of.length(4)
+            const [firstChunk, secondChunk, thirdChunk, fourthChunk] = result
+            // first chunk should have 2 coordinates, the first from the list and the first intersection
+            expect(firstChunk.coordinates).to.be.an('Array').of.length(2)
+            expect(firstChunk.coordinates[0]).to.eql(coordinatesGoingBackAndForth[0])
+            expect(firstChunk.coordinates[1]).to.eql(expectedFirstIntersection)
+            // second chunk should start with the first intersection, then include the second coord
+            // and finish with the second intersection
+            expect(secondChunk.coordinates).to.be.an('Array').of.length(3)
+            expect(secondChunk.coordinates[0]).to.eql(expectedFirstIntersection)
+            expect(secondChunk.coordinates[1]).to.eql(coordinatesGoingBackAndForth[1])
+            expect(secondChunk.coordinates[2]).to.eql(expectedSecondIntersection)
+            // third chunk should be : intersection2, coord3, coord4, intersection3
+            expect(thirdChunk.coordinates).to.be.an('Array').of.length(4)
+            expect(thirdChunk.coordinates[0]).to.eql(expectedSecondIntersection)
+            expect(thirdChunk.coordinates[1]).to.eql(coordinatesGoingBackAndForth[2])
+            expect(thirdChunk.coordinates[2]).to.eql(coordinatesGoingBackAndForth[3])
+            expect(thirdChunk.coordinates[3]).to.eql(expectedThirdIntersection)
+            // last chunk should be : intersection3, coord5, coord6
+            expect(fourthChunk.coordinates).to.be.an('Array').of.length(3)
+            expect(fourthChunk.coordinates[0]).to.eql(expectedThirdIntersection)
+            expect(fourthChunk.coordinates[1]).to.eql(coordinatesGoingBackAndForth[4])
+            expect(fourthChunk.coordinates[2]).to.eql(coordinatesGoingBackAndForth[5])
         })
     })
 })

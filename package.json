@@ -47,6 +47,7 @@
         "geographiclib-geodesic": "^2.0.0",
         "hammerjs": "^2.0.8",
         "jquery": "^3.6.3",
+        "liang-barsky": "^1.0.5",
         "maplibre-gl": "^2.4.0",
         "ol": "^7.2.2",
         "pako": "^2.1.0",

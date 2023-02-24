@@ -1,3 +1,5 @@
+import { LV95_EXTENT } from '@/config'
+import clip from 'liang-barsky'
 import { format, toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 import log from './logging'
@@ -24,6 +26,24 @@ const REGEX_METRIC_COORDINATES =
 // Military Grid Reference System (MGRS)
 const REGEX_MILITARY_GRID = /^3[123][\sa-z]{3}[\s\d]*/i
 
+/**
+ * @typedef CoordinateSystemBoundaryCoordinate
+ * @type {Object}
+ * @property {Number} lower
+ * @property {Number} upper
+ */
+/**
+ * @typedef CoordinateSystemBounds
+ * @type {object}
+ * @property {CoordinateSystemBoundaryCoordinate} x
+ * @property {CoordinateSystemBoundaryCoordinate} y
+ */
+
+/**
+ * Boundaries for WGS84 expressed in degrees
+ *
+ * @type {CoordinateSystemBounds}
+ */
 const WGS84_BOUNDS = {
     x: {
         // lon
@@ -36,6 +56,11 @@ const WGS84_BOUNDS = {
         upper: 89.0,
     },
 }
+/**
+ * Boundaries for LV95 expressed in LV95 coordinates (EPSG:2056)
+ *
+ * @type {CoordinateSystemBounds}
+ */
 const LV95_BOUNDS = {
     x: {
         lower: 2485071.58,
@@ -46,6 +71,26 @@ const LV95_BOUNDS = {
         upper: 1299941.79,
     },
 }
+/**
+ * Boundaries for LV95 expressed in metric mercator coordinates (EPSG:3857)
+ *
+ * @type {CoordinateSystemBounds}
+ */
+const LV95_IN_MERCATOR_BOUNDS = {
+    x: {
+        lower: LV95_EXTENT[0],
+        upper: LV95_EXTENT[2],
+    },
+    y: {
+        lower: LV95_EXTENT[1],
+        upper: LV95_EXTENT[3],
+    },
+}
+/**
+ * Boundaries for LV03 expressed in LV03 coordinates (EPSG:217810
+ *
+ * @type {CoordinateSystemBounds}
+ */
 const LV03_BOUNDS = {
     x: {
         lower: 485071.54,
@@ -449,4 +494,111 @@ export const printHumanReadableCoordinates = (
     coordinateSystem = CoordinateSystems.LV95
 ) => {
     return coordinateSystem.format(coordinates)
+}
+
+/**
+ * @typedef CoordinatesChunk
+ * @type {object}
+ * @property {[Number, Number][]} coordinates Coordinates of this chunk, expressed in EPSG:3857
+ * @property {Boolean} isWithinLV95Bounds Will be true if this chunk contains coordinates that are
+ *   located within LV95 extent
+ */
+/**
+ * Will split the coordinates in chunks if some portion of the coordinates are outside LV95 bounds
+ * (one chunk for the portion inside, one for the portion outside, rinse and repeat if necessary)
+ *
+ * Can be helpful when requesting information from our backends, but said backend doesn't support
+ * world-wide coverage. Typical example is service-profile, if we give it coordinates outside LV95
+ * bounds it will fill what it doesn't know with coordinates following LV95 extent instead of
+ * returning null
+ *
+ * @param {[Number, Number][]} coordinates Coordinates, expressed in EPSG:3857 (metric mercator)
+ *   `[[x1,y1],[x2,y2],...]`
+ * @returns {null | CoordinatesChunk[]}
+ */
+export const splitIfOutOfLV95Bounds = (coordinates) => {
+    if (!Array.isArray(coordinates) || coordinates.length <= 1) {
+        return null
+    }
+    // checking that all coordinates are well-formed
+    if (coordinates.find((coordinate) => coordinate.length !== 2)) {
+        return null
+    }
+    // checking if we require splitting
+    if (
+        coordinates.find(
+            (coordinate) => !isInBounds(coordinate[0], coordinate[1], LV95_IN_MERCATOR_BOUNDS)
+        )
+    ) {
+        return splitIfOutOfLV95BoundsRecurse(coordinates)
+    }
+    // no splitting needed, we return the coordinates as they were given
+    return [
+        {
+            coordinates: coordinates,
+            isWithinLV95Bounds: true,
+        },
+    ]
+}
+
+/**
+ * @param {[Number, Number][]} coordinates
+ * @param {[CoordinatesChunk]} previousChunks
+ * @param {Boolean} isFirstChunk
+ * @returns {[CoordinatesChunk]}
+ */
+function splitIfOutOfLV95BoundsRecurse(coordinates, previousChunks = [], isFirstChunk = true) {
+    // for the first chunk, we take the very first coordinate, after that as we add the junction
+    // to the coordinates, we need to take the second to check if it is in bound
+    const firstCoordinate = coordinates[isFirstChunk ? 0 : 1]
+    const isFirstCoordinateInBounds = isInBounds(
+        firstCoordinate[0],
+        firstCoordinate[1],
+        LV95_IN_MERCATOR_BOUNDS
+    )
+    // searching for the next coordinates where the split will happen (omitting the first coordinate)
+    const nextCoordinateWithoutSameBounds = coordinates
+        .slice(1)
+        .find(
+            (coordinate) =>
+                isFirstCoordinateInBounds !==
+                isInBounds(coordinate[0], coordinate[1], LV95_IN_MERCATOR_BOUNDS)
+        )
+    if (!nextCoordinateWithoutSameBounds) {
+        // end of the recurse loop, nothing more to split, we add the last segment/chunk
+        return [
+            ...previousChunks,
+            {
+                coordinates,
+                isWithinLV95Bounds: isFirstCoordinateInBounds,
+            },
+        ]
+    }
+    const indexOfNextCoord = coordinates.indexOf(nextCoordinateWithoutSameBounds)
+    const lastCoordinateWithSameBounds = coordinates[indexOfNextCoord - 1]
+    // adding the coordinate where the boundaries are crossed
+    let crossing1 = lastCoordinateWithSameBounds.slice(),
+        crossing2 = nextCoordinateWithoutSameBounds.slice()
+    clip(
+        lastCoordinateWithSameBounds,
+        nextCoordinateWithoutSameBounds,
+        LV95_EXTENT,
+        crossing1,
+        crossing2
+    )
+    // if first coordinate was in bound we have to use crossing2 as our intersection (crossing 1 will be a copy of firstCoordinate)
+    // it's the opposite if firstCoordinate was out of bounds, we have to use crossing1 as the intersection
+    const intersection = isFirstCoordinateInBounds ? crossing2 : crossing1
+    const coordinateLeftToProcess = [intersection, ...coordinates.slice(indexOfNextCoord)]
+    return splitIfOutOfLV95BoundsRecurse(
+        coordinateLeftToProcess,
+        [
+            ...previousChunks,
+            {
+                coordinates: [...coordinates.slice(0, indexOfNextCoord), intersection],
+                isWithinLV95Bounds: isFirstCoordinateInBounds,
+            },
+        ],
+        false
+    )
 }
