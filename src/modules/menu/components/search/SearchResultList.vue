@@ -1,22 +1,20 @@
 <template>
     <div
-        id="search-results-container"
+        class="search-results-container"
         :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
     >
         <div
             class="search-results bg-light"
-            :class="
-                isPhoneMode
-                    ? ['border-top', 'border-bottom', 'rounded-bottom']
-                    : ['border', 'rounded']
-            "
+            :class="{
+                'border-top border-bottom rounded-bottom': isPhoneMode,
+                'border rounded': !isPhoneMode,
+            }"
             data-cy="search-results"
             @keydown.esc.prevent="$emit('close')"
         >
             <div class="search-results-inner">
                 <SearchResultCategory
                     :title="$t('locations_results_header')"
-                    :half-size="results.locationResults.length > 0"
                     :entries="results.locationResults"
                     data-cy="search-results-locations"
                     @preview-start="setPinnedLocation"
@@ -24,7 +22,6 @@
                 />
                 <SearchResultCategory
                     :title="$t('layers_results_header')"
-                    :half-size="results.layerResults.length > 0"
                     :entries="results.layerResults"
                     data-cy="search-results-layers"
                     @preview-start="setPreviewLayer"
@@ -68,20 +65,19 @@ export default {
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables';
 
-#search-results-container {
+.search-results-container {
     position: fixed;
     top: $header-height;
     // 45vh (so that previews are visible), but on small screen min 20rem (ca. 3 lines per category)
     height: min(calc(100vh - $header-height), max(20rem, 45vh));
     left: 0;
     width: 100%;
-    margin: 0; //overwrites a bootstrap property from parent module
+    margin: 0 !important; //overwrites a bootstrap property from parent module
     pointer-events: none;
 }
 .search-results-dev-site-warning {
-    // Must be important as it needs to overrite the top defined in #search-results-container
-    top: $header-height + $dev-disclaimer-height !important;
-    height: min(calc(100vh - $header-height - $dev-disclaimer-height), max(20rem, 45vh)) !important;
+    top: $header-height + $dev-disclaimer-height;
+    height: min(calc(100vh - $header-height - $dev-disclaimer-height), max(20rem, 45vh));
     // Put the search results under the rest of the header so hovering over the warning works
     // correctly
     z-index: -1;
@@ -103,7 +99,7 @@ export default {
 }
 
 @include respond-above(phone) {
-    #search-results-container {
+    .search-results-container {
         position: absolute;
         top: 100%;
     }
