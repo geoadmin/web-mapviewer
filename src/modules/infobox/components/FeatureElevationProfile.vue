@@ -2,12 +2,13 @@
     <div
         data-cy="profile-popup-content"
         data-infobox="height-reference"
-        class="profile-popup-content"
+        class="profile-popup-content p-1 position-relative"
     >
+        <LoadingBar v-if="request.pending" />
         <FeatureElevationProfilePlot
-            v-if="elevationProfileHasData"
-            :feature="feature"
+            v-if="elevationProfile"
             :elevation-profile="elevationProfile"
+            :tracking-point-color="feature.fillColor"
             @update="onElevationProfilePlotUpdate"
         />
         <FeatureElevationProfileInformation :profile="elevationProfile">
@@ -33,12 +34,11 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { profileCsv, profileJson } from '@/api/profile.api'
-import { toLv95 } from '@/modules/drawing/lib/drawingUtils'
+import { profileCsv, profileJson } from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions } from 'vuex'
@@ -46,6 +46,7 @@ import { mapActions } from 'vuex'
 export default {
     components: {
         FontAwesomeIcon,
+        LoadingBar,
         FeatureElevationProfilePlot,
         FeatureElevationProfileInformation,
     },
@@ -65,6 +66,10 @@ export default {
         return {
             /** @type {ElevationProfile} */
             elevationProfile: null,
+            request: {
+                pending: false,
+                failed: false,
+            },
         }
     },
     computed: {
@@ -118,16 +123,23 @@ export default {
             // bubbling up the event so that the infobox module can set its height accordingly
             this.$emit('updateElevationProfilePlot')
         },
-        async updateElevationProfileData() {
-            this.elevationProfile = await this.getElevationProfile()
+        updateElevationProfileData() {
+            this.request.pending = true
+            this.getElevationProfile()
+                .then((profile) => {
+                    this.elevationProfile = profile
+                })
+                .catch((error) => {
+                    log.error('Error while fetching profile data', error)
+                    this.request.failed = true
+                })
+                .finally(() => {
+                    this.request.pending = false
+                })
         },
         async getElevationProfile(apiFunction = profileJson) {
-            const coordinatesLv95 = toLv95(
-                this.featureGeodesicCoordinates,
-                CoordinateSystems.WEBMERCATOR.epsg
-            )
             try {
-                return await apiFunction(coordinatesLv95)
+                return await apiFunction(this.featureGeodesicCoordinates)
             } catch (e) {
                 log.error('Error while getting elevation profile: ', e)
                 return []
@@ -153,10 +165,5 @@ export default {
 .profile-popup-content {
     // size of the profile information container, so that no scroll bar shows up when drawing a profile outside of CH
     min-height: 50px;
-}
-.profile-circle-current-hover-pos {
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
 }
 </style>
