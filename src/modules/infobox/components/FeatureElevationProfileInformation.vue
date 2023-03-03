@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { ElevationProfile } from '@/api/profile.api'
+import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import { formatTime } from '@/modules/drawing/lib/drawingUtils'
 import { format } from '@/utils/numberUtils'
 

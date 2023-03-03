@@ -1,52 +1,18 @@
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
-import log from '@/utils/logging'
-import axios from 'axios'
 import { LineString } from 'ol/geom'
-
-/**
- * @typedef GeoJSON A GeoJSON object
- * @property {string} type
- * @property {[[Number]]} coordinates
- */
-
-export class ElevationProfilePoint {
-    /**
-     * @param {Number} dist Distance from first to current point
-     * @param {[Number, Number]} coordinate Coordinate of this point in EPSG:3857
-     * @param {Number} elevation In the COMB elevation model
-     */
-    constructor(dist, coordinate, elevation) {
-        this._dist = dist
-        this._coordinate = coordinate
-        this._elevation = elevation
-    }
-
-    get dist() {
-        return this._dist
-    }
-
-    get coordinate() {
-        return this._coordinate
-    }
-
-    /** @returns {Number} The COMB elevation */
-    get elevation() {
-        return this._elevation
-    }
-
-    // no setter
-}
 
 /**
  * Representation of data coming from `service-alti`'s backend. Also encapsulate most business
  * calculation related to profile (hiking time, slop/distance, etc...)
  */
-export class ElevationProfile {
-    /** @param {ElevationProfilePoint[]} points */
-    constructor(points) {
-        /** @type {ElevationProfilePoint[]} */
-        this.points = [...points]
+export default class ElevationProfile {
+    /** @param {ElevationProfileSegment[]} segments */
+    constructor(segments) {
+        /** @type {ElevationProfileSegment[]} */
+        this.segments = [...segments]
+    }
+
+    get points() {
+        return this.segments.flatMap((segment) => segment.points)
     }
 
     /** @returns {Number} */
@@ -54,14 +20,13 @@ export class ElevationProfile {
         return this.points.length
     }
 
-    /** @returns {Boolean} True if the profile has at least 2 points */
     get hasData() {
-        return this.length >= 2
+        return !!this.segments.find((segment) => segment.hasData)
     }
 
     /** @returns {Number} */
     get maxDist() {
-        return (this.hasData && this.points[this.length - 1].dist) || 0
+        return this.segments.slice(-1)[0].points.slice(-1)[0].dist
     }
 
     /** @returns {Number} */
@@ -77,7 +42,9 @@ export class ElevationProfile {
         if (!this.hasData) {
             return 0
         }
-        return Math.min(...this.points.map((point) => point.elevation))
+        return Math.min(
+            ...this.points.filter((point) => point.elevation > 0).map((point) => point.elevation)
+        )
     }
 
     /** @returns {Number} Elevation difference between starting and ending point, in meters */
@@ -203,87 +170,4 @@ export class ElevationProfile {
                 .reduce((a, b) => a + b)
         )
     }
-}
-
-function parseProfileFromBackendResponse(backendResponse) {
-    const points = []
-    backendResponse.forEach((rawData) => {
-        points.push(
-            new ElevationProfilePoint(
-                rawData.dist,
-                [rawData.easting, rawData.northing],
-                rawData.alts.COMB
-            )
-        )
-    })
-    return new ElevationProfile(points)
-}
-
-/**
- * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
- *
- * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @param {String} fileExtension .json (default) and .csv are possible file extensions
- * @returns {Promise<ElevationProfile>}
- */
-const profile = (coordinates, fileExtension = '.json') => {
-    return new Promise((resolve, reject) => {
-        if (fileExtension !== '.json' && fileExtension !== '.csv') {
-            const errorMessage = `Not supported file extension`
-            log.error(errorMessage)
-            reject(errorMessage)
-        }
-        if (!coordinates || coordinates.length === 0) {
-            const errorMessage = `Coordinates not provided`
-            log.error(errorMessage)
-            reject(errorMessage)
-        }
-        axios({
-            url: `${API_SERVICE_ALTI_BASE_URL}rest/services/profile${fileExtension}`,
-            method: 'POST',
-            params: {
-                offset: 0,
-                sr: CoordinateSystems.LV95.epsgNumber,
-                distinct_points: true,
-            },
-            data: { type: 'LineString', coordinates: coordinates },
-        })
-            .then((response) => {
-                if (response && response.data) {
-                    if (fileExtension === '.json') {
-                        resolve(parseProfileFromBackendResponse(response.data))
-                    } else {
-                        resolve(response.data)
-                    }
-                } else {
-                    const msg = 'Incorrect response while getting profile'
-                    log.error(msg, response)
-                    reject(msg)
-                }
-            })
-            .catch((error) => {
-                log.error('Error while getting profile', coordinates)
-                reject(error)
-            })
-    })
-}
-
-/**
- * Gets profile in json format from https://api3.geo.admin.ch/services/sdiservices.html#profile
- *
- * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {Promise<ElevationProfilePoint[]>}
- */
-export const profileJson = (coordinates) => {
-    return profile(coordinates, '.json')
-}
-
-/**
- * Gets profile in csv format from https://api3.geo.admin.ch/services/sdiservices.html#profile
- *
- * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {Promise<ElevationProfilePoint[]>}
- */
-export const profileCsv = (coordinates) => {
-    return profile(coordinates, '.csv')
 }

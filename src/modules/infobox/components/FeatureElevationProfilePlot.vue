@@ -60,8 +60,7 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
-import { ElevationProfile } from '@/api/profile.api'
+import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import { profilePlotMargin, updateD3ProfileChart } from '@/modules/drawing/lib/profileD3Utils'
 import { CoordinateSystems } from '@/utils/coordinateUtils'
 import * as d3 from 'd3'

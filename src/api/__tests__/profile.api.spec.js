@@ -1,22 +1,28 @@
-import { ElevationProfile, ElevationProfilePoint } from '@/api/profile.api'
+import ElevationProfile from '@/api/profile/ElevationProfile.class'
+import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
+import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 const testProfile = new ElevationProfile([
-    new ElevationProfilePoint(0, [0, 0], 100),
-    new ElevationProfilePoint(50, [0, 50], 210),
-    new ElevationProfilePoint(150, [0, 150], 90),
-    new ElevationProfilePoint(200, [50, 150], 200),
+    new ElevationProfileSegment([
+        new ElevationProfilePoint([0, 0], 0, 100),
+        new ElevationProfilePoint([0, 50], 50, 210),
+        new ElevationProfilePoint([0, 150], 150, 90),
+        new ElevationProfilePoint([50, 150], 200, 200),
+    ]),
 ])
 
 describe('Profile calculation', () => {
-    it('returns 0 for all calculation if there is less than two points', () => {
+    it('returns 0 for all multi-points calculation if there is less than two points', () => {
         const nearlyEmptyProfile = new ElevationProfile([
-            // using 1 everywhere in order to check it won't be used by calculations
-            new ElevationProfilePoint(1, [1, 1], 1),
+            new ElevationProfileSegment([
+                // using 1 everywhere in order to check it won't be used by calculations
+                new ElevationProfilePoint([1, 1], 1, 1),
+            ]),
         ])
         expect(nearlyEmptyProfile.hasData).to.be.false
-        expect(nearlyEmptyProfile.maxDist).to.eq(0)
+        expect(nearlyEmptyProfile.maxDist).to.eq(1) // dist is a unique point calculation, it should be there
         expect(nearlyEmptyProfile.elevationDifference).to.eq(0)
         expect(nearlyEmptyProfile.totalAscent).to.eq(0)
         expect(nearlyEmptyProfile.totalDescent).to.eq(0)

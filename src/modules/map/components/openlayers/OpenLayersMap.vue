@@ -103,6 +103,7 @@ import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -407,6 +408,7 @@ export default {
                     .forEach((feature) => {
                         const editableFeature = feature.get('editableFeature')
                         if (editableFeature) {
+                            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
                             features.push(editableFeature)
                         } else {
                             log.debug(
