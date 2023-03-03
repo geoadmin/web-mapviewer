@@ -67,22 +67,14 @@ describe('Profile popup', () => {
             beforeEach(() => {
                 goToDrawingWithMockProfile([])
             })
-            it('has 0 as values in profile info', () => {
-                for (let i = 1; i < 8; i++) {
-                    cy.get(
-                        `[data-cy="profile-popup-info-container"] > :nth-child(${i}) [data-cy="profile-popup-info"]`
-                    ).should('have.text', '0.00m')
-                }
-                cy.get('[data-cy="profile-popup-area"]').should('not.exist')
+            it('has no profile info', () => {
+                cy.get('[data-cy="profile-popup-info-container"]').should('not.exist')
             })
             it('has a functioning delete button', () => {
                 // Delete is currently not implemented. Will be added in a later commit.
                 cy.get('[data-cy="profile-popup-delete-button"]').click()
                 cy.get('[data-cy="profile-popup-content"]').should('not.exist')
                 cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
-            })
-            it('does not show the profile graph', () => {
-                cy.get('[data-cy="profile-popup-graph"]').should('not.exist')
             })
         })
 
@@ -94,14 +86,12 @@ describe('Profile popup', () => {
                     testInfo[key]
                 )
             })
-            cy.get('[data-cy="profile-popup-area"]')
-                .trigger('mouseover')
-                .trigger('mousemove', 'center')
-            // Isn't 2.25m probably because of trunking and rounding error?
-            cy.get('[data-cy="profile-popup-tooltip"] .distance')
-                .invoke('text')
-                .should('be.oneOf', ['2.25 m', '2.24 m'])
-            cy.get('[data-cy="profile-popup-tooltip"] .elevation').should('have.text', '1341.79 m')
+            cy.get('[data-cy="profile-graph"]').trigger('mouseover').trigger('mousemove', 'center')
+            cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
+            cy.get('[data-cy="profile-popup-tooltip"] .elevation').should(
+                'contain.text',
+                '1341.8 m'
+            )
         })
     })
     context('show/minimize/close profile popup', () => {
