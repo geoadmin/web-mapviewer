@@ -326,8 +326,8 @@
 	"no_more_information": "Pas d'autres informations",
 	"no_searchable_layer": "Pas de couche disponible",
 	"north": "Nord",
-	"not_available": "Not available",
-	"not_available_3d": "Not available in 3D!",
+	"not_available": "Non disponible",
+	"not_available_3d": "Non disponible en 3D!",
 	"not_enough_layer_for_swipe": "La première couche est comparée avec les autres. Pour utiliser cette fonction, ajouter au moins une couche de données.",
 	"notruf": "Appel d'urgence",
 	"notruf_service_link_href": "https://www.geo.admin.ch/fr/home.html",
@@ -612,5 +612,6 @@
 	"feedback_rating_title": "Comment évalueriez-vous votre expérience ? (requis)",
 	"send_failed": "Envoi échoué",
 	"feedback_email": "Votre email (facultatif)",
-	"feedback_invalid_email": "e-mail invalide"
+	"feedback_invalid_email": "e-mail invalide",
+	"profile_no_data": "Aucune donnée"
 }
