@@ -34,13 +34,16 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { profileCsv, profileJson } from '@/api/profile/profile.api'
+import getProfile from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
+import { CoordinateSystems } from '@/utils/coordinateUtils'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
+import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import proj4 from 'proj4'
 import { mapActions } from 'vuex'
 
 export default {
@@ -114,10 +117,33 @@ export default {
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
-            this.getElevationProfile(profileCsv).then((data) => {
-                const dataBlob = new Blob([data], { type: 'text/csv', endings: 'native' })
-                this.triggerDownload(dataBlob, generateFilename('.csv'))
-            })
+            if (this.elevationProfile.hasData) {
+                const csvData =
+                    [
+                        ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
+                        ...this.elevationProfile.points.map((point) => {
+                            const [lon, lat] = proj4(
+                                CoordinateSystems.LV95.epsg,
+                                CoordinateSystems.WGS84.epsg,
+                                point.coordinate
+                            )
+                            return [
+                                point.dist,
+                                point.elevation,
+                                point.coordinate[0],
+                                point.coordinate[1],
+                                round(lon, 6),
+                                round(lat, 6),
+                            ]
+                        }),
+                    ]
+                        .map((row) => row.join(';'))
+                        .join('\n') + '\n' // with an added empty line
+                this.triggerDownload(
+                    new Blob([csvData], { type: 'text/csv' }),
+                    generateFilename('.csv')
+                )
+            }
         },
         onElevationProfilePlotUpdate() {
             // bubbling up the event so that the infobox module can set its height accordingly
@@ -125,7 +151,7 @@ export default {
         },
         updateElevationProfileData() {
             this.request.pending = true
-            this.getElevationProfile()
+            getProfile(this.featureGeodesicCoordinates)
                 .then((profile) => {
                     this.elevationProfile = profile
                 })
@@ -136,14 +162,6 @@ export default {
                 .finally(() => {
                     this.request.pending = false
                 })
-        },
-        async getElevationProfile(apiFunction = profileJson) {
-            try {
-                return await apiFunction(this.featureGeodesicCoordinates)
-            } catch (e) {
-                log.error('Error while getting elevation profile: ', e)
-                return []
-            }
         },
         triggerDownload(blob, fileName) {
             /**

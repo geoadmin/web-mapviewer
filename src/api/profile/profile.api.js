@@ -91,15 +91,9 @@ function chunksToLV95(chunks) {
  *
  * @param {[Number, Number][]} coordinates Coordinates in EPSG:3857 (WebMercator) from which we want
  *   the profile
- * @param {String} fileExtension .json (default) and .csv are possible file extensions
  * @returns {ElevationProfile}
  */
-const profile = async (coordinates, fileExtension = '.json') => {
-    if (fileExtension !== '.json' && fileExtension !== '.csv') {
-        const errorMessage = `Unsupported file extension : ${fileExtension}`
-        log.error(errorMessage)
-        throw errorMessage
-    }
+export default async (coordinates) => {
     if (!coordinates || coordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
         log.error(errorMessage)
@@ -121,24 +115,4 @@ const profile = async (coordinates, fileExtension = '.json') => {
         segments.push(segment)
     }
     return new ElevationProfile(segments)
-}
-
-/**
- * Gets profile in json format from https://api3.geo.admin.ch/services/sdiservices.html#profile
- *
- * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {ElevationProfile}
- */
-export const profileJson = async (coordinates) => {
-    return profile(coordinates, '.json')
-}
-
-/**
- * Gets profile in csv format from https://api3.geo.admin.ch/services/sdiservices.html#profile
- *
- * @param {[Number, Number][]} coordinates Coordinates in LV95 from which we want the profile
- * @returns {ElevationProfile[]}
- */
-export const profileCsv = async (coordinates) => {
-    return profile(coordinates, '.csv')
 }

@@ -64,7 +64,7 @@ import { Line as LineChart } from 'vue-chartjs'
  */
 
 /**
- * Encapsulate old mf-geoadmin3 d3 profile plot with our newer profile data structure.
+ * Encapsulate ChartJS profile plot generation.
  *
  * Updates the plot if the profile data changes.
  */
@@ -104,8 +104,8 @@ export default {
                     // tooltip height is 58px (see SCSS style at end of file)
                     // and we leave a 10px gap to place our arrow (1px more than the arrow size, see style at end of file)
                     top: `${this.pointBeingHovered.screenPosition[1] - 58 - 10}px`,
-                    // tooltip width is 200px, so half of that is 90px
-                    left: `${this.pointBeingHovered.screenPosition[0] - 100}px`,
+                    // tooltip width is 170px, so half of that is 85px
+                    left: `${this.pointBeingHovered.screenPosition[0] - 85}px`,
                 }
             }
             return {}
@@ -191,7 +191,7 @@ export default {
                     },
                     ticks: {
                         // processing distance number to be more human-readable
-                        callback: (val) => round(val * this.factorToUseForDisplayedDistances),
+                        callback: (val) => round(val * this.factorToUseForDisplayedDistances, 1),
                     },
                 },
                 y: {
