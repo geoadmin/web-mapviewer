@@ -72,7 +72,7 @@
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'arrow-up']"
                 :disabled="isFirstLayer"
-                :data-cy="`button-lower-order-layer-${id}`"
+                :data-cy="`button-raise-order-layer-${id}`"
                 :large="!compact"
                 transparent
                 @click="onOrderChange(1)"
@@ -80,7 +80,7 @@
             <ButtonWithIcon
                 :button-font-awesome-icon="['fas', 'arrow-down']"
                 :disabled="isLastLayer"
-                :data-cy="`button-raise-order-layer-${id}`"
+                :data-cy="`button-lower-order-layer-${id}`"
                 :large="!compact"
                 transparent
                 @click="onOrderChange(-1)"
