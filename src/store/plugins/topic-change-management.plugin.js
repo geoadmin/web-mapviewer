@@ -1,4 +1,5 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
+import { VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 
 let isFirstSetTopic = true
@@ -33,7 +34,15 @@ const topicChangeManagementPlugin = (store) => {
             // we set it anyway if the URL doesn't contain a bgLayer URL param
             if (!isFirstSetTopic || window.location.href.indexOf('bgLayer=') === -1) {
                 if (currentTopic.defaultBackgroundLayer) {
-                    store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
+                    // edge case for pixelkarte-grau, we force LightBaseMap as background instead
+                    if (
+                        currentTopic.defaultBackgroundLayer.getID() ===
+                        'ch.swisstopo.pixelkarte-grau'
+                    ) {
+                        store.dispatch('setBackground', VECTOR_LIGHT_BASE_MAP_STYLE_ID)
+                    } else {
+                        store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
+                    }
                 } else {
                     store.dispatch('setBackground', null)
                 }
@@ -46,9 +55,12 @@ const topicChangeManagementPlugin = (store) => {
             // after init we always add all layers from topic
             if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
                 // somehow topic layers are stored in reverse (top to bottom) so we swap the order before adding them
-                currentTopic.layersToActivate.slice().reverse().forEach((layer) => {
-                    store.dispatch('addLayer', layer)
-                })
+                currentTopic.layersToActivate
+                    .slice()
+                    .reverse()
+                    .forEach((layer) => {
+                        store.dispatch('addLayer', layer)
+                    })
             }
             // loading topic tree
             loadTopicTreeForTopic(store.state.i18n.lang, currentTopic).then((topicTree) => {
