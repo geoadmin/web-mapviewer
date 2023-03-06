@@ -45,7 +45,8 @@ const topicChangeManagementPlugin = (store) => {
             // at init, if there is no active layer yet, but the topic has some, we add them
             // after init we always add all layers from topic
             if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
-                currentTopic.layersToActivate.forEach((layer) => {
+                // somehow topic layers are stored in reverse (top to bottom) so we swap the order before adding them
+                currentTopic.layersToActivate.slice().reverse().forEach((layer) => {
                     store.dispatch('addLayer', layer)
                 })
             }

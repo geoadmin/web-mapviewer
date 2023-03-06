@@ -58,7 +58,9 @@ export default {
     },
     computed: {
         ...mapState({
-            activeLayers: (state) => state.layers.activeLayers,
+            // users are used to have layers ordered top to bottom (first layer is on top) but we store them in the
+            // opposite order. So here we swap the order of this array to match the desired order on the UI
+            activeLayers: (state) => state.layers.activeLayers.slice().reverse(),
         }),
     },
     methods: {
@@ -86,10 +88,11 @@ export default {
             this.toggleLayerVisibility(layerId)
         },
         onOrderChange(layerId, delta) {
+            // raising the layer in the stack means the user wants the layer put front
             if (delta === 1) {
-                this.moveActiveLayerBack(layerId)
-            } else if (delta === -1) {
                 this.moveActiveLayerFront(layerId)
+            } else if (delta === -1) {
+                this.moveActiveLayerBack(layerId)
             }
         },
         onOpacityChange(layerId, opacity) {

@@ -2,6 +2,7 @@
     <PopoverButton
         v-if="hasMultipleTimestamps"
         ref="popover"
+        popover-position="left"
         :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
         :popover-title="$t('time_select_year')"
         :small="compact"
@@ -90,7 +91,6 @@ export default {
 <style lang="scss" scoped>
 .timestamps-popover-content {
     display: grid;
-    height: 20rem;
     max-height: 33vh;
     overflow-y: auto;
     background: white;
