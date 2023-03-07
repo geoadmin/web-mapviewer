@@ -7,7 +7,6 @@
         class="map-footer-attribution-source"
         :class="{ 'data-disclaimer': hasDataDisclaimer }"
         :data-cy="`layer-copyright-${sourceName}`"
-        @click="$emit('click', sourceId)"
     >
         {{ `${sourceName}${isLast ? '' : ','}` }}
     </component>
@@ -37,7 +36,6 @@ export default {
             default: false,
         },
     },
-    emits: ['click'],
 }
 </script>
 
