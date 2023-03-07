@@ -4,21 +4,29 @@
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content rounded-0">
                 <div class="card-body position-relative container">
-                    <div class="row justify-content-start row-cols-sm-2 g-2">
+                    <div
+                        class="row justify-content-start g-2"
+                        :class="{ 'row-cols-2': isDesktopMode }"
+                    >
                         <div
                             v-for="drawingMode in drawingModes"
                             :key="drawingMode"
-                            class="col d-grid d-sm-block"
+                            class="col"
+                            :class="{
+                                'd-grid': isPhoneMode,
+                                'd-block': isDesktopMode,
+                            }"
                         >
                             <DrawingToolboxButton
-                              :drawing-mode="drawingMode"
-                              :is-active="currentDrawingMode === drawingMode"
-                              :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                              @set-drawing-mode="bubbleSetDrawingEventToParent"
+                                :drawing-mode="drawingMode"
+                                :is-active="currentDrawingMode === drawingMode"
+                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                                @set-drawing-mode="bubbleSetDrawingEventToParent"
                             />
                         </div>
                         <button
-                            class="btn col-2 d-sm-none d-flex align-items-center justify-content-center"
+                            v-if="isPhoneMode"
+                            class="btn col-2 d-flex align-items-center justify-content-center"
                             data-cy="drawing-toolbox-close-button"
                             @click="emitCloseEvent"
                         >
@@ -28,9 +36,9 @@
                     <div class="row mt-1">
                         <div class="col">
                             <div
-                              v-show="drawingStateMessage"
-                              class="d-flex justify-content-center drawing-toolbox-drawing-state"
-                              :class="{ 'text-danger': isDrawingStateError }"
+                                v-show="drawingStateMessage"
+                                class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                                :class="{ 'text-danger': isDrawingStateError }"
                             >
                                 {{ drawingStateMessage }}
                             </div>
@@ -74,7 +82,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="row mt-2 d-none d-sm-block">
+                    <div v-if="isDesktopMode" class="row mt-2">
                         <div class="col text-center text-muted">
                             <!-- eslint-disable vue/no-v-html-->
                             <small v-html="$t('share_file_disclaimer')" />
@@ -83,7 +91,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center d-none d-sm-block">
+            <div v-if="isDesktopMode" class="text-center">
                 <button
                     class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
                     data-cy="menu-button"
@@ -161,7 +169,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['isDesktopMode']),
+        ...mapGetters(['isDesktopMode', 'isPhoneMode']),
         isDrawingLineOrMeasure() {
             return (
                 this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
