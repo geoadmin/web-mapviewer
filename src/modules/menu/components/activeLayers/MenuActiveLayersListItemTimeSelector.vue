@@ -89,6 +89,9 @@ export default {
             })
         }
     },
+    beforeUnmount() {
+        this.popover?.destroy()
+    },
     methods: {
         renderHumanReadableTimestamp(timestamp) {
             if (!timestamp) {

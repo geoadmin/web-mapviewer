@@ -37,7 +37,7 @@
                         <div class="col">
                             <div
                                 v-show="drawingStateMessage"
-                                class="d-flex justify-content-center drawing-toolbox-drawing-state"
+                                class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
                                 :class="{ 'text-danger': isDrawingStateError }"
                             >
                                 {{ drawingStateMessage }}
@@ -73,7 +73,6 @@
                     <div v-if="isDrawingLineOrMeasure" class="row mt-2">
                         <div class="col d-grid">
                             <button
-                                v-if="isDrawingLineOrMeasure"
                                 data-cy="drawing-delete-last-point-button"
                                 class="btn btn-outline-danger"
                                 @click="$emit('deleteLastPoint')"
