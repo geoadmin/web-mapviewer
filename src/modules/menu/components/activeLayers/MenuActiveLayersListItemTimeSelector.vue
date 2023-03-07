@@ -1,15 +1,28 @@
 <template>
-    <PopoverButton
+    <button
         v-if="hasMultipleTimestamps"
-        ref="popover"
-        popover-position="left"
-        :button-title="renderHumanReadableTimestamp(timeConfig.currentTimestamp)"
-        :popover-title="$t('time_select_year')"
-        :small="compact"
-        secondary
-        body-class="p-0"
+        ref="timeSelectorButton"
+        class="btn btn-secondary"
+        :class="{
+            'btn-sm': compact,
+        }"
+        :data-cy="`time-selector-${layerId}`"
     >
-        <div class="timestamps-popover-content p-2" data-cy="time-selection-popup">
+        {{ humanReadableCurrentTimestamp }}
+    </button>
+    <div
+        v-if="hasMultipleTimestamps"
+        ref="timeSelectorModal"
+        class="card border-0"
+        @click="hidePopover"
+    >
+        <div class="card-header d-flex align-items-center justify-content-between">
+            {{ $t('time_select_year') }}
+        </div>
+        <div
+            class="card-body rounded-bottom p-2 timestamps-popover-content"
+            data-cy="time-selection-popup"
+        >
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
                 :key="timestamp"
@@ -24,17 +37,20 @@
                 {{ renderHumanReadableTimestamp(timestamp) }}
             </button>
         </div>
-    </PopoverButton>
+    </div>
 </template>
 
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { isNumber } from '@/utils/numberUtils'
-import PopoverButton from '@/utils/PopoverButton.vue'
+import tippy from 'tippy.js'
 
 export default {
-    components: { PopoverButton },
     props: {
+        layerId: {
+            type: String,
+            required: true,
+        },
         timeConfig: {
             type: LayerTimeConfig,
             required: true,
@@ -60,13 +76,29 @@ export default {
             return timestamps
         },
     },
+    mounted() {
+        if (this.hasMultipleTimestamps) {
+            this.popover = tippy(this.$refs.timeSelectorButton, {
+                theme: 'popover-button light-border',
+                content: this.$refs.timeSelectorModal,
+                allowHTML: true,
+                placement: 'right',
+                interactive: true,
+                arrow: true,
+                trigger: 'click',
+            })
+        }
+    },
+    beforeUnmount() {
+        this.popover?.destroy()
+    },
     methods: {
         renderHumanReadableTimestamp(timestamp) {
             if (!timestamp) {
                 return ''
             }
             if (isNumber(timestamp)) {
-                // if timestamp is already a 4 digit number (a year) we return it as is
+                // if timestamp is already a 4-digit number (a year) we return it as is
                 if (timestamp.length === 4) {
                     return timestamp
                 } else {
@@ -83,6 +115,9 @@ export default {
         },
         handleClickOnTimestamp(timestamp) {
             this.$emit('timestampChange', timestamp)
+        },
+        hidePopover() {
+            this.popover?.hide()
         },
     },
 }

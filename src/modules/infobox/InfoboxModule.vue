@@ -7,28 +7,31 @@
             @contextmenu.stop
         >
             <div
-                class="infobox-header card-header"
+                class="card-header d-flex justify-content-end"
                 data-cy="infobox-header"
                 @click="onToggleContent"
             >
-                <ButtonWithIcon
+                <button
                     v-if="showFloatingToggle"
-                    :button-font-awesome-icon="['fa', 'caret-up']"
-                    small
+                    class="btn btn-light btn-sm d-flex align-items-center"
                     data-cy="infobox-toggle-floating"
                     @click.stop="onToggleFloating"
-                />
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fa', 'print']"
-                    small
+                >
+                    <FontAwesomeIcon icon="caret-up" />
+                </button>
+                <button
+                    class="btn btn-light btn-sm d-flex align-items-center"
                     @click.stop="onPrint"
-                />
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fa', 'times']"
-                    small
+                >
+                    <FontAwesomeIcon icon="print" />
+                </button>
+                <button
+                    class="btn btn-light btn-sm d-flex align-items-center"
                     data-cy="infobox-close"
                     @click.stop="onClose"
-                />
+                >
+                    <FontAwesomeIcon icon="times" />
+                </button>
             </div>
 
             <div
@@ -67,16 +70,17 @@
 
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
 import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
+
 export default {
     components: {
-        ButtonWithIcon,
+        FontAwesomeIcon,
         FeatureCombo,
         FeatureEdit,
         FeatureElevationProfile,
@@ -206,9 +210,6 @@ export default {
     width: 100%;
 
     &-header {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
         cursor: pointer;
     }
 

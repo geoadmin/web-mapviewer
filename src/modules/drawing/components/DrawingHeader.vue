@@ -1,23 +1,18 @@
 <template>
     <div class="drawing-header">
-        <ButtonWithIcon
-            class="drawing-header-close-button"
-            :button-font-awesome-icon="['fas', 'arrow-left']"
-            :button-title="$t('draw_back')"
-            icons-before-text
-            dark
-            @click="$emit('close')"
-        >
-        </ButtonWithIcon>
+        <button class="drawing-header-close-button btn btn-dark" @click="$emit('close')">
+            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
+            {{ $t('draw_back') }}
+        </button>
         <h1 class="drawing-header-title">{{ $t('draw_mode_title') }}</h1>
     </div>
 </template>
 
 <script>
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {
-    components: { ButtonWithIcon },
+    components: { FontAwesomeIcon },
     emits: ['close'],
 }
 </script>
