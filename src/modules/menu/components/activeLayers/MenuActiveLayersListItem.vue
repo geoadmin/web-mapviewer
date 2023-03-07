@@ -35,13 +35,18 @@
                 :compact="compact"
                 @timestamp-change="onTimestampChange"
             />
-            <FontAwesomeIcon
+            <ThirdPartDisclaimer
                 v-if="hasDataDisclaimer(layer.getID())"
-                class="data-disclaimer-tooltip text-primary p-2"
-                icon="user"
-                data-cy="menu-external-disclaimer-icon"
-                @click="onDataDisclaimerClick()"
-            />
+                :complete-disclaimer-on-click="true"
+                :source-name="attributionName"
+            >
+                <FontAwesomeIcon
+                    ref="tooltipAnchor"
+                    class="data-disclaimer-tooltip text-primary p-2"
+                    icon="user"
+                    data-cy="menu-external-disclaimer-icon"
+                />
+            </ThirdPartDisclaimer>
             <button
                 class="btn"
                 :class="{
@@ -100,24 +105,14 @@
                 <FontAwesomeIcon icon="info-circle" />
             </button>
         </div>
-        <ModalWithBackdrop
-            v-if="showDataDisclaimer"
-            :title="$t('alert_title')"
-            header-primary
-            fluid
-            @close="onDataDisclaimerClose()"
-        >
-            {{ getDataDisclaimerContent }}
-        </ModalWithBackdrop>
     </div>
 </template>
 
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
 import { mapGetters, mapState } from 'vuex'
 
 /**
@@ -128,7 +123,7 @@ export default {
     components: {
         FontAwesomeIcon,
         MenuActiveLayersListItemTimeSelector,
-        ModalWithBackdrop,
+        ThirdPartDisclaimer,
     },
     props: {
         layer: {
@@ -183,49 +178,6 @@ export default {
             }
             return 'square'
         },
-        clogTransformation() {
-            const transformation = {
-                rotate: 0,
-            }
-            if (this.showDetails) {
-                transformation.rotate = 180
-            }
-            return transformation
-        },
-        getDataDisclaimerTooltipContent() {
-            return this.$i18n.t('external_data_tooltip')
-        },
-        getDataDisclaimerContent() {
-            return this.$i18n.t('external_data_warning').replace('--URL--', this.attributionName)
-        },
-    },
-    watch: {
-        compact(compact) {
-            this.disclaimerPopup?.forEach((instance) => {
-                instance.setProps({ placement: compact ? 'right' : 'bottom' })
-            })
-        },
-        lang() {
-            this.disclaimerPopup?.forEach((instance) => {
-                instance.setContent(this.getDataDisclaimerTooltipContent)
-            })
-        },
-    },
-    mounted() {
-        if (this.hasDataDisclaimer(this.layer.getID())) {
-            this.disclaimerPopup = tippy(`.data-disclaimer-tooltip`, {
-                theme: 'primary',
-                content: this.getDataDisclaimerTooltipContent,
-                arrow: true,
-                placement: this.compact ? 'right' : 'bottom',
-                touch: false,
-            })
-        }
-    },
-    beforeUnmount() {
-        this.disclaimerPopup?.forEach((instance) => {
-            instance.destroy()
-        })
     },
     methods: {
         onToggleLayerDetails() {
@@ -248,12 +200,6 @@ export default {
         },
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
-        },
-        onDataDisclaimerClick() {
-            this.showDataDisclaimer = true
-        },
-        onDataDisclaimerClose() {
-            this.showDataDisclaimer = false
         },
     },
 }
