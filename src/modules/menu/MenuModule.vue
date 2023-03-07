@@ -15,7 +15,6 @@
         >
             <GeolocButton
                 v-if="!isFullscreenMode && !isEmbedded"
-                class="mb-1"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
                 @click="toggleGeolocation"
