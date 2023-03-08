@@ -77,7 +77,7 @@ export default {
     },
     computed: {
         elevationProfileHasData() {
-            return this.elevationProfile && this.elevationProfile.hasData
+            return this.elevationProfile && this.elevationProfile.hasElevationData
         },
         featureGeodesicCoordinates() {
             if (this.feature.geodesicCoordinates) {
@@ -117,7 +117,7 @@ export default {
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
-            if (this.elevationProfile.hasData) {
+            if (this.elevationProfile.hasElevationData) {
                 const csvData =
                     [
                         ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],

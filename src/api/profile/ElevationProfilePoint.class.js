@@ -23,7 +23,7 @@ export default class ElevationProfilePoint {
         return this._elevation
     }
 
-    get hasData() {
+    get hasElevationData() {
         return this._elevation !== null
     }
     // no setter

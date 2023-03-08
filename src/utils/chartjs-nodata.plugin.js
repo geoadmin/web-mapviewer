@@ -34,7 +34,7 @@ export default {
 
         // going into each segment without data, to see if we need to draw a no data zone in the chart
         elevationProfile.segments
-            .filter((segment) => !segment.hasData)
+            .filter((segment) => !segment.hasElevationData)
             .forEach((segmentWithoutData) => {
                 const segmentIndex = elevationProfile.segments.indexOf(segmentWithoutData)
 

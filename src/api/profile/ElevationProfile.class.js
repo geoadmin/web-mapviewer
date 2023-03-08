@@ -20,18 +20,30 @@ export default class ElevationProfile {
         return this.points.length
     }
 
-    get hasData() {
-        return !!this.segments.find((segment) => segment.hasData)
+    /** @returns {boolean} True if one segment is found to have elevation data */
+    get hasElevationData() {
+        return !!this.segments.find((segment) => segment.hasElevationData)
+    }
+
+    /** @returns {boolean} True if all segments have distance data */
+    get hasDistanceData() {
+        return (
+            this.segments.filter((segment) => segment.hasDistanceData).length ===
+            this.segments.length
+        )
     }
 
     /** @returns {Number} */
     get maxDist() {
-        return this.segments.slice(-1)[0].points.slice(-1)[0].dist
+        if (!this.hasDistanceData) {
+            return 0
+        }
+        return this.segments.slice(-1)[0].maxDist
     }
 
     /** @returns {Number} */
     get maxElevation() {
-        if (!this.hasData) {
+        if (!this.hasDistanceData) {
             return 0
         }
         return Math.max(...this.points.map((point) => point.elevation))
@@ -39,7 +51,7 @@ export default class ElevationProfile {
 
     /** @returns {Number} */
     get minElevation() {
-        if (!this.hasData) {
+        if (!this.hasElevationData) {
             return 0
         }
         return Math.min(
@@ -49,10 +61,10 @@ export default class ElevationProfile {
 
     /** @returns {Number} Elevation difference between starting and ending point, in meters */
     get elevationDifference() {
-        if (!this.hasData) {
+        if (!this.hasElevationData) {
             return 0
         }
-        return this.points[this.points.length - 1].elevation - this.points[0].elevation
+        return this.points.slice(-1)[0].elevation - this.points[0].elevation
     }
 
     get totalAscent() {
@@ -87,7 +99,7 @@ export default class ElevationProfile {
 
     /** @returns {Number} Sum of slope/surface distances (distance on the ground) */
     get slopeDistance() {
-        if (!this.hasData) {
+        if (!this.hasElevationData) {
             return 0
         }
         return this.points.reduce((sumSlopeDist, currentPoint, currentIndex, points) => {
@@ -124,7 +136,7 @@ export default class ElevationProfile {
      * @returns {number} Estimation of hiking time for this profile
      */
     get hikingTime() {
-        if (!this.hasData) {
+        if (!this.hasElevationData) {
             return 0
         }
 

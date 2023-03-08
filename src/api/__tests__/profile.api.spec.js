@@ -15,22 +15,34 @@ const testProfile = new ElevationProfile([
 
 describe('Profile calculation', () => {
     it('returns 0 for all multi-points calculation if there is less than two points', () => {
-        const nearlyEmptyProfile = new ElevationProfile([
+        const profileWithoutElevationData = new ElevationProfile([
             new ElevationProfileSegment([
-                // using 1 everywhere in order to check it won't be used by calculations
-                new ElevationProfilePoint([1, 1], 1, 1),
+                // using 1 everywhere (except elevation) in order to check it won't be used by calculations
+                new ElevationProfilePoint([1, 1], 1, null),
             ]),
         ])
-        expect(nearlyEmptyProfile.hasData).to.be.false
-        expect(nearlyEmptyProfile.maxDist).to.eq(1) // dist is a unique point calculation, it should be there
-        expect(nearlyEmptyProfile.elevationDifference).to.eq(0)
-        expect(nearlyEmptyProfile.totalAscent).to.eq(0)
-        expect(nearlyEmptyProfile.totalDescent).to.eq(0)
-        expect(nearlyEmptyProfile.hikingTime).to.eq(0)
-        expect(nearlyEmptyProfile.coordinates).to.be.an('Array').lengthOf(1)
-        const [[x, y]] = nearlyEmptyProfile.coordinates
+        expect(profileWithoutElevationData.hasElevationData).to.be.false
+        expect(profileWithoutElevationData.hasDistanceData).to.be.true
+        expect(profileWithoutElevationData.maxDist).to.eq(1) // dist is a unique point calculation, it should be there
+        expect(profileWithoutElevationData.elevationDifference).to.eq(0)
+        expect(profileWithoutElevationData.totalAscent).to.eq(0)
+        expect(profileWithoutElevationData.totalDescent).to.eq(0)
+        expect(profileWithoutElevationData.hikingTime).to.eq(0)
+        expect(profileWithoutElevationData.coordinates).to.be.an('Array').lengthOf(1)
+        const [[x, y]] = profileWithoutElevationData.coordinates
         expect(x).to.eq(1)
         expect(y).to.eq(1)
+    })
+    it('tells it has no elevation data if the only segment contains point with and without elevation', () => {
+        const malformedProfile = new ElevationProfile([
+            new ElevationProfileSegment([
+                // using 1 everywhere (except elevation) in order to check it won't be used by calculations
+                new ElevationProfilePoint([1, 1], 0, null),
+                new ElevationProfilePoint([2, 1], 1, 1),
+            ]),
+        ])
+        expect(malformedProfile.hasElevationData).to.be.false
+        expect(malformedProfile.hasDistanceData).to.be.true
     })
     it('gives the correct max/min distance and elevations', () => {
         expect(testProfile.maxDist).to.eq(200)
