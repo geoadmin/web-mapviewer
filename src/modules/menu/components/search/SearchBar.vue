@@ -6,7 +6,7 @@
         <input
             ref="search"
             type="text"
-            class="form-control"
+            class="form-control search-bar-input"
             :class="{ 'rounded-end': searchQuery?.length == 0 }"
             :placeholder="$t('search_placeholder')"
             aria-label="Search"
@@ -91,3 +91,11 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+
+.search-bar-input {
+    font-size: 0.825rem;;
+}
+
+</style>

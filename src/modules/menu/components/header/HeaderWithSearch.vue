@@ -122,6 +122,7 @@ $animation-time: 0.5s;
 .search-header-swiss-confederation-text,
 .search-title {
     display: none;
+    font-size: 0.825rem;
 }
 
 @include respond-below(lg) {
