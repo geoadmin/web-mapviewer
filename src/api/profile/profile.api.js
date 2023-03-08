@@ -26,6 +26,7 @@ function parseProfileFromBackendResponse(backendResponse, startingDist) {
  * @param {CoordinatesChunk} chunk
  * @param {[Number, Number] | null} startingPoint
  * @param {Number} startingDist
+ * @returns {ElevationProfile}
  */
 async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
     if (chunk.isWithinLV95Bounds) {
@@ -91,7 +92,8 @@ function chunksToLV95(chunks) {
  *
  * @param {[Number, Number][]} coordinates Coordinates in EPSG:3857 (WebMercator) from which we want
  *   the profile
- * @returns {ElevationProfile}
+ * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
+ *   profile
  */
 export default async (coordinates) => {
     if (!coordinates || coordinates.length === 0) {

@@ -17,7 +17,7 @@
             data-cy="profile-popup-tooltip"
         >
             <div
-                v-if="pointBeingHovered && pointBeingHovered.hasData"
+                v-if="pointBeingHovered && pointBeingHovered.hasElevationData"
                 class="profile-tooltip-inner p-1 m-auto"
             >
                 <div>
@@ -60,7 +60,7 @@ import { Line as LineChart } from 'vue-chartjs'
  * @property {[Number, Number]} screenPosition
  * @property {Number} dist
  * @property {Number} elevation
- * @property {Boolean} hasData
+ * @property {Boolean} hasElevationData
  */
 
 /**
@@ -234,7 +234,7 @@ export default {
                                 round(point.element.x + chartPosition.left),
                                 round(point.element.y + chartPosition.top),
                             ],
-                            hasData: point.raw.hasData,
+                            hasElevationData: point.raw.hasElevationData,
                         }
                     } else {
                         this.clearHoverPosition()
