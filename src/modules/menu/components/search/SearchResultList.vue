@@ -1,6 +1,6 @@
 <template>
     <div
-        class="search-results-container"
+        class="search-results-container m-0"
         :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
     >
         <div
@@ -72,7 +72,6 @@ export default {
     height: min(calc(100vh - $header-height), max(20rem, 45vh));
     left: 0;
     width: 100%;
-    margin: 0 !important; //overwrites a bootstrap property from parent module
     pointer-events: none;
 }
 .search-results-dev-site-warning {
