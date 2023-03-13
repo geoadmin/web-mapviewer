@@ -93,9 +93,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/media-query.mixin';
 
 .search-bar-input {
     font-size: 0.825rem;;
+}
+
+.search-bar {
+    &:focus-within > span.input-group-text {
+        display:none
+    }
+    @include respond-above(phone) {
+        &:focus-within > span.input-group-text{
+            display: flex;
+        }
+    }
 }
 
 </style>
