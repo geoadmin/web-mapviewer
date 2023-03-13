@@ -41,12 +41,12 @@ const actions = {
      * @param {String} payload.query
      * @param {Boolean} payload.showResultsAfterRequest
      */
-    setSearchQuery: (
+    setSearchQuery: async (
         { commit, rootState, dispatch },
         { query = '', showResultsAfterRequest = true }
     ) => {
         commit('setSearchQuery', query)
-        commit('setSearchResults', new CombinedSearchResults())
+        let updatedSearchResults = false
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
             // checking first if this corresponds to a set of coordinates (or a what3words)
@@ -62,19 +62,24 @@ const actions = {
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {
-                search(query, rootState.i18n.lang)
-                    .then((searchResults) => {
-                        if (searchResults) {
-                            commit('setSearchResults', searchResults)
-                            if (showResultsAfterRequest && searchResults.count() > 0) {
-                                commit('showSearchResults')
-                            }
+                try {
+                    const searchResults = await search(query, rootState.i18n.lang)
+                    if (searchResults) {
+                        commit('setSearchResults', searchResults)
+                        updatedSearchResults = true
+                        if (showResultsAfterRequest && searchResults.count() > 0) {
+                            commit('showSearchResults')
                         }
-                    })
-                    .catch((error) => log.error(`Search failed`, error))
+                    }
+                } catch (error) {
+                    log.error(`Search failed`, error)
+                }
             }
         } else if (query.length === 0) {
             dispatch('clearPinnedLocation')
+        }
+        if (!updatedSearchResults) {
+            commit('setSearchResults', new CombinedSearchResults())
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),

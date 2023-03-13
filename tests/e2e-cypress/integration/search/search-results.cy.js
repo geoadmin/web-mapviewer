@@ -12,6 +12,9 @@ const searchbarSelector = '[data-cy="searchbar"]'
 const locationsSelector = '[data-cy="search-results-locations"]'
 const layersSelector = '[data-cy="search-results-layers"]'
 
+const viewportHeight = Cypress.config('viewportHeight')
+const viewportWidth = Cypress.config('viewportWidth')
+
 /**
  * Configurable `.then` callback to check element index among siblings.
  *
@@ -301,7 +304,7 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
-        cy.get('[data-cy="map"]').click()
+        cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
         cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
         cy.activateFullscreen()
         cy.get(searchbarSelector).should('not.exist')
@@ -311,7 +314,7 @@ describe('Test the search bar result handling', () => {
         cy.get(searchbarSelector).paste('test')
         cy.wait(`@search-locations`)
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
-        cy.get('[data-cy="map"]').click()
+        cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
         cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
         cy.get(searchbarSelector).click()
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
