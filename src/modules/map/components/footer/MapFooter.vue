@@ -115,8 +115,11 @@ $flex-gap: 1em;
 
     &-middle {
         position: relative;
-        z-index: $zindex-footer-infobox;
+        z-index: $zindex-footer;
         background-color: $white;
+        @include respond-above(phone) {
+            z-index: $zindex-desktop-footer-infobox;
+        }
     }
 
     &-bottom {
