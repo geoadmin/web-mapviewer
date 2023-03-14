@@ -188,5 +188,13 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.visible).to.be.true
             })
         })
+        it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
+            cy.goToMapView('en', {
+                swisssearch: '1530 Payerne'
+            })
+            cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
+            cy.url().should('include', 'swisssearch=1530+Payerne')
+            cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+        })
     })
 })

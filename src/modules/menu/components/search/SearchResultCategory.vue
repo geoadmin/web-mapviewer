@@ -1,9 +1,5 @@
 <template>
-    <div
-        v-show="entries.length > 0"
-        class="search-category"
-        :class="{ 'search-category-half-size': halfSize }"
-    >
+    <div v-show="entries.length > 0" class="search-category">
         <div class="search-category-header p-2">
             {{ title }}
         </div>
@@ -46,10 +42,6 @@ export default {
             type: String,
             required: true,
         },
-        halfSize: {
-            type: Boolean,
-            default: false,
-        },
     },
     emits: ['preview', 'previewStart', 'previewStop'],
     data() {
@@ -74,23 +66,23 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .search-category {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
     &-header {
+        flex: none;
+        overflow: visible;
         font-size: 0.825rem;
         font-weight: bold;
         background-color: $input-group-addon-bg;
     }
     &-body {
+        flex: initial;
         margin: 0;
         padding: 0;
         list-style: none;
-
-        max-height: 15rem;
-        overflow-y: scroll;
+        overflow: auto;
         font-size: 0.8rem;
-
-        .search-category-half-size & {
-            max-height: 7rem;
-        }
     }
 }
 </style>
