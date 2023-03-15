@@ -17,6 +17,11 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
         super(name, LayerTypes.GEOJSON, id, opacity, visible, attributions)
         this.geoJsonUrl = geoJsonUrl
         this.styleUrl = styleUrl
+        // enforcing HTTPS protocol if nothing has been set, will enable us to request GeoJSON data from localhost
+        // otherwise with the mixed methods (HTTP and HTTPS) the request will be rejected
+        if (this.styleUrl.startsWith('//')) {
+            this.styleUrl = `https:${this.styleUrl}`
+        }
     }
 
     getURL() {
