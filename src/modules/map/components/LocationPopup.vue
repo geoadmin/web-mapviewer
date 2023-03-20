@@ -8,7 +8,7 @@
         data-cy="location-popup"
         @close="onClose"
     >
-        <div class="location-popup-coordinates ol-selectable">
+        <div class="location-popup-coordinates">
             <div class="lp-label">
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>

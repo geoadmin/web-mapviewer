@@ -76,7 +76,6 @@ export default {
             // element.
             offset: [0, 12],
             positioning: 'top-center',
-            className: 'map-popover-overlay',
             autoPan: { margin: 0 },
         })
     },
