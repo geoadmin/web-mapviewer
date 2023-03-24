@@ -18,6 +18,7 @@
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
                 :topics="allTopics"
+                :current="currentTopic"
                 @select-topic="selectTopic"
                 @close="showTopicSelectionPopup = false"
             />

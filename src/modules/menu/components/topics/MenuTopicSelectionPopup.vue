@@ -1,16 +1,22 @@
 <template>
     <ModalWithBackdrop :title="$t('choose_theme')" @close="onClose">
         <div class="menu-topic-popup">
-            <div
+            <button
                 v-for="topic in topics"
                 :key="topic.id"
-                class="menu-topic-popup-topic"
+                type="button"
+                :title="getTooltipMessage(topic.id)"
+                class="menu-topic-popup-topic btn"
+                :class="{
+                    'btn-primary': current.id === topic.id,
+                    'btn-light': current.id !== topic.id,
+                }"
                 :data-cy="`change-to-topic-${topic.id}`"
                 @click="selectTopic(topic)"
             >
                 {{ $t(topic.id) }}
                 <TopicIcon :topic-id="topic.id" />
-            </div>
+            </button>
         </div>
     </ModalWithBackdrop>
 </template>
@@ -26,6 +32,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        current: {
+            type: Object,
+            default: null,
+        },
     },
     emits: ['selectTopic', 'close'],
     methods: {
@@ -34,6 +44,11 @@ export default {
         },
         onClose() {
             this.$emit('close')
+        },
+        getTooltipMessage(id) {
+            const translationKey = 'topic_' + id + '_tooltip'
+            const message = this.$t(translationKey)
+            return message === translationKey || message === this.$t(id) ? '' : message
         },
     },
 }
@@ -48,7 +63,6 @@ export default {
     grid-auto-rows: 1fr;
     padding: 1rem;
     gap: 1rem;
-    cursor: pointer;
 }
 .menu-topic-popup-topic {
     text-align: center;
