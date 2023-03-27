@@ -7,7 +7,7 @@
             <textarea
                 id="drawing-style-feature-title"
                 v-model="text"
-                :read-only="readOnly"
+                :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="form-control"
                 rows="1"
@@ -21,7 +21,7 @@
             <textarea
                 id="drawing-style-feature-description"
                 v-model="description"
-                :read-only="readOnly"
+                :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="form-control"
                 rows="2"
