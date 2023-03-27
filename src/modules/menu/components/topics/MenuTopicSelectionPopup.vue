@@ -8,8 +8,8 @@
                 :title="getTooltipMessage(topic.id)"
                 class="menu-topic-popup-topic btn"
                 :class="{
-                    'btn-primary': current.id === topic.id,
-                    'btn-light': current.id !== topic.id,
+                    'btn-primary': currentId === topic.id,
+                    'btn-light': currentId !== topic.id,
                 }"
                 :data-cy="`change-to-topic-${topic.id}`"
                 @click="selectTopic(topic)"
@@ -32,8 +32,8 @@ export default {
             type: Array,
             default: () => [],
         },
-        current: {
-            type: Object,
+        currentId: {
+            type: [String, null],
             default: null,
         },
     },
