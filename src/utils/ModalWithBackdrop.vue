@@ -126,16 +126,27 @@ export default {
         min-width: 75vw;
     }
     z-index: $zindex-modal;
+    // For phone we set the width and height fixed to 100% of the view.
+    // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
+    // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
+    // is older, 90vh will normally be used, which is a bit less clean but good enough.
     max-height: 90vh;
-    // For phone we set the width fixed to 95% of the view.
-    width: 95vw;
+    max-height: 100dvh;
+    width: 100vw;
     @include respond-above(phone) {
         // But for desktop we let the size be dynamic with max to 90% of the view
         width: unset;
         max-width: 90vw;
+        max-height: 90svh;
     }
     .card {
+        // Same as above, 90vh will be used as fallback is 100dvh or 90svh is not recognized.
         max-height: 90vh;
+        max-height: 100dvh;
+
+        @include respond-above(phone) {
+            max-height: 90svh;
+        }
         .card-header {
             align-items: center;
             display: flex;
