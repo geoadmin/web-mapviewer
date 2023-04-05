@@ -2,7 +2,7 @@
     <MenuSection
         v-if="currentTopic"
         ref="menuTopicSection"
-        :title="$t(currentTopic.id)"
+        :title="$t(currentTopic?.id)"
         :show-content="showTopicTree"
         data-cy="menu-topic-section"
         @open-menu-section="(id) => $emit('openMenuSection', id)"
@@ -18,6 +18,7 @@
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
                 :topics="allTopics"
+                :current-id="currentTopic?.id"
                 @select-topic="selectTopic"
                 @close="showTopicSelectionPopup = false"
             />

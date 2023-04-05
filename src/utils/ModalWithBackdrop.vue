@@ -4,11 +4,12 @@
         sure that it is always on top of the reset. -->
         <div>
             <BlackBackdrop class="modal-view" @click="onClose(false)" />
-            <div class="modal-popup" :class="{ 'modal-popup-fluid': fluid }">
+            <div class="modal-popup">
                 <div
                     class="card"
                     :class="{
                         'border-primary': headerPrimary,
+                        'modal-popup-fluid': fluid,
                     }"
                 >
                     <div
@@ -118,24 +119,32 @@ export default {
 @import 'src/scss/media-query.mixin';
 .modal-popup {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    &:not(&-fluid) {
-        // only setting a min-width if the modal content shouldn't be fluid
-        min-width: 75vw;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     z-index: $zindex-modal;
-    max-height: 90vh;
-    // For phone we set the width fixed to 95% of the view.
-    width: 95vw;
-    @include respond-above(phone) {
-        // But for desktop we let the size be dynamic with max to 90% of the view
-        width: unset;
-        max-width: 90vw;
-    }
     .card {
+        &:not(.modal-popup-fluid) {
+            // only setting a width if the modal content shouldn't be fluid
+            width: 80vw;
+
+            @include respond-below(phone) {
+                width: 100vw;
+                border-radius: unset;
+            }
+        }
+        // dvh takes into account the user interface in mobile browsers (with vh part of the modal is
+        // not visible if ui is shown). Is recognized by browsers from 2022 or newer. If the browser
+        // is older, 90vh will normally be used, which is a bit less clean but good enough.
         max-height: 90vh;
+        max-height: 100dvh;
+        @include respond-above(phone) {
+            // But for desktop we let the size be dynamic with max to 90% of the view
+            max-width: 80vw;
+            max-height: 90svh;
+        }
         .card-header {
             align-items: center;
             display: flex;
