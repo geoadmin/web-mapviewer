@@ -6,11 +6,13 @@
 export default class LayerTimeConfig {
     /**
      * @param {String} behaviour How the default time series is chosen
-     * @param {String[]} series List of series identifier (that can be placed in the WMTS URL)
+     * @param {LayerTimeConfigTimestamp[]} timestamps List of series identifier (that can be placed
+     *   in the WMTS URL)
      */
-    constructor(behaviour = null, series = []) {
+    constructor(behaviour = null, timestamps = []) {
         this.behaviour = behaviour
-        this.series = [...series]
+        /** @type {LayerTimeConfigTimestamp[]} */
+        this.timestamps = [...timestamps]
         // Here we will define what is the first "currentTimestamp" for this configuration
         // We will simplify the two approaches that exists for WMS and WMTS.
         // The first value will depend on what is in 'behaviour'
@@ -28,20 +30,54 @@ export default class LayerTimeConfig {
         //
         // first let's tackle layers that have "last" as a timestamp (can be both WMS and WMTS layers)
         // we will return, well, the last timestamp (the most recent) of the series (if there are some)
-        if (this.behaviour === 'last' && this.series.length > 0) {
-            this.currentTimestamp = this.series[0]
+        if (this.behaviour === 'last' && this.timestamps.length > 0) {
+            this.currentTimestamp = this.timestamps[0].timestamp
         } else if (this.behaviour) {
             // otherwise if it is a layer that has a specific behaviour (could be "all" for WMS, or a specific timestamp for either type)
             this.currentTimestamp = this.behaviour
-        } else if (this.series.length > 0) {
+        } else if (this.timestamps.length > 0) {
             // if nothing has been defined in the behaviour, but there are some timestamps defined, we take the first
-            this.currentTimestamp = this.series[0]
+            this.currentTimestamp = this.timestamps[0].timestamp
         } else {
             // if no behaviour and no timestamp are defined, we go for "current". This should not happen with WMS layer,
             // as the "current" timestamp in not supported for them but they should always define a behaviour in
             // the layer configuration (coming from the backend), so this is for WMTS layer without time configuration
             this.currentTimestamp = 'current'
         }
+    }
+
+    /**
+     * @param {String} value A complete timestamp value (one that is used to request tiles to the
+     *   backend)
+     * @returns {Boolean} True if this value was found in this time config, false otherwise
+     */
+    hasTimestamp(value) {
+        return !!this.timestamps.find((timestamp) => timestamp.timestamp === value)
+    }
+
+    get years() {
+        return this.timestamps.map((timestamp) => timestamp.year).filter((year) => year !== 9999)
+    }
+
+    get currentYear() {
+        if (!Number.isInteger(parseInt(this.currentTimestamp))) {
+            return null
+        }
+        let currentYear
+        if (this.currentTimestamp.length === 4) {
+            currentYear = parseInt(this.currentTimestamp)
+        } else {
+            currentYear = parseInt(this.currentTimestamp.substring(0, 4))
+        }
+        return currentYear
+    }
+
+    /**
+     * @param {Number} year
+     * @returns {LayerTimeConfigTimestamp}
+     */
+    getTimestampForYear(year) {
+        return this.timestamps.find((timestamp) => timestamp.year === year)
     }
 
     clone() {

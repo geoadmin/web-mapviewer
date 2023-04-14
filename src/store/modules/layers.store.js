@@ -226,30 +226,30 @@ const actions = {
             log.error('Cannot set layer opacity invalid payload', payload)
         }
     },
-    setTimedLayerCurrentTimestamp({ commit, getters }, payload) {
-        if ('layerId' in payload && 'timestamp' in payload) {
-            const { layerId, timestamp } = payload
+    setTimedLayerCurrentYear({ commit, getters }, { layerId, year }) {
+        if (layerId && year) {
             const layer = getters.getActiveLayerById(layerId)
             if (layer && layer.timeConfig) {
-                const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
-                // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
-                const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
-                if (isTimestampInSeries || isTimestampDefaultBehaviour) {
+                const timestampForYear = layer.timeConfig.timestamps.find(
+                    (timestamp) => timestamp.year === year
+                )
+                if (timestampForYear) {
                     commit('setLayerTimestamp', {
                         layerId,
-                        // forcing timestamps to be strings
-                        timestamp: `${timestamp}`,
+                        timestamp: timestampForYear.timestamp,
                     })
+                } else {
+                    log.error('timestamp for year not found, ignoring change', layer, year)
                 }
             } else {
                 log.error(
-                    'Failed to set layer timestamp, layer not found or has not time config',
+                    'Failed to set layer year, layer not found or has no time config',
                     layerId,
                     layer
                 )
             }
         } else {
-            log.error('Failed to set layer timestamp, invalid payload', payload)
+            log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
     moveActiveLayerBack({ commit, state, getters }, layerId) {
@@ -287,7 +287,7 @@ const actions = {
             cloned.visible = true
             commit('setPreviewLayer', cloned)
         } else {
-            log.error(`Layer "${layerId} not found in configs.`)
+            log.error(`Layer "${layerId}" not found in configs.`)
         }
     },
     clearPreviewLayer({ commit }) {

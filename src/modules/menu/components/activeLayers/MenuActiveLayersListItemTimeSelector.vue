@@ -25,16 +25,16 @@
         >
             <button
                 v-for="timestamp in allTimestampsIncludingAllIfNeeded"
-                :key="timestamp"
+                :key="timestamp.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': timestamp === timeConfig.currentTimestamp,
-                    'btn-light': timestamp !== timeConfig.currentTimestamp,
+                    'btn-primary': timestamp.timestamp === timeConfig.currentTimestamp,
+                    'btn-light': timestamp.timestamp !== timeConfig.currentTimestamp,
                 }"
-                :data-cy="`time-select-${timestamp}`"
-                @click="handleClickOnTimestamp(timestamp)"
+                :data-cy="`time-select-${timestamp.timestamp}`"
+                @click="handleClickOnTimestamp(timestamp.year)"
             >
-                {{ renderHumanReadableTimestamp(timestamp) }}
+                {{ renderHumanReadableTimestamp(timestamp.timestamp) }}
             </button>
         </div>
     </div>
@@ -63,13 +63,13 @@ export default {
     emits: ['timestampChange'],
     computed: {
         hasMultipleTimestamps() {
-            return this.timeConfig.series.length > 1
+            return this.timeConfig.timestamps.length > 1
         },
         humanReadableCurrentTimestamp() {
             return this.renderHumanReadableTimestamp(this.timeConfig.currentTimestamp)
         },
         allTimestampsIncludingAllIfNeeded() {
-            const timestamps = [...this.timeConfig.series]
+            const timestamps = [...this.timeConfig.timestamps]
             if (this.timeConfig.behaviour === 'all') {
                 timestamps.splice(0, 0, 'all')
             }
@@ -93,6 +93,7 @@ export default {
         this.popover?.destroy()
     },
     methods: {
+        ...mapActions(['setTimedLayerCurrentYear']),
         renderHumanReadableTimestamp(timestamp) {
             if (!timestamp) {
                 return ''
@@ -113,8 +114,11 @@ export default {
                 return this.$t(`time_${timestamp}`)
             }
         },
-        handleClickOnTimestamp(timestamp) {
-            this.$emit('timestampChange', timestamp)
+        handleClickOnTimestamp(year) {
+            this.setTimedLayerCurrentYear({
+                layerId: this.layerId,
+                year,
+            })
         },
         hidePopover() {
             this.popover?.hide()

@@ -57,11 +57,14 @@ export default class AbstractLayer {
 
     /**
      * @abstract
+     * @param {String} timestamp A timestamp to be used, instead of the one define in the time
+     *   config of the layer. Is used to preview a specific timestamp without having to change the
+     *   layer's config (very useful for the time slider for instance)
      * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
      *   EPSG:2056 will require an input of 2056)
      * @returns {String} The URL to use to request tile/image/data for this layer
      */
-    getURL(epsgNumber = CoordinateSystems.WEBMERCATOR.epsgNumber) {
+    getURL(timestamp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
         throw new Error('You have to implement the method getURL!')
     }
 

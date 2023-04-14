@@ -18,8 +18,8 @@ import log from '@/utils/logging'
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.getID()
-    if (layer.timeConfig && layer.timeConfig.series.length > 1) {
-        layerUrlString += `@time=${layer.timeConfig.currentTimestamp}`
+    if (layer.timeConfig && layer.timeConfig.timestamps.length > 1) {
+        layerUrlString += `@time=${layer.timeConfig.currentYear}`
     }
     if (!layer.visible) {
         layerUrlString += `,f`
@@ -148,7 +148,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             )
         ) {
             const layerObject = createLayerObject(parsedLayer)
-            if (layerObject.type == LayerTypes.KML && layerObject.adminId) {
+            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                 promisesForAllDispatch.push(store.dispatch('setOpenOnAdminId', true))
             }
             log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
@@ -159,11 +159,11 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     parsedLayers
         .filter((layer) => layer.customAttributes && layer.customAttributes.time)
         .forEach((timedLayer) => {
-            log.debug(`  Set timestamp to timed layer ${timedLayer.id}`, timedLayer)
+            log.debug(`  Set year to timed layer ${timedLayer.id}`, timedLayer)
             promisesForAllDispatch.push(
-                store.dispatch('setTimedLayerCurrentTimestamp', {
+                store.dispatch('setTimedLayerCurrentYear', {
                     layerId: timedLayer.id,
-                    timestamp: timedLayer.customAttributes.time,
+                    year: timedLayer.customAttributes.time,
                 })
             )
         })

@@ -88,7 +88,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(firstLayer.timeConfig).to.haveOwnProperty('currentTimestamp')
                 expect(firstLayer.timeConfig.currentTimestamp).to.eq(timestamp)
             }
-            fakeLayerConfig[2].timeConfig.series.forEach((timestamp) =>
+            fakeLayerConfig[2].timeConfig.timestamps.forEach((timestamp) =>
                 checkOneLayerTimestamps(timestamp)
             )
         })
