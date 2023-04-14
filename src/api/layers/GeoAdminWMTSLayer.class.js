@@ -24,40 +24,51 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      * @param {String[]} topics All the topics in which belongs this layer
      */
     constructor(
-      name = '',
-      id = '',
-      opacity = 1.0,
-      visible = false,
-      attributions,
-      format = 'png',
-      timeConfig = null,
-      isBackground = false,
-      baseURL = null,
-      isHighlightable = false,
-      hasTooltip = false,
-      topics = []
+        name = '',
+        id = '',
+        opacity = 1.0,
+        visible = false,
+        attributions,
+        format = 'png',
+        timeConfig = null,
+        isBackground = false,
+        baseURL = null,
+        isHighlightable = false,
+        hasTooltip = false,
+        topics = []
     ) {
         super(
-          name,
-          LayerTypes.WMTS,
-          id,
-          opacity,
-          visible,
-          attributions,
-          isBackground,
-          baseURL,
-          isHighlightable,
-          hasTooltip,
-          topics
+            name,
+            LayerTypes.WMTS,
+            id,
+            opacity,
+            visible,
+            attributions,
+            isBackground,
+            baseURL,
+            isHighlightable,
+            hasTooltip,
+            topics
         )
         this.format = format
         this.timeConfig = timeConfig
     }
 
-    /** @returns {String} A XYZ type URL to request this WMTS layer's tiles */
-    getURL(epsgNumber = CoordinateSystems.WEBMERCATOR.epsgNumber) {
+    /**
+     * @param {String} timestamp A timestamp to be used, instead of the one define in the time
+     *   config of the layer. Is used to preview a specific timestamp without having to change the
+     *   layer's config (very useful for the time slider for instance)
+     * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
+     *   EPSG:2056 will require an input of 2056)
+     * @returns {String} A XYZ type URL to request this WMTS layer's tiles
+     */
+    getURL(timestasmp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
         return `${this.baseURL}1.0.0/${this.getID()}/default/${
-          this.timeConfig.currentTimestamp
+            timestasmp || this.timeConfig.currentTimestamp
         }/${epsgNumber}/{z}/{x}/{y}.${this.format}`
+    }
+
+    get hasMultipleTimestamps() {
+        return this.timeConfig && this.timeConfig.timestamps.length > 1
     }
 }
