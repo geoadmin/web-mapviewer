@@ -3,9 +3,9 @@
     <div
         id="ol-map"
         ref="map"
-        @touchstart="onTouchStart"
-        @touchmove="clearLongPressTimer"
-        @touchend="clearLongPressTimer"
+        @touchstart.passive="onTouchStart"
+        @touchmove.passive="clearLongPressTimer"
+        @touchend.passive="clearLongPressTimer"
         @touchcancel="clearLongPressTimer"
         @contextmenu="onContextMenu"
     >
