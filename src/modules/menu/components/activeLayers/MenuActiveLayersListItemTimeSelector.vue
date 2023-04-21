@@ -65,7 +65,6 @@ export default {
             default: true,
         },
     },
-    emits: ['timestampChange'],
     computed: {
         ...mapState({
             previewYear: (state) => state.layers.previewYear,
@@ -107,7 +106,7 @@ export default {
         this.popover?.destroy()
     },
     methods: {
-        ...mapActions(['setTimedLayerCurrentYear']),
+        ...mapActions(['setTimedLayerCurrentYear', 'clearPreviewYear']),
         renderHumanReadableTimestamp(timestamp) {
             if (!timestamp) {
                 return ''
@@ -129,6 +128,11 @@ export default {
             }
         },
         handleClickOnTimestamp(year) {
+            // clearing preview year if one was selected, as a change on this time selector is incompatible with
+            // the time slider being shown and active
+            if (this.previewYear) {
+                this.clearPreviewYear()
+            }
             this.setTimedLayerCurrentYear({
                 layerId: this.layerId,
                 year,
