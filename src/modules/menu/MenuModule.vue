@@ -1,14 +1,23 @@
 <template>
-    <div class="menu">
+    <div class="menu position-absolute w-100 h-100 start-0 top-0 pe-none">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
-        <div class="drawing-toolbox-in-menu"></div>
+        <div class="drawing-toolbox-in-menu position-absolute w-100"></div>
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
         <HeaderWithSearch v-if="isHeaderShown" class="header" />
         <div
-            class="toolbox-right"
+            v-if="visibleLayersWithTimeConfig.length > 0"
+            class="time-sliders m-1 position-absolute"
+            :class="{
+                'dev-disclaimer-present': hasDevSiteWarning,
+            }"
+        >
+            <TimeSlider v-if="showTimeSlider" />
+        </div>
+        <div
+            class="toolbox-right m-1 position-absolute end-0"
             :class="{
                 'dev-disclaimer-present': hasDevSiteWarning,
             }"
@@ -25,9 +34,14 @@
                 @zoom-out="decreaseZoom"
             />
             <CompassButton />
+            <TimeSliderButton
+                v-if="visibleLayersWithTimeConfig.length"
+                :active="showTimeSlider"
+                @click="showTimeSlider = !showTimeSlider"
+            />
         </div>
         <div
-            class="menu-tray-container"
+            class="menu-tray-container position-absolute w-100 h-100"
             :class="{
                 'desktop-mode': isDesktopMode,
                 'dev-disclaimer-present': hasDevSiteWarning,
@@ -67,8 +81,10 @@
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
+import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
 import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
+import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -76,12 +92,19 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
     components: {
         FontAwesomeIcon,
+        TimeSlider,
+        TimeSliderButton,
         HeaderWithSearch,
         BlackBackdrop,
         CompassButton,
         ZoomButtons,
         GeolocButton,
         MenuTray,
+    },
+    data() {
+        return {
+            showTimeSlider: false,
+        }
     },
     computed: {
         ...mapState({
@@ -90,6 +113,7 @@ export default {
             showMenu: (state) => state.ui.showMenu,
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             isEmbedded: (state) => state.ui.embeddedMode,
+            previewYear: (state) => state.layers.previewYear,
         }),
         ...mapGetters([
             'isHeaderShown',
@@ -98,7 +122,19 @@ export default {
             'isMenuShown',
             'isMenuTrayShown',
             'hasDevSiteWarning',
+            'visibleLayers',
         ]),
+        visibleLayersWithTimeConfig() {
+            return this.visibleLayers.filter((layer) => layer.timeConfig)
+        },
+    },
+    watch: {
+        previewYear() {
+            // hiding the time slider if the preview has been cleared
+            if (!this.previewYear) {
+                this.showTimeSlider = false
+            }
+        }
     },
     methods: {
         ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenu']),
@@ -111,44 +147,44 @@ export default {
 @import 'src/scss/variables';
 
 $animation-time: 0.5s;
+$openCloseButtonHeight: 2.5rem;
 
 .menu {
-    position: absolute;
     z-index: $zindex-menu;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     // so that the user can click through this element (and we don't block interaction with the map)
     pointer-events: none;
     & > * {
         // re-activate interaction with all children of the menu
         pointer-events: all;
     }
+    .dev-disclaimer-present {
+        top: $dev-disclaimer-height;
+    }
     .drawing-toolbox-in-menu {
-        position: relative;
         z-index: $zindex-drawing-toolbox;
     }
     .header {
         position: relative;
     }
-    .toolbox-right {
-        float: right;
-        position: relative;
+    .time-sliders {
+        left: 0;
+        width: calc(100vw - $map-button-diameter - $spacer);
+    }
+    .toolbox-right,
+    .time-sliders {
         margin: $screen-padding-for-ui-elements;
+        top: $header-height;
         &.dev-disclaimer-present {
-            margin-top: $screen-padding-for-ui-elements + $dev-disclaimer-height;
+            top: $header-height + $dev-disclaimer-height;
         }
     }
     .menu-tray-container {
         pointer-events: none;
-        position: absolute;
+        max-height: calc(100vh - $header-height);
         top: $header-height;
-        bottom: 0;
-        left: 0;
-        width: 100%;
         &.dev-disclaimer-present {
             top: $header-height + $dev-disclaimer-height;
+            max-height: calc(100vh - $header-height - $dev-disclaimer-height);
         }
         &.desktop-mode {
             bottom: 70px;
@@ -178,7 +214,6 @@ $animation-time: 0.5s;
             }
             max-width: $menu-tray-width;
         }
-        $openCloseButtonHeight: 2.5rem;
         &.desktop-menu-closed {
             .menu-tray-content {
                 opacity: 0;
@@ -193,11 +228,37 @@ $animation-time: 0.5s;
         }
     }
 }
+@include respond-above(sm) {
+    .menu {
+        .time-sliders {
+            top: $header-height + $openCloseButtonHeight;
+            &.dev-disclaimer-present {
+                top: $header-height + $openCloseButtonHeight + $dev-disclaimer-height;
+            }
+        }
+    }
+}
 @include respond-above(lg) {
     .menu {
-        .menu-tray-container {
+        .time-sliders {
+            left: $menu-tray-width;
+            transform: none;
+            width: calc(100vw - $map-button-diameter - $menu-tray-width - $spacer);
+        }
+        .toolbox-right,
+        .time-sliders {
             top: 2 * $header-height;
             &.dev-disclaimer-present {
+                top: 2 * $header-height + $dev-disclaimer-height;
+            }
+        }
+        .menu-tray-container {
+            top: 2 * $header-height;
+            max-height: calc(100vh - 2 * $header-height - $openCloseButtonHeight);
+            &.dev-disclaimer-present {
+                max-height: calc(
+                    100vh - 2 * $header-height - $dev-disclaimer-height - $openCloseButtonHeight
+                );
                 top: 2 * $header-height + $dev-disclaimer-height;
             }
         }
