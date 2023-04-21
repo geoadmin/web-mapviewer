@@ -4,8 +4,8 @@ import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geo
 import {
     boundingExtent,
     buffer as bufferExtent,
-    createOrUpdateFromFlatCoordinates /* Warning: private method of openlayers */,
-    returnOrUpdate /* Warning: private method of openlayers */,
+    createOrUpdateFromFlatCoordinates,
+    returnOrUpdate,
 } from 'ol/extent'
 import { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
 import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
@@ -316,8 +316,8 @@ export class GeodesicGeometries {
                 image: tooltipArrow,
                 text: getTooltipTextBox(lengthText),
                 geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
-                    WGS84,
-                    WEBMERCATOR
+                    WGS84.epsg,
+                    WEBMERCATOR.epsg
                 ),
                 zIndex: 40,
             })

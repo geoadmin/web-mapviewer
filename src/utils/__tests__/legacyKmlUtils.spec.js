@@ -1,11 +1,10 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import {
     BLACK,
     BLUE,
     GRAY,
-    GREEN,
     LARGE,
     MEDIUM,
     RED,
@@ -113,7 +112,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     beforeEach(() => {
         const kml = readFileSync(resolve(__dirname, './mfgeoadmin3TestKml.kml'), 'utf8')
         const olFeatures = new KML().readFeatures(kml, {
-            featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
+            featureProjection: WEBMERCATOR.epsg,
         })
         features = []
         for (const olFeature of olFeatures) {
