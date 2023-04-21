@@ -6,7 +6,7 @@
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
-import ObjectEventType from 'ol/ObjectEventType.js'
+import ObjectEventType from 'ol/ObjectEventType'
 import { mapActions, mapState } from 'vuex'
 
 /**
