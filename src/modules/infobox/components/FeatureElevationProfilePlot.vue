@@ -1,5 +1,9 @@
 <template>
-    <div @mouseenter="addHoverPositionOverlay" @mouseleave="removeHoverPositionOverlay">
+    <div
+        ref="profileChartContainer"
+        @mouseenter="addHoverPositionOverlay"
+        @mouseleave="removeHoverPositionOverlay"
+    >
         <LineChart
             ref="chart"
             :data="chartJsData"
@@ -38,7 +42,11 @@
                     </small>
                 </div>
             </div>
-            <div ref="profileTooltipArrow" class="profile-tooltip-arrow"></div>
+            <div
+                ref="profileTooltipArrow"
+                class="profile-tooltip-arrow"
+                :style="tooltipArrowStyle"
+            ></div>
         </div>
     </div>
 </template>
@@ -52,6 +60,8 @@ import { resetZoom } from 'chartjs-plugin-zoom'
 import Overlay from 'ol/Overlay'
 import proj4 from 'proj4'
 import { Line as LineChart } from 'vue-chartjs'
+
+const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
 
 /**
  * @typedef PointBeingHovered
@@ -100,12 +110,43 @@ export default {
     computed: {
         tooltipStyle() {
             if (this.pointBeingHovered) {
+                const tooltipWidth = this.$refs.profileTooltip.clientWidth
+                const chartPosition = this.$refs.profileChartContainer.getBoundingClientRect()
+                let leftPosition = this.pointBeingHovered.screenPosition[0] - tooltipWidth / 2.0
+                if (tooltipWidth !== 0 && leftPosition + tooltipWidth > chartPosition.right) {
+                    leftPosition = chartPosition.right - tooltipWidth
+                }
+                // for the left most check, we leave a 55px gap between the container's border and the tooltip
+                // this way the plot Y axis labels will still be visible (not covered by the tooltip)
+                if (tooltipWidth !== 0 && leftPosition < chartPosition.left + 55) {
+                    leftPosition = chartPosition.left + 55
+                }
                 return {
                     // tooltip height is 58px (see SCSS style at end of file)
-                    // and we leave a 10px gap to place our arrow (1px more than the arrow size, see style at end of file)
-                    top: `${this.pointBeingHovered.screenPosition[1] - 58 - 10}px`,
-                    // tooltip width is 170px, so half of that is 85px
-                    left: `${this.pointBeingHovered.screenPosition[0] - 85}px`,
+                    // and we leave a gap to place our arrow
+                    top: `${
+                        this.pointBeingHovered.screenPosition[1] -
+                        58 -
+                        GAP_BETWEEN_TOOLTIP_AND_PROFILE
+                    }px`,
+                    left: `${leftPosition}px`,
+                }
+            }
+            return {}
+        },
+        tooltipArrowStyle() {
+            if (this.pointBeingHovered) {
+                return {
+                    // see tooltipStyle() above, we've given a gap between the tooltip and arrow
+                    // we then have to raise the arrow one more pixel so that it overlaps the tooltip
+                    // and hide the tooltip's border (giving the impression it is part of the tooltip)
+                    top: `${
+                        this.pointBeingHovered.screenPosition[1] -
+                        GAP_BETWEEN_TOOLTIP_AND_PROFILE -
+                        1
+                    }px`,
+                    // arrow size is 9px
+                    left: `${this.pointBeingHovered.screenPosition[0] - 9}px`,
                 }
             }
             return {}
@@ -402,24 +443,22 @@ $tooltip-width: 170px;
     height: $tooltip-height;
     pointer-events: none;
     user-select: none;
-    &::before {
-        content: '';
-        position: absolute;
-        bottom: -$arrow-width;
-        left: calc(50% - ($arrow-width + $border-width));
+    &-arrow {
+        $arrow-width: 9px;
+        position: fixed;
         border-width: $arrow-width $arrow-width 0;
         border-style: solid;
         border-color: $border-color transparent;
-    }
-    &::after {
-        $inner-arrow-width: $arrow-width - $border-width;
-        content: '';
-        position: absolute;
-        bottom: -$inner-arrow-width;
-        left: calc(50% - $inner-arrow-width);
-        border-width: $inner-arrow-width $inner-arrow-width 0;
-        border-style: solid;
-        border-color: #fff transparent;
+        &::after {
+            $inner-arrow-width: $arrow-width - $border-width;
+            content: '';
+            position: absolute;
+            bottom: 1px;
+            left: calc(50% - $inner-arrow-width);
+            border-width: $inner-arrow-width $inner-arrow-width 0;
+            border-style: solid;
+            border-color: #fff transparent;
+        }
     }
 }
 </style>

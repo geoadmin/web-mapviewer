@@ -71,7 +71,6 @@ export default {
             elevationProfile: null,
             request: {
                 pending: false,
-                failed: false,
             },
         }
     },
@@ -157,7 +156,6 @@ export default {
                 })
                 .catch((error) => {
                     log.error('Error while fetching profile data', error)
-                    this.request.failed = true
                 })
                 .finally(() => {
                     this.request.pending = false
