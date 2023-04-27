@@ -4,14 +4,19 @@
  * @param {number} value
  * @param {number} decimals How many decimals after the separator must be present after rounding
  *   (default to 0)
+ * @param {boolean} enforcedigit if set to true, we want to have that many figures after the period.
+ *   Otherwise, we don't care.
  * @returns {number} Value rounded
  */
-export function round(value, decimals = 0) {
+export function round(value, decimals = 0, enforcedigit=false) {
     if (!isNumber(value)) {
         return undefined
     }
     if (decimals === 0) {
         return Math.round(value)
+    }
+    if (enforcedigit) {
+        return value.toFixed(decimals)
     }
     const pow = Math.pow(10, decimals)
     return Math.round(value * pow) / pow
