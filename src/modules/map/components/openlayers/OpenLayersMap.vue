@@ -102,7 +102,7 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID, VIEW_MIN_RESOLUTION } from '@/config'
 import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -346,6 +346,7 @@ export default {
         this.view = new View({
             center: this.center,
             zoom: this.zoom,
+            minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
         })
         this.map.setView(this.view)
@@ -360,6 +361,7 @@ export default {
         this.map.on('singleclick', this.onMapSingleClick)
         this.map.on('pointerdrag', this.onMapPointerDrag)
         this.map.on('moveend', this.onMapMoveEnd)
+
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
