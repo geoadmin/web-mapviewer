@@ -24,15 +24,16 @@ import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'
 import log from '@/utils/logging'
-
+import setupChartJS from '@/utils/setupChartJS'
 import setupProj4 from '@/utils/setupProj4'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // Importing styling CSS libraries
 import 'animate.css'
+import tippy from 'tippy.js'
 
 import { createApp } from 'vue'
 import VueSocialSharing from 'vue-social-sharing'
-import tippy from 'tippy.js'
 
 import App from './App.vue'
 // setting up font awesome vue component
@@ -62,6 +63,7 @@ log.debug('Config is', {
 
 tippy.setDefaultProps({ theme: 'light-border' })
 setupProj4()
+setupChartJS()
 
 const app = createApp(App)
 

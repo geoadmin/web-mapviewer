@@ -19,7 +19,7 @@ $loading-bar-animation-duration: 2s;
     z-index: 1000; //Always on top of current stacking context
     box-sizing: content-box;
     height: 2px;
-    position: fixed;
+    position: absolute;
     top: 0;
     width: 100%;
     display: block;

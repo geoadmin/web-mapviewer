@@ -88,7 +88,6 @@ describe('Profile popup actions', () => {
         }).as('profileAsCsv')
         // triggering a CSV download
         cy.get('[data-cy="profile-popup-csv-download-button"]').click()
-        cy.wait('@profileAsCsv')
         // check CSV content
         cy.fixture('service-alti/profile.fixture.csv').then((mockCsv) => {
             checkFiles('csv', (content) => {

@@ -612,5 +612,6 @@
 	"feedback_rating_title": "Come valuteresti la tua esperienza ? (obbligatorio)",
 	"send_failed": "Invio fallito",
 	"feedback_email": "La sua email (facoltativo)",
-	"feedback_invalid_email": "e-mail non valide"
+	"feedback_invalid_email": "e-mail non valide",
+	"profile_no_data": "Nessun dato"
 }

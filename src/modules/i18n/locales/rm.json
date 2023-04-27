@@ -610,5 +610,6 @@
 	"feedback_rating_title": "Wie würden Sie Ihre Erfahrung bewerten ? (erforderlich)",
 	"send_failed": "Senden fehlgeschlagen",
 	"feedback_email": "Ihre E-Mail Adresse (optional)",
-	"feedback_invalid_email": "ungültige E-Mail"
+	"feedback_invalid_email": "ungültige E-Mail",
+	"profile_no_data": "kein Datum"
 }
