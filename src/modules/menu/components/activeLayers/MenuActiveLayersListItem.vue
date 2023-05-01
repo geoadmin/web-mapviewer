@@ -97,6 +97,7 @@
                 <FontAwesomeIcon icon="arrow-down" />
             </button>
             <button
+                v-if="showLegendIcon"
                 class="btn d-flex align-items-center"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-show-legend-layer-${id}`"
@@ -177,6 +178,12 @@ export default {
                 return 'check-square'
             }
             return 'square'
+        },
+        showLegendIcon() {
+            if (this.layer !== null) {
+                return this.layer.hasLegend
+            }
+            return false
         },
     },
     methods: {
