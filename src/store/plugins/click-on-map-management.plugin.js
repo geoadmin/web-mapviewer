@@ -1,5 +1,6 @@
-import { identify } from '@/api/features.api'
+import { EditableFeature, EditableFeatureTypes, identify } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
@@ -88,9 +89,7 @@ const clickOnMapManagementPlugin = (store) => {
                     store.getters.visibleLayers,
                     store.state.i18n.lang
                 ).then((newSelectedFeatures) => {
-
                     if (!newSelectedFeatures?.length && allowActivateFullscreen) {
-
                         store.dispatch('toggleFullscreenMode')
                     }
 

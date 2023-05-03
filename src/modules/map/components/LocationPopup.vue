@@ -8,7 +8,7 @@
         data-cy="location-popup"
         @close="onClose"
     >
-        <div class="location-popup-coordinates ol-selectable">
+        <div class="location-popup-coordinates">
             <div class="lp-label">
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
             </div>
@@ -141,23 +141,19 @@ export default {
             return this.clickInfo?.coordinate
         },
         coordinateLV95() {
-            return printHumanReadableCoordinates(
-                reproject(CoordinateSystems.LV95.epsg, this.coordinate),
-                CoordinateSystems.LV95
-            )
+            const lv95_coordinates = reproject(CoordinateSystems.LV95.epsg, this.coordinate)
+            return `${round(lv95_coordinates[0], 2, true)}, ${round(lv95_coordinates[1], 2, true)}`
         },
         coordinateLV03() {
-            return printHumanReadableCoordinates(
-                reproject(CoordinateSystems.LV03.epsg, this.coordinate),
-                CoordinateSystems.LV03
-            )
+            const lv03_coordinates = reproject(CoordinateSystems.LV03.epsg, this.coordinate)
+            return `${round(lv03_coordinates[0], 2, true)}, ${round(lv03_coordinates[1], 2, true)}`
         },
         coordinateWGS84Metric() {
             return reproject(CoordinateSystems.WGS84.epsg, this.coordinate)
         },
         coordinateWGS84Plain() {
             const wgsMetric = this.coordinateWGS84Metric
-            return `${round(wgsMetric[1], 5)}, ${round(wgsMetric[0], 5)}`
+            return `${round(wgsMetric[1], 5, true)}, ${round(wgsMetric[0], 5, true)}`
         },
         coordinateWGS84() {
             const complete = printHumanReadableCoordinates(

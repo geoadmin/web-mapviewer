@@ -15,7 +15,7 @@ export default {
                 },
                 {
                     label: 'copyright_label',
-                    url: `https://www.geo.admin.ch/${this.$i18n.locale}/about-swiss-geoportal/impressum.html#copyright`,
+                    url: this.$t('copyright_url'),
                 },
             ]
         },

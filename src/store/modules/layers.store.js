@@ -19,6 +19,8 @@ const state = {
      * Currently active layers (that have been selected by the user from the search bar or the layer
      * tree)
      *
+     * Layers are ordered from bottom to top (last layer is shown on top of all the others)
+     *
      * @type AbstractLayer[]
      */
     activeLayers: [],
@@ -40,6 +42,8 @@ const state = {
 const getters = {
     /**
      * Filter all the active layers and gives only those who have the flag `visible` to `true`
+     *
+     * Layers are ordered from bottom to top (last layer is shown on top of all the others)
      *
      * @param state
      * @returns {AbstractLayer[]} All layers that are currently visible on the map

@@ -6,18 +6,20 @@
                     {{ title }}
                 </span>
                 <slot name="extra-buttons"></slot>
-                <ButtonWithIcon
+                <button
                     v-if="authorizePrint"
-                    :button-font-awesome-icon="['fa', 'print']"
-                    small
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     @click="printContent"
-                />
-                <ButtonWithIcon
+                >
+                    <FontAwesomeIcon icon="print" />
+                </button>
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="map-popover-close-button"
-                    :button-font-awesome-icon="['fa', 'times']"
-                    small
                     @click="onClose"
-                />
+                >
+                    <FontAwesomeIcon icon="times" />
+                </button>
             </div>
             <div
                 id="mapPopoverContent"
@@ -32,8 +34,8 @@
 </template>
 
 <script>
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Overlay from 'ol/Overlay'
 
 /**
@@ -41,7 +43,7 @@ import Overlay from 'ol/Overlay'
  * of the popover
  */
 export default {
-    components: { ButtonWithIcon },
+    components: { FontAwesomeIcon },
     inject: ['getMap'],
     props: {
         coordinates: {
@@ -74,7 +76,6 @@ export default {
             // element.
             offset: [0, 12],
             positioning: 'top-center',
-            className: 'map-popover-overlay',
             autoPan: { margin: 0 },
         })
     },

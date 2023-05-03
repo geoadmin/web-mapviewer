@@ -1,7 +1,7 @@
 <template>
     <div class="map-footer" :class="{ 'map-footer-fullscreen': isFullscreenMode }">
         <div class="map-footer-top">
-            <MapFooterAttribution />
+            <MapFooterAttributionList />
             <div>
                 <div class="map-background-selector">
                     <MapFooterBackgroundSelector />
@@ -27,10 +27,10 @@
 </template>
 
 <script>
+import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import { mapActions, mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
-import MapFooterAttribution from './MapFooterAttribution.vue'
 import MapFooterBackgroundSelector from './MapFooterBackgroundSelector.vue'
 import MapFooterMousePosition from './MapFooterMousePosition.vue'
 import MapFooterProjection from './MapFooterProjection.vue'
@@ -38,9 +38,9 @@ import MapFooterScale from './MapFooterScale.vue'
 
 export default {
     components: {
+        MapFooterAttributionList,
         MapFooterAppCopyright,
         MapFooterAppVersion,
-        MapFooterAttribution,
         MapFooterBackgroundSelector,
         MapFooterMousePosition,
         MapFooterProjection,
@@ -115,8 +115,11 @@ $flex-gap: 1em;
 
     &-middle {
         position: relative;
-        z-index: $zindex-footer-infobox;
+        z-index: $zindex-footer;
         background-color: $white;
+        @include respond-above(phone) {
+            z-index: $zindex-desktop-footer-infobox;
+        }
     }
 
     &-bottom {

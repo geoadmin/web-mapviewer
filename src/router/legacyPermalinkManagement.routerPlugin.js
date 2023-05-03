@@ -50,6 +50,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const legacyCoordinates = []
     Object.keys(legacyParams).forEach((param) => {
         let value
+
         let key = param
         switch (param) {
             // we need te re-evaluate LV95 zoom, as it was a zoom level tailor made for this projection
@@ -100,6 +101,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                 break
 
             // if no special work to do, we just copy past legacy params to the new viewer
+
             default:
                 value = legacyParams[param]
         }
@@ -115,7 +117,10 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             newQuery['lat'] = round(center[1], 6)
         }
         if (value) {
-            newQuery[key] = value
+            // When receiving a query, the application will encode the URI components
+            // We decode those so that the new query won't encode encoded character
+            // for example, we avoid having " " becoming %2520 in the URI
+            newQuery[key] = decodeURIComponent(value)
         }
     })
 

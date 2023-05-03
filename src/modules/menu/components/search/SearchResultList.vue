@@ -1,31 +1,39 @@
 <template>
     <div
-        id="search-results"
-        class="bg-light border rounded overflow-hidden"
-        data-cy="search-results"
-        @keydown.esc.prevent="$emit('close')"
+        class="search-results-container m-0"
+        :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
     >
-        <SearchResultCategory
-            :title="$t('locations_results_header')"
-            :half-size="results.locationResults.length > 0"
-            :entries="results.locationResults"
-            data-cy="search-results-locations"
-            @preview-start="setPinnedLocation"
-            @preview-stop="clearPinnedLocation"
-        />
-        <SearchResultCategory
-            :title="$t('layers_results_header')"
-            :half-size="results.layerResults.length > 0"
-            :entries="results.layerResults"
-            data-cy="search-results-layers"
-            @preview-start="setPreviewLayer"
-            @preview-stop="clearPreviewLayer"
-        />
+        <div
+            class="search-results bg-light"
+            :class="{
+                'border-top border-bottom rounded-bottom': isPhoneMode,
+                'border rounded': !isPhoneMode,
+            }"
+            data-cy="search-results"
+            @keydown.esc.prevent="$emit('close')"
+        >
+            <div class="search-results-inner">
+                <SearchResultCategory
+                    :title="$t('locations_results_header')"
+                    :entries="results.locationResults"
+                    data-cy="search-results-locations"
+                    @preview-start="setPinnedLocation"
+                    @preview-stop="clearPinnedLocation"
+                />
+                <SearchResultCategory
+                    :title="$t('layers_results_header')"
+                    :entries="results.layerResults"
+                    data-cy="search-results-layers"
+                    @preview-start="setPreviewLayer"
+                    @preview-stop="clearPreviewLayer"
+                />
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 import SearchResultCategory from './SearchResultCategory.vue'
 
 /**
@@ -40,6 +48,7 @@ export default {
             results: (state) => state.search.results,
             showResults: (state) => state.search.show,
         }),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
     },
     methods: {
         ...mapActions([
@@ -54,18 +63,47 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables';
 
-#search-results {
-    position: absolute;
-    top: 100%;
-    left: 0%;
+.search-results-container {
+    position: fixed;
+    top: $header-height;
+    // 45vh (so that previews are visible), but on small screen min 20rem (ca. 3 lines per category)
+    height: min(calc(100vh - $header-height), max(20rem, 45vh));
+    left: 0;
     width: 100%;
-    max-height: calc(75vh - 3rem);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
 }
-@include respond-above(lg) {
-    #search-results {
-        max-height: calc(75vh - 6rem);
+.search-results-dev-site-warning {
+    top: $header-height + $dev-disclaimer-height;
+    height: min(calc(100vh - $header-height - $dev-disclaimer-height), max(20rem, 45vh));
+    // Put the search results under the rest of the header so hovering over the warning works
+    // correctly
+    z-index: -1;
+}
+
+.search-results {
+    display: grid;
+    grid-auto-rows: 1fr;
+    max-height: 100%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    pointer-events: all;
+}
+
+.search-results-inner {
+    display: grid;
+    //Split evenly between all search result categories
+    grid-auto-rows: auto;
+    overflow: hidden;
+}
+
+@include respond-above(phone) {
+    .search-results-container {
+        position: absolute;
+        top: 100%;
+    }
+    .search-results-dev-site-warning {
+        z-index: initial;
     }
 }
 </style>

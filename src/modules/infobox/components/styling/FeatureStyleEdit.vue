@@ -7,7 +7,7 @@
             <textarea
                 id="drawing-style-feature-title"
                 v-model="text"
-                :read-only="readOnly"
+                :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="form-control"
                 rows="1"
@@ -21,7 +21,7 @@
             <textarea
                 id="drawing-style-feature-description"
                 v-model="description"
-                :read-only="readOnly"
+                :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="form-control"
                 rows="2"
@@ -31,14 +31,11 @@
         <div class="d-flex">
             <SelectedFeatureProfile :feature="feature" />
 
-            <div v-if="!readOnly" class="d-flex feature-style-edit-control">
-                <PopoverButton
+            <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
+                <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
-                    class="control-button"
                     data-cy="drawing-style-text-button"
-                    with-close-button
-                    popover-position="top"
-                    :button-font-awesome-icon="['fas', 'font']"
+                    icon="font"
                 >
                     <div data-cy="drawing-style-text-popup">
                         <DrawingStyleSizeSelector
@@ -51,15 +48,12 @@
                             @change="onTextColorChange"
                         />
                     </div>
-                </PopoverButton>
+                </DrawingStylePopoverButton>
 
-                <PopoverButton
+                <DrawingStylePopoverButton
                     v-if="isFeatureMarker"
-                    class="control-button"
                     data-cy="drawing-style-marker-button"
-                    with-close-button
-                    popover-position="top"
-                    :button-font-awesome-icon="['fas', 'map-marker-alt']"
+                    icon="fas fa-map-marker-alt"
                 >
                     <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
@@ -69,30 +63,28 @@
                         @change:icon-color="onColorChange"
                         @change:icon-size="onIconSizeChange"
                     />
-                </PopoverButton>
+                </DrawingStylePopoverButton>
 
-                <PopoverButton
+                <DrawingStylePopoverButton
                     v-if="isFeatureLine"
                     data-cy="drawing-style-line-button"
-                    popover-position="top"
-                    class="control-button"
-                    with-close-button
                     :popover-title="$t('modify_color_label')"
-                    :button-font-awesome-icon="['fas', 'paint-brush']"
+                    icon="paint-brush"
                 >
                     <DrawingStyleColorSelector
                         data-cy="drawing-style-line-popup"
                         :current-color="feature.fillColor"
                         @change="onColorChange"
                     />
-                </PopoverButton>
+                </DrawingStylePopoverButton>
 
-                <ButtonWithIcon
-                    class="control-button"
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="drawing-style-delete-button"
-                    :button-font-awesome-icon="['far', 'trash-alt']"
                     @click="onDelete"
-                ></ButtonWithIcon>
+                >
+                    <FontAwesomeIcon icon="far fa-trash-alt" />
+                </button>
             </div>
         </div>
     </div>
@@ -102,12 +94,12 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
+import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-import PopoverButton from '@/utils/PopoverButton.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions } from 'vuex'
 
 /**
@@ -118,12 +110,12 @@ import { mapActions } from 'vuex'
  */
 export default {
     components: {
+        FontAwesomeIcon,
         DrawingStyleColorSelector,
         DrawingStyleTextColorSelector,
         DrawingStyleSizeSelector,
         DrawingStyleIconSelector,
-        ButtonWithIcon,
-        PopoverButton,
+        DrawingStylePopoverButton,
         SelectedFeatureProfile,
     },
     props: {
@@ -215,11 +207,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/variables';
-
-.control-button {
-    margin-right: $button-spacer;
-}
-</style>

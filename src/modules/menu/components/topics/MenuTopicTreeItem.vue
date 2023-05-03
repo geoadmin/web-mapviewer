@@ -14,23 +14,33 @@
             @mouseenter="startResultPreview"
             @mouseleave="stopResultPreview"
         >
-            <ButtonWithIcon
-                :button-font-awesome-icon="showHideIcon"
+            <button
+                class="btn d-flex align-items-center"
                 :class="{
                     'text-danger': isActive || isHidden,
+                    'btn-lg': !compact,
+                    'btn-rounded': isTheme,
                 }"
-                :round="isTheme"
-                :large="!compact"
-            />
+            >
+                <FontAwesomeLayers v-if="isTheme">
+                    <FontAwesomeIcon class="text-secondary" icon="fa-regular fa-circle" />
+                    <FontAwesomeIcon size="xs" :icon="showChildren ? 'minus' : 'plus'" />
+                </FontAwesomeLayers>
+                <FontAwesomeIcon
+                    v-else
+                    :icon="`far fa-${isActive || isHidden ? 'check-' : ''}square`"
+                />
+            </button>
             <span class="menu-topic-item-name">{{ item.name }}</span>
-            <ButtonWithIcon
+            <button
                 v-if="isLayer"
+                class="btn"
+                :class="{ 'btn-lg': !compact }"
                 data-cy="topic-tree-item-info"
-                :button-font-awesome-icon="['fas', 'info-circle']"
-                :large="!compact"
-                transparent
                 @click.stop="onInfoClick"
-            />
+            >
+                <FontAwesomeIcon icon="info-circle" />
+            </button>
         </div>
         <CollapseTransition :duration="200">
             <ul
@@ -57,7 +67,7 @@
 
 <script>
 import { topicTypes } from '@/api/topics.api'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
+import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
@@ -69,7 +79,8 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 export default {
     name: 'MenuTopicTreeItem',
     components: {
-        ButtonWithIcon,
+        FontAwesomeLayers,
+        FontAwesomeIcon,
         CollapseTransition,
     },
     props: {

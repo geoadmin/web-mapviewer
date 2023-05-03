@@ -188,6 +188,15 @@ export const TILEGRID_RESOLUTIONS = [
 ]
 
 /**
+ * Map view's mininal resolution
+ * Currently set so that OL scalebar displays 10 meters
+ * Scalebar about 1" on screen, hence about 100px.  So, 10 meters/100px = 0.1
+ * Caveat: setting resolution (mininum and maximum) has the precedence over zoom (minimum/maximum)
+ */
+
+export const VIEW_MIN_RESOLUTION = 0.1  // meters/pixel
+
+/**
  * Array of coordinates with bottom left / top right values of the extent. This can be used to
  * constrain OpenLayers (or other mapping framework) to only ask for tiles that are within the
  * extent. It should remove for instance the big white zone that are around the pixelkarte-farbe.

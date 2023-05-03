@@ -59,10 +59,15 @@ describe('Topics', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array')
                 expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
-                rawTopic.activatedLayers.forEach((layerIdThatMustBeActive, index) => {
-                    const activeLayer = activeLayers[index]
-                    expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
-                })
+                // topics layer are in the reverse order as the store layer (topic: top->bottom, layer: bottom->top)
+                // so we have to revert the list of layers from the topic before checking their position in the store
+                rawTopic.activatedLayers
+                    .slice()
+                    .reverse()
+                    .forEach((layerIdThatMustBeActive, index) => {
+                        const activeLayer = activeLayers[index]
+                        expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
+                    })
             })
         }
         it('clears all activate layers and change background layer on topic selection', () => {
@@ -117,7 +122,7 @@ describe('Topics', () => {
             const complexTopic = mockupTopics.topics[4]
             selectTopicWithId(complexTopic.id)
             // from the mocked up response above
-            const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
+            const expectedActiveLayers = ['test.wms.layer', 'test.wmts.layer']
             const expectedVisibleLayers = ['test.wmts.layer']
             const expectedOpacity = {
                 'test.wmts.layer': 0.6,

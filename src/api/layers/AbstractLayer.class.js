@@ -1,5 +1,5 @@
 import { CoordinateSystems } from '@/utils/coordinateUtils'
-
+import LayerTypes from './LayerTypes.enum'
 /** Name (or description) of a data holder for a layer, with the possibility to define a URL */
 export class LayerAttribution {
     /**
@@ -87,5 +87,9 @@ export default class AbstractLayer {
      */
     async getMetadata() {
         return null
+    }
+
+    get hasLegend() {
+        return this.type !== LayerTypes.KML && !this.isExternal
     }
 }

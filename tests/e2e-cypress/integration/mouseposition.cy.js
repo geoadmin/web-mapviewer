@@ -178,7 +178,7 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system Plain WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-plain-wgs84"]').contains(
-                    `${lat}, ${lon}`
+                    `${lat.toFixed(5)}, ${lon.toFixed(5)}`
                 )
             })
             it('Uses the coordination system WGS84 in the popup', () => {

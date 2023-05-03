@@ -1,10 +1,11 @@
 <template>
-    <div class="d-flex p-2 profile-popup-info-buttons">
+    <div class="d-flex p-1 profile-popup-info-buttons">
         <div
+            v-if="profile && profile.hasElevationData"
             class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
             data-cy="profile-popup-info-container"
         >
-            <span
+            <small
                 v-for="info in profileInformationFormat"
                 :key="info.title"
                 :title="$t(info.title)"
@@ -21,14 +22,14 @@
                 <span data-cy="profile-popup-info">
                     {{ info.value }}
                 </span>
-            </span>
+            </small>
         </div>
         <slot />
     </div>
 </template>
 
 <script>
-import { ElevationProfile } from '@/api/profile.api'
+import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import { formatTime } from '@/modules/drawing/lib/drawingUtils'
 import { format } from '@/utils/numberUtils'
 

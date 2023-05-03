@@ -65,12 +65,13 @@
             @close="clearAllSelectedFeatures"
         >
             <template #extra-buttons>
-                <ButtonWithIcon
-                    :button-font-awesome-icon="['fa', 'caret-down']"
-                    small
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
                     @click="toggleFloatingTooltip"
-                />
+                >
+                    <FontAwesomeIcon icon="caret-down" />
+                </button>
             </template>
             <FeatureEdit
                 v-if="editFeature"
@@ -101,16 +102,17 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID, VIEW_MIN_RESOLUTION } from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Map, View } from 'ol'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions } from 'ol/interaction'
@@ -137,7 +139,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
-        ButtonWithIcon,
+        FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
         OpenLayersAccuracyCircle,
@@ -344,6 +346,7 @@ export default {
         this.view = new View({
             center: this.center,
             zoom: this.zoom,
+            minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
         })
         this.map.setView(this.view)
@@ -358,6 +361,7 @@ export default {
         this.map.on('singleclick', this.onMapSingleClick)
         this.map.on('pointerdrag', this.onMapPointerDrag)
         this.map.on('moveend', this.onMapMoveEnd)
+
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
@@ -406,6 +410,7 @@ export default {
                     .forEach((feature) => {
                         const editableFeature = feature.get('editableFeature')
                         if (editableFeature) {
+                            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
                             features.push(editableFeature)
                         } else {
                             log.debug(

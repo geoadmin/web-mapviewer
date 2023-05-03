@@ -6,20 +6,22 @@
         :data-cy="`menu-active-layer-${id}`"
     >
         <div class="menu-layer-item-title">
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'times-circle']"
+            <button
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-remove-layer-${id}`"
-                :large="!compact"
-                transparent
                 @click="onRemoveLayer"
-            />
-            <ButtonWithIcon
-                :button-font-awesome-icon="['far', checkboxIcon]"
+            >
+                <FontAwesomeIcon icon="times-circle" />
+            </button>
+            <button
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-toggle-visibility-layer-${id}`"
-                :large="!compact"
-                transparent
                 @click="onToggleLayerVisibility"
-            />
+            >
+                <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
+            </button>
             <span
                 class="menu-layer-item-name"
                 :data-cy="`active-layer-name${id}`"
@@ -28,27 +30,34 @@
             >
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"
-                :data-cy="`time-selector-${id}`"
+                :layer-id="id"
                 :time-config="layer.timeConfig"
                 :compact="compact"
                 @timestamp-change="onTimestampChange"
             />
-            <FontAwesomeIcon
+            <ThirdPartDisclaimer
                 v-if="hasDataDisclaimer(layer.getID())"
-                class="data-disclaimer-tooltip text-primary p-2"
-                icon="user"
-                data-cy="menu-external-disclaimer-icon"
-                @click="onDataDisclaimerClick()"
-            />
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'cog']"
-                class="menu-layer-item-details-toggle"
-                :class="{ 'text-primary': showDetails, flip: showLayerDetails }"
-                transparent
+                :complete-disclaimer-on-click="true"
+                :source-name="attributionName"
+            >
+                <FontAwesomeIcon
+                    ref="tooltipAnchor"
+                    class="data-disclaimer-tooltip text-primary p-2"
+                    icon="user"
+                    data-cy="menu-external-disclaimer-icon"
+                />
+            </ThirdPartDisclaimer>
+            <button
+                class="btn"
+                :class="{
+                    'btn-lg': !compact,
+                    'flip text-primary': showDetails,
+                }"
                 :data-cy="`button-open-visible-layer-settings-${id}`"
-                :large="!compact"
                 @click="onToggleLayerDetails"
-            />
+            >
+                <FontAwesomeIcon icon="cog" />
+            </button>
         </div>
         <div
             v-show="showDetails"
@@ -69,48 +78,42 @@
                 :data-cy="`slider-opacity-layer-${id}`"
                 @change="onOpacityChange"
             />
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'arrow-up']"
+            <button
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
                 :disabled="isFirstLayer"
                 :data-cy="`button-raise-order-layer-${id}`"
-                :large="!compact"
-                transparent
                 @click="onOrderChange(1)"
-            />
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'arrow-down']"
+            >
+                <FontAwesomeIcon icon="arrow-up" />
+            </button>
+            <button
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
                 :disabled="isLastLayer"
                 :data-cy="`button-lower-order-layer-${id}`"
-                :large="!compact"
-                transparent
                 @click="onOrderChange(-1)"
-            />
-            <ButtonWithIcon
-                :button-font-awesome-icon="['fas', 'info-circle']"
+            >
+                <FontAwesomeIcon icon="arrow-down" />
+            </button>
+            <button
+                v-if="showLegendIcon"
+                class="btn d-flex align-items-center"
+                :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-show-legend-layer-${id}`"
-                :large="!compact"
-                transparent
                 @click="showLayerLegendPopup"
-            />
+            >
+                <FontAwesomeIcon icon="info-circle" />
+            </button>
         </div>
-        <ModalWithBackdrop
-            v-if="showDataDisclaimer"
-            :title="$t('alert_title')"
-            header-primary
-            fluid
-            @close="onDataDisclaimerClose()"
-        >
-            {{ getDataDisclaimerContent }}
-        </ModalWithBackdrop>
     </div>
 </template>
 
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import ButtonWithIcon from '@/utils/ButtonWithIcon.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import tippy from 'tippy.js'
+import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapGetters, mapState } from 'vuex'
 
 /**
@@ -118,7 +121,11 @@ import { mapGetters, mapState } from 'vuex'
  * visibility, opacity or position in the layer stack)
  */
 export default {
-    components: { ButtonWithIcon, MenuActiveLayersListItemTimeSelector, ModalWithBackdrop },
+    components: {
+        FontAwesomeIcon,
+        MenuActiveLayersListItemTimeSelector,
+        ThirdPartDisclaimer,
+    },
     props: {
         layer: {
             type: AbstractLayer,
@@ -152,7 +159,6 @@ export default {
     ],
     data() {
         return {
-            showLayerDetails: false,
             showDataDisclaimer: false,
         }
     },
@@ -173,53 +179,15 @@ export default {
             }
             return 'square'
         },
-        clogTransformation() {
-            const transformation = {
-                rotate: 0,
+        showLegendIcon() {
+            if (this.layer !== null) {
+                return this.layer.hasLegend
             }
-            if (this.showDetails) {
-                transformation.rotate = 180
-            }
-            return transformation
+            return false
         },
-        getDataDisclaimerTooltipContent() {
-            return this.$i18n.t('external_data_tooltip')
-        },
-        getDataDisclaimerContent() {
-            return this.$i18n.t('external_data_warning').replace('--URL--', this.attributionName)
-        },
-    },
-    watch: {
-        compact(compact) {
-            this.disclaimerPopup?.forEach((instance) => {
-                instance.setProps({ placement: compact ? 'right' : 'bottom' })
-            })
-        },
-        lang() {
-            this.disclaimerPopup?.forEach((instance) => {
-                instance.setContent(this.getDataDisclaimerTooltipContent)
-            })
-        },
-    },
-    mounted() {
-        if (this.hasDataDisclaimer(this.layer.getID())) {
-            this.disclaimerPopup = tippy(`.data-disclaimer-tooltip`, {
-                theme: 'primary',
-                content: this.getDataDisclaimerTooltipContent,
-                arrow: true,
-                placement: this.compact ? 'right' : 'bottom',
-                touch: false,
-            })
-        }
-    },
-    beforeUnmount() {
-        this.disclaimerPopup?.forEach((instance) => {
-            instance.destroy()
-        })
     },
     methods: {
         onToggleLayerDetails() {
-            this.showLayerDetails = !this.showLayerDetails
             this.$emit('toggleLayerDetails', this.id)
         },
         onRemoveLayer() {
@@ -239,12 +207,6 @@ export default {
         },
         onTimestampChange(timestamp) {
             this.$emit('timestampChange', this.id, timestamp)
-        },
-        onDataDisclaimerClick() {
-            this.showDataDisclaimer = true
-        },
-        onDataDisclaimerClose() {
-            this.showDataDisclaimer = false
         },
     },
 }
@@ -279,5 +241,12 @@ export default {
     display: flex;
     flex-grow: 1;
     cursor: pointer;
+}
+
+svg {
+    transition: transform 0.2s, color 0.2s;
+    .flip & {
+        transform: rotate(180deg);
+    }
 }
 </style>
