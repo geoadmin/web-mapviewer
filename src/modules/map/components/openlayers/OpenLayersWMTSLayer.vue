@@ -44,13 +44,21 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         timestampForPreviewYear() {
-            if (this.previewYear) {
-                return this.wmtsLayerConfig.timeConfig.getTimestampForYear(this.previewYear).timestamp
+            if (
+                this.previewYear &&
+                this.wmtsLayerConfig.timeConfig &&
+                this.wmtsLayerConfig.timeConfig.years.includes(this.previewYear)
+            ) {
+                return this.wmtsLayerConfig.timeConfig.getTimestampForYear(this.previewYear)
+                    .timestamp
             }
             return null
         },
         url() {
-            return this.wmtsLayerConfig.getURL(this.timestampForPreviewYear, this.projection.epsgNumber)
+            return this.wmtsLayerConfig.getURL(
+                this.timestampForPreviewYear,
+                this.projection.epsgNumber
+            )
         },
     },
     watch: {

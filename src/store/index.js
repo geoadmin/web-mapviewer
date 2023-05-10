@@ -50,6 +50,5 @@ export default createStore({
         topics,
         ui,
         share,
-        i18n,
     },
 })

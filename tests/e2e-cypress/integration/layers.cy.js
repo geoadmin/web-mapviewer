@@ -110,7 +110,7 @@ describe('Test of layer handling', () => {
                 const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
                 const randomTimestampFromLayer = getRandomTimestampFromSeries(timedLayerMetadata)
                 cy.goToMapView('en', {
-                    layers: `${timeEnabledLayerId}@time=${randomTimestampFromLayer}`,
+                    layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(0, 4)}`,
                 })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     const [timeEnabledLayer] = layers

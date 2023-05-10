@@ -19,7 +19,7 @@ import log from '@/utils/logging'
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.getID()
     if (layer.timeConfig && layer.timeConfig.timestamps.length > 1) {
-        layerUrlString += `@time=${layer.timeConfig.currentYear}`
+        layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }
     if (!layer.visible) {
         layerUrlString += `,f`
@@ -155,15 +155,15 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
         }
     })
-    // setting timestamps fore timed layers if specified in the URL
+    // setting year fore timed layers if specified in the URL
     parsedLayers
-        .filter((layer) => layer.customAttributes && layer.customAttributes.time)
+        .filter((layer) => layer.customAttributes && layer.customAttributes.year)
         .forEach((timedLayer) => {
             log.debug(`  Set year to timed layer ${timedLayer.id}`, timedLayer)
             promisesForAllDispatch.push(
                 store.dispatch('setTimedLayerCurrentYear', {
                     layerId: timedLayer.id,
-                    year: timedLayer.customAttributes.time,
+                    year: timedLayer.customAttributes.year,
                 })
             )
         })

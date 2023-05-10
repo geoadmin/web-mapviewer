@@ -62,10 +62,16 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      *   EPSG:2056 will require an input of 2056)
      * @returns {String} A XYZ type URL to request this WMTS layer's tiles
      */
-    getURL(timestasmp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
-        return `${this.baseURL}1.0.0/${this.getID()}/default/${
-            timestasmp || this.timeConfig.currentTimestamp
-        }/${epsgNumber}/{z}/{x}/{y}.${this.format}`
+    getURL(timestamp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
+        let timestampToUse = timestamp
+        if (!timestampToUse || !this.timeConfig.hasTimestamp(timestampToUse)) {
+            // if no timestamp was given as param, or if the given timestamp is not part of the possible timestamps
+            // we fall back to the timestamp in the time config
+            timestampToUse = this.timeConfig.currentTimestamp
+        }
+        return `${
+            this.baseURL
+        }1.0.0/${this.getID()}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 
     get hasMultipleTimestamps() {
