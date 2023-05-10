@@ -5,7 +5,8 @@
 </template>
 
 <script>
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
@@ -21,17 +22,13 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 export default {
     mixins: [addLayerToMapMixin],
     props: {
-        layerId: {
-            type: String,
+        wmsLayerConfig: {
+            type: [GeoAdminWMSLayer, ExternalWMSLayer],
             required: true,
         },
-        url: {
-            type: String,
-            required: true,
-        },
-        opacity: {
+        previewYear: {
             type: Number,
-            default: 1.0,
+            default: null,
         },
         projection: {
             type: CoordinateSystem,
@@ -41,27 +38,48 @@ export default {
             type: Number,
             default: -1,
         },
-        wmsVersion: {
-            type: String,
-            default: '1.3.0',
-        },
-        format: {
-            type: String,
-            default: 'png',
-        },
-        gutter: {
-            type: Number,
-            default: -1,
-        },
-        timeConfig: {
-            type: LayerTimeConfig,
-            default: null,
-        },
     },
     computed: {
         ...mapState({
             currentLang: (state) => state.i18n.lang,
         }),
+        layerId() {
+            return this.wmsLayerConfig.geoAdminID || this.wmsLayerConfig.externalLayerId
+        },
+        opacity() {
+            return this.wmsLayerConfig.opacity || 1.0
+        },
+        wmsVersion() {
+            return this.wmsLayerConfig.wmsVersion || '1.3.0'
+        },
+        format() {
+            return this.wmsLayerConfig.format || 'png'
+        },
+        gutter() {
+            return this.wmsLayerConfig.gutter || -1
+        },
+        url() {
+            return this.wmsLayerConfig.getURL(this.previewYear, this.projection.epsgNumber)
+        },
+        timestamp() {
+            if (this.wmsLayerConfig.timeConfig) {
+                // if there is a preview year set, we search for the matching timestamp
+                if (this.previewYear) {
+                    const matchingTimestamp = this.wmsLayerConfig.getTimestampForYear(
+                        this.previewYear
+                    )
+                    if (matchingTimestamp) {
+                        return matchingTimestamp.timestamp
+                    }
+                }
+                // if a timestamp is defined, and is different from 'all'
+                // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
+                if (this.wmsLayerConfig.timeConfig.currentTimestamp !== 'all') {
+                    return this.wmsLayerConfig.timeConfig.currentTimestamp
+                }
+            }
+            return ''
+        },
         /**
          * Definition of all relevant URL param for our WMS backends. This is because both
          * https://openlayers.org/en/latest/apidoc/module-ol_source_TileWMS-TileWMS.html and
@@ -79,15 +97,11 @@ export default {
                 SERVICE: 'WMS',
                 REQUEST: 'GetMap',
                 TRANSPARENT: true,
-                LAYERS: this.layerId,
+                LAYERS: this.wmsLayerConfig.layerId,
                 FORMAT: `image/${this.format}`,
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,
-                // if a timestamp is defined, and is different from 'all' (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                TIME:
-                    this.timeConfig && this.timeConfig.currentTimestamp !== 'all'
-                        ? this.timeConfig.currentTimestamp
-                        : '',
+                TIME: this.timestamp,
             }
         },
     },

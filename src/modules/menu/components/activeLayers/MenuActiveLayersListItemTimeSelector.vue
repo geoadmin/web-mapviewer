@@ -44,6 +44,7 @@
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { isNumber } from '@/utils/numberUtils'
 import tippy from 'tippy.js'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     props: {
@@ -62,10 +63,18 @@ export default {
     },
     emits: ['timestampChange'],
     computed: {
+        ...mapState({
+            previewYear: (state) => state.layers.previewYear,
+        }),
         hasMultipleTimestamps() {
             return this.timeConfig.timestamps.length > 1
         },
         humanReadableCurrentTimestamp() {
+            if (this.previewYear) {
+                return this.renderHumanReadableTimestamp(
+                    this.timeConfig.getTimestampForYear(this.previewYear).timestamp
+                )
+            }
             return this.renderHumanReadableTimestamp(this.timeConfig.currentTimestamp)
         },
         allTimestampsIncludingAllIfNeeded() {

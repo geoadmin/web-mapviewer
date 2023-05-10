@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import log from '@/utils/logging'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { Tile as TileLayer } from 'ol/layer'
@@ -16,21 +16,8 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 export default {
     mixins: [addLayerToMapMixin],
     props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 1.0,
-        },
-    },
-        visible: {
-            type: Boolean,
-            default: true,
-        },
-        getCapabilitiesUrl: {
-            type: String,
+        externalWmtsLayerConfig: {
+            type: ExternalWMTSLayer,
             required: true,
         },
         zIndex: {
@@ -38,12 +25,20 @@ export default {
             default: -1,
         },
     },
+    computed: {
+        layerId() {
+            return this.externalWmtsLayerConfig.externalLayerId
+        },
+        opacity() {
+            return this.externalWmtsLayerConfig.opacity || 1.0
+        },
+        getCapabilitiesUrl() {
+            return this.externalWmtsLayerConfig.getURL()
+        },
+    },
     watch: {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
-        },
-        visible(newVisibility) {
-            this.layer.setVisible(newVisibility)
         },
         url(newUrl) {
             this.layer.getSource().setUrl(newUrl)
@@ -54,7 +49,6 @@ export default {
         this.layer = new TileLayer({
             id: this.layerId,
             opacity: this.opacity,
-            visible: this.visible,
         })
         // fetching getCapabilities information in order to generate a proper layer config
         fetch(this.getCapabilitiesUrl)
