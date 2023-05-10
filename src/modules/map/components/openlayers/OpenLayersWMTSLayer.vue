@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS } from '@/config'
 import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { Tile as TileLayer } from 'ol/layer'
@@ -18,37 +19,43 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 export default {
     mixins: [addLayerToMapMixin],
     props: {
-        layerId: {
-            type: String,
+        wmtsLayerConfig: {
+            type: GeoAdminWMTSLayer,
             required: true,
         },
-        opacity: {
+        previewYear: {
             type: Number,
-            default: 1.0,
+            default: null,
         },
         projection: {
             type: CoordinateSystem,
             default: WEBMERCATOR,
-        },
-        visible: {
-            type: Boolean,
-            default: true,
-        },
-        url: {
-            type: String,
-            required: true,
         },
         zIndex: {
             type: Number,
             default: -1,
         },
     },
+    computed: {
+        layerId() {
+            return this.wmtsLayerConfig.getID()
+        },
+        opacity() {
+            return this.wmtsLayerConfig.opacity || 1.0
+        },
+        timestampForPreviewYear() {
+            if (this.previewYear) {
+                return this.wmtsLayerConfig.timeConfig.getTimestampForYear(this.previewYear).timestamp
+            }
+            return null
+        },
+        url() {
+            return this.wmtsLayerConfig.getURL(this.timestampForPreviewYear, this.projection.epsgNumber)
+        },
+    },
     watch: {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
-        },
-        visible(newVisibility) {
-            this.layer.setVisible(newVisibility)
         },
         url(newUrl) {
             this.layer.getSource().setUrl(newUrl)

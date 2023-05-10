@@ -11,16 +11,14 @@
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
+            :wmts-layer-config="layerConfig"
+            :preview-year="previewYear"
             :projection="LV95"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
-            :layer-id="layerConfig.externalLayerId"
-            :opacity="layerConfig.opacity"
-            :get-capabilities-url="layerConfig.getURL()"
+            :external-wmts-layer-config="layerConfig"
             :z-index="zIndex"
         />
         <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
@@ -28,13 +26,9 @@
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
-            :opacity="layerConfig.opacity"
+            :wms-layer-config="layerConfig"
+            :preview-year="previewYear"
             :projection="layerConfig.isExternal ? WEBMERCATOR.epsg : LV95"
-            :wms-version="layerConfig.wmsVersion"
-            :time-config="layerConfig.timeConfig"
-            :format="layerConfig.format"
-            :gutter="layerConfig.gutter"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
@@ -115,6 +109,10 @@ export default {
         currentMapResolution: {
             type: Number,
             default: -1,
+        },
+        previewYear: {
+            type: Number,
+            default: null,
         },
     },
     data() {

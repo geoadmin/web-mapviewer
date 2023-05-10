@@ -18,7 +18,6 @@
                 @toggle-layer-details="onToggleLayerDetails"
                 @opacity-change="onOpacityChange"
                 @order-change="onOrderChange"
-                @timestamp-change="onTimestampChange"
                 @show-layer-legend-popup="showLayerLegendForId = layer.getID()"
             />
             <LayerLegendPopup
@@ -79,7 +78,6 @@ export default {
             'removeLayer',
             'showOverlay',
             'setOverlayShouldBeFront',
-            'setTimedLayerCurrentTimestamp',
         ]),
         onRemoveLayer(layerId) {
             this.removeLayer(layerId)
@@ -97,9 +95,6 @@ export default {
         },
         onOpacityChange(layerId, opacity) {
             this.setLayerOpacity({ layerId, opacity })
-        },
-        onTimestampChange(layerId, timestamp) {
-            this.setTimedLayerCurrentTimestamp({ layerId, timestamp })
         },
         isFirstLayer(layerId) {
             return this.activeLayers[0].getID() === layerId

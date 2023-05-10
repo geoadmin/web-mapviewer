@@ -37,6 +37,17 @@ const state = {
      * @type AbstractLayer
      */
     previewLayer: null,
+    /**
+     * Year being picked by the time slider. The format is YYYY (but might evolve in the future in
+     * the ISO 8601 date format direction, meaning YYYY-MM-DD, hence the String type).
+     *
+     * We store it outside the time config of layers so that layers revert back to their specific
+     * chosen timestamp when the time slider is closed. That also means that the year picked by the
+     * time slider doesn't end up in the URL params too.
+     *
+     * @type Number
+     */
+    previewYear: null,
 }
 
 const getters = {
@@ -293,6 +304,17 @@ const actions = {
     clearPreviewLayer({ commit }) {
         commit('setPreviewLayer', null)
     },
+    setPreviewYear({ commit, state }, year) {
+        const possibleYears = state.activeLayers.flatMap((layer) => layer.timeConfig.years)
+        if (possibleYears.includes(year)) {
+            commit('setPreviewYear', year)
+        } else {
+            log.error('year not found in active layers, ignoring', year)
+        }
+    },
+    clearPreviewYear({ commit }) {
+        commit('setPreviewYear', null)
+    },
 }
 
 const mutations = {
@@ -346,6 +368,9 @@ const mutations = {
     },
     setPreviewLayer(state, layer) {
         state.previewLayer = layer
+    },
+    setPreviewYear(state, year) {
+        state.previewYear = year
     },
 }
 
