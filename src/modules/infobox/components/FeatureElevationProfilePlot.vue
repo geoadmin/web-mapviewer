@@ -53,7 +53,7 @@
 
 <script>
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { FeatureStyleColor } from '@/utils/featureStyleUtils'
 import { round } from '@/utils/numberUtils'
 import { resetZoom } from 'chartjs-plugin-zoom'
@@ -359,11 +359,7 @@ export default {
         pointBeingHovered(newPoint) {
             if (newPoint) {
                 this.currentHoverPosOverlay.setPosition(
-                    proj4(
-                        CoordinateSystems.LV95.epsg,
-                        CoordinateSystems.WEBMERCATOR.epsg,
-                        newPoint.coordinates
-                    )
+                    proj4(LV95.epsg, WEBMERCATOR.epsg, newPoint.coordinates)
                 )
             } else {
                 this.currentHoverPosOverlay.setPosition(null)

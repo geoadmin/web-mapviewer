@@ -7,7 +7,7 @@
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
 import ImageWMS from 'ol/source/ImageWMS'
@@ -34,8 +34,8 @@ export default {
             default: 1.0,
         },
         projection: {
-            type: String,
-            default: CoordinateSystems.WEBMERCATOR.epsg,
+            type: CoordinateSystem,
+            default: WEBMERCATOR.epsg,
         },
         zIndex: {
             type: Number,
@@ -103,7 +103,7 @@ export default {
         let source = undefined
         if (this.gutter !== -1) {
             source = new TileWMS({
-                projection: this.projection,
+                projection: this.projection.epsg,
                 url: this.url,
                 gutter: this.gutter,
                 params: this.wmsUrlParams,
@@ -111,12 +111,12 @@ export default {
         } else {
             source = new ImageWMS({
                 url: this.url,
-                projection: this.projection,
+                projection: this.projection.epsg,
                 params: this.wmsUrlParams,
             })
         }
         // If we are using LV95, we can constrain the WMS to only request tiles over Switzerland
-        if (this.projection === CoordinateSystems.LV95.epsg) {
+        if (this.projection === LV95) {
             const tileGridLV95 = new TileGrid({
                 resolutions: TILEGRID_RESOLUTIONS,
                 extent: TILEGRID_EXTENT,
@@ -131,18 +131,14 @@ export default {
             // see: https://github.com/geoadmin/web-mapviewer/commit/c689f9a650c546c6e52a91fc2086d7cbbf48faa2
             if (this.gutter !== -1) {
                 source.setTileGridForProjection(
-                    CoordinateSystems.WEBMERCATOR.epsg,
+                    WEBMERCATOR.epsg,
                     new TileGrid({
                         resolutions: TILEGRID_RESOLUTIONS,
-                        origin: proj4(
-                            CoordinateSystems.LV95.epsg,
-                            CoordinateSystems.WEBMERCATOR.epsg,
-                            TILEGRID_ORIGIN
-                        ),
+                        origin: proj4(LV95.epsg, WEBMERCATOR.epsg, TILEGRID_ORIGIN),
                         extent: transformExtent(
                             tileGridLV95.getExtent(),
-                            CoordinateSystems.LV95.epsg,
-                            CoordinateSystems.WEBMERCATOR.epsg
+                            LV95.epsg,
+                            WEBMERCATOR.epsg
                         ),
                     })
                 )

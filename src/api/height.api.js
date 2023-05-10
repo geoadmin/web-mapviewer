@@ -1,5 +1,5 @@
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
@@ -28,11 +28,7 @@ export class HeightForPosition {
 export const requestHeight = (coordinates) => {
     return new Promise((resolve, reject) => {
         if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
-            const lv95coords = proj4(
-                CoordinateSystems.WEBMERCATOR.epsg,
-                CoordinateSystems.LV95.epsg,
-                coordinates
-            )
+            const lv95coords = proj4(WEBMERCATOR.epsg, LV95.epsg, coordinates)
             axios
                 .get(`${API_SERVICE_ALTI_BASE_URL}rest/services/height`, {
                     params: {

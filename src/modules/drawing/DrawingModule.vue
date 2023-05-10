@@ -444,7 +444,7 @@ export default {
             try {
                 const kml = await getKml(layer.fileId)
                 const features = new KML().readFeatures(kml, {
-                    featureProjection: layer.projection,
+                    featureProjection: layer.projection.epsg,
                 })
                 features.forEach((olFeature) => {
                     EditableFeature.deserialize(olFeature, this.availableIconSets)

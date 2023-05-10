@@ -1,21 +1,22 @@
-import { CoordinateSystems } from '@/utils/coordinateUtils'
-import { LineString, Polygon, MultiLineString, Point, MultiPolygon } from 'ol/geom'
-import { Circle, Fill, Stroke, Style, Text, RegularShape } from 'ol/style'
-import { Geodesic, PolygonArea, Math as geographicMath } from 'geographiclib-geodesic'
-import proj4 from 'proj4'
-import {
-    createOrUpdateFromFlatCoordinates /* Warning: private method of openlayers */,
-    buffer as bufferExtent,
-    returnOrUpdate /* Warning: private method of openlayers */,
-    boundingExtent,
-} from 'ol/extent'
-import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
+import {
+    boundingExtent,
+    buffer as bufferExtent,
+    createOrUpdateFromFlatCoordinates /* Warning: private method of openlayers */,
+    returnOrUpdate /* Warning: private method of openlayers */,
+} from 'ol/extent'
+import { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
+import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
+import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
+import proj4 from 'proj4'
 
-const WEBMERCATOR = CoordinateSystems.WEBMERCATOR.epsg
-const WGS84 = CoordinateSystems.WGS84.epsg
 const geod = Geodesic.WGS84
-const DEG360_IN_WEBMERCATOR = CoordinateSystems.WEBMERCATOR.deg360
+
+/* This means that the wgs map extent [-180,-90,180,90] would be
+[-HALF_SIZE, -HALF_SIZE, HALF_SIZE, HALF_SIZE] in webmercator */
+export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
 
 /**
  * Class responsible for:
@@ -84,7 +85,7 @@ export class GeodesicGeometries {
     }
 
     _calculateEverything() {
-        this.geom = this.feature.getGeometry().clone().transform(WEBMERCATOR, WGS84)
+        this.geom = this.feature.getGeometry().clone().transform(WEBMERCATOR.epsg, WGS84.epsg)
         this.coords = this.geom.getCoordinates()
         this.isDrawing = this.feature.get('isDrawing')
         this.isPolygon = false
@@ -464,7 +465,7 @@ class MeasureStyles {
                 scale: 1,
                 offsetY: -15,
             }),
-            geometry: new Point(point).transform(WGS84, WEBMERCATOR),
+            geometry: new Point(point).transform(WGS84.epsg, WEBMERCATOR.epsg),
             zIndex: 21,
         })
     }
@@ -552,10 +553,10 @@ class AutoSplitArray {
         if (this.segmentNr >= 0 && this.lineStrings[this.lineStrNr].length > 1) {
             const lastCoord = [this.lastCoord.lon, this.lastCoord.lat]
             let subsegment = [
-                proj4(WGS84, WEBMERCATOR, lastCoord),
-                proj4(WGS84, WEBMERCATOR, coord),
+                proj4(WGS84.epsg, WEBMERCATOR.epsg, lastCoord),
+                proj4(WGS84.epsg, WEBMERCATOR.epsg, coord),
             ]
-            subsegment[1][0] += offset * DEG360_IN_WEBMERCATOR
+            subsegment[1][0] += offset * 2 * HALFSIZE_WEBMERCATOR
             const subsegmentExtent = boundingExtent(subsegment)
             if (!this.subsegments[this.segmentNr]) {
                 if (this.segmentNr > 0) {
@@ -574,7 +575,7 @@ class AutoSplitArray {
         if (this.lineStrings[this.lineStrNr].length <= 1) {
             this.lineStrings.pop()
         }
-        return new MultiLineString(this.lineStrings).transform(WGS84, WEBMERCATOR)
+        return new MultiLineString(this.lineStrings).transform(WGS84.epsg, WEBMERCATOR.epsg)
     }
     /**
      * @param {GeodesicGeometries} geodesic
@@ -606,6 +607,6 @@ class AutoSplitArray {
                 coords.push(first)
                 return [coords]
             })
-        ).transform(WGS84, WEBMERCATOR)
+        ).transform(WGS84.epsg, WEBMERCATOR.epsg)
     }
 }

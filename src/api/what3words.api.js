@@ -1,4 +1,4 @@
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
@@ -39,14 +39,10 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                 )
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-coords
                 .then((response) => {
-                    const what3wordLocationEpsg3857 = proj4(
-                        CoordinateSystems.WGS84.epsg,
-                        CoordinateSystems.WEBMERCATOR.epsg,
-                        [
-                            round(response.data.coordinates.lng, 5),
-                            round(response.data.coordinates.lat, 5),
-                        ]
-                    )
+                    const what3wordLocationEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                        round(response.data.coordinates.lng, 5),
+                        round(response.data.coordinates.lat, 5),
+                    ])
                     resolve([
                         round(what3wordLocationEpsg3857[0], 1),
                         round(what3wordLocationEpsg3857[1], 1),
@@ -74,11 +70,7 @@ export const registerWhat3WordsLocation = (location, lang = 'en') => {
             reject('Bad location, must be a coordinate array')
         } else {
             // transforming EPSG:3857 coordinates into EPGS:4326 (WGS84)
-            const [lon, lat] = proj4(
-                CoordinateSystems.WEBMERCATOR.epsg,
-                CoordinateSystems.WGS84.epsg,
-                location
-            )
+            const [lon, lat] = proj4(WEBMERCATOR.epsg, WGS84.epsg, location)
             axios
                 .get(`${WHAT_3_WORDS_API_BASE_URL}/convert-to-3wa`, {
                     params: {

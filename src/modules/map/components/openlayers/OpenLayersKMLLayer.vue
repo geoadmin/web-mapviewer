@@ -6,15 +6,15 @@
 
 <script>
 import { EditableFeature } from '@/api/features.api'
+import { getKmlFromUrl } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import log from '@/utils/logging'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { getKmlFromUrl } from '@/api/files.api'
-import log from '@/utils/logging'
 
 /** Renders a KML file on the map */
 export default {
@@ -32,10 +32,6 @@ export default {
         opacity: {
             type: Number,
             default: 1.0,
-        },
-        projection: {
-            type: String,
-            default: CoordinateSystems.WEBMERCATOR.epsg,
         },
         zIndex: {
             type: Number,
@@ -88,7 +84,7 @@ export default {
                 const kml = await getKmlFromUrl(url)
                 const features = new KML().readFeatures(kml, {
                     // Reproject all features to webmercator, as this is the projection used for the view
-                    featureProjection: CoordinateSystems.WEBMERCATOR.epsg,
+                    featureProjection: WEBMERCATOR.epsg,
                 })
                 // We cannot add the KML features without deserializing it and to deserialize we need
                 // the icon sets which might not be yet available, therefore we keep the raw kml features
