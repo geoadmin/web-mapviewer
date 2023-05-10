@@ -1,11 +1,11 @@
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import i18n from '@/modules/i18n/index'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 
 const kmlFormat = new KML()
 const gpxFormat = new GPX()
@@ -41,10 +41,7 @@ export const DrawingState = Object.freeze({
  * @param featureProjection {String} Projection used to describe the feature (default is EPSG:3857)
  * @returns {string}
  */
-export function generateGpxString(
-    features = [],
-    featureProjection = CoordinateSystems.WEBMERCATOR.epsg
-) {
+export function generateGpxString(features = [], featureProjection = WEBMERCATOR.epsg) {
     const normalizedFeatures = features.map((feature) => {
         const clone = feature.clone()
         const geom = clone.getGeometry()
@@ -74,9 +71,7 @@ export function generateKmlString(features = [], styleFunction = null) {
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        clone
-            .getGeometry()
-            .transform(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg)
+        clone.getGeometry().transform(WEBMERCATOR.epsg, WGS84.epsg)
         let styles = styleFunction || featureStyleFunction
         styles = styles(clone)
         const newStyle = {

@@ -13,9 +13,8 @@
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.epsgNumber)"
+            :projection="LV95"
             :z-index="zIndex"
-            :projection="LV95.epsg"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
@@ -31,13 +30,12 @@
             v-if="layerConfig.type === LayerTypes.WMS"
             :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
             :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.epsgNumber)"
+            :projection="layerConfig.isExternal ? WEBMERCATOR.epsg : LV95"
             :wms-version="layerConfig.wmsVersion"
             :time-config="layerConfig.timeConfig"
             :format="layerConfig.format"
             :gutter="layerConfig.gutter"
             :z-index="zIndex"
-            :projection="LV95.epsg"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
@@ -83,7 +81,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
@@ -122,7 +120,8 @@ export default {
     data() {
         return {
             LayerTypes,
-            LV95: CoordinateSystems.LV95,
+            LV95,
+            WEBMERCATOR,
         }
     },
     methods: {

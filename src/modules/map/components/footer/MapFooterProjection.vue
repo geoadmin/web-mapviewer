@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import allCoordinateSystems from '@/utils/coordinateSystems'
 
 export default {
     inject: ['getMap'],
@@ -29,7 +29,7 @@ export default {
     emits: ['projectionChange'],
     data() {
         return {
-            availableProjections: CoordinateSystems,
+            availableProjections: allCoordinateSystems,
         }
     },
     methods: {

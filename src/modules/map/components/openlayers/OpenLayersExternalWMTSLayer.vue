@@ -24,10 +24,7 @@ export default {
             type: Number,
             default: 1.0,
         },
-        projection: {
-            type: String,
-            default: CoordinateSystems.WEBMERCATOR.epsg,
-        },
+    },
         visible: {
             type: Boolean,
             default: true,

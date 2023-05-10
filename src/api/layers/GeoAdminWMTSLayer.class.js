@@ -1,6 +1,6 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
