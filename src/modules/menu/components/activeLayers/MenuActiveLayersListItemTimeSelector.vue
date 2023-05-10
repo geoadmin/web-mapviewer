@@ -60,6 +60,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        layerIsVisible: {
+            type: Boolean,
+            default: true,
+        },
     },
     emits: ['timestampChange'],
     computed: {
@@ -70,10 +74,11 @@ export default {
             return this.timeConfig.timestamps.length > 1
         },
         humanReadableCurrentTimestamp() {
-            if (this.previewYear) {
-                return this.renderHumanReadableTimestamp(
-                    this.timeConfig.getTimestampForYear(this.previewYear).timestamp
-                )
+            if (this.layerIsVisible && this.previewYear) {
+                const matchingTimestamp = this.timeConfig.getTimestampForYear(this.previewYear)
+                if (matchingTimestamp) {
+                    return this.renderHumanReadableTimestamp(matchingTimestamp.timestamp)
+                }
             }
             return this.renderHumanReadableTimestamp(this.timeConfig.currentTimestamp)
         },
