@@ -1,6 +1,7 @@
+import { BREAKPOINT_TABLET } from '@/config'
+import 'cypress-real-events'
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
-import { BREAKPOINT_TABLET } from '@/config'
 
 // ***********************************************
 // For more comprehensive examples of custom

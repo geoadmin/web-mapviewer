@@ -1,9 +1,15 @@
 <template>
-    <div v-if="layersWithTimestamps.length" ref="sliderContainer" class="time-slider card">
+    <div
+        v-if="layersWithTimestamps.length"
+        ref="sliderContainer"
+        data-cy="time-slider"
+        class="time-slider card"
+    >
         <div class="p-2 d-flex">
             <div class="time-slider-bar">
                 <div
                     ref="yearCursor"
+                    data-cy="times-slider-cursor"
                     class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
                     :style="cursorPosition"
                     @touchstart.passive="grabCursor"
@@ -14,7 +20,7 @@
                     >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
-                    <div class="time-slider-bar-cursor-year">
+                    <div data-cy="time-slider-current-year" class="time-slider-bar-cursor-year">
                         {{ currentYear }}
                     </div>
                     <div
@@ -60,6 +66,7 @@
             </div>
             <button
                 ref="playButton"
+                data-cy="time-slider-play-button"
                 class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
                 @click="togglePlayYearsWithData"
             >

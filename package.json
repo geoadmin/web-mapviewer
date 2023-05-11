@@ -81,6 +81,7 @@
         "cypress": "^12.14.0",
         "cypress-browser-permissions": "^1.1.0",
         "cypress-multi-reporters": "^1.6.3",
+        "cypress-real-events": "^1.8.1",
         "cypress-recurse": "^1.35.2",
         "cypress-vite": "^1.4.0",
         "cypress-wait-until": "^1.7.2",
