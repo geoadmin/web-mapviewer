@@ -189,7 +189,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
         // the storeSync plugin might overwrite some parameters. To handle legacy param we also
         // need the app to be ready because some data are required (e.g. the layer config)
-        if (isFirstRequest && to.name == 'MapView') {
+        if (isFirstRequest && to.name === 'MapView') {
             // before the first request, we check out if we need to manage any legacy params
             // (from the old viewer)
             isFirstRequest = false

@@ -14,7 +14,7 @@
             }"
         >
             <GeolocButton
-                v-if="!isFullscreenMode"
+                v-if="!isFullscreenMode && !isEmbedded"
                 class="mb-1"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
@@ -90,6 +90,7 @@ export default {
             isGeolocationDenied: (state) => state.geolocation.denied,
             showMenu: (state) => state.ui.showMenu,
             isFullscreenMode: (state) => state.ui.fullscreenMode,
+            isEmbedded: (state) => state.ui.embeddedMode,
         }),
         ...mapGetters([
             'isHeaderShown',

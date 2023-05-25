@@ -154,7 +154,7 @@ export default class AbstractParamConfig {
      */
     populateStoreWithQueryValue(store, query) {
         return new Promise((resolve, reject) => {
-            if (query && store && this.setValuesInStore) {
+            if ((!this.keepValueInUrlWhenEmpty || query) && store && this.setValuesInStore) {
                 const promiseSetValuesInStore = this.setValuesInStore(store, query)
                 if (promiseSetValuesInStore) {
                     promiseSetValuesInStore.then(() => {

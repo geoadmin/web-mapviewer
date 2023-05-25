@@ -14,7 +14,7 @@ const storeSyncConfig = [
         'setLang',
         'setLang',
         (store) => store.state.i18n.lang,
-        false,
+        true,
         String
     ),
     new SimpleUrlParamConfig(
@@ -61,7 +61,7 @@ const storeSyncConfig = [
             }
             return backgroundLayerId
         },
-        false,
+        true,
         String
     ),
     new SimpleUrlParamConfig(
@@ -69,7 +69,7 @@ const storeSyncConfig = [
         'changeTopic',
         'setTopicById',
         (store) => store.getters.currentTopicId,
-        false,
+        true,
         String
     ),
     // as the setSearchQuery action requires an object as payload, we need
@@ -94,6 +94,14 @@ const storeSyncConfig = [
         String
     ),
     new LayerParamConfig(),
+    new SimpleUrlParamConfig(
+        'embed',
+        'setEmbeddedMode',
+        'setEmbeddedMode',
+        (store) => store.state.ui.embeddedMode,
+        false,
+        Boolean
+    ),
 ]
 
 export default storeSyncConfig

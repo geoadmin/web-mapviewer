@@ -102,29 +102,55 @@ function urlQueryWatcher(store, to) {
     storeSyncConfig.forEach((paramConfig) => {
         const queryValue = paramConfig.readValueFromQuery(to.query)
         const storeValue = paramConfig.readValueFromStore(store)
-        if (queryValue && queryValue !== storeValue) {
+
+        const setValueInStore = (paramConfig, store, value) => {
             // preventing store.subscribe above to change what is in the URL while dispatching this change
             // if we don't ignore this next mutation, all other param than the one treated here could go back
             // to default/store value even though they could be defined differently in the URL.
             pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
-            // dispatching URL value to the store
-            log(
-                'debug',
-                'dispatching URL param',
-                paramConfig.urlParamName,
-                'to store with value',
-                queryValue
-            )
-            paramConfig.populateStoreWithQueryValue(store, queryValue).then(() => {
+            paramConfig.populateStoreWithQueryValue(store, value).then(() => {
                 // removing mutation name from the pending ones
                 pendingMutationTriggeredByThisModule.splice(
                     pendingMutationTriggeredByThisModule.indexOf(paramConfig.mutationsToWatch),
                     1
                 )
             })
+        }
+
+        if (queryValue && queryValue !== storeValue) {
+            // dispatching URL value to the store
+            log.debug(
+                'dispatching URL param',
+                paramConfig.urlParamName,
+                'to store with value',
+                queryValue
+            )
+            setValueInStore(paramConfig, store, queryValue)
         } else if (!queryValue && storeValue) {
-            // if we don't have a query value but a store value update the url query with it
-            newQuery[paramConfig.urlParamName] = storeValue
+            if (paramConfig.keepValueInUrlWhenEmpty) {
+                // if we don't have a query value but a store value update the url query with it
+                log.debug(
+                    'URL param',
+                    paramConfig.urlParamName,
+                    'was not present in URL, setting it back with value',
+                    storeValue
+                )
+                newQuery[paramConfig.urlParamName] = storeValue
+            } else {
+                // if the query value has been removed (or set to false for a Boolean) and is meant to disappear from
+                // the URL with this value, we set it to a falsy value in the store and remove it from the URL
+                log.debug(
+                    'URL param',
+                    paramConfig.urlParamName,
+                    'has been removed from the URL, setting it to falsy value in the store'
+                )
+                setValueInStore(
+                    paramConfig,
+                    store,
+                    paramConfig.valueType === Boolean ? false : null
+                )
+                delete newQuery[paramConfig.urlParamName]
+            }
             requireQueryUpdate = true
         }
     })

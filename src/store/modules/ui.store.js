@@ -1,4 +1,4 @@
-import { BREAKPOINT_TABLET, WARNING_RIBBON_HOSTNAMES, NO_WARNING_BANNER_HOSTNAMES } from '@/config'
+import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
@@ -50,6 +50,13 @@ export default {
          * @type Boolean
          */
         fullscreenMode: false,
+        /**
+         * Flag telling if the app must be displayed as an embedded iFrame app (broken down /
+         * simplified UI)
+         *
+         * @type Boolean
+         */
+        embeddedMode: false,
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *
@@ -123,7 +130,7 @@ export default {
          * @returns {boolean}
          */
         isHeaderShown(state) {
-            return !state.fullscreenMode && !state.showDrawingOverlay
+            return !state.fullscreenMode && !state.showDrawingOverlay && !state.embeddedMode
         },
 
         isPhoneMode(state) {
@@ -170,6 +177,9 @@ export default {
                 commit('setFullscreenMode', !state.fullscreenMode)
             }
         },
+        setEmbeddedMode({ commit }, isEmbedded) {
+            commit('setEmbeddedMode', !!isEmbedded)
+        },
         toggleLoadingBar({ commit, state }) {
             commit('setShowLoadingBar', !state.showLoadingBar)
         },
@@ -202,6 +212,9 @@ export default {
         },
         setFullscreenMode(state, flagValue) {
             state.fullscreenMode = flagValue
+        },
+        setEmbeddedMode(state, flagValue) {
+            state.embeddedMode = flagValue
         },
         setShowLoadingBar(state, flagValue) {
             state.showLoadingBar = flagValue
