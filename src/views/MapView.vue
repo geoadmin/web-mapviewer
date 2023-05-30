@@ -9,7 +9,7 @@
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
             <InfoboxModule />
             <!-- needed to e.g. set register an event to set the compass position -->
-            <MenuModule />
+            <MenuModule v-show="!embedded" />
         </MapModule>
         <I18nModule />
     </div>

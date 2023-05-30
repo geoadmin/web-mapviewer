@@ -12,6 +12,11 @@ export default {
          */
         shortLink: null,
         /**
+         * Same thing as shortLink, but with the flag embed=true send to the backend before
+         * shortening
+         */
+        embeddedShortLink: null,
+        /**
          * The state of the shortlink share menu section. As we need to be able to change this
          * whenever the user moves the map, and it should only be done within mutations.
          *
@@ -22,6 +27,10 @@ export default {
     getters: {},
     actions: {
         async generateShortLink({ commit }, withBalloonMarker = false) {
+            const urlWithoutGeolocation =
+                window.location.href.replace('&geolocation=true', '') +
+                // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
+                (withBalloonMarker ? '&crosshair=marker' : '')
             try {
                 const shortLink = await createShortLink(
                     // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
@@ -35,6 +44,17 @@ export default {
             } catch (err) {
                 log.error('Error while creating short link for', window.location.href, err)
                 commit('setShortLink', null)
+            }
+            try {
+                const embeddedShortLink = await createShortLink(
+                    urlWithoutGeolocation + '&embed=true'
+                )
+                if (embeddedShortLink) {
+                    commit('setEmbeddedShortLink', embeddedShortLink)
+                }
+            } catch (err) {
+                log.error('Error while creating embedded short link for', window.location.href, err)
+                commit('setEmbeddedShortLink', null)
             }
         },
         closeShareMenuAndRemoveShortlink({ commit }) {
@@ -51,6 +71,9 @@ export default {
     mutations: {
         setShortLink(state, shortLink) {
             state.shortLink = shortLink
+        },
+        setEmbeddedShortLink(state, shortLink) {
+            state.embeddedShortLink = shortLink
         },
         setIsMenuSectionShown(state, flag) {
             state.isMenuSectionShown = flag

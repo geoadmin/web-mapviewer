@@ -56,7 +56,7 @@ export default {
          *
          * @type Boolean
          */
-        embeddedMode: false,
+        embeddedMode: 'true' === new URLSearchParams(window.location.href).get('embed'),
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *

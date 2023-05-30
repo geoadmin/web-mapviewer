@@ -1,25 +1,34 @@
 <template>
     <div class="menu-share-embed">
-        <button class="btn btn-light embedded-button" @click="toggleEmbedSharing">
-            <FontAwesomeIcon icon="plus" />
+        <button
+            class="btn btn-light embedded-button"
+            data-cy="menu-share-embed-button"
+            @click="toggleEmbedSharing"
+        >
+            <FontAwesomeIcon :icon="showEmbedSharing ? 'minus' : 'plus'" />
             <span class="ms-1">{{ $t('share_more') }}</span>
         </button>
         <CollapseTransition :duration="200">
-            <div v-show="showEmbedSharing" class="p-2">
+            <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
                         type="text"
                         class="form-control"
-                        :value="iFrameLink(EmbedSizes.SMALL)"
+                        :value="iFrameLink"
+                        data-cy="menu-share-embed-simple-iframe-snippet"
                         readonly="readonly"
                     />
-                    <button class="btn btn-outline-secondary" @click="togglePreviewModal">
+                    <button
+                        class="btn btn-outline-secondary"
+                        data-cy="menu-share-embed-preview-button"
+                        @click="togglePreviewModal"
+                    >
                         {{ $t('show_more_options') }}
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="ng-scope" v-html="$t('share_disclaimer')"></div>
+                <div v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
@@ -31,27 +40,56 @@
         >
             <div class="embed-preview-modal">
                 <div
-                    class="d-grid embed-preview-modal-tools"
+                    class="d-flex embed-preview-modal-tools mb-1"
                     :class="{ 'custom-size': isPreviewSizeCustom }"
                 >
-                    <select v-model="currentPreviewSize" class="form-select select-embed-size">
-                        <option v-for="size in EmbedSizes" :key="size.i18nKey" :value="size">
+                    <select
+                        v-model="currentPreviewSize"
+                        class="form-select w-auto"
+                        data-cy="menu-share-embed-iframe-size-selector"
+                    >
+                        <option
+                            v-for="size in EmbedSizes"
+                            :key="size.i18nKey"
+                            :value="size"
+                            :data-cy="`menu-share-embed-iframe-size-${size.i18nKey.toLowerCase()}`"
+                        >
                             {{ $t(size.i18nKey) }}
                         </option>
                     </select>
-                    <div v-if="isPreviewSizeCustom" class="input-group">
-                        <input v-model="customWidth" type="number" class="form-control" />
-                        <span class="input-group-text">x</span>
-                        <input v-model="customHeight" type="number" class="form-control" />
-                    </div>
                     <MenuShareShortLinkInput
-                        class="input-embed-code"
+                        class="flex-grow-1 ms-1"
                         :with-text="false"
-                        :short-link="iFrameLink(currentPreviewSize)"
+                        :small="false"
+                        :short-link="iFrameLink"
+                        :copy-text="'copy_cta'"
+                        :copied-text="'copy_done'"
+                        data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
+                <div v-if="isPreviewSizeCustom" class="input-group mb-1">
+                    <input
+                        v-model="customWidth"
+                        type="number"
+                        class="form-control"
+                        data-cy="menu-share-embed-iframe-custom-width"
+                    />
+                    <span class="input-group-text">x</span>
+                    <input
+                        v-model="customHeight"
+                        type="number"
+                        class="form-control"
+                        data-cy="menu-share-embed-iframe-custom-height"
+                    />
+                </div>
+                <iframe
+                    :title="$t('embed_map')"
+                    :src="shortLink"
+                    :style="`border: 0;width: ${iFrameWidth}px;height: ${iFrameHeight}px;max-width: 100%;max-height: 100%;`"
+                    allow="geolocation"
+                ></iframe>
                 <!-- eslint-disable vue/no-v-html-->
-                <div v-html="iFrameLink(currentPreviewSize)"></div>
+                <div class="small" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
@@ -125,23 +163,22 @@ export default {
         isPreviewSizeCustom() {
             return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
         },
-    },
-    methods: {
+        iFrameWidth() {
+            return this.isPreviewSizeCustom ? this.customWidth : this.currentPreviewSize.width
+        },
+        iFrameHeight() {
+            return this.isPreviewSizeCustom ? this.customHeight : this.currentPreviewSize.height
+        },
         /**
-         * Generates an iframe HTML code snippet pointing to the short link
+         * Iframe HTML code snippet pointing to the short link
          *
-         * @param {EmbedSizes} size
          * @returns {String} HTML iframe code snippet
          */
-        iFrameLink(size) {
-            let width = this.customWidth,
-                height = this.customHeight
-            if (size && size.width && size.height) {
-                width = size.width
-                height = size.height
-            }
-            return `<iframe src="${this.shortLink}" width="${width}" height="${height}" style="border:0" allow="geolocation"></iframe>`
+        iFrameLink() {
+            return `<iframe src="${this.shortLink}" width="${this.iFrameWidth}" height="${this.iFrameHeight}" style="border:0" allow="geolocation"></iframe>`
         },
+    },
+    methods: {
         toggleEmbedSharing() {
             this.showEmbedSharing = !this.showEmbedSharing
             // because of the dropdown animation, we have to wait for the next render
@@ -162,19 +199,6 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
-.select-embed-size {
-    // removing the width: 100% coming from .form-control
-    // so that the flex-fill from the link input work as expected
-    width: auto;
-}
-.embed-preview-modal-tools {
-    grid-template-columns: 1fr 2fr;
-    &.custom-size {
-        .input-embed-code {
-            grid-column: 1 / 3;
-        }
-    }
-}
 
 .menu-share-embed {
     display: none;
