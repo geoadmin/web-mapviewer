@@ -101,7 +101,7 @@
         "sass": "^1.62.1",
         "start-server-and-test": "^2.0.0",
         "typescript": "^4.9.5",
-        "vite": "^4.3.3",
+        "vite": "^4.3.9",
         "vite-plugin-require": "^1.1.10",
         "vitest": "^0.30.1",
         "vue-loader": "^17.1.0",
