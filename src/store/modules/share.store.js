@@ -26,35 +26,30 @@ export default {
     },
     getters: {},
     actions: {
-        async generateShortLink({ commit }, withBalloonMarker = false) {
+        async generateShortLinks({ commit }, withBalloonMarker = false) {
             const urlWithoutGeolocation =
-                window.location.href.replace('&geolocation=true', '') +
+                // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
+                window.location.href.replace('&geolocation', '') +
                 // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
                 (withBalloonMarker ? '&crosshair=marker' : '')
             try {
-                const shortLink = await createShortLink(
-                    // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
-                    window.location.href.replace('&geolocation', '') +
-                        // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
-                        (withBalloonMarker ? '&crosshair=marker' : '')
-                )
+                const shortLink = await createShortLink(urlWithoutGeolocation)
                 if (shortLink) {
                     commit('setShortLink', shortLink)
                 }
             } catch (err) {
-                log.error('Error while creating short link for', window.location.href, err)
-                commit('setShortLink', null)
+                log.error('Error while creating short link for', urlWithoutGeolocation, err)
+                commit('setShortLink', urlWithoutGeolocation)
             }
+            const urlWithEmbed = urlWithoutGeolocation + '&embed'
             try {
-                const embeddedShortLink = await createShortLink(
-                    urlWithoutGeolocation + '&embed=true'
-                )
+                const embeddedShortLink = await createShortLink(urlWithEmbed)
                 if (embeddedShortLink) {
                     commit('setEmbeddedShortLink', embeddedShortLink)
                 }
             } catch (err) {
-                log.error('Error while creating embedded short link for', window.location.href, err)
-                commit('setEmbeddedShortLink', null)
+                log.error('Error while creating embedded short link for', urlWithEmbed, err)
+                commit('setEmbeddedShortLink', urlWithEmbed)
             }
         },
         closeShareMenuAndRemoveShortlink({ commit }) {

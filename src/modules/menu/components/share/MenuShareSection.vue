@@ -45,7 +45,7 @@ export default {
     },
     methods: {
         ...mapActions([
-            'generateShortLink',
+            'generateShortLinks',
             'clearShortLink',
             'toggleShareMenuSection',
             'closeShareMenuAndRemoveShortlink',
@@ -53,7 +53,7 @@ export default {
         toggleShareMenu() {
             this.toggleShareMenuSection()
             if (!this.shortLink) {
-                this.generateShortLink(this.isTrackingGeolocation)
+                this.generateShortLinks(this.isTrackingGeolocation)
             } else {
                 this.clearShortLink()
             }

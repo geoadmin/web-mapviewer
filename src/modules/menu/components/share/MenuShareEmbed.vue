@@ -1,11 +1,11 @@
 <template>
     <div class="menu-share-embed">
         <button
-            class="btn btn-light embedded-button"
+            class="btn btn-light btn-sm embedded-button"
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
-            <FontAwesomeIcon :icon="showEmbedSharing ? 'minus' : 'plus'" />
+            <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
             <span class="ms-1">{{ $t('share_more') }}</span>
         </button>
         <CollapseTransition :duration="200">
