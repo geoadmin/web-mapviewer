@@ -31,7 +31,6 @@
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"
                 :layer-id="id"
-                :layer-is-visible="layer.visible"
                 :time-config="layer.timeConfig"
                 :compact="compact"
             />
