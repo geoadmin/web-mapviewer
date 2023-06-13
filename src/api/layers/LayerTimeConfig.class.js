@@ -5,9 +5,9 @@
  */
 export default class LayerTimeConfig {
     /**
-     * @param {String} behaviour How the default time series is chosen
-     * @param {LayerTimeConfigTimestamp[]} timestamps List of series identifier (that can be placed
-     *   in the WMTS URL)
+     * @param {String} behaviour How the default timestamp is chosen
+     * @param {LayerTimeConfigTimestamp[]} timestamps List of timestamps identifier (that can be
+     *   placed in the WMTS URL)
      */
     constructor(behaviour = null, timestamps = []) {
         this.behaviour = behaviour
@@ -20,16 +20,16 @@ export default class LayerTimeConfig {
         // With WMS the behaviour can be :
         //  - 'last' : the most recent year has to be picked
         //  - 'all' : all years must be picked (so no year should be specified in the URL)
-        //  - any valid year that is in 'series'
+        //  - any valid year that is in 'timestamps'
         //
         // With WMTS the behaviour can be :
         //  - 'current' : 'current' is a valid timestamp in regard to WMTS norm so we can keep it as is and it will be added to URLs
-        //  - 'last' : same as WMS, we pick the most recent timestamp from 'series'
-        //  - any valid year that is in 'series'
-        //  - nothing : we then have to pick the first timestamp of the series as default (same as if it was 'last')
+        //  - 'last' : same as WMS, we pick the most recent timestamp from 'timestamps'
+        //  - any valid year that is in 'timestamps'
+        //  - nothing : we then have to pick the first timestamp of the timestamps as default (same as if it was 'last')
         //
         // first let's tackle layers that have "last" as a timestamp (can be both WMS and WMTS layers)
-        // we will return, well, the last timestamp (the most recent) of the series (if there are some)
+        // we will return, well, the last timestamp (the most recent) of the timestamps (if there are some)
         if (this.behaviour === 'last' && this.timestamps.length > 0) {
             this.currentTimestamp = this.timestamps[0].timestamp
         } else if (this.behaviour) {
