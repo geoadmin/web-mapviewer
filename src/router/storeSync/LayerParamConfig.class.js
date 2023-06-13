@@ -196,7 +196,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
             ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,
-            false,
+            true,
             String
         )
     }

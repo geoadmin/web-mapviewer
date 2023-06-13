@@ -1,7 +1,7 @@
 <template>
     <img
         class="swiss-flag"
-        :class="{ 'dev-site': hasDevSiteWarning }"
+        :class="{ 'dev-site': hasDevSiteWarning, sm }"
         :src="swissFlagIcon"
         alt="swiss-flag"
         @click="$emit('click', $event)"
@@ -13,6 +13,12 @@ import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
 import { mapGetters } from 'vuex'
 
 export default {
+    props: {
+        sm: {
+            type: Boolean,
+            default: false,
+        },
+    },
     emits: ['click'],
     data() {
         return {
@@ -32,6 +38,9 @@ export default {
 // as it totally breaks the header and menu on Iphone !
 .swiss-flag {
     height: 24px;
+    &.sm {
+        height: 16px;
+    }
     &.dev-site {
         filter: hue-rotate(225deg);
     }
@@ -39,6 +48,9 @@ export default {
 @include respond-above(lg) {
     .swiss-flag {
         height: 34px;
+        &.sm {
+            height: 16px;
+        }
     }
 }
 </style>

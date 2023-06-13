@@ -612,5 +612,6 @@
 	"send_failed": "Senden fehlgeschlagen",
 	"feedback_email": "Ihre E-Mail Adresse (optional)",
 	"feedback_invalid_email": "ungültige E-Mail",
-	"profile_no_data": "kein Datum"
+	"profile_no_data": "kein Datum",
+	"view_on_mapgeoadminch_webmapviewer": "Contemplar in {url}"
 }

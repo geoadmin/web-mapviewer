@@ -11,8 +11,9 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
         mutationToWatch: 'test',
         dispatchChangeTo: 'test',
         extractValueFromStore: () => 'test',
-        keepValueInUrlWhenEmpty: true,
+        keepInUrlWhenDefault: true,
         valueType: String,
+        defaultValue: '',
     }
     const createTestInstance = (options = {}) => {
         const {
@@ -20,16 +21,18 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             mutationToWatch,
             dispatchChangeTo,
             extractValueFromStore,
-            keepValueInUrlWhenEmpty,
+            keepInUrlWhenDefault,
             valueType,
+            defaultValue,
         } = Object.assign(defaultOptions, options)
         return new SimpleUrlParamConfig(
             urlParamName,
             mutationToWatch,
             dispatchChangeTo,
             extractValueFromStore,
-            keepValueInUrlWhenEmpty,
-            valueType
+            keepInUrlWhenDefault,
+            valueType,
+            defaultValue
         )
     }
 
@@ -74,10 +77,14 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
         describe('boolean', () => {
             it('outputs boolean correctly when they stay in the URL when false', () => {
                 const testInstance = createTestInstance({
-                    keepValueInUrlWhenEmpty: true,
+                    keepInUrlWhenDefault: true,
                     valueType: Boolean,
+                    defaultValue: false,
                 })
                 expect(testInstance.readValueFromQuery({ test: 'true' }))
+                    .to.be.a('boolean')
+                    .that.eq(true)
+                expect(testInstance.readValueFromQuery({ test: null }))
                     .to.be.a('boolean')
                     .that.eq(true)
                 expect(testInstance.readValueFromQuery({ test: 'false' }))
@@ -86,15 +93,16 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             })
             it('outputs boolean correctly when they are removed from the URL when false', () => {
                 const testInstance = createTestInstance({
-                    keepValueInUrlWhenEmpty: false,
+                    keepInUrlWhenDefault: false,
                     valueType: Boolean,
+                    defaultValue: false,
                 })
                 expect(testInstance.readValueFromQuery({ test: 'true' }))
                     .to.be.a('boolean')
                     .that.eq(true)
                 expect(
                     testInstance.readValueFromQuery({}),
-                    'It should return false when the param is not found in the query and keepValueInUrlWhenEmpty is false'
+                    'It should return false when the param is not found in the query and keepInUrlWhenDefault is false'
                 )
                     .to.be.a('boolean')
                     .that.eq(false)
@@ -104,15 +112,17 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             it('outputs string correctly', () => {
                 const testInstance = createTestInstance({
                     valueType: String,
+                    keepInUrlWhenDefault: true,
                 })
                 expect(testInstance.readValueFromQuery({ test: 'test' }))
                     .to.be.a('string')
                     .that.eq('test')
             })
-            it('outputs an empty string for a string that is not present in the URL (with keepValueInUrlWhenEmpty=false)', () => {
+            it('outputs an empty string for a string that is not present in the URL (with keepInUrlWhenDefault=false)', () => {
                 const testInstance = createTestInstance({
                     valueType: String,
-                    keepValueInUrlWhenEmpty: false,
+                    keepInUrlWhenDefault: false,
+                    defaultValue: '',
                 })
                 expect(testInstance.readValueFromQuery({})).to.eq('')
             })
@@ -126,10 +136,11 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
                     .to.be.a('number')
                     .that.eq(123)
             })
-            it('outputs zero for a number that is not present in the URL (with keepValueInUrlWhenEmpty=false)', () => {
+            it('outputs zero for a number that is not present in the URL (with keepInUrlWhenDefault=false)', () => {
                 const testInstance = createTestInstance({
                     valueType: Number,
-                    keepValueInUrlWhenEmpty: false,
+                    keepInUrlWhenDefault: false,
+                    defaultValue: 0,
                 })
                 expect(testInstance.readValueFromQuery({})).to.eq(0)
             })
@@ -140,7 +151,7 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             it('tells when a boolean, that stays in the URL when false, has changed', () => {
                 const testInstance = createTestInstance({
                     valueType: Boolean,
-                    keepValueInUrlWhenEmpty: true,
+                    keepInUrlWhenDefault: true,
                     extractValueFromStore: (store) => store['test'],
                 })
                 expect(
@@ -159,8 +170,9 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             it("tells when a boolean, that doesn't stay in the URL when false, has changed", () => {
                 const testInstance = createTestInstance({
                     valueType: Boolean,
-                    keepValueInUrlWhenEmpty: false,
+                    keepInUrlWhenDefault: false,
                     extractValueFromStore: (store) => store['test'],
+                    defaultValue: false,
                 })
                 expect(
                     testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: true }),
@@ -201,9 +213,11 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
                 ).to.be.true
             })
             it("tells when a string, that doesn't says in the URL when empty, has changed", () => {
+                const defaultValue = 'default value'
                 const testInstance = createTestInstance({
                     valueType: String,
-                    keepValueInUrlWhenEmpty: false,
+                    keepInUrlWhenDefault: true,
+                    defaultValue,
                     extractValueFromStore: (store) => store['test'],
                 })
                 expect(
@@ -218,8 +232,21 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
                     'Should detect when the param is found in the URL but it is empty in the store'
                 ).to.be.true
                 expect(
-                    testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: '' }),
+                    testInstance.valuesAreDifferentBetweenQueryAndStore({ test: '' }, { test: '' }),
                     "Should not tell there's a difference when the query is empty and the store value too"
+                ).to.be.false
+            })
+            it('does not trigger a change when the store value is set to default, and nothing is present in the url', () => {
+                const defaultValue = 'a default value'
+                const testInstance = createTestInstance({
+                    valueType: String,
+                    keepInUrlWhenDefault: false,
+                    defaultValue,
+                    extractValueFromStore: (store) => store['test'],
+                })
+                expect(
+                    testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: defaultValue }),
+                    'Should not detect a change as the store holds the default value, and keepInUrlWhenDefault is false'
                 ).to.be.false
             })
         })
@@ -227,6 +254,7 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             it('tells when a number, that stays in the URL when zero, has changed', () => {
                 const testInstance = createTestInstance({
                     valueType: Number,
+                    defaultValue: 0,
                     extractValueFromStore: (store) => store['test'],
                 })
                 expect(
@@ -236,6 +264,8 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
             it("tells when a number, that doesn't stays in the URL when zero, has changed", () => {
                 const testInstance = createTestInstance({
                     valueType: Number,
+                    defaultValue: 0,
+                    keepInUrlWhenDefault: false,
                     extractValueFromStore: (store) => store['test'],
                 })
                 expect(testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: 1 })).to.be
@@ -243,8 +273,10 @@ describe('Test all SimpleUrlParamConfig class functionalities', () => {
                 expect(
                     testInstance.valuesAreDifferentBetweenQueryAndStore({ test: 1 }, { test: 0 })
                 ).to.be.true
-                expect(testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: 0 })).to.be
-                    .false
+                expect(
+                    testInstance.valuesAreDifferentBetweenQueryAndStore({}, { test: 0 }),
+                    'as the value in the store is set to the default value, and the query is empty, the function should consider that they are equal'
+                ).to.be.false
             })
         })
     })
