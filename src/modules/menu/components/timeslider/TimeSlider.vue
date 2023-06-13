@@ -50,7 +50,7 @@
                             'medium-tick': year % 25 === 0,
                             'small-tick': year % 5 === 0,
                         }"
-                        @click="currentYear = year"
+                        @click="setCurrentYearAndDispatchToStore(year)"
                     />
                 </div>
                 <div
@@ -221,17 +221,15 @@ export default {
                         .map((layer) => layer.timeConfig.years.includes(this.currentYear))
                         .reduce((a, b) => a && b, true)
                 ) {
-                    this.currentYear = findMostRecentCommonYear(
-                        newLayers.map((layer) => layer.timeConfig)
+                    this.setCurrentYearAndDispatchToStore(
+                        findMostRecentCommonYear(newLayers.map((layer) => layer.timeConfig))
                     )
-                    this.setPreviewYear(this.currentYear)
                 }
             } else {
                 // only one layer left, checking that it can comply with the current year, otherwise we take the most recent instead
                 const [onlyLayerLeft] = newLayers
                 if (!onlyLayerLeft.timeConfig.years.includes(this.currentYear)) {
-                    this.currentYear = onlyLayerLeft.timeConfig.years[0]
-                    this.setPreviewYear(this.currentYear)
+                    this.setCurrentYearAndDispatchToStore(onlyLayerLeft.timeConfig.years[0])
                 }
             }
         },
@@ -247,17 +245,16 @@ export default {
             if (firstLayer.timeConfig.currentYear !== 9999) {
                 this.currentYear = firstLayer.timeConfig.currentYear
             } else {
-                this.currentYear = firstLayer.timeConfig.years[0]
                 // as we've changed the selected year from the default, we have to propagate this change to the store
-                this.setPreviewYear(this.currentYear)
+                this.setCurrentYearAndDispatchToStore(firstLayer.timeConfig.years[0])
             }
         } else {
             // if multiple layers are visible, we need to find the closest year (from now) that is a common year between all layers
-            this.currentYear =
+            this.setCurrentYearAndDispatchToStore(
                 findMostRecentCommonYear(
                     this.layersWithTimestamps.map((layer) => layer.timeConfig)
                 ) || YOUNGEST_YEAR
-            this.setPreviewYear(this.currentYear)
+            )
         }
     },
     beforeUnmount() {
@@ -265,6 +262,10 @@ export default {
     },
     methods: {
         ...mapActions(['setPreviewYear', 'clearPreviewYear']),
+        setCurrentYearAndDispatchToStore(year) {
+            this.currentYear = year
+            this.setPreviewYear(this.currentYear)
+        },
         setSliderWidth() {
             // 19px of padding (7.5 on both side of the container with p-2 class and 4 with px-1)
             this.sliderWidth = this.$refs.sliderContainer.clientWidth - 19 - PLAY_BUTTON_SIZE
@@ -342,8 +343,7 @@ export default {
             if (this.playYearsWithData) {
                 // if current year is the last (most recent) one, we set the starting year for our player to the oldest
                 if (this.currentYear === this.yearsWithData[0]) {
-                    this.currentYear = this.yearsWithData.slice(-1)[0]
-                    this.setPreviewYear(this.currentYear)
+                    this.setCurrentYearAndDispatchToStore(this.yearsWithData.slice(-1)[0])
                 }
                 this.playYearInterval = setInterval(() => {
                     const currentYearIndex = this.yearsWithData.indexOf(this.currentYear)
@@ -353,8 +353,9 @@ export default {
                         this.playYearInterval = null
                         this.playYearsWithData = false
                     } else {
-                        this.currentYear = this.yearsWithData[currentYearIndex - 1]
-                        this.setPreviewYear(this.currentYear)
+                        this.setCurrentYearAndDispatchToStore(
+                            this.yearsWithData[currentYearIndex - 1]
+                        )
                     }
                 }, 1000)
             } else {
