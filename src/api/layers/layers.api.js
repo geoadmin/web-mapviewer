@@ -7,10 +7,7 @@ import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import {
-    LayerTimeConfigTimestamp,
-    TIMESTAMP_LEGACY_BEHAVIOR,
-} from '@/api/layers/LayerTimeConfigTimestamp.class'
+import { LayerTimeConfigTimestamp } from '@/api/layers/LayerTimeConfigTimestamp.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
@@ -56,15 +53,9 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         const timestamps = []
         if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 1) {
             timestamps.push(
-                ...layerConfig.timestamps.map((timestamp) => {
-                    const year = parseInt(timestamp.substring(0, 4)) || 9999
-                    const monthAndDay = parseInt(timestamp.substring(4))
-                    const legacyTimestampBehavior =
-                        monthAndDay === 1231
-                            ? TIMESTAMP_LEGACY_BEHAVIOR.END_OF_YEAR
-                            : TIMESTAMP_LEGACY_BEHAVIOR.START_OF_YEAR
-                    return new LayerTimeConfigTimestamp(year, legacyTimestampBehavior)
-                })
+                ...layerConfig.timestamps.map(
+                    (timestamp) => new LayerTimeConfigTimestamp(timestamp)
+                )
             )
         }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
