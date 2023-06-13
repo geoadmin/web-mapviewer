@@ -18,6 +18,7 @@
                         :value="iFrameLink"
                         data-cy="menu-share-embed-simple-iframe-snippet"
                         readonly="readonly"
+                        @focus="$event.target.select()"
                     />
                     <button
                         class="btn btn-outline-secondary"
