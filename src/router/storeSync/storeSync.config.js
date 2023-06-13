@@ -47,7 +47,8 @@ const storeSyncConfig = [
         'toggleGeolocation',
         (store) => store.state.geolocation.active,
         false,
-        Boolean
+        Boolean,
+        false
     ),
     new SimpleUrlParamConfig(
         'bgLayer',
@@ -100,7 +101,8 @@ const storeSyncConfig = [
         'setEmbeddedMode',
         (store) => store.state.ui.embeddedMode,
         false,
-        Boolean
+        Boolean,
+        false
     ),
 ]
 

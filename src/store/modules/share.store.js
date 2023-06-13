@@ -25,7 +25,7 @@ export default {
             try {
                 const shortLink = await createShortLink(
                     // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
-                    window.location.href.replace('&geolocation=true', '') +
+                    window.location.href.replace('&geolocation', '') +
                         // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
                         (withBalloonMarker ? '&crosshair=marker' : '')
                 )

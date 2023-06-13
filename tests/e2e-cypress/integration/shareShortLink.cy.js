@@ -52,16 +52,16 @@ describe('Testing the share menu', () => {
                     // activating geolocation
                     cy.get('[data-cy="geolocation-button"]').click()
                     // checking that the app has added geolocation=true to the URL
-                    cy.url().should('contain', 'geolocation=true')
+                    cy.url().should('contain', 'geolocation')
                     // opening the menu once again
                     cy.get('[data-cy="menu-button"]').click()
                 })
-                it('does not add geolocation=true to the shared link, if geolocation is active', () => {
+                it('does not add geolocation url param to the shared link, if geolocation is active', () => {
                     // opening the share menu, and checking that the link generated is without geolocation=true in the URL
                     cy.get('[data-cy="menu-share-section"]').click()
                     cy.wait('@shortLink').then((intercept) => {
                         expect(intercept.request.body).to.haveOwnProperty('url')
-                        expect(intercept.request.body.url).to.not.contain('geolocation=true')
+                        expect(intercept.request.body.url).to.not.contain('geolocation')
                     })
                 })
                 it('generates a short link with a balloon marker when the geolocation API was active and position tracked while generating the shortlink', () => {

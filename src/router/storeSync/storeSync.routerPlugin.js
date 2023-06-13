@@ -127,7 +127,7 @@ function urlQueryWatcher(store, to) {
             )
             setValueInStore(paramConfig, store, queryValue)
         } else if (!queryValue && storeValue) {
-            if (paramConfig.keepValueInUrlWhenEmpty) {
+            if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
                 log.debug(
                     'URL param',
