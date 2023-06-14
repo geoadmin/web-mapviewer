@@ -17,6 +17,7 @@
                 >
                     <div
                         class="time-slider-bar-cursor-grip px-2 border-end d-flex align-items-center"
+                        :class="{ grabbed: yearCursorIsGrabbed }"
                     >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
@@ -25,6 +26,7 @@
                     </div>
                     <div
                         class="time-slider-bar-cursor-grip px-2 border-start d-flex align-items-center"
+                        :class="{ grabbed: yearCursorIsGrabbed }"
                     >
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
@@ -76,7 +78,7 @@
     </div>
 </template>
 <script>
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from "@/api/layers/LayerTimeConfigEntry.class";
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -133,6 +135,7 @@ export default {
             currentYear: YOUNGEST_YEAR,
             cursorDeltaX: 0,
             playYearsWithData: false,
+            yearCursorIsGrabbed: false,
         }
     },
     computed: {
@@ -246,7 +249,9 @@ export default {
             if (firstLayer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
                 this.currentYear = firstLayer.timeConfig.currentYear
             } else {
-                const firstYearNotAllYears = firstLayer.timeConfig.years.find((year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA)
+                const firstYearNotAllYears = firstLayer.timeConfig.years.find(
+                    (year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+                )
                 // as we've changed the selected year from the default, we have to propagate this change to the store
                 this.setCurrentYearAndDispatchToStore(firstYearNotAllYears)
             }
@@ -287,6 +292,7 @@ export default {
             return this.yearsWithData.includes(year)
         },
         grabCursor(event) {
+            this.yearCursorIsGrabbed = true
             if (event.type === 'touchstart') {
                 // for touch events we have to select which touch we want to get the screen position
                 // (there can be multiple fingers gestures)
@@ -333,7 +339,7 @@ export default {
             }
         },
         releaseCursor() {
-            this.cursorGrabPosition = null
+            this.yearCursorIsGrabbed = false
             window.removeEventListener('mousemove', this.listenToMouseMove)
             window.removeEventListener('touchmove', this.listenToMouseMove)
             window.removeEventListener('mouseup', this.releaseCursor)
@@ -380,6 +386,12 @@ export default {
             top: 0.75 * $spacer;
             height: $cursor-height;
             width: 92px;
+            &-grip {
+                cursor: grab;
+                &.grabbed {
+                    cursor: grabbing;
+                }
+            }
             &-year {
                 position: relative;
                 top: 1px;
@@ -407,6 +419,7 @@ export default {
             width: 100%;
             height: calc(10px + 3 * $spacer);
             &-step {
+                cursor: pointer;
                 background: rgba(0, 0, 0, 0.1);
                 &.has-data {
                     background: rgba(255, 0, 0, 0.3);
