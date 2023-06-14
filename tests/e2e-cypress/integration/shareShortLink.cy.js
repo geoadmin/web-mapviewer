@@ -2,14 +2,27 @@
 
 describe('Testing the share menu', () => {
     const dummyShortLink = 'https://dummy.short.link'
+    const dummyEmbeddedShortLink = 'https://dummy.embedded.short.link'
     beforeEach(() => {
         cy.goToMapView()
         cy.get('[data-cy="menu-button"]').click()
         // intercepting short link requests, in order not to have to import the config
         // we check only for the first part of the URL (without the staging)
-        cy.intercept('POST', /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-            body: { shorturl: dummyShortLink },
+        cy.intercept('POST', /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, (req) => {
+            if (req.body && req.body.url && req.body.url.indexOf('embed') !== -1) {
+                req.reply({
+                    shorturl: dummyEmbeddedShortLink,
+                })
+            } else {
+                req.reply({
+                    shorturl: dummyShortLink,
+                })
+            }
         }).as('shortLink')
+        cy.intercept(dummyEmbeddedShortLink, (req) => {
+            req.followRedirect = true
+            req.redirect(Cypress.config('baseUrl') + '#/?embed=true')
+        }).as('dummyShortLinkAccess')
     })
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {
@@ -133,4 +146,73 @@ describe('Testing the share menu', () => {
             )
         })
     })
+    context(
+        'iFrame snippet generation',
+        // embed is only available on tablet or higher viewports
+        {
+            viewportWidth: 800,
+            viewportHeight: 600,
+        },
+        () => {
+            const checkIFrameSnippetSize = (width, height) => {
+                cy.get(
+                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-shortlink-input"]'
+                )
+                    .should('contain.value', `width="${width}"`)
+                    .should('contain.value', `height="${height}"`)
+            }
+
+            beforeEach(() => {
+                // beforeEach for the whole test is clicking on the menu button once, we must click it another time
+                // otherwise the menu will be closed by the first click
+                cy.get('[data-cy="menu-button"]').click()
+                cy.get('[data-cy="menu-share-section"]').click()
+                cy.get('[data-cy="menu-share-embed-button"]').click()
+            })
+            it('uses the embedded shortlink url to generate the iFrame code snippet', () => {
+                cy.get('[data-cy="menu-share-embed-simple-iframe-snippet"]')
+                    .should('contain.value', dummyEmbeddedShortLink)
+                    .should('not.contain.value', dummyShortLink)
+            })
+            it('enables the user to choose pre-made sizes for the generated iframe code snippet', () => {
+                cy.get('[data-cy="menu-share-embed-preview-button"]').click()
+                cy.wait('@dummyShortLinkAccess')
+                // checking that the iframe code snippet is set to the Small size by default
+                checkIFrameSnippetSize(400, 300)
+                // Checking that the name of the size is displayed in the selector, then switching to the Medium size
+                cy.get('[data-cy="menu-share-embed-iframe-size-selector"]')
+                    .should('contain.text', 'Small')
+                    .select('Medium')
+                // checking that the text in the selector has changed to reflect our selection of the Medium size
+                cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').should(
+                    'contain.text',
+                    'Medium'
+                )
+                // checking the iframe code snippet to see if the size has correctly been changed here too
+                checkIFrameSnippetSize(600, 450)
+            })
+            it('enables the user to customize the size of the generated iframe code snippet', () => {
+                cy.get('[data-cy="menu-share-embed-preview-button"]').click()
+                cy.wait('@dummyShortLinkAccess')
+                cy.get('[data-cy="menu-share-embed-iframe-custom-width"]').should('not.exist')
+                cy.get('[data-cy="menu-share-embed-iframe-custom-height"]').should('not.exist')
+                cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').select('Custom size')
+                cy.get('[data-cy="menu-share-embed-iframe-custom-width"]')
+                    .should('be.visible')
+                    .should('contain.value', 400)
+                cy.get('[data-cy="menu-share-embed-iframe-custom-height"]')
+                    .should('be.visible')
+                    .should('contain.value', 300)
+                checkIFrameSnippetSize(400, 300)
+                cy.get('[data-cy="menu-share-embed-iframe-custom-width"]').type(
+                    '{selectall}{backspace}600'
+                )
+                checkIFrameSnippetSize(600, 300)
+                cy.get('[data-cy="menu-share-embed-iframe-custom-height"]').type(
+                    '{selectall}{backspace}500'
+                )
+                checkIFrameSnippetSize(600, 500)
+            })
+        }
+    )
 })

@@ -1,16 +1,21 @@
 <template>
-    <div v-if="shortLink" data-cy="share-menu-opened" class="p-1">
+    <div v-if="shortLink">
         <label v-if="withText">{{ $t('share_link') }}: </label>
-        <div class="input-group input-group-sm">
+        <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
                 type="text"
                 class="form-control"
                 readonly="readonly"
                 :value="shortLink"
+                data-cy="menu-share-shortlink-input"
                 @focus="$event.target.select()"
             />
-            <button class="btn btn-outline-secondary" @click="copyShortLinkInClipboard">
-                {{ $t(copiedInClipboard ? 'copy_success' : 'copy_url') }}
+            <button
+                class="btn btn-outline-secondary"
+                @click="copyShortLinkInClipboard"
+                data-cy="menu-share-shortlink-copy-button"
+            >
+                {{ $t(copiedInClipboard ? copiedText : copyText) }}
             </button>
         </div>
     </div>
@@ -30,6 +35,18 @@ export default {
         withText: {
             type: Boolean,
             default: true,
+        },
+        small: {
+            type: Boolean,
+            default: true,
+        },
+        copyText: {
+            type: String,
+            default: 'copy_url',
+        },
+        copiedText: {
+            type: String,
+            default: 'copy_success',
         },
     },
     data() {

@@ -1,14 +1,23 @@
 <template>
     <div id="splashscreen">
-        <HeaderWithSearch />
+        <HeaderWithSearch v-if="!embedded" />
+        <LoadingBar v-if="embedded && showLoadingBar" />
     </div>
 </template>
 
 <script>
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import LoadingBar from '@/utils/LoadingBar.vue'
+import { mapState } from 'vuex'
 
 export default {
-    components: { HeaderWithSearch },
+    components: { LoadingBar, HeaderWithSearch },
+    computed: {
+        ...mapState({
+            embedded: (state) => state.ui.embeddedMode,
+            showLoadingBar: (state) => state.ui.showLoadingBar,
+        }),
+    },
 }
 </script>
 

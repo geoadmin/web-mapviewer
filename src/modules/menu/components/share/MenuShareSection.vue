@@ -1,5 +1,6 @@
 <template>
     <MenuSection
+        id="shareSection"
         :title="$t('share')"
         :show-content="isSectionShown"
         data-cy="menu-share-section"
@@ -11,14 +12,14 @@
         <div v-if="shortLink" class="p-2">
             <MenuShareSocialNetworks :short-link="shortLink" class="pt-1" />
             <MenuShareShortLinkInput :short-link="shortLink" class="px-2 py-3" />
-            <!-- Uncommented for MVP. Will be done in iframe epic. -->
-            <!-- <MenuShareEmbed :short-link="shortLink" class="pb-1" /> -->
+            <MenuShareEmbed :short-link="embeddedShortLink" class="pb-1" />
         </div>
     </MenuSection>
 </template>
 
 <script>
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareShortLinkInput.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import { mapActions, mapState } from 'vuex'
@@ -26,6 +27,7 @@ import { mapActions, mapState } from 'vuex'
 /** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 export default {
     components: {
+        MenuShareEmbed,
         MenuShareShortLinkInput,
         MenuShareSocialNetworks,
         MenuSection,
@@ -35,6 +37,7 @@ export default {
     computed: {
         ...mapState({
             shortLink: (state) => state.share.shortLink,
+            embeddedShortLink: (state) => state.share.embeddedShortLink,
             isSectionShown: (state) => state.share.isMenuSectionShown,
             isTrackingGeolocation: (state) =>
                 state.geolocation.active && state.geolocation.tracking,
@@ -42,21 +45,21 @@ export default {
     },
     methods: {
         ...mapActions([
-            'generateShortLink',
-            'clearShortLink',
+            'generateShortLinks',
+            'clearShortLinks',
             'toggleShareMenuSection',
-            'closeShareMenuAndRemoveShortlink',
+            'closeShareMenuAndRemoveShortLinks',
         ]),
         toggleShareMenu() {
             this.toggleShareMenuSection()
             if (!this.shortLink) {
-                this.generateShortLink(this.isTrackingGeolocation)
+                this.generateShortLinks(this.isTrackingGeolocation)
             } else {
-                this.clearShortLink()
+                this.clearShortLinks()
             }
         },
         close() {
-            this.closeShareMenuAndRemoveShortlink()
+            this.closeShareMenuAndRemoveShortLinks()
         },
     },
 }

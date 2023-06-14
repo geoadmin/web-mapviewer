@@ -19,7 +19,7 @@
                 <button class="btn menu-section-title-icon" type="button" :disabled="disabled">
                     <font-awesome-icon :icon="['fas', titleCaretIcon]" />
                 </button>
-                <span class="menu-section-title-text">{{ title }}</span>
+                <span class="ms-2 menu-section-title-text">{{ title }}</span>
             </span>
 
             <slot name="extra-button" />
@@ -156,7 +156,6 @@ $section-border: 1px;
         color: inherit;
     }
     &-text {
-        padding: 0 0.5rem;
         .menu-section-open & {
             font-weight: bold;
         }
