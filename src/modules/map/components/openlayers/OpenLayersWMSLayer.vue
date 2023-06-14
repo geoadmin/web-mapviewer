@@ -7,6 +7,7 @@
 <script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
 import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
@@ -65,16 +66,16 @@ export default {
             if (this.wmsLayerConfig.timeConfig) {
                 // if there is a preview year set, we search for the matching timestamp
                 if (this.previewYear) {
-                    const matchingTimestamp = this.wmsLayerConfig.getTimestampForYear(
+                    const matchingTimeEntry = this.wmsLayerConfig.getTimeEntryForYear(
                         this.previewYear
                     )
-                    if (matchingTimestamp) {
-                        return matchingTimestamp.timestamp
+                    if (matchingTimeEntry) {
+                        return matchingTimeEntry.timestamp
                     }
                 }
-                // if a timestamp is defined, and is different from 'all'
+                // if a time entry is defined, and is different from 'all'
                 // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                if (this.wmsLayerConfig.timeConfig.currentTimestamp !== 'all') {
+                if (this.wmsLayerConfig.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
                     return this.wmsLayerConfig.timeConfig.currentTimestamp
                 }
             }

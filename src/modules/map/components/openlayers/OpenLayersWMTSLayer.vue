@@ -49,7 +49,7 @@ export default {
                 this.wmtsLayerConfig.timeConfig &&
                 this.wmtsLayerConfig.timeConfig.years.includes(this.previewYear)
             ) {
-                return this.wmtsLayerConfig.timeConfig.getTimestampForYear(this.previewYear)
+                return this.wmtsLayerConfig.timeConfig.getTimeEntryForYear(this.previewYear)
                     .timestamp
             }
             return null

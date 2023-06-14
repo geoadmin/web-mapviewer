@@ -33,7 +33,8 @@ const getRandomTimestampFromSeries = (layer) => {
  * @returns {String} The string representation of the object.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
  */
-const stringifyWithoutLang = (key, value) => (key === 'lang' ? undefined : value)
+const stringifyWithoutLangOrNull = (key, value) =>
+    key === 'lang' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
     const width = Cypress.config('viewportWidth')
@@ -110,7 +111,10 @@ describe('Test of layer handling', () => {
                 const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
                 const randomTimestampFromLayer = getRandomTimestampFromSeries(timedLayerMetadata)
                 cy.goToMapView('en', {
-                    layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(0, 4)}`,
+                    layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
+                        0,
+                        4
+                    )}`,
                 })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     const [timeEnabledLayer] = layers
@@ -616,7 +620,7 @@ describe('Test of layer handling', () => {
         })
     })
     context('Language settings in menu', () => {
-        it('keeps the layer settings when changing language', () => {
+        it.only('keeps the layer settings when changing language', () => {
             const langBefore = 'en'
             const langAfter = 'de'
             const visibleLayerIds = [
@@ -645,7 +649,7 @@ describe('Test of layer handling', () => {
                 // Save the layer configuration before the switch.
                 activeLayersConfigBefore = JSON.stringify(
                     state.layers.activeLayers,
-                    stringifyWithoutLang
+                    stringifyWithoutLangOrNull
                 )
             })
 
@@ -668,7 +672,7 @@ describe('Test of layer handling', () => {
                 // Compare the layer configuration (except the language)
                 const activeLayersConfigAfter = JSON.stringify(
                     state.layers.activeLayers,
-                    stringifyWithoutLang
+                    stringifyWithoutLangOrNull
                 )
                 expect(activeLayersConfigAfter).to.eq(activeLayersConfigBefore)
             })

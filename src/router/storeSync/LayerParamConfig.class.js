@@ -18,7 +18,7 @@ import log from '@/utils/logging'
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     let layerUrlString = layer.getID()
-    if (layer.timeConfig && layer.timeConfig.timestamps.length > 1) {
+    if (layer.timeConfig && layer.timeConfig.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }
     if (!layer.visible) {
@@ -192,7 +192,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'clearLayers',
                 'moveActiveLayerFromIndexToIndex',
                 'setLayerOpacity',
-                'setLayerTimestamp',
+                'setLayerYear',
             ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,

@@ -7,7 +7,7 @@ import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { LayerTimeConfigTimestamp } from '@/api/layers/LayerTimeConfigTimestamp.class'
+import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
@@ -54,7 +54,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 1) {
             timestamps.push(
                 ...layerConfig.timestamps.map(
-                    (timestamp) => new LayerTimeConfigTimestamp(timestamp)
+                    (timestamp) => new LayerTimeConfigEntry(timestamp)
                 )
             )
         }
