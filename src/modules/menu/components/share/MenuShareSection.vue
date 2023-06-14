@@ -46,20 +46,20 @@ export default {
     methods: {
         ...mapActions([
             'generateShortLinks',
-            'clearShortLink',
+            'clearShortLinks',
             'toggleShareMenuSection',
-            'closeShareMenuAndRemoveShortlink',
+            'closeShareMenuAndRemoveShortLinks',
         ]),
         toggleShareMenu() {
             this.toggleShareMenuSection()
             if (!this.shortLink) {
                 this.generateShortLinks(this.isTrackingGeolocation)
             } else {
-                this.clearShortLink()
+                this.clearShortLinks()
             }
         },
         close() {
-            this.closeShareMenuAndRemoveShortlink()
+            this.closeShareMenuAndRemoveShortLinks()
         },
     },
 }

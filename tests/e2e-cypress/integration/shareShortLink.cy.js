@@ -9,7 +9,7 @@ describe('Testing the share menu', () => {
         // intercepting short link requests, in order not to have to import the config
         // we check only for the first part of the URL (without the staging)
         cy.intercept('POST', /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, (req) => {
-            if (req.body && req.body.url && req.body.url.indexOf('embed=true') !== -1) {
+            if (req.body && req.body.url && req.body.url.indexOf('embed') !== -1) {
                 req.reply({
                     shorturl: dummyEmbeddedShortLink,
                 })

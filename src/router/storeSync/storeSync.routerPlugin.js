@@ -71,7 +71,7 @@ function storeMutationWatcher(store, mutation, router) {
             // and the share menu opened, we must close the share menu and
             // reset the shortlink
             if (store.state.share.shortLink) {
-                store.dispatch('closeShareMenuAndRemoveShortlink')
+                store.dispatch('closeShareMenuAndRemoveShortLinks')
             }
         }
     }

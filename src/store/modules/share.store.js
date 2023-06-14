@@ -52,15 +52,16 @@ export default {
                 commit('setEmbeddedShortLink', urlWithEmbed)
             }
         },
-        closeShareMenuAndRemoveShortlink({ commit }) {
+        closeShareMenuAndRemoveShortLinks({ commit, dispatch }) {
             commit('setIsMenuSectionShown', false)
-            commit('setShortLink', null)
+            dispatch('clearShortLinks')
         },
         toggleShareMenuSection({ commit, state }) {
             commit('setIsMenuSectionShown', !state.isMenuSectionShown)
         },
-        clearShortLink({ commit }) {
+        clearShortLinks({ commit }) {
             commit('setShortLink', null)
+            commit('setEmbeddedShortLink', null)
         },
     },
     mutations: {
