@@ -6,7 +6,7 @@
             @click="toggleEmbedSharing"
         >
             <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
-            <span class="ms-1">{{ $t('share_more') }}</span>
+            <span class="ms-2">{{ $t('share_more') }}</span>
         </button>
         <CollapseTransition :duration="200">
             <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
@@ -46,13 +46,14 @@
                 >
                     <select
                         v-model="currentPreviewSize"
-                        class="form-select w-auto"
+                        class="embed-preview-modal-size-selector form-select w-auto"
                         data-cy="menu-share-embed-iframe-size-selector"
                     >
                         <option
                             v-for="size in EmbedSizes"
                             :key="size.i18nKey"
                             :value="size"
+                            class="embed-preview-modal-size-selector-option"
                             :data-cy="`menu-share-embed-iframe-size-${size.i18nKey.toLowerCase()}`"
                         >
                             {{ $t(size.i18nKey) }}
@@ -206,5 +207,8 @@ export default {
     @include respond-above(phone) {
         display: block;
     }
+}
+.embed-preview-modal-size-selector {
+    cursor: pointer;
 }
 </style>
