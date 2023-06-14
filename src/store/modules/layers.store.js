@@ -161,9 +161,9 @@ const actions = {
                 clone.opacity = layer.opacity
                 commit('addLayer', { layer: clone })
                 if (layer.timeConfig) {
-                    commit('setLayerTimestamp', {
+                    commit('setLayerYear', {
                         layerId: clone.getID(),
-                        timestamp: layer.timeConfig.currentTimestamp,
+                        year: layer.timeConfig.currentYear,
                     })
                 }
             } else {
@@ -241,13 +241,12 @@ const actions = {
         if (layerId && year) {
             const layer = getters.getActiveLayerById(layerId)
             if (layer && layer.timeConfig) {
-                const timestampForYear = layer.timeConfig.timestamps.find(
-                    (timestamp) => timestamp.year === year
-                )
-                if (timestampForYear) {
-                    commit('setLayerTimestamp', {
+                // checking that the year exists in this timeConfig
+                const timeEntryForYear = layer.timeConfig.getTimeEntryForYear(year)
+                if (timeEntryForYear) {
+                    commit('setLayerYear', {
                         layerId,
-                        timestamp: timestampForYear.timestamp,
+                        year: year,
                     })
                 } else {
                     log.error('timestamp for year not found, ignoring change', layer, year)
@@ -359,8 +358,9 @@ const mutations = {
             layerMatchingId.opacity = opacity
         }
     },
-    setLayerTimestamp(state, { layerId, timestamp }) {
-        getActiveLayerById(state, layerId).timeConfig.currentTimestamp = timestamp
+    setLayerYear(state, { layerId, year }) {
+        const timedLayer = getActiveLayerById(state, layerId)
+        timedLayer.timeConfig.currentTimeEntry = timedLayer.timeConfig.getTimeEntryForYear(year)
     },
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)

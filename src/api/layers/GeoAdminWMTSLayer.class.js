@@ -1,4 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { WEBMERCATOR } from '@/utils/coordinateSystems'
 
@@ -69,12 +70,16 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             // we fall back to the timestamp in the time config
             timestampToUse = this.timeConfig.currentTimestamp
         }
+        if (!timestampToUse) {
+            // if no timestamp was found (no time config or preview year) we fall back to 'current' as the default WMTS timestamp
+            timestampToUse = CURRENT_YEAR_WMTS_TIMESTAMP
+        }
         return `${
             this.baseURL
         }1.0.0/${this.getID()}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 
     get hasMultipleTimestamps() {
-        return this.timeConfig && this.timeConfig.timestamps.length > 1
+        return this.timeConfig && this.timeConfig.timeEntries.length > 1
     }
 }

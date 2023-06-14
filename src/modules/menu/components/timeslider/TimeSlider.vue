@@ -76,6 +76,7 @@
     </div>
 </template>
 <script>
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from "@/api/layers/LayerTimeConfigEntry.class";
 import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -242,11 +243,12 @@ export default {
         const [firstLayer] = this.layersWithTimestamps
         if (this.layersWithTimestamps.length === 1) {
             // if there is only one layer, and its current timestamp is a valid year, we take it
-            if (firstLayer.timeConfig.currentYear !== 9999) {
+            if (firstLayer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
                 this.currentYear = firstLayer.timeConfig.currentYear
             } else {
+                const firstYearNotAllYears = firstLayer.timeConfig.years.find((year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA)
                 // as we've changed the selected year from the default, we have to propagate this change to the store
-                this.setCurrentYearAndDispatchToStore(firstLayer.timeConfig.years[0])
+                this.setCurrentYearAndDispatchToStore(firstYearNotAllYears)
             }
         } else {
             // if multiple layers are visible, we need to find the closest year (from now) that is a common year between all layers
