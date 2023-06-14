@@ -182,6 +182,7 @@ $openCloseButtonHeight: 2.5rem;
         pointer-events: none;
         max-height: calc(100vh - $header-height);
         top: $header-height;
+        z-index: $zindex-menu;
         &.dev-disclaimer-present {
             top: $header-height + $dev-disclaimer-height;
             max-height: calc(100vh - $header-height - $dev-disclaimer-height);
