@@ -4,6 +4,7 @@
         ref="sliderContainer"
         data-cy="time-slider"
         class="time-slider card"
+        :class="{ grabbed: yearCursorIsGrabbed }"
     >
         <div class="p-2 d-flex">
             <div class="time-slider-bar">
@@ -15,19 +16,13 @@
                     @touchstart.passive="grabCursor"
                     @mousedown.passive="grabCursor"
                 >
-                    <div
-                        class="time-slider-bar-cursor-grip px-2 border-end d-flex align-items-center"
-                        :class="{ grabbed: yearCursorIsGrabbed }"
-                    >
+                    <div class="px-2 border-end d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                     <div data-cy="time-slider-current-year" class="time-slider-bar-cursor-year">
                         {{ currentYear }}
                     </div>
-                    <div
-                        class="time-slider-bar-cursor-grip px-2 border-start d-flex align-items-center"
-                        :class="{ grabbed: yearCursorIsGrabbed }"
-                    >
+                    <div class="px-2 border-start d-flex align-items-center">
                         <FontAwesomeIcon icon="grip-lines-vertical" />
                     </div>
                 </div>
@@ -379,6 +374,12 @@ export default {
 
 .time-slider {
     background: rgba(255, 255, 255, 0.9) !important;
+    &:not(.grabbed) &-bar-cursor {
+        cursor: grab;
+    }
+    &.grabbed {
+        cursor: grabbing;
+    }
     &-bar {
         &-cursor {
             $cursor-height: 34px;
@@ -386,12 +387,6 @@ export default {
             top: 0.75 * $spacer;
             height: $cursor-height;
             width: 92px;
-            &-grip {
-                cursor: grab;
-                &.grabbed {
-                    cursor: grabbing;
-                }
-            }
             &-year {
                 position: relative;
                 top: 1px;
