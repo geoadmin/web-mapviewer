@@ -91,6 +91,12 @@ export default {
          * @type String
          */
         hostname: window.location.hostname,
+        /**
+         * Flag telling if the app should be displaying the map in 3D or not
+         *
+         * @type Boolean
+         */
+        showIn3d: false,
     },
     getters: {
         screenDensity(state) {
@@ -201,6 +207,9 @@ export default {
                 }
             }
         },
+        setShowIn3d({ commit }, showIn3d) {
+            commit('setShowIn3d', !!showIn3d)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -227,6 +236,9 @@ export default {
         },
         setUiMode(state, mode) {
             state.mode = mode
+        },
+        setShowIn3d(state, flagValue) {
+            state.showIn3d = flagValue
         },
     },
 }
