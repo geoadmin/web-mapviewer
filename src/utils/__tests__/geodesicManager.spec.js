@@ -1,10 +1,9 @@
-import { GeodesicGeometries } from '@/utils/geodesicManager'
+import { HALFSIZE_WEBMERCATOR, GeodesicGeometries } from '@/utils/geodesicManager'
 import { Feature } from 'ol'
 import { expect } from 'chai'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
 import { describe, it } from 'vitest'
 import { Style } from 'ol/style'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
 
 function constructGeodLineString(...coords) {
     const feature = new Feature(new LineString(coords))
@@ -161,74 +160,72 @@ describe('Unit tests for Geodesic geometries', () => {
     it('2 coordinates crossing the dateline', () => {
         /* We are at the equator to easily check the algorithms, as at the
         equator one coordinate unit = one meter */
-        const halfSize = CoordinateSystems.WEBMERCATOR.halfSize
-        const geodesic = constructGeodLineString([halfSize - 1500, 0], [-halfSize + 2000, 0])
+        const geodesic = constructGeodLineString([HALFSIZE_WEBMERCATOR - 1500, 0], [-HALFSIZE_WEBMERCATOR + 2000, 0])
         validateResults(geodesic, {
             geodesicGeom: [
                 [
-                    [halfSize - 1500, 0],
-                    [halfSize - 500, 0],
-                    [halfSize + 500, 0],
+                    [HALFSIZE_WEBMERCATOR - 1500, 0],
+                    [HALFSIZE_WEBMERCATOR - 500, 0],
+                    [HALFSIZE_WEBMERCATOR + 500, 0],
                 ],
                 [
-                    [-halfSize + 500, 0],
-                    [-halfSize + 1500, 0],
-                    [-halfSize + 2000, 0],
+                    [-HALFSIZE_WEBMERCATOR + 500, 0],
+                    [-HALFSIZE_WEBMERCATOR + 1500, 0],
+                    [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
             geodesicPolygonGeom: null,
             maxStyles: 5, // 3 measure points, azimuth circle, total length
             minStyles: 2, // azimuth circle + total length
-            segmentExtents: [[-halfSize + 500, 0, halfSize + 500, 0]],
+            segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
         })
 
         // Validate getSubsegments
-        const subsegments = geodesic.getSubsegments(0, [halfSize, -0.0001, halfSize, +0.0001])
+        const subsegments = geodesic.getSubsegments(0, [HALFSIZE_WEBMERCATOR, -0.0001, HALFSIZE_WEBMERCATOR, +0.0001])
         expect(subsegments).to.have.length(1) // [0-1000], [1000-2000], [2000-3000]
         checkCoordsEqual(subsegments[0], [
-            [halfSize - 500, 0],
-            [halfSize + 500, 0],
+            [HALFSIZE_WEBMERCATOR - 500, 0],
+            [HALFSIZE_WEBMERCATOR + 500, 0],
         ])
     })
     it('3 coordinates crossing the dateline', () => {
         /* We are at the equator to easily check the algorithms, as at the
         equator one coordinate unit = one meter */
-        const halfSize = CoordinateSystems.WEBMERCATOR.halfSize
         const geodesic = constructGeodLineString(
-            [halfSize - 1500, 0],
-            [-halfSize + 1100, 0],
-            [-halfSize + 2000, 0]
+            [HALFSIZE_WEBMERCATOR - 1500, 0],
+            [-HALFSIZE_WEBMERCATOR + 1100, 0],
+            [-HALFSIZE_WEBMERCATOR + 2000, 0]
         )
         validateResults(geodesic, {
             geodesicGeom: [
                 [
-                    [halfSize - 1500, 0],
-                    [halfSize - 500, 0],
-                    [halfSize + 500, 0],
+                    [HALFSIZE_WEBMERCATOR - 1500, 0],
+                    [HALFSIZE_WEBMERCATOR - 500, 0],
+                    [HALFSIZE_WEBMERCATOR + 500, 0],
                 ],
                 [
-                    [-halfSize + 500, 0],
-                    [-halfSize + 1100, 0],
-                    [-halfSize + 2000, 0],
+                    [-HALFSIZE_WEBMERCATOR + 500, 0],
+                    [-HALFSIZE_WEBMERCATOR + 1100, 0],
+                    [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
             geodesicPolygonGeom: null,
             maxStyles: 4, // 3 measure points, total length
             minStyles: 1, // total length
-            segmentExtents: [[-halfSize + 500, 0, halfSize + 500, 0]],
+            segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
         })
 
         // Validate getSubsegments
         const subsegments = geodesic.getSubsegments(0, [
-            -halfSize + 1000 - 0.0001,
+            -HALFSIZE_WEBMERCATOR + 1000 - 0.0001,
             -0.0001,
-            -halfSize + 1000,
+            -HALFSIZE_WEBMERCATOR + 1000,
             +0.0001,
         ])
         expect(subsegments).to.have.length(1)
         checkCoordsEqual(subsegments[0], [
-            [-halfSize + 500, 0],
-            [-halfSize + 1100, 0],
+            [-HALFSIZE_WEBMERCATOR + 500, 0],
+            [-HALFSIZE_WEBMERCATOR + 1100, 0],
         ])
     })
 })

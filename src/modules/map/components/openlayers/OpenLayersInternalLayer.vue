@@ -11,17 +11,14 @@
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.epsgNumber)"
+            :wmts-layer-config="layerConfig"
+            :preview-year="previewYear"
+            :projection="LV95"
             :z-index="zIndex"
-            :projection="LV95.epsg"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
-            :layer-id="layerConfig.externalLayerId"
-            :opacity="layerConfig.opacity"
-            :get-capabilities-url="layerConfig.getURL()"
+            :external-wmts-layer-config="layerConfig"
             :z-index="zIndex"
         />
         <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
@@ -29,15 +26,10 @@
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
-            :layer-id="layerConfig.geoAdminID ?? layerConfig.externalLayerId"
-            :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL(LV95.epsgNumber)"
-            :wms-version="layerConfig.wmsVersion"
-            :time-config="layerConfig.timeConfig"
-            :format="layerConfig.format"
-            :gutter="layerConfig.gutter"
+            :wms-layer-config="layerConfig"
+            :preview-year="previewYear"
+            :projection="layerConfig.isExternal ? WEBMERCATOR.epsg : LV95"
             :z-index="zIndex"
-            :projection="LV95.epsg"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
@@ -83,7 +75,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
@@ -118,11 +110,16 @@ export default {
             type: Number,
             default: -1,
         },
+        previewYear: {
+            type: Number,
+            default: null,
+        },
     },
     data() {
         return {
             LayerTypes,
-            LV95: CoordinateSystems.LV95,
+            LV95,
+            WEBMERCATOR,
         }
     },
     methods: {

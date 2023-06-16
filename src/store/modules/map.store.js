@@ -1,4 +1,5 @@
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import allCoordinateSystems, { LV95 } from '@/utils/coordinateSystems'
+import log from '@/utils/logging'
 
 /** @enum */
 export const ClickType = {
@@ -54,9 +55,9 @@ export default {
          * The current applied map projection for anything displayed to the user (footer mouse
          * position for instance)
          *
-         * @type {CoordinateSystems}
+         * @type {CoordinateSystem}
          */
-        displayedProjection: CoordinateSystems.LV95,
+        displayedProjection: LV95,
 
         displayLocationPopup: false,
     },
@@ -88,8 +89,15 @@ export default {
             commit('setPinnedLocation', null)
         },
         setDisplayedProjectionWithId({ commit }, projectionId) {
-            if (projectionId && CoordinateSystems[projectionId]) {
-                commit('setDisplayedProjection', CoordinateSystems[projectionId])
+            if (projectionId) {
+                const matchingCoordinateSystem = allCoordinateSystems.find(
+                    (coordinateSystem) => coordinateSystem.id === projectionId
+                )
+                if (matchingCoordinateSystem) {
+                    commit('setDisplayedProjection', matchingCoordinateSystem)
+                } else {
+                    log.error('No coordinate system found matching ID', projectionId)
+                }
             }
         },
 

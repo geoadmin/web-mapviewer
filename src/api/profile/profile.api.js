@@ -3,7 +3,8 @@ import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { toLv95 } from '@/modules/drawing/lib/drawingUtils'
-import { CoordinateSystems, splitIfOutOfLV95Bounds } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import { splitIfOutOfLV95Bounds } from '@/utils/coordinateUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
@@ -36,7 +37,7 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
                 method: 'POST',
                 params: {
                     offset: 0,
-                    sr: CoordinateSystems.LV95.epsgNumber,
+                    sr: LV95.epsgNumber,
                     distinct_points: true,
                 },
                 data: {
@@ -82,7 +83,7 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
  */
 function chunksToLV95(chunks) {
     return chunks.map((chunk) => {
-        chunk.coordinates = toLv95(chunk.coordinates, CoordinateSystems.WEBMERCATOR.epsg)
+        chunk.coordinates = toLv95(chunk.coordinates, WEBMERCATOR.epsg)
         return chunk
     })
 }

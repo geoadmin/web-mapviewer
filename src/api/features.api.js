@@ -1,6 +1,7 @@
 import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -10,13 +11,12 @@ import {
     MEDIUM,
     RED,
 } from '@/utils/featureStyleUtils'
+import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
-import Feature from 'ol/Feature'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
+
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
  * edited if the corresponding flag says so (it will then fire "change" events any time one property
@@ -497,7 +497,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
                 {
                     params: {
                         layers: `all:${layer.getID()}`,
-                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
+                        sr: WEBMERCATOR.epsgNumber,
                         geometry: coordinate.join(','),
                         geometryFormat: 'geojson',
                         geometryType: 'esriGeometryPoint',
@@ -557,13 +557,13 @@ const getFeature = (layer, featureID, lang = 'en') => {
             .all([
                 axios.get(featureUrl, {
                     params: {
-                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
+                        sr: WEBMERCATOR.epsgNumber,
                         geometryFormat: 'geojson',
                     },
                 }),
                 axios.get(`${featureUrl}/htmlPopup`, {
                     params: {
-                        sr: CoordinateSystems.WEBMERCATOR.epsgNumber,
+                        sr: WEBMERCATOR.epsgNumber,
                         lang: lang,
                     },
                 }),

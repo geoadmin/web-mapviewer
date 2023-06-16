@@ -19,7 +19,7 @@ import OpenLayersMarker, {
     markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
@@ -77,7 +77,7 @@ export default {
         openLayersGeoJsonGeometry() {
             if (this.doesFeatureHaveAGeometry) {
                 return new GeoJSON().readGeometry(this.feature.geometry, {
-                    dataProject: CoordinateSystems.WEBMERCATOR.epsg,
+                    dataProject: WEBMERCATOR.epsg,
                 })
             }
             return null

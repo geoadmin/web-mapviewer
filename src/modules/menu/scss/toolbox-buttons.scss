@@ -1,0 +1,29 @@
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+.toolbox-button {
+    border: none;
+    padding: 0;
+    display: block;
+    height: $map-button-diameter;
+    width: $map-button-diameter;
+    border-radius: $map-button-diameter * 0.5;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: $map-button-border-color;
+    text-align: center;
+    font-size: 0; // Needed to fully center the icon
+    margin-bottom: 0.25rem;
+    &:hover {
+        background-color: $map-button-hover-border-color;
+    }
+    .svg-inline--fa {
+        height: $map-button-inner-icon-diameter;
+        color: $white;
+    }
+    &.active {
+        background-color: $primary;
+        .toolbox-button-inner-circle {
+            fill: $primary;
+        }
+    }
+}

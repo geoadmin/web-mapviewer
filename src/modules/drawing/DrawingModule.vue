@@ -219,7 +219,7 @@ export default {
             this.readyForTeleport = true
         })
         // listening for "Delete" keystroke (in order to remove last point when drawing lines or measure)
-        document.addEventListener('keyup', this.onKeyUp)
+        document.addEventListener('keyup', this.onKeyUp, { passive: true })
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.drawingLayer = this.drawingLayer
@@ -444,7 +444,7 @@ export default {
             try {
                 const kml = await getKml(layer.fileId)
                 const features = new KML().readFeatures(kml, {
-                    featureProjection: layer.projection,
+                    featureProjection: layer.projection.epsg,
                 })
                 features.forEach((olFeature) => {
                     EditableFeature.deserialize(olFeature, this.availableIconSets)

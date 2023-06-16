@@ -1,13 +1,13 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
-import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
-import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import {
+    extractOlFeatureCoordinates,
+    wrapWebmercatorCoords,
+} from '@/modules/drawing/lib/drawingUtils'
+import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
-const DEG360 = CoordinateSystems.WEBMERCATOR.deg360
 const olSelector = '.ol-viewport'
 
 function moveMapPos(newCenter) {
-
     cy.writeStoreValue('setCenter', newCenter)
     /* In headed mode, the tests work perfectly fine even without these waits. In headless mode
     hovewer, they are needed, as else, the mouse click event following may not be registered
@@ -92,11 +92,11 @@ const generateTest = (drawOffset, selectOffset, x, locDesc, test) => {
     desc += 'at ca. 47° '
     desc += locDesc
     it(desc, () => {
-        test(drawOffset * DEG360, selectOffset * DEG360, x)
+        test(drawOffset * 2 * HALFSIZE_WEBMERCATOR, selectOffset * 2 * HALFSIZE_WEBMERCATOR, x)
     })
 }
 const generateTestsInPacific = (testFunc) => {
-    const atDateTimeLimit = CoordinateSystems.WEBMERCATOR.halfSize
+    const atDateTimeLimit = HALFSIZE_WEBMERCATOR
     const pacificDesc7525 = '75% on the west, 25% on the east of the datetime limit'
     const pacificDesc2575 = '25% on the west, 75% on the east of the datetime limit'
     /*Checking that if a feature is drawn at the datetime limit, it is editable on both sides

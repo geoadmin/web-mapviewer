@@ -1,9 +1,10 @@
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
@@ -29,7 +30,11 @@ describe('Test parsing of legacy URL param into new params', () => {
                 true,
                 [new LayerAttribution('attribution.test.timed.wmts.layer')],
                 'png',
-                new LayerTimeConfig('123', ['123', '456', '789'])
+                new LayerTimeConfig('123', [
+                    new LayerTimeConfigEntry('123'),
+                    new LayerTimeConfigEntry('456'),
+                    new LayerTimeConfigEntry('789'),
+                ])
             ),
         ]
         it('Parses layers IDs and pass them along', () => {
@@ -85,11 +90,10 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
                 expect(firstLayer).to.haveOwnProperty('timeConfig')
-                expect(firstLayer.timeConfig).to.haveOwnProperty('currentTimestamp')
                 expect(firstLayer.timeConfig.currentTimestamp).to.eq(timestamp)
             }
-            fakeLayerConfig[2].timeConfig.series.forEach((timestamp) =>
-                checkOneLayerTimestamps(timestamp)
+            fakeLayerConfig[2].timeConfig.timeEntries.forEach((entry) =>
+                checkOneLayerTimestamps(entry.timestamp)
             )
         })
         it('Parses multiples layers with all params set', () => {
@@ -113,7 +117,6 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(layer.visible).to.eq(expectedVisibility)
                 if (expecedTimestamp) {
                     expect(layer).to.haveOwnProperty('timeConfig')
-                    expect(layer.timeConfig).to.haveOwnProperty('currentTimestamp')
                     expect(layer.timeConfig.currentTimestamp).to.eq(expecedTimestamp)
                 }
             }

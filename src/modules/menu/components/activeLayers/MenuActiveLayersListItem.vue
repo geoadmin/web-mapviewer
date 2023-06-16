@@ -33,7 +33,6 @@
                 :layer-id="id"
                 :time-config="layer.timeConfig"
                 :compact="compact"
-                @timestamp-change="onTimestampChange"
             />
             <ThirdPartDisclaimer
                 v-if="hasDataDisclaimer(layer.getID())"
@@ -155,7 +154,6 @@ export default {
         'opacityChange',
         'orderChange',
         'showLayerLegendPopup',
-        'timestampChange',
     ],
     data() {
         return {
@@ -204,9 +202,6 @@ export default {
         },
         showLayerLegendPopup() {
             this.$emit('showLayerLegendPopup', this.id)
-        },
-        onTimestampChange(timestamp) {
-            this.$emit('timestampChange', this.id, timestamp)
         },
     },
 }

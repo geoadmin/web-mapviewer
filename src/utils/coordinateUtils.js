@@ -1,10 +1,9 @@
 import { LV95_EXTENT } from '@/config'
 import clip from 'liang-barsky'
-import { format, toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'
 import log from './logging'
-import { forward as LLtoMGRS, LLtoUTM, toPoint as mgrsToWGS84 } from './militaryGridProjection'
-
+import { toPoint as mgrsToWGS84 } from './militaryGridProjection'
 import { formatThousand, round } from './numberUtils'
 
 // 47.5 7.5
@@ -119,16 +118,16 @@ export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
     // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
     // checking LV95 bounds
     if (isInBounds(x, y, LV95_BOUNDS)) {
-        return proj4(CoordinateSystems.LV95.epsg, CoordinateSystems.WGS84.epsg, [x, y])
+        return proj4(LV95.epsg, WGS84.epsg, [x, y])
         // checking LV95 backward
     } else if (isInBounds(y, x, LV95_BOUNDS)) {
-        return proj4(CoordinateSystems.LV95.epsg, CoordinateSystems.WGS84.epsg, [y, x])
+        return proj4(LV95.epsg, WGS84.epsg, [y, x])
         // checking LV03 bounds
     } else if (isInBounds(x, y, LV03_BOUNDS)) {
-        return proj4(CoordinateSystems.LV03.epsg, CoordinateSystems.WGS84.epsg, [x, y])
+        return proj4(LV03.epsg, WGS84.epsg, [x, y])
         // checking LV03 backward
     } else if (isInBounds(y, x, LV03_BOUNDS)) {
-        return proj4(CoordinateSystems.LV03.epsg, CoordinateSystems.WGS84.epsg, [y, x])
+        return proj4(LV03.epsg, WGS84.epsg, [y, x])
         // checking for WGS84 bounds
     } else if (isInBounds(x, y, WGS84_BOUNDS)) {
         // we inverse lat/lon to lon/lat as user inputs support lat/lon but the app behind function with lon/lat
@@ -251,11 +250,7 @@ const executeAndReturn = (
         if (!extractedCoordinates) {
             return undefined
         }
-        const projectedResult = proj4(
-            CoordinateSystems.WGS84.epsg,
-            outputProjection,
-            extractedCoordinates
-        )
+        const projectedResult = proj4(WGS84.epsg, outputProjection, extractedCoordinates)
         return [round(projectedResult[0], decimals), round(projectedResult[1], decimals)]
     }
     return undefined
@@ -296,7 +291,7 @@ const executeAndReturn = (
  */
 export const coordinateFromString = (
     text,
-    toProjection = CoordinateSystems.WEBMERCATOR.epsg,
+    toProjection = WEBMERCATOR.epsg,
     roundingToDecimal = 1
 ) => {
     if (typeof text !== 'string') {
@@ -363,7 +358,7 @@ export const getCentroid = function (...coordinates) {
 }
 
 /**
- * Returns rounded coordinate with thousand separator and comma.
+ * Returns rounded coordinate with thousands separator and comma.
  *
  * @param {[Number, Number]} coordinate The raw coordinate as array.
  * @param {Number} digit Decimal digits to round to.
@@ -379,120 +374,11 @@ export function toStringCH(coordinate, digits) {
 }
 
 /**
- * Representation of many different (available in this app) projection systems
- *
- * The format function helps print the coordinate in a human-readable format. It will receive the
- * coordinate reprojected in the declared EPSG for the coordinate system.
- *
- * @enum
- */
-export const CoordinateSystems = {
-    LV95: {
-        id: 'LV95',
-        epsg: 'EPSG:2056',
-        epsgNumber: 2056,
-        label: 'CH1903+ / LV95',
-        /**
-         * @param {Number[]} coordinate Coordinates in LV95 as [easting, northing]
-         * @returns {String} Human readable formatted coordinate
-         */
-        format(coordinate) {
-            return toStringCH(coordinate, 1)
-        },
-    },
-    LV03: {
-        id: 'LV03',
-        epsg: 'EPSG:21781',
-        epsgNumber: 21781,
-        label: 'CH1903 / LV03',
-        /**
-         * @param {Number[]} coordinate Coordinates in LV03 as [easting, northing]
-         * @returns {String} Human readable formatted coordinate
-         */
-        format(coordinate) {
-            return toStringCH(coordinate, 1)
-        },
-    },
-    WGS84: {
-        id: 'WGS84',
-        epsg: 'EPSG:4326',
-        epsgNumber: 4326,
-        label: 'WGS84',
-        /**
-         * @param {Number[]} coordinate Coordinates in WGS84 as [lat, lon] (OpenLayers function with
-         *   a lat/lon system, not a lon/lat)
-         * @returns {String} Human readable formatted coordinate
-         */
-        format(coordinate) {
-            return `${toStringHDMS(coordinate, 2)} (${format(coordinate, '{y}, {x}', 5)})`
-        },
-    },
-    WEBMERCATOR: {
-        id: 'WEBMERCATOR',
-        epsg: 'EPSG:3857',
-        epsgNumber: 3857,
-        label: 'WebMercator',
-        /* This means that the wgs map extent [-180,-90,180,90] would be
-        [-HALF_SIZE, -HALF_SIZE, HALF_SIZE, HALF_SIZE] in webmercator */
-        halfSize: Math.PI * 6378137,
-        deg360: 2 * Math.PI * 6378137,
-        /**
-         * @param {Number[]} coordinate Coordinates in WebMercator as [x, y]
-         * @returns {String} Human readable formatted coordinate
-         */
-        format(coordinate) {
-            return `${formatThousand(coordinate[0])} ${formatThousand(coordinate[1])}`
-        },
-    },
-    UTM: {
-        id: 'UTM',
-        epsg: 'EPSG:4326',
-        epsgNumber: 4326,
-        label: 'UTM',
-        /**
-         * @param {Number[]} coordinate Coordinates in WGS84 as [lat, lon] (OpenLayers function with
-         *   a lat/lon system, not a lon/lat)
-         * @returns {String} Human readable formatted coordinate in UTM (see
-         *   https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system)
-         */
-        format(coordinate) {
-            let c = LLtoUTM({ lat: coordinate[1], lon: coordinate[0] })
-            return [
-                formatThousand(c.easting),
-                formatThousand(c.northing),
-                `(${c.zoneNumber}${c.zoneLetter})`,
-            ].join(' ')
-        },
-    },
-    MGRS: {
-        id: 'MGRS',
-        epsg: 'EPSG:4326',
-        epsgNumber: 4326,
-        label: 'MGRS',
-        /**
-         * @param {Number[]} coordinate Coordinates in WGS84 as [lat, lon] (OpenLayers function with
-         *   a lat/lon system, not a lon/lat)
-         * @returns {String} Human readable formatted coordinate in the military grid reference
-         *   system
-         */
-        format(coordinate) {
-            // The replace function is used to have a space between the numbers
-            return LLtoMGRS(coordinate, 5)
-                .replace(/(.{5})/g, '$1 ')
-                .trim()
-        },
-    },
-}
-
-/**
  * @param coordinates {Number[]}
- * @param coordinateSystem {CoordinateSystems}
+ * @param coordinateSystem {CoordinateSystem}
  * @returns {string}
  */
-export const printHumanReadableCoordinates = (
-    coordinates,
-    coordinateSystem = CoordinateSystems.LV95
-) => {
+export const printHumanReadableCoordinates = (coordinates, coordinateSystem = LV95) => {
     return coordinateSystem.format(coordinates)
 }
 

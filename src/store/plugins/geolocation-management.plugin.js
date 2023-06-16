@@ -1,6 +1,6 @@
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 import proj4 from 'proj4'
 
@@ -9,10 +9,7 @@ let firstTimeActivatingGeolocation = true
 
 const readPositionEpsg3857 = (position) => {
     const { coords } = position
-    return proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.WEBMERCATOR.epsg, [
-        coords.longitude,
-        coords.latitude,
-    ])
+    return proj4(WGS84.epsg, WEBMERCATOR.epsg, [coords.longitude, coords.latitude])
 }
 
 const handlePositionAndDispatchToStore = (position, store) => {
