@@ -248,7 +248,7 @@
     "invalid_url": "URL è nunvalid",
     "item": "Ir al object ...",
     "items": "Objects",
-    "isos": "Lieus-ISOS",
+    "isos": "Lieus ISOS",
     "isos_service_link_href": "https://www.bak.admin.ch/bak/rm/home/baukultur/isos-und-ortsbildschutz.html",
     "isos_service_link_label": "UFC - Inventari ISOS",
     "topic_isos_tooltip": "Lieus ISOS",
@@ -613,5 +613,6 @@
     "feedback_email": "Ihre E-Mail Adresse (optional)",
     "feedback_invalid_email": "ungültige E-Mail",
     "profile_no_data": "kein Datum",
-    "view_on_mapgeoadminch_webmapviewer": "Contemplar in {url}"
+    "view_on_mapgeoadminch_webmapviewer": "Contemplar in {url}",
+    "full_width": "Vollständige Breite"
 }

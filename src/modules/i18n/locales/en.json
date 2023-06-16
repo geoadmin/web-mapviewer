@@ -250,7 +250,7 @@
     "invalid_url": "URL is not valid.",
     "item": "Go to the object ...",
     "items": "Objects",
-    "isos": "ISOS-Heritage sites",
+    "isos": "ISOS Heritage sites",
     "isos_service_link_href": "https://www.bak.admin.ch/bak/en/home/baukultur/isos-und-ortsbildschutz.html",
     "isos_service_link_label": "FOC - Inventory ISOS",
     "topic_isos_tooltip": "ISOS Heritage sites",
@@ -615,5 +615,6 @@
     "feedback_email": "Your Email (optional)",
     "feedback_invalid_email": "Invalid email",
     "profile_no_data": "No data",
-    "view_on_mapgeoadminch_webmapviewer": "View on {url}"
+    "view_on_mapgeoadminch_webmapviewer": "View on {url}",
+    "full_width": "Full width"
 }

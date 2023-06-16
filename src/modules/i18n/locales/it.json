@@ -250,7 +250,7 @@
     "invalid_url": "URL non valido",
     "item": "Vai all'oggetto ...",
     "items": "Oggetti",
-    "isos": "Insediamenti-ISOS",
+    "isos": "Insediamenti ISOS",
     "isos_service_link_href": "https://www.bak.admin.ch/bak/it/home/baukultur/isos-und-ortsbildschutz.html",
     "isos_service_link_label": "UFC - Inventario ISOS",
     "topic_isos_tooltip": "Insediamenti ISOS",
@@ -615,5 +615,6 @@
     "feedback_email": "La sua email (facoltativo)",
     "feedback_invalid_email": "e-mail non valide",
     "profile_no_data": "Nessun dato",
-    "view_on_mapgeoadminch_webmapviewer": "Vedi in {url}"
+    "view_on_mapgeoadminch_webmapviewer": "Vedi in {url}",
+    "full_width": "Larghezza intera"
 }
