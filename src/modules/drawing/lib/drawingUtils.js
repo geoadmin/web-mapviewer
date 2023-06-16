@@ -1,15 +1,15 @@
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { format } from '@/utils/numberUtils'
-import { LineString, Point, Polygon } from 'ol/geom'
-import proj4 from 'proj4'
 import { wrapX as wrapXCoordinate } from 'ol/coordinate'
+import { LineString, Point, Polygon } from 'ol/geom'
 import { get as getProjection } from 'ol/proj'
+import proj4 from 'proj4'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
         return input.map((si) => toLv95(si, epsg))
     } else {
-        return proj4(epsg, CoordinateSystems.LV95.epsg, [input[0], input[1]])
+        return proj4(epsg, LV95.epsg, [input[0], input[1]])
     }
 }
 
@@ -27,12 +27,12 @@ export function wrapWebmercatorCoords(coords, inPlace = false) {
             coords.forEach((coords) => wrapWebmercatorCoords(coords, true))
             return coords
         } else {
-            return wrapXCoordinate(coords, getProjection(CoordinateSystems.WEBMERCATOR.epsg))
+            return wrapXCoordinate(coords, getProjection(WEBMERCATOR.epsg))
         }
     } else {
         return Array.isArray(coords[0])
             ? coords.map((coords) => wrapWebmercatorCoords(coords, false))
-            : wrapXCoordinate(coords.slice(), getProjection(CoordinateSystems.WEBMERCATOR.epsg))
+            : wrapXCoordinate(coords.slice(), getProjection(WEBMERCATOR.epsg))
     }
 }
 

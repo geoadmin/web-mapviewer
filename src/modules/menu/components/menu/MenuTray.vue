@@ -13,7 +13,6 @@
             <MenuSettings />
         </MenuSection>
         <MenuShareSection
-            id="shareSection"
             ref="shareSection"
             @open-menu-section="onOpenMenuSection"
         />

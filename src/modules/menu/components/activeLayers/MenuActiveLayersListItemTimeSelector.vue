@@ -24,17 +24,17 @@
             data-cy="time-selection-popup"
         >
             <button
-                v-for="timestamp in allTimestampsIncludingAllIfNeeded"
-                :key="timestamp"
+                v-for="timeEntry in timeConfig.timeEntries"
+                :key="timeEntry.timestamp"
                 class="btn mb-1 me-1"
                 :class="{
-                    'btn-primary': timestamp === timeConfig.currentTimestamp,
-                    'btn-light': timestamp !== timeConfig.currentTimestamp,
+                    'btn-primary': timeEntry.timestamp === timeConfig.currentTimestamp,
+                    'btn-light': timeEntry.timestamp !== timeConfig.currentTimestamp,
                 }"
-                :data-cy="`time-select-${timestamp}`"
-                @click="handleClickOnTimestamp(timestamp)"
+                :data-cy="`time-select-${timeEntry.timestamp}`"
+                @click="handleClickOnTimestamp(timeEntry.year)"
             >
-                {{ renderHumanReadableTimestamp(timestamp) }}
+                {{ renderHumanReadableTimestamp(timeEntry) }}
             </button>
         </div>
     </div>
@@ -42,8 +42,12 @@
 
 <script>
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { isNumber } from '@/utils/numberUtils'
+import {
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+    CURRENT_YEAR_WMTS_TIMESTAMP,
+} from '@/api/layers/LayerTimeConfigEntry.class'
 import tippy from 'tippy.js'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     props: {
@@ -60,20 +64,15 @@ export default {
             default: false,
         },
     },
-    emits: ['timestampChange'],
     computed: {
+        ...mapState({
+            previewYear: (state) => state.layers.previewYear,
+        }),
         hasMultipleTimestamps() {
-            return this.timeConfig.series.length > 1
+            return this.timeConfig.timeEntries.length > 1
         },
         humanReadableCurrentTimestamp() {
-            return this.renderHumanReadableTimestamp(this.timeConfig.currentTimestamp)
-        },
-        allTimestampsIncludingAllIfNeeded() {
-            const timestamps = [...this.timeConfig.series]
-            if (this.timeConfig.behaviour === 'all') {
-                timestamps.splice(0, 0, 'all')
-            }
-            return timestamps
+            return this.renderHumanReadableTimestamp(this.timeConfig.currentTimeEntry)
         },
     },
     mounted() {
@@ -93,28 +92,33 @@ export default {
         this.popover?.destroy()
     },
     methods: {
-        renderHumanReadableTimestamp(timestamp) {
-            if (!timestamp) {
+        ...mapActions(['setTimedLayerCurrentYear', 'clearPreviewYear']),
+        /**
+         * @param {LayerTimeConfigEntry} timeEntry
+         * @returns {string}
+         */
+        renderHumanReadableTimestamp(timeEntry) {
+            if (!timeEntry) {
                 return ''
             }
-            if (isNumber(timestamp)) {
-                // if timestamp is already a 4-digit number (a year) we return it as is
-                if (timestamp.length === 4) {
-                    return timestamp
-                } else {
-                    const yearOfTimestamp = timestamp.substr(0, 4)
-                    if (yearOfTimestamp === '9999') {
-                        return this.$t('time_all')
-                    } else {
-                        return yearOfTimestamp
-                    }
-                }
-            } else {
-                return this.$t(`time_${timestamp}`)
+            if (timeEntry.timestamp === CURRENT_YEAR_WMTS_TIMESTAMP) {
+                return this.$t(`time_current`)
             }
+            if (timeEntry.year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
+                return this.$t('time_all')
+            }
+            return `${timeEntry.year}`
         },
-        handleClickOnTimestamp(timestamp) {
-            this.$emit('timestampChange', timestamp)
+        handleClickOnTimestamp(year) {
+            // clearing preview year if one was selected, as a change on this time selector is incompatible with
+            // the time slider being shown and active
+            if (this.previewYear) {
+                this.clearPreviewYear()
+            }
+            this.setTimedLayerCurrentYear({
+                layerId: this.layerId,
+                year,
+            })
         },
         hidePopover() {
             this.popover?.hide()

@@ -1,5 +1,5 @@
 import { LV95_EXTENT, MAP_CENTER } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -87,11 +87,7 @@ const getters = {
      * @returns {Number[]}
      */
     centerEpsg4326: (state) => {
-        const centerEpsg4326Unrounded = proj4(
-            CoordinateSystems.WEBMERCATOR.epsg,
-            CoordinateSystems.WGS84.epsg,
-            state.center
-        )
+        const centerEpsg4326Unrounded = proj4(WEBMERCATOR.epsg, WGS84.epsg, state.center)
         return [
             // a precision of 6 digits means we can track position with 0.111m accuracy
             // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
@@ -197,19 +193,15 @@ const actions = {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
             const points = [
-                proj4(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg, extent[0]),
-                proj4(CoordinateSystems.WEBMERCATOR.epsg, CoordinateSystems.WGS84.epsg, extent[1]),
+                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[0]),
+                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[1]),
             ]
             // Calculate center of extent and convert position back to EPSG:3857.
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
-            const centerOfExtent = proj4(
-                CoordinateSystems.WGS84.epsg,
-                CoordinateSystems.WEBMERCATOR.epsg,
-                [
-                    (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
-                    (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
-                ]
-            )
+            const centerOfExtent = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
+                (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
+            ])
 
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
                 commit('setCenter', {
@@ -239,11 +231,7 @@ const actions = {
     setLatitude: ({ dispatch, getters }, latInDeg) => {
         if (typeof latInDeg === 'number') {
             const newCenter = [getters.centerEpsg4326[0], latInDeg]
-            const newCenterEpsg3857 = proj4(
-                CoordinateSystems.WGS84.epsg,
-                CoordinateSystems.WEBMERCATOR.epsg,
-                newCenter
-            )
+            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
             dispatch('setCenter', {
                 x: newCenterEpsg3857[0],
                 y: newCenterEpsg3857[1],
@@ -253,11 +241,7 @@ const actions = {
     setLongitude: ({ dispatch, getters }, lonInDeg) => {
         if (typeof lonInDeg === 'number') {
             const newCenter = [lonInDeg, getters.centerEpsg4326[1]]
-            const newCenterEpsg3857 = proj4(
-                CoordinateSystems.WGS84.epsg,
-                CoordinateSystems.WEBMERCATOR.epsg,
-                newCenter
-            )
+            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
             dispatch('setCenter', {
                 x: newCenterEpsg3857[0],
                 y: newCenterEpsg3857[1],

@@ -3,9 +3,9 @@
     <div
         id="ol-map"
         ref="map"
-        @touchstart="onTouchStart"
-        @touchmove="clearLongPressTimer"
-        @touchend="clearLongPressTimer"
+        @touchstart.passive="onTouchStart"
+        @touchmove.passive="clearLongPressTimer"
+        @touchend.passive="clearLongPressTimer"
         @touchcancel="clearLongPressTimer"
         @contextmenu="onContextMenu"
     >
@@ -33,6 +33,7 @@
             v-for="(layer, index) in visibleLayers"
             :key="layer.getID()"
             :layer-config="layer"
+            :preview-year="previewYear"
             :current-map-resolution="resolution"
             :z-index="index + startingZIndexForVisibleLayers"
         />
@@ -180,6 +181,7 @@ export default {
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             clickInfo: (state) => state.map.clickInfo,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
+            previewYear: (state) => state.layers.previewYear,
         }),
         ...mapGetters([
             'visibleLayers',

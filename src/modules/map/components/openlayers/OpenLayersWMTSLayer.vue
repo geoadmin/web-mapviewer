@@ -5,8 +5,9 @@
 </template>
 
 <script>
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
 import { XYZ as XYZSource } from 'ol/source'
@@ -18,37 +19,51 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 export default {
     mixins: [addLayerToMapMixin],
     props: {
-        layerId: {
-            type: String,
+        wmtsLayerConfig: {
+            type: GeoAdminWMTSLayer,
             required: true,
         },
-        opacity: {
+        previewYear: {
             type: Number,
-            default: 1.0,
+            default: null,
         },
         projection: {
-            type: String,
-            default: CoordinateSystems.WEBMERCATOR.epsg,
-        },
-        visible: {
-            type: Boolean,
-            default: true,
-        },
-        url: {
-            type: String,
-            required: true,
+            type: CoordinateSystem,
+            default: WEBMERCATOR,
         },
         zIndex: {
             type: Number,
             default: -1,
         },
     },
+    computed: {
+        layerId() {
+            return this.wmtsLayerConfig.getID()
+        },
+        opacity() {
+            return this.wmtsLayerConfig.opacity || 1.0
+        },
+        timestampForPreviewYear() {
+            if (
+                this.previewYear &&
+                this.wmtsLayerConfig.timeConfig &&
+                this.wmtsLayerConfig.timeConfig.years.includes(this.previewYear)
+            ) {
+                return this.wmtsLayerConfig.timeConfig.getTimeEntryForYear(this.previewYear)
+                    .timestamp
+            }
+            return null
+        },
+        url() {
+            return this.wmtsLayerConfig.getURL(
+                this.timestampForPreviewYear,
+                this.projection.epsgNumber
+            )
+        },
+    },
     watch: {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
-        },
-        visible(newVisibility) {
-            this.layer.setVisible(newVisibility)
         },
         url(newUrl) {
             this.layer.getSource().setUrl(newUrl)
@@ -56,10 +71,10 @@ export default {
     },
     created() {
         let source = new XYZSource({
-            projection: this.projection,
+            projection: this.projection.epsg,
             url: this.url,
         })
-        if (this.projection === CoordinateSystems.LV95.epsg) {
+        if (this.projection.epsg === LV95.epsg) {
             // If we are using LV95, we can constrain the WMTS to only request tiles over Switzerland
             // we can also define the resolutions used in the LV95 WMTS pyramid, as it is different from the Mercator pyramid
             // otherwise tiles will be requested at a resolution such as they will appear zoomed in.
@@ -70,7 +85,7 @@ export default {
             })
             // we must redeclare a new instance of XYZ source in this case, see comment below
             source = new XYZSource({
-                projection: this.projection,
+                projection: this.projection.epsg,
                 url: this.url,
                 // the TileGrid for the main projection must be declared at construction, otherwise it won't work as intended
                 // (not possible to use setTileGridForProjection with the main TileGrid, it will go to a different class attributes in OL)
@@ -80,19 +95,11 @@ export default {
             // if this is not done, the re-projection formula used internally by OL will render our layer
             // two times on the map, at the two extremes of the hemisphere. meaning our map will also be visible near New Zealand...
             source.setTileGridForProjection(
-                CoordinateSystems.WEBMERCATOR.epsg,
+                WEBMERCATOR.epsg,
                 new TileGrid({
                     resolutions: TILEGRID_RESOLUTIONS,
-                    origin: proj4(
-                        CoordinateSystems.LV95.epsg,
-                        CoordinateSystems.WEBMERCATOR.epsg,
-                        TILEGRID_ORIGIN
-                    ),
-                    extent: transformExtent(
-                        tileGridLV95.getExtent(),
-                        CoordinateSystems.LV95.epsg,
-                        CoordinateSystems.WEBMERCATOR.epsg
-                    ),
+                    origin: proj4(LV95.epsg, WEBMERCATOR.epsg, TILEGRID_ORIGIN),
+                    extent: transformExtent(tileGridLV95.getExtent(), LV95.epsg, WEBMERCATOR.epsg),
                 })
             )
         }
@@ -100,7 +107,6 @@ export default {
             id: this.layerId,
             opacity: this.opacity,
             source,
-            visible: this.visible,
         })
     },
 }

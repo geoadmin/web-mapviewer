@@ -10,7 +10,7 @@
     >
         <div class="location-popup-coordinates">
             <div class="lp-label">
-                <a :href="$t('contextpopup_lv95_url')" target="_blank">CH1903+ / LV95</a>
+                <a :href="$t('contextpopup_lv95_url')" target="_blank">{{ LV95.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv95">
@@ -19,7 +19,7 @@
                 <LocationPopupCopySlot :value="coordinateLV95" />
             </div>
             <div class="lp-label">
-                <a :href="$t('contextpopup_lv03_url')" target="_blank">CH1903 / LV03</a>
+                <a :href="$t('contextpopup_lv03_url')" target="_blank">{{ LV03.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv03">
@@ -28,7 +28,7 @@
                 <LocationPopupCopySlot :value="coordinateLV03" />
             </div>
             <div class="lp-label">
-                <a href="https://epsg.io/4326" target="_blank">WGS 84 (lat/lon)</a>
+                <a href="https://epsg.io/4326" target="_blank">{{ WGS84.label }}</a>
             </div>
             <div class="lp-data">
                 <span
@@ -44,7 +44,7 @@
                 </span>
             </div>
             <div class="lp-label">
-                <a href="https://epsg.io/32632" target="_blank">UTM</a>
+                <a href="https://epsg.io/32632" target="_blank">{{ UTM.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-utm">
@@ -103,15 +103,16 @@ import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { CoordinateSystems, printHumanReadableCoordinates } from '@/utils/coordinateUtils'
+import { LV03, LV95, MGRS, UTM, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { printHumanReadableCoordinates } from '@/utils/coordinateUtils'
+import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { stringifyQuery } from '@/utils/url'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
-import log from '@/utils/logging'
 
 function reproject(toEpsg, coordinate) {
-    return proj4(CoordinateSystems.WEBMERCATOR.epsg, toEpsg, coordinate)
+    return proj4(WEBMERCATOR.epsg, toEpsg, coordinate)
 }
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
@@ -129,6 +130,10 @@ export default {
             qrCodeImageSrc: null,
             shareLinkUrlShorten: null,
             shareLinkUrl: null,
+            LV95,
+            LV03,
+            WGS84,
+            UTM,
         }
     },
     computed: {
@@ -141,40 +146,31 @@ export default {
             return this.clickInfo?.coordinate
         },
         coordinateLV95() {
-            const lv95_coordinates = reproject(CoordinateSystems.LV95.epsg, this.coordinate)
+            const lv95_coordinates = reproject(LV95.epsg, this.coordinate)
             return `${round(lv95_coordinates[0], 2, true)}, ${round(lv95_coordinates[1], 2, true)}`
         },
         coordinateLV03() {
-            const lv03_coordinates = reproject(CoordinateSystems.LV03.epsg, this.coordinate)
+            const lv03_coordinates = reproject(LV03.epsg, this.coordinate)
             return `${round(lv03_coordinates[0], 2, true)}, ${round(lv03_coordinates[1], 2, true)}`
         },
         coordinateWGS84Metric() {
-            return reproject(CoordinateSystems.WGS84.epsg, this.coordinate)
+            return reproject(WGS84.epsg, this.coordinate)
         },
         coordinateWGS84Plain() {
             const wgsMetric = this.coordinateWGS84Metric
             return `${round(wgsMetric[1], 5, true)}, ${round(wgsMetric[0], 5, true)}`
         },
         coordinateWGS84() {
-            const complete = printHumanReadableCoordinates(
-                this.coordinateWGS84Metric,
-                CoordinateSystems.WGS84
-            )
+            const complete = printHumanReadableCoordinates(this.coordinateWGS84Metric, WGS84)
             // Only return the first (HDMS) part here. The other part is in:
             // this.coordinateWGS84Plain
             return complete.split(' (')[0]
         },
         coordinateUTM() {
-            return printHumanReadableCoordinates(
-                reproject(CoordinateSystems.WGS84.epsg, this.coordinate),
-                CoordinateSystems.UTM
-            )
+            return printHumanReadableCoordinates(reproject(WGS84.epsg, this.coordinate), UTM)
         },
         coordinateMGRS() {
-            return printHumanReadableCoordinates(
-                reproject(CoordinateSystems.WGS84.epsg, this.coordinate),
-                CoordinateSystems.MGRS
-            )
+            return printHumanReadableCoordinates(reproject(WGS84.epsg, this.coordinate), MGRS)
         },
         heightInFeet() {
             return this.height?.heightInFeet || null
@@ -233,7 +229,7 @@ export default {
             }
         },
         updateShareLink(coordinate, routeQuery) {
-            let [lon, lat] = reproject(CoordinateSystems.WGS84.epsg, coordinate)
+            let [lon, lat] = reproject(WGS84.epsg, coordinate)
             let query = {
                 ...routeQuery,
                 crosshair: 'marker',

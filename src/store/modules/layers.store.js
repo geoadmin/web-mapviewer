@@ -37,6 +37,17 @@ const state = {
      * @type AbstractLayer
      */
     previewLayer: null,
+    /**
+     * Year being picked by the time slider. The format is YYYY (but might evolve in the future in
+     * the ISO 8601 date format direction, meaning YYYY-MM-DD, hence the String type).
+     *
+     * We store it outside the time config of layers so that layers revert back to their specific
+     * chosen timestamp when the time slider is closed. That also means that the year picked by the
+     * time slider doesn't end up in the URL params too.
+     *
+     * @type Number
+     */
+    previewYear: null,
 }
 
 const getters = {
@@ -150,9 +161,9 @@ const actions = {
                 clone.opacity = layer.opacity
                 commit('addLayer', { layer: clone })
                 if (layer.timeConfig) {
-                    commit('setLayerTimestamp', {
+                    commit('setLayerYear', {
                         layerId: clone.getID(),
-                        timestamp: layer.timeConfig.currentTimestamp,
+                        year: layer.timeConfig.currentYear,
                     })
                 }
             } else {
@@ -226,30 +237,29 @@ const actions = {
             log.error('Cannot set layer opacity invalid payload', payload)
         }
     },
-    setTimedLayerCurrentTimestamp({ commit, getters }, payload) {
-        if ('layerId' in payload && 'timestamp' in payload) {
-            const { layerId, timestamp } = payload
+    setTimedLayerCurrentYear({ commit, getters }, { layerId, year }) {
+        if (layerId && year) {
             const layer = getters.getActiveLayerById(layerId)
             if (layer && layer.timeConfig) {
-                const isTimestampInSeries = layer.timeConfig.series.indexOf(`${timestamp}`) !== -1
-                // required so that WMS layers with timestamp "all" can be set back to the "all" timestamp
-                const isTimestampDefaultBehaviour = layer.timeConfig.behaviour === timestamp
-                if (isTimestampInSeries || isTimestampDefaultBehaviour) {
-                    commit('setLayerTimestamp', {
+                // checking that the year exists in this timeConfig
+                const timeEntryForYear = layer.timeConfig.getTimeEntryForYear(year)
+                if (timeEntryForYear) {
+                    commit('setLayerYear', {
                         layerId,
-                        // forcing timestamps to be strings
-                        timestamp: `${timestamp}`,
+                        year: year,
                     })
+                } else {
+                    log.error('timestamp for year not found, ignoring change', layer, year)
                 }
             } else {
                 log.error(
-                    'Failed to set layer timestamp, layer not found or has not time config',
+                    'Failed to set layer year, layer not found or has no time config',
                     layerId,
                     layer
                 )
             }
         } else {
-            log.error('Failed to set layer timestamp, invalid payload', payload)
+            log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
     moveActiveLayerBack({ commit, state, getters }, layerId) {
@@ -287,11 +297,22 @@ const actions = {
             cloned.visible = true
             commit('setPreviewLayer', cloned)
         } else {
-            log.error(`Layer "${layerId} not found in configs.`)
+            log.error(`Layer "${layerId}" not found in configs.`)
         }
     },
     clearPreviewLayer({ commit }) {
         commit('setPreviewLayer', null)
+    },
+    setPreviewYear({ commit, state }, year) {
+        const possibleYears = state.activeLayers.flatMap((layer) => layer.timeConfig.years)
+        if (possibleYears.includes(year)) {
+            commit('setPreviewYear', year)
+        } else {
+            log.error('year not found in active layers, ignoring', year)
+        }
+    },
+    clearPreviewYear({ commit }) {
+        commit('setPreviewYear', null)
     },
 }
 
@@ -337,8 +358,9 @@ const mutations = {
             layerMatchingId.opacity = opacity
         }
     },
-    setLayerTimestamp(state, { layerId, timestamp }) {
-        getActiveLayerById(state, layerId).timeConfig.currentTimestamp = timestamp
+    setLayerYear(state, { layerId, year }) {
+        const timedLayer = getActiveLayerById(state, layerId)
+        timedLayer.timeConfig.currentTimeEntry = timedLayer.timeConfig.getTimeEntryForYear(year)
     },
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)
@@ -346,6 +368,9 @@ const mutations = {
     },
     setPreviewLayer(state, layer) {
         state.previewLayer = layer
+    },
+    setPreviewYear(state, year) {
+        state.previewYear = year
     },
 }
 

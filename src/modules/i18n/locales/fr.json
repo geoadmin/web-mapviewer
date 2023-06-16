@@ -614,5 +614,6 @@
 	"send_failed": "Envoi échoué",
 	"feedback_email": "Votre email (facultatif)",
 	"feedback_invalid_email": "e-mail invalide",
-	"profile_no_data": "Aucune donnée"
+	"profile_no_data": "Aucune donnée",
+	"view_on_mapgeoadminch_webmapviewer": "Voir sur {url}"
 }

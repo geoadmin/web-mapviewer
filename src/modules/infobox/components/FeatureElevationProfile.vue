@@ -38,7 +38,7 @@ import getProfile from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV95, WGS84 } from "@/utils/coordinateSystems";
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -121,11 +121,7 @@ export default {
                     [
                         ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
                         ...this.elevationProfile.points.map((point) => {
-                            const [lon, lat] = proj4(
-                                CoordinateSystems.LV95.epsg,
-                                CoordinateSystems.WGS84.epsg,
-                                point.coordinate
-                            )
+                            const [lon, lat] = proj4(LV95.epsg, WGS84.epsg, point.coordinate)
                             return [
                                 point.dist,
                                 point.elevation,

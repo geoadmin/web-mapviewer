@@ -1,13 +1,13 @@
 /// <reference types="cypress" />
 
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import { LV03, LV95, MGRS, WGS84 } from '@/utils/coordinateSystems'
 import setupProj4 from '@/utils/setupProj4'
 import proj4 from 'proj4'
 
 setupProj4()
 
-/** @param {CoordinateSystems} coordinateSystem */
+/** @param {CoordinateSystem} coordinateSystem */
 function getMousePositionAndSelect(coordinateSystem) {
     cy.get('[data-cy="mouse-position-select"]').should('be.visible')
     cy.get('[data-cy="mouse-position-select"]').select(coordinateSystem.id)
@@ -77,22 +77,22 @@ describe('Test mouse position', () => {
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)
         })
         it('switches to LV03 when this SRS is selected in the UI', () => {
-            getMousePositionAndSelect(CoordinateSystems.LV03)
+            getMousePositionAndSelect(LV03)
             checkMousePositionNumberValue(604624.6, 261029.21, parseLV)
         })
         it('switches to MGRS when this SRS is selected in the UI', () => {
-            getMousePositionAndSelect(CoordinateSystems.MGRS)
+            getMousePositionAndSelect(MGRS)
             checkMousePositionStringValue('32TLT 87030 61820')
         })
         it('switches to WebMercator when this SRS is selected in the UI', () => {
-            getMousePositionAndSelect(CoordinateSystems.WGS84)
+            getMousePositionAndSelect(WGS84)
             let dd = defaultCenter.map((value) => value.toFixed(5)).join(', ')
             checkMousePositionStringValue(`47° 30′ N 7° 30′ E (${dd})`)
         })
         it('goes back to LV95 display if selected again', () => {
             // Change display projection without moving the mouse
-            getMousePositionAndSelect(CoordinateSystems.MGRS)
-            getMousePositionAndSelect(CoordinateSystems.LV95)
+            getMousePositionAndSelect(MGRS)
+            getMousePositionAndSelect(LV95)
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)
         })
     })
@@ -157,20 +157,14 @@ describe('Test mouse position', () => {
         })
         context('Coordinates system test', () => {
             it('Uses the coordination system LV95 in the popup', () => {
-                const LV95cord = proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.LV95.epsg, [
-                    lon,
-                    lat,
-                ])
+                const LV95cord = proj4(WGS84.epsg, LV95.epsg, [lon, lat])
                 cy.get('[data-cy="location-popup-coordinates-lv95"]')
                     .invoke('text')
                     .then(parseLV)
                     .then(checkXY(...LV95cord))
             })
             it('Uses the coordination system LV03 in the popup', () => {
-                const LV03cord = proj4(CoordinateSystems.WGS84.epsg, CoordinateSystems.LV03.epsg, [
-                    lon,
-                    lat,
-                ])
+                const LV03cord = proj4(WGS84.epsg, LV03.epsg, [lon, lat])
                 cy.get('[data-cy="location-popup-coordinates-lv03"]')
                     .invoke('text')
                     .then(parseLV)

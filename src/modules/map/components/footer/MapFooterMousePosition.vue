@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { CoordinateSystems } from '@/utils/coordinateUtils'
+import allCoordinateSystems from '@/utils/coordinateSystems'
 import MousePosition from 'ol/control/MousePosition'
 import { get as getProjection } from 'ol/proj'
 
@@ -40,7 +40,9 @@ export default {
     },
     methods: {
         setProjection() {
-            const { id, format, epsg } = CoordinateSystems[this.displayedProjectionId]
+            const { id, format, epsg } = allCoordinateSystems.find(
+                (coordinateSystem) => coordinateSystem.id === this.displayedProjectionId
+            )
 
             const displayFormat = id.startsWith('LV')
                 ? (coordinate) => `${this.$t('coordinates_label')} ${format(coordinate)}`

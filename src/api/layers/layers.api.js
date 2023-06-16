@@ -1,10 +1,13 @@
-import GeoAdminAggregateLayer, { AggregateSubLayer } from '@/api/layers/GeoAdminAggregateLayer.class'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import GeoAdminAggregateLayer, {
+    AggregateSubLayer,
+} from '@/api/layers/GeoAdminAggregateLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
@@ -47,7 +50,15 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         } catch (_) {
             // this is not a well-formed URL, we do nothing with it
         }
-        const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, layerConfig.timestamps)
+        const timestamps = []
+        if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 1) {
+            timestamps.push(
+                ...layerConfig.timestamps.map(
+                    (timestamp) => new LayerTimeConfigEntry(timestamp)
+                )
+            )
+        }
+        const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)
         const topics = layerConfig.topics ? layerConfig.topics.split(',') : []
         const attributions = []
         if (attributionName) {
@@ -124,15 +135,15 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
 
                 // here id would be "parent.layer" in the example above
                 layer = new GeoAdminAggregateLayer(
-                  name,
-                  id,
-                  opacity,
-                  false,
-                  attributions,
-                  timeConfig,
-                  isHighlightable,
-                  hasTooltip,
-                  topics
+                    name,
+                    id,
+                    opacity,
+                    false,
+                    attributions,
+                    timeConfig,
+                    isHighlightable,
+                    hasTooltip,
+                    topics
                 )
                 layerConfig.subLayersIds.forEach((subLayerId) => {
                     // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
