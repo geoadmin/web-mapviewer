@@ -33,6 +33,7 @@
                 @zoom-in="increaseZoom"
                 @zoom-out="decreaseZoom"
             />
+            <Toggle3dButton />
             <CompassButton />
             <TimeSliderButton
                 v-if="visibleLayersWithTimeConfig.length"
@@ -84,6 +85,7 @@ import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
 import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
+import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -91,6 +93,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
+        Toggle3dButton,
         FontAwesomeIcon,
         TimeSlider,
         TimeSliderButton,
