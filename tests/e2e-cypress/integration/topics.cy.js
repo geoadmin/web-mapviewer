@@ -2,6 +2,18 @@
 
 import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config'
 
+function getSpecificUrlParameter(parameterName) {
+    const url = cy.url
+    const allParameters = url.split('/?')[1].split('&')
+    allParameters.forEach((param) => {
+        const [key, value] = param.split('=')
+        if (key === parameterName) {
+            return value
+        }
+    })
+    return null
+}
+
 describe('Topics', () => {
     const width = Cypress.config('viewportWidth')
     const isMobileViewport = width < BREAKPOINT_PHONE_WIDTH
@@ -61,6 +73,7 @@ describe('Topics', () => {
                 expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
                 // topics layer are in the reverse order as the store layer (topic: top->bottom, layer: bottom->top)
                 // so we have to revert the list of layers from the topic before checking their position in the store
+
                 rawTopic.activatedLayers
                     .slice()
                     .reverse()
@@ -70,6 +83,7 @@ describe('Topics', () => {
                     })
             })
         }
+
         it('clears all activate layers and change background layer on topic selection', () => {
             cy.goToMapView('en', {
                 layers: 'test.wmts.layer',
@@ -268,6 +282,36 @@ describe('Topics', () => {
                         .lengthOf(testTopicWithActiveLayers.activatedLayers.length)
                 })
             })
+        })
+    })
+    context('Using the CatalogNodes URL parameter', () => {
+        it('Open the catalog and only the relevant topic and node elements when the URL contains the catalogNode parameter', () => {
+            cy.goToMapView('en', {
+                catalogNodes: '2',
+            })
+            if (isMobileViewport) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            cy.get('[data-cy="topic-tree-item-2"]').should('be.visible')
+            cy.get('[data-cy="topic-tree-item-3"]').should('be.visible')
+            cy.readStoreValue('state.topics.openedTreeThemesIds').then(
+                (currentlyOpenedThemesId) => {
+                    expect(currentlyOpenedThemesId).to.be.an('Array')
+                    expect(currentlyOpenedThemesId).to.deep.equal([2])
+                }
+            )
+        })
+        it('Does not change the URL when we click on a tree item', () => {
+            cy.goToMapView('en', {
+                catalogNodes: '2',
+            })
+            if (isMobileViewport) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            cy.get('[data-cy="topic-tree-item-3"]').click()
+            cy.get('[data-cy="topic-tree-item-test.wmts.layer"]').should('be.visible')
+            cy.url().should('contain', 'catalogNodes=2')
+            cy.url().should('not.contain', 'catalogNodes=2,3')
         })
     })
 })

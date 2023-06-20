@@ -38,7 +38,6 @@ let routeChangeIsTriggeredByThisModule = false
 
 /**
  * Watch for store changes and reflect the changes in the URL query param if needed
- * TODO HERE: ignore changes if parameter is an URL ONLY param
  * @param {Store} store
  * @param {Mutation} mutation
  * @param {Router} router

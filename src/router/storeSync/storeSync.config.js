@@ -120,15 +120,6 @@ const storeSyncConfig = [
         Boolean,
         false
     ),
-    new SimpleUrlParamConfig(
-        '3d',
-        'setShowIn3d',
-        'setShowIn3d',
-        (store) => store.state.ui.showIn3d,
-        false,
-        Boolean,
-        false,
-    ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',
         'catalogNodes',
