@@ -28,7 +28,6 @@
                 v-for="item in currentTopicTree"
                 :key="item.name"
                 :item="item"
-                :active-layers="activeLayers"
                 :compact="compact"
                 @click-on-topic-item="onClickTopicItem"
                 @click-on-layer-info="onClickLayerInfo"
@@ -79,13 +78,14 @@ export default {
             currentTopic: (state) => state.topics.current,
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
-            activeLayers: (state) => state.layers.activeLayers,
+            openThemesIds: (state) => state.topics.openedTreeThemesIds,
         }),
         ...mapGetters(['getActiveLayerById', 'isDefaultTopic']),
         showTopicTree() {
             // We only want the topic tree open whenever the user has chosen a different topic
             // than the default one (it can be opened by the user by a click on it, but by default it's closed)
-            return !this.isDefaultTopic
+            // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
+            return !this.isDefaultTopic || this.openThemesIds.length > 0
         },
     },
     methods: {
