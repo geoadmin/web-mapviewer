@@ -1,0 +1,154 @@
+<template>
+    <div id="cesium" ref="map"></div>
+    <slot name="cesium" />
+    <slot />
+</template>
+<script>
+import {
+    Viewer,
+    CesiumTerrainProvider,
+    SingleTileImageryProvider,
+    Rectangle,
+    Color,
+    Cartesian3,
+} from 'cesium'
+import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
+import { mapGetters, mapState } from 'vuex'
+import { CARTOGRAPHIC_LIMIT_RECTANGLE } from './constants'
+export default {
+    provide() {
+        return {
+            // sharing cesium viewer object with children components
+            getViewer: () => this.viewer,
+        }
+    },
+    data() {
+        return {
+            updatePosition: false,
+        }
+    },
+    computed: {
+        ...mapState({
+            zoom: (state) => state.position.zoom,
+            rotation: (state) => state.position.rotation,
+            center: (state) => state.position.center,
+            is3DActive: (state) => state.ui.showIn3d,
+        }),
+        ...mapGetters(['centerEpsg4326', 'resolution']),
+    },
+    watch: {
+        is3DActive(active) {
+            if (active) this.updatePosition = true
+        },
+    },
+    beforeCreate() {
+        window['CESIUM_BASE_URL'] = '.'
+    },
+    mounted() {
+        // The first layer of Cesium is special; using a 1x1 transparent image to workaround it.
+        // See https://github.com/AnalyticalGraphicsInc/cesium/issues/1323 for details.
+        const firstImageryProvider = new SingleTileImageryProvider({
+            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
+            rectangle: Rectangle.fromDegrees(0, 0, 1, 1), // the Rectangle dimensions are arbitrary
+        })
+
+        this.viewer = new Viewer(this.$refs.map, {
+            contextOptions: {
+                webgl: {
+                    powerPreference: 'high-performance',
+                },
+            },
+            showRenderLoopErrors: true,
+            animation: false,
+            baseLayerPicker: false,
+            fullscreenButton: false,
+            vrButton: false,
+            geocoder: false,
+            homeButton: false,
+            infoBox: false,
+            sceneModePicker: false,
+            selectionIndicator: false,
+            timeline: false,
+            navigationHelpButton: false,
+            navigationInstructionsInitiallyVisible: false,
+            scene3DOnly: true,
+            skyBox: false,
+            imageryProvider: firstImageryProvider,
+            useBrowserRecommendedResolution: true,
+            terrainProvider: new CesiumTerrainProvider({
+                url: 'https://download.swissgeol.ch/cli_terrain/ch-2m/',
+            }),
+            requestRenderMode: true,
+        })
+
+        const scene = this.viewer.scene
+        scene.screenSpaceCameraController.enableCollisionDetection = false
+        scene.useDepthPicking = true
+        scene.pickTranslucentDepth = true
+        scene.backgroundColor = Color.TRANSPARENT
+
+        const globe = scene.globe
+        globe.cartographicLimitRectangle = CARTOGRAPHIC_LIMIT_RECTANGLE
+        globe.baseColor = Color.TRANSPARENT
+        globe.depthTestAgainstTerrain = true
+        globe.showGroundAtmosphere = false
+        globe.showWaterEffect = false
+        globe.backFaceCulling = false
+        globe.undergroundColor = Color.BLACK
+        globe.undergroundColorAlphaByDistance.nearValue = 0.5
+        globe.undergroundColorAlphaByDistance.farValue = 0.0
+
+        // todo move when the background layer switch is done
+        const baseLayer = addSwisstopoWMTSLayer(
+            this.viewer,
+            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
+            'jpeg',
+            20
+        )
+        baseLayer.show = true
+
+        this.flyToPosition()
+    },
+    updated() {
+        if (this.updatePosition) {
+            this.flyToPosition()
+            this.updatePosition = false
+        }
+    },
+    methods: {
+        flyToPosition() {
+            const cameraHeight =
+                (this.resolution * this.viewer.canvas.clientWidth) /
+                (2 * Math.tan(this.viewer.camera.frustum.fov / 2))
+            this.viewer.camera.flyTo({
+                destination: Cartesian3.fromDegrees(
+                    this.centerEpsg4326[0],
+                    this.centerEpsg4326[1],
+                    cameraHeight
+                ),
+                duration: 0,
+            })
+        },
+    },
+}
+</script>
+
+<style lang="scss">
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
+#cesium {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: $zindex-map;
+}
+
+#cesium .cesium-widget canvas {
+    width: 100vw;
+    height: 100vh;
+}
+
+#cesium .cesium-viewer-bottom {
+    position: absolute;
+}
+</style>

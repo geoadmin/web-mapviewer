@@ -36,10 +36,12 @@ export default {
         }
     },
     mounted() {
-        this.getMap().on('postrender', this.onRotate)
+        // todo use 3d map for 3d
+        if (this.getMap) this.getMap().on('postrender', this.onRotate)
     },
     unmounted() {
-        this.getMap().un('postrender', this.onRotate)
+        // todo use 3d map for 3d
+        if (this.getMap) this.getMap().un('postrender', this.onRotate)
     },
     methods: {
         ...mapActions(['setRotation']),
