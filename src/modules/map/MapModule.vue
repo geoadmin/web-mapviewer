@@ -1,18 +1,14 @@
 <template>
     <div class="full-screen-map" data-cy="map">
-        <KeepAlive>
-            <component :is="selectedMap">
-                <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
-                <template #openlayers>
-                    <slot name="openlayers" />
-                </template>
-                <template #cesium>
-                    <slot name="cesium" />
-                </template>
-                <slot />
-                <LocationPopup v-if="!is3DActive" />
-            </component>
-        </KeepAlive>
+        <CesiumMap v-if="is3DActive">
+            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+            <slot />
+        </CesiumMap>
+        <OpenLayersMap v-else>
+            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+            <slot />
+            <LocationPopup />
+        </OpenLayersMap>
         <WarningRibbon />
     </div>
 </template>
@@ -21,37 +17,21 @@
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
 import { mapState } from 'vuex'
-import { defineAsyncComponent, shallowRef } from 'vue'
+import { defineAsyncComponent } from 'vue'
 
 export default {
-    components: { LocationPopup, WarningRibbon },
-    data() {
-        return {
-            selectedMap: undefined,
-        }
+    components: {
+        LocationPopup,
+        WarningRibbon,
+        OpenLayersMap: defineAsyncComponent(() =>
+            import('./components/openlayers/OpenLayersMap.vue')
+        ),
+        CesiumMap: defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue')),
     },
     computed: {
         ...mapState({
             is3DActive: (state) => state.ui.showIn3d,
         }),
-        cesiumMapComponent() {
-            return shallowRef(
-                defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
-            )
-        },
-        openLayersMapComponent() {
-            return shallowRef(
-                defineAsyncComponent(() => import('./components/openlayers/OpenLayersMap.vue'))
-            )
-        },
-    },
-    watch: {
-        is3DActive(value) {
-            this.selectedMap = value ? this.cesiumMapComponent : this.openLayersMapComponent
-        },
-    },
-    created() {
-        this.selectedMap = this.is3DActive ? this.cesiumMapComponent : this.openLayersMapComponent
     },
 }
 </script>

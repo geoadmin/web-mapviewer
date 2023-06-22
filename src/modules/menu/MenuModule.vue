@@ -34,7 +34,7 @@
                 @zoom-out="decreaseZoom"
             />
             <Toggle3dButton />
-            <CompassButton />
+            <CompassButton v-if="!is3DActive" />
             <TimeSliderButton
                 v-if="visibleLayersWithTimeConfig.length"
                 :active="showTimeSlider"
@@ -117,6 +117,7 @@ export default {
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             isEmbedded: (state) => state.ui.embeddedMode,
             previewYear: (state) => state.layers.previewYear,
+            is3DActive: (state) => state.ui.showIn3d,
         }),
         ...mapGetters([
             'isHeaderShown',
@@ -137,7 +138,7 @@ export default {
             if (!this.previewYear) {
                 this.showTimeSlider = false
             }
-        }
+        },
     },
     methods: {
         ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenu']),

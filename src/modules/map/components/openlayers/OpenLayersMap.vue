@@ -96,7 +96,6 @@
         />
     </div>
     <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
-    <slot name="openlayers" />
     <slot />
 </template>
 

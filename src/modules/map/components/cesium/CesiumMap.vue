@@ -1,6 +1,5 @@
 <template>
     <div id="cesium" ref="map"></div>
-    <slot name="cesium" />
     <slot />
 </template>
 <script>
@@ -14,17 +13,12 @@ import {
 } from 'cesium'
 import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
 import { mapGetters, mapState } from 'vuex'
-import { CARTOGRAPHIC_LIMIT_RECTANGLE } from './constants'
+import { TERRAIN_URL } from './constants'
 export default {
     provide() {
         return {
             // sharing cesium viewer object with children components
             getViewer: () => this.viewer,
-        }
-    },
-    data() {
-        return {
-            updatePosition: false,
         }
     },
     computed: {
@@ -34,18 +28,16 @@ export default {
             center: (state) => state.position.center,
             is3DActive: (state) => state.ui.showIn3d,
         }),
-        ...mapGetters(['centerEpsg4326', 'resolution']),
-    },
-    watch: {
-        is3DActive(active) {
-            if (active) this.updatePosition = true
-        },
+        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning']),
     },
     beforeCreate() {
+        // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
+        // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
         window['CESIUM_BASE_URL'] = '.'
     },
     mounted() {
-        // The first layer of Cesium is special; using a 1x1 transparent image to workaround it.
+        // The first layer of Cesium is special in that it is always stretched to cover the entire world
+        // using a 1x1 transparent image to workaround it.
         // See https://github.com/AnalyticalGraphicsInc/cesium/issues/1323 for details.
         const firstImageryProvider = new SingleTileImageryProvider({
             url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
@@ -58,7 +50,7 @@ export default {
                     powerPreference: 'high-performance',
                 },
             },
-            showRenderLoopErrors: true,
+            showRenderLoopErrors: this.hasDevSiteWarning,
             animation: false,
             baseLayerPicker: false,
             fullscreenButton: false,
@@ -76,7 +68,7 @@ export default {
             imageryProvider: firstImageryProvider,
             useBrowserRecommendedResolution: true,
             terrainProvider: new CesiumTerrainProvider({
-                url: 'https://download.swissgeol.ch/cli_terrain/ch-2m/',
+                url: TERRAIN_URL,
             }),
             requestRenderMode: true,
         })
@@ -88,7 +80,6 @@ export default {
         scene.backgroundColor = Color.TRANSPARENT
 
         const globe = scene.globe
-        globe.cartographicLimitRectangle = CARTOGRAPHIC_LIMIT_RECTANGLE
         globe.baseColor = Color.TRANSPARENT
         globe.depthTestAgainstTerrain = true
         globe.showGroundAtmosphere = false
@@ -109,12 +100,6 @@ export default {
 
         this.flyToPosition()
     },
-    updated() {
-        if (this.updatePosition) {
-            this.flyToPosition()
-            this.updatePosition = false
-        }
-    },
     methods: {
         flyToPosition() {
             const cameraHeight =
@@ -133,6 +118,7 @@ export default {
 }
 </script>
 
+<!-- Style can't be scoped because canvas styles will be not applied -->
 <style lang="scss">
 @import 'src/scss/webmapviewer-bootstrap-theme';
 

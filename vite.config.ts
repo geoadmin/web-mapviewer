@@ -29,6 +29,8 @@ export default defineConfig(({ command, mode }) => {
         plugins: [
             vue(),
             generateBuildInfo(appVersion),
+            // CesiumJS requires static files from the following 4 folders to be included in the build
+            // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
             viteStaticCopy({
                 targets: [
                     {
