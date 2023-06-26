@@ -14,6 +14,7 @@ import {
 import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
 import { mapGetters, mapState } from 'vuex'
 import { TERRAIN_URL } from './constants'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 export default {
     provide() {
         return {
@@ -73,6 +74,10 @@ export default {
             requestRenderMode: true,
         })
 
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.cesiumViewer = this.viewer
+        }
+
         const scene = this.viewer.scene
         scene.screenSpaceCameraController.enableCollisionDetection = false
         scene.useDepthPicking = true
@@ -127,14 +132,14 @@ export default {
     width: 100%;
     height: 100%;
     z-index: $zindex-map;
-}
 
-#cesium .cesium-widget canvas {
-    width: 100vw;
-    height: 100vh;
-}
+    .cesium-widget canvas {
+        width: 100vw;
+        height: 100vh;
+    }
 
-#cesium .cesium-viewer-bottom {
-    position: absolute;
+    .cesium-viewer-bottom {
+        position: absolute;
+    }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div class="full-screen-map" data-cy="map">
         <CesiumMap v-if="is3DActive">
-            <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
+            <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />
         </CesiumMap>
         <OpenLayersMap v-else>
