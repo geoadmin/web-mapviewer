@@ -7,7 +7,7 @@
             <!-- The footer also need to receive the map (for mouse position) -->
             <MapFooter v-show="!embedded" />
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
-            <InfoboxModule v-if="!is3DActive" />
+            <InfoboxModule />
             <!-- needed to e.g. set register an event to set the compass position -->
             <MenuModule v-show="!embedded" />
         </MapModule>
