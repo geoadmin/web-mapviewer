@@ -31,10 +31,7 @@ export default {
     },
     computed: {
         ...mapState({
-            zoom: (state) => state.position.zoom,
-            isFullscreenMode: (state) => state.ui.fullscreenMode,
             displayedProjectionId: (state) => state.map.displayedProjection.id,
-            showIn3d: (state) => state.ui.showIn3d,
         }),
     },
     watch: {
