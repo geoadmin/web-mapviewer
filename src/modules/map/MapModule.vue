@@ -8,19 +8,30 @@
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
             <LocationPopup />
+            <teleport :to="`#map-footer-${isPhoneMode ? 'mobile-' : ''}scale-line`">
+                <OpenLayersScale />
+            </teleport>
+            <teleport to="#map-footer-mouse-tracker">
+                <OpenLayersMouseTracker />
+            </teleport>
         </OpenLayersMap>
         <WarningRibbon />
     </div>
 </template>
 
 <script>
+import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
+import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
+import { UIModes } from '@/store/modules/ui.store'
+import { defineAsyncComponent } from 'vue'
+import { mapState } from 'vuex'
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
-import { mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
 
 export default {
     components: {
+        OpenLayersMouseTracker,
+        OpenLayersScale,
         LocationPopup,
         WarningRibbon,
         OpenLayersMap: defineAsyncComponent(() =>
@@ -31,7 +42,11 @@ export default {
     computed: {
         ...mapState({
             is3DActive: (state) => state.ui.showIn3d,
+            uiMode: (state) => state.ui.mode,
         }),
+        isPhoneMode() {
+            return this.uiMode === UIModes.PHONE
+        },
     },
 }
 </script>

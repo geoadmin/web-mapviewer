@@ -6,19 +6,15 @@
                 <div class="map-background-selector">
                     <MapFooterBackgroundSelector />
                 </div>
-                <MapFooterOpenLayersScale
-                    v-if="!showIn3d"
-                    :current-zoom="zoom"
-                    class="scale-line-phone"
-                />
+                <div id="map-footer-mobile-scale-line" />
             </div>
         </div>
         <div id="map-footer-middle" class="map-footer-middle">
-            <!-- Infobox, Profile, ... -->
+            <!-- teleport for: Infobox, Profile, ... -->
         </div>
         <div class="map-footer-bottom">
-            <MapFooterOpenLayersScale v-if="!showIn3d" :current-zoom="zoom" />
-            <MapFooterOpenLayersMouseTracker v-if="!showIn3d" />
+            <div id="map-footer-scale-line" />
+            <div id="map-footer-mouse-tracker" class="d-flex gap-1 align-items-center" />
             <span class="map-footer-bottom-spacer" />
             <MapFooterAppVersion />
             <MapFooterAppCopyright />
@@ -28,21 +24,17 @@
 
 <script>
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
-import MapFooterOpenLayersMouseTracker from '@/modules/map/components/footer/MapFooterOpenLayersMouseTracker.vue'
 import { mapActions, mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
 import MapFooterBackgroundSelector from './MapFooterBackgroundSelector.vue'
-import MapFooterOpenLayersScale from './MapFooterOpenLayersScale.vue'
 
 export default {
     components: {
-        MapFooterOpenLayersMouseTracker,
         MapFooterAttributionList,
         MapFooterAppCopyright,
         MapFooterAppVersion,
         MapFooterBackgroundSelector,
-        MapFooterOpenLayersScale,
     },
     computed: {
         ...mapState({
@@ -57,16 +49,6 @@ export default {
     },
 }
 </script>
-
-<style lang="scss">
-@import 'src/scss/webmapviewer-bootstrap-theme';
-/* Must be unscoped, as the scaleLine is defined in the child component MapFooterOpenLayersScale.vue */
-.scale-line-phone .scale-line-inner {
-    /* If in phone mode, we need a background color, as the scale line is directly displayed on the
-    map in this case. */
-    background-color: rgba($white, 0.7);
-}
-</style>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
