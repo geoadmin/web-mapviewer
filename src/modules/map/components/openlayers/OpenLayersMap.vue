@@ -3,6 +3,7 @@
     <div
         id="ol-map"
         ref="map"
+        data-cy="ol-map"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="clearLongPressTimer"
         @touchend.passive="clearLongPressTimer"

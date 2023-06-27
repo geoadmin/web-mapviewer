@@ -1,5 +1,5 @@
 <template>
-    <div id="cesium" ref="map"></div>
+    <div id="cesium" ref="map" data-cy="cesium"></div>
     <slot />
 </template>
 <script>
