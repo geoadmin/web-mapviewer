@@ -1,23 +1,45 @@
 <template>
+    <select
+        class="map-projection form-control-xs"
+        :value="displayedProjectionId"
+        data-cy="mouse-position-select"
+        @change="onProjectionChange"
+    >
+        <option
+            v-for="projection in availableProjections"
+            :key="projection.id"
+            :value="projection.id"
+        >
+            {{ projection.label }}
+        </option>
+    </select>
     <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
-
 <script>
 import allCoordinateSystems from '@/utils/coordinateSystems'
 import MousePosition from 'ol/control/MousePosition'
 import { get as getProjection } from 'ol/proj'
+import { mapActions, mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
-    props: {
-        displayedProjectionId: {
-            type: String,
-            required: true,
-        },
+    emits: ['projectionChange'],
+    data() {
+        return {
+            availableProjections: allCoordinateSystems,
+        }
+    },
+    computed: {
+        ...mapState({
+            zoom: (state) => state.position.zoom,
+            isFullscreenMode: (state) => state.ui.fullscreenMode,
+            displayedProjectionId: (state) => state.map.displayedProjection.id,
+            showIn3d: (state) => state.ui.showIn3d,
+        }),
     },
     watch: {
         displayedProjectionId() {
-            this.setProjection()
+            this.changeCoordinateFormat()
         },
     },
     created() {
@@ -32,14 +54,18 @@ export default {
         // we wait for the next cycle to set the projection, otherwise the info can
         // sometimes be lost (and we end up with a different projection in the position display)
         this.$nextTick(() => {
-            this.setProjection()
+            this.changeCoordinateFormat()
         })
     },
     unmounted() {
         this.getMap().removeControl(this.mousePositionControl)
     },
     methods: {
-        setProjection() {
+        ...mapActions(['setDisplayedProjectionWithId']),
+        onProjectionChange(event) {
+            this.$emit('projectionChange', event.target.value)
+        },
+        changeCoordinateFormat() {
             const { id, format, epsg } = allCoordinateSystems.find(
                 (coordinateSystem) => coordinateSystem.id === this.displayedProjectionId
             )

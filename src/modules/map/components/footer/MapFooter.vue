@@ -6,19 +6,19 @@
                 <div class="map-background-selector">
                     <MapFooterBackgroundSelector />
                 </div>
-                <MapFooterScale :current-zoom="zoom" class="scale-line-phone" />
+                <MapFooterOpenLayersScale
+                    v-if="!showIn3d"
+                    :current-zoom="zoom"
+                    class="scale-line-phone"
+                />
             </div>
         </div>
         <div id="map-footer-middle" class="map-footer-middle">
             <!-- Infobox, Profile, ... -->
         </div>
         <div class="map-footer-bottom">
-            <MapFooterScale :current-zoom="zoom" />
-            <MapFooterProjection
-                :displayed-projection-id="displayedProjectionId"
-                @projection-change="setDisplayedProjectionWithId"
-            />
-            <MapFooterMousePosition :displayed-projection-id="displayedProjectionId" />
+            <MapFooterOpenLayersScale v-if="!showIn3d" :current-zoom="zoom" />
+            <MapFooterOpenLayersMouseTracker v-if="!showIn3d" />
             <span class="map-footer-bottom-spacer" />
             <MapFooterAppVersion />
             <MapFooterAppCopyright />
@@ -28,29 +28,28 @@
 
 <script>
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
+import MapFooterOpenLayersMouseTracker from '@/modules/map/components/footer/MapFooterOpenLayersMouseTracker.vue'
 import { mapActions, mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
 import MapFooterBackgroundSelector from './MapFooterBackgroundSelector.vue'
-import MapFooterMousePosition from './MapFooterMousePosition.vue'
-import MapFooterProjection from './MapFooterProjection.vue'
-import MapFooterScale from './MapFooterScale.vue'
+import MapFooterOpenLayersScale from './MapFooterOpenLayersScale.vue'
 
 export default {
     components: {
+        MapFooterOpenLayersMouseTracker,
         MapFooterAttributionList,
         MapFooterAppCopyright,
         MapFooterAppVersion,
         MapFooterBackgroundSelector,
-        MapFooterMousePosition,
-        MapFooterProjection,
-        MapFooterScale,
+        MapFooterOpenLayersScale,
     },
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             displayedProjectionId: (state) => state.map.displayedProjection.id,
+            showIn3d: (state) => state.ui.showIn3d,
         }),
     },
     methods: {
@@ -61,7 +60,7 @@ export default {
 
 <style lang="scss">
 @import 'src/scss/webmapviewer-bootstrap-theme';
-/* Must be unscoped, as the scaleLine is defined in the child component MapFooterScale.vue */
+/* Must be unscoped, as the scaleLine is defined in the child component MapFooterOpenLayersScale.vue */
 .scale-line-phone .scale-line-inner {
     /* If in phone mode, we need a background color, as the scale line is directly displayed on the
     map in this case. */
