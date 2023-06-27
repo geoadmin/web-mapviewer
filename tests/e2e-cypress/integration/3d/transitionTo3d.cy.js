@@ -45,4 +45,29 @@ describe('Testing transitioning between 2D and 3D', () => {
             })
         })
     })
+    context('3D load', () => {
+        it('base layer load', () => {
+            cy.goToMapView()
+            // fixtures/256.jpeg will be fetched
+            cy.intercept('**/ch.swisstopo.swisstlm3d-karte-farbe.3d/**').as('baseLayer')
+            cy.get('[data-cy="3d-button"]').click()
+            cy.get('[data-cy="cesium"]').should('be.visible')
+            cy.get('[data-cy="ol-map"]').should('not.exist')
+            cy.wait('@baseLayer').its('response.statusCode').should('eq', 200)
+        })
+        it('load with correct position', () => {
+            cy.goToMapView('en', {
+                lat: 46.980721,
+                lon: 7.532844,
+                z: 9.666,
+            })
+            cy.get('[data-cy="3d-button"]').click()
+            cy.readWindowValue('cesiumViewer').then((viewer) => {
+                const cameraPosition = viewer.camera.positionCartographic
+                expect(cameraPosition.longitude).to.eq(0.13147292983909972)
+                expect(cameraPosition.latitude).to.eq(0.819968266410843)
+                expect(cameraPosition.height).to.eq(36434.03514736528)
+            })
+        })
+    })
 })

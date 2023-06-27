@@ -3,6 +3,7 @@
     <div
         id="ol-map"
         ref="map"
+        data-cy="ol-map"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="clearLongPressTimer"
         @touchend.passive="clearLongPressTimer"
@@ -103,8 +104,12 @@
 import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID, VIEW_MIN_RESOLUTION } from '@/config'
-import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
+import {
+    IS_TESTING_WITH_CYPRESS,
+    VECTOR_LIGHT_BASE_MAP_STYLE_ID,
+    VIEW_MIN_RESOLUTION,
+} from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -357,17 +362,16 @@ export default {
         this.map.on('pointerdown', this.onMapPointerDown)
         // TODO: trigger a click after pointer is down at (roughly) the same spot
         // for longer than 1sec (no need to wait for the user to stop the click)
-        this.map.on('pointerup', this.onMapPointerUp)
+        // this.map.on('pointerup', this.onMapPointerUp) todo onMapPointerUp undefined
         // using 'singleclick' event instead of 'click', otherwise a double click
         // (for zooming) on mobile will trigger two 'click' actions in a row
         this.map.on('singleclick', this.onMapSingleClick)
         this.map.on('pointerdrag', this.onMapPointerDrag)
         this.map.on('moveend', this.onMapMoveEnd)
-
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
-        this.map.un('pointerup', this.onMapPointerUp)
+        // this.map.un('pointerup', this.onMapPointerUp) todo onMapPointerUp undefined
         this.map.un('singleclick', this.onMapSingleClick)
         this.map.un('pointerdrag', this.onMapPointerDrag)
         this.map.un('moveend', this.onMapMoveEnd)
@@ -412,7 +416,8 @@ export default {
                     .forEach((feature) => {
                         const editableFeature = feature.get('editableFeature')
                         if (editableFeature) {
-                            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
+                            editableFeature.geodesicCoordinates =
+                                extractOlFeatureGeodesicCoordinates(feature)
                             features.push(editableFeature)
                         } else {
                             log.debug(

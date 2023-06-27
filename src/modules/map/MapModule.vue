@@ -1,6 +1,10 @@
 <template>
     <div class="full-screen-map" data-cy="map">
-        <OpenLayersMap>
+        <CesiumMap v-if="is3DActive">
+            <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
+            <slot />
+        </CesiumMap>
+        <OpenLayersMap v-else>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
             <LocationPopup />
@@ -11,11 +15,24 @@
 
 <script>
 import LocationPopup from './components/LocationPopup.vue'
-import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
+import { mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
-    components: { OpenLayersMap, LocationPopup, WarningRibbon },
+    components: {
+        LocationPopup,
+        WarningRibbon,
+        OpenLayersMap: defineAsyncComponent(() =>
+            import('./components/openlayers/OpenLayersMap.vue')
+        ),
+        CesiumMap: defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue')),
+    },
+    computed: {
+        ...mapState({
+            is3DActive: (state) => state.ui.showIn3d,
+        }),
+    },
 }
 </script>
 
