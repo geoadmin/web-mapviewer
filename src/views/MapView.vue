@@ -6,10 +6,9 @@
             <DrawingModule v-show="!embedded" v-if="!is3DActive" />
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
             <InfoboxModule />
-            <!-- needed to e.g. set register an event to set the compass position -->
-            <MenuModule v-show="!embedded" />
         </MapModule>
         <MapFooter v-show="!embedded" />
+        <MenuModule v-show="!embedded" />
         <I18nModule />
     </div>
 </template>

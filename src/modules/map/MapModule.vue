@@ -14,12 +14,16 @@
             <teleport to="#map-footer-mouse-tracker">
                 <OpenLayersMouseTracker />
             </teleport>
+            <teleport to="#toolbox-compass-button">
+                <OpenLayersCompassButton />
+            </teleport>
         </OpenLayersMap>
         <WarningRibbon />
     </div>
 </template>
 
 <script>
+import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import { UIModes } from '@/store/modules/ui.store'
@@ -30,6 +34,7 @@ import WarningRibbon from './components/WarningRibbon.vue'
 
 export default {
     components: {
+        OpenLayersCompassButton,
         OpenLayersMouseTracker,
         OpenLayersScale,
         LocationPopup,

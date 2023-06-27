@@ -57,7 +57,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/modules/menu/scss/toolbox-buttons';
+@import '../../../menu/scss/toolbox-buttons';
 .compass-button {
     &-icon {
         height: $map-button-diameter - 5px;
