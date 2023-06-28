@@ -72,6 +72,8 @@ describe('Test mouse position', () => {
                 lon: defaultCenter[1],
                 z: 12,
             })
+            // waiting for OL to be loaded before testing
+            cy.get('[data-cy="ol-map"]').should('be.visible')
         })
         it('Shows LV95 coordinates by default', () => {
             checkMousePositionNumberValue(2604624.64, 1261029.16, parseLV)

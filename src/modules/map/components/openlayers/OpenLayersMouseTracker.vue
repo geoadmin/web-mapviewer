@@ -23,7 +23,6 @@ import { mapActions, mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
-    emits: ['projectionChange'],
     data() {
         return {
             availableProjections: allCoordinateSystems,
@@ -60,7 +59,7 @@ export default {
     methods: {
         ...mapActions(['setDisplayedProjectionWithId']),
         onProjectionChange(event) {
-            this.$emit('projectionChange', event.target.value)
+            this.setDisplayedProjectionWithId(event.target.value)
         },
         changeCoordinateFormat() {
             const { id, format, epsg } = allCoordinateSystems.find(

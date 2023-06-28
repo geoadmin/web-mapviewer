@@ -86,7 +86,7 @@ describe('Profile popup', () => {
                     testInfo[key]
                 )
             })
-            cy.get('[data-cy="profile-graph"]').trigger('mouseover').trigger('mousemove', 'center')
+            cy.get('[data-cy="profile-graph"]').trigger('mouseenter').trigger('mousemove', 'center')
             cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
             cy.get('[data-cy="profile-popup-tooltip"] .elevation').should(
                 'contain.text',

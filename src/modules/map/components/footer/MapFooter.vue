@@ -24,7 +24,7 @@
 
 <script>
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
 import MapFooterBackgroundSelector from './MapFooterBackgroundSelector.vue'
@@ -40,9 +40,6 @@ export default {
         ...mapState({
             isFullscreenMode: (state) => state.ui.fullscreenMode,
         }),
-    },
-    methods: {
-        ...mapActions(['setDisplayedProjectionWithId']),
     },
 }
 </script>
@@ -82,12 +79,6 @@ $flex-gap: 1em;
         }
         @include respond-above(tablet) {
             flex-direction: column-reverse;
-        }
-        .scale-line-phone {
-            font-size: 0.6rem;
-            @include respond-above(phone) {
-                display: none;
-            }
         }
     }
 

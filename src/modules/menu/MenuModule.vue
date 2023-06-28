@@ -169,7 +169,7 @@ $openCloseButtonHeight: 2.5rem;
     }
     .time-sliders {
         left: 0;
-        width: calc(100vw - $map-button-diameter - $spacer);
+        width: calc(100% - $map-button-diameter - $spacer);
     }
     .toolbox-right,
     .time-sliders {
@@ -181,12 +181,13 @@ $openCloseButtonHeight: 2.5rem;
     }
     .menu-tray-container {
         pointer-events: none;
-        max-height: calc(100vh - $header-height);
+        max-height: calc(100% - $header-height);
         top: $header-height;
         z-index: $zindex-menu;
         &.dev-disclaimer-present {
-            top: $header-height + $dev-disclaimer-height;
-            max-height: calc(100vh - $header-height - $dev-disclaimer-height);
+            $menu-tray-offset: $header-height + $dev-disclaimer-height;
+            top: $menu-tray-offset;
+            max-height: calc(100% - $menu-tray-offset);
         }
         &.desktop-mode {
             bottom: 70px;
@@ -245,7 +246,7 @@ $openCloseButtonHeight: 2.5rem;
         .time-sliders {
             left: $menu-tray-width;
             transform: none;
-            width: calc(100vw - $map-button-diameter - $menu-tray-width - $spacer);
+            width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
         }
         .toolbox-right,
         .time-sliders {
@@ -256,7 +257,7 @@ $openCloseButtonHeight: 2.5rem;
         }
         .menu-tray-container {
             top: 2 * $header-height;
-            max-height: calc(100vh - 2 * $header-height - $openCloseButtonHeight);
+            max-height: calc(100% - 2 * $header-height - $openCloseButtonHeight);
             &.dev-disclaimer-present {
                 max-height: calc(
                     100vh - 2 * $header-height - $dev-disclaimer-height - $openCloseButtonHeight

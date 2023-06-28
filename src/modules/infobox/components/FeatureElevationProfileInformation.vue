@@ -119,7 +119,7 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .profile-info-container {
     overflow-x: auto;
-    max-width: 100vw;
+    max-width: 100%;
 }
 .profile-popup-info-buttons {
     button {
