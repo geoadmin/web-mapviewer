@@ -620,7 +620,7 @@ describe('Test of layer handling', () => {
         })
     })
     context('Language settings in menu', () => {
-        it.only('keeps the layer settings when changing language', () => {
+        it('keeps the layer settings when changing language', () => {
             const langBefore = 'en'
             const langAfter = 'de'
             const visibleLayerIds = [

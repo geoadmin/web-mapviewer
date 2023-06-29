@@ -53,7 +53,6 @@ export default {
         FeatureElevationProfilePlot,
         FeatureElevationProfileInformation,
     },
-    inject: ['getMap'],
     props: {
         feature: {
             type: EditableFeature,

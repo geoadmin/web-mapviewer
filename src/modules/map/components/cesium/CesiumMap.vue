@@ -134,8 +134,8 @@ export default {
     z-index: $zindex-map;
 
     .cesium-widget canvas {
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
     }
 
     .cesium-viewer-bottom {

@@ -34,7 +34,7 @@
                 @zoom-out="decreaseZoom"
             />
             <Toggle3dButton />
-            <CompassButton v-if="!is3DActive" />
+            <div id="toolbox-compass-button" />
             <TimeSliderButton
                 v-if="visibleLayersWithTimeConfig.length"
                 :active="showTimeSlider"
@@ -83,10 +83,9 @@ import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
-import CompassButton from '@/modules/menu/components/toolboxRight/CompassButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
-import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
+import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -99,7 +98,6 @@ export default {
         TimeSliderButton,
         HeaderWithSearch,
         BlackBackdrop,
-        CompassButton,
         ZoomButtons,
         GeolocButton,
         MenuTray,
@@ -117,7 +115,6 @@ export default {
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             isEmbedded: (state) => state.ui.embeddedMode,
             previewYear: (state) => state.layers.previewYear,
-            is3DActive: (state) => state.ui.showIn3d,
         }),
         ...mapGetters([
             'isHeaderShown',
@@ -172,7 +169,7 @@ $openCloseButtonHeight: 2.5rem;
     }
     .time-sliders {
         left: 0;
-        width: calc(100vw - $map-button-diameter - $spacer);
+        width: calc(100% - $map-button-diameter - $spacer);
     }
     .toolbox-right,
     .time-sliders {
@@ -184,12 +181,13 @@ $openCloseButtonHeight: 2.5rem;
     }
     .menu-tray-container {
         pointer-events: none;
-        max-height: calc(100vh - $header-height);
+        max-height: calc(100% - $header-height);
         top: $header-height;
         z-index: $zindex-menu;
         &.dev-disclaimer-present {
-            top: $header-height + $dev-disclaimer-height;
-            max-height: calc(100vh - $header-height - $dev-disclaimer-height);
+            $menu-tray-offset: $header-height + $dev-disclaimer-height;
+            top: $menu-tray-offset;
+            max-height: calc(100% - $menu-tray-offset);
         }
         &.desktop-mode {
             bottom: 70px;
@@ -248,7 +246,7 @@ $openCloseButtonHeight: 2.5rem;
         .time-sliders {
             left: $menu-tray-width;
             transform: none;
-            width: calc(100vw - $map-button-diameter - $menu-tray-width - $spacer);
+            width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
         }
         .toolbox-right,
         .time-sliders {
@@ -259,7 +257,7 @@ $openCloseButtonHeight: 2.5rem;
         }
         .menu-tray-container {
             top: 2 * $header-height;
-            max-height: calc(100vh - 2 * $header-height - $openCloseButtonHeight);
+            max-height: calc(100% - 2 * $header-height - $openCloseButtonHeight);
             &.dev-disclaimer-present {
                 max-height: calc(
                     100vh - 2 * $header-height - $dev-disclaimer-height - $openCloseButtonHeight

@@ -183,7 +183,7 @@ export default {
         },
 
         setMaxHeight() {
-            if (!this.showContainer) {
+            if (!this.showContainer || !this.$refs.content) {
                 return
             }
 

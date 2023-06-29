@@ -25,8 +25,8 @@ export default {
     position: fixed;
     left: 0;
     top: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     color: $black;
     background-color: rgba(255, 255, 255, 0.2);
     z-index: $zindex-loading-screen;
