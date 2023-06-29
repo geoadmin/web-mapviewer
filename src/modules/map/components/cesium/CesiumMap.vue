@@ -1,5 +1,6 @@
 <template>
     <div id="cesium" ref="map" data-cy="cesium"></div>
+    <cesium-compass ref="compass"></cesium-compass>
     <slot />
 </template>
 <script>
@@ -16,6 +17,7 @@ import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
 import { mapGetters, mapState } from 'vuex'
 import { TERRAIN_URL } from './constants'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import '@geoblocks/cesium-compass'
 export default {
     provide() {
         return {
@@ -81,6 +83,10 @@ export default {
             terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
             requestRenderMode: true,
         })
+
+        const compass = this.$refs.compass
+        compass.scene = this.viewer.scene
+        compass.clock = this.viewer.clock
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.cesiumViewer = this.viewer
@@ -150,5 +156,13 @@ export default {
     .cesium-viewer-bottom {
         position: absolute;
     }
+}
+cesium-compass {
+    position: absolute;
+    bottom: 130px;
+    right: 50%;
+    z-index: 3;
+    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>
