@@ -38,7 +38,7 @@ import getProfile from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import { LV95, WGS84 } from "@/utils/coordinateSystems";
+import { LV95, WGS84 } from '@/utils/coordinateSystems'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'

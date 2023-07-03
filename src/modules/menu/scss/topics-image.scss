@@ -1,3 +1,4 @@
+/* prettier-ignore */
 $topics: (
   (key: blw,           position: 0 0),
   (key: kgs,           position: 0 -60px),
@@ -34,16 +35,16 @@ $topics: (
 );
 
 .topics-sprite {
-  margin-left: auto;
-  margin-right: auto;
-  width: 107px;
-  height: 57px;
-  background: url(../../assets/topics.png);
-  cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+    width: 107px;
+    height: 57px;
+    background: url(../../assets/topics.png);
+    cursor: pointer;
 }
 
 @each $topic in $topics {
-  .topics-sprite-#{map-get($topic, 'key')} {
-    background-position: map-get($topic, 'position');
-  }
+    .topics-sprite-#{map-get($topic, 'key')} {
+        background-position: map-get($topic, 'position');
+    }
 }

@@ -97,12 +97,5 @@ export const MGRS = new CoordinateSystem(
  * The format function helps print the coordinate in a human-readable format. It will receive the
  * coordinate reprojected in the declared EPSG for the coordinate system.
  */
-const allCoordinateSystems = [
-    LV95,
-    LV03,
-    WGS84,
-    WEBMERCATOR,
-    UTM,
-    MGRS,
-]
+const allCoordinateSystems = [LV95, LV03, WGS84, WEBMERCATOR, UTM, MGRS]
 export default allCoordinateSystems

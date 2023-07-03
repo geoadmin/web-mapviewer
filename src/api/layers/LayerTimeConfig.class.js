@@ -1,7 +1,7 @@
 import LayerTimeConfigEntry, {
     ALL_YEARS_WMS_TIMESTAMP,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
-} from "@/api/layers/LayerTimeConfigEntry.class";
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+} from '@/api/layers/LayerTimeConfigEntry.class'
 
 /**
  * @class

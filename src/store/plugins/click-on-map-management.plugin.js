@@ -1,6 +1,6 @@
 import { EditableFeature, EditableFeatureTypes, identify } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
@@ -18,12 +18,9 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
         const allRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
-
             if (layer.type === LayerTypes.GEOJSON || layer.type === LayerTypes.KML) {
                 allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
-
-            }
-            else if (layer.hasTooltip) {
+            } else if (layer.hasTooltip) {
                 allRequests.push(
                     identify(
                         layer,

@@ -8,7 +8,7 @@
  *   Otherwise, we don't care.
  * @returns {number} Value rounded
  */
-export function round(value, decimals = 0, enforcedigit=false) {
+export function round(value, decimals = 0, enforcedigit = false) {
     if (!isNumber(value)) {
         return undefined
     }

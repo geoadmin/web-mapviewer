@@ -12,8 +12,8 @@
             />
             <button
                 class="btn btn-outline-secondary"
-                @click="copyShortLinkInClipboard"
                 data-cy="menu-share-shortlink-copy-button"
+                @click="copyShortLinkInClipboard"
             >
                 {{ $t(copiedInClipboard ? copiedText : copyText) }}
             </button>

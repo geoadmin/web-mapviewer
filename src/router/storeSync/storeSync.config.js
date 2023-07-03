@@ -111,8 +111,8 @@ const storeSyncConfig = [
         (store) => store.state.ui.showIn3d,
         false,
         Boolean,
-        false,
-    )
+        false
+    ),
 ]
 
 export default storeSyncConfig

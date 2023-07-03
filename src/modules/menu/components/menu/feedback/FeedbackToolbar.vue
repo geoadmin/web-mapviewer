@@ -23,7 +23,7 @@ export default {
         showAsLinks: {
             type: Boolean,
             default: false,
-        }
-    }
+        },
+    },
 }
 </script>

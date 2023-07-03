@@ -96,18 +96,17 @@ export default {
 @import 'src/scss/media-query.mixin';
 
 .search-bar-input {
-    font-size: 0.825rem;;
+    font-size: 0.825rem;
 }
 
 .search-bar {
     &:focus-within > span.input-group-text {
-        display:none
+        display: none;
     }
     @include respond-above(phone) {
-        &:focus-within > span.input-group-text{
+        &:focus-within > span.input-group-text {
             display: flex;
         }
     }
 }
-
 </style>
