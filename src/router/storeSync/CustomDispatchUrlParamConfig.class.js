@@ -20,6 +20,7 @@ export default class CustomDispatchUrlParamConfig extends AbstractParamConfig {
      *   Boolean, false is considered empty. For Numbers a value of zero is considered empty. For
      *   String, an empty or null string is considered empty.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
+     * @param {Boolean | Number | String | null} defaultValue
      */
     constructor(
         urlParamName,
@@ -27,7 +28,8 @@ export default class CustomDispatchUrlParamConfig extends AbstractParamConfig {
         doDispatch,
         extractValueFromStore,
         keepValueInUrlWhenEmpty = true,
-        valueType = String
+        valueType = String,
+        defaultValue = null
     ) {
         super(
             urlParamName,
@@ -35,7 +37,8 @@ export default class CustomDispatchUrlParamConfig extends AbstractParamConfig {
             (store, urlParamValue) => doDispatch(store, urlParamValue),
             extractValueFromStore,
             keepValueInUrlWhenEmpty,
-            valueType
+            valueType,
+            defaultValue
         )
     }
 }
