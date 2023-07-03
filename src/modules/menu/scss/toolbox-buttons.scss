@@ -32,4 +32,8 @@
             fill: $primary;
         }
     }
+    &.disabled {
+        background-color: $light-grey;
+        border: $light-grey;
+    }
 }
