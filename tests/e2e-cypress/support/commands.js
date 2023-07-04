@@ -133,7 +133,12 @@ Cypress.Commands.add(
 
         let flattenedOtherParams = ''
         Object.keys(otherParams).forEach((key) => {
-            flattenedOtherParams += `&${key}=${otherParams[key]}`
+            if (typeof otherParams[key] === Boolean && otherParams[key]) {
+                // for true boolean param, only the key is required
+                flattenedOtherParams += `&${key}`
+            } else {
+                flattenedOtherParams += `&${key}=${otherParams[key]}`
+            }
         })
 
         /**
