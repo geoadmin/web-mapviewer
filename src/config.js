@@ -194,7 +194,7 @@ export const TILEGRID_RESOLUTIONS = [
  * Caveat: setting resolution (mininum and maximum) has the precedence over zoom (minimum/maximum)
  */
 
-export const VIEW_MIN_RESOLUTION = 0.1  // meters/pixel
+export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
 
 /**
  * Array of coordinates with bottom left / top right values of the extent. This can be used to

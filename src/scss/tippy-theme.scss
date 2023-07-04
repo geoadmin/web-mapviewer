@@ -2,7 +2,6 @@
 @import 'tippy.js/dist/tippy.css';
 @import 'tippy.js/themes/light-border.css';
 
-
 // Tippy custom style, with a danger red background color
 .tippy-box[data-theme~='danger'] {
     $bgColor: $danger;
@@ -22,7 +21,6 @@
     }
 }
 
-
 // Tippy custom style, with a primary red background color
 .tippy-box[data-theme~='primary'] {
     $bgColor: $primary;
@@ -41,7 +39,6 @@
         border-right-color: $bgColor;
     }
 }
-
 
 .tippy-box[data-theme~='popover-button'] {
     border-radius: 0.375rem;

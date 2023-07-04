@@ -15,31 +15,30 @@ $breakpoint_tablet: 768px;
                     also accepts the bootstrap values sm, md, lg, xl, xxl
 */
 @mixin respond-above($breakpoint) {
-
-  // If the breakpoint exists in the map (from Bootstrap).
-  @if map-has-key($grid-breakpoints, $breakpoint) and $breakpoint != xs {
-    /* Following values are accepted:
+    // If the breakpoint exists in the map (from Bootstrap).
+    @if map-has-key($grid-breakpoints, $breakpoint) and $breakpoint != xs {
+        /* Following values are accepted:
        xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px */
 
-    // Get the breakpoint value.
-    $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
+        // Get the breakpoint value.
+        $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
 
-    // Write the media query.
-    @media (min-width: $breakpoint-value) and (min-height: $breakpoint_phone_height) {
-      @content;
+        // Write the media query.
+        @media (min-width: $breakpoint-value) and (min-height: $breakpoint_phone_height) {
+            @content;
+        }
+    } @else if $breakpoint == phone {
+        @media (min-width: $breakpoint_phone_width) and (min-height: $breakpoint_phone_height) {
+            @content;
+        }
+    } @else if $breakpoint == tablet {
+        @media (min-width: $breakpoint_tablet) and (min-height: $breakpoint_phone_height) {
+            @content;
+        }
+    } @else {
+        // Log a warning.
+        @warn 'Invalid breakpoint: #{$breakpoint}.';
     }
-  } @else if $breakpoint == phone {
-    @media (min-width: $breakpoint_phone_width) and (min-height: $breakpoint_phone_height) {
-      @content;
-    }
-  } @else if $breakpoint == tablet {
-    @media (min-width: $breakpoint_tablet) and (min-height: $breakpoint_phone_height) {
-      @content;
-    }
-  } @else {
-    // Log a warning.
-    @warn 'Invalid breakpoint: #{$breakpoint}.';
-  }
 }
 
 /**
@@ -49,28 +48,27 @@ $breakpoint_tablet: 768px;
                     also accepts the bootstrap values sm, md, lg, xl, xxl
 */
 @mixin respond-below($breakpoint) {
+    // If the breakpoint exists in the map.
+    @if map-has-key($grid-breakpoints, $breakpoint) {
+        // Get the breakpoint value.
+        $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
 
-  // If the breakpoint exists in the map.
-  @if map-has-key($grid-breakpoints, $breakpoint) {
-
-    // Get the breakpoint value.
-    $breakpoint-value: map-get($grid-breakpoints, $breakpoint);
-
-    // Write the media query.
-    @media (max-width: ($breakpoint-value - 1)), (max-height: ($breakpoint_phone_height - 1)) {
-      @content;
+        // Write the media query.
+        @media (max-width: ($breakpoint-value - 1)), (max-height: ($breakpoint_phone_height - 1)) {
+            @content;
+        }
+    } @else if $breakpoint == phone {
+        @media (max-width: ($breakpoint_phone_width - 1)),
+            (max-height: ($breakpoint_phone_height - 1)) {
+            @content;
+        }
+    } @else if $breakpoint == tablet {
+        @media (max-width: ($breakpoint_tablet - 1)), (max-height: ($breakpoint_phone_height - 1)) {
+            @content;
+        }
+        // If the breakpoint doesn't exist in the map.
+    } @else {
+        // Log a warning.
+        @warn 'Invalid breakpoint: #{$breakpoint}.';
     }
-  } @else if $breakpoint == phone {
-    @media (max-width: ($breakpoint_phone_width - 1)), (max-height: ($breakpoint_phone_height - 1)) {
-      @content;
-    }
-  } @else if $breakpoint == tablet {
-    @media (max-width: ($breakpoint_tablet - 1)), (max-height: ($breakpoint_phone_height - 1)) {
-      @content;
-    }
-  // If the breakpoint doesn't exist in the map.
-  } @else {
-    // Log a warning.
-    @warn 'Invalid breakpoint: #{$breakpoint}.';
-  }
 }

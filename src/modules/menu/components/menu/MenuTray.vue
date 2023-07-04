@@ -12,10 +12,7 @@
         >
             <MenuSettings />
         </MenuSection>
-        <MenuShareSection
-            ref="shareSection"
-            @open-menu-section="onOpenMenuSection"
-        />
+        <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection

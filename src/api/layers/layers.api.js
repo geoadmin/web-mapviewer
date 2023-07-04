@@ -53,9 +53,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
         const timestamps = []
         if (Array.isArray(layerConfig.timestamps) && layerConfig.timestamps.length > 1) {
             timestamps.push(
-                ...layerConfig.timestamps.map(
-                    (timestamp) => new LayerTimeConfigEntry(timestamp)
-                )
+                ...layerConfig.timestamps.map((timestamp) => new LayerTimeConfigEntry(timestamp))
             )
         }
         const timeConfig = new LayerTimeConfig(layerConfig.timeBehaviour, timestamps)

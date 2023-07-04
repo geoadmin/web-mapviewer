@@ -250,7 +250,7 @@ $numberOfBackgrounds: 3;
         &.bg-ch-swisstopo-swissimage {
             background-position: 0 0;
         }
-        &.bg-ch-swisstopo-pixelkarte-grau{
+        &.bg-ch-swisstopo-pixelkarte-grau {
             background-position: -98.6667px 0; // 96px (image) + 2.6667 (border)
         }
         &.bg-ch-swisstopo-pixelkarte-farbe {
