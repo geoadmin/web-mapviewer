@@ -30,6 +30,136 @@ describe('PositionUrlParamConfig class test', () => {
         }
     })
 
+    describe('reading the query', () => {
+        describe('2D', () => {
+            const expectedLon = 123
+            const expectedLat = 456
+            const expectedZ = 12
+            it('reads 2D URL param correctly', () => {
+                const result = testInstance.readValueFromQuery({
+                    lon: expectedLon,
+                    lat: expectedLat,
+                    z: expectedZ,
+                })
+                expect(result).to.be.an('Object')
+                expect(result).to.haveOwnProperty('lon')
+                expect(result).to.haveOwnProperty('lat')
+                expect(result).to.haveOwnProperty('z')
+                const { lon, lat, z } = result
+                expect(lon).to.eq(expectedLon)
+                expect(lat).to.eq(expectedLat)
+                expect(z).to.eq(expectedZ)
+            })
+            it('ignores any 3D param if the flag for 3D is not present (is false)', () => {
+                const result = testInstance.readValueFromQuery({
+                    lon: expectedLon,
+                    lat: expectedLat,
+                    z: expectedZ,
+                    camera: '9,9,9,9,9,9',
+                })
+                expect(result).to.be.an('Object').that.not.haveOwnProperty('camera')
+            })
+            it('does not fail if some 2D param are missing', () => {
+                const result = testInstance.readValueFromQuery({
+                    lon: expectedLon,
+                    z: expectedZ,
+                })
+                expect(result).to.be.an('Object')
+                expect(result).to.haveOwnProperty('lon')
+                expect(result).to.not.haveOwnProperty('lat')
+                expect(result).to.haveOwnProperty('z')
+            })
+        })
+        describe('3D', () => {
+            const expectedCamera = {
+                x: 123,
+                y: 456,
+                z: 99,
+                pitch: 777,
+                yaw: 888,
+                roll: 789,
+            }
+            const generateCameraString = (x, y, z, pitch, yaw, roll) => {
+                return `${x},${y},${z},${pitch},${yaw},${roll}`
+            }
+            const testCameraValues = (camera, expectedCamera) => {
+                expect(camera).to.be.an('Object')
+                expect(camera).to.haveOwnProperty('x')
+                expect(camera).to.haveOwnProperty('y')
+                expect(camera).to.haveOwnProperty('z')
+                expect(camera).to.haveOwnProperty('pitch')
+                expect(camera).to.haveOwnProperty('yaw')
+                expect(camera).to.haveOwnProperty('roll')
+                expect(camera.x).to.eq(expectedCamera.x)
+                expect(camera.y).to.eq(expectedCamera.y)
+                expect(camera.z).to.eq(expectedCamera.z)
+                expect(camera.pitch).to.eq(expectedCamera.pitch)
+                expect(camera.yaw).to.eq(expectedCamera.yaw)
+                expect(camera.roll).to.eq(expectedCamera.roll)
+            }
+            it('reads 3D URL param correctly', () => {
+                const result = testInstance.readValueFromQuery({
+                    camera: generateCameraString(
+                        expectedCamera.x,
+                        expectedCamera.y,
+                        expectedCamera.z,
+                        expectedCamera.pitch,
+                        expectedCamera.yaw,
+                        expectedCamera.roll
+                    ),
+                    showIn3d: true,
+                })
+                expect(result).to.be.an('Object')
+                expect(result).to.haveOwnProperty('camera')
+                const { camera } = result
+                testCameraValues(camera, expectedCamera)
+            })
+            it('fills any empty camera value with 0s', () => {
+                const result = testInstance.readValueFromQuery({
+                    camera: generateCameraString(
+                        expectedCamera.x,
+                        '',
+                        expectedCamera.z,
+                        '',
+                        '',
+                        ''
+                    ),
+                    showIn3d: true,
+                })
+                expect(result).to.be.an('Object')
+                expect(result).to.haveOwnProperty('camera')
+                const { camera } = result
+                testCameraValues(camera, {
+                    x: expectedCamera.x,
+                    y: 0,
+                    z: expectedCamera.z,
+                    pitch: 0,
+                    yaw: 0,
+                    roll: 0,
+                })
+            })
+            it('ignores 2D parameters whenever the 3D flag is present', () => {
+                const result = testInstance.readValueFromQuery({
+                    camera: generateCameraString(
+                        expectedCamera.x,
+                        expectedCamera.y,
+                        expectedCamera.z,
+                        expectedCamera.pitch,
+                        expectedCamera.yaw,
+                        expectedCamera.roll
+                    ),
+                    showIn3d: true,
+                    lon: 999,
+                    lat: 888,
+                    z: 777,
+                })
+                expect(result).to.be.an('Object')
+                expect(result).to.not.haveOwnProperty('lat')
+                expect(result).to.not.haveOwnProperty('lon')
+                expect(result).to.not.haveOwnProperty('z')
+            })
+        })
+    })
     describe('writing the query', () => {
         describe('2D', () => {
             it('writes all 2D parameters correctly', () => {
@@ -68,6 +198,23 @@ describe('PositionUrlParamConfig class test', () => {
                 }
                 testInstance.populateQueryWithStoreValue(query, fakeStore)
                 expect(query).to.not.haveOwnProperty('camera')
+            })
+            it('writes missing 2D params', () => {
+                const lon = 123,
+                    lat = 456,
+                    zoom = 999
+                fakeStore.getters.centerEpsg4326 = [lon, lat]
+                fakeStore.state.position.zoom = zoom
+                let query = {
+                    lon,
+                }
+                testInstance.populateQueryWithStoreValue(query, fakeStore)
+                expect(query).to.haveOwnProperty('lat')
+                expect(query).to.haveOwnProperty('lon')
+                expect(query).to.haveOwnProperty('z')
+                expect(query.lon).to.eq(`${lon}`)
+                expect(query.lat).to.eq(`${lat}`)
+                expect(query.z).to.eq(`${zoom}`)
             })
         })
         describe('3D', () => {

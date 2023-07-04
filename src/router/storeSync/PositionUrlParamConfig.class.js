@@ -85,12 +85,38 @@ export default class PositionUrlParamConfig extends AbstractParamConfig {
     constructor() {
         super(
             'camera',
-            'setCameraPosition,setCenter,setZoom,setLatitude,setLongitude',
+            'setCameraPosition,setCenter,setZoom,setShowIn3d',
             dispatchCameraPositionFromUrlIntoStore,
             generateCameraUrlParamFromStoreValues,
             false,
             String
         )
+    }
+
+    /**
+     * Even though it is not used below in populate functions, this is required so that the
+     * routerStoreSyncPlugin can work properly
+     *
+     * @returns {Object}
+     */
+    readValueFromQuery(query) {
+        if (!query) {
+            return undefined
+        }
+        const is3dActive = readValueFromObjectOrReturnNull(query, 'showIn3d', Boolean)
+        if (is3dActive) {
+            const camera = parseCameraFromQuery(query)
+            if (camera) {
+                return { camera }
+            }
+        } else {
+            const lon = readValueFromObjectOrReturnNull(query, 'lon', Number)
+            const lat = readValueFromObjectOrReturnNull(query, 'lat', Number)
+            const z = readValueFromObjectOrReturnNull(query, 'z', Number)
+            // using Object assign to filter any null value (if a value is null, its key won't be added to the resulting object)
+            return Object.assign({}, lon && { lon }, lat && { lat }, z && { z })
+        }
+        return null
     }
 
     /**
