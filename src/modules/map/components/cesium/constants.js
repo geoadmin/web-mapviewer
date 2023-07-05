@@ -3,4 +3,4 @@
  *
  * @type {string}
  */
-export const TERRAIN_URL = 'https://download.swissgeol.ch/cli_terrain/ch-2m/'
+export const TERRAIN_URL = 'https://sys-3d.dev.bgdi.ch/ch.swisstopo.terrain.3d/v1/'
