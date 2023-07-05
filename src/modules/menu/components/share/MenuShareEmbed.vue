@@ -69,25 +69,57 @@
                         data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
-                <div v-if="isPreviewSizeCustom" class="input-group mb-1">
-                    <input
-                        v-model="customWidth"
-                        type="number"
-                        class="form-control"
-                        data-cy="menu-share-embed-iframe-custom-width"
-                    />
-                    <span class="input-group-text">x</span>
-                    <input
-                        v-model="customHeight"
-                        type="number"
-                        class="form-control"
-                        data-cy="menu-share-embed-iframe-custom-height"
-                    />
+                <div v-if="isPreviewSizeCustom" class="row mb-1">
+                    <div class="col-sm-7">
+                        <div class="input-group">
+                            <input
+                                v-if="!customSize.fullWidth"
+                                v-model="customSize.width"
+                                type="number"
+                                class="form-control"
+                                data-cy="menu-share-embed-iframe-custom-width"
+                            />
+                            <input
+                                v-else
+                                class="form-control form-control-plaintext text-center"
+                                type="text"
+                                value="100%"
+                                readonly
+                                data-cy="menu-share-embed-iframe-custom-width"
+                            />
+                            <span class="input-group-text">x</span>
+                            <input
+                                v-model="customSize.height"
+                                type="number"
+                                class="form-control"
+                                data-cy="menu-share-embed-iframe-custom-height"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-sm-5 align-self-center">
+                        <div class="form-check">
+                            <input
+                                id="fullWidthCheckbox"
+                                v-model="customSize.fullWidth"
+                                class="form-check-input"
+                                type="checkbox"
+                                value=""
+                                data-cy="menu-share-embed-iframe-full-width"
+                            />
+                            <label class="form-check-label" for="fullWidthCheckbox">
+                                {{ $t('full_width') }}
+                            </label>
+                        </div>
+                    </div>
                 </div>
+                <!-- we could use a v-html here to have the exact same code as iFrameLink(), but then each time -->
+                <!-- we switch sizes the iframe is regenerated from scratch, making it reload the shortLink -->
+                <!-- so I've opted to keep this piece of code for a better user experience -->
                 <iframe
+                    ref="iFramePreview"
                     :title="$t('embed_map')"
                     :src="shortLink"
-                    :style="`border: 0;width: ${iFrameWidth}px;height: ${iFrameHeight}px;max-width: 100%;max-height: 100%;`"
+                    :style="iFrameStyle"
                     allow="geolocation"
                 ></iframe>
                 <!-- eslint-disable vue/no-v-html-->
@@ -157,8 +189,11 @@ export default {
             showPreviewModal: false,
             EmbedSizes,
             currentPreviewSize: EmbedSizes.SMALL,
-            customWidth: EmbedSizes.SMALL.width,
-            customHeight: EmbedSizes.SMALL.height,
+            customSize: {
+                width: EmbedSizes.SMALL.width,
+                height: EmbedSizes.SMALL.height,
+                fullWidth: false,
+            },
         }
     },
     computed: {
@@ -166,10 +201,22 @@ export default {
             return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
         },
         iFrameWidth() {
-            return this.isPreviewSizeCustom ? this.customWidth : this.currentPreviewSize.width
+            if (this.isPreviewSizeCustom) {
+                if (this.customSize.fullWidth) {
+                    return '100%'
+                }
+                return `${this.customSize.width}px`
+            }
+            return `${this.currentPreviewSize.width}px`
         },
         iFrameHeight() {
-            return this.isPreviewSizeCustom ? this.customHeight : this.currentPreviewSize.height
+            if (this.isPreviewSizeCustom) {
+                return `${this.customSize.height}px`
+            }
+            return `${this.currentPreviewSize.height}px`
+        },
+        iFrameStyle() {
+            return `border: 0;width: ${this.iFrameWidth};height: ${this.iFrameHeight};max-width: 100%;max-height: 100%;`
         },
         /**
          * Iframe HTML code snippet pointing to the short link
@@ -177,7 +224,7 @@ export default {
          * @returns {String} HTML iframe code snippet
          */
         iFrameLink() {
-            return `<iframe src="${this.shortLink}" width="${this.iFrameWidth}" height="${this.iFrameHeight}" style="border:0" allow="geolocation"></iframe>`
+            return `<iframe src="${this.shortLink}" style="${this.iFrameStyle}" allow="geolocation"></iframe>`
         },
     },
     methods: {

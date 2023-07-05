@@ -158,8 +158,8 @@ describe('Testing the share menu', () => {
                 cy.get(
                     '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-shortlink-input"]'
                 )
-                    .should('contain.value', `width="${width}"`)
-                    .should('contain.value', `height="${height}"`)
+                    .should('contain.value', `width: ${width}`)
+                    .should('contain.value', `height: ${height}`)
             }
 
             beforeEach(() => {
@@ -212,6 +212,22 @@ describe('Testing the share menu', () => {
                     '{selectall}{backspace}500'
                 )
                 checkIFrameSnippetSize(600, 500)
+            })
+            it('enables the user to create a full width iframe code snippet', () => {
+                cy.get('[data-cy="menu-share-embed-preview-button"]').click()
+                cy.wait('@dummyShortLinkAccess')
+                cy.get('[data-cy="menu-share-embed-iframe-size-selector"]').select('Custom size')
+                cy.get('[data-cy="menu-share-embed-iframe-custom-width"]')
+                    .should('be.visible')
+                    .should('contain.value', 400)
+                cy.get('[data-cy="menu-share-embed-iframe-full-width"]')
+                    .should('be.visible')
+                    .click()
+                cy.get('[data-cy="menu-share-embed-iframe-custom-width"]')
+                    .should('be.visible')
+                    .should('contain.value', '100%')
+                    .should('have.attr', 'readonly')
+                checkIFrameSnippetSize('100%', 300)
             })
         }
     )
