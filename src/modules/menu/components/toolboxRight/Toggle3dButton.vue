@@ -44,6 +44,7 @@ export default {
     computed: {
         ...mapState({
             isActive: (state) => state.ui.showIn3d,
+            currentLang: (state) => state.i18n.lang,
         }),
         tooltipContent() {
             if (this.webGlIsSupported) {
@@ -54,9 +55,10 @@ export default {
     },
     watch: {
         isActive() {
-            if (this.tooltip) {
-                this.tooltip.setContent(this.tooltipContent)
-            }
+            this.updateTooltipContent()
+        },
+        currentLang() {
+            this.updateTooltipContent()
         },
     },
     mounted() {
@@ -77,6 +79,11 @@ export default {
         toggle3d() {
             if (this.webGlIsSupported) {
                 this.setShowIn3d(!this.isActive)
+            }
+        },
+        updateTooltipContent() {
+            if (this.tooltip) {
+                this.tooltip.setContent(this.tooltipContent)
             }
         },
     },
