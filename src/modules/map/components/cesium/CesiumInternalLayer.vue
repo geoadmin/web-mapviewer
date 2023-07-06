@@ -7,6 +7,13 @@
             :projection="WEBMERCATOR"
             :z-index="zIndex"
         />
+        <CesiumWMSLayer
+            v-if="layerConfig.type === LayerTypes.WMS && !layerConfig.isExternal"
+            :wms-layer-config="layerConfig"
+            :preview-year="previewYear"
+            :projection="LV95"
+            :z-index="zIndex"
+        />
         <slot />
     </div>
 </template>
@@ -15,7 +22,8 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
-import CesiumWMTSLayer from '@/modules/map/components/cesium/CesiumWMTSLayer.vue'
+import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
+import CesiumWMSLayer from './CesiumWMSLayer.vue'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
@@ -24,6 +32,7 @@ import CesiumWMTSLayer from '@/modules/map/components/cesium/CesiumWMTSLayer.vue
 export default {
     components: {
         CesiumWMTSLayer,
+        CesiumWMSLayer,
     },
     props: {
         layerConfig: {

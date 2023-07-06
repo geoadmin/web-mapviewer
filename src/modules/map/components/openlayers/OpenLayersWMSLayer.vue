@@ -101,7 +101,7 @@ export default {
                 SERVICE: 'WMS',
                 REQUEST: 'GetMap',
                 TRANSPARENT: true,
-                LAYERS: this.wmsLayerConfig.layerId,
+                LAYERS: this.layerId,
                 FORMAT: `image/${this.format}`,
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,

@@ -226,6 +226,13 @@ export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
 export const LV95_EXTENT = [572215.44, 5684416.96, 1277662.37, 6145307.4]
 
 /**
+ * TILEGRID_EXTENT (defined above) reprojected in EPSG:4326 through epsg.io website.
+ *
+ * @type {Number[]}
+ */
+export const WGS84_EXTENT = [5.1402988, 45.3981222, 11.4774363, 48.230617]
+
+/**
  * Map center default value is the center of switzerland LV:95 projection's extent (from
  * {@link https://epsg.io/2056}) re-projected in EPSG:3857
  */
