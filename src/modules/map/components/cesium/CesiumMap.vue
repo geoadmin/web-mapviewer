@@ -1,6 +1,6 @@
 <template>
     <div id="cesium" ref="map" data-cy="cesium"></div>
-    <cesium-compass ref="compass"></cesium-compass>
+    <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
     <slot />
 </template>
 <script>
@@ -14,6 +14,7 @@ import {
     RequestScheduler,
 } from 'cesium'
 import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
+import { UIModes } from '@/store/modules/ui.store'
 import { mapGetters, mapState } from 'vuex'
 import { TERRAIN_URL } from './constants'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
@@ -31,8 +32,12 @@ export default {
             rotation: (state) => state.position.rotation,
             center: (state) => state.position.center,
             is3DActive: (state) => state.ui.showIn3d,
+            uiMode: (state) => state.ui.mode,
         }),
         ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning']),
+        isDesktopMode() {
+            return this.uiMode === UIModes.DESKTOP
+        },
     },
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
