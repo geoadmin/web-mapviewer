@@ -46,7 +46,7 @@ export default {
             '3d.geo.admin.ch:443': 18,
         })
     },
-    mounted() {
+    async mounted() {
         // The first layer of Cesium is special in that it is always stretched to cover the entire world
         // using a 1x1 transparent image to workaround it.
         // See https://github.com/AnalyticalGraphicsInc/cesium/issues/1323 for details.
@@ -78,9 +78,7 @@ export default {
             skyBox: false,
             imageryProvider: firstImageryProvider,
             useBrowserRecommendedResolution: true,
-            terrainProvider: new CesiumTerrainProvider({
-                url: TERRAIN_URL,
-            }),
+            terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
             requestRenderMode: true,
         })
 
