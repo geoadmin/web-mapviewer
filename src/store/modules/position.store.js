@@ -1,4 +1,4 @@
-import { LV95_EXTENT, MAP_CENTER } from '@/config'
+import { TILEGRID_EXTENT_EPSG_3857, MAP_CENTER } from '@/config'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -174,10 +174,10 @@ const getters = {
     isExtentOnlyWithinLV95Bounds(state, getters) {
         const [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
         return (
-            currentExtentBottomLeft[0] >= LV95_EXTENT[0] &&
-            currentExtentBottomLeft[1] >= LV95_EXTENT[1] &&
-            currentExtentTopRight[0] <= LV95_EXTENT[2] &&
-            currentExtentTopRight[1] <= LV95_EXTENT[3]
+            currentExtentBottomLeft[0] >= TILEGRID_EXTENT_EPSG_3857[0] &&
+            currentExtentBottomLeft[1] >= TILEGRID_EXTENT_EPSG_3857[1] &&
+            currentExtentTopRight[0] <= TILEGRID_EXTENT_EPSG_3857[2] &&
+            currentExtentTopRight[1] <= TILEGRID_EXTENT_EPSG_3857[3]
         )
     },
 }

@@ -8,8 +8,9 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { CoordinateSystem, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
-import { WGS84_EXTENT } from '@/config'
+import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
+import { getTimestampForPreviewLayer } from '@/utils/wmtsLayerUtils'
 
 // todo should we adapt LOD to resolution?
 const MAXIMUM_LEVEL_OF_DETAILS = 18
@@ -42,15 +43,7 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         timestampForPreviewYear() {
-            if (
-                this.previewYear &&
-                this.wmtsLayerConfig.timeConfig &&
-                this.wmtsLayerConfig.timeConfig.years.includes(this.previewYear)
-            ) {
-                return this.wmtsLayerConfig.timeConfig.getTimeEntryForYear(this.previewYear)
-                    .timestamp
-            }
-            return null
+            return getTimestampForPreviewLayer(this.previewYear, this.wmtsLayerConfig)
         },
         url() {
             return this.wmtsLayerConfig.getURL(
@@ -63,7 +56,7 @@ export default {
         createImagery(url) {
             return new ImageryLayer(
                 new UrlTemplateImageryProvider({
-                    rectangle: Rectangle.fromDegrees(...WGS84_EXTENT),
+                    rectangle: Rectangle.fromDegrees(...TILEGRID_EXTENT_EPSG_4326),
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
                     url: url,
                 }),

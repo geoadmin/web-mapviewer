@@ -18,6 +18,7 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { getWMSTimestampFromConfig } from '@/utils/wmsLayerUtils'
 
 /** Renders a WMS layer on the map */
 export default {
@@ -60,29 +61,10 @@ export default {
             return this.wmsLayerConfig.gutter || -1
         },
         url() {
-            return this.wmsLayerConfig.getURL(this.previewYear, this.projection.epsgNumber)
+            return this.wmsLayerConfig.getURL()
         },
         timestamp() {
-            if (this.wmsLayerConfig.timeConfig) {
-                // if there is a preview year set, we search for the matching timestamp
-                if (this.previewYear) {
-                    const matchingTimeEntry = this.wmsLayerConfig.getTimeEntryForYear(
-                        this.previewYear
-                    )
-                    if (matchingTimeEntry) {
-                        return matchingTimeEntry.timestamp
-                    }
-                }
-                // if a time entry is defined, and is different from 'all'
-                // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                if (
-                    this.wmsLayerConfig.timeConfig.currentYear !==
-                    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
-                ) {
-                    return this.wmsLayerConfig.timeConfig.currentTimestamp
-                }
-            }
-            return ''
+            return getWMSTimestampFromConfig(this.wmsLayerConfig)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. This is because both

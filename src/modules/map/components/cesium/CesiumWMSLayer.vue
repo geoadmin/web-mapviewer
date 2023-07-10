@@ -7,11 +7,12 @@
 <script>
 import { CoordinateSystem, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
-import { WGS84_EXTENT } from '@/config'
+import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import { mapState } from 'vuex'
 import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
+import { getWMSTimestampFromConfig } from '@/utils/wmsLayerUtils'
 
 // todo should we adapt LOD to resolution?
 const MAXIMUM_LEVEL_OF_DETAILS = 18
@@ -20,7 +21,7 @@ export default {
     mixins: [addImageryLayerMixins],
     props: {
         wmsLayerConfig: {
-            type: [GeoAdminWMSLayer],
+            type: GeoAdminWMSLayer,
             required: true,
         },
         previewYear: {
@@ -53,35 +54,14 @@ export default {
             return this.wmsLayerConfig.format || 'png'
         },
         url() {
-            return this.wmsLayerConfig.getURL(this.previewYear, this.projection.epsgNumber)
+            return this.wmsLayerConfig.getURL()
         },
         timestamp() {
-            if (this.wmsLayerConfig.timeConfig) {
-                // if there is a preview year set, we search for the matching timestamp
-                if (this.previewYear) {
-                    const matchingTimeEntry = this.wmsLayerConfig.getTimeEntryForYear(
-                        this.previewYear
-                    )
-                    if (matchingTimeEntry) {
-                        return matchingTimeEntry.timestamp
-                    }
-                }
-                // if a time entry is defined, and is different from 'all'
-                // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                if (
-                    this.wmsLayerConfig.timeConfig.currentYear !==
-                    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
-                ) {
-                    return this.wmsLayerConfig.timeConfig.currentTimestamp
-                }
-            }
-            return ''
+            return getWMSTimestampFromConfig(this.wmsLayerConfig)
         },
         /**
-         * Definition of all relevant URL param for our WMS backends. This is because both
-         * https://openlayers.org/en/latest/apidoc/module-ol_source_TileWMS-TileWMS.html and
-         * https://openlayers.org/en/latest/apidoc/module-ol_source_ImageWMS-ImageWMS.html have this
-         * option.
+         * Definition of all relevant URL param for our WMS backends. Passes as parameters to
+         * https://cesium.com/learn/cesiumjs/ref-doc/WebMapServiceImageryProvider.html#.ConstructorOptions
          *
          * If we let the URL have all the param beforehand (sending all URL param through the url
          * option), most of our wanted params will be doubled, resulting in longer and more
@@ -111,7 +91,7 @@ export default {
                     subdomains: '0123',
                     layers: this.wmsLayerConfig.geoAdminID,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
-                    rectangle: Rectangle.fromDegrees(...WGS84_EXTENT),
+                    rectangle: Rectangle.fromDegrees(...TILEGRID_EXTENT_EPSG_4326),
                 }),
                 {
                     show: this.wmsLayerConfig.visible,

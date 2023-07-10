@@ -1,4 +1,4 @@
-import { LV95_EXTENT } from '@/config'
+import { TILEGRID_EXTENT_EPSG_3857 } from '@/config'
 import {
     coordinateFromString,
     reprojectUnknownSrsCoordsToWebMercator,
@@ -504,14 +504,14 @@ describe('Unit test functions from coordinateUtils.js', () => {
             // checking that the split happened on the LV95 bounds
             const intersectingCoordinate = outOfBoundChunk.coordinates[1]
             expect(intersectingCoordinate).to.be.an('Array').of.length(2)
-            expect(intersectingCoordinate).to.eql([LV95_EXTENT[0], yValue])
+            expect(intersectingCoordinate).to.eql([TILEGRID_EXTENT_EPSG_3857[0], yValue])
             // next chunk must start by the intersecting coordinate
             expect(inBoundChunk).to.haveOwnProperty('isWithinLV95Bounds')
             expect(inBoundChunk.isWithinLV95Bounds).to.be.true
             expect(inBoundChunk.coordinates).to.be.an('Array').of.length(6)
             const [firstInBoundCoordinate] = inBoundChunk.coordinates
             expect(firstInBoundCoordinate).to.be.an('Array').of.length(2)
-            expect(firstInBoundCoordinate).to.eql([LV95_EXTENT[0], yValue])
+            expect(firstInBoundCoordinate).to.eql([TILEGRID_EXTENT_EPSG_3857[0], yValue])
             // checking that further coordinates have been correctly copied
             coordinatesOverlappingSwissBounds.slice(1).forEach((coordinate, index) => {
                 expect(inBoundChunk.coordinates[index + 1][0]).to.eq(coordinate[0])
@@ -527,9 +527,9 @@ describe('Unit test functions from coordinateUtils.js', () => {
                 [700000, 6000000], // inside
                 [1000000, 6000000], // inside
             ]
-            const expectedFirstIntersection = [LV95_EXTENT[0], 6000000]
-            const expectedSecondIntersection = [800000, LV95_EXTENT[1]]
-            const expectedThirdIntersection = [700000, LV95_EXTENT[1]]
+            const expectedFirstIntersection = [TILEGRID_EXTENT_EPSG_3857[0], 6000000]
+            const expectedSecondIntersection = [800000, TILEGRID_EXTENT_EPSG_3857[1]]
+            const expectedThirdIntersection = [700000, TILEGRID_EXTENT_EPSG_3857[1]]
 
             const result = splitIfOutOfLV95Bounds(coordinatesGoingBackAndForth)
             expect(result).to.be.an('Array').of.length(4)

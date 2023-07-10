@@ -1,3 +1,15 @@
+/**
+ * Vue mixin that will handle the addition or removal of a Cesium Imagery layer. This is a
+ * centralized way of describing this logic.
+ *
+ * Each component that uses this mixin must create a layer (`this.layer`) in their `created(){}`
+ * method. This layer will then be added to the viewer (through dependency injection with
+ * `getViewer`). The mixin will manage this layer and will remove it from the viewer as soon as the
+ * component that has incorporated this mixin will be removed from the DOM.
+ *
+ * It is also set/update zIndex of the layer, which places the layer accordingly in the stack of the
+ * imagery layers in Cesium viewer.
+ */
 const addImageryLayerMixins = {
     inject: ['getViewer'],
     data() {
