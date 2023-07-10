@@ -39,6 +39,19 @@ export function normalizeAngle(rotation) {
     return rotation
 }
 
+/**
+ * Structure of the camera position
+ *
+ * @typedef CameraPosition
+ * @property {Number} x X position of the camera in the 3D reference system (metric mercator)
+ * @property {Number} y Y position of the camera in the 3D reference system (metric mercator)
+ * @property {Number} z Z altitude of the camera in the 3D reference system (meters)
+ * @property {Number} yaw Degrees of camera rotation on the yaw axis ("compass" axis)
+ * @property {Number} pitch Degrees of camera rotation on the pitch axis ("nose up and down" axis)
+ * @property {Number} roll Degrees of camera rotation on the roll axis ("barrel roll" axis, like if
+ *   the camera was a plane)
+ */
+
 const state = {
     /**
      * The map zoom level, which define the resolution of the view
@@ -60,6 +73,19 @@ const state = {
     center: MAP_CENTER,
     /** @type CrossHairs */
     crossHair: null,
+    /**
+     * Position of the view when we are in 3D
+     *
+     * @type CameraPosition
+     */
+    camera: {
+        x: 0,
+        y: 0,
+        z: 0,
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+    },
 }
 
 /**
@@ -176,7 +202,7 @@ const actions = {
             (Array.isArray(center) && center.length !== 2) ||
             (!Array.isArray(center) && (!center.x || !center.y))
         ) {
-            log('warning', 'bad center received, ignoring', center)
+            log.error('bad center received, ignoring', center)
             return
         }
         if (Array.isArray(center)) {
@@ -258,6 +284,22 @@ const actions = {
             commit('setCrossHair', CrossHairs[crossHair])
         }
     },
+    /**
+     * @param commit
+     * @param {CameraPosition} cameraPosition
+     */
+    setCameraPosition({ commit }, cameraPosition) {
+        // defaulting to 0 if the camera position is lacking some properties
+        const curatedCameraPosition = Object.assign(cameraPosition, {
+            x: 0,
+            y: 0,
+            z: 0,
+            yaw: 0,
+            pitch: 0,
+            roll: 0,
+        })
+        commit('setCameraPosition', curatedCameraPosition)
+    },
 }
 
 const mutations = {
@@ -265,6 +307,7 @@ const mutations = {
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
+    setCameraPosition: (state, cameraPosition) => (state.camera = cameraPosition),
 }
 
 export default {

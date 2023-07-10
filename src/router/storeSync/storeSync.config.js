@@ -1,5 +1,6 @@
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
 /**
@@ -41,6 +42,19 @@ const storeSyncConfig = [
         true,
         Number
     ),
+    new SimpleUrlParamConfig(
+        '3d',
+        'setShowIn3d',
+        'setShowIn3d',
+        (store) => store.state.ui.showIn3d,
+        false,
+        Boolean,
+        false
+    ),
+    // very important that this is added/defined AFTER the 3D flag param,
+    // so that when it is called the 3D param has already been processed (and is correctly set in the query)
+    // this will manage lon,lat,z and camera URL params
+    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
@@ -84,7 +98,8 @@ const storeSyncConfig = [
             }),
         (store) => store.state.search.query,
         false,
-        String
+        String,
+        ''
     ),
     new SimpleUrlParamConfig(
         'crosshair',
@@ -100,15 +115,6 @@ const storeSyncConfig = [
         'setEmbeddedMode',
         'setEmbeddedMode',
         (store) => store.state.ui.embeddedMode,
-        false,
-        Boolean,
-        false
-    ),
-    new SimpleUrlParamConfig(
-        '3d',
-        'setShowIn3d',
-        'setShowIn3d',
-        (store) => store.state.ui.showIn3d,
         false,
         Boolean,
         false
