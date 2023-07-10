@@ -1,28 +1,90 @@
 <template>
     <button
+        ref="toggle3dButton"
         class="toolbox-button"
         type="button"
-        :class="{ active: isActive }"
-        :title="$t(`tilt3d_${isActive ? 'active' : 'inactive'}`)"
+        :class="{ active: isActive, disabled: !webGlIsSupported }"
         data-cy="3d-button"
         @click="toggle3d"
     >
-        <img class="toolbox-button-icon" src="../../assets/button_3d.png" alt="3D" />
+        <FontAwesomeIcon :icon="['fas', 'cube']" flip="horizontal" />
     </button>
 </template>
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
 import { mapActions, mapState } from 'vuex'
 
+/**
+ * Returns true if WebGL is supported by the browser / hardware.
+ *
+ * Copied from https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/By_example/Detect_WebGL
+ *
+ * @returns {boolean}
+ */
+function checkWebGlSupport() {
+    // Create canvas element. The canvas is not added to the
+    // document itself, so it is never displayed in the
+    // browser window.
+    const canvas = document.createElement('canvas')
+
+    // Get WebGLRenderingContext from canvas element.
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+
+    return gl instanceof WebGLRenderingContext
+}
+
 export default {
+    components: { FontAwesomeIcon },
+    data() {
+        return {
+            webGlIsSupported: false,
+        }
+    },
     computed: {
         ...mapState({
             isActive: (state) => state.ui.showIn3d,
+            currentLang: (state) => state.i18n.lang,
         }),
+        tooltipContent() {
+            if (this.webGlIsSupported) {
+                return this.$t(`tilt3d_${this.isActive ? 'active' : 'inactive'}`)
+            }
+            return this.$t('3d_render_error')
+        },
+    },
+    watch: {
+        isActive() {
+            this.updateTooltipContent()
+        },
+        currentLang() {
+            this.updateTooltipContent()
+        },
+    },
+    mounted() {
+        this.webGlIsSupported = checkWebGlSupport()
+        this.tooltip = tippy(this.$refs.toggle3dButton, {
+            theme: 'primary',
+            content: this.tooltipContent,
+            arrow: true,
+            placement: 'left',
+            touch: false,
+        })
+    },
+    beforeUnmount() {
+        this.tooltip.destroy()
     },
     methods: {
         ...mapActions(['setShowIn3d']),
         toggle3d() {
-            this.setShowIn3d(!this.isActive)
+            if (this.webGlIsSupported) {
+                this.setShowIn3d(!this.isActive)
+            }
+        },
+        updateTooltipContent() {
+            if (this.tooltip) {
+                this.tooltip.setContent(this.tooltipContent)
+            }
         },
     },
 }
