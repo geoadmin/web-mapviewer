@@ -10,6 +10,7 @@ import {
     Rectangle,
     Color,
     Cartesian3,
+    RequestScheduler,
 } from 'cesium'
 import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
 import { mapGetters, mapState } from 'vuex'
@@ -35,6 +36,15 @@ export default {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
         // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
         window['CESIUM_BASE_URL'] = '.'
+
+        // A per server key list of overrides to use for throttling limits.
+        // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
+        Object.assign(RequestScheduler.requestsByServer, {
+            'wmts.geo.admin.ch:443': 18,
+            'sys-3d.dev.bgdi.ch:443': 18,
+            'sys-3d.int.bgdi.ch:443': 18,
+            '3d.geo.admin.ch:443': 18,
+        })
     },
     mounted() {
         // The first layer of Cesium is special in that it is always stretched to cover the entire world
