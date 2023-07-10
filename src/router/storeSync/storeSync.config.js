@@ -1,6 +1,6 @@
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
-import PositionUrlParamConfig from '@/router/storeSync/PositionUrlParamConfig.class'
+import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
 /**
@@ -19,6 +19,30 @@ const storeSyncConfig = [
         String
     ),
     new SimpleUrlParamConfig(
+        'lat',
+        'setCenter',
+        'setLatitude',
+        (store) => store.getters.centerEpsg4326[1],
+        true,
+        Number
+    ),
+    new SimpleUrlParamConfig(
+        'lon',
+        'setCenter',
+        'setLongitude',
+        (store) => store.getters.centerEpsg4326[0],
+        true,
+        Number
+    ),
+    new SimpleUrlParamConfig(
+        'z',
+        'setZoom',
+        'setZoom',
+        (store) => store.state.position.zoom,
+        true,
+        Number
+    ),
+    new SimpleUrlParamConfig(
         '3d',
         'setShowIn3d',
         'setShowIn3d',
@@ -30,7 +54,7 @@ const storeSyncConfig = [
     // very important that this is added/defined AFTER the 3D flag param,
     // so that when it is called the 3D param has already been processed (and is correctly set in the query)
     // this will manage lon,lat,z and camera URL params
-    new PositionUrlParamConfig(),
+    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
