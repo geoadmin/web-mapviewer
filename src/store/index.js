@@ -23,6 +23,8 @@ import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
 import screenSizeManagementPlugin from './plugins/screen-size-management.plugin'
 import topicChangeManagementPlugin from './plugins/topic-change-management.plugin'
 
+import syncCameraLonLatZoom from './plugins/sync-camera-lonlatzoom'
+
 export default createStore({
     strict: true,
     state: {},
@@ -36,6 +38,7 @@ export default createStore({
         topicChangeManagementPlugin,
         loadingBarManagementPlugin,
         screenSizeManagementPlugin,
+        syncCameraLonLatZoom,
     ],
     modules: {
         app,

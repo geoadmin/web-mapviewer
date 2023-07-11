@@ -46,7 +46,7 @@ export function normalizeAngle(rotation) {
  * @property {Number} x X position of the camera in the 3D reference system (metric mercator)
  * @property {Number} y Y position of the camera in the 3D reference system (metric mercator)
  * @property {Number} z Z altitude of the camera in the 3D reference system (meters)
- * @property {Number} yaw Degrees of camera rotation on the yaw axis ("compass" axis)
+ * @property {Number} heading Degrees of camera rotation on the heading axis ("compass" axis)
  * @property {Number} pitch Degrees of camera rotation on the pitch axis ("nose up and down" axis)
  * @property {Number} roll Degrees of camera rotation on the roll axis ("barrel roll" axis, like if
  *   the camera was a plane)
@@ -82,7 +82,7 @@ const state = {
         x: 0,
         y: 0,
         z: 0,
-        yaw: 0,
+        heading: 0,
         pitch: 0,
         roll: 0,
     },
@@ -290,14 +290,14 @@ const actions = {
      */
     setCameraPosition({ commit }, cameraPosition) {
         // defaulting to 0 if the camera position is lacking some properties
-        const curatedCameraPosition = Object.assign(cameraPosition, {
+        const curatedCameraPosition = Object.assign({
             x: 0,
             y: 0,
             z: 0,
-            yaw: 0,
+            heading: 0,
             pitch: 0,
             roll: 0,
-        })
+        }, cameraPosition)
         commit('setCameraPosition', curatedCameraPosition)
     },
 }

@@ -27,9 +27,10 @@ import {
     Color,
     Cartesian3,
     RequestScheduler,
+    Math as CesiumMath,
 } from 'cesium'
 import { UIModes } from '@/store/modules/ui.store'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 import { TERRAIN_URL } from './constants'
 import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL } from '@/config'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
@@ -139,6 +140,8 @@ export default {
         scene.pickTranslucentDepth = true
         scene.backgroundColor = Color.TRANSPARENT
 
+        this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
+
         const globe = scene.globe
         globe.baseColor = Color.TRANSPARENT
         globe.depthTestAgainstTerrain = true
@@ -154,6 +157,7 @@ export default {
         this.flyToPosition()
     },
     methods: {
+        ...mapActions(['setCameraPosition']),
         flyToPosition() {
             const cameraHeight =
                 (this.resolution * this.viewer.canvas.clientWidth) /
@@ -165,6 +169,18 @@ export default {
                     cameraHeight
                 ),
                 duration: 0,
+            })
+        },
+        onCameraMoveEnd() {
+            const camera = this.viewer.camera
+            const position = camera.positionCartographic
+            this.setCameraPosition({
+                x: CesiumMath.toDegrees(position.longitude).toFixed(6),
+                y: CesiumMath.toDegrees(position.latitude).toFixed(6),
+                z: position.height.toFixed(0),
+                heading: CesiumMath.toDegrees(camera.heading).toFixed(0),
+                pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
+                roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
         },
     },
