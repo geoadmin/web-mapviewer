@@ -18,7 +18,8 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { getWMSTimestampFromConfig } from '@/utils/wmsLayerUtils'
+
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 /** Renders a WMS layer on the map */
 export default {
@@ -64,7 +65,7 @@ export default {
             return this.wmsLayerConfig.getURL()
         },
         timestamp() {
-            return getWMSTimestampFromConfig(this.wmsLayerConfig)
+            return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. This is because both

@@ -10,9 +10,9 @@ import { CoordinateSystem, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
-import { getTimestampForPreviewLayer } from '@/utils/wmtsLayerUtils'
 
-// todo should we adapt LOD to resolution?
+import { getTimestampFromConfig } from '@/utils/layerUtils'
+
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
 export default {
@@ -43,7 +43,7 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         timestampForPreviewYear() {
-            return getTimestampForPreviewLayer(this.previewYear, this.wmtsLayerConfig)
+            return getTimestampFromConfig(this.wmtsLayerConfig, this.previewYear)
         },
         url() {
             return this.wmtsLayerConfig.getURL(

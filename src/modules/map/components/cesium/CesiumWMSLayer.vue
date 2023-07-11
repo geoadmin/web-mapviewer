@@ -9,12 +9,11 @@ import { CoordinateSystem, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import { mapState } from 'vuex'
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
-import { getWMSTimestampFromConfig } from '@/utils/wmsLayerUtils'
 
-// todo should we adapt LOD to resolution?
+import { getTimestampFromConfig } from '@/utils/layerUtils'
+
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
 export default {
@@ -57,7 +56,7 @@ export default {
             return this.wmsLayerConfig.getURL()
         },
         timestamp() {
-            return getWMSTimestampFromConfig(this.wmsLayerConfig)
+            return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. Passes as parameters to

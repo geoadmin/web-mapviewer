@@ -7,6 +7,11 @@
  * `getViewer`). The mixin will manage this layer and will remove it from the viewer as soon as the
  * component that has incorporated this mixin will be removed from the DOM.
  *
+ * `url` should be defined in the component and contains layer URL
+ *
+ * Component that will use this mixin should have `createImagery` method which takes layer URL as a
+ * parameter
+ *
  * It is also set/update zIndex of the layer, which places the layer accordingly in the stack of the
  * imagery layers in Cesium viewer.
  */

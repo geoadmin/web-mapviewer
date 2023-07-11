@@ -14,7 +14,8 @@ import { XYZ as XYZSource } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-import { getTimestampForPreviewLayer } from '@/utils/wmtsLayerUtils'
+
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 /** Renders a WMTS layer on the map */
 export default {
@@ -45,7 +46,7 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         timestampForPreviewYear() {
-            return getTimestampForPreviewLayer(this.previewYear, this.wmtsLayerConfig)
+            return getTimestampFromConfig(this.wmtsLayerConfig, this.previewYear)
         },
         url() {
             return this.wmtsLayerConfig.getURL(
