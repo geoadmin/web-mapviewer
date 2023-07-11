@@ -15,17 +15,17 @@ function parseCameraFromQuery(query) {
     const camera = readValueFromObjectOrReturnNull(query, 'camera', String)
     if (camera) {
         let cameraValues = camera.split(',')
-        // the split must have 6 components (x, y, z, pitch, yaw and roll)
+        // the split must have 6 components (x, y, z, pitch, heading and roll)
         if (cameraValues.length === 6) {
             // parsing to number all values (default to 0 if the value is empty)
             cameraValues = cameraValues.map((value) => (value === '' ? 0 : Number(value)))
-            const [x, y, z, pitch, yaw, roll] = cameraValues
+            const [x, y, z, pitch, heading, roll] = cameraValues
             return {
                 x,
                 y,
                 z,
                 pitch,
-                yaw,
+                heading,
                 roll,
             }
         }
@@ -37,7 +37,7 @@ function parseCameraFromQuery(query) {
  * Definition of a set of URL params to store the position camera for the 3D viewer
  *
  * It will generate a unique camera URL param that will be a concat of all relevant camera values
- * (x,y,z,yaw,pitch,roll), this param will only be added to the URL when 3D is active
+ * (x,y,z,heading,pitch,roll), this param will only be added to the URL when 3D is active
  *
  * This param parsing is based on the value of the 3D flag in the store, and not the one in the URL.
  */
@@ -73,8 +73,8 @@ export default class CameraParamConfig extends AbstractParamConfig {
      */
     populateQueryWithStoreValue(query, store) {
         if (store.state.ui.showIn3d) {
-            const { x, y, z, pitch, yaw, roll } = store.state.position.camera
-            const valuesAsString = [x, y, z, pitch, yaw, roll].map((value) =>
+            const { x, y, z, pitch, heading, roll } = store.state.position.camera
+            const valuesAsString = [x, y, z, pitch, heading, roll].map((value) =>
                 value === 0 ? '' : `${value}`
             )
             query['camera'] = valuesAsString.join(',')

@@ -15,7 +15,7 @@ describe('CameraParamConfig class test', () => {
                         y: 0,
                         z: 0,
                         pitch: 0,
-                        yaw: 0,
+                        heading: 0,
                         roll: 0,
                     },
                 },
@@ -36,11 +36,11 @@ describe('CameraParamConfig class test', () => {
             y: 456,
             z: 99,
             pitch: 777,
-            yaw: 888,
+            heading: 888,
             roll: 789,
         }
-        const generateCameraString = (x, y, z, pitch, yaw, roll) => {
-            return `${x},${y},${z},${pitch},${yaw},${roll}`
+        const generateCameraString = (x, y, z, pitch, heading, roll) => {
+            return `${x},${y},${z},${pitch},${heading},${roll}`
         }
         const testCameraValues = (camera, expectedCamera) => {
             expect(camera).to.be.an('Object')
@@ -48,13 +48,13 @@ describe('CameraParamConfig class test', () => {
             expect(camera).to.haveOwnProperty('y')
             expect(camera).to.haveOwnProperty('z')
             expect(camera).to.haveOwnProperty('pitch')
-            expect(camera).to.haveOwnProperty('yaw')
+            expect(camera).to.haveOwnProperty('heading')
             expect(camera).to.haveOwnProperty('roll')
             expect(camera.x).to.eq(expectedCamera.x)
             expect(camera.y).to.eq(expectedCamera.y)
             expect(camera.z).to.eq(expectedCamera.z)
             expect(camera.pitch).to.eq(expectedCamera.pitch)
-            expect(camera.yaw).to.eq(expectedCamera.yaw)
+            expect(camera.heading).to.eq(expectedCamera.heading)
             expect(camera.roll).to.eq(expectedCamera.roll)
         }
         it('reads 3D URL param correctly', () => {
@@ -64,7 +64,7 @@ describe('CameraParamConfig class test', () => {
                     expectedCamera.y,
                     expectedCamera.z,
                     expectedCamera.pitch,
-                    expectedCamera.yaw,
+                    expectedCamera.heading,
                     expectedCamera.roll
                 ),
                 showIn3d: true,
@@ -83,7 +83,7 @@ describe('CameraParamConfig class test', () => {
                 y: 0,
                 z: expectedCamera.z,
                 pitch: 0,
-                yaw: 0,
+                heading: 0,
                 roll: 0,
             })
         })
@@ -94,7 +94,7 @@ describe('CameraParamConfig class test', () => {
             y: 34,
             z: 56,
             pitch: 78,
-            yaw: 90,
+            heading: 90,
             roll: 49,
         }
         beforeEach(() => {
@@ -106,7 +106,7 @@ describe('CameraParamConfig class test', () => {
             testInstance.populateQueryWithStoreValue(query, fakeStore)
             expect(query).to.haveOwnProperty('camera')
             expect(query.camera).to.eq(
-                `${camera.x},${camera.y},${camera.z},${camera.pitch},${camera.yaw},${camera.roll}`
+                `${camera.x},${camera.y},${camera.z},${camera.pitch},${camera.heading},${camera.roll}`
             )
         })
         it('writes nothing if the value of a param is equal to zero', () => {
@@ -115,7 +115,7 @@ describe('CameraParamConfig class test', () => {
             let query = {}
             testInstance.populateQueryWithStoreValue(query, fakeStore)
             expect(query).to.haveOwnProperty('camera')
-            expect(query.camera).to.eq(`${camera.x},,${camera.z},,${camera.yaw},${camera.roll}`)
+            expect(query.camera).to.eq(`${camera.x},,${camera.z},,${camera.heading},${camera.roll}`)
         })
     })
     describe('setting/dispatching the store', () => {
@@ -136,7 +136,7 @@ describe('CameraParamConfig class test', () => {
                 y: 1,
                 z: 1,
                 pitch: 1,
-                yaw: 1,
+                heading: 1,
                 roll: 1,
             }
         })
