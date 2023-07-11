@@ -24,8 +24,6 @@
 import {
     Viewer,
     CesiumTerrainProvider,
-    SingleTileImageryProvider,
-    Rectangle,
     Color,
     Cartesian3,
     RequestScheduler,
@@ -100,14 +98,6 @@ export default {
         })
     },
     async mounted() {
-        // The first layer of Cesium is special in that it is always stretched to cover the entire world
-        // using a 1x1 transparent image to workaround it.
-        // See https://github.com/AnalyticalGraphicsInc/cesium/issues/1323 for details.
-        const firstImageryProvider = new SingleTileImageryProvider({
-            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
-            rectangle: Rectangle.fromDegrees(0, 0, 1, 1), // the Rectangle dimensions are arbitrary
-        })
-
         this.viewer = new Viewer(this.$refs.viewer, {
             contextOptions: {
                 webgl: {
@@ -129,7 +119,7 @@ export default {
             navigationInstructionsInitiallyVisible: false,
             scene3DOnly: true,
             skyBox: false,
-            imageryProvider: firstImageryProvider,
+            baseLayer: false,
             useBrowserRecommendedResolution: true,
             terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
             requestRenderMode: true,
