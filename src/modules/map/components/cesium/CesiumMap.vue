@@ -190,6 +190,10 @@ export default {
     .cesium-viewer-bottom {
         position: absolute;
     }
+
+    .cesium-widget-credits {
+        display: none;
+    }
 }
 cesium-compass {
     position: absolute;
