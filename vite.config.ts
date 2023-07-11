@@ -27,7 +27,13 @@ export default defineConfig(({ command, mode }) => {
             outDir: `./dist/${mode}`,
         },
         plugins: [
-            vue(),
+            vue({
+                template: {
+                    compilerOptions: {
+                        isCustomElement: (tag) => tag === 'cesium-compass',
+                    },
+                },
+            }),
             generateBuildInfo(appVersion),
             // CesiumJS requires static files from the following 4 folders to be included in the build
             // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
