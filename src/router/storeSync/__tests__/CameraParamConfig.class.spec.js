@@ -1,4 +1,6 @@
-import PositionUrlParamConfig from '@/router/storeSync/CameraParamConfig.class'
+import PositionUrlParamConfig, {
+    readCameraFromUrlParam,
+} from '@/router/storeSync/CameraParamConfig.class'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('CameraParamConfig class test', () => {
@@ -30,7 +32,7 @@ describe('CameraParamConfig class test', () => {
         }
     })
 
-    describe('reading the query', () => {
+    describe('reading the query (readCameraFromUrlParam)', () => {
         const expectedCamera = {
             x: 123,
             y: 456,
@@ -58,25 +60,23 @@ describe('CameraParamConfig class test', () => {
             expect(camera.roll).to.eq(expectedCamera.roll)
         }
         it('reads 3D URL param correctly', () => {
-            const result = testInstance.readValueFromQuery({
-                camera: generateCameraString(
+            const result = readCameraFromUrlParam(
+                generateCameraString(
                     expectedCamera.x,
                     expectedCamera.y,
                     expectedCamera.z,
                     expectedCamera.pitch,
                     expectedCamera.heading,
                     expectedCamera.roll
-                ),
-                showIn3d: true,
-            })
+                )
+            )
             expect(result).to.be.an('Object')
             testCameraValues(result, expectedCamera)
         })
         it('fills any empty camera value with 0s', () => {
-            const result = testInstance.readValueFromQuery({
-                camera: generateCameraString(expectedCamera.x, '', expectedCamera.z, '', '', ''),
-                showIn3d: true,
-            })
+            const result = readCameraFromUrlParam(
+                generateCameraString(expectedCamera.x, '', expectedCamera.z, '', '', '')
+            )
             expect(result).to.be.an('Object')
             testCameraValues(result, {
                 x: expectedCamera.x,
@@ -123,7 +123,7 @@ describe('CameraParamConfig class test', () => {
             fakeStore.state.ui.showIn3d = true
         })
         it('dispatches 3D param correctly to the store', () => {
-            testInstance.populateStoreWithQueryValue(fakeStore, { camera: '1,2,3,4,5,6' })
+            testInstance.populateStoreWithQueryValue(fakeStore, '1,2,3,4,5,6')
             expect(fakeStore.dispatch).toHaveBeenCalledOnce()
             expect(fakeStore.dispatch.mock.calls[0]).to.include.members(['setCameraPosition'])
         })
