@@ -15,6 +15,8 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
+import { getTimestampFromConfig } from '@/utils/layerUtils'
+
 /** Renders a WMTS layer on the map */
 export default {
     mixins: [addLayerToMapMixin],
@@ -44,15 +46,7 @@ export default {
             return this.wmtsLayerConfig.opacity || 1.0
         },
         timestampForPreviewYear() {
-            if (
-                this.previewYear &&
-                this.wmtsLayerConfig.timeConfig &&
-                this.wmtsLayerConfig.timeConfig.years.includes(this.previewYear)
-            ) {
-                return this.wmtsLayerConfig.timeConfig.getTimeEntryForYear(this.previewYear)
-                    .timestamp
-            }
-            return null
+            return getTimestampFromConfig(this.wmtsLayerConfig, this.previewYear)
         },
         url() {
             return this.wmtsLayerConfig.getURL(

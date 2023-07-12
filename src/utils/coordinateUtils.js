@@ -1,4 +1,4 @@
-import { LV95_EXTENT } from '@/config'
+import { TILEGRID_EXTENT_EPSG_3857 } from '@/config'
 import clip from 'liang-barsky'
 import proj4 from 'proj4'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'
@@ -77,12 +77,12 @@ const LV95_BOUNDS = {
  */
 const LV95_IN_MERCATOR_BOUNDS = {
     x: {
-        lower: LV95_EXTENT[0],
-        upper: LV95_EXTENT[2],
+        lower: TILEGRID_EXTENT_EPSG_3857[0],
+        upper: TILEGRID_EXTENT_EPSG_3857[2],
     },
     y: {
-        lower: LV95_EXTENT[1],
-        upper: LV95_EXTENT[3],
+        lower: TILEGRID_EXTENT_EPSG_3857[1],
+        upper: TILEGRID_EXTENT_EPSG_3857[3],
     },
 }
 /**
@@ -468,7 +468,7 @@ function splitIfOutOfLV95BoundsRecurse(coordinates, previousChunks = [], isFirst
     clip(
         lastCoordinateWithSameBounds,
         nextCoordinateWithoutSameBounds,
-        LV95_EXTENT,
+        TILEGRID_EXTENT_EPSG_3857,
         crossing1,
         crossing2
     )

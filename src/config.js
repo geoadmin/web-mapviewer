@@ -195,10 +195,9 @@ export const TILEGRID_RESOLUTIONS = [
 ]
 
 /**
- * Map view's mininal resolution
- * Currently set so that OL scalebar displays 10 meters
- * Scalebar about 1" on screen, hence about 100px.  So, 10 meters/100px = 0.1
- * Caveat: setting resolution (mininum and maximum) has the precedence over zoom (minimum/maximum)
+ * Map view's mininal resolution Currently set so that OL scalebar displays 10 meters Scalebar about
+ * 1" on screen, hence about 100px. So, 10 meters/100px = 0.1 Caveat: setting resolution (mininum
+ * and maximum) has the precedence over zoom (minimum/maximum)
  */
 
 export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
@@ -223,7 +222,14 @@ export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
  *
  * @type {Number[]}
  */
-export const LV95_EXTENT = [572215.44, 5684416.96, 1277662.37, 6145307.4]
+export const TILEGRID_EXTENT_EPSG_3857 = [572215.44, 5684416.96, 1277662.37, 6145307.4]
+
+/**
+ * TILEGRID_EXTENT (defined above) reprojected in EPSG:4326 through epsg.io website.
+ *
+ * @type {Number[]}
+ */
+export const TILEGRID_EXTENT_EPSG_4326 = [5.1402988, 45.3981222, 11.4774363, 48.230617]
 
 /**
  * Map center default value is the center of switzerland LV:95 projection's extent (from

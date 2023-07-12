@@ -19,6 +19,8 @@ import proj4 from 'proj4'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
+import { getTimestampFromConfig } from '@/utils/layerUtils'
+
 /** Renders a WMS layer on the map */
 export default {
     mixins: [addLayerToMapMixin],
@@ -60,29 +62,10 @@ export default {
             return this.wmsLayerConfig.gutter || -1
         },
         url() {
-            return this.wmsLayerConfig.getURL(this.previewYear, this.projection.epsgNumber)
+            return this.wmsLayerConfig.getURL()
         },
         timestamp() {
-            if (this.wmsLayerConfig.timeConfig) {
-                // if there is a preview year set, we search for the matching timestamp
-                if (this.previewYear) {
-                    const matchingTimeEntry = this.wmsLayerConfig.getTimeEntryForYear(
-                        this.previewYear
-                    )
-                    if (matchingTimeEntry) {
-                        return matchingTimeEntry.timestamp
-                    }
-                }
-                // if a time entry is defined, and is different from 'all'
-                // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-                if (
-                    this.wmsLayerConfig.timeConfig.currentYear !==
-                    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
-                ) {
-                    return this.wmsLayerConfig.timeConfig.currentTimestamp
-                }
-            }
-            return ''
+            return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)
         },
         /**
          * Definition of all relevant URL param for our WMS backends. This is because both
@@ -101,7 +84,7 @@ export default {
                 SERVICE: 'WMS',
                 REQUEST: 'GetMap',
                 TRANSPARENT: true,
-                LAYERS: this.wmsLayerConfig.layerId,
+                LAYERS: this.layerId,
                 FORMAT: `image/${this.format}`,
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,

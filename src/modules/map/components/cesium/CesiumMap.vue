@@ -1,5 +1,22 @@
 <template>
-    <div id="cesium" ref="map" data-cy="cesium"></div>
+    <div id="cesium" ref="viewer" data-cy="cesium">
+        <div v-if="viewerCreated">
+            <!-- Adding background layer -->
+            <CesiumInternalLayer
+                v-if="currentBackgroundLayer"
+                :layer-config="currentBackgroundLayer"
+                :z-index="0"
+            />
+            <!-- Adding all other layers -->
+            <CesiumInternalLayer
+                v-for="(layer, index) in visibleLayers"
+                :key="layer.getID()"
+                :layer-config="layer"
+                :preview-year="previewYear"
+                :z-index="index + startingZIndexForVisibleLayers"
+            />
+        </div>
+    </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
     <slot />
 </template>
@@ -13,17 +30,42 @@ import {
     Cartesian3,
     RequestScheduler,
 } from 'cesium'
-import { addSwisstopoWMTSLayer } from './utils/imageryLayerUtils'
 import { UIModes } from '@/store/modules/ui.store'
 import { mapGetters, mapState } from 'vuex'
 import { TERRAIN_URL } from './constants'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL } from '@/config'
+import CesiumInternalLayer from './CesiumInternalLayer.vue'
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import '@geoblocks/cesium-compass'
+
 export default {
+    components: { CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
             getViewer: () => this.viewer,
+        }
+    },
+    data() {
+        return {
+            viewerCreated: false,
+            // todo just for testing, remove when 3d background switch will be implemented
+            currentBackgroundLayer: new GeoAdminWMTSLayer(
+                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
+                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
+                1,
+                true,
+                [],
+                'jpeg',
+                new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
+                true,
+                WMTS_BASE_URL,
+                false,
+                false,
+                []
+            ),
         }
     },
     computed: {
@@ -33,10 +75,14 @@ export default {
             center: (state) => state.position.center,
             is3DActive: (state) => state.ui.showIn3d,
             uiMode: (state) => state.ui.mode,
+            previewYear: (state) => state.layers.previewYear,
         }),
-        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning']),
+        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
+        },
+        startingZIndexForVisibleLayers() {
+            return this.currentBackgroundLayer ? 1 : 0
         },
     },
     beforeCreate() {
@@ -62,7 +108,7 @@ export default {
             rectangle: Rectangle.fromDegrees(0, 0, 1, 1), // the Rectangle dimensions are arbitrary
         })
 
-        this.viewer = new Viewer(this.$refs.map, {
+        this.viewer = new Viewer(this.$refs.viewer, {
             contextOptions: {
                 webgl: {
                     powerPreference: 'high-performance',
@@ -113,14 +159,7 @@ export default {
         globe.undergroundColorAlphaByDistance.nearValue = 0.5
         globe.undergroundColorAlphaByDistance.farValue = 0.0
 
-        // todo move when the background layer switch is done
-        const baseLayer = addSwisstopoWMTSLayer(
-            this.viewer,
-            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-            'jpeg',
-            20
-        )
-        baseLayer.show = true
+        this.viewerCreated = true
 
         this.flyToPosition()
     },
