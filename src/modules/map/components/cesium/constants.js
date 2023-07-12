@@ -1,6 +1,8 @@
+import { BASE_URL_3D_TILES } from '@/config'
+
 /**
  * 3D terrain URL
  *
  * @type {string}
  */
-export const TERRAIN_URL = 'https://download.swissgeol.ch/cli_terrain/ch-2m/'
+export const TERRAIN_URL = `${BASE_URL_3D_TILES}/ch.swisstopo.terrain.3d/v1/`

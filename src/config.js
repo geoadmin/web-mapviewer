@@ -154,6 +154,13 @@ export const WMTS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMTS_B
 export const WMS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMS_BASE_URL)
 
 /**
+ * Root of the buckets serving 3D tiles
+ *
+ * @type {String}
+ */
+export const BASE_URL_3D_TILES = enforceEndingSlashInUrl(import.meta.env.VITE_APP_3D_TILES_BASE_URL)
+
+/**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)
  *
  * Comes from
