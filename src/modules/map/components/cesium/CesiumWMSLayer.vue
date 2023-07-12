@@ -94,6 +94,7 @@ export default {
                 }),
                 {
                     show: this.wmsLayerConfig.visible,
+                    alpha: this.opacity,
                 }
             )
         },

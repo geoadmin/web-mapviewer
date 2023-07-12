@@ -25,20 +25,19 @@ export class ActiveLayerConfig {
  * @returns {String | string | LayerTimeConfig.currentTimeEntry.timestamp}
  */
 export function getTimestampFromConfig(config, previewYear) {
-    const isWMTS = config instanceof GeoAdminWMTSLayer
     if (config.timeConfig) {
         // if there is a preview year set, we search for the matching timestamp
-        if (previewYear && config.timeConfig.years.includes(previewYear) && isWMTS) {
+        if (previewYear && config.timeConfig.years.includes(previewYear)) {
             const matchingTimeEntry = config.timeConfig.getTimeEntryForYear(previewYear)
-            if (matchingTimeEntry || isWMTS) {
+            if (matchingTimeEntry) {
                 return matchingTimeEntry.timestamp
             }
         }
         // if a time entry is defined, and is different from 'all'
         // (no need to pass 'all' to our WMS, that's the default timestamp used under the hood)
-        if (config.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA && !isWMTS) {
+        if (config.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
             return config.timeConfig.currentTimestamp
         }
     }
-    return isWMTS ? null : ''
+    return config instanceof GeoAdminWMTSLayer ? null : ''
 }

@@ -62,6 +62,7 @@ export default {
                 }),
                 {
                     show: this.wmtsLayerConfig.visible,
+                    alpha: this.opacity,
                 }
             )
         },
