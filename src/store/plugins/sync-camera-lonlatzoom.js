@@ -1,3 +1,6 @@
+import { calculateZoom, normalizeAngle } from '@/store/modules/position.store'
+import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
+
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.
  *
@@ -5,10 +8,19 @@
  */
 export default function syncCameraLonLatZoom(store) {
     store.subscribe((mutation, state) => {
-        if (mutation.type === 'setCameraPosition') {
-            store.dispatch('setLongitude', parseFloat(state.position.camera.x))
-            store.dispatch('setLatitude', parseFloat(state.position.camera.y))
-            // FIXME: store.dispatch('setZoom', something(state.position.camera.z))
+        if (mutation.type === 'setCameraPosition' && state.position.camera !== null) {
+            const lon = parseFloat(state.position.camera.x)
+            const lat = parseFloat(state.position.camera.y)
+            const height = parseFloat(state.position.camera.z)
+            const rotation = -parseFloat(state.position.camera.heading)
+
+            const resolution = calculateResolution(height, state.ui.width)
+            const zoom = calculateZoom(resolution, lat)
+
+            store.dispatch('setLongitude', lon)
+            store.dispatch('setLatitude', lat)
+            store.dispatch('setZoom', zoom)
+            store.dispatch('setRotation', normalizeAngle(rotation * Math.PI / 180))
         }
     })
 }

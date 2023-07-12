@@ -38,7 +38,7 @@ function dispatchCameraFromUrlIntoStore(store, urlParamValue) {
 }
 
 function generateCameraUrlParamFromStoreValues(store) {
-    if (store.state.ui.showIn3d) {
+    if (store.state.ui.showIn3d && store.state.position.camera !== null) {
         const { x, y, z, pitch, heading, roll } = store.state.position.camera
         const valuesAsString = [x, y, z, pitch, heading, roll].map((value) =>
             value === 0 ? '' : `${value}`

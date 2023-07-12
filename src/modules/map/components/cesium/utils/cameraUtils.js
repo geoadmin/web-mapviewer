@@ -12,6 +12,7 @@ import {
 
 /**
  * Limits the camera pitch and roll.
+ *
  * @param {number} minPitch
  * @param {number} maxPitch
  * @param {number} minRoll
@@ -34,6 +35,7 @@ export function limitCameraPitchRoll(minPitch, maxPitch, minRoll, maxRoll) {
 
 /**
  * Limits the camera center point to a rectangle.
+ *
  * @param {Number[]} rectangle
  * @returns
  */
@@ -94,4 +96,22 @@ export function limitCameraCenter(extent) {
             }
         }
     }
+}
+
+/**
+ * @param {Number} resolution
+ * @param {Number} width Screen width in pixels
+ * @returns {number}
+ */
+export function calculateHeight(resolution, width) {
+    return (resolution * width) / (2 * Math.tan(Math.PI / 6))
+}
+
+/**
+ * @param {Number} height
+ * @param {Number} width Screen width in pixels
+ * @returns {number}
+ */
+export function calculateResolution(height, width) {
+    return (2 * Math.tan(Math.PI / 6) * height) / width
 }

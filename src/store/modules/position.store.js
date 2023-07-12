@@ -78,14 +78,7 @@ const state = {
      *
      * @type CameraPosition
      */
-    camera: {
-        x: 0,
-        y: 0,
-        z: 0,
-        heading: 0,
-        pitch: 0,
-        roll: 0,
-    },
+    camera: null,
 }
 
 /**
@@ -102,6 +95,19 @@ const calculateResolution = (zoom, latitudeInRad) => {
                 Math.pow(2, zoom)
         ),
         2
+    )
+}
+
+/**
+ * @param resolution
+ * @param latitudeInRad
+ * @returns {Number}
+ */
+export const calculateZoom = (resolution, latitudeInRad) => {
+    return (
+        Math.log2(
+            Math.abs(PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad))
+        ) - Math.log2(resolution)
     )
 }
 
@@ -289,16 +295,7 @@ const actions = {
      * @param {CameraPosition} cameraPosition
      */
     setCameraPosition({ commit }, cameraPosition) {
-        // defaulting to 0 if the camera position is lacking some properties
-        const curatedCameraPosition = Object.assign({
-            x: 0,
-            y: 0,
-            z: 0,
-            heading: 0,
-            pitch: 0,
-            roll: 0,
-        }, cameraPosition)
-        commit('setCameraPosition', curatedCameraPosition)
+        commit('setCameraPosition', cameraPosition)
     },
 }
 
