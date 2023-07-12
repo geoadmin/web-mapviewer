@@ -70,13 +70,11 @@ export default {
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
-            rotation: (state) => state.position.rotation,
-            center: (state) => state.position.center,
-            is3DActive: (state) => state.ui.showIn3d,
+            camera: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
         }),
-        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
+        ...mapGetters(['centerEpsg4326', 'hasDevSiteWarning', 'visibleLayers']),
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
         },
@@ -156,18 +154,27 @@ export default {
 
         this.flyToPosition()
     },
+    unmounted() {
+        this.setCameraPosition(null)
+        this.viewer.destroy()
+        delete this.viewer
+    },
     methods: {
         ...mapActions(['setCameraPosition']),
         flyToPosition() {
-            const cameraHeight =
-                (this.resolution * this.viewer.canvas.clientWidth) /
-                (2 * Math.tan(this.viewer.camera.frustum.fov / 2))
+            const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
+            const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
+            const z = this.camera ? this.camera.z : 20000  // FIXME: convert this.zoom to z
+            const heading = CesiumMath.toRadians(this.camera ? this.camera.heading : 0)
+            const pitch = CesiumMath.toRadians(this.camera ? this.camera.pitch :-90)
+            const roll = CesiumMath.toRadians(this.camera ? this.camera.roll : 0)
             this.viewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(
-                    this.centerEpsg4326[0],
-                    this.centerEpsg4326[1],
-                    cameraHeight
-                ),
+                destination: Cartesian3.fromDegrees(x, y, z),
+                orientation: {
+                    heading,
+                    pitch,
+                    roll,
+                },
                 duration: 0,
             })
         },

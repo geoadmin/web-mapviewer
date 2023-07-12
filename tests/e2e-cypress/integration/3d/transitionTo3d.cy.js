@@ -64,7 +64,7 @@ describe('Testing transitioning between 2D and 3D', () => {
             cy.get('[data-cy="3d-button"]').click()
             cy.readWindowValue('cesiumViewer').then((viewer) => {
                 const cameraPosition = viewer.camera.positionCartographic
-                expect(cameraPosition.longitude).to.eq(0.13147292983909972)
+                expect(cameraPosition.longitude).to.eq(0.13147292983909975)
                 expect(cameraPosition.latitude).to.eq(0.819968266410843)
                 expect(cameraPosition.height).to.eq(36434.03514736528)
             })
