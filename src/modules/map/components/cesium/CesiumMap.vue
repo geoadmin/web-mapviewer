@@ -30,8 +30,15 @@ import {
 } from 'cesium'
 import { UIModes } from '@/store/modules/ui.store'
 import { mapGetters, mapState } from 'vuex'
-import { TERRAIN_URL } from './constants'
-import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL } from '@/config'
+import {
+    TERRAIN_URL,
+    CAMERA_MIN_ZOOM_DISTANCE,
+    CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_PITCH,
+    CAMERA_MAX_PITCH,
+} from './constants'
+import { limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
+import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
@@ -134,7 +141,6 @@ export default {
         }
 
         const scene = this.viewer.scene
-        scene.screenSpaceCameraController.enableCollisionDetection = false
         scene.useDepthPicking = true
         scene.pickTranslucentDepth = true
         scene.backgroundColor = Color.TRANSPARENT
@@ -144,12 +150,20 @@ export default {
         globe.depthTestAgainstTerrain = true
         globe.showGroundAtmosphere = false
         globe.showWaterEffect = false
-        globe.backFaceCulling = false
-        globe.undergroundColor = Color.BLACK
-        globe.undergroundColorAlphaByDistance.nearValue = 0.5
-        globe.undergroundColorAlphaByDistance.farValue = 0.0
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            // reduce screen space error to downgrade visual quality but speed up tests
+            globe.maximumScreenSpaceError = 30
+        }
+
+        const sscController = scene.screenSpaceCameraController
+        sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
+        sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
         this.viewerCreated = true
+
+        this.viewer.scene.postRender.addEventListener(limitCameraCenter(TILEGRID_EXTENT_EPSG_4326))
+        this.viewer.scene.postRender.addEventListener(limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0))
 
         this.flyToPosition()
     },
@@ -181,7 +195,7 @@ export default {
     height: 100%;
     z-index: $zindex-map;
 
-    .cesium-widget canvas {
+    .cesium-viewer, .cesium-widget canvas {
         position: absolute;
         width: 100%;
         height: 100%;

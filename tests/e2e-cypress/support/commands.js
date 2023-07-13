@@ -344,3 +344,24 @@ Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
         }).as('profile')
     }
 })
+
+function cesiumTilesLoaded(viewer) {
+    return new Cypress.Promise((resolve) => {
+        viewer.scene.postRender.addEventListener(() => {
+            if (viewer.scene.globe.tilesLoaded) {
+                resolve()
+            }
+        })
+    })
+}
+
+Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
+    cy.readWindowValue('cesiumViewer').then((viewer) => {
+        // cesium is slow to load, so we need to increase the default 10000 timeout:
+        // https://docs.cypress.io/guides/references/configuration#Timeouts
+        cy.wrap(null).then({ timeout: 50000 }, async () => {
+            await cesiumTilesLoaded(viewer)
+            return viewer
+        })
+    })
+})
