@@ -149,7 +149,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         ) {
             const layerObject = createLayerObject(parsedLayer)
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
-                promisesForAllDispatch.push(store.dispatch('setOpenOnAdminId', true))
+                promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
             }
             log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
             promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
