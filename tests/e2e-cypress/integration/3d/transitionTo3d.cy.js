@@ -46,6 +46,44 @@ describe('Testing transitioning between 2D and 3D', () => {
                 cy.readStoreValue('state.ui.showIn3d').should('be.true')
             })
         })
+        context('camera position in URL', () => {
+            it('parses the camera URL param correctly at app startup', () => {
+                const expectedCameraPosition = {
+                    x: 47.2,
+                    y: 8.1,
+                    z: 1000,
+                    heading: 23,
+                    pitch: 45,
+                    roll: 12,
+                }
+                cy.goToMapView({
+                    '3d': true,
+                    camera: [
+                        expectedCameraPosition.x,
+                        expectedCameraPosition.y,
+                        expectedCameraPosition.z,
+                        expectedCameraPosition.pitch,
+                        expectedCameraPosition.heading,
+                        expectedCameraPosition.roll,
+                    ].join(','),
+                })
+                cy.readStoreValue('state.position.camera').then((camera) => {
+                    expect(camera).to.be.an('Object')
+                    expect(camera).to.haveOwnProperty('x')
+                    expect(camera).to.haveOwnProperty('y')
+                    expect(camera).to.haveOwnProperty('z')
+                    expect(camera).to.haveOwnProperty('pitch')
+                    expect(camera).to.haveOwnProperty('heading')
+                    expect(camera).to.haveOwnProperty('roll')
+                    expect(camera.x).to.eq(expectedCameraPosition.x)
+                    expect(camera.y).to.eq(expectedCameraPosition.y)
+                    expect(camera.z).to.eq(expectedCameraPosition.z)
+                    expect(camera.pitch).to.eq(expectedCameraPosition.pitch)
+                    expect(camera.heading).to.eq(expectedCameraPosition.heading)
+                    expect(camera.roll).to.eq(expectedCameraPosition.roll)
+                })
+            })
+        })
     })
     context('transition to 3D', () => {
         it('loads the base layer specific for 3D', () => {
