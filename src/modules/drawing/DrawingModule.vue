@@ -55,7 +55,7 @@
 
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { createKml, getKml, updateKml, getKmlUrl } from '@/api/files.api'
+import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
@@ -72,7 +72,7 @@ import log from '@/utils/logging'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { mapActions, mapState, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import { DrawingState } from './lib/export-utils'
 
 export default {
@@ -115,7 +115,6 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
-            openOnAdminId: (state) => state.drawing.openOnAdminId,
         }),
         kmlLayerId() {
             return this.kmlLayer?.getID()
@@ -170,7 +169,7 @@ export default {
             if (show) {
                 this.isLoading = true
                 this.isDrawingOpen = true
-                await this.showDrawingOverlay()
+                await this.initDrawingOverlay()
                 this.isLoading = false
             } else {
                 this.isLoading = true
@@ -193,12 +192,6 @@ export default {
                 this.onChange()
             }
         },
-        activeKmlLayer(layer) {
-            this.openDrawingOnAdminId(layer, this.openOnAdminId)
-        },
-        openOnAdminId(value) {
-            this.openDrawingOnAdminId(this.activeKmlLayer, value)
-        },
     },
     created() {
         this.drawingLayer = new VectorLayer({
@@ -209,9 +202,6 @@ export default {
         if (this.availableIconSets.length === 0) {
             this.loadAvailableIconSets()
         }
-        // we might have passed some notification from watcher before the create
-        // event, therefore handle them once here
-        this.openDrawingOnAdminId(this.activeKmlLayer)
     },
     mounted() {
         // We can enable the teleport after the view has been rendered.
@@ -223,6 +213,9 @@ export default {
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.drawingLayer = this.drawingLayer
+        }
+        if (this.show) {
+            this.initDrawingOverlay()
         }
     },
     unmounted() {
@@ -244,11 +237,9 @@ export default {
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
-            'setShowDrawingOverlay',
             'setKmlLayerAddToMap',
-            'setOpenOnAdminId',
         ]),
-        async showDrawingOverlay() {
+        async initDrawingOverlay() {
             this.drawingState = DrawingState.INITIAL
             this.isNewDrawing = true
 
@@ -256,7 +247,7 @@ export default {
             // we add it back for further editing
             if (this.activeKmlLayer) {
                 log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
-                this.isNewDrawing = this.activeKmlLayer.adminId ? false : true
+                this.isNewDrawing = !this.activeKmlLayer.adminId
                 await this.addKmlLayerToDrawing(this.activeKmlLayer)
                 // Here we clone the active KML layer in order to be able to change it here
                 // (update metadata) without interfering with the store.
@@ -458,14 +449,6 @@ export default {
                 if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                     this.differAddKmlLayerToDrawing(layer)
                 }
-            }
-        },
-        async openDrawingOnAdminId(layer, openOnAdminId) {
-            if (layer?.adminId && !this.isDrawingOpen && openOnAdminId && !layer?.isLegacy()) {
-                // clear the openOnAdminId flag to avoid re-opening
-                // the drawing menu once closed and the active layers is updated.
-                this.setOpenOnAdminId(false)
-                await this.setShowDrawingOverlay(true)
             }
         },
     },

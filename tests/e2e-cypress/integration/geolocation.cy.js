@@ -48,7 +48,7 @@ describe('Geolocation cypress', () => {
             const y = 6024072.12
 
             beforeEach(() => {
-                cy.goToMapView('en', {}, false, { latitude, longitude })
+                cy.goToMapView({}, false, { latitude, longitude })
                 getGeolocationButtonAndClickIt()
             })
 

@@ -1,5 +1,5 @@
 <template>
-    <div id="cesium" ref="viewer" data-cy="cesium">
+    <div id="cesium" ref="viewer" data-cy="cesium-map">
         <div v-if="viewerCreated">
             <!-- Adding background layer -->
             <CesiumInternalLayer
@@ -21,30 +21,36 @@
     <slot />
 </template>
 <script>
-import {
-    Viewer,
-    CesiumTerrainProvider,
-    Color,
-    Cartesian3,
-    RequestScheduler,
-    Math as CesiumMath,
-} from 'cesium'
-import { UIModes } from '@/store/modules/ui.store'
-import { mapGetters, mapState, mapActions } from 'vuex'
-import {
-    TERRAIN_URL,
-    CAMERA_MIN_ZOOM_DISTANCE,
-    CAMERA_MAX_ZOOM_DISTANCE,
-    CAMERA_MIN_PITCH,
-    CAMERA_MAX_PITCH,
-} from './constants'
-import { limitCameraCenter, limitCameraPitchRoll, calculateHeight } from './utils/cameraUtils'
-import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
-import CesiumInternalLayer from './CesiumInternalLayer.vue'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import {
+    BASE_URL_3D_TILES,
+    IS_TESTING_WITH_CYPRESS,
+    TILEGRID_EXTENT_EPSG_4326,
+    WMS_BASE_URL,
+    WMTS_BASE_URL,
+} from '@/config'
+import { UIModes } from '@/store/modules/ui.store'
 import '@geoblocks/cesium-compass'
+import {
+    Cartesian3,
+    CesiumTerrainProvider,
+    Color,
+    Math as CesiumMath,
+    RequestScheduler,
+    Viewer,
+} from 'cesium'
+import { mapActions, mapGetters, mapState } from 'vuex'
+import CesiumInternalLayer from './CesiumInternalLayer.vue'
+import {
+    CAMERA_MAX_PITCH,
+    CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_PITCH,
+    CAMERA_MIN_ZOOM_DISTANCE,
+    TERRAIN_URL,
+} from './constants'
+import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
 
 export default {
     components: { CesiumInternalLayer },
@@ -95,14 +101,19 @@ export default {
         // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
         window['CESIUM_BASE_URL'] = '.'
 
+        const withoutSchemeAndTrailingSlash = (url) => {
+            const urlWithoutScheme = url.replace('https://', '')
+            return urlWithoutScheme.endsWith('/')
+                ? urlWithoutScheme.slice(0, urlWithoutScheme.length - 1)
+                : urlWithoutScheme
+        }
+        const backendUsedToServe3dData = {}
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(BASE_URL_3D_TILES)}:443`] = 18
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(WMTS_BASE_URL)}:443`] = 18
+        backendUsedToServe3dData[`${withoutSchemeAndTrailingSlash(WMS_BASE_URL)}:443`] = 18
         // A per server key list of overrides to use for throttling limits.
         // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
-        Object.assign(RequestScheduler.requestsByServer, {
-            'wmts.geo.admin.ch:443': 18,
-            'sys-3d.dev.bgdi.ch:443': 18,
-            'sys-3d.int.bgdi.ch:443': 18,
-            '3d.geo.admin.ch:443': 18,
-        })
+        Object.assign(RequestScheduler.requestsByServer, backendUsedToServe3dData)
     },
     async mounted() {
         this.viewer = new Viewer(this.$refs.viewer, {
@@ -136,10 +147,6 @@ export default {
         compass.scene = this.viewer.scene
         compass.clock = this.viewer.clock
 
-        if (IS_TESTING_WITH_CYPRESS) {
-            window.cesiumViewer = this.viewer
-        }
-
         const scene = this.viewer.scene
         scene.useDepthPicking = true
         scene.pickTranslucentDepth = true
@@ -153,11 +160,6 @@ export default {
         globe.showGroundAtmosphere = false
         globe.showWaterEffect = false
 
-        if (IS_TESTING_WITH_CYPRESS) {
-            // reduce screen space error to downgrade visual quality but speed up tests
-            globe.maximumScreenSpaceError = 30
-        }
-
         const sscController = scene.screenSpaceCameraController
         sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
         sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
@@ -165,9 +167,17 @@ export default {
         this.viewerCreated = true
 
         this.viewer.scene.postRender.addEventListener(limitCameraCenter(TILEGRID_EXTENT_EPSG_4326))
-        this.viewer.scene.postRender.addEventListener(limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0))
+        this.viewer.scene.postRender.addEventListener(
+            limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
+        )
 
         this.flyToPosition()
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.cesiumViewer = this.viewer
+            // reduce screen space error to downgrade visual quality but speed up tests
+            globe.maximumScreenSpaceError = 30
+        }
     },
     unmounted() {
         this.setCameraPosition(null)
@@ -179,9 +189,13 @@ export default {
         flyToPosition() {
             const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
             const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
-            const z = this.camera ? this.camera.z : calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+            const z = this.camera
+                ? this.camera.z
+                : calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
             const heading = this.camera ? CesiumMath.toRadians(this.camera.heading) : -this.rotation
-            const pitch = this.camera ? CesiumMath.toRadians(this.camera.pitch) : -CesiumMath.PI_OVER_TWO
+            const pitch = this.camera
+                ? CesiumMath.toRadians(this.camera.pitch)
+                : -CesiumMath.PI_OVER_TWO
             const roll = this.camera ? CesiumMath.toRadians(this.camera.roll) : 0
             this.viewer.camera.flyTo({
                 destination: Cartesian3.fromDegrees(x, y, z),
@@ -209,21 +223,22 @@ export default {
 }
 </script>
 
-<!-- Style can't be scoped because canvas styles will be not applied -->
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+
+// rule can't be scoped otherwise canvas styles will be not applied
+:global(#cesium .cesium-viewer),
+:global(#cesium .cesium-widget canvas) {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
 
 #cesium {
     position: relative;
     width: 100%;
     height: 100%;
     z-index: $zindex-map;
-
-    .cesium-viewer, .cesium-widget canvas {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
 
     .cesium-viewer-bottom {
         position: absolute;

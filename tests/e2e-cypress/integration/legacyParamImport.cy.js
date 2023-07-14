@@ -8,7 +8,7 @@ describe('Test on legacy param import', () => {
             const lat = 47.3
             const lon = 7.3
             const zoom = 10.4
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 lat,
                 lon,
                 z: zoom,
@@ -27,7 +27,6 @@ describe('Test on legacy param import', () => {
             const lon = 7.5
             const zoom = 12
             cy.goToMapView(
-                'en',
                 {
                     lat,
                     lon,
@@ -48,7 +47,7 @@ describe('Test on legacy param import', () => {
             const E = 2660000
             const N = 1200000
             const lv95zoom = 8
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 E,
                 N,
                 zoom: lv95zoom,
@@ -104,7 +103,7 @@ describe('Test on legacy param import', () => {
         })
 
         it('Combines all old layers_*** params into the new one', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: 'test.wms.layer,test.wmts.layer',
                 layers_opacity: '0.6,0.5',
                 layers_visibility: 'true,false',
@@ -121,7 +120,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
                 layers_opacity: '0.6',
                 layers_visibility: 'true',
@@ -135,7 +134,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
             })
             cy.wait('@get-kml-metada-by-admin-id')
@@ -150,7 +149,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it("don't keep KML adminId in URL after import", () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
             })
             cy.wait('@get-kml-metada-by-admin-id')
@@ -166,7 +165,7 @@ describe('Test on legacy param import', () => {
             cy.url().should('not.contain', adminId)
         })
         it('is able to import an external KML from a legacy adminId query param with other layers', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
                 layers: 'test.wms.layer,test.wmts.layer',
                 layers_opacity: '0.6,0.5',
@@ -189,8 +188,8 @@ describe('Test on legacy param import', () => {
             })
         })
         it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
-            cy.goToMapView('en', {
-                swisssearch: '1530 Payerne'
+            cy.goToMapView({
+                swisssearch: '1530 Payerne',
             })
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('include', 'swisssearch=1530+Payerne')

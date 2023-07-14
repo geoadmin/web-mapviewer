@@ -112,29 +112,17 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', (...args) => {
-    let kmlFileFixtureFile = null
-    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
-        kmlFileFixtureFile = args[0].kmlFileFixtureFile
-        delete args[0].kmlFileFixtureFile
-    }
-    addIconFixtureAndIntercept()
-    addProfileFixtureAndIntercept()
-    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
-    cy.goToMapView(...args)
+Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = false) => {
+    cy.goToMapViewWithDrawingIntercept(queryParams, withHash)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
-    const viewportWidth = Cypress.config('viewportWidth')
-    if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
-        cy.get('[data-cy="menu-button"]').click()
-    }
-    cy.get('[data-cy="menu-tray-drawing-section"]').click()
+    cy.openDrawingMode()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
-Cypress.Commands.add('openDrawingMode', (...args) => {
+Cypress.Commands.add('openDrawingMode', () => {
     const viewportWidth = Cypress.config('viewportWidth')
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
@@ -142,16 +130,11 @@ Cypress.Commands.add('openDrawingMode', (...args) => {
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
 })
 
-Cypress.Commands.add('goToMapViewWithDrawingIntercept', (...args) => {
-    let kmlFileFixtureFile = null
-    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
-        kmlFileFixtureFile = args[0].kmlFileFixtureFile
-        delete args[0].kmlFileFixtureFile
-    }
+Cypress.Commands.add('goToMapViewWithDrawingIntercept', (queryParams = {}, withHash = false) => {
     addIconFixtureAndIntercept()
     addProfileFixtureAndIntercept()
-    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
-    cy.goToMapView(...args)
+    addFileAPIFixtureAndIntercept()
+    cy.goToMapView(queryParams, withHash)
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
