@@ -74,13 +74,13 @@ describe('The infobox', () => {
     })
     context('OpenLayers map', () => {
         beforeEach(() => {
-            cy.goToMapView('en', { layers: layer })
+            cy.goToMapView({ layers: layer })
         })
         generateInfoboxTestsForMapSelector('[data-cy="ol-map"]')
     })
     context.skip('Cesium map', () => {
         beforeEach(() => {
-            cy.goToMapView('en', { layers: layer, '3d': true })
+            cy.goToMapView({ layers: layer, '3d': true })
         })
         generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]', true)
     })

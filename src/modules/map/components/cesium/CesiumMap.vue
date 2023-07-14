@@ -1,5 +1,5 @@
 <template>
-    <div id="cesium" ref="viewer" data-cy="cesium">
+    <div id="cesium" ref="viewer" data-cy="cesium-map"></div>
         <div v-if="viewerCreated">
             <!-- Adding background layer -->
             <CesiumInternalLayer

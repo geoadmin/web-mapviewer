@@ -1,16 +1,16 @@
 /// <reference types="cypress" />
-import { Cartesian3 } from 'cesium'
 import {
-    CAMERA_MIN_ZOOM_DISTANCE,
     CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_ZOOM_DISTANCE,
 } from '@/modules/map/components/cesium/constants'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { calculateZoom } from '@/store/modules/position.store'
+import { Cartesian3 } from 'cesium'
 
 describe('Testing 3D navigation', () => {
     context('camera limits', () => {
         beforeEach(() => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 '3d': true,
             })
         })
@@ -25,7 +25,7 @@ describe('Testing 3D navigation', () => {
                     ),
                     duration: 0.0,
                 })
-                cy.get('[data-cy="cesium"] .cesium-viewer').trigger('wheel', { deltaY: -5000 })
+                cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: -5000 })
                 cy.waitUntilCesiumTilesLoaded().then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).gt(
                         CAMERA_MIN_ZOOM_DISTANCE
@@ -44,7 +44,7 @@ describe('Testing 3D navigation', () => {
                     ),
                     duration: 0.0,
                 })
-                cy.get('[data-cy="cesium"] .cesium-viewer').trigger('wheel', { deltaY: 5000 })
+                cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: 5000 })
                 cy.waitUntilCesiumTilesLoaded().then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).lt(
                         CAMERA_MAX_ZOOM_DISTANCE

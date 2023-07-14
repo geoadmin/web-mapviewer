@@ -7,13 +7,13 @@ describe('Testing the time slider', () => {
             cy.get('[data-cy="time-slider-button"]').should('not.exist')
         })
         it('should be visible if a time enabled layer is visible', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: 'test.timeenabled.wmts.layer@year=2019',
             })
             cy.get('[data-cy="time-slider-button"]').should('be.visible')
         })
         it('should show the time slider when clicked', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: 'test.timeenabled.wmts.layer@year=2019',
             })
             cy.get('[data-cy="time-slider-button"]').click()
@@ -28,7 +28,7 @@ describe('Testing the time slider', () => {
         }
         const preSelectedYear = 2019
         beforeEach(() => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
             })
             cy.get('[data-cy="time-slider-button"]').click()

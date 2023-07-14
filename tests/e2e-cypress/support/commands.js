@@ -92,33 +92,20 @@ export function getDefaultFixturesAndIntercepts() {
  * Command that visits the main view and waits for the map to be shown (for the app to be ready) All
  * parameters are optional. They can either be passed in order or inside a wrapper object.
  *
- * @param {String} lang Language of the app
- * @param {Object} otherParams URL parameters except the language
- * @param {Boolean} withHash Wheather or not to use the new URL format (that has a hash)
- * @param {Object} geolocationMockupOptions Latitude and Longitude of facked geolocation
+ * @param {Object} queryParams URL parameters
+ * @param {Boolean} withHash Whether or not to use the new URL format (that has a hash)
+ * @param {Object} geolocationMockupOptions Latitude and Longitude of faked geolocation
  * @param {Object} fixturesAndIntercepts Contains functions that overwrite the default interceptions
  *   to the backend.
  */
 Cypress.Commands.add(
     'goToMapView',
     (
-        lang = 'en',
-        otherParams = {},
+        queryParams = {},
         withHash = false,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {}
     ) => {
-        // If parameters have been passed inside a wrapper object, unwrap the object
-        if (typeof lang === 'object' && !(lang instanceof String)) {
-            const params = lang
-            return cy.goToMapView(
-                params.lang,
-                params.otherParams,
-                params.withHash,
-                params.geolocationMockupOptions,
-                params.fixturesAndIntercepts
-            )
-        }
         // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
         // default intercept.
         const defIntercepts = getDefaultFixturesAndIntercepts()
@@ -131,15 +118,21 @@ Cypress.Commands.add(
             }
         }
 
-        let flattenedOtherParams = ''
-        Object.keys(otherParams).forEach((key) => {
-            if (typeof otherParams[key] === Boolean && otherParams[key]) {
+        if (!queryParams.hasOwnProperty('lang')) {
+            queryParams.lang = 'en'
+        }
+
+        let flattenedQueryParams = ''
+        Object.entries(queryParams).forEach(([key, value]) => {
+            if (typeof value === Boolean && value === true) {
                 // for true boolean param, only the key is required
-                flattenedOtherParams += `&${key}`
+                flattenedQueryParams += `${key}&`
             } else {
-                flattenedOtherParams += `&${key}=${otherParams[key]}`
+                flattenedQueryParams += `${key}=${value}&`
             }
         })
+        // removing trailing &
+        flattenedQueryParams = flattenedQueryParams.slice(0, -1)
 
         /**
          * Geolocation mockup
@@ -153,7 +146,7 @@ Cypress.Commands.add(
             cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
             cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
         }
-        cy.visit(`/${withHash ? '#/' : ''}?lang=${lang}${flattenedOtherParams}`, {
+        cy.visit(`/${withHash ? '#/' : ''}?${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
@@ -163,21 +156,25 @@ Cypress.Commands.add(
             // The required layers can be set via topic or manually.
             const targetTopic = state.topics.current?.layersToActivate.length
             const targetLayers =
-                'layers' in otherParams
+                'layers' in queryParams
                     ? // Legacy layers come with an additional param. At least in our tests.
-                      'layers_opacity' in otherParams || 'layers_visibility' in otherParams
-                        ? otherParams.layers.split(',').length
-                        : otherParams.layers.split(';').length
+                      'layers_opacity' in queryParams || 'layers_visibility' in queryParams
+                        ? queryParams.layers.split(',').length
+                        : queryParams.layers.split(';').length
                     : 0
             // There are situations where neither value is falsy.
             // But the higher value seems to always be the right one.
             let target = Math.max(targetTopic, targetLayers)
             // If a layer has been set via adminId we just increment by one.
-            target += Boolean(otherParams.adminId)
+            target += Boolean(queryParams.adminId)
 
             return active === target
         })
-        cy.get('[data-cy="map"]').should('be.visible')
+        if (queryParams.hasOwnProperty('3d') && queryParams['3d'] === true) {
+            cy.get('[data-cy="cesium-map"]').should('be.visible')
+        } else {
+            cy.get('[data-cy="ol-map"]').should('be.visible')
+        }
     }
 )
 

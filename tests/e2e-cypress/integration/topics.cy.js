@@ -85,7 +85,7 @@ describe('Topics', () => {
         }
 
         it('clears all activate layers and change background layer on topic selection', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: 'test.wmts.layer',
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
@@ -188,7 +188,7 @@ describe('Topics', () => {
             cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
         })
         it('switches the background to the topic background', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 bgLayer: 'void',
             })
             const topicWithActiveLayers = mockupTopics.topics[2]
@@ -269,7 +269,7 @@ describe('Topics', () => {
         it('switches to the topic specified in the URL after startup', () => {
             cy.fixture('topics.fixture').then((fakeTopics) => {
                 const testTopicWithActiveLayers = fakeTopics.topics[2]
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     topic: testTopicWithActiveLayers.id,
                 })
                 cy.readStoreValue('state.topics.current').then((currentTopic) => {
@@ -286,7 +286,7 @@ describe('Topics', () => {
     })
     context('Using the CatalogNodes URL parameter', () => {
         it('Open the catalog and only the relevant topic and node elements when the URL contains the catalogNode parameter', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 catalogNodes: '2',
             })
             if (isMobileViewport) {
@@ -302,7 +302,7 @@ describe('Topics', () => {
             )
         })
         it('Does not change the URL when we click on a tree item', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 catalogNodes: '2',
             })
             if (isMobileViewport) {

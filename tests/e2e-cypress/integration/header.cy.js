@@ -116,7 +116,8 @@ describe('Test functions for the header / search bar', () => {
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         }
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
-            cy.goToMapView('fr', {
+            cy.goToMapView({
+                lang: 'fr',
                 topic: 'test-topic-standard',
             })
             clickOnLogo()
@@ -126,7 +127,8 @@ describe('Test functions for the header / search bar', () => {
         if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
-                cy.goToMapView('fr', {
+                cy.goToMapView({
+                    lang: 'fr',
                     topic: 'test-topic-standard',
                 })
                 clickOnConfederationText()

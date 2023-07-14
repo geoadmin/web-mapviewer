@@ -121,11 +121,15 @@ describe('Drawing existing KML - without adminId (copy)', () => {
     const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
     beforeEach(() => {
         //open drawing mode
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        cy.goToDrawing(
+            {
+                lang: 'fr',
+                lat: markerLatitude,
+                lon: markerLongitude,
+                layers: kmlUrlParam,
+            },
+            true
+        )
     })
     it("Don't save non modified drawing", () => {
         cy.intercept('**/api/kml/admin**', (req) => {
@@ -182,11 +186,15 @@ describe('Drawing existing KML - with adminId', () => {
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
 
         //open drawing mode
-        cy.goToMapViewWithDrawingIntercept({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        cy.goToMapViewWithDrawingIntercept(
+            {
+                lang: 'fr',
+                lat: markerLatitude,
+                lon: markerLongitude,
+                layers: kmlUrlParam,
+            },
+            true
+        )
         // delete the drawing
         cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
         cy.get('[data-cy="modal-confirm-button"]').click()
@@ -217,11 +225,15 @@ describe('Drawing loading KML', () => {
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
 
         //open drawing mode
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        cy.goToDrawing(
+            {
+                lang: 'fr',
+                lat: markerLatitude,
+                lon: markerLongitude,
+                layers: kmlUrlParam,
+            },
+            true
+        )
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
         cy.readWindowValue('drawingLayer')
@@ -243,12 +255,17 @@ describe('Drawing loading KML', () => {
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
         //open drawing mode
-        cy.goToMapViewWithDrawingIntercept({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        cy.goToMapViewWithDrawingIntercept(
+            {
+                lang: 'fr',
+                lat: markerLatitude,
+                lon: markerLongitude,
+                layers: kmlUrlParam,
+            },
+            true
+        )
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+        cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
@@ -258,11 +275,15 @@ describe('Drawing loading KML', () => {
 
 describe('Switching from drawing mode to normal mode', () => {
     beforeEach(() => {
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: 47.097, lon: 7.743, z: 9.5 },
-            withHash: true,
-        })
+        cy.goToDrawing(
+            {
+                lang: 'fr',
+                lat: 47.097,
+                lon: 7.743,
+                z: 9.5,
+            },
+            true
+        )
     })
 
     /**

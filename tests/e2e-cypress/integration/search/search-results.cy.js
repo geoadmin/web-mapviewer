@@ -157,7 +157,7 @@ describe('Test the search bar result handling', () => {
         cy.url().should('contain', 'swisssearch=test')
     })
     it('reads the swisssearch URL param at startup and launch a search with its content', () => {
-        cy.goToMapView('en', {
+        cy.goToMapView({
             swisssearch: 'Test',
         })
         cy.wait(['@search-locations', '@search-layers'])

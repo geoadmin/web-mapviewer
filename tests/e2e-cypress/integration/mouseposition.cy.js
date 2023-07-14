@@ -67,7 +67,7 @@ describe('Test mouse position', () => {
     context('Position in footer', () => {
         beforeEach(() => {
             cy.viewport('ipad-2')
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 lat: defaultCenter[0],
                 lon: defaultCenter[1],
                 z: 12,
@@ -120,7 +120,7 @@ describe('Test mouse position', () => {
             }).as('qrcode')
             cy.intercept(`**/api/icons/*`, { statusCode: 200 }).as('icons')
             cy.viewport(320, 1000)
-            cy.goToMapView('en', { lat, lon })
+            cy.goToMapView({ lat, lon })
             cy.get('[data-cy="map"]').rightclick()
             cy.waitUntilState((state) => {
                 return state.map.clickInfo !== null
@@ -131,11 +131,7 @@ describe('Test mouse position', () => {
         })
         it('Test that LocationPopUp is hidden on entering drawing mode', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
-            const viewportWidth = Cypress.config('viewportWidth')
-            if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
-                cy.get('[data-cy="menu-button"]').click()
-            }
-            cy.get('[data-cy="menu-tray-drawing-section"]').click()
+            cy.openDrawingMode()
             cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
             cy.get('[data-cy="location-popup"]').should('not.exist')
         })
@@ -197,7 +193,7 @@ describe('Test mouse position', () => {
         const lon = 8
         beforeEach(() => {
             cy.viewport(320, 1000)
-            cy.goToMapView('en', { lat, lon })
+            cy.goToMapView({ lat, lon })
         })
         it('Tests that a link with crosshair and correct position is sent to shortlink', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
