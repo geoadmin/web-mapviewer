@@ -2,6 +2,7 @@ import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlPa
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
+import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -118,6 +119,13 @@ const storeSyncConfig = [
         false,
         Boolean,
         false
+    ),
+    new QueryToStoreOnlyParamConfig(
+        'catalogNodes',
+        'catalogNodes',
+        'setTopicTreeOpenedThemesIds',
+        false,
+        String
     ),
 ]
 

@@ -60,6 +60,7 @@ export class TopicTreeTheme extends TopicTreeItem {
     constructor(id, name, children) {
         super(id, name, topicTypes.THEME)
         this.children = [...children]
+        this.showChildren = false
     }
 }
 

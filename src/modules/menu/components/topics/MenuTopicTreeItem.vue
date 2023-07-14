@@ -7,6 +7,11 @@
         ]"
         data-cy="topic-tree-item"
     >
+        <!--
+            UNDER HERE :
+            this is where the topic head is. We have an item here which is the topic.
+            We need to 'click' on the corresponding button
+        -->
         <div
             class="menu-topic-item-title"
             :data-cy="`topic-tree-item-${item.id}`"
@@ -22,6 +27,7 @@
                     'btn-rounded': isTheme,
                 }"
             >
+                <!-- this is the button which shows the content of the topic (if it's a theme)-->
                 <FontAwesomeLayers v-if="isTheme">
                     <FontAwesomeIcon class="text-secondary" icon="fa-regular fa-circle" />
                     <FontAwesomeIcon size="xs" :icon="showChildren ? 'minus' : 'plus'" />
@@ -70,7 +76,7 @@ import { topicTypes } from '@/api/topics.api'
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-
+import { mapState } from 'vuex'
 /**
  * Node of the topic tree in the UI, rendering (and behavior) will differ if this is a theme or a
  * layer. Emits event about user interaction (and does not interact directly with the store, that's
@@ -86,10 +92,6 @@ export default {
     props: {
         item: {
             type: Object,
-            required: true,
-        },
-        activeLayers: {
-            type: Array,
             required: true,
         },
         compact: {
@@ -108,6 +110,10 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            activeLayers: (state) => state.layers.activeLayers,
+            openThemesIds: (state) => state.topics.openedTreeThemesIds,
+        }),
         showHideIcon() {
             if (this.item.type === topicTypes.THEME) {
                 if (this.showChildren) {
@@ -143,6 +149,14 @@ export default {
         isTheme() {
             return this.item.type === 'THEME'
         },
+    },
+    watch: {
+        openThemesIds(newValue) {
+            this.showChildren = this.showChildren || newValue.indexOf(this.item.id) !== -1
+        },
+    },
+    mounted() {
+        this.showChildren = this.openThemesIds.indexOf(this.item.id) !== -1
     },
     methods: {
         onItemClick() {

@@ -22,6 +22,12 @@ const state = {
      * @type {TopicTreeItem[]}
      */
     tree: [],
+    /**
+     * The ids of the catalog nodes that should be open.
+     *
+     * @type {Number[]}
+     */
+    openedTreeThemesIds: [],
 }
 
 const getters = {
@@ -59,10 +65,19 @@ const actions = {
             log.error('No topic found with ID', topicId)
         }
     },
+    setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
+        if (typeof themes === 'string') {
+            commit(
+                'setTopicTreeOpenedThemesIds',
+                themes.split(',').map((id) => parseInt(id))
+            )
+        }
+    },
 }
 const mutations = {
     setTopicConfig: (state, topics) => (state.config = [...topics]),
     setTopicTree: (state, tree) => (state.tree = [...tree]),
+    setTopicTreeOpenedThemesIds: (state, themesIds) => (state.openedTreeThemesIds = [...themesIds]),
 }
 mutations[CHANGE_TOPIC_MUTATION] = (state, topic) => (state.current = topic)
 
