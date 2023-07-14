@@ -27,9 +27,10 @@ import {
     Color,
     Cartesian3,
     RequestScheduler,
+    Math as CesiumMath,
 } from 'cesium'
 import { UIModes } from '@/store/modules/ui.store'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 import {
     TERRAIN_URL,
     CAMERA_MIN_ZOOM_DISTANCE,
@@ -37,7 +38,7 @@ import {
     CAMERA_MIN_PITCH,
     CAMERA_MAX_PITCH,
 } from './constants'
-import { limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
+import { limitCameraCenter, limitCameraPitchRoll, calculateHeight } from './utils/cameraUtils'
 import { IS_TESTING_WITH_CYPRESS, WMTS_BASE_URL, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -77,8 +78,7 @@ export default {
         ...mapState({
             zoom: (state) => state.position.zoom,
             rotation: (state) => state.position.rotation,
-            center: (state) => state.position.center,
-            is3DActive: (state) => state.ui.showIn3d,
+            camera: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
         }),
@@ -145,6 +145,8 @@ export default {
         scene.pickTranslucentDepth = true
         scene.backgroundColor = Color.TRANSPARENT
 
+        this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
+
         const globe = scene.globe
         globe.baseColor = Color.TRANSPARENT
         globe.depthTestAgainstTerrain = true
@@ -167,18 +169,40 @@ export default {
 
         this.flyToPosition()
     },
+    unmounted() {
+        this.setCameraPosition(null)
+        this.viewer.destroy()
+        delete this.viewer
+    },
     methods: {
+        ...mapActions(['setCameraPosition']),
         flyToPosition() {
-            const cameraHeight =
-                (this.resolution * this.viewer.canvas.clientWidth) /
-                (2 * Math.tan(this.viewer.camera.frustum.fov / 2))
+            const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
+            const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
+            const z = this.camera ? this.camera.z : calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+            const heading = this.camera ? CesiumMath.toRadians(this.camera.heading) : -this.rotation
+            const pitch = this.camera ? CesiumMath.toRadians(this.camera.pitch) : -CesiumMath.PI_OVER_TWO
+            const roll = this.camera ? CesiumMath.toRadians(this.camera.roll) : 0
             this.viewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(
-                    this.centerEpsg4326[0],
-                    this.centerEpsg4326[1],
-                    cameraHeight
-                ),
+                destination: Cartesian3.fromDegrees(x, y, z),
+                orientation: {
+                    heading,
+                    pitch,
+                    roll,
+                },
                 duration: 0,
+            })
+        },
+        onCameraMoveEnd() {
+            const camera = this.viewer.camera
+            const position = camera.positionCartographic
+            this.setCameraPosition({
+                x: CesiumMath.toDegrees(position.longitude).toFixed(6),
+                y: CesiumMath.toDegrees(position.latitude).toFixed(6),
+                z: position.height.toFixed(0),
+                heading: CesiumMath.toDegrees(camera.heading).toFixed(0),
+                pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
+                roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
         },
     },
