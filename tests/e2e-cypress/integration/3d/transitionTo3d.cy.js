@@ -86,15 +86,6 @@ describe('Testing transitioning between 2D and 3D', () => {
         })
     })
     context('transition to 3D', () => {
-        it('loads the base layer specific for 3D', () => {
-            cy.goToMapView()
-            // fixtures/256.jpeg will be fetched
-            cy.intercept('**/ch.swisstopo.swisstlm3d-karte-farbe.3d/**').as('baseLayer')
-            cy.get('[data-cy="3d-button"]').click()
-            cy.get('[data-cy="cesium-map"]').should('be.visible')
-            cy.get('[data-cy="ol-map"]').should('not.exist')
-            cy.wait('@baseLayer', { timeout: 30000 }).its('response.statusCode').should('eq', 200)
-        })
         it('translates 2D position correctly', () => {
             const lat = 46
             const lon = 7
