@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress'
 import vitePreprocessor from 'cypress-vite'
-import { readdirSync, existsSync, unlinkSync } from 'node:fs'
+import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 
@@ -74,6 +74,6 @@ module.exports = defineConfig({
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/e2e-cypress/integration/**/*.*',
-        supportFile: 'tests/e2e-cypress/support/index.js'
+        supportFile: 'tests/e2e-cypress/support/index.js',
     },
 })
