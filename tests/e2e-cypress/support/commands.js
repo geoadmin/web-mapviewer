@@ -2,6 +2,7 @@ import { BREAKPOINT_TABLET } from '@/config'
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
+import { randomIntBetween } from '@/utils/numberUtils'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -74,6 +75,33 @@ const addSecondIconsFixtureAndIntercept = () => {
     }).as('icon-set-babs')
 }
 
+const addGeoJsonIntercept = () => {
+    cy.intercept('**/test.geojson.layer.json', {
+        crs: {
+            properties: { name: 'EPSG:2056' },
+        },
+        features: [
+            { type: 'Feature', geometry: { type: 'Point', coordinates: [2701702, 1265811] } },
+        ],
+        type: 'FeatureCollection',
+    }).as('geojson-data')
+    cy.intercept('**/vectorStyles/**', {
+        type: 'single',
+        geomType: 'point',
+        vectorOptions: {
+            type: 'circle',
+            radius: 9,
+            fill: {
+                color: '#00FFFF',
+            },
+            stroke: {
+                color: '#000000',
+                width: 1,
+            },
+        },
+    }).as('geojson-style')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addLayerTileFixture,
@@ -85,6 +113,7 @@ export function getDefaultFixturesAndIntercepts() {
         addIconsSetIntercept,
         addDefaultIconsFixtureAndIntercept,
         addSecondIconsFixtureAndIntercept,
+        addGeoJsonIntercept,
     }
 }
 
@@ -361,4 +390,39 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
             return viewer
         })
     })
+})
+
+Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {
+    if (Cypress.config('viewportWidth') < BREAKPOINT_TABLET) {
+        // mobile/tablet : clicking on the menu button
+        cy.get('[data-cy="menu-button"]').click()
+    }
+})
+
+/**
+ * Returns a timestamp from the layer's config that is different from the default behaviour
+ *
+ * @param {Object} layer A layer's metadata, that usually come from the fixture layers.fixture.json
+ * @returns {String} One of the layer's timestamp, different from the default one (not equal to
+ *   `timeBehaviour`)
+ */
+Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
+    expect(layer).to.be.an('Object')
+    expect(layer).to.haveOwnProperty('timeBehaviour')
+    expect(layer).to.haveOwnProperty('timestamps')
+    expect(layer.timestamps).to.be.an('Array')
+    expect(layer.timestamps.length).to.be.greaterThan(1)
+    const defaultTimestamp = layer.timeBehaviour
+    let randomTimestampFromLayer = defaultTimestamp
+    do {
+        randomTimestampFromLayer =
+            layer.timestamps[randomIntBetween(0, layer.timestamps.length - 1)]
+    } while (randomTimestampFromLayer === defaultTimestamp)
+    return randomTimestampFromLayer
+})
+
+Cypress.Commands.add('openLayerSettings', (layerId) => {
+    cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
+    cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`).should('be.visible').click()
+    cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
 })

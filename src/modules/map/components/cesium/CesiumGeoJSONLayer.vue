@@ -15,6 +15,7 @@ import { Vector as VectorSource } from 'ol/source'
 import { updateCollectionOpacity } from '@/modules/map/components/cesium/utils/geoJsonUtils'
 import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToViewer-mixins'
 import log from '@/utils/logging'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 const STYLE_RESOLUTION = 100
 
@@ -91,7 +92,7 @@ export default {
                 )
                 // need to wait for terrain loaded otherwise primitives will be placed wrong
                 if (this.layer) {
-                    if (scene.globe.tilesLoaded) {
+                    if (scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
                         this.layer.add(counterpart.getRootPrimitive())
                         updateCollectionOpacity(this.layer, this.opacity)
                         this.getViewer().scene.requestRender()
