@@ -35,11 +35,13 @@ import { UIModes } from '@/store/modules/ui.store'
 import '@geoblocks/cesium-compass'
 import {
     Cartesian3,
+    Cartographic,
     CesiumTerrainProvider,
     Color,
     Math as CesiumMath,
     RequestScheduler,
     Viewer,
+    ScreenSpaceEventType,
 } from 'cesium'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
@@ -51,6 +53,9 @@ import {
     TERRAIN_URL,
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import proj4 from 'proj4'
 
 export default {
     components: { CesiumInternalLayer },
@@ -153,6 +158,10 @@ export default {
         scene.backgroundColor = Color.TRANSPARENT
 
         this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
+        this.viewer.screenSpaceEventHandler.setInputAction(
+            this.onClick,
+            ScreenSpaceEventType.LEFT_CLICK
+        )
 
         const globe = scene.globe
         globe.baseColor = Color.TRANSPARENT
@@ -185,7 +194,7 @@ export default {
         delete this.viewer
     },
     methods: {
-        ...mapActions(['setCameraPosition']),
+        ...mapActions(['setCameraPosition', 'click']),
         flyToPosition() {
             const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
             const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
@@ -218,6 +227,19 @@ export default {
                 pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
+        },
+        onClick(event) {
+            const carto = Cartographic.fromCartesian(this.viewer.scene.pickPosition(event.position))
+            const wgs84Coords = [carto.longitude, carto.latitude].map(CesiumMath.toDegrees)
+            const mercatorCoords = proj4(WGS84.epsg, WEBMERCATOR.epsg, wgs84Coords)
+            this.click(
+                new ClickInfo(
+                    mercatorCoords,
+                    [event.position.x, event.position.y],
+                    [],
+                    ClickType.LEFT_SINGLECLICK
+                )
+            )
         },
     },
 }
