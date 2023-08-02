@@ -2,6 +2,7 @@ import {
     Billboard,
     BillboardCollection,
     Color,
+    GroundPolylinePrimitive,
     Label,
     LabelCollection,
     Primitive,
@@ -11,10 +12,10 @@ import {
 export function updateCollectionOpacity(collection, opacity) {
     for (let i = 0; i < collection.length; i++) {
         const primitive = collection.get(i)
-        if (primitive instanceof Primitive) {
+        if (primitive instanceof Primitive || primitive instanceof GroundPolylinePrimitive) {
             if (primitive.appearance) {
                 const material = primitive.appearance.material
-                const color = material.uniforms.color
+                const color = material.uniforms.color || material.uniforms.evenColor
                 material.uniforms.color = new Color(color.red, color.green, color.blue, opacity)
             }
         } else if (primitive instanceof Billboard) {

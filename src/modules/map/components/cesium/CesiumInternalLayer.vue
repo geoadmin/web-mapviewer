@@ -21,6 +21,13 @@
             :geojson-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"
         />
+        <CesiumKMLLayer
+            v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
+            :layer-id="layerConfig.getID()"
+            :opacity="layerConfig.opacity"
+            :url="layerConfig.getURL()"
+            :z-index="zIndex"
+        />
         <slot />
     </div>
 </template>
@@ -32,6 +39,7 @@ import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
 import CesiumWMSLayer from './CesiumWMSLayer.vue'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
+import CesiumKMLLayer from './CesiumKMLLayer.vue'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
@@ -39,6 +47,7 @@ import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
  */
 export default {
     components: {
+        CesiumKMLLayer,
         CesiumGeoJSONLayer,
         CesiumWMTSLayer,
         CesiumWMSLayer,

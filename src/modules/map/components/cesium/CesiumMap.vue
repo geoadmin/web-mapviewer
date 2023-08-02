@@ -23,6 +23,13 @@
                 :preview-year="previewYear"
                 :z-index="index"
             />
+            <CesiumInternalLayer
+                v-for="(layer, index) in visibleKMLLayers"
+                :key="layer.getID()"
+                :layer-config="layer"
+                :preview-year="previewYear"
+                :z-index="index"
+            />
         </div>
     </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
@@ -67,6 +74,7 @@ import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import proj4 from 'proj4'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 export default {
     components: { CesiumInternalLayer },
@@ -118,6 +126,9 @@ export default {
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter((l) => l instanceof GeoAdminGeoJsonLayer)
+        },
+        visibleKMLLayers() {
+            return this.visibleLayers.filter((l) => l instanceof KMLLayer)
         },
     },
     beforeCreate() {
