@@ -1,3 +1,5 @@
+import { EditableFeatureTypes } from '@/api/features.api'
+
 describe('Test of layer handling in 3D', () => {
     const visibleLayerIds = [
         'test.wms.layer',
@@ -136,6 +138,37 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy="button-remove-layer-${visibleLayerIds[3]}"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(0)
+        })
+    })
+    it('add KML layer from drawing', () => {
+        cy.goToDrawing()
+        cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+        const olSelector = '.ol-viewport'
+        // Create a line
+        cy.get(olSelector).click(100, 200)
+        cy.get(olSelector).click(150, 200)
+        cy.get(olSelector).should('be.visible').dblclick(120, 240, { force: true })
+        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.readWindowValue('map').then((map) => {
+            // Create a point
+            cy.simulateEvent(map, 'pointermove', 0, 0)
+            cy.simulateEvent(map, 'pointerdown', 0, 0)
+            cy.simulateEvent(map, 'pointerup', 0, 0)
+        })
+        cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
+        cy.wait('@post-kml')
+        cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+        cy.clickOnMenuButtonIfMobile()
+        cy.get('[data-cy="3d-button"]').click()
+        cy.wait('@get-kml')
+        // wait until layer added
+        cy.wait(1000)
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            const mainCollection = viewer.scene.primitives.get(0)
+            expect(mainCollection.length).to.eq(1)
+            const layerCollection = mainCollection.get(0)
+            // should be 3 (line, icon, text) but ol-cesium creates additional empty collection
+            expect(layerCollection.length).to.eq(4)
         })
     })
 })
