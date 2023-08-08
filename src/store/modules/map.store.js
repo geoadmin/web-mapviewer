@@ -79,10 +79,9 @@ export default {
          * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
          */
         setPinnedLocation: ({ commit }, coordinates) => {
+            commit('setPinnedLocation', null)
             if (Array.isArray(coordinates) && coordinates.length === 2) {
                 commit('setPinnedLocation', coordinates)
-            } else {
-                commit('setPinnedLocation', null)
             }
         },
         clearPinnedLocation({ commit }) {

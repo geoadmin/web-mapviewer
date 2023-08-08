@@ -18,7 +18,6 @@
                     :entries="results.locationResults"
                     data-cy="search-results-locations"
                     @preview-start="setPinnedLocation"
-                    @preview-stop="clearPinnedLocation"
                 />
                 <SearchResultCategory
                     :title="$t('layers_results_header')"
