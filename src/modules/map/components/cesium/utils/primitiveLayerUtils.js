@@ -19,11 +19,15 @@ export function updateCollectionOpacity(collection, opacity) {
                 material.uniforms.color = new Color(color.red, color.green, color.blue, opacity)
             }
         } else if (primitive instanceof Billboard) {
+            // todo just for test, will be moved in appropriate place
+            primitive.disableDepthTestDistance = 75000
             if (primitive.color) {
                 const color = primitive.color
                 primitive.color = new Color(color.red, color.green, color.blue, opacity)
             }
         } else if (primitive instanceof Label) {
+            // todo just for test, will be moved in appropriate place
+            primitive.disableDepthTestDistance = 75000
             if (primitive.fillColor) {
                 const color = primitive.fillColor
                 primitive.fillColor = new Color(color.red, color.green, color.blue, opacity)
