@@ -52,7 +52,11 @@
                 :tracking-point-color="trackingPointColor"
                 :coordinates="pointBeingHovered?.coordinates"
             />
-            <!--TODO BGDIINF_SB-2977 : create a position tracker for Cesium, similar to FeatureElevationProfilePlotOpenLayersBridge-->
+            <FeatureElevationProfilePlotCesiumBridge
+                v-if="showIn3d"
+                :tracking-point-color="trackingPointColor"
+                :coordinates="pointBeingHovered?.coordinates"
+            />
         </div>
     </div>
 </template>
@@ -65,6 +69,7 @@ import { round } from '@/utils/numberUtils'
 import { resetZoom } from 'chartjs-plugin-zoom'
 import { Line as LineChart } from 'vue-chartjs'
 import { mapState } from 'vuex'
+import FeatureElevationProfilePlotCesiumBridge from '@/modules/infobox/FeatureElevationProfilePlotCesiumBridge.vue'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
 
@@ -86,6 +91,7 @@ const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
 export default {
     components: {
         FeatureElevationProfilePlotOpenLayersBridge,
+        FeatureElevationProfilePlotCesiumBridge,
         LineChart,
     },
     props: {

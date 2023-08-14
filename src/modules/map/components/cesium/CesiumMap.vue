@@ -101,7 +101,6 @@ import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawi
 import log from '@/utils/logging'
 import { LineString, Point, Polygon } from 'ol/geom'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 
 export default {
     components: { FeatureEdit, FeatureList, CesiumPopover, CesiumInternalLayer },
