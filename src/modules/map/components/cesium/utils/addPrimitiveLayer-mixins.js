@@ -5,7 +5,7 @@ import { Vector as VectorLayer } from 'ol/layer'
 import FeatureConverter from 'ol-cesium/src/olcs/FeatureConverter'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
-const STYLE_RESOLUTION = 100
+const STYLE_RESOLUTION = 20
 
 /**
  * Vue mixin that will handle the addition or removal of a Cesium Primitive layer. This is a
@@ -16,8 +16,8 @@ const STYLE_RESOLUTION = 100
  * component that has incorporated this mixin will be removed from the DOM.
  *
  * `loadLayer` method should be defined in the component. This method should set the source and
- * features to the `olLayer` and call `addPrimitive` method then the layer will be converted to the
- * Cesium layer and added to the viewer.
+ * features to the `olLayer` and return layer projection method then the layer will be converted to
+ * the Cesium layer and added to the viewer.
  *
  * Also, this mixin set/update opacity of the layer.
  */
@@ -36,7 +36,9 @@ const addPrimitiveLayerMixins = {
             opacity: this.opacity,
             properties: { altitudeMode: 'clampToGround' },
         })
-        this.loadLayer()
+        this.loadLayer().then((projection) => {
+            this.addPrimitive(projection)
+        })
     },
     methods: {
         addLayer(layer) {

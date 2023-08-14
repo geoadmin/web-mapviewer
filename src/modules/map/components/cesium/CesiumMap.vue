@@ -23,13 +23,6 @@
                 :preview-year="previewYear"
                 :z-index="index"
             />
-            <CesiumInternalLayer
-                v-for="(layer, index) in visibleKMLLayers"
-                :key="layer.getID()"
-                :layer-config="layer"
-                :preview-year="previewYear"
-                :z-index="index"
-            />
         </div>
     </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
@@ -125,10 +118,9 @@ export default {
             )
         },
         visiblePrimitiveLayers() {
-            return this.visibleLayers.filter((l) => l instanceof GeoAdminGeoJsonLayer)
-        },
-        visibleKMLLayers() {
-            return this.visibleLayers.filter((l) => l instanceof KMLLayer)
+            return this.visibleLayers.filter(
+                (l) => l instanceof GeoAdminGeoJsonLayer || (l.addToMap && l instanceof KMLLayer)
+            )
         },
     },
     beforeCreate() {

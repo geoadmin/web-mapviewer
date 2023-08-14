@@ -77,28 +77,10 @@ const addSecondIconsFixtureAndIntercept = () => {
 
 const addGeoJsonIntercept = () => {
     cy.intercept('**/test.geojson.layer.json', {
-        crs: {
-            properties: { name: 'EPSG:2056' },
-        },
-        features: [
-            { type: 'Feature', geometry: { type: 'Point', coordinates: [2701702, 1265811] } },
-        ],
-        type: 'FeatureCollection',
+        fixture: 'geojson.fixture.json',
     }).as('geojson-data')
     cy.intercept('**/vectorStyles/**', {
-        type: 'single',
-        geomType: 'point',
-        vectorOptions: {
-            type: 'circle',
-            radius: 9,
-            fill: {
-                color: '#00FFFF',
-            },
-            stroke: {
-                color: '#000000',
-                width: 1,
-            },
-        },
+        fixture: 'geojson-style.fixture.json',
     }).as('geojson-style')
 }
 

@@ -9,9 +9,7 @@ import axios from 'axios'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import GeoJSON from 'ol/format/GeoJSON'
 import { Vector as VectorSource } from 'ol/source'
-import { updateCollectionOpacity } from './utils/primitiveLayerUtils'
 import log from '@/utils/logging'
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import addPrimitiveLayerMixins from './utils/addPrimitiveLayer-mixins'
 
 /** Adds a GeoJSON layer to the Cesium viewer */
@@ -37,7 +35,7 @@ export default {
     },
     methods: {
         loadLayer() {
-            Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
+            return Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
                 .then((responses) => {
                     const geojsonData = responses[0].data
                     const geojsonStyleLiterals = responses[1].data
@@ -50,7 +48,7 @@ export default {
                     this.olLayer.setStyle(function (feature, res) {
                         return style.getFeatureStyle(feature, res)
                     })
-                    this.addPrimitive(geojsonData.crs ? geojsonData.crs.properties.name : null)
+                    return geojsonData.crs ? geojsonData.crs.properties.name : null
                 })
                 .catch((error) => {
                     log.error(

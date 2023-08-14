@@ -64,7 +64,7 @@ export default {
                     this.olLayer.getSource().clear()
                     // add the deserialized features
                     this.olLayer.getSource().addFeatures(features)
-                    this.addPrimitive(WEBMERCATOR.epsg)
+                    return WEBMERCATOR.epsg
                 } else {
                     log.error(`No KML features available to add`, features)
                 }

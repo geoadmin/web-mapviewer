@@ -42,12 +42,18 @@ const addImageryLayerMixins = {
             this.layer = this.createImagery(newUrl)
             viewer.scene.imageryLayers.add(this.layer, index)
         },
-        zIndex() {
+        zIndex(zIndex) {
             if (this.layer) {
                 const imageryLayers = this.getViewer().scene.imageryLayers
-                imageryLayers.lowerToBottom(this.layer)
-                // raise one time to place layer above base layer
-                imageryLayers.raise(this.layer)
+                const index = imageryLayers.indexOf(this.layer)
+                const indexDiff = Math.abs(zIndex - index)
+                for (let i = indexDiff; i !== 0; i--) {
+                    if (index > zIndex) {
+                        imageryLayers.lower(this.layer)
+                    } else {
+                        imageryLayers.raise(this.layer)
+                    }
+                }
             }
         },
     },
