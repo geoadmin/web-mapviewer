@@ -7,7 +7,7 @@
             ref="search"
             type="text"
             class="form-control search-bar-input"
-            :class="{ 'rounded-end': searchQuery?.length == 0 }"
+            :class="{ 'rounded-end': searchQuery?.length === 0 }"
             :placeholder="$t('search_placeholder')"
             aria-label="Search"
             aria-describedby="button-addon1"

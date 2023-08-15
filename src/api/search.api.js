@@ -17,8 +17,8 @@ export const RESULT_TYPE = {
     LOCATION: 'LOCATION',
 }
 
-// used to parse backend results and extract the title from sub-titles and other stuff
-const REGEX_RESULT_TITLE = /<b>(.*?)<\/b>/i
+// comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
+const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
 
 /** @abstract */
 export class SearchResult {
@@ -37,12 +37,12 @@ export class SearchResult {
         return this.getSimpleTitle()
     }
 
-    /** @returns The title without any HTML tags (will only keep what's inside <b> tag if there are) */
+    /**
+     * @returns String The title without any HTML tags (will only keep what's inside <b> tag if
+     *   there are)
+     */
     getSimpleTitle() {
-        if (REGEX_RESULT_TITLE.test(this.title)) {
-            return REGEX_RESULT_TITLE.exec(this.title)[1]
-        }
-        return this.title
+        return this.title.replace(REGEX_DETECT_HTML_TAGS, '')
     }
 }
 
