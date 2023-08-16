@@ -1,9 +1,10 @@
 import addLayerToViewer from './addLayerToViewer-mixins'
-import { updateCollectionOpacity } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
+import { updateCollectionProperties } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
 import { PrimitiveCollection } from 'cesium'
 import { Vector as VectorLayer } from 'ol/layer'
 import FeatureConverter from 'ol-cesium/src/olcs/FeatureConverter'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/modules/map/components/cesium/constants'
 
 const STYLE_RESOLUTION = 20
 
@@ -25,8 +26,15 @@ const addPrimitiveLayerMixins = {
     mixins: [addLayerToViewer],
     watch: {
         opacity(newOpacity) {
-            updateCollectionOpacity(this.layer, newOpacity)
+            updateCollectionProperties(this.layer, { opacity: newOpacity })
             this.getViewer().scene.requestRender()
+        },
+        url() {
+            this.olLayer.getSource().clear()
+            this.removeLayer(this.layer)
+            this.loadLayer().then((projection) => {
+                if (projection) this.addPrimitive(projection)
+            })
         },
     },
     created() {
@@ -37,7 +45,7 @@ const addPrimitiveLayerMixins = {
             properties: { altitudeMode: 'clampToGround' },
         })
         this.loadLayer().then((projection) => {
-            this.addPrimitive(projection)
+            if (projection) this.addPrimitive(projection)
         })
     },
     methods: {
@@ -65,16 +73,20 @@ const addPrimitiveLayerMixins = {
             )
             // need to wait for terrain loaded otherwise primitives will be placed wrong
             if (this.layer) {
+                const collectionProperties = {
+                    opacity: this.opacity,
+                    disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
+                }
                 if (scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
                     this.layer.add(counterpart.getRootPrimitive())
-                    updateCollectionOpacity(this.layer, this.opacity)
+                    updateCollectionProperties(this.layer, collectionProperties)
                     this.getViewer().scene.requestRender()
                 } else {
                     const unlisten = scene.globe.tileLoadProgressEvent.addEventListener(
                         (queueLength) => {
                             if (scene.globe.tilesLoaded && queueLength === 0) {
                                 this.layer.add(counterpart.getRootPrimitive())
-                                updateCollectionOpacity(this.layer, this.opacity)
+                                updateCollectionProperties(this.layer, collectionProperties)
                                 this.getViewer().scene.requestRender()
                                 unlisten()
                             }

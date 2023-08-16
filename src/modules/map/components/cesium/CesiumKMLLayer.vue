@@ -40,13 +40,6 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
         }),
     },
-    watch: {
-        url() {
-            this.olLayer.getSource().clear()
-            this.removeLayer(this.layer)
-            this.loadLayer()
-        },
-    },
     methods: {
         async loadLayer() {
             try {
@@ -71,6 +64,7 @@ export default {
             } catch (error) {
                 log.error(`Failed to load kml from ${this.url}`, error)
             }
+            return undefined
         },
     },
 }
