@@ -20,7 +20,7 @@ export default function syncCameraLonLatZoom(store) {
             store.dispatch('setLongitude', lon)
             store.dispatch('setLatitude', lat)
             store.dispatch('setZoom', zoom)
-            store.dispatch('setRotation', normalizeAngle(rotation * Math.PI / 180))
+            store.dispatch('setRotation', normalizeAngle((rotation * Math.PI) / 180))
         }
     })
 }
