@@ -1,9 +1,9 @@
 <template>
     <select
+        v-model="displayedProjectionId"
         class="map-projection form-control-xs"
-        :value="displayedProjectionId"
         data-cy="mouse-position-select"
-        @change="onProjectionChange"
+        @change="setDisplayedProjectionWithId"
     >
         <option
             v-for="projection in availableProjections"
@@ -16,27 +16,18 @@
     <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
 <script>
-import allCoordinateSystems from '@/utils/coordinateSystems'
+import allCoordinateSystems, { LV95 } from '@/utils/coordinateSystems'
 import MousePosition from 'ol/control/MousePosition'
 import { get as getProjection } from 'ol/proj'
-import { mapActions, mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
     data() {
         return {
             availableProjections: allCoordinateSystems,
+            displayedProjection: LV95,
+            displayedProjectionId: LV95.id,
         }
-    },
-    computed: {
-        ...mapState({
-            displayedProjectionId: (state) => state.map.displayedProjection.id,
-        }),
-    },
-    watch: {
-        displayedProjectionId() {
-            this.changeCoordinateFormat()
-        },
     },
     created() {
         this.mousePositionControl = new MousePosition({
@@ -57,14 +48,14 @@ export default {
         this.getMap().removeControl(this.mousePositionControl)
     },
     methods: {
-        ...mapActions(['setDisplayedProjectionWithId']),
-        onProjectionChange(event) {
-            this.setDisplayedProjectionWithId(event.target.value)
-        },
-        changeCoordinateFormat() {
-            const { id, format, epsg } = allCoordinateSystems.find(
+        setDisplayedProjectionWithId() {
+            this.displayedProjection = allCoordinateSystems.find(
                 (coordinateSystem) => coordinateSystem.id === this.displayedProjectionId
             )
+            this.changeCoordinateFormat()
+        },
+        changeCoordinateFormat() {
+            const { id, format, epsg } = this.displayedProjection
 
             const displayFormat = id.startsWith('LV')
                 ? (coordinate) => `${this.$t('coordinates_label')} ${format(coordinate)}`
