@@ -17,46 +17,60 @@
                     :title="$t('locations_results_header')"
                     :entries="results.locationResults"
                     data-cy="search-results-locations"
-                    @preview-start="setPinnedLocation"
-                    @preview-stop="clearPinnedLocation"
-                />
+                >
+                    <SearchResultListEntry
+                        v-for="(location, index) in results.locationResults"
+                        :key="index"
+                        :index="index"
+                        :entry="location"
+                    />
+                </SearchResultCategory>
                 <SearchResultCategory
                     :title="$t('layers_results_header')"
                     :entries="results.layerResults"
                     data-cy="search-results-layers"
-                    @preview-start="setPreviewLayer"
-                    @preview-stop="clearPreviewLayer"
-                />
+                >
+                    <SearchResultListEntry
+                        v-for="(layer, index) in results.layerResults"
+                        :key="index"
+                        :index="index"
+                        :entry="layer"
+                        @show-layer-legend-popup="showLayerLegendForId = layer.layerId"
+                    />
+                </SearchResultCategory>
             </div>
         </div>
+        <LayerLegendPopup
+            v-if="showLayerLegendForId"
+            :layer-id="showLayerLegendForId"
+            @close="showLayerLegendForId = null"
+        />
     </div>
 </template>
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
 import SearchResultCategory from './SearchResultCategory.vue'
+import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 
 /**
  * Component showing all results from the search, divided in two groups (categories) : layers and
  * locations
  */
 export default {
-    components: { SearchResultCategory },
+    components: { LayerLegendPopup, SearchResultListEntry, SearchResultCategory },
     emits: ['close'],
+    data() {
+        return {
+            showLayerLegendForId: null,
+        }
+    },
     computed: {
         ...mapState({
             results: (state) => state.search.results,
-            showResults: (state) => state.search.show,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
-    },
-    methods: {
-        ...mapActions([
-            'setPinnedLocation',
-            'clearPinnedLocation',
-            'setPreviewLayer',
-            'clearPreviewLayer',
-        ]),
     },
 }
 </script>
@@ -67,6 +81,7 @@ export default {
 
 .search-results-container {
     position: fixed;
+    z-index: $zindex-menu-header;
     top: $header-height;
     // 45vh (so that previews are visible), but on small screen min 20rem (ca. 3 lines per category)
     height: min(calc(100vh - $header-height), max(20rem, 45vh));

@@ -52,6 +52,13 @@ export default {
          */
         pinnedLocation: null,
         /**
+         * @type Array<Number> Same thing as pinnedLocation, will be used to show location of search
+         *   entries when they are hovered. If we use the same pinned location as the one above, the
+         *   pinned location is lost as soon as another one is hovered (meaning that the search bar
+         *   is still filled with a search query, but no pinned location is present anymore)
+         */
+        previewedPinnedLocation: null,
+        /**
          * The current applied map projection for anything displayed to the user (footer mouse
          * position for instance)
          *
@@ -85,6 +92,17 @@ export default {
                 commit('setPinnedLocation', null)
             }
         },
+        /**
+         * @param commit
+         * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
+         */
+        setPreviewedPinnedLocation({ commit }, coordinates) {
+            if (Array.isArray(coordinates) && coordinates.length === 2) {
+                commit('setPreviewedPinnedLocation', coordinates)
+            } else {
+                commit('setPreviewedPinnedLocation', null)
+            }
+        },
         clearPinnedLocation({ commit }) {
             commit('setPinnedLocation', null)
         },
@@ -113,6 +131,8 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
+        setPreviewedPinnedLocation: (state, coordinate) =>
+            (state.previewedPinnedLocation = coordinate),
         setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
         setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
     },

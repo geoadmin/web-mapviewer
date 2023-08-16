@@ -5,8 +5,8 @@ import { describe, it } from 'vitest'
 describe('Builds object by extracting all relevant attributes from the backend', () => {
     describe('FeatureSearchResult.getSimpleTitle', () => {
         it('Returns title removing HTML', () => {
-            const expectedResult = 'Test 123 Test'
-            const expectedResultWrappedInHtml = `<i>Some irrelevant stuff</i><b>${expectedResult}</b>`
+            const expectedResult = 'Some irrelevant stuff 123 Test'
+            const expectedResultWrappedInHtml = '<i>Some irrelevant stuff</i> <b>123 Test</b>'
             const testInstance = new FeatureSearchResult(
                 expectedResultWrappedInHtml,
                 '',
