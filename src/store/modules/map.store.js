@@ -58,13 +58,6 @@ export default {
          *   is still filled with a search query, but no pinned location is present anymore)
          */
         previewedPinnedLocation: null,
-        /**
-         * The current applied map projection for anything displayed to the user (footer mouse
-         * position for instance)
-         *
-         * @type {CoordinateSystem}
-         */
-        displayedProjection: LV95,
 
         displayLocationPopup: false,
     },
@@ -106,19 +99,6 @@ export default {
         clearPinnedLocation({ commit }) {
             commit('setPinnedLocation', null)
         },
-        setDisplayedProjectionWithId({ commit }, projectionId) {
-            if (projectionId) {
-                const matchingCoordinateSystem = allCoordinateSystems.find(
-                    (coordinateSystem) => coordinateSystem.id === projectionId
-                )
-                if (matchingCoordinateSystem) {
-                    commit('setDisplayedProjection', matchingCoordinateSystem)
-                } else {
-                    log.error('No coordinate system found matching ID', projectionId)
-                }
-            }
-        },
-
         displayLocationPopup({ commit }) {
             commit('setDisplayLocationPopup', true)
         },
@@ -133,7 +113,6 @@ export default {
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
         setPreviewedPinnedLocation: (state, coordinate) =>
             (state.previewedPinnedLocation = coordinate),
-        setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
         setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
     },
 }
