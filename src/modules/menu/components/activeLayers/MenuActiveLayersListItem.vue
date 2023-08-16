@@ -239,7 +239,9 @@ export default {
 }
 
 svg {
-    transition: transform 0.2s, color 0.2s;
+    transition:
+        transform 0.2s,
+        color 0.2s;
     .flip & {
         transform: rotate(180deg);
     }
