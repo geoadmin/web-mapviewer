@@ -100,6 +100,7 @@
         "jsdom": "^22.1.0",
         "mime-types": "^2.1.35",
         "mocha-junit-reporter": "^2.2.0",
+        "pre-commit": "^1.2.2",
         "prettier": "^2.8.8",
         "prettier-plugin-jsdoc": "^0.4.2",
         "rimraf": "^5.0.1",
@@ -114,6 +115,10 @@
         "vue-tsc": "^1.6.5",
         "yargs": "^17.7.2"
     },
+    "pre-commit": [
+        "lint",
+        "test:unit"
+    ],
     "engines": {
         "node": ">=18",
         "npm": "9.*.*"
