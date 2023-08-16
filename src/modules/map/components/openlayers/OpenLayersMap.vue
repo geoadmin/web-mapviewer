@@ -45,6 +45,12 @@
             :marker-style="markerStyles.BALLOON"
             :z-index="zIndexDroppedPinned"
         />
+        <OpenLayersMarker
+            v-if="previewedPinnedLocation"
+            :position="previewedPinnedLocation"
+            :marker-style="markerStyles.BALLOON"
+            :z-index="zIndexPreviewedDroppedPinned"
+        />
         <!-- Showing cross hair if needed-->
         <OpenLayersMarker
             v-if="crossHairStyle"
@@ -178,6 +184,7 @@ export default {
             center: (state) => state.position.center,
             selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
+            previewedPinnedLocation: (state) => state.map.previewedPinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,
             geolocationPosition: (state) => state.geolocation.position,
@@ -247,8 +254,11 @@ export default {
         zIndexDroppedPinned() {
             return this.startingZIndexForVisibleLayers + this.visibleLayers.length
         },
+        zIndexPreviewedDroppedPinned() {
+            return this.zIndexDroppedPinned + (this.previewedPinnedLocation ? 1 : 0)
+        },
         zIndexCrossHair() {
-            return this.zIndexDroppedPinned + (this.pinnedLocation ? 1 : 0)
+            return this.zIndexPreviewedDroppedPinned + (this.pinnedLocation ? 1 : 0)
         },
         startingZIndexForHighlightedFeatures() {
             return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)

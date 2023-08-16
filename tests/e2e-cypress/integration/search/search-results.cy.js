@@ -255,7 +255,7 @@ describe('Test the search bar result handling', () => {
         // Enter should select the focused entry.
         cy.get(searchbarSelector).focus()
         cy.focused().trigger('keydown', { key: 'ArrowDown' })
-        cy.focused().trigger('keypress', { key: 'Enter' })
+        cy.focused().trigger('keyup', { key: 'Enter' })
 
         cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
             checkLocation(expectedCenterEpsg3857, pinnedLocation)
@@ -272,7 +272,7 @@ describe('Test the search bar result handling', () => {
 
         // Location - Enter
         cy.get(locationSelector).first().trigger('mouseenter')
-        cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) => {
+        cy.readStoreValue('state.map.previewedPinnedLocation').then((pinnedLocation) => {
             checkLocation(expectedCenterEpsg3857, pinnedLocation)
         })
         // Location - Leave
