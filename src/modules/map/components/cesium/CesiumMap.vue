@@ -8,12 +8,20 @@
                 :z-index="0"
             />
             <!-- Adding all other layers -->
+            <!-- Layers split for correct zIndex ordering -->
             <CesiumInternalLayer
-                v-for="(layer, index) in visibleLayers"
+                v-for="(layer, index) in visibleImageryLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :z-index="index + startingZIndexForVisibleLayers"
+            />
+            <CesiumInternalLayer
+                v-for="(layer, index) in visiblePrimitiveLayers"
+                :key="layer.getID()"
+                :layer-config="layer"
+                :preview-year="previewYear"
+                :z-index="index"
             />
         </div>
     </div>
@@ -33,6 +41,7 @@ import {
 } from '@/config'
 import { UIModes } from '@/store/modules/ui.store'
 import '@geoblocks/cesium-compass'
+import * as cesium from 'cesium'
 import {
     Cartesian3,
     Cartographic,
@@ -56,6 +65,9 @@ import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './util
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import proj4 from 'proj4'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 export default {
     components: { CesiumInternalLayer },
@@ -100,11 +112,24 @@ export default {
         startingZIndexForVisibleLayers() {
             return this.currentBackgroundLayer ? 1 : 0
         },
+        visibleImageryLayers() {
+            return this.visibleLayers.filter(
+                (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
+            )
+        },
+        visiblePrimitiveLayers() {
+            return this.visibleLayers.filter(
+                (l) => l instanceof GeoAdminGeoJsonLayer || (l.addToMap && l instanceof KMLLayer)
+            )
+        },
     },
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
         // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
         window['CESIUM_BASE_URL'] = '.'
+
+        // required for ol-cesium
+        window['Cesium'] = cesium
 
         const withoutSchemeAndTrailingSlash = (url) => {
             const urlWithoutScheme = url.replace('https://', '')

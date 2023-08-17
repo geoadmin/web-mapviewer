@@ -1,3 +1,5 @@
+import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToViewer-mixins'
+
 /**
  * Vue mixin that will handle the addition or removal of a Cesium Imagery layer. This is a
  * centralized way of describing this logic.
@@ -16,26 +18,9 @@
  * imagery layers in Cesium viewer.
  */
 const addImageryLayerMixins = {
-    inject: ['getViewer'],
-    data() {
-        return {
-            isPresentOnMap: false,
-        }
-    },
-    mounted() {
-        if (this.layer && !this.isPresentOnMap) {
-            this.addLayer(this.zIndex, this.layer)
-        }
-    },
-    unmounted() {
-        if (this.layer && this.isPresentOnMap) {
-            this.removeLayer(this.layer)
-        }
-
-        delete this.layer
-    },
+    mixins: [addLayerToViewer],
     methods: {
-        addLayer(zIndex, layer) {
+        addLayer(layer, zIndex) {
             const viewer = this.getViewer()
             viewer.scene.imageryLayers.add(layer, zIndex)
             this.isPresentOnMap = true
@@ -48,7 +33,7 @@ const addImageryLayerMixins = {
     watch: {
         opacity(newOpacity) {
             this.layer.alpha = newOpacity
-            this.getViewer().scene.render()
+            this.getViewer().scene.requestRender()
         },
         url(newUrl) {
             const viewer = this.getViewer()

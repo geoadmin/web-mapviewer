@@ -34,3 +34,10 @@ export const CAMERA_MIN_PITCH = -Math.PI / 2
  * @type {number}
  */
 export const CAMERA_MAX_PITCH = Math.PI / 4
+
+/**
+ * Distance on which depth test will be disabled for primitive to avoid cutting by terrain
+ *
+ * @type {number}
+ */
+export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 1.2742018 * 10 ** 7 // Diameter of Earth

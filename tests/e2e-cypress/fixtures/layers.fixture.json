@@ -108,5 +108,23 @@
         ],
         "type": "wmts",
         "timeEnabled": false
+    },
+    "test.geojson.layer": {
+        "type": "geojson",
+        "searchable": false,
+        "topics": "api,ech,inspire,meteoschweiz,schule",
+        "tooltip": false,
+        "background": false,
+        "label": "test.geojson.layer",
+        "updateDelay": 1800000,
+        "attribution": "attribution.test.geojson.layer",
+        "hasLegend": true,
+        "serverLayerName": "ch.meteoschweiz.messwerte-niederschlag-1d",
+        "chargeable": false,
+        "highlightable": false,
+        "timeEnabled": false,
+        "styleUrl": "//sys-api3.dev.bgdi.ch/static/vectorStyles/test.geojson.layer.json",
+        "geojsonUrl": "https://data.geo.admin.ch/test.geojson.layer.json",
+        "attributionUrl": "test.geojson.layer.url"
     }
 }
