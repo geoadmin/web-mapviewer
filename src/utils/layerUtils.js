@@ -1,5 +1,7 @@
 import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import { LayerFeature } from '@/api/features.api'
+import log from '@/utils/logging'
 
 export class ActiveLayerConfig {
     /**
@@ -40,4 +42,37 @@ export function getTimestampFromConfig(config, previewYear) {
         }
     }
     return config instanceof GeoAdminWMTSLayer ? null : ''
+}
+
+/**
+ * Creates geoJsonFeature for query
+ *
+ * @param feature
+ * @param geoJsonLayer
+ * @param [geometry]
+ * @returns {LayerFeature}
+ */
+export function createGeoJSONFeature(feature, geoJsonLayer, geometry) {
+    const featureGeometry = feature.getGeometry()
+    // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+    // we have to wrap it around the "usual" wrapper from the backend
+    // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+    const geoJsonFeature = new LayerFeature(
+        geoJsonLayer,
+        geoJsonLayer.getID(),
+        geoJsonLayer.name,
+        `<div class="htmlpopup-container">
+                                <div class="htmlpopup-header">
+                                    <span>${geoJsonLayer.name}</span>
+                                </div>
+                                <div class="htmlpopup-content">
+                                    ${feature.get('description')}
+                                </div>
+                            </div>`,
+        featureGeometry.flatCoordinates,
+        featureGeometry.getExtent(),
+        geometry
+    )
+    log.debug('GeoJSON feature found', geoJsonFeature)
+    return geoJsonFeature
 }

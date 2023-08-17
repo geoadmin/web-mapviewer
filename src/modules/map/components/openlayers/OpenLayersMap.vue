@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import {
@@ -140,6 +140,7 @@ import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -454,26 +455,7 @@ export default {
                         layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
                     })
                     .forEach((feature) => {
-                        const featureGeometry = feature.getGeometry()
-                        // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                        // we have to wrap it around the "usual" wrapper from the backend
-                        // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                        const geoJsonFeature = new LayerFeature(
-                            geoJsonLayer,
-                            geoJsonLayer.getID(),
-                            geoJsonLayer.name,
-                            `<div class="htmlpopup-container">
-                                <div class="htmlpopup-header">
-                                    <span>${geoJsonLayer.name}</span>
-                                </div>
-                                <div class="htmlpopup-content">
-                                    ${feature.get('description')}
-                                </div>
-                            </div>`,
-                            featureGeometry.flatCoordinates,
-                            featureGeometry.getExtent()
-                        )
-                        log.debug('GeoJSON feature found', geoJsonFeature)
+                        const geoJsonFeature = createGeoJSONFeature(feature, geoJsonLayer)
                         features.push(geoJsonFeature)
                     })
             }
