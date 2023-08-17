@@ -1,12 +1,18 @@
 import {
     Billboard,
     BillboardCollection,
+    Cartesian2,
+    Cartesian3,
     Color,
     GroundPolylinePrimitive,
+    HeightReference,
+    HorizontalOrigin,
     Label,
     LabelCollection,
+    NearFarScalar,
     Primitive,
     PrimitiveCollection,
+    VerticalOrigin,
 } from 'cesium'
 
 /**
@@ -26,6 +32,14 @@ export function updateCollectionProperties(collection, properties) {
 
     for (let i = 0; i < collection.length; i++) {
         const primitive = collection.get(i)
+        if (primitive instanceof Label || primitive instanceof Billboard) {
+            // https://community.cesium.com/t/points-labels-stuck-under-terrain/11141/17
+            primitive.eyeOffset = new Cartesian3(0.0, 0.0, -10.0)
+            primitive.heightReference = HeightReference.CLAMP_TO_GROUND
+            primitive.verticalOrigin = VerticalOrigin.CENTER
+            primitive.horizontalOrigin = HorizontalOrigin.CENTER
+        }
+
         if (primitive instanceof Primitive || primitive instanceof GroundPolylinePrimitive) {
             if (primitive.appearance && opacity !== undefined) {
                 const material = primitive.appearance.material
@@ -52,6 +66,11 @@ export function updateCollectionProperties(collection, properties) {
                 const color = primitive.outlineColor
                 primitive.outlineColor = new Color(color.red, color.green, color.blue, opacity)
             }
+            primitive.showBackground = true
+            primitive.backgroundColor = Color.BLACK.withAlpha(0.2)
+            // https://community.cesium.com/t/points-labels-stuck-under-terrain/11141/17
+            primitive.pixelOffset = new Cartesian2(0.0, -12.0)
+            primitive.pixelOffsetScaleByDistance = new NearFarScalar(1.5e2, 3.0, 1.5e7, 0.5)
         } else if (
             primitive instanceof PrimitiveCollection ||
             primitive instanceof BillboardCollection ||

@@ -40,4 +40,4 @@ export const CAMERA_MAX_PITCH = Math.PI / 4
  *
  * @type {number}
  */
-export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 75000
+export const PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE = 1.2742018 * 10 ** 7 // Diameter of Earth
