@@ -14,7 +14,6 @@ import {
     PrimitiveCollection,
     VerticalOrigin,
 } from 'cesium'
-import { createGeoJSONFeature } from '@/utils/layerUtils'
 
 /**
  * This function goes throw the primitive collection and update passed properties

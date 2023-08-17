@@ -17,7 +17,7 @@
                 :z-index="index + startingZIndexForVisibleLayers"
             />
             <CesiumInternalLayer
-                v-for="(layer, index) in visibleGeoJsonLayers"
+                v-for="(layer, index) in visiblePrimitiveLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
@@ -295,7 +295,7 @@ export default {
         )
         this.eventHandler = new ScreenSpaceEventHandler(this.viewer.canvas)
         this.eventHandler.setInputAction(
-            (event) => this.onSingleClick(event),
+            (event) => this.onClick(event),
             ScreenSpaceEventType.LEFT_CLICK
         )
 
@@ -362,7 +362,7 @@ export default {
                 this.toggleFloatingTooltip()
             }
         },
-        onSingleClick(event) {
+        onClick(event) {
             unhighlightGroup(this.viewer)
             const features = []
             let coordinates = []
@@ -379,42 +379,46 @@ export default {
             const geoJsonFeatures = {}
             const kmlFeatures = {}
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-            this.visibleGeoJsonLayers.forEach((geoJSonLayer) => {
-                objects
-                    .filter((obj) => obj.primitive?.olLayer?.get('id') === geoJSonLayer.getID())
-                    .forEach((obj) => {
-                        const feature = obj.primitive.olFeature
-                        if (!geoJsonFeatures[feature.getId()]) {
-                            geoJsonFeatures[feature.getId()] = createGeoJSONFeature(
-                                obj.primitive.olFeature,
-                                geoJSonLayer,
-                                feature.getGeometry()
-                            )
-                        }
-                    })
-                features.push(...Object.values(geoJsonFeatures))
-            })
-            this.visibleKMLLayers.forEach((KMLLayer) => {
-                objects
-                    .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.getID())
-                    .forEach((obj) => {
-                        const feature = obj.primitive.olFeature
-                        if (!kmlFeatures[feature.getId()]) {
-                            const editableFeature = feature.get('editableFeature')
-                            if (editableFeature) {
-                                editableFeature.geodesicCoordinates =
-                                    extractOlFeatureGeodesicCoordinates(feature)
-                                editableFeature.geometry = feature.getGeometry()
-                                kmlFeatures[feature.getId()] = editableFeature
-                            } else {
-                                log.debug(
-                                    'KMLs which are not editable Features are not supported for selection'
+            this.visiblePrimitiveLayers
+                .filter((l) => l instanceof GeoAdminGeoJsonLayer)
+                .forEach((geoJSonLayer) => {
+                    objects
+                        .filter((obj) => obj.primitive?.olLayer?.get('id') === geoJSonLayer.getID())
+                        .forEach((obj) => {
+                            const feature = obj.primitive.olFeature
+                            if (!geoJsonFeatures[feature.getId()]) {
+                                geoJsonFeatures[feature.getId()] = createGeoJSONFeature(
+                                    obj.primitive.olFeature,
+                                    geoJSonLayer,
+                                    feature.getGeometry()
                                 )
                             }
-                        }
-                    })
-                features.push(...Object.values(kmlFeatures))
-            })
+                        })
+                    features.push(...Object.values(geoJsonFeatures))
+                })
+            this.visiblePrimitiveLayers
+                .filter((l) => l instanceof KMLLayer)
+                .forEach((KMLLayer) => {
+                    objects
+                        .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.getID())
+                        .forEach((obj) => {
+                            const feature = obj.primitive.olFeature
+                            if (!kmlFeatures[feature.getId()]) {
+                                const editableFeature = feature.get('editableFeature')
+                                if (editableFeature) {
+                                    editableFeature.geodesicCoordinates =
+                                        extractOlFeatureGeodesicCoordinates(feature)
+                                    editableFeature.geometry = feature.getGeometry()
+                                    kmlFeatures[feature.getId()] = editableFeature
+                                } else {
+                                    log.debug(
+                                        'KMLs which are not editable Features are not supported for selection'
+                                    )
+                                }
+                            }
+                        })
+                    features.push(...Object.values(kmlFeatures))
+                })
             // Cesium can't pick position when click on primitive
             if (!coordinates.length && features.length) {
                 const featureCoords = Array.isArray(features[0].coordinates[0])
