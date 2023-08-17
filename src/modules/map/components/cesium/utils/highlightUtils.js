@@ -75,7 +75,7 @@ export function highlightLine(viewer, coordinates) {
             positions: convertedCoords,
             material: highlightFill,
             clampToGround: true,
-            width: 5,
+            width: 6,
         },
     })
     highlightedEntities.push(entity)

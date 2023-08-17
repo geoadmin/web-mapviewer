@@ -79,6 +79,7 @@ import {
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_PITCH,
     CAMERA_MIN_ZOOM_DISTANCE,
+    MINIMUM_DISTANCE_TO_SHOW_TOOLTIP,
     TERRAIN_URL,
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
@@ -353,6 +354,13 @@ export default {
                 pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
+            if (
+                position.height <= MINIMUM_DISTANCE_TO_SHOW_TOOLTIP &&
+                this.showFeaturesPopover &&
+                !this.isFeatureTooltipInFooter
+            ) {
+                this.toggleFloatingTooltip()
+            }
         },
         onSingleClick(event) {
             unhighlightGroup(this.viewer)
