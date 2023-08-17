@@ -35,7 +35,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="toggleFloatingTooltip"
+                    @click="onToggleFloatingTooltipClick"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -207,6 +207,9 @@ export default {
                         featureCoords[0],
                         featureCoords[1]
                     )
+                    this.viewer.camera.changed.addEventListener(this.onCameraMove)
+                } else {
+                    this.viewer.camera.changed.removeEventListener(this.onCameraMove)
                 }
             },
             deep: true,
@@ -300,6 +303,7 @@ export default {
         )
 
         this.flyToPosition()
+        this.tooltipToggledAutomaticaly = false
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.cesiumViewer = this.viewer
@@ -354,15 +358,24 @@ export default {
                 pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
+        },
+        onCameraMove() {
+            const camera = this.viewer.camera
+            const position = camera.positionCartographic
             if (
                 position.height <= MINIMUM_DISTANCE_TO_SHOW_TOOLTIP &&
                 this.showFeaturesPopover &&
                 !this.isFeatureTooltipInFooter
             ) {
                 this.toggleFloatingTooltip()
+                this.tooltipToggledAutomaticaly = true
             }
         },
         onClick(event) {
+            if (this.tooltipToggledAutomaticaly) {
+                this.toggleFloatingTooltip()
+                this.tooltipToggledAutomaticaly = false
+            }
             unhighlightGroup(this.viewer)
             const features = []
             let coordinates = []
@@ -437,6 +450,13 @@ export default {
         },
         onPopupClose() {
             unhighlightGroup(this.viewer)
+            this.clearAllSelectedFeatures()
+        },
+        onToggleFloatingTooltipClick() {
+            if (this.tooltipToggledAutomaticaly) {
+                this.tooltipToggledAutomaticaly = false
+            }
+            this.toggleFloatingTooltip()
         },
     },
 }
