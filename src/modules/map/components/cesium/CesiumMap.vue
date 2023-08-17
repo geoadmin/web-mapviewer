@@ -296,11 +296,6 @@ export default {
         this.viewer.scene.postRender.addEventListener(
             limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
         )
-        this.eventHandler = new ScreenSpaceEventHandler(this.viewer.canvas)
-        this.eventHandler.setInputAction(
-            (event) => this.onClick(event),
-            ScreenSpaceEventType.LEFT_CLICK
-        )
 
         this.flyToPosition()
         this.tooltipToggledAutomaticaly = false
