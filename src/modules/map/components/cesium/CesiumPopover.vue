@@ -1,20 +1,11 @@
 <template>
-    <MapPopover
-        ref="mapPopoverContainer"
-        :authorize-print="authorizePrint"
-        :title="title"
-        :use-content-padding="useContentPadding"
-    >
-        <template #extra-buttons>
-            <slot name="extra-buttons"></slot>
-        </template>
-        <slot></slot>
-    </MapPopover>
+    <div>
+        <slot />
+    </div>
 </template>
 
 <script>
 import { Cartesian2, Cartesian3, Ellipsoid, SceneTransforms } from 'cesium'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 const popup3DCoordScratch = new Cartesian3()
 const popup2DCoordScratch = new Cartesian2()
@@ -24,24 +15,11 @@ const popup2DCoordScratch = new Cartesian2()
  * the content of the popover
  */
 export default {
-    components: { MapPopover },
-    inject: ['getViewer'],
+    inject: ['getViewer', 'onClose', 'getMapPopoverRef'],
     props: {
         coordinates: {
             type: Array,
             required: true,
-        },
-        authorizePrint: {
-            type: Boolean,
-            default: false,
-        },
-        title: {
-            type: String,
-            default: '',
-        },
-        useContentPadding: {
-            type: Boolean,
-            default: false,
         },
     },
     watch: {
@@ -70,7 +48,7 @@ export default {
     methods: {
         updatePosition() {
             if (!this.coordinates?.length) {
-                this.$refs.mapPopoverContainer.onClose()
+                this.onClose()
                 return
             }
             const cartesianCoords = Cartesian3.fromDegrees(
@@ -90,7 +68,7 @@ export default {
                     popup2DCoordScratch
                 )
                 if (pixel) {
-                    const mapPopover = this.$refs.mapPopoverContainer.getMapPopoverRef()
+                    const mapPopover = this.getMapPopoverRef()
                     const width = mapPopover.getBoundingClientRect().width
                     mapPopover.style.left = `${pixel.x - width / 2}px`
                     mapPopover.style.top = `${pixel.y + 10}px`
@@ -100,10 +78,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss" scoped>
-.map-popover {
-    position: absolute;
-    z-index: 1;
-}
-</style>

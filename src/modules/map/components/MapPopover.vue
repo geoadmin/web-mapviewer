@@ -1,5 +1,11 @@
 <template>
-    <div ref="mapPopover" class="map-popover" data-cy="popover" @contextmenu.stop>
+    <div
+        ref="mapPopover"
+        class="map-popover"
+        :class="{ cesium: is3DActive }"
+        data-cy="popover"
+        @contextmenu.stop
+    >
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -31,16 +37,31 @@
             </div>
         </div>
     </div>
+    <OpenLayersPopover v-if="!is3DActive" :coordinates="coordinates"></OpenLayersPopover>
+    <CesiumPopover v-if="is3DActive" :coordinates="coordinates"></CesiumPopover>
 </template>
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import promptUserToPrintHtmlContent from '@/utils/print'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
+import { mapState } from 'vuex'
 
 /** Map popover content and styles. Position handling is done in corresponding library components */
 export default {
-    components: { FontAwesomeIcon },
+    components: { CesiumPopover, OpenLayersPopover, FontAwesomeIcon },
+    provide() {
+        return {
+            onClose: () => this.onClose(),
+            getMapPopoverRef: () => this.getMapPopoverRef(),
+        }
+    },
     props: {
+        coordinates: {
+            type: Array,
+            required: true,
+        },
         authorizePrint: {
             type: Boolean,
             default: false,
@@ -55,6 +76,11 @@ export default {
         },
     },
     emits: ['close'],
+    computed: {
+        ...mapState({
+            is3DActive: (state) => state.ui.showIn3d,
+        }),
+    },
     methods: {
         getMapPopoverRef() {
             return this.$refs.mapPopover
@@ -108,6 +134,10 @@ export default {
         left: 50%;
         margin-left: -$arrow-border-height;
     }
+}
+.map-popover.cesium {
+    position: absolute;
+    z-index: 1;
 }
 @media (min-height: 600px) {
     .map-popover .card-body {

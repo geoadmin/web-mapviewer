@@ -45,7 +45,11 @@ export function getTimestampFromConfig(config, previewYear) {
 }
 
 /**
- * Creates geoJsonFeature for query
+ * Describes a GeoJSON feature from the backend
+ *
+ * for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
+ * we have to wrap it around the "usual" wrapper from the backend
+ * (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
  *
  * @param feature
  * @param geoJsonLayer
@@ -54,9 +58,6 @@ export function getTimestampFromConfig(config, previewYear) {
  */
 export function createGeoJSONFeature(feature, geoJsonLayer, geometry) {
     const featureGeometry = feature.getGeometry()
-    // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-    // we have to wrap it around the "usual" wrapper from the backend
-    // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
     const geoJsonFeature = new LayerFeature(
         geoJsonLayer,
         geoJsonLayer.getID(),

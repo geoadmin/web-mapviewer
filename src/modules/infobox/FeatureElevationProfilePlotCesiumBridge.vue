@@ -58,6 +58,7 @@ export default {
     },
     unmounted() {
         this.removeTrackingPoint()
+        delete this.removeTrackingPoint()
     },
     methods: {
         addTrackingPoint() {

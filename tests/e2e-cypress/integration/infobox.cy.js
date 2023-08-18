@@ -13,8 +13,11 @@ describe('The infobox', () => {
 
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             }
-            if (with3d) cy.waitUntilCesiumTilesLoaded().then(testContent)
-            else testContent()
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('blocks direct activation of fullscreen', () => {
             const testContent = () => {
@@ -28,8 +31,11 @@ describe('The infobox', () => {
                 cy.get('[data-cy="infobox"]').should('not.be.visible')
                 cy.activateFullscreen(mapSelector)
             }
-            if (with3d) cy.waitUntilCesiumTilesLoaded().then(testContent)
-            else testContent()
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('can float or stick to the bottom', () => {
             const testContent = () => {
@@ -49,8 +55,11 @@ describe('The infobox', () => {
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('be.visible')
             }
-            if (with3d) cy.waitUntilCesiumTilesLoaded().then(testContent)
-            else testContent()
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('sets its height dynamically if at the bottom', () => {
             const testContent = () => {
@@ -72,8 +81,11 @@ describe('The infobox', () => {
                     expect($element.height()).to.be.closeTo(maxHeight - verticalPadding, 0.1)
                 })
             }
-            if (with3d) cy.waitUntilCesiumTilesLoaded().then(testContent)
-            else testContent()
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
     }
 

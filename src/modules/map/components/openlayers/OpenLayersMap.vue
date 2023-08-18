@@ -65,7 +65,7 @@
             :feature="feature"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
-        <OpenLayersPopover
+        <MapPopover
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -87,7 +87,7 @@
                 :feature="editFeature"
             />
             <FeatureList v-else direction="column" />
-        </OpenLayersPopover>
+        </MapPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
             v-if="geolocationActive"
@@ -118,7 +118,6 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -141,6 +140,7 @@ import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -152,6 +152,7 @@ import { createGeoJSONFeature } from '@/utils/layerUtils'
  */
 export default {
     components: {
+        MapPopover,
         FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
@@ -159,7 +160,6 @@ export default {
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersMarker,
-        OpenLayersPopover,
         OpenLayersVectorLayer,
     },
     provide() {

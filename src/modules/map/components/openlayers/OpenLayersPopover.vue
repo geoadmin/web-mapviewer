@@ -1,44 +1,22 @@
 <template>
-    <MapPopover
-        ref="mapPopoverContainer"
-        :authorize-print="authorizePrint"
-        :title="title"
-        :use-content-padding="useContentPadding"
-    >
-        <template #extra-buttons>
-            <slot name="extra-buttons"></slot>
-        </template>
-        <slot></slot>
-    </MapPopover>
+    <div>
+        <slot />
+    </div>
 </template>
 
 <script>
 import Overlay from 'ol/Overlay'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
  * of the popover
  */
 export default {
-    components: { MapPopover },
-    inject: ['getMap'],
+    inject: ['getMap', 'getMapPopoverRef'],
     props: {
         coordinates: {
             type: Array,
             required: true,
-        },
-        authorizePrint: {
-            type: Boolean,
-            default: false,
-        },
-        title: {
-            type: String,
-            default: '',
-        },
-        useContentPadding: {
-            type: Boolean,
-            default: false,
         },
     },
     watch: {
@@ -57,7 +35,7 @@ export default {
         })
     },
     mounted() {
-        this.overlay.setElement(this.$refs.mapPopoverContainer.getMapPopoverRef())
+        this.overlay.setElement(this.getMapPopoverRef())
         this.getMap().addOverlay(this.overlay)
         this.overlay.setPosition(this.coordinates)
     },

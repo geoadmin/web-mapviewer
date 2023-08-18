@@ -24,7 +24,7 @@
                 :z-index="index"
             />
         </div>
-        <CesiumPopover
+        <MapPopover
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -42,7 +42,7 @@
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
-        </CesiumPopover>
+        </MapPopover>
     </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
     <slot />
@@ -68,9 +68,8 @@ import {
     Color,
     Math as CesiumMath,
     RequestScheduler,
-    ScreenSpaceEventHandler,
-    Viewer,
     ScreenSpaceEventType,
+    Viewer,
 } from 'cesium'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
@@ -87,7 +86,6 @@ import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import proj4 from 'proj4'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -102,9 +100,10 @@ import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawi
 import log from '@/utils/logging'
 import { LineString, Point, Polygon } from 'ol/geom'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 export default {
-    components: { FeatureEdit, FeatureList, CesiumPopover, CesiumInternalLayer },
+    components: { MapPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -207,9 +206,9 @@ export default {
                         featureCoords[0],
                         featureCoords[1]
                     )
-                    this.viewer.camera.changed.addEventListener(this.onCameraMove)
+                    this.viewer?.camera.changed.addEventListener(this.onCameraMove)
                 } else {
-                    this.viewer.camera.changed.removeEventListener(this.onCameraMove)
+                    this.viewer?.camera.changed.removeEventListener(this.onCameraMove)
                 }
             },
             deep: true,
