@@ -35,7 +35,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="onToggleFloatingTooltipClick"
+                    @click="toggleFloatingTooltip"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -48,7 +48,10 @@
     <slot />
 </template>
 <script>
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import {
@@ -58,7 +61,20 @@ import {
     WMS_BASE_URL,
     WMTS_BASE_URL,
 } from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import {
+    isInBounds,
+    LV95_BOUNDS,
+    reprojectUnknownSrsCoordsToWebMercator,
+} from '@/utils/coordinateUtils'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
+import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
 import * as cesium from 'cesium'
 import {
@@ -71,6 +87,8 @@ import {
     ScreenSpaceEventType,
     Viewer,
 } from 'cesium'
+import { LineString, Point, Polygon } from 'ol/geom'
+import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
 import {
@@ -78,29 +96,10 @@ import {
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_PITCH,
     CAMERA_MIN_ZOOM_DISTANCE,
-    MINIMUM_DISTANCE_TO_SHOW_TOOLTIP,
     TERRAIN_URL,
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import proj4 from 'proj4'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
-import { createGeoJSONFeature } from '@/utils/layerUtils'
-import {
-    isInBounds,
-    LV95_BOUNDS,
-    reprojectUnknownSrsCoordsToWebMercator,
-} from '@/utils/coordinateUtils'
-import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import log from '@/utils/logging'
-import { LineString, Point, Polygon } from 'ol/geom'
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 export default {
     components: { MapPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
@@ -206,9 +205,6 @@ export default {
                         featureCoords[0],
                         featureCoords[1]
                     )
-                    this.viewer?.camera.changed.addEventListener(this.onCameraMove)
-                } else {
-                    this.viewer?.camera.changed.removeEventListener(this.onCameraMove)
                 }
             },
             deep: true,
@@ -297,7 +293,6 @@ export default {
         )
 
         this.flyToPosition()
-        this.tooltipToggledAutomaticaly = false
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.cesiumViewer = this.viewer
@@ -353,23 +348,7 @@ export default {
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
         },
-        onCameraMove() {
-            const camera = this.viewer.camera
-            const position = camera.positionCartographic
-            if (
-                position.height <= MINIMUM_DISTANCE_TO_SHOW_TOOLTIP &&
-                this.showFeaturesPopover &&
-                !this.isFeatureTooltipInFooter
-            ) {
-                this.toggleFloatingTooltip()
-                this.tooltipToggledAutomaticaly = true
-            }
-        },
         onClick(event) {
-            if (this.tooltipToggledAutomaticaly) {
-                this.toggleFloatingTooltip()
-                this.tooltipToggledAutomaticaly = false
-            }
             unhighlightGroup(this.viewer)
             const features = []
             let coordinates = []
@@ -445,12 +424,6 @@ export default {
         onPopupClose() {
             unhighlightGroup(this.viewer)
             this.clearAllSelectedFeatures()
-        },
-        onToggleFloatingTooltipClick() {
-            if (this.tooltipToggledAutomaticaly) {
-                this.tooltipToggledAutomaticaly = false
-            }
-            this.toggleFloatingTooltip()
         },
     },
 }
