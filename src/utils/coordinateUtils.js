@@ -60,7 +60,7 @@ const WGS84_BOUNDS = {
  *
  * @type {CoordinateSystemBounds}
  */
-const LV95_BOUNDS = {
+export const LV95_BOUNDS = {
     x: {
         lower: 2485071.58,
         upper: 2828515.82,
@@ -100,7 +100,7 @@ const LV03_BOUNDS = {
         upper: 299941.84,
     },
 }
-const isInBounds = (x, y, bounds) =>
+export const isInBounds = (x, y, bounds) =>
     x > bounds.x.lower && x < bounds.x.upper && y > bounds.y.lower && y < bounds.y.upper
 
 /**
@@ -115,9 +115,11 @@ const isInBounds = (x, y, bounds) =>
  *   convertible to WebMercator
  */
 export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
-    // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
-    // checking LV95 bounds
-    if (isInBounds(x, y, LV95_BOUNDS)) {
+    if (isInBounds(x, y, LV95_IN_MERCATOR_BOUNDS)) {
+        return proj4(WEBMERCATOR.epsg, WGS84.epsg, [x, y])
+        // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
+        // checking LV95 bounds
+    } else if (isInBounds(x, y, LV95_BOUNDS)) {
         return proj4(LV95.epsg, WGS84.epsg, [x, y])
         // checking LV95 backward
     } else if (isInBounds(y, x, LV95_BOUNDS)) {

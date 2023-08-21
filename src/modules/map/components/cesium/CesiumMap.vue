@@ -24,12 +24,34 @@
                 :z-index="index"
             />
         </div>
+        <MapPopover
+            v-if="showFeaturesPopover"
+            :coordinates="popoverCoordinates"
+            authorize-print
+            :use-content-padding="!!editFeature"
+            @close="onPopupClose"
+        >
+            <template #extra-buttons>
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
+                    data-cy="toggle-floating-off"
+                    @click="toggleFloatingTooltip"
+                >
+                    <FontAwesomeIcon icon="caret-down" />
+                </button>
+            </template>
+            <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
+            <FeatureList direction="column" />
+        </MapPopover>
     </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
     <slot />
 </template>
 <script>
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import {
@@ -39,7 +61,20 @@ import {
     WMS_BASE_URL,
     WMTS_BASE_URL,
 } from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import {
+    isInBounds,
+    LV95_BOUNDS,
+    reprojectUnknownSrsCoordsToWebMercator,
+} from '@/utils/coordinateUtils'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
+import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
 import * as cesium from 'cesium'
 import {
@@ -49,9 +84,11 @@ import {
     Color,
     Math as CesiumMath,
     RequestScheduler,
-    Viewer,
     ScreenSpaceEventType,
+    Viewer,
 } from 'cesium'
+import { LineString, Point, Polygon } from 'ol/geom'
+import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import CesiumInternalLayer from './CesiumInternalLayer.vue'
 import {
@@ -62,15 +99,10 @@ import {
     TERRAIN_URL,
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import proj4 from 'proj4'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
 
 export default {
-    components: { CesiumInternalLayer },
+    components: { MapPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -95,6 +127,7 @@ export default {
                 false,
                 []
             ),
+            popoverCoordinates: [],
         }
     },
     computed: {
@@ -104,6 +137,8 @@ export default {
             camera: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
+            isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
+            selectedFeatures: (state) => state.features.selectedFeatures,
         }),
         ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
         isDesktopMode() {
@@ -121,6 +156,58 @@ export default {
             return this.visibleLayers.filter(
                 (l) => l instanceof GeoAdminGeoJsonLayer || (l.addToMap && l instanceof KMLLayer)
             )
+        },
+        showFeaturesPopover() {
+            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+        },
+        editFeature() {
+            return this.selectedFeatures.find((feature) => feature.isEditable)
+        },
+    },
+    watch: {
+        selectedFeatures: {
+            // we need to deep watch this as otherwise we aren't triggered when
+            // coordinates are changed (but only when one feature is added/removed)
+            handler(newSelectedFeatures) {
+                if (newSelectedFeatures.length > 0) {
+                    const [firstFeature] = newSelectedFeatures
+                    const geometries = newSelectedFeatures.map((f) => {
+                        // GeoJSON and KML layers have different geometry structure
+                        if (!f.geometry.type) {
+                            let type = undefined
+                            if (f.geometry instanceof Polygon) {
+                                type = 'Polygon'
+                            } else if (f.geometry instanceof LineString) {
+                                type = 'LineString'
+                            } else if (f.geometry instanceof Point) {
+                                type = 'Point'
+                            }
+                            const coordinates = f.geometry.getCoordinates()
+                            const getCoordinates = (c) =>
+                                isInBounds(c[0], c[1], LV95_BOUNDS)
+                                    ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
+                                    : c
+                            return {
+                                type,
+                                coordinates:
+                                    typeof coordinates[0] === 'number'
+                                        ? getCoordinates(coordinates)
+                                        : coordinates.map(getCoordinates),
+                            }
+                        }
+                        return f.geometry
+                    })
+                    highlightGroup(this.viewer, geometries)
+                    const featureCoords = Array.isArray(firstFeature.coordinates[0])
+                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                        : firstFeature.coordinates
+                    this.popoverCoordinates = reprojectUnknownSrsCoordsToWebMercator(
+                        featureCoords[0],
+                        featureCoords[1]
+                    )
+                }
+            },
+            deep: true,
         },
     },
     beforeCreate() {
@@ -213,13 +300,21 @@ export default {
             globe.maximumScreenSpaceError = 30
         }
     },
+    beforeUnmount() {
+        this.clearAllSelectedFeatures()
+    },
     unmounted() {
         this.setCameraPosition(null)
         this.viewer.destroy()
         delete this.viewer
     },
     methods: {
-        ...mapActions(['setCameraPosition', 'click']),
+        ...mapActions([
+            'setCameraPosition',
+            'clearAllSelectedFeatures',
+            'click',
+            'toggleFloatingTooltip',
+        ]),
         flyToPosition() {
             const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
             const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
@@ -254,17 +349,81 @@ export default {
             })
         },
         onClick(event) {
-            const carto = Cartographic.fromCartesian(this.viewer.scene.pickPosition(event.position))
-            const wgs84Coords = [carto.longitude, carto.latitude].map(CesiumMath.toDegrees)
-            const mercatorCoords = proj4(WGS84.epsg, WEBMERCATOR.epsg, wgs84Coords)
+            unhighlightGroup(this.viewer)
+            const features = []
+            let coordinates = []
+            const cartesian = this.viewer.scene.pickPosition(event.position)
+            if (cartesian) {
+                const cartCoords = Cartographic.fromCartesian(cartesian)
+                coordinates = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                    (cartCoords.longitude * 180) / Math.PI,
+                    (cartCoords.latitude * 180) / Math.PI,
+                ])
+            }
+
+            let objects = this.viewer.scene.drillPick(event.position)
+            const geoJsonFeatures = {}
+            const kmlFeatures = {}
+            // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
+            this.visiblePrimitiveLayers
+                .filter((l) => l instanceof GeoAdminGeoJsonLayer)
+                .forEach((geoJSonLayer) => {
+                    objects
+                        .filter((obj) => obj.primitive?.olLayer?.get('id') === geoJSonLayer.getID())
+                        .forEach((obj) => {
+                            const feature = obj.primitive.olFeature
+                            if (!geoJsonFeatures[feature.getId()]) {
+                                geoJsonFeatures[feature.getId()] = createGeoJSONFeature(
+                                    obj.primitive.olFeature,
+                                    geoJSonLayer,
+                                    feature.getGeometry()
+                                )
+                            }
+                        })
+                    features.push(...Object.values(geoJsonFeatures))
+                })
+            this.visiblePrimitiveLayers
+                .filter((l) => l instanceof KMLLayer)
+                .forEach((KMLLayer) => {
+                    objects
+                        .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.getID())
+                        .forEach((obj) => {
+                            const feature = obj.primitive.olFeature
+                            if (!kmlFeatures[feature.getId()]) {
+                                const editableFeature = feature.get('editableFeature')
+                                if (editableFeature) {
+                                    editableFeature.geodesicCoordinates =
+                                        extractOlFeatureGeodesicCoordinates(feature)
+                                    editableFeature.geometry = feature.getGeometry()
+                                    kmlFeatures[feature.getId()] = editableFeature
+                                } else {
+                                    log.debug(
+                                        'KMLs which are not editable Features are not supported for selection'
+                                    )
+                                }
+                            }
+                        })
+                    features.push(...Object.values(kmlFeatures))
+                })
+            // Cesium can't pick position when click on primitive
+            if (!coordinates.length && features.length) {
+                const featureCoords = Array.isArray(features[0].coordinates[0])
+                    ? features[0].coordinates[0]
+                    : features[0].coordinates
+                coordinates = proj4(LV95.epsg, WEBMERCATOR.epsg, featureCoords)
+            }
             this.click(
                 new ClickInfo(
-                    mercatorCoords,
+                    coordinates,
                     [event.position.x, event.position.y],
-                    [],
+                    features,
                     ClickType.LEFT_SINGLECLICK
                 )
             )
+        },
+        onPopupClose() {
+            unhighlightGroup(this.viewer)
+            this.clearAllSelectedFeatures()
         },
     },
 }

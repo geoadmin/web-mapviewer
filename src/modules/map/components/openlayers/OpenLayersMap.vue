@@ -65,7 +65,7 @@
             :feature="feature"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
-        <OpenLayersPopover
+        <MapPopover
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -87,7 +87,7 @@
                 :feature="editFeature"
             />
             <FeatureList v-else direction="column" />
-        </OpenLayersPopover>
+        </MapPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
             v-if="geolocationActive"
@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 import {
@@ -118,7 +118,6 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -140,6 +139,8 @@ import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -151,6 +152,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
+        MapPopover,
         FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
@@ -158,7 +160,6 @@ export default {
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersMarker,
-        OpenLayersPopover,
         OpenLayersVectorLayer,
     },
     provide() {
@@ -454,26 +455,7 @@ export default {
                         layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
                     })
                     .forEach((feature) => {
-                        const featureGeometry = feature.getGeometry()
-                        // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                        // we have to wrap it around the "usual" wrapper from the backend
-                        // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                        const geoJsonFeature = new LayerFeature(
-                            geoJsonLayer,
-                            geoJsonLayer.getID(),
-                            geoJsonLayer.name,
-                            `<div class="htmlpopup-container">
-                                <div class="htmlpopup-header">
-                                    <span>${geoJsonLayer.name}</span>
-                                </div>
-                                <div class="htmlpopup-content">
-                                    ${feature.get('description')}
-                                </div>
-                            </div>`,
-                            featureGeometry.flatCoordinates,
-                            featureGeometry.getExtent()
-                        )
-                        log.debug('GeoJSON feature found', geoJsonFeature)
+                        const geoJsonFeature = createGeoJSONFeature(feature, geoJsonLayer)
                         features.push(geoJsonFeature)
                     })
             }

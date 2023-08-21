@@ -3,61 +3,89 @@
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector, with3d = false) => {
         it('is visible if features selected', () => {
-            cy.get('[data-cy="highlighted-features"]').should('not.exist')
+            const testContent = () => {
+                cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
-            cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
-            })
+                cy.get(mapSelector).click()
+                cy.waitUntilState((state) => {
+                    return state.features.selectedFeatures.length > 0
+                })
 
-            cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            }
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('blocks direct activation of fullscreen', () => {
-            cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
-            })
-            cy.get('[data-cy="infobox"]').should('be.visible')
-            cy.intercept('**/MapServer/identify**', {})
-            cy.get(mapSelector).click()
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
-            cy.activateFullscreen()
+            const testContent = () => {
+                cy.get(mapSelector).click()
+                cy.waitUntilState((state) => {
+                    return state.features.selectedFeatures.length > 0
+                })
+                cy.get('[data-cy="infobox"]').should('be.visible')
+                cy.intercept('**/MapServer/identify**', {})
+                cy.get(mapSelector).click()
+                cy.get('[data-cy="infobox"]').should('not.be.visible')
+                cy.activateFullscreen(mapSelector)
+            }
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('can float or stick to the bottom', () => {
-            cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
-            })
+            const testContent = () => {
+                cy.get(mapSelector).click()
+                cy.waitUntilState((state) => {
+                    return state.features.selectedFeatures.length > 0
+                })
 
-            cy.get('[data-cy="popover"]').should('not.exist')
-            cy.get('[data-cy="infobox"]').should('be.visible')
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('be.visible')
 
-            cy.get('[data-cy="infobox-toggle-floating"]').click()
-            cy.get('[data-cy="popover"]').should('be.visible')
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
+                cy.get('[data-cy="infobox-toggle-floating"]').click()
+                cy.get('[data-cy="popover"]').should('be.visible')
+                cy.get('[data-cy="infobox"]').should('not.be.visible')
 
-            cy.get('[data-cy="toggle-floating-off"]').click()
-            cy.get('[data-cy="popover"]').should('not.exist')
-            cy.get('[data-cy="infobox"]').should('be.visible')
+                cy.get('[data-cy="toggle-floating-off"]').click()
+                cy.get('[data-cy="popover"]').should('not.exist')
+                cy.get('[data-cy="infobox"]').should('be.visible')
+            }
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
         it('sets its height dynamically if at the bottom', () => {
-            cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
-            })
+            const testContent = () => {
+                cy.get(mapSelector).click()
+                cy.waitUntilState((state) => {
+                    return state.features.selectedFeatures.length > 0
+                })
 
-            cy.get('[data-cy="infobox-content"]').then(($element) => {
-                const { paddingTop, paddingBottom } = getComputedStyle($element[0])
-                const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
-                const viewportHeight = Cypress.config('viewportHeight')
-                let maxHeight = $element
-                    .find('[data-infobox="height-reference"]')
-                    .toArray()
-                    .map((child) => child.offsetHeight)
-                    .reduce((max, height) => Math.max(max, height), 0)
-                maxHeight = Math.min(maxHeight + verticalPadding, viewportHeight * 0.35)
-                expect($element.height()).to.be.closeTo(maxHeight - verticalPadding, 0.1)
-            })
+                cy.get('[data-cy="infobox-content"]').then(($element) => {
+                    const { paddingTop, paddingBottom } = getComputedStyle($element[0])
+                    const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
+                    const viewportHeight = Cypress.config('viewportHeight')
+                    let maxHeight = $element
+                        .find('[data-infobox="height-reference"]')
+                        .toArray()
+                        .map((child) => child.offsetHeight)
+                        .reduce((max, height) => Math.max(max, height), 0)
+                    maxHeight = Math.min(maxHeight + verticalPadding, viewportHeight * 0.35)
+                    expect($element.height()).to.be.closeTo(maxHeight - verticalPadding, 0.1)
+                })
+            }
+            if (with3d) {
+                cy.waitUntilCesiumTilesLoaded().then(testContent)
+            } else {
+                testContent()
+            }
         })
     }
 
@@ -78,7 +106,7 @@ describe('The infobox', () => {
         })
         generateInfoboxTestsForMapSelector('[data-cy="ol-map"]')
     })
-    context.skip('Cesium map', () => {
+    context('Cesium map', () => {
         beforeEach(() => {
             cy.goToMapView({ layers: layer, '3d': true })
         })
