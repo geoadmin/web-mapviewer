@@ -112,4 +112,30 @@ describe('The infobox', () => {
         })
         generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]', true)
     })
+    context('transition from 2D to 3D (and back to 2D)', () => {
+        beforeEach(() => {
+            cy.goToMapView({ layers: layer })
+
+            cy.get('[data-cy="ol-map"]').click()
+            cy.waitUntilState((state) => {
+                return state.features.selectedFeatures.length > 0
+            })
+            cy.get('[data-cy="highlighted-features"]').should('be.visible')
+        })
+        it('keeps the selected features when going 3D', () => {
+            cy.get('[data-cy="3d-button"]').click()
+            // waiting for 3D to be loaded
+            cy.readWindowValue('cesiumViewer').then(() => {
+                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            })
+        })
+        it('keeps the selected features when going back to 2D', () => {
+            cy.get('[data-cy="3d-button"]').click()
+            cy.readWindowValue('cesiumViewer').then(() => {
+                cy.get('[data-cy="3d-button"]').click()
+                cy.wait('@jpeg-tiles')
+                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            })
+        })
+    })
 })

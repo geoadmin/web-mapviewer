@@ -25,7 +25,7 @@
             />
         </div>
         <MapPopover
-            v-if="showFeaturesPopover"
+            v-if="viewerCreated && showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
             :use-content-padding="!!editFeature"
@@ -170,41 +170,7 @@ export default {
             // coordinates are changed (but only when one feature is added/removed)
             handler(newSelectedFeatures) {
                 if (newSelectedFeatures.length > 0) {
-                    const [firstFeature] = newSelectedFeatures
-                    const geometries = newSelectedFeatures.map((f) => {
-                        // GeoJSON and KML layers have different geometry structure
-                        if (!f.geometry.type) {
-                            let type = undefined
-                            if (f.geometry instanceof Polygon) {
-                                type = 'Polygon'
-                            } else if (f.geometry instanceof LineString) {
-                                type = 'LineString'
-                            } else if (f.geometry instanceof Point) {
-                                type = 'Point'
-                            }
-                            const coordinates = f.geometry.getCoordinates()
-                            const getCoordinates = (c) =>
-                                isInBounds(c[0], c[1], LV95_BOUNDS)
-                                    ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
-                                    : c
-                            return {
-                                type,
-                                coordinates:
-                                    typeof coordinates[0] === 'number'
-                                        ? getCoordinates(coordinates)
-                                        : coordinates.map(getCoordinates),
-                            }
-                        }
-                        return f.geometry
-                    })
-                    highlightGroup(this.viewer, geometries)
-                    const featureCoords = Array.isArray(firstFeature.coordinates[0])
-                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
-                        : firstFeature.coordinates
-                    this.popoverCoordinates = reprojectUnknownSrsCoordsToWebMercator(
-                        featureCoords[0],
-                        featureCoords[1]
-                    )
+                    this.highlightSelectedFeatures()
                 }
             },
             deep: true,
@@ -294,14 +260,15 @@ export default {
 
         this.flyToPosition()
 
+        if (this.selectedFeatures.length > 0) {
+            this.highlightSelectedFeatures()
+        }
+
         if (IS_TESTING_WITH_CYPRESS) {
             window.cesiumViewer = this.viewer
             // reduce screen space error to downgrade visual quality but speed up tests
             globe.maximumScreenSpaceError = 30
         }
-    },
-    beforeUnmount() {
-        this.clearAllSelectedFeatures()
     },
     unmounted() {
         this.setCameraPosition(null)
@@ -315,6 +282,43 @@ export default {
             'click',
             'toggleFloatingTooltip',
         ]),
+        highlightSelectedFeatures() {
+            const [firstFeature] = this.selectedFeatures
+            const geometries = this.selectedFeatures.map((f) => {
+                // GeoJSON and KML layers have different geometry structure
+                if (!f.geometry.type) {
+                    let type = undefined
+                    if (f.geometry instanceof Polygon) {
+                        type = 'Polygon'
+                    } else if (f.geometry instanceof LineString) {
+                        type = 'LineString'
+                    } else if (f.geometry instanceof Point) {
+                        type = 'Point'
+                    }
+                    const coordinates = f.geometry.getCoordinates()
+                    const getCoordinates = (c) =>
+                        isInBounds(c[0], c[1], LV95_BOUNDS)
+                            ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
+                            : c
+                    return {
+                        type,
+                        coordinates:
+                            typeof coordinates[0] === 'number'
+                                ? getCoordinates(coordinates)
+                                : coordinates.map(getCoordinates),
+                    }
+                }
+                return f.geometry
+            })
+            highlightGroup(this.viewer, geometries)
+            const featureCoords = Array.isArray(firstFeature.coordinates[0])
+                ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                : firstFeature.coordinates
+            this.popoverCoordinates = reprojectUnknownSrsCoordsToWebMercator(
+                featureCoords[0],
+                featureCoords[1]
+            )
+        },
         flyToPosition() {
             const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
             const y = this.camera ? this.camera.y : this.centerEpsg4326[1]

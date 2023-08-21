@@ -1,8 +1,8 @@
 import { BREAKPOINT_TABLET } from '@/config'
+import { randomIntBetween } from '@/utils/numberUtils'
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
-import { randomIntBetween } from '@/utils/numberUtils'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -14,10 +14,10 @@ const addLayerTileFixture = () => {
     // catching WMTS type URLs
     cy.intercept(`**/3857/**/**/**/**.jpeg`, {
         fixture: '256.jpeg',
-    })
+    }).as('jpeg-tiles')
     cy.intercept(`**/3857/**/**/**/**.png`, {
         fixture: '256.png',
-    })
+    }).as('png-tiles')
 }
 
 const addLayerFixtureAndIntercept = () => {
