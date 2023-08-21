@@ -5,15 +5,12 @@
 </template>
 
 <script>
-import {
-    Cartesian3,
-    Cartographic,
-    defined,
-    KeyboardEventModifier,
-    SceneTransforms,
-    ScreenSpaceEventHandler,
-    ScreenSpaceEventType,
-} from 'cesium'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+
+// Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
+// we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
+const tempCartesian3 = new Cartesian3()
+const tempCartographic = new Cartographic()
 
 /**
  * Places a popover on the cesium viewer at the given position (coordinates) and with the slot as
@@ -36,31 +33,49 @@ export default {
     mounted() {
         const viewer = this.getViewer()
         if (viewer) {
-            this.cesiumHandler = new ScreenSpaceEventHandler(viewer.scene.canvas)
-            this.cesiumHandler.setInputAction(this.updatePosition, ScreenSpaceEventType.MOUSE_MOVE)
-            // wheel event will trigger a zoom, the tooltip will need repositioning
-            this.cesiumHandler.setInputAction(this.updatePosition, ScreenSpaceEventType.WHEEL)
-            // rotating the view/camera is done by CTRL+click and move, so we also listen to mouse move when CTRL is down
-            this.cesiumHandler.setInputAction(
-                this.updatePosition,
-                ScreenSpaceEventType.MOUSE_MOVE,
-                KeyboardEventModifier.CTRL
-            )
+            // By default, the `camera.changed` event will trigger when the camera has changed by 50%
+            // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
+            // meaning that a change of 0.1% in any direction/rotation axis of the camera will trigger a change event
+            viewer.camera.percentageChanged = 0.001
             viewer.camera.changed.addEventListener(this.updatePosition)
 
+            // if the user zooms in (or out) we want to be sure that the new loaded terrain
+            // is taken into account for the tooltip positioning
+            viewer.scene.globe.tileLoadProgressEvent.addEventListener(() => {
+                // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
+                if (viewer.scene.globe.tilesLoaded) {
+                    this.updateCoordinateHeight()
+                    this.updatePosition()
+                }
+            })
             // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
             // but taking into account height using globe.getHeight for the given coordinate
+            // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
+            // there will be a gap between the tooltip and the selected feature
             this.updateCoordinateHeight()
             this.updatePosition()
         }
     },
     unmounted() {
-        this.cesiumHandler?.destroy()
+        const viewer = this.getViewer()
+        if (viewer) {
+            viewer.camera.changed.removeEventListener(this.updatePosition)
+            // Set back the camera change sensitivity to default value (see mounted())
+            viewer.camera.percentageChanged = 0.5
+        }
     },
     methods: {
+        /**
+         * Grabs the height on the terrain (no backend request) for the given coordinates, and stores it in this.coordinatesHeight
+         */
         updateCoordinateHeight() {
             this.coordinatesHeight = this.getViewer()?.scene.globe.getHeight(
-                Cartographic.fromDegrees(this.coordinates[0], this.coordinates[1])
+                Cartographic.fromDegrees(
+                    this.coordinates[0],
+                    this.coordinates[1],
+                    0,
+                    tempCartographic
+                )
             )
         },
         updatePosition() {
@@ -73,13 +88,17 @@ export default {
                 Cartesian3.fromDegrees(
                     this.coordinates[0],
                     this.coordinates[1],
-                    this.coordinatesHeight
+                    this.coordinatesHeight,
+                    Ellipsoid.WGS84,
+                    tempCartesian3
                 )
             )
             if (defined(cartesianCoords)) {
                 const mapPopover = this.getMapPopoverRef()
                 const { width } = mapPopover.getBoundingClientRect()
                 mapPopover.style.left = `${cartesianCoords.x - width / 2}px`
+                // adding 15px to the top so that the tip of the arrow of the tooltip is on the edge
+                // of the highlighting circle of the selected feature
                 mapPopover.style.top = `${cartesianCoords.y + 15}px`
             }
         },
