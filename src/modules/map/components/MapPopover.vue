@@ -36,16 +36,16 @@
                 <slot />
             </div>
         </div>
+        <OpenLayersPopover v-if="!is3DActive" :coordinates="coordinates"></OpenLayersPopover>
+        <CesiumPopover v-if="is3DActive" :coordinates="coordinates"></CesiumPopover>
     </div>
-    <OpenLayersPopover v-if="!is3DActive" :coordinates="coordinates"></OpenLayersPopover>
-    <CesiumPopover v-if="is3DActive" :coordinates="coordinates"></CesiumPopover>
 </template>
 
 <script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import promptUserToPrintHtmlContent from '@/utils/print'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import promptUserToPrintHtmlContent from '@/utils/print'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapState } from 'vuex'
 
 /** Map popover content and styles. Position handling is done in corresponding library components */

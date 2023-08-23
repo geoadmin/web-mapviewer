@@ -118,9 +118,11 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -139,8 +141,6 @@ import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
 import OpenLayersInternalLayer from './OpenLayersInternalLayer.vue'
 import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
-import { createGeoJSONFeature } from '@/utils/layerUtils'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 /**
  * Main OpenLayers map component responsible for building the OL map instance and telling the view
@@ -325,10 +325,7 @@ export default {
             // coordinates are changed (but only when one feature is added/removed)
             handler(newSelectedFeatures) {
                 if (newSelectedFeatures.length > 0) {
-                    const [firstFeature] = newSelectedFeatures
-                    this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
-                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
-                        : firstFeature.coordinates
+                    this.highlightSelectedFeatures()
                 }
             },
             deep: true,
@@ -379,6 +376,10 @@ export default {
         this.map.on('singleclick', this.onMapSingleClick)
         this.map.on('pointerdrag', this.onMapPointerDrag)
         this.map.on('moveend', this.onMapMoveEnd)
+
+        if (this.selectedFeatures.length > 0) {
+            this.highlightSelectedFeatures()
+        }
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
@@ -403,6 +404,12 @@ export default {
             'toggleFloatingTooltip',
             'clearAllSelectedFeatures',
         ]),
+        highlightSelectedFeatures() {
+            const [firstFeature] = this.selectedFeatures
+            this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
+                ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                : firstFeature.coordinates
+        },
         // Pointer down and up are triggered by both left and right clicks.
         onMapPointerDown() {
             /* Flag that inhibits multiple actions for the same mouse down event. So if on mobile,

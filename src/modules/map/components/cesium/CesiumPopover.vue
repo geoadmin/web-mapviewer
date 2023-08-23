@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import log from '@/utils/logging'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
@@ -54,6 +55,8 @@ export default {
             // there will be a gap between the tooltip and the selected feature
             this.updateCoordinateHeight()
             this.updatePosition()
+        } else {
+            log.error('Cesium viewer unavailable, could not hook up popover to Cesium')
         }
     },
     unmounted() {

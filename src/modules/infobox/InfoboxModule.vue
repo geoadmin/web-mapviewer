@@ -100,7 +100,6 @@ export default {
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
-
         selectedFeature() {
             return this.selectedFeatures[0]
         },
@@ -123,7 +122,6 @@ export default {
                 this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
             )
         },
-
         showContainer() {
             return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
         },
@@ -138,7 +136,7 @@ export default {
     watch: {
         showContainer(visible) {
             if (visible) {
-                this.$nextTick(this.setMaxHeight)
+                this.computeHeightNextTick()
             }
         },
         selectedFeatures(features) {
@@ -159,17 +157,20 @@ export default {
         // We can enable the teleport after the view has been rendered.
         this.$nextTick(() => {
             this.readyForTeleport = true
-            this.setMaxHeight()
+            this.computeHeightNextTick()
         })
     },
     methods: {
         ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
-
+        computeHeightNextTick() {
+            this.$nextTick(() => {
+                this.setMaxHeight()
+            })
+        },
         onToggleContent() {
             this.showContent = !this.showContent
-
             if (this.showContent) {
-                this.$nextTick(this.setMaxHeight)
+                this.computeHeightNextTick()
             }
         },
         onToggleFloating() {
@@ -181,12 +182,10 @@ export default {
         onClose() {
             this.clearAllSelectedFeatures()
         },
-
         setMaxHeight() {
             if (!this.showContainer || !this.$refs.content) {
                 return
             }
-
             const container = this.$refs.content
             const { paddingTop, paddingBottom } = getComputedStyle(container)
             const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
