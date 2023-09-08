@@ -1,4 +1,6 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
@@ -121,5 +123,54 @@ describe('Visible layers are filtered correctly by the store', () => {
         await store.dispatch('setLayersConfig', [bgLayer, invisibleLayer, secondLayer])
         await store.dispatch('addLayer', invisibleLayer)
         expect(getVisibleLayers()).to.be.an('Array').empty
+    })
+})
+
+describe('Layer z-index are calculated correctly in the store', () => {
+    const getZIndex = (layer) => store.getters.zIndexForVisibleLayer(layer)
+
+    beforeEach(async () => {
+        await resetStore()
+        await store.dispatch('setLayerConfig', [bgLayer, firstLayer, secondLayer])
+        // setting up the background layer
+        await store.dispatch('setBackground', bgLayer)
+    })
+
+    it('gives a z-index of -1 if the given layer is not valid', () => {
+        expect(getZIndex(null)).to.eq(-1)
+        expect(getZIndex(undefined)).to.eq(-1)
+        expect(getZIndex({})).to.eq(-1)
+        expect(getZIndex('')).to.eq(-1)
+        expect(getZIndex(0)).to.eq(-1)
+        expect(getZIndex(true)).to.eq(-1)
+    })
+
+    it('counts the BG layer', async () => {
+        await store.dispatch('addLayer', firstLayer)
+        expect(getZIndex(firstLayer)).to.eq(1) // BG layer takes the 0 spot
+    })
+
+    it('counts two non group layer correctly', async () => {
+        await store.dispatch('addLayer', firstLayer)
+        await store.dispatch('addLayer', secondLayer)
+        expect(getZIndex(firstLayer)).to.eq(1)
+        expect(getZIndex(secondLayer)).to.eq(2)
+    })
+
+    it('counts a group layers correctly', async () => {
+        const groupLayer = new ExternalGroupOfLayers(
+            'group',
+            'group',
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer1', []),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer2', []),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer3', []),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer4', [])
+        )
+        await store.dispatch('addLayer', firstLayer)
+        await store.dispatch('addLayer', groupLayer)
+        await store.dispatch('addLayer', secondLayer)
+        expect(getZIndex(firstLayer)).to.eq(1)
+        expect(getZIndex(groupLayer)).to.eq(2)
+        expect(getZIndex(secondLayer)).to.eq(6)
     })
 })

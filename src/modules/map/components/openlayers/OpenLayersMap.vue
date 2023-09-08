@@ -31,12 +31,12 @@
         />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
-            v-for="(layer, index) in visibleLayers"
+            v-for="layer in visibleLayers"
             :key="layer.getID()"
             :layer-config="layer"
             :preview-year="previewYear"
             :current-map-resolution="resolution"
-            :z-index="index + startingZIndexForVisibleLayers"
+            :z-index="zIndexForVisibleLayer(layer)"
         />
         <!-- Adding pinned location -->
         <OpenLayersMarker
@@ -204,6 +204,7 @@ export default {
             'isCurrentlyDrawing',
             'backgroundLayers',
             'isDesktopMode',
+            'zIndexForVisibleLayer',
         ]),
         crossHairStyle() {
             if (this.crossHair) {

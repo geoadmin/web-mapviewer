@@ -39,6 +39,14 @@
             :style-url="layerConfig.styleUrl"
             :z-index="zIndex"
         />
+        <div v-if="layerConfig.type === LayerTypes.GROUP">
+            <open-layers-internal-layer
+                v-for="(layer, index) in layerConfig.layers"
+                :key="`${layer.getID()}-${index}`"
+                :layer-config="layer"
+                :z-index="zIndex + index"
+            />
+        </div>
         <!--
         Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
         is visible depending on the map resolution.

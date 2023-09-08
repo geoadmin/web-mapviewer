@@ -1,4 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -120,6 +121,44 @@ const getters = {
     hasDataDisclaimer: (state) => (layerId) => {
         const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
         return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
+    },
+    /**
+     * Returns the z-index of a visible layer, taking into account the background layer(s) and/or
+     * if one of them is a group of layer (and thus all sub-layers are counted in the index)
+     *
+     * If the layer is not part of the visible layers (or is null or invalid), this will return -1 as a result
+     *
+     * @param {AbstractLayer} layerIdOrObject
+     * @returns {Number}
+     */
+    zIndexForVisibleLayer: (state, getters) => (layerIdOrObject) => {
+        let lookupId
+        if (layerIdOrObject instanceof AbstractLayer) {
+            lookupId = layerIdOrObject.getID()
+        } else {
+            lookupId = layerIdOrObject
+        }
+        const matchingLayer = getters.visibleLayers.find((layer) => layer.getID() === lookupId)
+        if (!matchingLayer) {
+            return -1
+        }
+        // we start by counting the background layer
+        let bgZIndex = state.currentBackgroundLayer ? 1 : 0
+        // we now count layers, checking if there are sub-layers (if the layer is a group of layer)
+        return (
+            getters.visibleLayers
+                // only keeping visible layer below the one that we want the z-index of
+                .slice(0, getters.visibleLayers.indexOf(matchingLayer))
+                // transforming layers into "z-indexes" by counting layers for groups, or 1 for normal layers
+                .map((layer) => {
+                    if (layer instanceof ExternalGroupOfLayers) {
+                        return layer.layers.length
+                    }
+                    return 1
+                })
+                // sum of all "z-index", and setting the initial value to the background's z-index
+                .reduce((a, b) => a + b, bgZIndex)
+        )
     },
 }
 
