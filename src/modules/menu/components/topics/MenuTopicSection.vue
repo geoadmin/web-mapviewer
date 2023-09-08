@@ -107,7 +107,7 @@ export default {
         onClickTopicItem(layerId) {
             const layer = this.getActiveLayerById(layerId)
             if (layer) {
-                this.toggleLayerVisibility(layerId)
+                this.toggleLayerVisibility(layer)
             } else {
                 this.addLayer(new ActiveLayerConfig(layerId, true))
             }

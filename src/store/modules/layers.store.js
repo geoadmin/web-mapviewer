@@ -10,11 +10,11 @@ const removeActiveLayerById = (state, layerId) =>
 
 const state = {
     /**
-     * Current background layer ID
+     * Current background layer
      *
-     * @type String
+     * @type AbstractLayer
      */
-    backgroundLayerId: null,
+    currentBackgroundLayer: null,
     /**
      * Currently active layers (that have been selected by the user from the search bar or the layer
      * tree)
@@ -93,20 +93,6 @@ const getters = {
     backgroundLayers: (state) =>
         state.config.filter((layer) => layer.isBackground && !layer.isSpecificFor3D),
     /**
-     * The currently used background layer's metadata
-     *
-     * @param state
-     * @param getters
-     * @returns {GeoAdminLayer}
-     */
-    currentBackgroundLayer: (state, getters) => {
-        if (!state.backgroundLayerId) {
-            return undefined
-        } else {
-            return getters.getLayerConfigById(state.backgroundLayerId)
-        }
-    },
-    /**
      * Retrieves a layer config metadata defined by its unique ID
      *
      * @param state
@@ -138,24 +124,40 @@ const getters = {
 }
 
 const actions = {
-    addLocation({ commit }, coordsEPSG3857) {
-        commit('addLocation', coordsEPSG3857)
-    },
-    setBackground({ commit }, bgLayerId) {
-        if (bgLayerId === 'void') {
-            commit('setBackground', null)
+    /**
+     * Will set the background to the given layer (or layer ID), but only if this layer's
+     * configuration states that this layer can be a background layer (isBackground flag)
+     *
+     * @param {String | AbstractLayer} layerIdOrObject
+     */
+    setBackground({ commit, getters }, layerIdOrObject) {
+        let futureBackground
+        if (typeof layerIdOrObject === 'string') {
+            futureBackground = getters.getLayerConfigById(layerIdOrObject)
+        } else if (layerIdOrObject instanceof AbstractLayer) {
+            futureBackground = getters.getLayerConfigById(layerIdOrObject.getID())
+        }
+        if (futureBackground?.isBackground) {
+            commit('setBackground', futureBackground)
         } else {
-            commit('setBackground', bgLayerId)
+            commit('setBackground', null)
         }
     },
+    /**
+     * Sets the configuration of all available layers for this application
+     *
+     * Will add layers back, if some were already added before the config was changed
+     *
+     * @param {AbstractLayer[]} config
+     */
     setLayerConfig({ commit, state, getters }, config) {
-        const activeLayerBeforeConfigChange = Array.from(state.activeLayers)
+        const activeLayerBeforeConfigChange = [...state.activeLayers]
         commit('clearLayers')
-        commit('setLayerConfig', config)
+        commit('setLayerConfig', [...config])
         activeLayerBeforeConfigChange.forEach((layer) => {
             const layerConfig = getters.getLayerConfigById(layer.getID())
             if (layerConfig) {
-                // If we found a layer config we use as it might have change the i18n translation
+                // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
@@ -173,25 +175,37 @@ const actions = {
             }
         })
     },
-    async addLayer({ commit, getters }, payload) {
+    /**
+     * Add a layer to the active layers.
+     *
+     * It will do so by cloning the config that is given, or the one that matches the layer ID in the
+     * layers' config. This is done so that we may add one "layer" multiple time to the active layers
+     * list (for instance having a time enabled layer added multiple time with a different timestamp)
+     *
+     * @param {String | AbstractLayer | ActiveLayerConfig} layerIdOrObject
+     */
+    async addLayer({ commit, getters }, layerIdOrObject) {
+        // creating a clone of the config, so that we do not modify the initial config of the app
+        // (it is possible to add one layer many times, so we want to always have the correct
+        // default values when we add it, not the settings from the layer already added)
         let layer = null
-        if (payload instanceof AbstractLayer) {
-            layer = payload
-        } else if (payload instanceof ActiveLayerConfig) {
+        if (layerIdOrObject instanceof AbstractLayer) {
+            layer = layerIdOrObject.clone()
+        } else if (layerIdOrObject instanceof ActiveLayerConfig) {
             // Get the AbstractLayer Config object, we need to clone it in order
             // to update the config (opacity/visible) if needed.
-            layer = getters.getLayerConfigById(payload.id)?.clone()
+            layer = getters.getLayerConfigById(layerIdOrObject.id)?.clone()
 
             if (layer) {
-                if (payload.visible !== undefined) {
-                    layer.visible = payload.visible
+                if (layerIdOrObject.visible !== undefined) {
+                    layer.visible = layerIdOrObject.visible
                 }
-                if (payload.opacity !== undefined) {
-                    layer.opacity = payload.opacity
+                if (layerIdOrObject.opacity !== undefined) {
+                    layer.opacity = layerIdOrObject.opacity
                 }
             }
-        } else if (typeof payload === 'string') {
-            layer = getters.getLayerConfigById(payload)
+        } else if (typeof layerIdOrObject === 'string') {
+            layer = getters.getLayerConfigById(layerIdOrObject)?.clone()
         }
         if (layer) {
             try {
@@ -202,7 +216,7 @@ const actions = {
                 commit('addLayer', { layer: layer, metadata: null })
             }
         } else {
-            log.error('no layer found for payload:', payload)
+            log.error('no layer found for payload:', layerIdOrObject)
         }
     },
     removeLayer({ commit }, layerIdOrObject) {
@@ -217,8 +231,23 @@ const actions = {
     clearLayers({ commit }) {
         commit('clearLayers')
     },
-    toggleLayerVisibility({ commit }, layerId) {
-        commit('toggleLayerVisibility', layerId)
+    toggleLayerVisibility({ commit, state }, layerIdOrObject) {
+        let layer = null
+        if (typeof layerIdOrObject === 'string') {
+            layer = getActiveLayerById(state, layerIdOrObject)
+        } else if (layerIdOrObject instanceof AbstractLayer) {
+            // here we are not 100% sure that the instance we have received matches the one stored
+            // in activate layers, as the addLayer action creates clones of the config when a layer
+            // is added. So we search for the matching instance in the currently active layers.
+            layer = state.activeLayers.find(
+                (activeLayer) => activeLayer.getID() === layerIdOrObject.getID()
+            )
+        }
+        if (layer) {
+            commit('toggleLayerVisibility', layer)
+        } else {
+            log.error('Cannot toggle layer visibility, layer not found', layerIdOrObject)
+        }
     },
     setLayerVisibility({ commit }, payload) {
         if ('visible' in payload && 'layerId' in payload) {
@@ -317,11 +346,8 @@ const actions = {
 }
 
 const mutations = {
-    addLocation(state, { x, y }) {
-        state.pinLocation = { x, y }
-    },
-    setBackground(state, bgLayerId) {
-        state.backgroundLayerId = bgLayerId
+    setBackground(state, backgroundLayer) {
+        state.currentBackgroundLayer = backgroundLayer
     },
     setLayerConfig(state, config) {
         state.config = config
@@ -340,11 +366,8 @@ const mutations = {
     clearLayers(state) {
         state.activeLayers = []
     },
-    toggleLayerVisibility(state, layerId) {
-        const layer = getActiveLayerById(state, layerId)
-        if (layer) {
-            layer.visible = !layer.visible
-        }
+    toggleLayerVisibility(state, layer) {
+        layer.visible = !layer.visible
     },
     setLayerVisibility(state, { layerId, visible }) {
         const activeLayer = getActiveLayerById(state, layerId)

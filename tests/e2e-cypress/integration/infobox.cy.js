@@ -133,7 +133,6 @@ describe('The infobox', () => {
             cy.get('[data-cy="3d-button"]').click()
             cy.readWindowValue('cesiumViewer').then(() => {
                 cy.get('[data-cy="3d-button"]').click()
-                cy.wait('@jpeg-tiles')
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             })
         })

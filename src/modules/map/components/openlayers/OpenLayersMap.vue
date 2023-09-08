@@ -183,6 +183,7 @@ export default {
             zoom: (state) => state.position.zoom,
             rotation: (state) => state.position.rotation,
             center: (state) => state.position.center,
+            currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
             selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             previewedPinnedLocation: (state) => state.map.previewedPinnedLocation,
@@ -198,7 +199,6 @@ export default {
         }),
         ...mapGetters([
             'visibleLayers',
-            'currentBackgroundLayer',
             'isExtentOnlyWithinLV95Bounds',
             'resolution',
             'isCurrentlyDrawing',

@@ -66,9 +66,9 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['backgroundLayers', 'currentBackgroundLayer']),
+        ...mapGetters(['backgroundLayers']),
         ...mapState({
-            currentBackgroundLayerId: (state) => state.layers.backgroundLayerId,
+            currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
         }),
         currentBackgroundLayerWithVoid() {
             if (!this.currentBackgroundLayer) {

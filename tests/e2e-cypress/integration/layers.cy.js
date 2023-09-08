@@ -197,10 +197,10 @@ describe('Test of layer handling', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
                 cy.goToMapView()
-                cy.readStoreValue('state.layers.backgroundLayerId').should(
-                    'eq',
-                    defaultTopic.defaultBackground
-                )
+                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                    expect(bgLayer).to.not.be.null
+                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                })
             })
         })
         it('sets the background to the topic default if none is defined in the URL, even if a layer (out of topic scope) is defined in it', () => {
@@ -209,10 +209,10 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: 'test.timeenabled.wmts.layer',
                 })
-                cy.readStoreValue('state.layers.backgroundLayerId').should(
-                    'eq',
-                    defaultTopic.defaultBackground
-                )
+                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                    expect(bgLayer).to.not.be.null
+                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')
                     expect(layers.length).to.eq(1)
@@ -225,10 +225,10 @@ describe('Test of layer handling', () => {
             cy.goToMapView({
                 bgLayer: 'test.background.layer2',
             })
-            cy.readStoreValue('state.layers.backgroundLayerId').should(
-                'eq',
-                'test.background.layer2'
-            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                expect(bgLayer).to.not.be.null
+                expect(bgLayer.getID()).to.eq('test.background.layer2')
+            })
         })
     })
     context('Layer settings in menu', () => {
