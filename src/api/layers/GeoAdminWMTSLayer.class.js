@@ -29,7 +29,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         id = '',
         opacity = 1.0,
         visible = false,
-        attributions,
+        attributions = [],
         format = 'png',
         timeConfig = null,
         isBackground = false,

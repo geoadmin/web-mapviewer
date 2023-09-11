@@ -128,15 +128,18 @@ const getters = {
      *
      * If the layer is not part of the visible layers (or is null or invalid), this will return -1 as a result
      *
-     * @param {AbstractLayer} layerIdOrObject
+     * @param {AbstractLayer | String} layerIdOrObject
      * @returns {Number}
      */
     zIndexForVisibleLayer: (state, getters) => (layerIdOrObject) => {
         let lookupId
         if (layerIdOrObject instanceof AbstractLayer) {
             lookupId = layerIdOrObject.getID()
-        } else {
+        } else if (typeof layerIdOrObject === 'string') {
             lookupId = layerIdOrObject
+        } else {
+            log.error("wrong type of layer definition, can't toggle visibility", layerIdOrObject)
+            return -1
         }
         const matchingLayer = getters.visibleLayers.find((layer) => layer.getID() === lookupId)
         if (!matchingLayer) {

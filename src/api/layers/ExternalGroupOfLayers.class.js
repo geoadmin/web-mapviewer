@@ -20,4 +20,10 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
     getID() {
         return this.externalLayerId
     }
+
+    clone() {
+        let clone = super.clone()
+        clone.layers = this.layers.map((layer) => layer.clone())
+        return clone
+    }
 }
