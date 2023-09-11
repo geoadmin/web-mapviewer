@@ -78,10 +78,13 @@ import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
 import * as cesium from 'cesium'
 import {
+    Cartesian2,
     Cartesian3,
     Cartographic,
     CesiumTerrainProvider,
     Color,
+    defined,
+    Ellipsoid,
     Math as CesiumMath,
     RequestScheduler,
     ScreenSpaceEventType,
@@ -270,6 +273,26 @@ export default {
             globe.maximumScreenSpaceError = 30
         }
     },
+    beforeUnmount() {
+        // the camera position that is for now dispatched to the store doesn't correspond where the 2D
+        // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
+        // have nothing to do with the top-down 2D view.
+        // here we ray trace the coordinate of where the camera is looking at, and send this "target"
+        // to the store as the new center
+        const ray = this.viewer.camera.getPickRay(
+            new Cartesian2(
+                Math.round(this.viewer.scene.canvas.clientWidth / 2),
+                Math.round(this.viewer.scene.canvas.clientHeight / 2)
+            )
+        )
+        const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
+        if (defined(cameraTarget)) {
+            const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
+            const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
+            const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
+            this.setCenter(proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]))
+        }
+    },
     unmounted() {
         this.setCameraPosition(null)
         this.viewer.destroy()
@@ -281,6 +304,7 @@ export default {
             'clearAllSelectedFeatures',
             'click',
             'toggleFloatingTooltip',
+            'setCenter',
         ]),
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
