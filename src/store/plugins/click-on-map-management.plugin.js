@@ -1,7 +1,7 @@
-import { EditableFeature, EditableFeatureTypes, identify } from '@/api/features.api'
+import { identify } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { ClickType } from '@/store/modules/map.store'
+import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import log from '@/utils/logging'
 
 /**
@@ -11,8 +11,9 @@ import log from '@/utils/logging'
  * @param {ClickInfo} clickInfo Store mutation payload
  * @param {GeoAdminLayer[]} visibleLayers All currently visible layers on the map
  * @param {String} lang
+ * @param {CoordinateSystem} projection
  */
-const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
+const runIdentify = async (store, clickInfo, visibleLayers, lang, projection = WEBMERCATOR) => {
     // we run identify only if there are visible layers (other than background)
     if (visibleLayers.length > 0) {
         const allRequests = []
@@ -28,7 +29,8 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang) => {
                         store.getters.extent.flat(),
                         store.state.ui.width,
                         store.state.ui.height,
-                        lang
+                        lang,
+                        projection
                     )
                 )
             } else {
