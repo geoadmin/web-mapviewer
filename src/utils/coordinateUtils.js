@@ -402,9 +402,10 @@ export const printHumanReadableCoordinates = (coordinates, coordinateSystem = LV
  *
  * @param {[Number, Number][]} coordinates Coordinates, expressed in EPSG:3857 (metric mercator)
  *   `[[x1,y1],[x2,y2],...]`
+ *   @param {CoordinateSystem} projection The projection used to describe the coordinates
  * @returns {null | CoordinatesChunk[]}
  */
-export const splitIfOutOfLV95Bounds = (coordinates) => {
+export const splitIfOutOfLV95Bounds = (coordinates, projection = WEBMERCATOR) => {
     if (!Array.isArray(coordinates) || coordinates.length <= 1) {
         return null
     }
@@ -412,13 +413,13 @@ export const splitIfOutOfLV95Bounds = (coordinates) => {
     if (coordinates.find((coordinate) => coordinate.length !== 2)) {
         return null
     }
+    let bounds = LV95_BOUNDS
+    if (projection.epsg === WEBMERCATOR.epsg) {
+        bounds = LV95_IN_MERCATOR_BOUNDS
+    }
     // checking if we require splitting
-    if (
-        coordinates.find(
-            (coordinate) => !isInBounds(coordinate[0], coordinate[1], LV95_IN_MERCATOR_BOUNDS)
-        )
-    ) {
-        return splitIfOutOfLV95BoundsRecurse(coordinates)
+    if (coordinates.find((coordinate) => !isInBounds(coordinate[0], coordinate[1], bounds))) {
+        return splitIfOutOfLV95BoundsRecurse(coordinates, bounds)
     }
     // no splitting needed, we return the coordinates as they were given
     return [
@@ -431,26 +432,27 @@ export const splitIfOutOfLV95Bounds = (coordinates) => {
 
 /**
  * @param {[Number, Number][]} coordinates
+ * @param {CoordinateSystemBounds} bounds
  * @param {[CoordinatesChunk]} previousChunks
  * @param {Boolean} isFirstChunk
  * @returns {[CoordinatesChunk]}
  */
-function splitIfOutOfLV95BoundsRecurse(coordinates, previousChunks = [], isFirstChunk = true) {
+function splitIfOutOfLV95BoundsRecurse(
+    coordinates,
+    bounds,
+    previousChunks = [],
+    isFirstChunk = true
+) {
     // for the first chunk, we take the very first coordinate, after that as we add the junction
     // to the coordinates, we need to take the second to check if it is in bound
     const firstCoordinate = coordinates[isFirstChunk ? 0 : 1]
-    const isFirstCoordinateInBounds = isInBounds(
-        firstCoordinate[0],
-        firstCoordinate[1],
-        LV95_IN_MERCATOR_BOUNDS
-    )
+    const isFirstCoordinateInBounds = isInBounds(firstCoordinate[0], firstCoordinate[1], bounds)
     // searching for the next coordinates where the split will happen (omitting the first coordinate)
     const nextCoordinateWithoutSameBounds = coordinates
         .slice(1)
         .find(
             (coordinate) =>
-                isFirstCoordinateInBounds !==
-                isInBounds(coordinate[0], coordinate[1], LV95_IN_MERCATOR_BOUNDS)
+                isFirstCoordinateInBounds !== isInBounds(coordinate[0], coordinate[1], bounds)
         )
     if (!nextCoordinateWithoutSameBounds) {
         // end of the recurse loop, nothing more to split, we add the last segment/chunk
@@ -480,6 +482,7 @@ function splitIfOutOfLV95BoundsRecurse(coordinates, previousChunks = [], isFirst
     const coordinateLeftToProcess = [intersection, ...coordinates.slice(indexOfNextCoord)]
     return splitIfOutOfLV95BoundsRecurse(
         coordinateLeftToProcess,
+        bounds,
         [
             ...previousChunks,
             {

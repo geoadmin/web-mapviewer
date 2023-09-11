@@ -49,7 +49,7 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
             // because the coordinates are technically in bound of LV95, but our backend doesn't cover the last km
             // or so of the LV95 bounds, resulting in an empty profile being sent by the backend even though our
             // coordinates were inbound (hence the dataForChunk.data.length > 2 check)
-            if (dataForChunk && dataForChunk.data && dataForChunk.data.length > 2) {
+            if (dataForChunk?.data && dataForChunk.data.length > 2) {
                 return parseProfileFromBackendResponse(dataForChunk.data, startingDist)
             } else {
                 log.error('Incorrect/empty response while getting profile', dataForChunk)
@@ -61,8 +61,12 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
     let lastDist = startingDist
     let lastCoordinate = startingPoint
+    if (!chunk?.coordinates) {
+        log.error('Malformed chunk', chunk)
+        return null
+    }
     return new ElevationProfileSegment([
-        ...chunk.coordinates?.map((coordinate) => {
+        ...chunk.coordinates.map((coordinate) => {
             let dist = lastDist
             if (lastCoordinate) {
                 dist += Math.sqrt(
@@ -79,9 +83,14 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
 
 /**
  * @param {CoordinatesChunk[]} chunks
+ * @param {CoordinateSystem} fromProjection
  * @returns {CoordinatesChunk[]}
  */
-function chunksToLV95(chunks) {
+function chunksToLV95(chunks, fromProjection = WEBMERCATOR) {
+    if (fromProjection.epsg !== WEBMERCATOR.epsg) {
+        log.error('Unsupported projection system for profile API', fromProjection)
+        return []
+    }
     return chunks.map((chunk) => {
         chunk.coordinates = toLv95(chunk.coordinates, WEBMERCATOR.epsg)
         return chunk
@@ -91,26 +100,30 @@ function chunksToLV95(chunks) {
 /**
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
- * @param {[Number, Number][]} coordinates Coordinates in EPSG:3857 (WebMercator) from which we want
+ * @param {[Number, Number][]} coordinates Coordinates, expressed in the given projection, from which we want
  *   the profile
+ *   @param {CoordinateSystem} projection The projection used to describe the coordinates
  * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
  *   profile
  */
-export default async (coordinates) => {
+export default async (coordinates, projection = WEBMERCATOR) => {
     if (!coordinates || coordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
         log.error(errorMessage)
         throw errorMessage
     }
     const segments = []
-    const coordinateChunks = splitIfOutOfLV95Bounds(coordinates)
+    let coordinateChunks = splitIfOutOfLV95Bounds(coordinates, projection)
     if (!coordinateChunks) {
         log.error('No chunks found, no profile data could be fetched')
         return null
     }
+    if (projection.epsg !== LV95.epsg) {
+        coordinateChunks = chunksToLV95(coordinateChunks, projection)
+    }
     let lastCoordinate = null
     let lastDist = 0
-    for (const chunk of chunksToLV95(coordinateChunks)) {
+    for (const chunk of coordinateChunks) {
         const segment = await getProfileDataForChunk(chunk, lastCoordinate, lastDist)
         const newSegmentLastPoint = segment.points.slice(-1)[0]
         lastCoordinate = newSegmentLastPoint.coordinate
