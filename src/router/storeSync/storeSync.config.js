@@ -1,8 +1,8 @@
+import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
-import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
-import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
+import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -70,12 +70,12 @@ const storeSyncConfig = [
         'setBackground',
         'setBackground',
         (store) => {
-            const backgroundLayerId = store.state.layers.backgroundLayerId
-            // if background layer ID is null (no background) we write 'void' in the URL
-            if (backgroundLayerId === null) {
+            const backgroundLayer = store.state.layers.currentBackgroundLayer
+            // if background layer is null (no background) we write 'void' in the URL
+            if (backgroundLayer === null) {
                 return 'void'
             }
-            return backgroundLayerId
+            return backgroundLayer.getID()
         },
         true,
         String

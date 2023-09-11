@@ -38,13 +38,9 @@ export default {
     computed: {
         ...mapState({
             layersConfig: (state) => state.layers.config,
+            currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
         }),
-        ...mapGetters([
-            'visibleLayers',
-            'currentBackgroundLayer',
-            'hasDataDisclaimer',
-            'isExtentOnlyWithinLV95Bounds',
-        ]),
+        ...mapGetters(['visibleLayers', 'hasDataDisclaimer', 'isExtentOnlyWithinLV95Bounds']),
         layers() {
             const layers = []
             // when the background is void, we receive `undefined` here

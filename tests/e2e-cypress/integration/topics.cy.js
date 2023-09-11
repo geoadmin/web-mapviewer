@@ -103,10 +103,10 @@ describe('Topics', () => {
                 expect(layers.length).to.eq(0)
             })
             // we expect background layer to have switch to the one of the topic
-            cy.readStoreValue('state.layers.backgroundLayerId').should(
-                'eq',
-                topicStandard.defaultBackground
-            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                expect(bgLayer).to.not.be.null
+                expect(bgLayer.getID()).to.eq(topicStandard.defaultBackground)
+            })
         })
         it('activates layers of the topic after topic swap', () => {
             cy.goToMapView()
@@ -142,7 +142,6 @@ describe('Topics', () => {
                 'test.wmts.layer': 0.6,
                 'test.wms.layer': 0.8,
             }
-            const expectedBackgroundLayerId = null // void layer
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
@@ -161,10 +160,7 @@ describe('Topics', () => {
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
             })
-            cy.readStoreValue('state.layers.backgroundLayerId').should(
-                'eq',
-                expectedBackgroundLayerId
-            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null') // void layer
         })
         if (isMobileViewport) {
             it('keeps the menu open/visible after a topic is selected', () => {
@@ -193,10 +189,10 @@ describe('Topics', () => {
             })
             const topicWithActiveLayers = mockupTopics.topics[2]
             selectTopicWithId(topicWithActiveLayers.id)
-            cy.readStoreValue('state.layers.backgroundLayerId').should(
-                'eq',
-                topicWithActiveLayers.defaultBackground
-            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                expect(bgLayer).to.not.be.null
+                expect(bgLayer.getID()).to.eq(topicWithActiveLayers.defaultBackground)
+            })
         })
     })
 

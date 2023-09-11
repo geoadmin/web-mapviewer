@@ -1,5 +1,6 @@
 import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import LayerTypes from './LayerTypes.enum'
+
 /** Name (or description) of a data holder for a layer, with the possibility to define a URL */
 export class LayerAttribution {
     /**
@@ -48,7 +49,7 @@ export default class AbstractLayer {
         this.type = type
         this.opacity = opacity
         this.visible = visible
-        this.attributions = attributions
+        this.attributions = [...attributions]
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
         // default projection used, as we want to achieve worldwide coverage, is web mercator metric
