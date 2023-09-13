@@ -1,9 +1,9 @@
 {
-  "crs": {
-    "properties": { "name": "EPSG:2056" }
-  },
-  "features": [
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [2701702, 1265811] } }
-  ],
-  "type": "FeatureCollection"
+    "crs": {
+        "properties": { "name": "EPSG:2056" }
+    },
+    "features": [
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [2701702, 1265811] } }
+    ],
+    "type": "FeatureCollection"
 }
