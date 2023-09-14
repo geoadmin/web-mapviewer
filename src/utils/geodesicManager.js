@@ -1,5 +1,5 @@
 import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,

@@ -2,7 +2,7 @@
     <slot />
 </template>
 <script>
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 import Overlay from 'ol/Overlay'
 import proj4 from 'proj4'

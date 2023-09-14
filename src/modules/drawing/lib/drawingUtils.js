@@ -1,4 +1,4 @@
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { format } from '@/utils/numberUtils'
 import { wrapX as wrapXCoordinate } from 'ol/coordinate'
 import { LineString, Point, Polygon } from 'ol/geom'

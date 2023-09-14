@@ -7,15 +7,15 @@
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS } from '@/config'
-import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
 import { XYZ as XYZSource } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-
-import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 /** Renders a WMTS layer on the map */
 export default {

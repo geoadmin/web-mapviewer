@@ -1,5 +1,5 @@
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'

@@ -6,12 +6,12 @@
 
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { CoordinateSystem, WEBMERCATOR } from '@/utils/coordinateSystems'
-import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
-import addImageryLayerMixins from './utils/addImageryLayer-mixins'
-
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
+import addImageryLayerMixins from './utils/addImageryLayer-mixins'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 

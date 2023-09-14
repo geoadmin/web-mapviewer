@@ -7,9 +7,10 @@
 <script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
-import { CoordinateSystem, LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
 import ImageWMS from 'ol/source/ImageWMS'
@@ -18,8 +19,6 @@ import TileGrid from 'ol/tilegrid/TileGrid'
 import proj4 from 'proj4'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-
-import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 /** Renders a WMS layer on the map */
 export default {

@@ -2,10 +2,10 @@
     <slot />
 </template>
 <script>
-import { LV95, WGS84 } from '@/utils/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
-import proj4 from 'proj4'
 import { CallbackProperty, Cartesian3, Color, Ellipsoid, Entity, HeightReference } from 'cesium'
+import proj4 from 'proj4'
 
 export default {
     inject: ['getViewer'],
