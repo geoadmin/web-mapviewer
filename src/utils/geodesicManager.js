@@ -1,3 +1,4 @@
+import log from '@/utils/logging'
 import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
@@ -27,8 +28,9 @@ export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
  * - Generating the measure styles that the measure feature uses to display intermediate distances,
  *   the total distance, the azimuth circle, and, in case of a polygon, the total area.
  *
- * Terminology used: Segment: Array of two coordinates describing a segment of the drawn line
- * Subsegment: This class will break the above mentioned segments up in subsegments to approximate a
+ * Terminology used:
+ * - Segment: Array of two coordinates describing a segment of the drawn line
+ * - Subsegment: This class will break the above mentioned segments up in subsegments to approximate a
  * geodesic line.
  *
  * Won't fix: When drawing across the dateline and zooming near at the dateline, the drawn line may
@@ -90,8 +92,20 @@ export class GeodesicGeometries {
         this.isDrawing = this.feature.get('isDrawing')
         this.isPolygon = false
         if (this.geom instanceof Polygon) {
+            // A Polygon is an array of Polygons, but because we don't support multi polygons
+            // we keep only the first polygon here.
+            if (this.geom.getCoordinates().length > 1) {
+                log.error(`Multi Polygon not supported in geodesic manager`)
+            }
             this.coords = this.geom.getCoordinates()[0]
             if (this.isDrawing) {
+                // When starting the drawing mode, it uses always Polygon. The polygon
+                // will be converted if needed to a LineString when the drawing mode is ended.
+                // Forming a polygon in drawing mode, automatically end the drawing mode (because
+                // we don't support multi polygon).
+                // Because of this, the coordinates always have the last point equal to the first
+                // point in order to form a polygon. That's why we remove the last point for the
+                // calculation.
                 this.coords = this.coords.slice(0, -1)
             } else {
                 this.isPolygon = true
@@ -100,15 +114,16 @@ export class GeodesicGeometries {
         this.hasAzimuthCircle =
             !this.isPolygon &&
             (this.coords.length === 2 ||
-                (this.coords.length === 3 &&
-                    this.coords[1][0] === this.coords[2][0] &&
-                    this.coords[1][1] === this.coords[2][1]))
+                (this.coords.length === 3 && // ?
+                    this.coords[1][0] === this.coords[2][0] && // ?
+                    this.coords[1][1] === this.coords[2][1])) // ?
         this.stylesReady = !(
             this.coords.length < 2 ||
             (this.coords.length === 2 &&
                 this.coords[0][0] === this.coords[1][0] &&
                 this.coords[0][1] === this.coords[1][1])
         )
+        log.debug(`_calculateEverything`, this.geom, this.isDrawing, this.coords, this.stylesReady, this.hasAzimuthCircle)
         /* The order of these calculations is important, as some methods require information
         calculated by previous methods. */
         this._calculateGlobalProperties()
