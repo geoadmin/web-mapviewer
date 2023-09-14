@@ -154,3 +154,132 @@ export function stringifyQuery(query) {
 
     return search
 }
+
+/* Import URL utils start */
+
+const ADMIN_URL_REGEXP = new RegExp(
+    '^(ftp|http|https)://(.*(.bgdi.ch|.geo.admin.ch|.swisstopo.cloud)|localhost:[0-9]{1,5})'
+)
+
+// todo use correct URLs
+const PROXY_URL = '//service-proxy.bgdi-dev.swisstopo.cloud'
+
+export function appendParamsToUrl(url, paramString) {
+    if (paramString) {
+        const parts = (url + ' ').split(/[?&]/)
+        url +=
+            parts.pop() === ' '
+                ? paramString
+                : parts.length > 0
+                ? '&' + paramString
+                : '?' + paramString
+    }
+    return url
+}
+
+// Test if the URL comes from a friendly site
+export function isAdminValid(url) {
+    return isValidUrl(url) && ADMIN_URL_REGEXP.test(url)
+}
+
+// Test if URL is a blob url
+export function isBlob(url) {
+    return /^blob:/.test(url)
+}
+
+// Test if URL uses https
+export function isHttps(url) {
+    return isValidUrl(url) && /^https/.test(url)
+}
+
+// Test if URL represents resource that needs to pass via proxy
+export function needsProxy(url) {
+    if (isBlob(url)) {
+        return false
+    }
+    return !isHttps(url) || !isAdminValid(url) || /.*kmz$/.test(url)
+}
+
+export function buildProxyUrl(url) {
+    if (!isValidUrl(url)) {
+        return url
+    }
+    const parts = /^(http|https)(:\/\/)(.+)/.exec(url)
+    const protocol = parts[1]
+    const resource = parts[3]
+    // proxy is RESTFful, <service>/<protocol>/<resource>
+    return `${location.protocol}${PROXY_URL}${protocol}/${encodeURIComponent(resource)}`
+}
+
+export function proxifyUrlInstant(url) {
+    if (needsProxy(url)) {
+        return buildProxyUrl(url)
+    }
+    return url
+}
+
+export function proxifyUrl(url) {
+    return new Promise((resolve) => {
+        if (!isBlob(url) && isHttps(url) && !isAdminValid(url) && !/.*kmz$/.test(url)) {
+            fetch(url).then(
+                () => resolve(url),
+                () => resolve(buildProxyUrl(url))
+            )
+        } else {
+            resolve(proxifyUrlInstant(url))
+        }
+    })
+}
+
+/**
+ *  Prepares URL for external layer upload
+ *
+ * @param url
+ * @param lang
+ * @returns {Promise<string>}
+ */
+export function transformUrl(url, lang) {
+    // If the url has no file extension or a map parameter,
+    // try to load a WMS/WMTS GetCapabilities.
+    if (
+        (!/\.(kml|kmz|xml|txt)/i.test(url) && !/\w+\/\w+\.[a-zA-Z]+$/i.test(url)) ||
+        /map=/i.test(url)
+    ) {
+        // Append WMS GetCapabilities default parameters
+        url = appendParamsToUrl(
+            url,
+            /wmts/i.test(url)
+                ? 'SERVICE=WMTS&REQUEST=GetCapabilities&VERSION=1.0.0'
+                : 'SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0'
+        )
+
+        // Use lang param only for admin.ch servers
+        if (/admin\.ch/.test(url)) {
+            url = appendParamsToUrl(url, `lang=${lang}`)
+        }
+        // Replace the subdomain template if exists
+        url = url.replace(/{s}/, '')
+    }
+    // Save the good url for the import component.
+    // $scope.getCapUrl = url
+    return proxifyUrl(url)
+}
+
+/* Import URL utils end */
+
+/**
+ * Check is provided string valid URL
+ *
+ * @param {string} urlToCheck
+ */
+export function isValidUrl(urlToCheck) {
+    let url
+
+    try {
+        url = new URL(urlToCheck)
+    } catch (_) {
+        return false
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+}
