@@ -10,9 +10,6 @@
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-import SearchResultListEntry from './SearchResultListEntry.vue'
-
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this
  * component is there to show one of those category at a time

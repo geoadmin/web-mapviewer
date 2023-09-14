@@ -109,7 +109,6 @@
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-
 import {
     IS_TESTING_WITH_CYPRESS,
     VECTOR_LIGHT_BASE_MAP_STYLE_ID,
@@ -131,11 +130,9 @@ import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
-
 import 'ol/ol.css'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-
 import { mapActions, mapGetters, mapState } from 'vuex'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
