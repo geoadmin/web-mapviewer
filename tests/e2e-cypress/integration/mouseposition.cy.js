@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_PHONE_WIDTH } from '@/config'
-import { LV03, LV95, MGRS, WGS84 } from '@/utils/coordinateSystems'
+import { LV03, LV95, MGRS, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import setupProj4 from '@/utils/setupProj4'
 import proj4 from 'proj4'
 

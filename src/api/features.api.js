@@ -1,7 +1,7 @@
 import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,

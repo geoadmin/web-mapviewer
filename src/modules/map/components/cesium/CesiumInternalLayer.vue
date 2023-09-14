@@ -35,11 +35,11 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
-import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
-import CesiumWMSLayer from './CesiumWMSLayer.vue'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
+import CesiumWMSLayer from './CesiumWMSLayer.vue'
+import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the

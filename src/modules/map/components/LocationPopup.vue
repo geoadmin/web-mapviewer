@@ -10,7 +10,7 @@
     >
         <div class="location-popup-coordinates">
             <div class="lp-label">
-                <a :href="$t('contextpopup_lv95_url')" target="_blank">{{ LV95.label }}</a>
+                <a :href="$t('contextpopup_lv95_url')" target="_blank">{{ LV95Format.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv95">
@@ -19,7 +19,7 @@
                 <LocationPopupCopySlot :value="coordinateLV95" />
             </div>
             <div class="lp-label">
-                <a :href="$t('contextpopup_lv03_url')" target="_blank">{{ LV03.label }}</a>
+                <a :href="$t('contextpopup_lv03_url')" target="_blank">{{ LV03Format.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-lv03">
@@ -28,7 +28,7 @@
                 <LocationPopupCopySlot :value="coordinateLV03" />
             </div>
             <div class="lp-label">
-                <a href="https://epsg.io/4326" target="_blank">{{ WGS84.label }}</a>
+                <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
             </div>
             <div class="lp-data">
                 <span
@@ -44,7 +44,7 @@
                 </span>
             </div>
             <div class="lp-label">
-                <a href="https://epsg.io/32632" target="_blank">{{ UTM.label }}</a>
+                <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
             </div>
             <div class="lp-data">
                 <span data-cy="location-popup-coordinates-utm">
@@ -98,13 +98,19 @@
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { LV03, LV95, MGRS, UTM, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import { printHumanReadableCoordinates } from '@/utils/coordinateUtils'
+import {
+    LV03Format,
+    LV95Format,
+    MGRSFormat,
+    UTMFormat,
+    WGS84Format,
+} from '@/utils/coordinates/coordinateFormat'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { stringifyQuery } from '@/utils/url'
@@ -123,6 +129,12 @@ export default {
         OpenLayersPopover,
     },
     inject: ['getMap'],
+    props: {
+        projection: {
+            type: CoordinateSystem,
+            default: WEBMERCATOR,
+        },
+    },
     data() {
         return {
             what3Words: '',
@@ -130,10 +142,10 @@ export default {
             qrCodeImageSrc: null,
             shareLinkUrlShorten: null,
             shareLinkUrl: null,
-            LV95,
-            LV03,
-            WGS84,
-            UTM,
+            LV95Format,
+            LV03Format,
+            WGS84Format,
+            UTMFormat,
         }
     },
     computed: {
@@ -146,12 +158,10 @@ export default {
             return this.clickInfo?.coordinate
         },
         coordinateLV95() {
-            const lv95_coordinates = reproject(LV95.epsg, this.coordinate)
-            return `${round(lv95_coordinates[0], 2, true)}, ${round(lv95_coordinates[1], 2, true)}`
+            return LV95Format.format(this.coordinate, this.projection)
         },
         coordinateLV03() {
-            const lv03_coordinates = reproject(LV03.epsg, this.coordinate)
-            return `${round(lv03_coordinates[0], 2, true)}, ${round(lv03_coordinates[1], 2, true)}`
+            return LV03Format.format(this.coordinate, this.projection)
         },
         coordinateWGS84Metric() {
             return reproject(WGS84.epsg, this.coordinate)
@@ -161,16 +171,13 @@ export default {
             return `${round(wgsMetric[1], 5, true)}, ${round(wgsMetric[0], 5, true)}`
         },
         coordinateWGS84() {
-            const complete = printHumanReadableCoordinates(this.coordinateWGS84Metric, WGS84)
-            // Only return the first (HDMS) part here. The other part is in:
-            // this.coordinateWGS84Plain
-            return complete.split(' (')[0]
+            return WGS84Format.format(this.coordinate, this.projection)
         },
         coordinateUTM() {
-            return printHumanReadableCoordinates(reproject(WGS84.epsg, this.coordinate), UTM)
+            return UTMFormat.format(this.coordinate, this.projection)
         },
         coordinateMGRS() {
-            return printHumanReadableCoordinates(reproject(WGS84.epsg, this.coordinate), MGRS)
+            return MGRSFormat.format(this.coordinate, this.projection)
         },
         heightInFeet() {
             return this.height?.heightInFeet || null

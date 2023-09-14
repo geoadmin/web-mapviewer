@@ -1,5 +1,5 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
+import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinates/coordinateUtils'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,

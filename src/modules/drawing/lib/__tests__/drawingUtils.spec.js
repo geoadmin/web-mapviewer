@@ -4,7 +4,7 @@ import {
     formatTime,
     toLv95,
 } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import setupProj4 from '@/utils/setupProj4'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'

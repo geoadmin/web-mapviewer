@@ -67,12 +67,8 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import {
-    isInBounds,
-    LV95_BOUNDS,
-    reprojectUnknownSrsCoordsToWebMercator,
-} from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinates/coordinateUtils'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
@@ -321,9 +317,7 @@ export default {
                     }
                     const coordinates = f.geometry.getCoordinates()
                     const getCoordinates = (c) =>
-                        isInBounds(c[0], c[1], LV95_BOUNDS)
-                            ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
-                            : c
+                        LV95.isInBounds(c[0], c[1]) ? proj4(LV95.epsg, WEBMERCATOR.epsg, c) : c
                     return {
                         type,
                         coordinates:

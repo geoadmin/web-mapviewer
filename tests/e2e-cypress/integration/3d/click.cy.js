@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { ClickType } from '@/store/modules/map.store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Cartesian3 } from 'cesium'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 import proj4 from 'proj4'
 
 describe('Testing click', () => {

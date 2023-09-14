@@ -1,7 +1,7 @@
 import { identify } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 /**

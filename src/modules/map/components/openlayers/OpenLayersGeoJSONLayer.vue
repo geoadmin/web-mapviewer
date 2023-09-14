@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import axios from 'axios'
 import GeoJSON from 'ol/format/GeoJSON'

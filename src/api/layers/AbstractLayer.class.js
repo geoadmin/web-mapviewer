@@ -1,4 +1,4 @@
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import LayerTypes from './LayerTypes.enum'
 
 /** Name (or description) of a data holder for a layer, with the possibility to define a URL */

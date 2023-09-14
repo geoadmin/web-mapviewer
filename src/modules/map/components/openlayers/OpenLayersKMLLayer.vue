@@ -8,7 +8,7 @@
 import { EditableFeature } from '@/api/features.api'
 import { getKmlFromUrl } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
