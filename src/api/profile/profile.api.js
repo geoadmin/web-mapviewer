@@ -2,22 +2,21 @@ import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
-import { toLv95 } from '@/modules/drawing/lib/drawingUtils'
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
-import { splitIfOutOfLV95Bounds } from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
+import proj4 from 'proj4'
 
-function parseProfileFromBackendResponse(backendResponse, startingDist) {
+function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []
     backendResponse.forEach((rawData) => {
+        let coordinates = [rawData.easting, rawData.northing]
+        if (outputProjection.epsg !== LV95.epsg) {
+            coordinates = proj4(LV95.epsg, outputProjection.epsg, coordinates)
+        }
         points.push(
-            new ElevationProfilePoint(
-                [rawData.easting, rawData.northing],
-                startingDist + rawData.dist,
-                rawData.alts.COMB
-            )
+            new ElevationProfilePoint(coordinates, startingDist + rawData.dist, rawData.alts.COMB)
         )
     })
     return new ElevationProfileSegment(points)
@@ -27,10 +26,16 @@ function parseProfileFromBackendResponse(backendResponse, startingDist) {
  * @param {CoordinatesChunk} chunk
  * @param {[Number, Number] | null} startingPoint
  * @param {Number} startingDist
+ * @param {CoordinateSystem} outputProjection
  * @returns {ElevationProfile}
  */
-async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
-    if (chunk.isWithinLV95Bounds) {
+async function getProfileDataForChunk(
+    chunk,
+    startingPoint,
+    startingDist = 0,
+    outputProjection = WEBMERCATOR
+) {
+    if (chunk.isWithinBounds) {
         try {
             const dataForChunk = await axios({
                 url: `${API_SERVICE_ALTI_BASE_URL}rest/services/profile.json`,
@@ -50,7 +55,11 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
             // or so of the LV95 bounds, resulting in an empty profile being sent by the backend even though our
             // coordinates were inbound (hence the dataForChunk.data.length > 2 check)
             if (dataForChunk?.data && dataForChunk.data.length > 2) {
-                return parseProfileFromBackendResponse(dataForChunk.data, startingDist)
+                return parseProfileFromBackendResponse(
+                    dataForChunk.data,
+                    startingDist,
+                    outputProjection
+                )
             } else {
                 log.error('Incorrect/empty response while getting profile', dataForChunk)
             }
@@ -82,22 +91,6 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist = 0) {
 }
 
 /**
- * @param {CoordinatesChunk[]} chunks
- * @param {CoordinateSystem} fromProjection
- * @returns {CoordinatesChunk[]}
- */
-function chunksToLV95(chunks, fromProjection = WEBMERCATOR) {
-    if (fromProjection.epsg !== WEBMERCATOR.epsg) {
-        log.error('Unsupported projection system for profile API', fromProjection)
-        return []
-    }
-    return chunks.map((chunk) => {
-        chunk.coordinates = toLv95(chunk.coordinates, WEBMERCATOR.epsg)
-        return chunk
-    })
-}
-
-/**
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
  * @param {[Number, Number][]} coordinates Coordinates, expressed in the given projection, from which we want
@@ -112,19 +105,21 @@ export default async (coordinates, projection = WEBMERCATOR) => {
         log.error(errorMessage)
         throw errorMessage
     }
+    // the service only works with LV95 coordinate, we have to transform them if they are not in this projection
+    let coordinatesInLV95 = [...coordinates]
+    if (projection.epsg !== LV95.epsg) {
+        coordinatesInLV95 = proj4(projection.epsg, LV95.epsg, coordinates)
+    }
     const segments = []
-    let coordinateChunks = splitIfOutOfLV95Bounds(coordinates, projection)
+    let coordinateChunks = LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
     if (!coordinateChunks) {
         log.error('No chunks found, no profile data could be fetched')
         return null
     }
-    if (projection.epsg !== LV95.epsg) {
-        coordinateChunks = chunksToLV95(coordinateChunks, projection)
-    }
     let lastCoordinate = null
     let lastDist = 0
     for (const chunk of coordinateChunks) {
-        const segment = await getProfileDataForChunk(chunk, lastCoordinate, lastDist)
+        const segment = await getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
         const newSegmentLastPoint = segment.points.slice(-1)[0]
         lastCoordinate = newSegmentLastPoint.coordinate
         lastDist = newSegmentLastPoint.dist
