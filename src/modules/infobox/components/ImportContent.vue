@@ -47,12 +47,35 @@
                 {{ buttonText }}
             </button>
         </div>
+        <!-- todo just for test -->
+        <div class="d-flex flex-column h-50 overflow-y-auto">
+            <div
+                v-for="layer in importedLayers"
+                :key="layer.externalLayerId"
+                @click="() => addLayer(layer)"
+                class="cursor-pointer"
+            >
+                {{ layer.name }}
+            </div>
+        </div>
     </div>
 </template>
 <script>
 import externalLayerProviders from '@/external-layer-providers.json'
 import { isValidUrl, transformUrl } from '@/utils/url'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+import {
+    getCapWMSLayers,
+    getCapWMTSLayers,
+    isGpx,
+    isKml,
+    isWmsGetCap,
+    isWmtsGetCap,
+} from '@/utils/file'
+import { WMSCapabilities } from 'ol/format'
+import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import { optionsFromCapabilities } from 'ol/source/WMTS'
+import KMLLayer from '@/api/layers/KMLLayer.class'
 
 const BTN_RESET_TIMEOUT = 3000
 
@@ -63,6 +86,7 @@ export default {
             listShown: false,
             // 'default | 'loading | 'failed' | 'succeeded'
             uploadBtnStatus: 'default',
+            importedLayers: [], // todo just for test
         }
     },
     computed: {
@@ -96,6 +120,7 @@ export default {
         },
     },
     methods: {
+        ...mapActions(['addLayer']),
         onInputChange(event) {
             this.importValue = event.target.value
         },
@@ -142,11 +167,36 @@ export default {
                 .querySelector(`[tabindex="${this.filteredList.length - 1}"]`)
                 .focus()
         },
+        handleFileContent(fileContent, url) {
+            if (isWmsGetCap(fileContent)) {
+                const parser = new WMSCapabilities()
+                const getCap = parser.read(fileContent)
+                // todo just for test
+                this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
+                    getCapWMSLayers(getCap, l)
+                ).filter((l) => !!l)
+            } else if (isWmtsGetCap(fileContent)) {
+                const parser = new WMTSCapabilities()
+                const getCap = parser.read(fileContent)
+                // todo just for test
+                this.importedLayers = getCap.Contents.Layer.map((l) =>
+                    getCapWMTSLayers(url, getCap, l)
+                ).filter((l) => !!l)
+            } else if (isKml(fileContent)) {
+                // todo just for test
+                this.importedLayers = [new KMLLayer(url, true, 1, null, null, null, null, true)]
+            } else if (isGpx(fileContent)) {
+                // TODO GPX layer not done yet
+            } else {
+                throw new Error('Wrong file content.')
+            }
+        },
         async handleFileUrl() {
             const url = await transformUrl(this.importValue, this.lang)
             try {
                 const response = await fetch(url)
-                console.log(await response.text())
+                const fileContent = await response.text()
+                this.handleFileContent(fileContent, url)
                 this.uploadBtnStatus = 'succeeded'
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
             } catch (e) {

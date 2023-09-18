@@ -162,7 +162,7 @@ const ADMIN_URL_REGEXP = new RegExp(
 )
 
 // todo use correct URLs
-const PROXY_URL = '//service-proxy.bgdi-dev.swisstopo.cloud'
+const PROXY_URL = 'https://service-proxy.bgdi-dev.swisstopo.cloud'
 
 export function appendParamsToUrl(url, paramString) {
     if (paramString) {
@@ -208,7 +208,7 @@ export function buildProxyUrl(url) {
     const protocol = parts[1]
     const resource = parts[3]
     // proxy is RESTFful, <service>/<protocol>/<resource>
-    return `${location.protocol}${PROXY_URL}${protocol}/${encodeURIComponent(resource)}`
+    return `${PROXY_URL}/${protocol}/${encodeURIComponent(resource)}`
 }
 
 export function proxifyUrlInstant(url) {
@@ -261,7 +261,6 @@ export function transformUrl(url, lang) {
         url = url.replace(/{s}/, '')
     }
     // Save the good url for the import component.
-    // $scope.getCapUrl = url
     return proxifyUrl(url)
 }
 
