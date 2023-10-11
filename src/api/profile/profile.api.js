@@ -108,7 +108,9 @@ export default async (coordinates, projection = WEBMERCATOR) => {
     // the service only works with LV95 coordinate, we have to transform them if they are not in this projection
     let coordinatesInLV95 = [...coordinates]
     if (projection.epsg !== LV95.epsg) {
-        coordinatesInLV95 = proj4(projection.epsg, LV95.epsg, coordinates)
+        coordinatesInLV95 = coordinates.map((coordinate) =>
+            proj4(projection.epsg, LV95.epsg, coordinate)
+        )
     }
     const segments = []
     let coordinateChunks = LV95.bounds.splitIfOutOfBounds(coordinatesInLV95)
