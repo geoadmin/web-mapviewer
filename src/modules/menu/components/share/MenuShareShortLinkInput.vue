@@ -15,7 +15,7 @@
                 data-cy="menu-share-shortlink-copy-button"
                 @click="copyShortLinkInClipboard"
             >
-                {{ $t(copiedInClipboard ? copiedText : copyText) }}
+                {{ buttonText }}
             </button>
         </div>
     </div>
@@ -54,6 +54,13 @@ export default {
             copiedInClipboard: false,
             timeoutCopied: null,
         }
+    },
+    computed: {
+        buttonText() {
+            return this.$i18n
+                .t(this.copiedInClipboard ? this.copiedText : this.copyText)
+                .replace('&nbsp;', '\xa0')
+        },
     },
     watch: {
         shortLink() {
