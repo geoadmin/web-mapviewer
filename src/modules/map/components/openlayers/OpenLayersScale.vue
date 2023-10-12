@@ -1,9 +1,10 @@
 <template>
     <!-- The initialization will fail with `v-if` if initial zoom is too low. -->
-    <div v-show="currentZoom >= 9" ref="scaleLine" data-cy="scaleline" />
+    <div v-show="showScaleLine" ref="scaleLine" data-cy="scaleline" />
 </template>
 
 <script>
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import ScaleLine from 'ol/control/ScaleLine'
 import { mapState } from 'vuex'
 
@@ -12,7 +13,11 @@ export default {
     computed: {
         ...mapState({
             currentZoom: (state) => state.position.zoom,
+            projection: (state) => state.position.projection,
         }),
+        showScaleLine() {
+            return this.projection.epsg === LV95.epsg || this.currentZoom >= 9
+        },
     },
     created() {
         this.scaleLine = new ScaleLine({

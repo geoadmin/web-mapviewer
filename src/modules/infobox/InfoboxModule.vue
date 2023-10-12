@@ -45,6 +45,7 @@
                     class="card-body"
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
+                    :projection="projection"
                     @update-elevation-profile-plot="setMaxHeight"
                 />
 
@@ -99,6 +100,7 @@ export default {
             selectedFeatures: (state) => state.features.selectedFeatures,
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
+            projection: (state) => state.position.projection,
         }),
         selectedFeature() {
             return this.selectedFeatures[0]
