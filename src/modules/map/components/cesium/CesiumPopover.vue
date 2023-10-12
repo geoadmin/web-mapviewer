@@ -1,10 +1,22 @@
 <template>
-    <div>
+    <MapPopover
+        ref="popoverAnchor"
+        :authorize-print="authorizePrint"
+        :title="title"
+        :use-content-padding="useContentPadding"
+        :left-position="anchorPosition.left"
+        :top-position="anchorPosition.top"
+        @close="onClose"
+    >
+        <template #extra-buttons>
+            <slot name="extra-buttons" />
+        </template>
         <slot />
-    </div>
+    </MapPopover>
 </template>
 
 <script>
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 import log from '@/utils/logging'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
 
@@ -18,12 +30,34 @@ const tempCartographic = new Cartographic()
  * the content of the popover
  */
 export default {
-    inject: ['getViewer', 'onClose', 'getMapPopoverRef'],
+    components: { MapPopover },
+    inject: ['getViewer'],
     props: {
         coordinates: {
             type: Array,
             required: true,
         },
+        authorizePrint: {
+            type: Boolean,
+            default: false,
+        },
+        title: {
+            type: String,
+            default: '',
+        },
+        useContentPadding: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    emits: ['close'],
+    data() {
+        return {
+            anchorPosition: {
+                top: 0,
+                left: 0,
+            },
+        }
     },
     watch: {
         coordinates() {
@@ -84,7 +118,7 @@ export default {
         },
         updatePosition() {
             if (!this.coordinates?.length) {
-                this.onClose()
+                this.$emit('close')
                 return
             }
             const cartesianCoords = SceneTransforms.wgs84ToWindowCoordinates(
@@ -97,14 +131,16 @@ export default {
                     tempCartesian3
                 )
             )
-            if (defined(cartesianCoords)) {
-                const mapPopover = this.getMapPopoverRef()
-                const { width } = mapPopover.getBoundingClientRect()
-                mapPopover.style.left = `${cartesianCoords.x - width / 2}px`
+            if (defined(cartesianCoords) && this.$refs.popoverAnchor) {
+                this.anchorPosition.left =
+                    cartesianCoords.x - this.$refs.popoverAnchor.$el.clientWidth / 2
                 // adding 15px to the top so that the tip of the arrow of the tooltip is on the edge
                 // of the highlighting circle of the selected feature
-                mapPopover.style.top = `${cartesianCoords.y + 15}px`
+                this.anchorPosition.top = cartesianCoords.y + 15
             }
+        },
+        onClose() {
+            this.$emit('close')
         },
     },
 }

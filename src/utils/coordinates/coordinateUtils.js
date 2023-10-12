@@ -14,7 +14,7 @@ import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'
  * @returns {Number[]} Re-projected coordinate as [lat, lon], or undefined if the input was not
  *   convertible to WebMercator
  */
-export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
+export const reprojectUnknownSrsCoordsToWGS84 = (x, y) => {
     if (LV95.getBoundsAs(WEBMERCATOR)?.isInBounds(x, y)) {
         return proj4(WEBMERCATOR.epsg, WGS84.epsg, [x, y])
         // guessing if this is already WGS84 or a Swiss projection (if so we need to reproject it to WGS84)
@@ -39,7 +39,7 @@ export const reprojectUnknownSrsCoordsToWebMercator = (x, y) => {
         // if it's already a lat/lon we return it as is
         return [x, y]
     } else {
-        log.debug(`Unknown coordinate type [${x}, ${y}]`)
+        log.error('Unknown coordinate type', [x, y])
         return undefined
     }
 }

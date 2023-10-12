@@ -1,5 +1,5 @@
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinates/coordinateUtils'
+import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -30,7 +30,7 @@ const numericalExtractor = (regexMatches) => {
     if (Number.isNaN(x) || Number.isNaN(y)) {
         return undefined
     }
-    return reprojectUnknownSrsCoordsToWebMercator(x, y)
+    return reprojectUnknownSrsCoordsToWGS84(x, y)
 }
 
 const webmercatorExtractor = (regexMatches) => {

@@ -3,8 +3,8 @@
         v-if="displayLocationPopup"
         :title="$t('position')"
         :coordinates="coordinate"
-        class="location-popup"
         use-content-padding
+        class="location-popup"
         data-cy="location-popup"
         @close="onClose"
     >
@@ -124,9 +124,9 @@ function reproject(toEpsg, coordinate) {
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
     components: {
+        OpenLayersPopover,
         LocationPopupCopyInput,
         LocationPopupCopySlot,
-        OpenLayersPopover,
     },
     inject: ['getMap'],
     props: {
