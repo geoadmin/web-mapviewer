@@ -84,7 +84,7 @@
         "aws-sdk": "^2.1437.0",
         "caniuse-lite": "^1.0.30001521",
         "chai": "^4.3.7",
-        "cypress": "^12.17.4",
+        "cypress": "^13.3.1",
         "cypress-browser-permissions": "^1.1.0",
         "cypress-multi-reporters": "^1.6.3",
         "cypress-real-events": "^1.10.0",
