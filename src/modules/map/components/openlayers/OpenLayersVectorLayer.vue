@@ -57,13 +57,14 @@ export default {
                 style: this.styleUrl,
             },
         })
-        if (!this.layer.maplibreMap) {
-            log.error('MapLibre instance is not attached to the layer')
-        }
         this.setMapLibreStyle(this.styleUrl)
     },
     methods: {
         setMapLibreStyle(styleUrl) {
+            if (!this.layer?.maplibreMap) {
+                log.error('MapLibre instance is not attached to the layer')
+                return
+            }
             // most of this methods will be edited while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2741
             if (this.excludeSource) {
                 // we load the style on the side in order to be able to filter out some source
@@ -74,7 +75,10 @@ export default {
                         vectorStyle.layers = vectorStyle.layers.filter(
                             (layer) => layer.source !== this.excludeSource
                         )
-                        this.layer.maplibreMap.setStyle(vectorStyle)
+                        // checking if the layer was removed during style fetching
+                        if (this.layer?.maplibreMap) {
+                            this.layer.maplibreMap.setStyle(vectorStyle)
+                        }
                     })
                     .catch((err) => {
                         log.error('Error while fetching MapLibre style', styleUrl, err)
