@@ -22,7 +22,7 @@ export default class CoordinateSystemBounds {
     }
 
     isInBounds(x, y) {
-        return x > this.lowerY && x < this.upperX && y > this.lowerY && y < this.upperY
+        return x >= this.lowerX && x <= this.upperX && y >= this.lowerY && y <= this.upperY
     }
 
     get bottomLeft() {

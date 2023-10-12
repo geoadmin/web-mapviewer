@@ -58,6 +58,6 @@ export default class CoordinateSystem {
      * @return {boolean}
      */
     isInBounds(x, y) {
-        return this.bounds?.isInBounds(x, y)
+        return !!this.bounds?.isInBounds(x, y)
     }
 }

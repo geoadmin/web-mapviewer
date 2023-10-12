@@ -51,7 +51,8 @@ describe('The infobox', () => {
                 cy.get('[data-cy="popover"]').should('be.visible')
                 cy.get('[data-cy="infobox"]').should('not.be.visible')
 
-                cy.get('[data-cy="toggle-floating-off"]').click()
+                // we have to force the click, as in the mobile viewport the button can sometimes be under the header
+                cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('be.visible')
             }

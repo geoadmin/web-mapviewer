@@ -1,67 +1,44 @@
 <template>
-    <div
-        ref="mapPopover"
-        class="map-popover"
-        :class="{ cesium: is3DActive }"
-        data-cy="popover"
-        @contextmenu.stop
-    >
-        <div class="card">
-            <div class="card-header d-flex">
-                <span class="flex-grow-1 align-self-center">
-                    {{ title }}
-                </span>
-                <slot name="extra-buttons"></slot>
-                <button
-                    v-if="authorizePrint"
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    @click="printContent"
-                >
-                    <FontAwesomeIcon icon="print" />
-                </button>
-                <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    data-cy="map-popover-close-button"
-                    @click="onClose"
-                >
-                    <FontAwesomeIcon icon="times" />
-                </button>
-            </div>
-            <div
-                id="mapPopoverContent"
-                ref="mapPopoverContent"
-                class="map-popover-content"
-                :class="{ 'card-body': useContentPadding }"
+    <div class="card map-popover" data-cy="popover" :style="cssPositionOnScreen">
+        <div class="card-header d-flex">
+            <span class="flex-grow-1 align-self-center">
+                {{ title }}
+            </span>
+            <slot name="extra-buttons"></slot>
+            <button
+                v-if="authorizePrint"
+                class="btn btn-sm btn-light d-flex align-items-center"
+                @click="printContent"
             >
-                <slot />
-            </div>
+                <FontAwesomeIcon icon="print" />
+            </button>
+            <button
+                class="btn btn-sm btn-light d-flex align-items-center"
+                data-cy="map-popover-close-button"
+                @click="onClose"
+            >
+                <FontAwesomeIcon icon="times" />
+            </button>
         </div>
-        <OpenLayersPopover v-if="!is3DActive" :coordinates="coordinates"></OpenLayersPopover>
-        <CesiumPopover v-if="is3DActive" :coordinates="coordinates"></CesiumPopover>
+        <div
+            id="mapPopoverContent"
+            ref="mapPopoverContent"
+            class="map-popover-content"
+            :class="{ 'card-body': useContentPadding }"
+        >
+            <slot />
+        </div>
     </div>
 </template>
 
 <script>
-import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapState } from 'vuex'
 
 /** Map popover content and styles. Position handling is done in corresponding library components */
 export default {
-    components: { CesiumPopover, OpenLayersPopover, FontAwesomeIcon },
-    provide() {
-        return {
-            onClose: () => this.onClose(),
-            getMapPopoverRef: () => this.getMapPopoverRef(),
-        }
-    },
+    components: { FontAwesomeIcon },
     props: {
-        coordinates: {
-            type: Array,
-            required: true,
-        },
         authorizePrint: {
             type: Boolean,
             default: false,
@@ -74,17 +51,25 @@ export default {
             type: Boolean,
             default: false,
         },
+        topPosition: {
+            type: Number,
+            default: 0,
+        },
+        leftPosition: {
+            type: Number,
+            default: 0,
+        },
     },
     emits: ['close'],
     computed: {
-        ...mapState({
-            is3DActive: (state) => state.ui.showIn3d,
-        }),
+        cssPositionOnScreen() {
+            return {
+                top: `${this.topPosition}px`,
+                left: `${this.leftPosition}px`,
+            }
+        },
     },
     methods: {
-        getMapPopoverRef() {
-            return this.$refs.mapPopover
-        },
         onClose() {
             this.$emit('close')
         },
@@ -99,7 +84,8 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .map-popover {
-    pointer-events: none;
+    position: absolute;
+    z-index: $zindex-map + 1;
     .card {
         max-width: $overlay-width;
         pointer-events: auto;
@@ -134,10 +120,6 @@ export default {
         left: 50%;
         margin-left: -$arrow-border-height;
     }
-}
-.map-popover.cesium {
-    position: absolute;
-    z-index: 1;
 }
 @media (min-height: 600px) {
     .map-popover .card-body {

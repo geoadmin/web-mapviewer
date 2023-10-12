@@ -65,7 +65,7 @@
             :feature="feature"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
-        <MapPopover
+        <OpenLayersPopover
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -87,7 +87,7 @@
                 :feature="editFeature"
             />
             <FeatureList v-else direction="column" />
-        </MapPopover>
+        </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
             v-if="geolocationActive"
@@ -117,7 +117,7 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -149,7 +149,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
-        MapPopover,
+        OpenLayersPopover,
         FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
