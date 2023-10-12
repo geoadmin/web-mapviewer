@@ -65,7 +65,7 @@
             :feature="feature"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
-        <MapPopover
+        <OpenLayersPopover
             v-if="showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -87,7 +87,7 @@
                 :feature="editFeature"
             />
             <FeatureList v-else direction="column" />
-        </MapPopover>
+        </OpenLayersPopover>
         <!-- Adding marker and accuracy circle for Geolocation -->
         <OpenLayersAccuracyCircle
             v-if="geolocationActive"
@@ -109,7 +109,6 @@
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-
 import {
     IS_TESTING_WITH_CYPRESS,
     VECTOR_LIGHT_BASE_MAP_STYLE_ID,
@@ -118,7 +117,7 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
+import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
@@ -131,11 +130,9 @@ import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
-
 import 'ol/ol.css'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-
 import { mapActions, mapGetters, mapState } from 'vuex'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
@@ -152,7 +149,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
-        MapPopover,
+        OpenLayersPopover,
         FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
@@ -380,6 +377,10 @@ export default {
 
         if (this.selectedFeatures.length > 0) {
             this.highlightSelectedFeatures()
+        }
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.olMap = this.map
         }
     },
     unmounted() {

@@ -24,7 +24,7 @@
                 :z-index="index"
             />
         </div>
-        <MapPopover
+        <CesiumPopover
             v-if="viewerCreated && showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -42,7 +42,7 @@
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
-        </MapPopover>
+        </CesiumPopover>
     </div>
     <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
     <slot />
@@ -64,15 +64,11 @@ import {
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import {
-    isInBounds,
-    LV95_BOUNDS,
-    reprojectUnknownSrsCoordsToWebMercator,
-} from '@/utils/coordinateUtils'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
@@ -105,7 +101,7 @@ import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './util
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
 
 export default {
-    components: { MapPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: { CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -321,9 +317,7 @@ export default {
                     }
                     const coordinates = f.geometry.getCoordinates()
                     const getCoordinates = (c) =>
-                        isInBounds(c[0], c[1], LV95_BOUNDS)
-                            ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
-                            : c
+                        LV95.isInBounds(c[0], c[1]) ? proj4(LV95.epsg, WEBMERCATOR.epsg, c) : c
                     return {
                         type,
                         coordinates:
@@ -338,7 +332,7 @@ export default {
             const featureCoords = Array.isArray(firstFeature.coordinates[0])
                 ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
                 : firstFeature.coordinates
-            this.popoverCoordinates = reprojectUnknownSrsCoordsToWebMercator(
+            this.popoverCoordinates = reprojectUnknownSrsCoordsToWGS84(
                 featureCoords[0],
                 featureCoords[1]
             )

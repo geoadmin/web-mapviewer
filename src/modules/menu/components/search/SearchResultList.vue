@@ -49,10 +49,10 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapGetters } from 'vuex'
-import SearchResultCategory from './SearchResultCategory.vue'
-import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
+import { mapGetters, mapState } from 'vuex'
+import SearchResultCategory from './SearchResultCategory.vue'
 
 /**
  * Component showing all results from the search, divided in two groups (categories) : layers and

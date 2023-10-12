@@ -1,7 +1,7 @@
 import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -471,9 +471,18 @@ export class LayerFeature extends SelectableFeature {
  * @param {Number} screenWidth
  * @param {Number} screenHeight
  * @param {String} lang
+ * @param {CoordinateSystem} projection Projection in which the coordinates of the features should be expressed
  * @returns {Promise<LayerFeature[]>}
  */
-export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight, lang) => {
+export const identify = (
+    layer,
+    coordinate,
+    mapExtent,
+    screenWidth,
+    screenHeight,
+    lang,
+    projection = WEBMERCATOR
+) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             log.error('Invalid layer', layer)
@@ -497,7 +506,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
                 {
                     params: {
                         layers: `all:${layer.getID()}`,
-                        sr: WEBMERCATOR.epsgNumber,
+                        sr: projection.epsgNumber,
                         geometry: coordinate.join(','),
                         geometryFormat: 'geojson',
                         geometryType: 'esriGeometryPoint',
@@ -515,7 +524,7 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
                 if (response.data && response.data.results && response.data.results.length > 0) {
                     // for each feature that has been identify, we will now load their metadata and tooltip content
                     response.data.results.forEach((feature) => {
-                        featureRequests.push(getFeature(layer, feature.id, lang))
+                        featureRequests.push(getFeature(layer, feature.id, lang, projection))
                     })
                     Promise.all(featureRequests)
                         .then((values) => {
@@ -540,9 +549,10 @@ export const identify = (layer, coordinate, mapExtent, screenWidth, screenHeight
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
  * @param {String} lang The language for the HTML popup
+ * @param {CoordinateSystem} projection Projection in which the coordinates of the features should be expressed
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, lang = 'en') => {
+const getFeature = (layer, featureID, lang = 'en', projection = WEBMERCATOR) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             reject('Needs a valid layer with an ID')
@@ -557,13 +567,13 @@ const getFeature = (layer, featureID, lang = 'en') => {
             .all([
                 axios.get(featureUrl, {
                     params: {
-                        sr: WEBMERCATOR.epsgNumber,
+                        sr: projection.epsgNumber,
                         geometryFormat: 'geojson',
                     },
                 }),
                 axios.get(`${featureUrl}/htmlPopup`, {
                     params: {
-                        sr: WEBMERCATOR.epsgNumber,
+                        sr: projection.epsgNumber,
                         lang: lang,
                     },
                 }),

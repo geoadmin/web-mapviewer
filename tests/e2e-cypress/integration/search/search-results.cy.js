@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 import { BREAKPOINT_TABLET } from '@/config'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { round } from '@/utils/numberUtils'
 import setupProj4 from '@/utils/setupProj4'
 import proj4 from 'proj4'

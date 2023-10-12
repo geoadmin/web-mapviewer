@@ -5,11 +5,11 @@
 </template>
 
 <script>
-import log from '@/utils/logging'
-import { getKmlFromUrl } from '@/api/files.api'
-import KML from 'ol/format/KML'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import { EditableFeature } from '@/api/features.api'
+import { getKmlFromUrl } from '@/api/files.api'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
+import KML from 'ol/format/KML'
 import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
 import addPrimitiveLayerMixins from './utils/addPrimitiveLayer-mixins'

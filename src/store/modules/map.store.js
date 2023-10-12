@@ -1,6 +1,3 @@
-import allCoordinateSystems, { LV95 } from '@/utils/coordinateSystems'
-import log from '@/utils/logging'
-
 /** @enum */
 export const ClickType = {
     /* Any action that triggers the context menu, so for example right click with a mouse or

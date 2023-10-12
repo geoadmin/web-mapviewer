@@ -1,4 +1,4 @@
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'

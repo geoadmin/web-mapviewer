@@ -1,5 +1,5 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { reprojectUnknownSrsCoordsToWebMercator } from '@/utils/coordinateUtils'
+import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
@@ -109,7 +109,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         // if a legacy coordinate (x,y or N,E) was used, we need to guess the SRS used (either LV95 or LV03)
         // and covert it back to EPSG:4326 (Mercator)
         if (legacyCoordinates.length === 2 && legacyCoordinates[0] && legacyCoordinates[1]) {
-            const center = reprojectUnknownSrsCoordsToWebMercator(
+            const center = reprojectUnknownSrsCoordsToWGS84(
                 legacyCoordinates[0],
                 legacyCoordinates[1]
             )

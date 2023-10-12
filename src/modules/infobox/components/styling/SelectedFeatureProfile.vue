@@ -19,7 +19,7 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {

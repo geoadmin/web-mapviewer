@@ -1,6 +1,6 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {
     BLACK,
     BLUE,

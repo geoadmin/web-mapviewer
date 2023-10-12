@@ -71,14 +71,13 @@ export function format(value, decimal = 2) {
 /**
  * Returns a string representing a number with the right thousand seaprator
  *
- * @param num A number
- * @param separator The thousand separator, default to "'"
- * @returns A formatted string representing a number, e.g. 1'546
+ * @param {Number} num A number
+ * @param {String} separator The thousand separator, default to "'"
+ * @returns String A formatted string representing a number, e.g. 1'546
  */
-
 export function formatThousand(num, separator = "'") {
     const decimalSeparator = '.'
-    var parts = num.toString().split(decimalSeparator)
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+    let parts = num.toString().split(decimalSeparator)
+    parts[0] = parts[0].replace(thousandSeparatorRegex, separator)
     return parts.join(decimalSeparator)
 }

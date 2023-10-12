@@ -10,7 +10,6 @@ import circleImage from '@/modules/map/assets/circle.png'
 import crossImage from '@/modules/map/assets/cross.png'
 import markerImage from '@/modules/map/assets/marker.png'
 import pointImage from '@/modules/map/assets/point.png'
-
 import { randomIntBetween } from '@/utils/numberUtils'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'

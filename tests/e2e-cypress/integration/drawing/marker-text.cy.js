@@ -37,13 +37,7 @@ const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]
 }
 
 const createMarkerAndOpenIconStylePopup = () => {
-    const kmlId = createAPoint(
-        EditableFeatureTypes.MARKER,
-        0,
-        -200,
-        MAP_CENTER[0],
-        6156527.960512564
-    )
+    const kmlId = createAPoint(EditableFeatureTypes.MARKER, 0, 0)
     cy.wait('@icon-sets')
     cy.wait('@icon-set-default')
     cy.get('[data-cy="drawing-style-marker-button"]').click()
@@ -83,14 +77,18 @@ const getCyDropdownItemIconSetName = (name) => {
     return `[data-cy="dropdown-item-${translatedName}"]`
 }
 
+const interceptGreenIcons = () => {
+    cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
+        fixture: 'service-icons/placeholder.png',
+    }).as('icon-default-green')
+}
+
 describe('Drawing marker/points', () => {
     beforeEach(() => {
-        cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
-            fixture: 'service-icons/placeholder.png',
-        }).as('icon-default-green')
         cy.goToDrawing()
     })
     it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
+        interceptGreenIcons()
         createMarkerAndOpenIconStylePopup()
         clickOnAColor(GREEN)
         cy.wait('@icon-default-green')
@@ -102,17 +100,37 @@ describe('Drawing marker/points', () => {
         })
         it('can move a marker by drag&dropping', () => {
             createAPoint(EditableFeatureTypes.MARKER)
-            // Move it, the geojson geometry should move
-            cy.readWindowValue('map').then((map) => {
-                cy.simulateEvent(map, 'pointerdown', 0, 0)
-                cy.simulateEvent(map, 'pointermove', 200, 140)
-                cy.simulateEvent(map, 'pointerdrag', 200, 140)
-                cy.simulateEvent(map, 'pointerup', 200, 140)
-            })
-            cy.readDrawingFeatures('Point', (features) => {
-                const coos = features[0].getGeometry().getCoordinates()
-                expect(coos[0]).to.be.closeTo(1160201.3, 0.1, `bad: ${JSON.stringify(coos)}`)
-                expect(coos[1]).to.be.closeTo(5740710.53, 0.1, `bad: ${JSON.stringify(coos)}`)
+            const moveInPixel = {
+                x: 40,
+                y: -50,
+            }
+            cy.window().then((window) => {
+                const endingPixel = [
+                    window.innerWidth / 2.0 + moveInPixel.x,
+                    window.innerHeight / 2.0 + moveInPixel.y,
+                ]
+                cy.log('ending pixel is', endingPixel)
+                const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
+
+                // Move it, the geojson geometry should move
+                cy.readWindowValue('map').then((map) => {
+                    cy.simulateEvent(map, 'pointerdown', 0, 0)
+                    cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
+                    cy.simulateEvent(map, 'pointerup')
+                })
+                cy.wait('@update-kml')
+                cy.readStoreValue('getters.resolution').then((resolution) => {
+                    cy.readDrawingFeatures('Point', (features) => {
+                        expect(features).to.be.an('Array').lengthOf(1)
+                        const coos = features[0].getGeometry().getCoordinates()
+                        expect(coos).to.be.eql(
+                            expectedCoordinates,
+                            `wrong coordinates after drag&drop, expected ${JSON.stringify(
+                                expectedCoordinates
+                            )}, received: ${JSON.stringify(coos)}`
+                        )
+                    })
+                })
             })
         })
         it('changes the title of a marker', () => {
@@ -129,17 +147,14 @@ describe('Drawing marker/points', () => {
 
     context('marker styling popup', () => {
         context('color change', () => {
-            beforeEach(() => {
-                cy.intercept(`**/v4/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
-                    fixture: 'service-icons/placeholder.png',
-                }).as('icon-default-green')
-            })
             it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
+                interceptGreenIcons()
                 createMarkerAndOpenIconStylePopup()
                 clickOnAColor(GREEN)
                 cy.wait('@icon-default-green')
             })
             it('Modify the KML file whenever the color of the icon changes', () => {
+                interceptGreenIcons()
                 const kmlId = createMarkerAndOpenIconStylePopup()
                 clickOnAColor(GREEN)
                 cy.wait('@update-kml').then((interception) => {
@@ -248,11 +263,33 @@ describe('Drawing marker/points', () => {
 
     context('text styling popup', () => {
         it('creates a text', () => {
-            createAPoint(EditableFeatureTypes.ANNOTATION, 0, -200, MAP_CENTER[0], 6156527.960512564)
+            cy.window().then((window) => {
+                const deltaY = -200
+                const endingPixel = [window.innerWidth / 2.0, window.innerHeight / 2.0 + deltaY]
+                const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
+                createAPoint(
+                    EditableFeatureTypes.ANNOTATION,
+                    0,
+                    deltaY,
+                    expectedCoordinates[0],
+                    expectedCoordinates[1]
+                )
+            })
         })
         ;[EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION].forEach((drawingMode) => {
             it(`shows the ${drawingMode} styling popup when drawing given feature`, () => {
-                createAPoint(drawingMode, 0, -200, MAP_CENTER[0], 6156527.960512564)
+                cy.window().then((window) => {
+                    const deltaY = -200
+                    const endingPixel = [window.innerWidth / 2.0, window.innerHeight / 2.0 + deltaY]
+                    const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
+                    createAPoint(
+                        EditableFeatureTypes.ANNOTATION,
+                        0,
+                        deltaY,
+                        expectedCoordinates[0],
+                        expectedCoordinates[1]
+                    )
+                })
 
                 // Opening text popup
                 cy.get(drawingStyleTextButton).click()

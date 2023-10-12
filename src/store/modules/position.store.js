@@ -1,5 +1,5 @@
-import { TILEGRID_EXTENT_EPSG_3857, MAP_CENTER } from '@/config'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { MAP_CENTER, TILEGRID_EXTENT_EPSG_3857 } from '@/config'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
