@@ -4,7 +4,7 @@
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
                 type="text"
-                class="form-control"
+                class="form-control input-text-to-copy"
                 readonly="readonly"
                 :value="shortLink"
                 data-cy="menu-share-shortlink-input"
@@ -76,3 +76,9 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.input-text-to-copy {
+    width: 0; // here we set the width to 0 in order to allow to shrink to the outer component
+}
+</style>

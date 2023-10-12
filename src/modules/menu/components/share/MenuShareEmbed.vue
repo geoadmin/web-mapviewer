@@ -39,14 +39,11 @@
             fluid
             @close="togglePreviewModal"
         >
-            <div class="embed-preview-modal">
-                <div
-                    class="d-flex embed-preview-modal-tools mb-1"
-                    :class="{ 'custom-size': isPreviewSizeCustom }"
-                >
+            <div class="embed-preview-modal" :style="embedPreviewModalWidth">
+                <div class="d-flex flex-row mb-2" :class="{ 'custom-size': isPreviewSizeCustom }">
                     <select
                         v-model="currentPreviewSize"
-                        class="embed-preview-modal-size-selector form-select w-auto"
+                        class="embed-preview-modal-size-selector form-select"
                         data-cy="menu-share-embed-iframe-size-selector"
                     >
                         <option
@@ -60,7 +57,7 @@
                         </option>
                     </select>
                     <MenuShareShortLinkInput
-                        class="flex-grow-1 ms-1"
+                        class="ms-1 flex-grow-1"
                         :with-text="false"
                         :small="false"
                         :short-link="iFrameLink"
@@ -69,34 +66,32 @@
                         data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
-                <div v-if="isPreviewSizeCustom" class="row mb-1">
-                    <div class="col-sm-7">
-                        <div class="input-group">
-                            <input
-                                v-if="!customSize.fullWidth"
-                                v-model="customSize.width"
-                                type="number"
-                                class="form-control"
-                                data-cy="menu-share-embed-iframe-custom-width"
-                            />
-                            <input
-                                v-else
-                                class="form-control form-control-plaintext text-center"
-                                type="text"
-                                value="100%"
-                                readonly
-                                data-cy="menu-share-embed-iframe-custom-width"
-                            />
-                            <span class="input-group-text">x</span>
-                            <input
-                                v-model="customSize.height"
-                                type="number"
-                                class="form-control"
-                                data-cy="menu-share-embed-iframe-custom-height"
-                            />
-                        </div>
-                    </div>
-                    <div class="col-sm-5 align-self-center">
+                <div v-if="isPreviewSizeCustom" class="d-flex flex-row mb-2">
+                    <input
+                        v-if="!customSize.fullWidth"
+                        v-model="customSize.width"
+                        type="number"
+                        class="form-control text-center custom-preview-input"
+                        data-cy="menu-share-embed-iframe-custom-width"
+                    />
+                    <input
+                        v-else
+                        class="form-control form-control-plaintext custom-preview-input text-center"
+                        type="text"
+                        value="100 %"
+                        readonly
+                        data-cy="menu-share-embed-iframe-custom-width"
+                    />
+                    <span class="p-2">
+                        <font-awesome-icon :icon="['fas', 'xmark']" />
+                    </span>
+                    <input
+                        v-model="customSize.height"
+                        type="number"
+                        class="form-control custom-preview-input text-center"
+                        data-cy="menu-share-embed-iframe-custom-height"
+                    />
+                    <div class="align-self-center ps-2">
                         <div class="form-check">
                             <input
                                 id="fullWidthCheckbox"
@@ -122,8 +117,9 @@
                     :style="iFrameStyle"
                     allow="geolocation"
                 ></iframe>
+
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="small" v-html="$t('share_disclaimer')"></div>
+                <div class="small text-wrap" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
@@ -197,6 +193,10 @@ export default {
         }
     },
     computed: {
+        embedPreviewModalWidth() {
+            // User the iframe with as maximal width for the embed preview modal window
+            return { 'max-width': this.iFrameWidth }
+        },
         isPreviewSizeCustom() {
             return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
         },
@@ -255,7 +255,17 @@ export default {
         display: block;
     }
 }
+
+.embed-preview-modal {
+    min-width: 26rem;
+}
+
 .embed-preview-modal-size-selector {
     cursor: pointer;
+    max-width: 15rem;
+}
+
+.custom-preview-input {
+    max-width: 6rem;
 }
 </style>

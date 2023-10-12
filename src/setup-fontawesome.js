@@ -54,6 +54,7 @@ import {
     faTimesCircle,
     faUser,
     faWindowMinimize,
+    faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -102,6 +103,7 @@ library.add(
     faTimesCircle,
     faUser,
     faWindowMinimize,
+    faXmark,
     // Regular
     faCheckSquare,
     faClock,
