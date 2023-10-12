@@ -56,13 +56,10 @@
                             {{ $t(size.i18nKey) }}
                         </option>
                     </select>
-                    <MenuShareShortLinkInput
+                    <MenuShareInputCopyButton
                         class="ms-1 flex-grow-1"
-                        :with-text="false"
                         :small="false"
-                        :short-link="iFrameLink"
-                        :copy-text="'copy_cta'"
-                        :copied-text="'copy_done'"
+                        :input-text="iFrameLink"
                         data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
@@ -127,7 +124,7 @@
 </template>
 
 <script>
-import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareShortLinkInput.vue'
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
@@ -169,7 +166,7 @@ const EmbedSizes = {
 export default {
     components: {
         FontAwesomeIcon,
-        MenuShareShortLinkInput,
+        MenuShareInputCopyButton,
         ModalWithBackdrop,
         CollapseTransition,
     },

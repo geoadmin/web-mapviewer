@@ -156,7 +156,7 @@ describe('Testing the share menu', () => {
         () => {
             const checkIFrameSnippetSize = (width, height) => {
                 cy.get(
-                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-shortlink-input"]'
+                    '[data-cy="menu-share-embed-iframe-snippet"] [data-cy="menu-share-input-copy-button"]'
                 )
                     .should('contain.value', `width: ${width}`)
                     .should('contain.value', `height: ${height}`)

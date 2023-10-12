@@ -1,19 +1,19 @@
 <template>
-    <div v-if="shortLink">
-        <label v-if="withText">{{ $t('share_link') }}: </label>
+    <div v-if="inputText">
+        <label v-if="labelText">{{ labelText }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
                 type="text"
                 class="form-control input-text-to-copy"
                 readonly="readonly"
-                :value="shortLink"
-                data-cy="menu-share-shortlink-input"
+                :value="inputText"
+                data-cy="menu-share-input-copy-button"
                 @focus="$event.target.select()"
             />
             <button
                 class="btn btn-outline-secondary"
-                data-cy="menu-share-shortlink-copy-button"
-                @click="copyShortLinkInClipboard"
+                data-cy="menu-share-input-copy-button"
+                @click="copyInputToClipboard"
             >
                 {{ buttonText }}
             </button>
@@ -23,18 +23,13 @@
 
 <script>
 /**
- * Simple input containing the current short link of the app, with a helper button to copy the short
- * link to the clipboard
+ * Simple input with a helper button to copy the input value to the clipboard
  */
 export default {
     props: {
-        shortLink: {
+        inputText: {
             type: String,
             default: null,
-        },
-        withText: {
-            type: Boolean,
-            default: true,
         },
         small: {
             type: Boolean,
@@ -42,11 +37,15 @@ export default {
         },
         copyText: {
             type: String,
-            default: 'copy_url',
+            default: 'copy_cta', // 'copy_url',
         },
         copiedText: {
             type: String,
-            default: 'copy_success',
+            default: 'copy_done', // 'copy_success',
+        },
+        labelText: {
+            type: String,
+            default: null,
         },
     },
     data() {
@@ -63,7 +62,7 @@ export default {
         },
     },
     watch: {
-        shortLink() {
+        inputText() {
             this.clearIsCopiedInClipboard()
         },
     },
@@ -75,8 +74,8 @@ export default {
             this.copiedInClipboard = false
             clearTimeout(this.timeoutCopied)
         },
-        copyShortLinkInClipboard() {
-            navigator.clipboard.writeText(this.shortLink)
+        copyInputToClipboard() {
+            navigator.clipboard.writeText(this.inputText)
             this.copiedInClipboard = true
             this.timeoutCopied = setTimeout(this.clearIsCopiedInClipboard, 2500)
         },
