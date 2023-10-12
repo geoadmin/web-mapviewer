@@ -1,3 +1,4 @@
+import reprojectEverythingOnProjectionChangePlugin from '@/store/plugins/reproject-everything-on-projection-change.plugin'
 import { createStore } from 'vuex'
 import app from './modules/app.store'
 import drawing from './modules/drawing.store'
@@ -36,6 +37,7 @@ export default createStore({
         loadingBarManagementPlugin,
         screenSizeManagementPlugin,
         syncCameraLonLatZoom,
+        reprojectEverythingOnProjectionChangePlugin,
     ],
     modules: {
         app,
