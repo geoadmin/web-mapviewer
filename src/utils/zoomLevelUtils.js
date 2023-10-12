@@ -1,7 +1,7 @@
 export const ZOOM_LEVEL_1_25000_MAP = 15.5
 
 /** Conversion matrix from swisstopo LV95 zoom level to Web Mercator zoom level */
-const swisstopoPyramidZoomToMercatorZoomMatrix = {
+export const swisstopoPyramidZoomToMercatorZoomMatrix = {
     0: 7.35,
     1: 7.75,
     2: 8.75,
@@ -30,15 +30,36 @@ const swisstopoPyramidZoomToMercatorZoomMatrix = {
  *   valid swisstopo pyramid zoom level
  */
 export const translateSwisstopoPyramidZoomToMercatorZoom = (swisstopoPyramidZoom) => {
-    const key = `${swisstopoPyramidZoom}`
+    const key = `${Math.floor(parseFloat(swisstopoPyramidZoom))}`
     if (Object.keys(swisstopoPyramidZoomToMercatorZoomMatrix).includes(key)) {
-        const webmercatorZoom = swisstopoPyramidZoomToMercatorZoomMatrix[key]
-        // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
-        // TODO: as soon as client zoom is implemented, remove this default value
-        if (webmercatorZoom > 18) {
-            return 18
-        }
-        return webmercatorZoom
+        return swisstopoPyramidZoomToMercatorZoomMatrix[key]
     }
-    return null
+    // if no matching zoom level was found, we return the one for the 1:25'000 map
+    return ZOOM_LEVEL_1_25000_MAP
+}
+
+/**
+ * Mapping between Web-Mercator zoom levels and Swiss map zooms. It will find the closest (ceil) LV95 zoom level for the given mercator zoom
+ *
+ * @param {Number} mercatorZoom
+ * @return {Number}
+ */
+export const translateMercatorZoomToSwisstopoPyramidZoom = (mercatorZoom) => {
+    // checking first if the mercator zoom level is within range of LV95 zoom we have available
+    if (
+        mercatorZoom >= swisstopoPyramidZoomToMercatorZoomMatrix[0] &&
+        mercatorZoom <= swisstopoPyramidZoomToMercatorZoomMatrix[14]
+    ) {
+        return Object.values(swisstopoPyramidZoomToMercatorZoomMatrix).filter(
+            (zoom) => zoom < mercatorZoom
+        ).length
+    }
+    if (mercatorZoom < swisstopoPyramidZoomToMercatorZoomMatrix[0]) {
+        return 0
+    }
+    if (mercatorZoom > swisstopoPyramidZoomToMercatorZoomMatrix[14]) {
+        return 14
+    }
+    // if no matching zoom level was found, we return the one for the 1:25'000 map
+    return 8
 }
