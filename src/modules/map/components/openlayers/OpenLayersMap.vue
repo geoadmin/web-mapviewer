@@ -378,6 +378,10 @@ export default {
         if (this.selectedFeatures.length > 0) {
             this.highlightSelectedFeatures()
         }
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.olMap = this.map
+        }
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
