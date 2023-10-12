@@ -225,7 +225,7 @@ describe('Testing the share menu', () => {
                     .click()
                 cy.get('[data-cy="menu-share-embed-iframe-custom-width"]')
                     .should('be.visible')
-                    .should('contain.value', '100%')
+                    .should('contain.value', '100 %')
                     .should('have.attr', 'readonly')
                 checkIFrameSnippetSize('100%', 300)
             })
