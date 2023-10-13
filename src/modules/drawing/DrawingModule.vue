@@ -115,6 +115,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
+            projection: (state) => state.position.projection,
         }),
         kmlLayerId() {
             return this.kmlLayer?.getID()
@@ -192,10 +193,13 @@ export default {
                 this.onChange()
             }
         },
+        projection() {
+            this.drawingLayer.setSource(this.createSourceForProjection())
+        },
     },
     created() {
         this.drawingLayer = new VectorLayer({
-            source: new VectorSource({ useSpatialIndex: false, wrapX: true }),
+            source: this.createSourceForProjection(),
         })
         this.drawingLayer.setZIndex(9999)
         // if icons have not yet been loaded, we do so
@@ -435,7 +439,7 @@ export default {
             try {
                 const kml = await getKml(layer.fileId)
                 const features = new KML().readFeatures(kml, {
-                    featureProjection: layer.projection.epsg,
+                    featureProjection: this.projection.epsg,
                 })
                 features.forEach((olFeature) => {
                     EditableFeature.deserialize(olFeature, this.availableIconSets)
@@ -450,6 +454,13 @@ export default {
                     this.differAddKmlLayerToDrawing(layer)
                 }
             }
+        },
+        createSourceForProjection() {
+            return new VectorSource({
+                useSpatialIndex: false,
+                wrapX: true,
+                projection: this.projection.epsg,
+            })
         },
     },
 }

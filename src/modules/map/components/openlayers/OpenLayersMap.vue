@@ -27,6 +27,7 @@
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
             :layer-config="currentBackgroundLayer"
+            :projection="mappingProjection"
             :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
         />
         <!-- Adding all other layers -->
@@ -36,6 +37,7 @@
             :layer-config="layer"
             :preview-year="previewYear"
             :current-map-resolution="resolution"
+            :projection="mappingProjection"
             :z-index="zIndexForVisibleLayer(layer)"
         />
         <!-- Adding pinned location -->
@@ -63,6 +65,7 @@
             v-for="(feature, index) in selectedFeatures"
             :key="feature.id"
             :feature="feature"
+            :projection="mappingProjection"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
         <OpenLayersPopover
@@ -111,6 +114,7 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import {
     IS_TESTING_WITH_CYPRESS,
+    LV95_RESOLUTIONS,
     VECTOR_LIGHT_BASE_MAP_STYLE_ID,
     VIEW_MIN_RESOLUTION,
 } from '@/config'
@@ -121,13 +125,14 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Map, View } from 'ol'
 import { platformModifierKeyOnly } from 'ol/events/condition'
-import { defaults as getDefaultInteractions } from 'ol/interaction'
+import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
 import 'ol/ol.css'
@@ -181,6 +186,7 @@ export default {
             rotation: (state) => state.position.rotation,
             center: (state) => state.position.center,
             currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
+            mappingProjection: (state) => state.position.projection,
             selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
             previewedPinnedLocation: (state) => state.map.previewedPinnedLocation,
@@ -222,14 +228,17 @@ export default {
         },
         /**
          * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
-         * current BG layer is pixelkarte-farbe. We place it this way so that we can keep
-         * pixelkarte-farbe while achieving world-wide coverage (while waiting to receive a
-         * full-fledged VT layer with more details than light base map)
+         * current BG layer is pixelkarte-farbe and the mapping projection used is WebMercator.
+         * We place it this way so that we can keep pixelkarte-farbe while achieving world-wide
+         * coverage (while waiting to receive a full-fledged VT layer with more details than light base map)
          *
          * @returns {GeoAdminVectorLayer | null}
          */
         lightBaseMapConfigUnderMainBackgroundLayer() {
-            if (this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe') {
+            if (
+                this.mappingProjection.epsg === WEBMERCATOR.epsg &&
+                this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe'
+            ) {
                 // we only want LightBaseMap behind pixelkarte-farbe when the map is showing things outside
                 // LV95 extent (outside of Switzerland)
                 if (this.isExtentOnlyWithinLV95Bounds) {
@@ -290,19 +299,19 @@ export default {
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
         center() {
-            this.view.animate({
+            this.currentView.animate({
                 center: this.center,
                 duration: this.animationDuration,
             })
         },
         zoom() {
-            this.view.animate({
+            this.currentView.animate({
                 zoom: this.zoom,
                 duration: this.animationDuration,
             })
         },
         rotation() {
-            this.view.animate({
+            this.currentView.animate({
                 rotation: this.rotation,
                 duration: this.animationDuration,
             })
@@ -328,11 +337,18 @@ export default {
             },
             deep: true,
         },
+        mappingProjection() {
+            this.setCurrentMapViewAccordingToProjection()
+        },
     },
     beforeCreate() {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
 
+        this.freeMouseWheelInteraction = new MouseWheelZoom()
+        this.constrainedMouseWheelInteraction = new MouseWheelZoom({
+            constrainResolution: true,
+        })
         /* Make it possible to rotate the map with ctrl+drag (in addition to openlayers default
         Alt+Shift+Drag). This is probably more intuitive. Also, Windows and some Linux distros use
         alt+shift to switch the keyboard layout, so using alt+shift may have unintended side effects
@@ -341,6 +357,7 @@ export default {
             new DragRotateInteraction({
                 condition: platformModifierKeyOnly,
             }),
+            this.constrainedMouseWheelInteraction,
         ])
         this.map = new Map({ controls: [], interactions })
 
@@ -356,13 +373,20 @@ export default {
         register(proj4)
         this.map.setTarget(this.$refs.map)
         // Setting up OL objects
-        this.view = new View({
-            center: this.center,
+        this.mercatorView = new View({
             zoom: this.zoom,
             minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
+            projection: WEBMERCATOR.epsg,
         })
-        this.map.setView(this.view)
+        this.lv95View = new View({
+            zoom: this.zoom,
+            minResolution: VIEW_MIN_RESOLUTION,
+            rotation: this.rotation,
+            resolutions: LV95_RESOLUTIONS,
+            projection: LV95.epsg,
+        })
+        this.setCurrentMapViewAccordingToProjection()
 
         // Click management
         this.map.on('pointerdown', this.onMapPointerDown)
@@ -393,7 +417,9 @@ export default {
         this.map.setView(null)
 
         delete this.map
-        delete this.view
+        delete this.currentView
+        delete this.lv95View
+        delete this.mercatorView
     },
     methods: {
         ...mapActions([
@@ -411,6 +437,20 @@ export default {
             this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
                 ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
                 : firstFeature.coordinates
+        },
+        setCurrentMapViewAccordingToProjection() {
+            const projectionIsLV95 = this.mappingProjection.epsg === LV95.epsg
+            if (projectionIsLV95) {
+                this.currentView = this.lv95View
+                this.map.removeInteraction(this.freeMouseWheelInteraction)
+                this.map.addInteraction(this.constrainedMouseWheelInteraction)
+            } else {
+                this.currentView = this.mercatorView
+                this.map.removeInteraction(this.constrainedMouseWheelInteraction)
+                this.map.addInteraction(this.freeMouseWheelInteraction)
+            }
+            this.currentView.setCenter(this.center)
+            this.map.setView(this.currentView)
         },
         // Pointer down and up are triggered by both left and right clicks.
         onMapPointerDown() {
@@ -503,16 +543,16 @@ export default {
             if (this.mapIsBeingDragged) {
                 this.mapStoppedBeingDragged()
             }
-            if (this.view) {
-                const [x, y] = this.view.getCenter()
+            if (this.currentView) {
+                const [x, y] = this.currentView.getCenter()
                 if (x !== this.center[0] || y !== this.center[1]) {
                     this.setCenter({ x, y })
                 }
-                const zoom = round(this.view.getZoom(), 3)
+                const zoom = round(this.currentView.getZoom(), 3)
                 if (zoom && zoom !== this.zoom) {
                     this.setZoom(zoom)
                 }
-                const rotation = this.view.getRotation()
+                const rotation = this.currentView.getRotation()
                 if (rotation !== this.rotation) {
                     this.setRotation(rotation)
                 }

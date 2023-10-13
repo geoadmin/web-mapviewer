@@ -86,7 +86,8 @@ const clickOnMapManagementPlugin = (store) => {
                     store,
                     clickInfo,
                     store.getters.visibleLayers,
-                    store.state.i18n.lang
+                    store.state.i18n.lang,
+                    state.position.projection
                 ).then((newSelectedFeatures) => {
                     if (!newSelectedFeatures?.length && allowActivateFullscreen) {
                         store.dispatch('toggleFullscreenMode')
