@@ -1,5 +1,6 @@
-import { MAP_CENTER, TILEGRID_EXTENT_EPSG_3857 } from '@/config'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95_RESOLUTIONS, MAP_CENTER } from '@/config'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -65,14 +66,26 @@ const state = {
      * @type Number
      */
     rotation: 0,
+
     /**
      * Center of the view of the map expressed in EPSG:3857
      *
      * @type Array<Number>
      */
     center: MAP_CENTER,
+
+    /**
+     * Projection used to express the position (and subsequently used to define how the mapping framework will have to work under the hood)
+     *
+     * If LV95 is chosen, the map will use custom resolution to fit Swisstopo's Landeskarte specific zooms (or scales) so that zoom levels will fit the different maps we have (1:500'000, 1:100'000, etc...)
+     *
+     * @type {CoordinateSystem}
+     */
+    projection: WEBMERCATOR,
+
     /** @type CrossHairs */
     crossHair: null,
+
     /**
      * Position of the view when we are in 3D
      *
@@ -119,7 +132,7 @@ const getters = {
      * @returns {Number[]}
      */
     centerEpsg4326: (state) => {
-        const centerEpsg4326Unrounded = proj4(WEBMERCATOR.epsg, WGS84.epsg, state.center)
+        const centerEpsg4326Unrounded = proj4(state.projection.epsg, WGS84.epsg, state.center)
         return [
             // a precision of 6 digits means we can track position with 0.111m accuracy
             // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
@@ -143,8 +156,14 @@ const getters = {
      *
      * @type Number
      */
-    resolution: (state, getters) =>
-        calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1]),
+    resolution: (state, getters) => {
+        if (state.projection.epsg === LV95.epsg) {
+            // for LV95 we have custom-made resolution by zoom level, so no need to calculate it, just map it to the zoom
+            return LV95_RESOLUTIONS[Math.floor(state.zoom)]
+        }
+        return calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1])
+    },
+
     /**
      * The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight ]`)
      *
@@ -178,12 +197,11 @@ const getters = {
      * @returns {Boolean}
      */
     isExtentOnlyWithinLV95Bounds(state, getters) {
-        const [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
+        let [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
+        const lv95boundsInCurrentProjection = LV95.getBoundsAs(state.projection)
         return (
-            currentExtentBottomLeft[0] >= TILEGRID_EXTENT_EPSG_3857[0] &&
-            currentExtentBottomLeft[1] >= TILEGRID_EXTENT_EPSG_3857[1] &&
-            currentExtentTopRight[0] <= TILEGRID_EXTENT_EPSG_3857[2] &&
-            currentExtentTopRight[1] <= TILEGRID_EXTENT_EPSG_3857[3]
+            lv95boundsInCurrentProjection.isInBounds(currentExtentBottomLeft) &&
+            lv95boundsInCurrentProjection.isInBounds(currentExtentTopRight)
         )
     },
 }
@@ -221,16 +239,16 @@ const actions = {
             commit('setCenter', { x, y })
         }
     },
-    zoomToExtent: ({ commit, getters, rootState }, extent) => {
+    zoomToExtent: ({ commit, getters, state, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
             const points = [
-                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[0]),
-                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[1]),
+                proj4(state.projection.epsg, WGS84.epsg, extent[0]),
+                proj4(state.projection.epsg, WGS84.epsg, extent[1]),
             ]
             // Calculate center of extent and convert position back to EPSG:3857.
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
-            const centerOfExtent = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+            const centerOfExtent = proj4(WGS84.epsg, state.projection.epsg, [
                 (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
                 (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
             ])
@@ -253,30 +271,32 @@ const actions = {
             )
             // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
             // TODO: as soon as client zoom is implemented, remove this fixed value
-            if (zoom > 18) {
+            if (state.projection.epsg === LV95.epsg && zoom > 13) {
+                commit('setZoom', 13)
+            } else if (state.projection.epsg !== LV95.epsg && zoom > 18) {
                 commit('setZoom', 18)
             } else {
                 commit('setZoom', zoom)
             }
         }
     },
-    setLatitude: ({ dispatch, getters }, latInDeg) => {
+    setLatitude: ({ dispatch, getters, state }, latInDeg) => {
         if (typeof latInDeg === 'number') {
             const newCenter = [getters.centerEpsg4326[0], latInDeg]
-            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
+            const newCenterCurrentProjection = proj4(WGS84.epsg, state.projection.epsg, newCenter)
             dispatch('setCenter', {
-                x: newCenterEpsg3857[0],
-                y: newCenterEpsg3857[1],
+                x: newCenterCurrentProjection[0],
+                y: newCenterCurrentProjection[1],
             })
         }
     },
-    setLongitude: ({ dispatch, getters }, lonInDeg) => {
+    setLongitude: ({ dispatch, getters, state }, lonInDeg) => {
         if (typeof lonInDeg === 'number') {
             const newCenter = [lonInDeg, getters.centerEpsg4326[1]]
-            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
+            const newCenterCurrentProjection = proj4(WGS84.epsg, state.projection.epsg, newCenter)
             dispatch('setCenter', {
-                x: newCenterEpsg3857[0],
-                y: newCenterEpsg3857[1],
+                x: newCenterCurrentProjection[0],
+                y: newCenterCurrentProjection[1],
             })
         }
     },
@@ -297,6 +317,16 @@ const actions = {
     setCameraPosition({ commit }, cameraPosition) {
         commit('setCameraPosition', cameraPosition)
     },
+    setProjection({ commit }, projection) {
+        if (
+            projection instanceof CoordinateSystem &&
+            (projection.epsg === LV95.epsg || projection.epsg === WEBMERCATOR.epsg)
+        ) {
+            commit('setProjection', projection)
+        } else {
+            log.error('Unsupported projection', projection)
+        }
+    },
 }
 
 const mutations = {
@@ -305,6 +335,7 @@ const mutations = {
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
     setCameraPosition: (state, cameraPosition) => (state.camera = cameraPosition),
+    setProjection: (state, projection) => (state.projection = projection),
 }
 
 export default {
