@@ -181,6 +181,14 @@ export const WMS_TILE_SIZE = 512 // px
 export const TILEGRID_ORIGIN = [2420000, 1350000]
 
 /**
+ * Resolutions for each LV95 zoom level, from 0 to 14
+ * @type {number[]}
+ */
+export const LV95_RESOLUTIONS = [
+    650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.0, 0.5, 0.25, 0.1,
+]
+
+/**
  * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
  * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
  *
@@ -215,14 +223,6 @@ export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
  * @type {Number[]}
  */
 export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
-
-/**
- * Bounds of the LV95 projection expressed in metric mercator (WGS84). It is essentially
- * TILEGRID_EXTENT (defined above) reprojected in EPSG:3857 through epsg.io website.
- *
- * @type {Number[]}
- */
-export const TILEGRID_EXTENT_EPSG_3857 = [572215.44, 5684416.96, 1277662.37, 6145307.4]
 
 /**
  * TILEGRID_EXTENT (defined above) reprojected in EPSG:4326 through epsg.io website.
