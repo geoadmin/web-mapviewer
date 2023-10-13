@@ -12,6 +12,7 @@
 
 <script>
 import { SelectableFeature } from '@/api/features.api'
+import { DEFAULT_PROJECTION } from '@/config'
 import OpenLayersMarker, {
     highlightedFill,
     highlightedStroke,
@@ -19,7 +20,7 @@ import OpenLayersMarker, {
     markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
@@ -59,6 +60,10 @@ export default {
             type: SelectableFeature,
             required: true,
         },
+        projection: {
+            type: CoordinateSystem,
+            default: DEFAULT_PROJECTION,
+        },
         zIndex: {
             type: Number,
             default: -1,
@@ -72,15 +77,23 @@ export default {
     },
     computed: {
         doesFeatureHaveAGeometry() {
-            return this.feature && this.feature.geometry
+            return this.feature?.geometry
         },
         openLayersGeoJsonGeometry() {
             if (this.doesFeatureHaveAGeometry) {
                 return new GeoJSON().readGeometry(this.feature.geometry, {
-                    dataProject: WEBMERCATOR.epsg,
+                    dataProject: this.projection.epsg,
                 })
             }
             return null
+        },
+    },
+    watch: {
+        feature: {
+            handler() {
+                this.addFeatureToLayer()
+            },
+            deep: true,
         },
     },
     created() {
@@ -92,12 +105,19 @@ export default {
             })
             this.layer = new VectorLayer({
                 id: `geometry-layer-feature-${this.feature.id}`,
-                source: new VectorSource({
-                    features: [this.geometry],
-                }),
                 style: geoJsonStyleFunction,
             })
+            this.addFeatureToLayer()
         }
+    },
+    methods: {
+        addFeatureToLayer() {
+            this.layer.setSource(
+                new VectorSource({
+                    features: [this.geometry],
+                })
+            )
+        },
     },
 }
 </script>

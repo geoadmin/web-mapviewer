@@ -6,9 +6,8 @@
 
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
+import { DEFAULT_PROJECTION, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
@@ -28,7 +27,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR,
+            default: DEFAULT_PROJECTION,
         },
         zIndex: {
             type: Number,

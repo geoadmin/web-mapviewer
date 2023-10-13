@@ -1,4 +1,4 @@
-import { LV95_RESOLUTIONS, MAP_CENTER } from '@/config'
+import { DEFAULT_PROJECTION, LV95_RESOLUTIONS, MAP_CENTER } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -81,7 +81,7 @@ const state = {
      *
      * @type {CoordinateSystem}
      */
-    projection: WEBMERCATOR,
+    projection: DEFAULT_PROJECTION,
 
     /** @type CrossHairs */
     crossHair: null,

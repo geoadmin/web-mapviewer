@@ -12,9 +12,9 @@
     <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
 <script>
+import { DEFAULT_PROJECTION } from '@/config'
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import MousePosition from 'ol/control/MousePosition'
 
@@ -23,7 +23,7 @@ export default {
     props: {
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR,
+            default: DEFAULT_PROJECTION,
         },
     },
     data() {
