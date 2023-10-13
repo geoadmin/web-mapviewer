@@ -1,10 +1,10 @@
 <template>
-    <ul class="advanced-tools-list">
+    <ul class="advanced-tools-list px-2 py-1">
         <li class="advanced-tools-item">
             <a
                 class="advanced-tools-title"
                 :title="$t('import_tooltip')"
-                @click.stop="onToggleOverlay"
+                @click.stop="onToggleImportOverlay"
                 >{{ $t('import') }}</a
             >
         </li>
@@ -17,7 +17,7 @@ import { mapActions } from 'vuex'
 export default {
     methods: {
         ...mapActions(['toggleImportOverlay']),
-        onToggleOverlay() {
+        onToggleImportOverlay() {
             this.toggleImportOverlay()
         },
     },
@@ -27,7 +27,6 @@ export default {
 <style lang="scss" scoped>
 .advanced-tools-list {
     list-style-type: none;
-    padding: 4px 4px 4px 7px;
     margin-bottom: 0;
 
     .advanced-tools-item {

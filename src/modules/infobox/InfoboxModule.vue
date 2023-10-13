@@ -195,7 +195,7 @@ export default {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            if (this.floatingTooltip) {
+            if (this.importOverlay) {
                 this.toggleImportOverlay()
             } else {
                 this.clearAllSelectedFeatures()

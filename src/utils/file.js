@@ -32,7 +32,7 @@ export function isWmtsGetCap(fileContent) {
  * @returns {boolean}
  */
 export function isKml(fileContent) {
-    return /<kml/.test(fileContent) && /<\/kml>/.test(fileContent)
+    return /<kml/.test(fileContent) && /<\/kml\s*>/.test(fileContent)
 }
 
 /**
@@ -42,7 +42,7 @@ export function isKml(fileContent) {
  * @returns {boolean}
  */
 export function isGpx(fileContent) {
-    return /<gpx/.test(fileContent) && /<\/gpx>/.test(fileContent)
+    return /<gpx/.test(fileContent) && /<\/gpx\s*>/.test(fileContent)
 }
 
 /**
@@ -56,7 +56,9 @@ export function isGpx(fileContent) {
  */
 export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
     // If the WMS layer has no name, it can't be displayed
-    if (!layer.Name) return undefined
+    if (!layer.Name) {
+        return undefined
+    }
     const wmsUrl = getCap.Capability.Request.GetMap.DCPType[0].HTTP.Get.OnlineResource
 
     // Go through the child to get valid layers
@@ -86,7 +88,9 @@ export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
  * @returns {ExternalGroupOfLayers|undefined|ExternalWMSLayer}
  */
 export function getCapWMTSLayers(getCapUrl, getCap, layer, visible = true, opacity = 1) {
-    if (!layer.Identifier) return undefined
+    if (!layer.Identifier) {
+        return undefined
+    }
     return new ExternalWMTSLayer(
         layer.Title,
         opacity,

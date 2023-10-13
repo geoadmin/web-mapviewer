@@ -18,15 +18,15 @@
                         v-for="(provider, key) in filteredList"
                         :key="provider"
                         :tabindex="key"
-                        class="providers-list-item"
+                        class="providers-list-item mx-2 my-1"
                         @keydown.up.prevent="() => goToPrevious(key)"
                         @keydown.down.prevent="() => goToNext(key)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
+                        @click="() => onChooseProvider(provider.value)"
                     >
                         <span
                             v-html="provider.toShow"
-                            @click="() => onChooseProvider(provider.value)"
                         ></span>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
         >
             <button
                 type="button"
-                class="btn btn-outline-secondary connect-btn"
+                class="btn btn-outline-secondary connect-btn mt-1"
                 :disabled="isConnectDisabled"
                 @click="onConnect"
             >
@@ -215,7 +215,6 @@ export default {
 }
 .connect-btn {
     width: 100%;
-    margin-top: 5px;
     cursor: pointer;
 }
 .connect-btn.loading {
@@ -239,7 +238,6 @@ export default {
         grid-auto-rows: 1fr;
 
         .providers-list-item {
-            margin: 5px 10px;
             cursor: pointer;
             :deep(strong) {
                 background-color: rgba(255, 128, 0, 0.3);

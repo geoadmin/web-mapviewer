@@ -157,13 +157,6 @@ export function stringifyQuery(query) {
 
 /* Import URL utils start */
 
-const ADMIN_URL_REGEXP = new RegExp(
-    '^(ftp|http|https)://(.*(.bgdi.ch|.geo.admin.ch|.swisstopo.cloud)|localhost:[0-9]{1,5})'
-)
-
-// todo use correct URLs
-const PROXY_URL = 'https://service-proxy.bgdi-dev.swisstopo.cloud'
-
 export function appendParamsToUrl(url, paramString) {
     if (paramString) {
         const parts = (url + ' ').split(/[?&]/)
@@ -175,60 +168,6 @@ export function appendParamsToUrl(url, paramString) {
                 : '?' + paramString
     }
     return url
-}
-
-// Test if the URL comes from a friendly site
-export function isAdminValid(url) {
-    return isValidUrl(url) && ADMIN_URL_REGEXP.test(url)
-}
-
-// Test if URL is a blob url
-export function isBlob(url) {
-    return /^blob:/.test(url)
-}
-
-// Test if URL uses https
-export function isHttps(url) {
-    return isValidUrl(url) && /^https/.test(url)
-}
-
-// Test if URL represents resource that needs to pass via proxy
-export function needsProxy(url) {
-    if (isBlob(url)) {
-        return false
-    }
-    return !isHttps(url) || !isAdminValid(url) || /.*kmz$/.test(url)
-}
-
-export function buildProxyUrl(url) {
-    if (!isValidUrl(url)) {
-        return url
-    }
-    const parts = /^(http|https)(:\/\/)(.+)/.exec(url)
-    const protocol = parts[1]
-    const resource = parts[3]
-    // proxy is RESTFful, <service>/<protocol>/<resource>
-    return `${PROXY_URL}/${protocol}/${encodeURIComponent(resource)}`
-}
-
-export function proxifyUrlInstant(url) {
-    if (needsProxy(url)) {
-        return buildProxyUrl(url)
-    }
-    return url
-}
-
-export function proxifyUrl(url) {
-    return new Promise((resolve) => {
-        if (!isBlob(url) && isHttps(url) && !isAdminValid(url) && !/.*kmz$/.test(url)) {
-            fetch(url).then(
-                () => resolve(url),
-                () => resolve(buildProxyUrl(url))
-            )
-        } else {
-            resolve(proxifyUrlInstant(url))
-        }
-    })
 }
 
 /**
@@ -261,7 +200,7 @@ export function transformUrl(url, lang) {
         url = url.replace(/{s}/, '')
     }
     // Save the good url for the import component.
-    return proxifyUrl(url)
+    return url
 }
 
 /* Import URL utils end */
