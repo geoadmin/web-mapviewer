@@ -7,7 +7,13 @@
 <script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { TILEGRID_EXTENT, TILEGRID_ORIGIN, TILEGRID_RESOLUTIONS, WMS_TILE_SIZE } from '@/config'
+import {
+    DEFAULT_PROJECTION,
+    TILEGRID_EXTENT,
+    TILEGRID_ORIGIN,
+    TILEGRID_RESOLUTIONS,
+    WMS_TILE_SIZE,
+} from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
@@ -34,7 +40,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR.epsg,
+            default: DEFAULT_PROJECTION,
         },
         zIndex: {
             type: Number,
@@ -88,6 +94,7 @@ export default {
                 LANG: this.currentLang,
                 VERSION: this.wmsVersion,
                 TIME: this.timestamp,
+                CRS: this.projection.epsg,
             }
         },
     },
@@ -98,38 +105,55 @@ export default {
         opacity(newOpacity) {
             this.layer.setOpacity(newOpacity)
         },
+        projection() {
+            this.layer.setSource(this.createSourceForProjection())
+        },
     },
     created() {
-        let source = undefined
         if (this.gutter !== -1) {
-            source = new TileWMS({
-                projection: this.projection.epsg,
-                url: this.url,
-                gutter: this.gutter,
-                params: this.wmsUrlParams,
+            this.layer = new TileLayer({
+                id: this.layerId,
+                opacity: this.opacity,
+                source: this.createSourceForProjection(),
             })
         } else {
-            source = new ImageWMS({
-                url: this.url,
-                projection: this.projection.epsg,
-                params: this.wmsUrlParams,
+            this.layer = new ImageLayer({
+                id: this.layerId,
+                opacity: this.opacity,
+                source: this.createSourceForProjection(),
             })
         }
-        // If we are using LV95, we can constrain the WMS to only request tiles over Switzerland
-        if (this.projection === LV95) {
+    },
+    methods: {
+        createSourceForProjection() {
+            let source = undefined
+            if (this.gutter !== -1) {
+                source = new TileWMS({
+                    projection: this.projection.epsg,
+                    url: this.url,
+                    gutter: this.gutter,
+                    params: this.wmsUrlParams,
+                })
+            } else {
+                source = new ImageWMS({
+                    url: this.url,
+                    projection: this.projection.epsg,
+                    params: this.wmsUrlParams,
+                })
+            }
             const tileGridLV95 = new TileGrid({
                 resolutions: TILEGRID_RESOLUTIONS,
                 extent: TILEGRID_EXTENT,
                 origin: TILEGRID_ORIGIN,
                 tileSize: WMS_TILE_SIZE,
             })
-
-            source.tileGrid = tileGridLV95
-
-            // tile grid and  reprojection to WebMercator is done in analogy to WMTS to prevent
-            // that the layer appears twice, once in CH and once near New Zealand.
-            // see: https://github.com/geoadmin/web-mapviewer/commit/c689f9a650c546c6e52a91fc2086d7cbbf48faa2
-            if (this.gutter !== -1) {
+            // If we are using LV95, we can constrain the WMS to only request tiles over Switzerland
+            if (this.projection.epsg === LV95.epsg) {
+                source.tileGrid = tileGridLV95
+            } else if (this.gutter !== -1) {
+                // in WebMercator, the tile grid is reprojected analog to WMTS.
+                // This is to prevent that the layer appears twice, once in CH and once near New Zealand.
+                // see: https://github.com/geoadmin/web-mapviewer/commit/c689f9a650c546c6e52a91fc2086d7cbbf48faa2
                 source.setTileGridForProjection(
                     WEBMERCATOR.epsg,
                     new TileGrid({
@@ -143,20 +167,8 @@ export default {
                     })
                 )
             }
-        }
-        if (this.gutter !== -1) {
-            this.layer = new TileLayer({
-                id: this.layerId,
-                opacity: this.opacity,
-                source,
-            })
-        } else {
-            this.layer = new ImageLayer({
-                id: this.layerId,
-                opacity: this.opacity,
-                source,
-            })
-        }
+            return source
+        },
     },
 }
 </script>

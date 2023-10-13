@@ -35,11 +35,12 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import getProfile from '@/api/profile/profile.api'
+import { DEFAULT_PROJECTION } from '@/config'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -65,7 +66,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR,
+            default: DEFAULT_PROJECTION,
         },
     },
     emits: ['updateElevationProfilePlot'],

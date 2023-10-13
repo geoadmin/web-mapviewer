@@ -6,10 +6,9 @@
 
 <script>
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { TILEGRID_EXTENT_EPSG_4326 } from '@/config'
+import { DEFAULT_PROJECTION, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { mapState } from 'vuex'
@@ -29,7 +28,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR.epsg,
+            default: DEFAULT_PROJECTION,
         },
         zIndex: {
             type: Number,
