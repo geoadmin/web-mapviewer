@@ -99,6 +99,7 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
+import { DEFAULT_PROJECTION } from '@/config'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -132,7 +133,7 @@ export default {
     props: {
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR,
+            default: DEFAULT_PROJECTION,
         },
     },
     data() {
