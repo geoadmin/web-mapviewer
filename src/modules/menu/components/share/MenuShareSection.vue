@@ -13,7 +13,7 @@
             <MenuShareSocialNetworks :short-link="shortLink" class="pt-1" />
             <MenuShareInputCopyButton
                 :input-text="shortLink"
-                :label-text="$t('share_link')"
+                :label-text="'share_link'"
                 :copy-text="'copy_url'"
                 :copied-text="'copy_success'"
                 class="px-2 py-3"

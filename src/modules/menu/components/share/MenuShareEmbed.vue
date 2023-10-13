@@ -191,7 +191,7 @@ export default {
     },
     computed: {
         embedPreviewModalWidth() {
-            // User the iframe with as maximal width for the embed preview modal window
+            // Uses the iframe's width as maximal width for the entire modal window
             return { 'max-width': this.iFrameWidth }
         },
         isPreviewSizeCustom() {

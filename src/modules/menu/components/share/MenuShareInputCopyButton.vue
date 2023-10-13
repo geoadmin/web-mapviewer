@@ -1,6 +1,6 @@
 <template>
     <div v-if="inputText">
-        <label v-if="labelText">{{ labelText }}: </label>
+        <label v-if="labelText">{{ $t(labelText) }}: </label>
         <div class="input-group" :class="{ 'input-group-sm': small }">
             <input
                 type="text"
