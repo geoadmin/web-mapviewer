@@ -2,8 +2,9 @@
     <div data-infobox="height-reference" class="import-overlay-content">
         <div class="input-group d-flex">
             <input
+                ref="importInput"
                 type="text"
-                class="form-control search-bar-input"
+                class="form-control import-input rounded-end"
                 :placeholder="$t('import_online_placeholder')"
                 :value="importValue"
                 data-cy="import"
@@ -12,22 +13,32 @@
                 @keydown.down.prevent="goToFirstResult"
                 @keydown.esc.prevent="hideProviders"
             />
-            <div v-if="listShown" ref="providers" class="providers-list-container">
+            <button
+                v-if="importValue?.length > 0"
+                id="button-addon1"
+                class="btn btn-outline-group rounded-end"
+                type="button"
+                data-cy="searchbar-clear"
+                @click="clearImportQuery"
+            >
+                <FontAwesomeIcon :icon="['fas', 'times-circle']" />
+            </button>
+            <div v-if="listShown" ref="providers" class="providers-list-container bg-light">
                 <div class="providers-list">
                     <div
                         v-for="(provider, key) in filteredList"
                         :key="provider"
                         :tabindex="key"
-                        class="providers-list-item mx-2 my-1"
+                        class="providers-list-item p-2"
                         @keydown.up.prevent="() => goToPrevious(key)"
                         @keydown.down.prevent="() => goToNext(key)"
                         @keydown.home.prevent="goToFirst"
                         @keydown.end.prevent="goToLast"
                         @click="() => onChooseProvider(provider.value)"
                     >
-                        <span
-                            v-html="provider.toShow"
-                        ></span>
+                        <!-- eslint-disable vue/no-v-html-->
+                        <span v-html="provider.toShow"></span>
+                        <!-- eslint-enable vue/no-v-html-->
                     </div>
                 </div>
             </div>
@@ -52,8 +63,8 @@
             <div
                 v-for="layer in importedLayers"
                 :key="layer.externalLayerId"
-                @click="() => addLayer(layer)"
                 class="cursor-pointer"
+                @click="() => addLayer(layer)"
             >
                 {{ layer.name }}
             </div>
@@ -74,7 +85,6 @@ import {
 } from '@/utils/file'
 import { WMSCapabilities } from 'ol/format'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
-import { optionsFromCapabilities } from 'ol/source/WMTS'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 
 const BTN_RESET_TIMEOUT = 3000
@@ -205,14 +215,29 @@ export default {
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
             }
         },
+        clearImportQuery() {
+            this.importValue = ''
+            this.$refs.importInput.focus()
+        },
     },
 }
 </script>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
 .import-overlay-content {
     height: 250px;
 }
+
+.import-input {
+    font-size: 0.825rem;
+}
+
+.import-input:focus {
+    box-shadow: none;
+}
+
 .connect-btn {
     width: 100%;
     cursor: pointer;
@@ -239,13 +264,12 @@ export default {
 
         .providers-list-item {
             cursor: pointer;
-            :deep(strong) {
-                background-color: rgba(255, 128, 0, 0.3);
-            }
+            font-size: 0.8rem;
         }
         .providers-list-item:focus,
         .providers-list-item:hover {
-            background-color: #f0f0f0;
+            background-color: $secondary;
+            color: $light;
         }
     }
 }
