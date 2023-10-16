@@ -325,7 +325,7 @@ export default {
             log.debug(`Save drawing retryOnError ${retryOnError}`)
             this.drawingState = DrawingState.SAVING
             clearTimeout(this.differSaveDrawingTimeout)
-            const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
+            const kml = generateKmlString(this.projection, this.drawingLayer.getSource().getFeatures())
             try {
                 if (!this.kmlAdminId) {
                     const oldKmlId = this.kmlLayerId
