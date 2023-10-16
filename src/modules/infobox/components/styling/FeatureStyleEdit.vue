@@ -27,14 +27,14 @@
                 rows="2"
             ></textarea>
             <div v-if="isFeatureLine">
-                <font-awesome-icon :icon="['far', 'square']" /> {{ length }}
+                <font-awesome-icon :icon="['far', 'square']" /> {{ length }}m
             </div>
             <div v-if="isFeaturePolygon">
                 <font-awesome-icon
                     :icon="['far', 'square']"
                     style="background: #888a85; color: #888a85"
                 />
-                {{ area }}<sup>2</sup>
+                {{ area }}m<sup>2</sup>
             </div>
         </div>
         <div class="d-flex">
@@ -195,16 +195,16 @@ export default {
             const length = getLength(this.geometry)
 
             if (length > 100) {
-                return `${round(length / 1000, 2)} km`
+                return `${round(length / 1000, 2)} k`
             }
-            return `${round(length, 2)} m`
+            return `${round(length, 2)} `
         },
         area() {
             const area = getArea(this.geometry)
             if (area > 10000) {
-                return `${round(area / 1000000, 2)} km`
+                return `${round(area / 1000000, 2)} k`
             }
-            return `${round(area, 2)} m`
+            return `${round(area, 2)} `
         },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER
