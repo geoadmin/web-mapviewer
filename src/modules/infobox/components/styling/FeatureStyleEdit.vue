@@ -30,7 +30,10 @@
                 <font-awesome-icon :icon="['far', 'square']" /> {{ length }}
             </div>
             <div v-if="isFeaturePolygon">
-                <font-awesome-icon :icon="['far', 'square']" style="color: #888a85" />
+                <font-awesome-icon
+                    :icon="['far', 'square']"
+                    style="background: #888a85; color: #888a85"
+                />
                 {{ area }}<sup>2</sup>
             </div>
         </div>
