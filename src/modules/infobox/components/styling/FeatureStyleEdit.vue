@@ -27,14 +27,15 @@
                 rows="2"
             ></textarea>
             <div v-if="isFeatureLine">
-                <font-awesome-icon :icon="['far', 'square']" /> {{ length }}m
+                <font-awesome-icon :icon="['far', 'square']" />
+                {{ lengthRounded }} {{ length > 100 ? 'km' : 'm' }}
             </div>
             <div v-if="isFeaturePolygon">
                 <font-awesome-icon
                     :icon="['far', 'square']"
                     style="background: #888a85; color: #888a85"
                 />
-                {{ area }}m<sup>2</sup>
+                {{ areaRounded }} {{ area > 10000 ? 'km' : 'm' }}<sup>2</sup>
             </div>
         </div>
         <div class="d-flex">
@@ -182,6 +183,9 @@ export default {
 
             return new Polygon(geom)
         },
+        length() {
+            return getLength(this.geometry)
+        },
         isClosed() {
             return (
                 this.feature.coordinates.length > 3 &&
@@ -191,20 +195,20 @@ export default {
                     this.feature.coordinates[this.feature.coordinates.length - 1][1]
             )
         },
-        length() {
-            const length = getLength(this.geometry)
-
-            if (length > 100) {
-                return `${round(length / 1000, 2)} k`
+        lengthRounded() {
+            if (this.length > 100) {
+                return `${round(this.length / 1000, 2)}`
             }
-            return `${round(length, 2)} `
+            return `${round(this.length, 2)}`
         },
         area() {
-            const area = getArea(this.geometry)
-            if (area > 10000) {
-                return `${round(area / 1000000, 2)} k`
+            return getArea(this.geometry)
+        },
+        areaRounded() {
+            if (this.area > 10000) {
+                return `${round(this.area / 1000000, 2)}`
             }
-            return `${round(area, 2)} `
+            return `${round(area, 2)}`
         },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER
