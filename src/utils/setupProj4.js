@@ -35,7 +35,7 @@ const setupProj4 = (projections = [WEBMERCATOR, LV95, LV03]) => {
         .filter((projection) => projection.bounds)
         .forEach((projection) => {
             const olProjection = getProjection(projection.epsg)
-            olProjection?.setExtent(projection.bounds.flatten())
+            olProjection?.setExtent(projection.bounds.flatten)
         })
 }
 

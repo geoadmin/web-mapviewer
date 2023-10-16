@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { MAP_CENTER } from '@/config'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { BLACK, GREEN, LARGE, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
 
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
@@ -15,7 +15,13 @@ const drawingStyleTextPopup = '[data-cy="drawing-style-text-popup"]'
 const drawingStyleColorBox = '[data-cy="drawing-style-color-select-box"]'
 const drawingStyleSizeSelector = '[data-cy="drawing-style-size-selector"]'
 
-const createAPoint = (kind, x = 0, y = 0, xx = MAP_CENTER[0], yy = MAP_CENTER[1]) => {
+const createAPoint = (
+    kind,
+    x = 0,
+    y = 0,
+    xx = LV95.defaultCenter[0],
+    yy = LV95.defaultCenter[1]
+) => {
     let kmlId
     cy.clickDrawingTool(kind)
     cy.readWindowValue('map').then((map) => {

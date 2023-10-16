@@ -131,14 +131,14 @@ describe('CoordinateSystemBounds', () => {
             expect(testInstance.isInBounds(2, 1)).to.be.false
         })
     })
-    describe('flatten()', () => {
+    describe('flatten', () => {
         const lowX = 123
         const highX = 456
         const lowY = 345
         const highY = 678
         const testInstance = new CoordinateSystemBounds(lowX, highX, lowY, highY)
         it('produces a flatten array correctly', () => {
-            expect(testInstance.flatten()).to.eql([lowX, lowY, highX, highY])
+            expect(testInstance.flatten).to.eql([lowX, lowY, highX, highY])
         })
     })
 })

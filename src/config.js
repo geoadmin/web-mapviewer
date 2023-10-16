@@ -1,6 +1,6 @@
 // loading and exporting all values from the .env file as ES6 importable variables
 
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 /**
  * Enum that tells for which (deployment) environment the app has been built.
@@ -28,7 +28,7 @@ export const APP_VERSION = __APP_VERSION__
  * Default projection to be used throughout the application
  * @type {CoordinateSystem}
  */
-export const DEFAULT_PROJECTION = WEBMERCATOR
+export const DEFAULT_PROJECTION = LV95
 
 /**
  * Adds a slash at the end of the URL if there is none
@@ -238,12 +238,6 @@ export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
  * @type {Number[]}
  */
 export const TILEGRID_EXTENT_EPSG_4326 = [5.1402988, 45.3981222, 11.4774363, 48.230617]
-
-/**
- * Map center default value is the center of switzerland LV:95 projection's extent (from
- * {@link https://epsg.io/2056}) re-projected in EPSG:3857
- */
-export const MAP_CENTER = [915602.81, 5911929.47]
 
 /**
  * Horizontal threshold for the phone view. (min-width for tablet) This will change the menu and

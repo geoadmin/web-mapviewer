@@ -15,14 +15,27 @@ export default class CoordinateSystem {
      * @param {CoordinateSystemBounds} bounds Bounds of this projection system, expressed as in its own coordinate
      * system. These boundaries can also be found on the EPSG website, in the section "Projected bounds" of a
      * projection's page
+     * @param {Number} defaultZoom Zoom level to be used if none are already set
+     * @param {[Number,Number]} defaultCenter Coordinate to be used as the default center, will use the center of the bounds if none are given (and bounds are defined)
      */
-    constructor(id, epsg, epsgNumber, label, proj4transformationMatrix, bounds = null) {
+    constructor(
+        id,
+        epsg,
+        epsgNumber,
+        label,
+        proj4transformationMatrix,
+        bounds = null,
+        defaultZoom = 0,
+        defaultCenter = null
+    ) {
         this.id = id
         this.epsg = epsg
         this.epsgNumber = epsgNumber
         this.label = label
         this.proj4transformationMatrix = proj4transformationMatrix
         this.bounds = bounds
+        this.defaultCenter = defaultCenter || this.bounds?.center
+        this.defaultZoom = defaultZoom
     }
 
     /**
