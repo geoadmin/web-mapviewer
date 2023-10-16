@@ -6,6 +6,7 @@ import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
+import log from '@/utils/logging'
 
 const kmlFormat = new KML()
 const gpxFormat = new GPX()
@@ -64,14 +65,18 @@ export function generateGpxString(features = [], featureProjection = WEBMERCATOR
  * @param styleFunction
  * @returns {string}
  */
-export function generateKmlString(features = [], styleFunction = null) {
+export function generateKmlString(projection, features = [], styleFunction = null) {
+    if (!!!projection) {
+        log.error('Cannot generate KML string without projection')
+        return ''
+    }
     let kmlString = '<kml></kml>'
     let exportFeatures = []
     features.forEach((f) => {
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        clone.getGeometry().transform(WEBMERCATOR.epsg, WGS84.epsg)
+        clone.getGeometry().transform(projection.epsg, WGS84.epsg)
         let styles = styleFunction || featureStyleFunction
         styles = styles(clone)
         const newStyle = {
