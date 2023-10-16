@@ -30,8 +30,8 @@
                 <font-awesome-icon :icon="['far', 'square']" /> {{ length }}
             </div>
             <div v-if="isFeaturePolygon">
-                <font-awesome-icon :icon="['fas', 'square']" style="color: #888a85" /> {{ area
-                }}<sup>2</sup>
+                <font-awesome-icon :icon="['far', 'square']" style="color: #888a85" />
+                {{ area }}<sup>2</sup>
             </div>
         </div>
         <div class="d-flex">
@@ -109,6 +109,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions } from 'vuex'
 import { getArea, getLength } from 'ol/sphere.js'
 import { Polygon } from 'ol/geom'
+import { round } from '@/utils/numberUtils'
 
 /**
  * Display a popup on the map when a drawing is selected.
@@ -167,54 +168,40 @@ export default {
                 this.changeFeatureTitle({ feature: this.feature, title: value })
             },
         },
-        geometry: {
-            get() {
-                /*
+        geometry() {
+            /*
                 Openlayers polygons coordinates are in a triple array
                 The first array is the "ring", the second is to hold the coordinates, which are in an array themselves
                 We don't have rings in this case, so we need to create an ol geometry
                 */
 
-                const geom = [this.feature.coordinates]
+            const geom = [this.feature.coordinates]
 
-                return new Polygon(geom)
-            },
+            return new Polygon(geom)
         },
-        isClosed: {
-            get() {
-                return (
-                    this.feature.coordinates[0][0] ===
-                        this.feature.coordinates[this.feature.coordinates.length - 1][0] &&
-                    this.feature.coordinates[0][1] ===
-                        this.feature.coordinates[this.feature.coordinates.length - 1][1]
-                )
-            },
+        isClosed() {
+            return (
+                this.feature.coordinates.length > 3 &&
+                this.feature.coordinates[0][0] ===
+                    this.feature.coordinates[this.feature.coordinates.length - 1][0] &&
+                this.feature.coordinates[0][1] ===
+                    this.feature.coordinates[this.feature.coordinates.length - 1][1]
+            )
         },
-        length: {
-            get() {
-                const length = getLength(this.geometry)
+        length() {
+            const length = getLength(this.geometry)
 
-                let output
-
-                if (length > 100) {
-                    output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km'
-                } else {
-                    output = Math.round(length * 100) / 100 + ' ' + 'm'
-                }
-                return output
-            },
+            if (length > 100) {
+                return `${round(length / 1000)} km`
+            }
+            return `${round(length)} m`
         },
-        area: {
-            get() {
-                const area = getArea(this.geometry)
-                let output
-                if (area > 10000) {
-                    output = Math.round((area / 1000000) * 100) / 100 + ' ' + 'km'
-                } else {
-                    output = Math.round(area * 100) / 100 + ' ' + 'm'
-                }
-                return output
-            },
+        area() {
+            const area = getArea(this.geometry)
+            if (area > 10000) {
+                return `${round(area / 1000000)} km`
+            }
+            return `${round(area)} m`
         },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER
@@ -229,7 +216,6 @@ export default {
             return this.feature.featureType === EditableFeatureTypes.MEASURE
         },
         isFeaturePolygon() {
-            console.log(this.isClosed)
             return this.feature.featureType === EditableFeatureTypes.LINEPOLYGON && this.isClosed
         },
     },
