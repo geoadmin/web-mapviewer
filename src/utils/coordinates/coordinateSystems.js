@@ -31,7 +31,8 @@ export const WGS84 = new CoordinateSystem(
     new CoordinateSystemBounds(-180.0, 180.0, -90.0, 90.0),
     8,
     // center of LV95's extent transformed with epsg.io website
-    [8.2394363, 46.8322597]
+    [8.2394363, 46.8322597],
+    6
 )
 export const WEBMERCATOR = new CoordinateSystem(
     'WEBMERCATOR',

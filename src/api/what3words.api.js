@@ -40,12 +40,12 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-coords
                 .then((response) => {
                     const what3wordLocationEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
-                        round(response.data.coordinates.lng, 5),
-                        round(response.data.coordinates.lat, 5),
+                        round(response.data.coordinates.lng, WGS84.acceptableDecimalPoints),
+                        round(response.data.coordinates.lat, WGS84.acceptableDecimalPoints),
                     ])
                     resolve([
-                        round(what3wordLocationEpsg3857[0], 1),
-                        round(what3wordLocationEpsg3857[1], 1),
+                        round(what3wordLocationEpsg3857[0], WEBMERCATOR.acceptableDecimalPoints),
+                        round(what3wordLocationEpsg3857[1], WEBMERCATOR.acceptableDecimalPoints),
                     ])
                 })
                 .catch((error) => {

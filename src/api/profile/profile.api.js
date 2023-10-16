@@ -85,7 +85,10 @@ async function getProfileDataForChunk(
             }
             lastDist = dist
             lastCoordinate = coordinate
-            return new ElevationProfilePoint(coordinate, round(dist, 2))
+            return new ElevationProfilePoint(
+                coordinate,
+                round(dist, outputProjection.acceptableDecimalPoints)
+            )
         }),
     ])
 }
