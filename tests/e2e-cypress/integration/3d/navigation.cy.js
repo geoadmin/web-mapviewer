@@ -4,7 +4,7 @@ import {
     CAMERA_MIN_ZOOM_DISTANCE,
 } from '@/modules/map/components/cesium/constants'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { calculateZoom } from '@/store/modules/position.store'
+import { calculateWebMercatorZoom } from '@/store/modules/position.store'
 import { Cartesian3 } from 'cesium'
 
 describe('Testing 3D navigation', () => {
@@ -71,7 +71,10 @@ describe('Testing 3D navigation', () => {
                     cy.readStoreValue('state.position.zoom').should((zoom) => {
                         const height = viewer.camera.positionCartographic.height
                         const resolution = calculateResolution(height, viewer.canvas.clientWidth)
-                        expect(zoom).to.approximately(calculateZoom(resolution, lat), 0.001)
+                        expect(zoom).to.approximately(
+                            calculateWebMercatorZoom(resolution, lat),
+                            0.001
+                        )
                     })
                     cy.readStoreValue('state.position.rotation').should((rotation) => {
                         expect(rotation).to.eq(Math.PI)

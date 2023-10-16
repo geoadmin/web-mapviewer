@@ -1,5 +1,5 @@
-import { calculateZoom, normalizeAngle } from '@/store/modules/position.store'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
+import { calculateWebMercatorZoom, normalizeAngle } from '@/store/modules/position.store'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.
@@ -15,7 +15,7 @@ export default function syncCameraLonLatZoom(store) {
             const rotation = -parseFloat(state.position.camera.heading)
 
             const resolution = calculateResolution(height, state.ui.width)
-            const zoom = calculateZoom(resolution, lat)
+            const zoom = calculateWebMercatorZoom(resolution, lat)
 
             store.dispatch('setLongitude', lon)
             store.dispatch('setLatitude', lat)

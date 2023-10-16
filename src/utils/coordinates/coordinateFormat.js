@@ -31,9 +31,10 @@ export class CoordinateFormat {
      * Format given coordinates (represented in the given projection) to a human-readable string
      * @param {Number[]} coordinates Coordinates such as [x,y]
      * @param {CoordinateSystem} projection Projection used to express the coordinates
+     * @param {boolean} withExtra flags that when set to true will output extra information if available
      * @return {String} Human-readable representation of the coordinates
      */
-    format(coordinates, projection) {
+    format(coordinates, projection, withExtra = false) {
         let reprojectedCoordinates = [...coordinates]
         if (projection && projection.epsg !== this.requiredInputProjection.epsg) {
             reprojectedCoordinates = proj4(
@@ -42,7 +43,7 @@ export class CoordinateFormat {
                 coordinates
             )
         }
-        return this.formatCallback(reprojectedCoordinates)
+        return this.formatCallback(reprojectedCoordinates, withExtra)
     }
 }
 
@@ -56,8 +57,13 @@ export const WGS84Format = new CoordinateFormat(
     'WGS84',
     'WGS 84 (lat/lon)',
     WGS84,
-    (coordinates) =>
-        `${toStringHDMS(coordinates, 2)} (${formatCoordinate(coordinates, '{y}, {x}', 5)})`
+    (coordinates, withPlain) => {
+        let output = `${toStringHDMS(coordinates, 2)}`
+        if (withPlain) {
+            output += ` (${formatCoordinate(coordinates, '{y}, {x}', 5)})`
+        }
+        return output
+    }
 )
 export const MercatorFormat = new CoordinateFormat(
     'Mercator',

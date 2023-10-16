@@ -1,4 +1,4 @@
-import { DEFAULT_PROJECTION, LV95_RESOLUTIONS, MAP_CENTER } from '@/config'
+import { DEFAULT_PROJECTION, LV95_RESOLUTIONS } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -59,7 +59,7 @@ const state = {
      *
      * @type Number
      */
-    zoom: 7,
+    zoom: DEFAULT_PROJECTION.defaultZoom,
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
      *
@@ -68,11 +68,11 @@ const state = {
     rotation: 0,
 
     /**
-     * Center of the view of the map expressed in EPSG:3857
+     * Center of the view expressed with the current projection
      *
      * @type Array<Number>
      */
-    center: MAP_CENTER,
+    center: DEFAULT_PROJECTION.defaultCenter,
 
     /**
      * Projection used to express the position (and subsequently used to define how the mapping framework will have to work under the hood)
@@ -87,25 +87,27 @@ const state = {
     crossHair: null,
 
     /**
-     * Position of the view when we are in 3D
+     * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system that works with Cesium)
      *
-     * @type CameraPosition
+     * Will be set to null when the 3D map is not active
+     *
+     * @type {CameraPosition|null}
      */
     camera: null,
 }
 
 /**
- * @param zoom
+ * @param mercatorZoomLevel
  * @param latitudeInRad
  * @returns {Number}
  */
-const calculateResolution = (zoom, latitudeInRad) => {
+const calculateWebMercatorResolution = (mercatorZoomLevel, latitudeInRad) => {
     // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
     // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
     return round(
         Math.abs(
             (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad)) /
-                Math.pow(2, zoom)
+                Math.pow(2, mercatorZoomLevel)
         ),
         2
     )
@@ -116,7 +118,7 @@ const calculateResolution = (zoom, latitudeInRad) => {
  * @param latitudeInRad
  * @returns {Number}
  */
-export const calculateZoom = (resolution, latitudeInRad) => {
+export const calculateWebMercatorZoom = (resolution, latitudeInRad) => {
     return (
         Math.log2(
             Math.abs(PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad))
@@ -161,7 +163,7 @@ const getters = {
             // for LV95 we have custom-made resolution by zoom level, so no need to calculate it, just map it to the zoom
             return LV95_RESOLUTIONS[Math.floor(state.zoom)]
         }
-        return calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1])
+        return calculateWebMercatorResolution(state.zoom, getters.centerEpsg4326InRadian[1])
     },
 
     /**

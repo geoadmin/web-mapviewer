@@ -9,14 +9,16 @@ describe('Testing the footer content', () => {
         cy.goToMapView()
     })
     context('Checking the scale line behave as expected', () => {
-        it('Should not be visible on standard startup, as the zoom level is 7', () => {
+        // with LV95 as default projection, the scale line is now always visible
+        it.skip('Should not be visible on standard startup, as the zoom level is 7', () => {
             cy.get(scaleLineSelector).should('not.be.visible')
         })
         it('Should appear when we zoom a bit (zoom level 10)', () => {
             cy.get(zoomSelector).click().click().click()
             cy.get(scaleLineSelector).should('be.visible')
         })
-        it('Should disappear again if we zoom out again after zooming', () => {
+        // with LV95 as default projection, the scale line is now always visible
+        it.skip('Should disappear again if we zoom out again after zooming', () => {
             cy.get(zoomSelector).click().click().click()
             cy.get(dezoomSelector).click().click().click()
             cy.get(scaleLineSelector).should('not.be.visible')
