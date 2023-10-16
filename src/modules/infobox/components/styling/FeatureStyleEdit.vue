@@ -195,16 +195,16 @@ export default {
             const length = getLength(this.geometry)
 
             if (length > 100) {
-                return `${round(length / 1000)} km`
+                return `${round(length / 1000, 2)} km`
             }
-            return `${round(length)} m`
+            return `${round(length, 2)} m`
         },
         area() {
             const area = getArea(this.geometry)
             if (area > 10000) {
-                return `${round(area / 1000000)} km`
+                return `${round(area / 1000000, 2)} km`
             }
-            return `${round(area)} m`
+            return `${round(area, 2)} m`
         },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER
