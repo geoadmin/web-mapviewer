@@ -154,7 +154,6 @@ export default {
             clickInfo: (state) => state.map.clickInfo,
             currentLang: (state) => state.i18n.lang,
             displayLocationPopup: (state) => state.map.displayLocationPopup,
-            projection: (state) => state.position.projection,
         }),
         coordinate() {
             return this.clickInfo?.coordinate
@@ -169,8 +168,9 @@ export default {
             return reproject(this.projection.epsg, WGS84.epsg, this.coordinate)
         },
         coordinateWGS84Plain() {
-            const wgsMetric = this.coordinateWGS84Metric
-            return `${round(wgsMetric[1], 5, true)}, ${round(wgsMetric[0], 5, true)}`
+            return this.coordinateWGS84Metric
+                .map((val) => round(val, WGS84.acceptableDecimalPoints, true))
+                .join(', ')
         },
         coordinateWGS84() {
             return WGS84Format.format(this.coordinate, this.projection)
