@@ -40,7 +40,7 @@
             @close="togglePreviewModal"
         >
             <div class="embed-preview-modal" :style="embedPreviewModalWidth">
-                <div class="d-flex flex-row mb-2" :class="{ 'custom-size': isPreviewSizeCustom }">
+                <div class="d-flex flex-row mb-2">
                     <select
                         v-model="currentPreviewSize"
                         class="embed-preview-modal-size-selector form-select"
@@ -56,67 +56,70 @@
                             {{ $t(size.i18nKey) }}
                         </option>
                     </select>
+                    <div v-if="isPreviewSizeCustom" class="d-flex flex-row ms-2">
+                        <input
+                            v-if="!customSize.fullWidth"
+                            v-model="customSize.width"
+                            type="number"
+                            class="form-control text-center custom-preview-input"
+                            data-cy="menu-share-embed-iframe-custom-width"
+                        />
+                        <input
+                            v-else
+                            class="form-control form-control-plaintext custom-preview-input text-center"
+                            type="text"
+                            value="100 %"
+                            readonly
+                            data-cy="menu-share-embed-iframe-custom-width"
+                        />
+                        <span class="p-2">
+                            <font-awesome-icon :icon="['fas', 'xmark']" />
+                        </span>
+                        <input
+                            v-model="customSize.height"
+                            type="number"
+                            class="form-control custom-preview-input text-center"
+                            data-cy="menu-share-embed-iframe-custom-height"
+                        />
+                        <div class="align-self-center ps-2">
+                            <div class="form-check">
+                                <input
+                                    id="fullWidthCheckbox"
+                                    v-model="customSize.fullWidth"
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value=""
+                                    data-cy="menu-share-embed-iframe-full-width"
+                                />
+                                <label class="form-check-label" for="fullWidthCheckbox">
+                                    {{ $t('full_width') }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-row mb-2">
                     <MenuShareInputCopyButton
-                        class="ms-1 flex-grow-1"
+                        class="flex-grow-1"
                         :small="false"
                         :input-text="iFrameLink"
                         data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
-                <div v-if="isPreviewSizeCustom" class="d-flex flex-row mb-2">
-                    <input
-                        v-if="!customSize.fullWidth"
-                        v-model="customSize.width"
-                        type="number"
-                        class="form-control text-center custom-preview-input"
-                        data-cy="menu-share-embed-iframe-custom-width"
-                    />
-                    <input
-                        v-else
-                        class="form-control form-control-plaintext custom-preview-input text-center"
-                        type="text"
-                        value="100 %"
-                        readonly
-                        data-cy="menu-share-embed-iframe-custom-width"
-                    />
-                    <span class="p-2">
-                        <font-awesome-icon :icon="['fas', 'xmark']" />
-                    </span>
-                    <input
-                        v-model="customSize.height"
-                        type="number"
-                        class="form-control custom-preview-input text-center"
-                        data-cy="menu-share-embed-iframe-custom-height"
-                    />
-                    <div class="align-self-center ps-2">
-                        <div class="form-check">
-                            <input
-                                id="fullWidthCheckbox"
-                                v-model="customSize.fullWidth"
-                                class="form-check-input"
-                                type="checkbox"
-                                value=""
-                                data-cy="menu-share-embed-iframe-full-width"
-                            />
-                            <label class="form-check-label" for="fullWidthCheckbox">
-                                {{ $t('full_width') }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
                 <!-- we could use a v-html here to have the exact same code as iFrameLink(), but then each time -->
                 <!-- we switch sizes the iframe is regenerated from scratch, making it reload the shortLink -->
                 <!-- so I've opted to keep this piece of code for a better user experience -->
-                <iframe
-                    ref="iFramePreview"
-                    :title="$t('embed_map')"
-                    :src="shortLink"
-                    :style="iFrameStyle"
-                    allow="geolocation"
-                ></iframe>
-
+                <div class="d-flex justify-content-center mb-2">
+                    <iframe
+                        ref="iFramePreview"
+                        :title="$t('embed_map')"
+                        :src="shortLink"
+                        :style="iFrameStyle"
+                        allow="geolocation"
+                    ></iframe>
+                </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="small text-wrap" v-html="$t('share_disclaimer')"></div>
+                <div class="small text-wrap text-center" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
@@ -192,7 +195,11 @@ export default {
     computed: {
         embedPreviewModalWidth() {
             // Uses the iframe's width as maximal width for the entire modal window
-            return { 'max-width': this.iFrameWidth }
+            let style = { 'max-width': this.iFrameWidth }
+            if (this.isPreviewSizeCustom) {
+                style['min-width'] = '630px'
+            }
+            return style
         },
         isPreviewSizeCustom() {
             return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
@@ -251,10 +258,6 @@ export default {
     @include respond-above(phone) {
         display: block;
     }
-}
-
-.embed-preview-modal {
-    min-width: 26rem;
 }
 
 .embed-preview-modal-size-selector {
