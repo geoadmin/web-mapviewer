@@ -187,6 +187,12 @@ export default {
             return getLength(this.geometry)
         },
         isClosed() {
+            /*
+                The length parameter must be greater than 3, because the polygon has one point
+                twice : the first and last point are both existing in the same exact space.
+                A point would be length 2, a line would be length 3. We do not consider the
+                case where there are more than 3 points, but all in a single line.
+            */
             return (
                 this.feature.coordinates.length > 3 &&
                 this.feature.coordinates[0][0] ===
