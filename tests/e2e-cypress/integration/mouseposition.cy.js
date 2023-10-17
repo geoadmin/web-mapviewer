@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_PROJECTION } from '@/config'
 import {
-    CoordinateFormat,
     LV03Format,
     LV95Format,
     MGRSFormat,
@@ -19,7 +19,7 @@ function getMousePositionAndSelect(format) {
     cy.get('[data-cy="mouse-position-select"]').select(format.id)
 }
 
-const defaultCenter = [47.5, 7.5]
+const defaultCenter = [7.5, 47.5]
 
 /**
  * Extracts an LV coordinate from a formatted string.
@@ -74,8 +74,7 @@ describe('Test mouse position', () => {
         beforeEach(() => {
             cy.viewport('ipad-2')
             cy.goToMapView({
-                lat: defaultCenter[0],
-                lon: defaultCenter[1],
+                center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, defaultCenter),
                 z: 12,
             })
             // waiting for OL to be loaded before testing
@@ -94,7 +93,11 @@ describe('Test mouse position', () => {
         })
         it('switches to WebMercator when this SRS is selected in the UI', () => {
             getMousePositionAndSelect(WGS84Format)
-            let dd = defaultCenter.map((value) => value.toFixed(5)).join(', ')
+            let dd = defaultCenter
+                .slice()
+                .reverse()
+                .map((value) => value.toFixed(WGS84.acceptableDecimalPoints))
+                .join(', ')
             checkMousePositionStringValue(`47° 30′ N 7° 30′ E (${dd})`)
         })
         it('goes back to LV95 display if selected again', () => {
@@ -119,6 +122,7 @@ describe('Test mouse position', () => {
     context('LocationPopUp when rightclick on the map', function () {
         const lat = 45
         const lon = 8
+        const center = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat])
         beforeEach(() => {
             // Viewport set to see the whole popup
             cy.intercept(`**/api/qrcode/generate**`, {
@@ -126,7 +130,7 @@ describe('Test mouse position', () => {
             }).as('qrcode')
             cy.intercept(`**/api/icons/*`, { statusCode: 200 }).as('icons')
             cy.viewport(320, 1000)
-            cy.goToMapView({ lat, lon })
+            cy.goToMapView({ center })
             cy.get('[data-cy="map"]').rightclick()
             cy.waitUntilState((state) => {
                 return state.map.clickInfo !== null
@@ -197,9 +201,10 @@ describe('Test mouse position', () => {
     context('LocationPopUp when rightclick on the map - shortlink and qrcode', function () {
         const lat = 45
         const lon = 8
+        const center = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat])
         beforeEach(() => {
             cy.viewport(320, 1000)
-            cy.goToMapView({ lat, lon })
+            cy.goToMapView({ center })
         })
         it('Tests that a link with crosshair and correct position is sent to shortlink', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
@@ -210,7 +215,7 @@ describe('Test mouse position', () => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]
                 const params = new URLSearchParams(query)
-                const position = [parseFloat(params.get('lon')), parseFloat(params.get('lat'))]
+                const position = params.get('center').split(',').map(parseFloat)
                 checkXY(...position)
                 expect(params.get('crosshair')).not.to.be.empty
             })

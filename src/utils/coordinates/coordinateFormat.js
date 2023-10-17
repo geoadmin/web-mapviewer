@@ -60,7 +60,11 @@ export const WGS84Format = new CoordinateFormat(
     (coordinates, withPlain) => {
         let output = `${toStringHDMS(coordinates, 2)}`
         if (withPlain) {
-            output += ` (${formatCoordinate(coordinates, '{y}, {x}', 5)})`
+            output += ` (${formatCoordinate(
+                coordinates,
+                '{y}, {x}',
+                WGS84.acceptableDecimalPoints
+            )})`
         }
         return output
     }
@@ -80,7 +84,7 @@ export const UTMFormat = new CoordinateFormat('UTM', 'UTM', WGS84, (coordinates)
     ].join(' ')
 })
 export const MGRSFormat = new CoordinateFormat('MGRS', 'MGRS', WGS84, (coordinates) =>
-    latLonToMGRS(coordinates[1], coordinates[0], 5)
+    latLonToMGRS(coordinates[1], coordinates[0], WGS84.acceptableDecimalPoints)
         .replace(/(.{5})/g, '$1 ')
         .trim()
 )
