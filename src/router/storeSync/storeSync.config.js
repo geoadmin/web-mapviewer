@@ -2,6 +2,7 @@ import { DEFAULT_PROJECTION } from '@/config'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
@@ -20,22 +21,7 @@ const storeSyncConfig = [
         true,
         String
     ),
-    new SimpleUrlParamConfig(
-        'lat',
-        'setCenter',
-        'setLatitude',
-        (store) => store.getters.centerEpsg4326[1],
-        true,
-        Number
-    ),
-    new SimpleUrlParamConfig(
-        'lon',
-        'setCenter',
-        'setLongitude',
-        (store) => store.getters.centerEpsg4326[0],
-        true,
-        Number
-    ),
+    new PositionParamConfig(),
     new SimpleUrlParamConfig(
         'sr',
         'setProjection',

@@ -298,26 +298,6 @@ const actions = {
             }
         }
     },
-    setLatitude: ({ dispatch, getters, state }, latInDeg) => {
-        if (typeof latInDeg === 'number') {
-            const newCenter = [getters.centerEpsg4326[0], latInDeg]
-            const newCenterCurrentProjection = proj4(WGS84.epsg, state.projection.epsg, newCenter)
-            dispatch('setCenter', {
-                x: newCenterCurrentProjection[0],
-                y: newCenterCurrentProjection[1],
-            })
-        }
-    },
-    setLongitude: ({ dispatch, getters, state }, lonInDeg) => {
-        if (typeof lonInDeg === 'number') {
-            const newCenter = [lonInDeg, getters.centerEpsg4326[1]]
-            const newCenterCurrentProjection = proj4(WGS84.epsg, state.projection.epsg, newCenter)
-            dispatch('setCenter', {
-                x: newCenterCurrentProjection[0],
-                y: newCenterCurrentProjection[1],
-            })
-        }
-    },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
     decreaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) - 1),
     /** @param {CrossHairs | String | null} crossHair */

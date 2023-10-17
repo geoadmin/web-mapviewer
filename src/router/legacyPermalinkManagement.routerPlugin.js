@@ -1,12 +1,11 @@
+import { DEFAULT_PROJECTION } from '@/config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
     isLayersUrlParamLegacy,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 
 /**
@@ -58,9 +57,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             case 'zoom':
                 value = translateSwisstopoPyramidZoomToMercatorZoom(legacyParams[param])
                 if (!value) {
-                    // if the value is not defined in the old zoom system, we use the 'default' zoom level
-                    // of 8 (which will roughly show the whole territory of Switzerland)
-                    value = 8
+                    value = DEFAULT_PROJECTION.defaultZoom
                 }
                 key = 'z'
                 break
@@ -109,12 +106,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         // if a legacy coordinate (x,y or N,E) was used, we need to guess the SRS used (either LV95 or LV03)
         // and covert it back to EPSG:4326 (Mercator)
         if (legacyCoordinates.length === 2 && legacyCoordinates[0] && legacyCoordinates[1]) {
-            const center = reprojectUnknownSrsCoordsToWGS84(
-                legacyCoordinates[0],
-                legacyCoordinates[1]
-            )
-            newQuery['lon'] = round(center[0], 6)
-            newQuery['lat'] = round(center[1], 6)
+            newQuery['center'] = legacyCoordinates.join(',')
         }
         if (value) {
             // When receiving a query, the application will encode the URI components

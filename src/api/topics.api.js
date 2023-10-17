@@ -133,7 +133,7 @@ const loadTopicsFromBackend = (layersConfig) => {
     return new Promise((resolve, reject) => {
         if (!API_BASE_URL) {
             // this could happen if we are testing the app in unit tests, we simply reject and do nothing
-            reject('API base URL is undefined')
+            reject(new Error('API base URL is undefined'))
         } else {
             const topics = []
             axios
@@ -199,7 +199,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                             )
                         })
                     } else {
-                        reject('Wrong API output structure')
+                        reject(new Error('Wrong API output structure'))
                     }
                     resolve(topics)
                 })
