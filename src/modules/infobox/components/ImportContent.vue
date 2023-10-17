@@ -14,6 +14,13 @@
                 @keydown.esc.prevent="hideProviders"
             />
             <button
+                class="list-switch"
+                :class="{ 'clear-btn-shown': importValue?.length > 0 }"
+                @click="toggleProviders"
+            >
+                <FontAwesomeIcon :icon="listShown ? 'caret-up' : 'caret-down'" />
+            </button>
+            <button
                 v-if="importValue?.length > 0"
                 id="button-addon1"
                 class="btn btn-outline-group rounded-end"
@@ -148,6 +155,13 @@ export default {
         hideProviders() {
             this.listShown = false
         },
+        toggleProviders() {
+            if (this.listShown) {
+                this.hideProviders()
+            } else {
+                this.showProviders()
+            }
+        },
         goToFirstResult() {
             if (!this.listShown) {
                 this.showProviders()
@@ -272,5 +286,23 @@ export default {
             color: $light;
         }
     }
+}
+
+.list-switch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 15px;
+    right: 10px;
+    height: 100%;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    z-index: 10;
+}
+
+.list-switch.clear-btn-shown {
+    right: 50px;
 }
 </style>
