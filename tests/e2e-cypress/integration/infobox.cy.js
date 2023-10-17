@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector, with3d = false) => {
         it('is visible if features selected', () => {
@@ -91,12 +93,37 @@ describe('The infobox', () => {
     }
 
     const layer = 'test.wmts.layer'
+    const feature = {
+        geometry: { type: 'Point', coordinates: LV95.bounds.center },
+        layerBodId: 'ch.babs.kulturgueter',
+        bbox: [
+            LV95.bounds.center[0] - 1000,
+            LV95.bounds.center[1] - 1000,
+            LV95.bounds.center[0] + 1000,
+            LV95.bounds.center[1] + 1000,
+        ],
+        featureId: 1234,
+        layerName: 'A nice test layer',
+        type: 'Feature',
+        id: 1234,
+        properties: {
+            zkob: 'This is a test feature',
+            link_title: 'This is a test feature',
+            link_uri: 'http://localhost:8080/',
+            link_2_title: null,
+            link_2_uri: null,
+            link_3_title: 'This is a test feature',
+            link_3_uri: null,
+            label: 'This is a test feature',
+            pdf_list: null,
+            x: 1234.0,
+            y: 1234.0,
+        },
+    }
 
     beforeEach(() => {
-        cy.fixture('features.fixture.json').then((features) => {
-            cy.intercept('**/MapServer/identify**', features)
-            cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, features.results[0])
-        })
+        cy.intercept('**/MapServer/identify**', { results: [feature] })
+        cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, feature)
         cy.intercept('**/MapServer/**/htmlPopup**', {
             fixture: 'html-popup.fixture.html',
         })
