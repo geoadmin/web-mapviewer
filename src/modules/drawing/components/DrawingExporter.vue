@@ -58,7 +58,7 @@ export default {
             let content, type, fileName
             if (gpx) {
                 fileName = generateFilename('.gpx')
-                content = generateGpxString(features)
+                content = generateGpxString(this.projection, features)
                 type = 'application/gpx+xml;charset=UTF-8'
             } else {
                 fileName = generateFilename('.kml')

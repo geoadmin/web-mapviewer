@@ -1,4 +1,4 @@
-import { DrawingIcon } from '@/api/icon.api'
+import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
@@ -16,6 +16,10 @@ import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/modules/drawing/lib/drawingUtils'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -32,8 +36,7 @@ export class SelectableFeature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature in EPSG:3857
-     *   (metric mercator)
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
@@ -107,6 +110,15 @@ export class SelectableFeature extends EventEmitter {
         return this._coordinates[this._coordinates.length - 1]
     }
 
+    /**
+     * Set the coordinates from the ol Feature
+     *
+     * @param {ol/Feature} olFeature Ol Feature to get the coordinate from
+     */
+    setCoordinates(olFeature) {
+        this.coordinates = extractOlFeatureCoordinates(olFeature)
+    }
+
     get title() {
         return this._title
     }
@@ -143,7 +155,7 @@ export class EditableFeature extends SelectableFeature {
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
      * @param {Number[][]} coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry coordinates of
-     *   this feature in EPSG:3857 (metric mercator)
+     *   this feature
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
@@ -178,13 +190,13 @@ export class EditableFeature extends SelectableFeature {
     }
 
     /**
-     * Calls the constructor, but the parameters are inside an object. Omitted parameters means the
+     * Create a new Editable Features. Omitted parameters means the
      * default value of the constructor will be used.
      *
      * @param {any} obj An object with key value pairs for the parameters of the constructor
-     * @returns The constructed object
+     * @returns The new object
      */
-    static constructWithObject(obj) {
+    static newFeature(obj) {
         return new EditableFeature(
             obj.id,
             obj.coordinates,
@@ -200,45 +212,27 @@ export class EditableFeature extends SelectableFeature {
     }
 
     /**
-     * This function returns a stripped down version of this object ready to be serialized.
+     * Serialize the EditableFeature into a plain javascript object.
      *
-     * @returns {Object} The version of the object that can be serialized
+     * NOTE: To avoid projection confusion and simplify the serialization/deserialization process,
+     * the coordinates are not serialized. During deserialization the coordinates are set from
+     * the geometry of the OL Feature.
+     *
+     * @returns {object} The serialized plain object
      */
-    getStrippedObject() {
+    serialize() {
         /* Warning: Changing this method will break the compability of KML files */
         return {
             id: this.id,
-            coordinates: this.coordinates,
             title: this.title,
             description: this.description,
             featureType: this.featureType,
-            textColor: this.textColor.getStrippedObject(),
-            textSize: this.textSize.getStrippedObject(),
-            fillColor: this.fillColor.getStrippedObject(),
-            icon: this.icon ? this.icon.getStrippedObject() : null,
-            iconSize: this.iconSize.getStrippedObject(),
+            textColor: this.textColor.serialize(),
+            textSize: this.textSize.serialize(),
+            fillColor: this.fillColor.serialize(),
+            icon: this.icon ? this.icon.serialize() : null,
+            iconSize: this.iconSize.serialize(),
         }
-    }
-
-    /**
-     * Regenerates the full version of an editable feature given a stripped version.
-     *
-     * @param {Object} o A stripped down version of the editable Feature
-     * @returns The full version of the editable Feature
-     */
-    static recreateObject(o) {
-        return new EditableFeature(
-            o.id,
-            o.coordinates,
-            o.title,
-            o.description,
-            o.featureType,
-            FeatureStyleColor.recreateObject(o.textColor),
-            FeatureStyleSize.recreateObject(o.textSize),
-            FeatureStyleColor.recreateObject(o.fillColor),
-            o.icon ? DrawingIcon.recreateObject(o.icon) : null,
-            FeatureStyleSize.recreateObject(o.iconSize)
-        )
     }
 
     /**
@@ -248,22 +242,36 @@ export class EditableFeature extends SelectableFeature {
      * styling information stored in the official '<style>' tag of the kml. It then recreates a
      * fully functional olFeature with the correct styling.
      *
-     * @param {Feature} olFeature An olFeature that was just deserialized with
-     * @param {DrawingIconSet[]} availableIconSets {@link ol/format/KML}.
+     * @param {ol/Feature} olFeature An olFeature that was just deserialized with
+     * @param {DrawingIconSet[]} availableIconSets Icon sets to use for the EditableFeature.
      * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
      *   otherwise
      */
     static deserialize(olFeature, availableIconSets) {
-        const serializedEditableFeature = olFeature.get('editableFeature')
+        let editableFeature = olFeature.get('editableFeature')
         // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
         // will not be present, and we will have to rebuild one from the styles tags in the KML
-        let editableFeature = null
-        if (!serializedEditableFeature) {
+        if (!editableFeature) {
             editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
         } else {
-            editableFeature = this.recreateObject(JSON.parse(serializedEditableFeature))
+            const o = JSON.parse(editableFeature)
+            editableFeature = new EditableFeature(
+                o.id,
+                null,
+                o.title,
+                o.description,
+                o.featureType,
+                FeatureStyleColor.deserialize(o.textColor),
+                FeatureStyleSize.deserialize(o.textSize),
+                FeatureStyleColor.deserialize(o.fillColor),
+                o.icon ? DrawingIcon.deserialize(o.icon) : null,
+                FeatureStyleSize.deserialize(o.iconSize)
+            )
         }
         if (editableFeature) {
+            // Set the EditableFeature coordinates from the olFeature geometry
+            editableFeature.setCoordinates(olFeature)
+
             olFeature.set('editableFeature', editableFeature)
             olFeature.setStyle(featureStyleFunction)
             if (editableFeature.isLineOrMeasure()) {
@@ -275,6 +283,16 @@ export class EditableFeature extends SelectableFeature {
             }
         }
         return editableFeature
+    }
+
+    /**
+     * Set the coordinates from the ol Feature
+     *
+     * @param {ol/Feature} olFeature Ol Feature to get the coordinate from
+     */
+    setCoordinates(olFeature) {
+        super.setCoordinates(olFeature)
+        this.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(olFeature)
     }
 
     isLineOrMeasure() {
@@ -291,7 +309,7 @@ export class EditableFeature extends SelectableFeature {
      * found another good way to do this.
      */
     get value() {
-        return JSON.stringify(this.getStrippedObject())
+        return JSON.stringify(this.serialize())
     }
 
     // getters and setters for all properties (with event emit for setters)
