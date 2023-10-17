@@ -38,11 +38,11 @@ export const DrawingState = Object.freeze({
 /**
  * Returns a string representing the features given in param as a GPX
  *
+ * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to GPX format
- * @param featureProjection {String} Projection used to describe the feature (default is EPSG:3857)
  * @returns {string}
  */
-export function generateGpxString(features = [], featureProjection = WEBMERCATOR.epsg) {
+export function generateGpxString(projection, features = []) {
     const normalizedFeatures = features.map((feature) => {
         const clone = feature.clone()
         const geom = clone.getGeometry()
@@ -54,13 +54,15 @@ export function generateGpxString(features = [], featureProjection = WEBMERCATOR
         return clone
     })
     return gpxFormat.writeFeatures(normalizedFeatures, {
-        featureProjection,
+        dataProjection: WGS84.epsg,
+        featureProjection: projection.epsg,
     })
 }
 
 /**
  * Returns a string representing the features given in param as a KML
  *
+ * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to KML format
  * @param styleFunction
  * @returns {string}
@@ -76,7 +78,6 @@ export function generateKmlString(projection, features = [], styleFunction = nul
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        clone.getGeometry().transform(projection.epsg, WGS84.epsg)
         let styles = styleFunction || featureStyleFunction
         styles = styles(clone)
         const newStyle = {
@@ -108,7 +109,10 @@ export function generateKmlString(projection, features = [], styleFunction = nul
             // force the add of a <Document> node
             exportFeatures.push(new Feature())
         }
-        kmlString = kmlFormat.writeFeatures(exportFeatures)
+        kmlString = kmlFormat.writeFeatures(exportFeatures, {
+            dataProjection: WGS84.epsg, // KML files should always be WGS84
+            featureProjection: projection.epsg,
+        })
         /* Remove no image hack. An empty icon tag is needed by Openlayers to not show an icon
         with the default style. "<scale>0</scale>" may also be needed by other implementations. */
         kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '<Icon></Icon>')

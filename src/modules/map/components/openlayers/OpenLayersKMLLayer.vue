@@ -5,16 +5,15 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
 import { getKmlFromUrl } from '@/api/files.api'
 import { DEFAULT_PROJECTION, IS_TESTING_WITH_CYPRESS } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
-import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 /** Renders a KML file on the map */
 export default {
@@ -57,9 +56,10 @@ export default {
         availableIconSets(availableIconSets) {
             // If we have previously loaded raw kml features, see loadKml(), then
             // add them to the vector source.
-            if (this.rawKmlFeatures) {
-                this.addFeatures(availableIconSets, this.rawKmlFeatures)
-                this.rawKmlFeatures = null
+            if (this.rawKml) {
+                const features = parseKml(this.rawKml, this.projection, availableIconSets)
+                this.addFeatures(features)
+                this.rawKml = null
             }
         },
         projection() {
@@ -90,32 +90,24 @@ export default {
     methods: {
         async loadKml(url) {
             try {
-                const kml = await getKmlFromUrl(url)
-                this.layer.setSource(
-                    new VectorSource({ wrapX: true, projection: this.projection.epsg })
-                )
-                const features = new KML().readFeatures(kml, {
-                    // Reproject all features to the mapping projection
-                    featureProjection: this.projection.epsg,
-                })
+                this.rawKml = await getKmlFromUrl(url)
+
                 // We cannot add the KML features without deserializing it and to deserialize we need
                 // the icon sets which might not be yet available, therefore we keep the raw kml features
                 // in memory when the icon sets is not yet available.
                 if (this.availableIconSets?.length) {
-                    this.addFeatures(this.availableIconSets, features)
-                } else {
-                    this.rawKmlFeatures = features
+                    const features = parseKml(this.rawKml, this.projection, this.availableIconSets)
+                    this.addFeatures(features)
                 }
             } catch (error) {
                 log.error(`Failed to load kml from ${url}`, error)
             }
         },
-        addFeatures(availableIconSets, features) {
+        addFeatures(features) {
             if (features) {
-                features.forEach((olFeature) => {
-                    EditableFeature.deserialize(olFeature, availableIconSets)
-                })
-                // add the deserialized features
+                this.layer.setSource(
+                    new VectorSource({ wrapX: true, projection: this.projection.epsg })
+                )
                 this.layer.getSource().addFeatures(features)
             } else {
                 log.error(`No KML features available to add`, features)

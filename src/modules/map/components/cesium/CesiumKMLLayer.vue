@@ -5,14 +5,12 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
 import { getKmlFromUrl } from '@/api/files.api'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import KML from 'ol/format/KML'
 import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
 import addPrimitiveLayerMixins from './utils/addPrimitiveLayer-mixins'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 /** Renders a KML file to the Cesium viewer */
 export default {
@@ -38,26 +36,21 @@ export default {
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
+            projection: (state) => state.position.projection,
         }),
     },
     methods: {
         async loadLayer() {
             try {
                 const kml = await getKmlFromUrl(this.url)
-                const features = new KML().readFeatures(kml, {
-                    // Reproject all features to webmercator, as this is the projection used for the view
-                    featureProjection: WEBMERCATOR.epsg,
-                })
+                const features = parseKml(kml, this.projection, this.availableIconSets)
                 if (features) {
                     this.olLayer.setSource(new VectorSource({ wrapX: true }))
-                    features.forEach((olFeature) => {
-                        EditableFeature.deserialize(olFeature, this.availableIconSets)
-                    })
                     // remove all old features first
                     this.olLayer.getSource().clear()
                     // add the deserialized features
                     this.olLayer.getSource().addFeatures(features)
-                    return WEBMERCATOR.epsg
+                    return this.projection.epsg
                 } else {
                     log.error(`No KML features available to add`, features)
                 }
