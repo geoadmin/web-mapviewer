@@ -3,6 +3,7 @@ import {
     formatPointCoordinates,
     formatTime,
     toLv95,
+    wrapXCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import setupProj4 from '@/utils/setupProj4'
@@ -12,7 +13,7 @@ import { describe, it } from 'vitest'
 // setting up projection for proj4 otherwise they will fail when asked
 setupProj4()
 
-describe('Unit test functions from featureStyleUtils.js', () => {
+describe('Unit test functions from drawingUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {
         it('reprojects points from EPSG:4326', () => {
             expect(toLv95([6.57268, 46.51333], WGS84.epsg)).to.eql([
@@ -89,6 +90,37 @@ describe('Unit test functions from featureStyleUtils.js', () => {
             expect(formatTime(1200)).to.equal('20h')
             expect(formatTime(1230)).to.equal('20h 30min')
             expect(formatTime(1202)).to.equal('20h 2min')
+        })
+    })
+
+    describe('wrapXCoordinates()', () => {
+        it('Wrap in place', () => {
+            const original = [
+                [300, 300],
+                [360, 360],
+            ]
+            const ref2Original = wrapXCoordinates(original, WGS84, true)
+            expect(ref2Original).to.deep.equal([
+                [-60, 300],
+                [0, 360],
+            ])
+            expect(ref2Original).to.deep.equal(original)
+        })
+        it('Wrap not in place', () => {
+            const original = [
+                [300, 300],
+                [360, 360],
+            ]
+            const ref2Original = wrapXCoordinates(original, WGS84, false)
+            expect(ref2Original).to.deep.equal([
+                [-60, 300],
+                [0, 360],
+            ])
+            expect(ref2Original).to.not.deep.equal(original)
+            expect(original).to.deep.equal([
+                [300, 300],
+                [360, 360],
+            ])
         })
     })
 })

@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
@@ -69,11 +69,11 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import LoadingScreen from '@/utils/LoadingScreen.vue'
 import log from '@/utils/logging'
-import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { DrawingState } from './lib/export-utils'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 export default {
     components: {
@@ -325,7 +325,10 @@ export default {
             log.debug(`Save drawing retryOnError ${retryOnError}`)
             this.drawingState = DrawingState.SAVING
             clearTimeout(this.differSaveDrawingTimeout)
-            const kml = generateKmlString(this.projection, this.drawingLayer.getSource().getFeatures())
+            const kml = generateKmlString(
+                this.projection,
+                this.drawingLayer.getSource().getFeatures()
+            )
             try {
                 if (!this.kmlAdminId) {
                     const oldKmlId = this.kmlLayerId
@@ -438,12 +441,7 @@ export default {
             clearTimeout(this.addKmlLayerTimeout)
             try {
                 const kml = await getKml(layer.fileId)
-                const features = new KML().readFeatures(kml, {
-                    featureProjection: this.projection.epsg,
-                })
-                features.forEach((olFeature) => {
-                    EditableFeature.deserialize(olFeature, this.availableIconSets)
-                })
+                const features = parseKml(kml, this.projection, this.availableIconSets)
                 this.drawingLayer.getSource().addFeatures(features)
                 this.setDrawingFeatures(features.map((feature) => feature.getId()))
                 this.drawingState = DrawingState.LOADED

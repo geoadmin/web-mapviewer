@@ -1,12 +1,9 @@
 import { EditableFeature } from '@/api/features.api'
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
-import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
+import { wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { mapState } from 'vuex'
 
 /**
  * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing
@@ -41,6 +38,11 @@ import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
 const drawingInteractionMixin = {
     inject: ['getDrawingLayer', 'getMap'],
     emits: ['drawStart', 'drawEnd'],
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
+    },
     mounted() {
         this.interaction = new DrawInteraction({
             style: this.editingStyle || editingFeatureStyleFunction,
@@ -100,7 +102,7 @@ const drawingInteractionMixin = {
                 manner. This means that if e.g. a property inside of the editableFeature changes, an
                 update must be triggered manually.*/
                 feature.setProperties({
-                    editableFeature: EditableFeature.constructWithObject(args),
+                    editableFeature: EditableFeature.newFeature(args),
                 })
             }
         },
@@ -129,18 +131,21 @@ const drawingInteractionMixin = {
             between -180 and 180 deg (so that the features can be modified even if the view is of
             by 360deg) */
             const geometry = feature.getGeometry()
-            const normalizedCoords = wrapWebmercatorCoords(geometry.getCoordinates(), true)
-            geometry.setCoordinates(normalizedCoords) // needed probably to trigger rerender
+            const normalizedCoords = wrapXCoordinates(
+                geometry.getCoordinates(),
+                this.projection,
+                true
+            )
+            geometry.setCoordinates(normalizedCoords)
 
             let editableFeature = feature.get('editableFeature')
-            editableFeature.coordinates = extractOlFeatureCoordinates(feature)
-            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
+            editableFeature.setCoordinatesFromFeature(feature)
 
             // removing the flag we've set above in onDrawStart (this feature is now drawn)
             feature.unset('isDrawing')
             // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
             // This function will be automatically recalled every time the feature object is modified or rerendered.
-            // (so there is no need to recall setstyle after modifing an extended property)
+            // (so there is no need to recall setstyle after modifying an extended property)
             feature.setStyle(this.featureStyle || featureStyleFunction)
             // if optional onDrawEnd is defined, we call it
             if (this.onDrawEnd) {
