@@ -14,12 +14,6 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 export default {
     mixins: [drawingInteractionMixin, drawingLineMixin],
     inject: ['getMap', 'getDrawingLayer'],
-    props: {
-        projection: {
-            type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
-        },
-    },
     data() {
         return {
             geometryType: 'Polygon',
