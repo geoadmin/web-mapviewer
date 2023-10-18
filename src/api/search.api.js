@@ -37,7 +37,10 @@ export class SearchResult {
         return this.getSimpleTitle()
     }
 
-    /** @returns String The title without any HTML tags (will keep what's inside <b> or <i> tags if there are) */
+    /**
+     * @returns String The title without any HTML tags (will keep what's inside <b> or <i> tags if
+     *   there are)
+     */
     getSimpleTitle() {
         return this.title.replace(REGEX_DETECT_HTML_TAGS, '')
     }

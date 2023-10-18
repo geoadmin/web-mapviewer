@@ -1,11 +1,11 @@
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 
 /**
- * Definition of an Url parameter which needs to be synced with the store,
- * but which doesn't change the url when the store itself change
+ * Definition of an Url parameter which needs to be synced with the store, but which doesn't change
+ * the url when the store itself change
  *
- * To achieve this, the extract Value from Store parameter is set to a function
- * that always return 'null'
+ * To achieve this, the extract Value from Store parameter is set to a function that always return
+ * 'null'
  */
 
 export default class QueryToStoreOnlyParamConfig extends AbstractParamConfig {

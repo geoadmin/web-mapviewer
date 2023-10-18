@@ -69,7 +69,8 @@ export default {
     },
     methods: {
         /**
-         * Grabs the height on the terrain (no backend request) for the given coordinates, and stores it in this.coordinatesHeight
+         * Grabs the height on the terrain (no backend request) for the given coordinates, and
+         * stores it in this.coordinatesHeight
          */
         updateCoordinateHeight() {
             this.coordinatesHeight = this.getViewer()?.scene.globe.getHeight(

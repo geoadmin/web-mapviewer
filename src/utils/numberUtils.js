@@ -4,7 +4,7 @@
  * @param {number} value
  * @param {number} decimals How many decimals after the separator must be present after rounding
  *   (default to 0)
- * @param {boolean} enforcedigit if set to true, we want to have that many figures after the period.
+ * @param {boolean} enforcedigit If set to true, we want to have that many figures after the period.
  *   Otherwise, we don't care.
  * @returns {number} Value rounded
  */
