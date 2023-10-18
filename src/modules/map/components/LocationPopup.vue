@@ -237,12 +237,10 @@ export default {
             }
         },
         updateShareLink(coordinate, routeQuery) {
-            let [lon, lat] = proj4(this.projection.epsg, WGS84.epsg, coordinate)
             let query = {
                 ...routeQuery,
                 crosshair: 'marker',
-                lat,
-                lon,
+                center: coordinate.join(','),
             }
             this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
             this.shortenShareLink(this.shareLinkUrl)

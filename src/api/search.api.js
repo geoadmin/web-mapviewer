@@ -1,5 +1,5 @@
 import { API_SERVICE_SEARCH_BASE_URL, DEFAULT_PROJECTION } from '@/config'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import axios from 'axios'
@@ -127,10 +127,10 @@ let cancelToken = null
 /**
  * @param {String} queryString The query string that describe what is wanted from the search
  * @param {String} lang The lang ISO code in which the search must be conducted
- * @param {CoordinateSystem} projection the projection in which the search results must be returned
+ * @param {CoordinateSystem} outputProjection the projection in which the search results must be returned
  * @returns {Promise<CombinedSearchResults>}
  */
-async function search(queryString = '', lang = '', projection = DEFAULT_PROJECTION) {
+async function search(queryString = '', lang = '', outputProjection = DEFAULT_PROJECTION) {
     if (!lang || lang.length !== 2) {
         const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
         log.error(errorMessage)
@@ -192,9 +192,9 @@ async function search(queryString = '', lang = '', projection = DEFAULT_PROJECTI
                 coordinate.push(location.attrs.x)
                 coordinate.push(location.attrs.y)
             }
-            if (projection.epsg !== LV95.epsg) {
+            if (outputProjection.epsg !== LV95.epsg) {
                 // re-projecting result coordinate and zoom to wanted projection
-                coordinate = proj4(LV95.epsg, projection.epsg, coordinate)
+                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
                 zoom = translateSwisstopoPyramidZoomToMercatorZoom(zoom)
             }
             // reading the extent from the LineString (if defined)
@@ -207,9 +207,9 @@ async function search(queryString = '', lang = '', projection = DEFAULT_PROJECTI
                 )[0]
                 let bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
                 let topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
-                if (projection.epsg !== LV95.epsg) {
-                    bottomLeft = proj4(LV95.epsg, projection.epsg, bottomLeft)
-                    topRight = proj4(LV95.epsg, projection.epsg, topRight)
+                if (outputProjection.epsg !== LV95.epsg) {
+                    bottomLeft = proj4(LV95.epsg, outputProjection.epsg, bottomLeft)
+                    topRight = proj4(LV95.epsg, outputProjection.epsg, topRight)
                 }
                 // checking if both point are the same (can happen if what is shown is a point of interest)
                 if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
