@@ -118,10 +118,6 @@ import { stringifyQuery } from '@/utils/url'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 
-function reproject(fromEpsg, toEpsg, coordinate) {
-    return proj4(fromEpsg, toEpsg, coordinate)
-}
-
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
     components: {
@@ -165,10 +161,13 @@ export default {
             return LV03Format.format(this.coordinate, this.projection)
         },
         coordinateWGS84Metric() {
-            return reproject(this.projection.epsg, WGS84.epsg, this.coordinate)
+            return proj4(this.projection.epsg, WGS84.epsg, this.coordinate)
         },
         coordinateWGS84Plain() {
+            // we want to output lat / lon, meaning we have to give the coordinate as y / x
             return this.coordinateWGS84Metric
+                .slice()
+                .reverse()
                 .map((val) => round(val, WGS84.acceptableDecimalPoints, true))
                 .join(', ')
         },
@@ -231,19 +230,17 @@ export default {
         },
         async updateHeight(coordinate) {
             try {
-                this.height = await requestHeight(coordinate)
+                this.height = await requestHeight(coordinate, this.projection)
             } catch (error) {
                 log.error(`Failed to get position height`)
                 this.height = null
             }
         },
         updateShareLink(coordinate, routeQuery) {
-            let [lon, lat] = reproject(this.projection.epsg, WGS84.epsg, coordinate)
             let query = {
                 ...routeQuery,
                 crosshair: 'marker',
-                lat,
-                lon,
+                center: coordinate.join(','),
             }
             this.shareLinkUrl = `${location.origin}/#/map?${stringifyQuery(query)}`
             this.shortenShareLink(this.shareLinkUrl)
