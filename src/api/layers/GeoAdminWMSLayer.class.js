@@ -27,7 +27,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
-     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this layer
+     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this
+     *   layer
      */
     constructor(
         name,

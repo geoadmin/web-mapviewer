@@ -17,8 +17,9 @@ import {
 
 /**
  * This function goes throw the primitive collection and update passed properties
+ *
  * @param {PrimitiveCollection} collection
- * @param {{opacity: number | undefined, disableDepthTestDistance: number | undefined}} properties
+ * @param {{ opacity: number | undefined; disableDepthTestDistance: number | undefined }} properties
  */
 export function updateCollectionProperties(collection, properties) {
     const opacity =

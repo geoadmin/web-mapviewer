@@ -123,10 +123,11 @@ const getters = {
         return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
     },
     /**
-     * Returns the z-index of a visible layer, taking into account the background layer(s) and/or
-     * if one of them is a group of layer (and thus all sub-layers are counted in the index)
+     * Returns the z-index of a visible layer, taking into account the background layer(s) and/or if
+     * one of them is a group of layer (and thus all sub-layers are counted in the index)
      *
-     * If the layer is not part of the visible layers (or is null or invalid), this will return -1 as a result
+     * If the layer is not part of the visible layers (or is null or invalid), this will return -1
+     * as a result
      *
      * @param {AbstractLayer | String} layerIdOrObject
      * @returns {Number}
@@ -220,9 +221,10 @@ const actions = {
     /**
      * Add a layer to the active layers.
      *
-     * It will do so by cloning the config that is given, or the one that matches the layer ID in the
-     * layers' config. This is done so that we may add one "layer" multiple time to the active layers
-     * list (for instance having a time enabled layer added multiple time with a different timestamp)
+     * It will do so by cloning the config that is given, or the one that matches the layer ID in
+     * the layers' config. This is done so that we may add one "layer" multiple time to the active
+     * layers list (for instance having a time enabled layer added multiple time with a different
+     * timestamp)
      *
      * @param {String | AbstractLayer | ActiveLayerConfig} layerIdOrObject
      */

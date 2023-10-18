@@ -5,6 +5,7 @@
   "trailingComma": "es5",
   "tabWidth": 4,
   "jsxSingleQuote": false,
+  "plugins": ["prettier-plugin-jsdoc"],
   "overrides": [{
     "files": "*.md",
     "options": {

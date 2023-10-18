@@ -47,9 +47,9 @@ export function getTimestampFromConfig(config, previewYear) {
 /**
  * Describes a GeoJSON feature from the backend
  *
- * for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
- * we have to wrap it around the "usual" wrapper from the backend
- * (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
+ * For GeoJSON features, there's a catch as they only provide us with the inner tooltip content we
+ * have to wrap it around the "usual" wrapper from the backend (not very fancy but otherwise the
+ * look and feel is different from a typical backend tooltip)
  *
  * @param feature
  * @param geoJsonLayer

@@ -22,9 +22,7 @@
 </template>
 
 <script>
-/**
- * Simple input with a helper button to copy the input value to the clipboard
- */
+/** Simple input with a helper button to copy the input value to the clipboard */
 export default {
     props: {
         inputText: {
