@@ -1,8 +1,4 @@
 import { EditableFeature } from '@/api/features.api'
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
@@ -143,8 +139,7 @@ const drawingInteractionMixin = {
             geometry.setCoordinates(normalizedCoords)
 
             let editableFeature = feature.get('editableFeature')
-            editableFeature.coordinates = extractOlFeatureCoordinates(feature)
-            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
+            editableFeature.setCoordinatesFromFeature(feature)
 
             // removing the flag we've set above in onDrawStart (this feature is now drawn)
             feature.unset('isDrawing')
