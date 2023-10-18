@@ -1,32 +1,40 @@
 <template>
-    <div class="card map-popover" data-cy="popover" :style="cssPositionOnScreen">
-        <div class="card-header d-flex">
-            <span class="flex-grow-1 align-self-center">
-                {{ title }}
-            </span>
-            <slot name="extra-buttons"></slot>
-            <button
-                v-if="authorizePrint"
-                class="btn btn-sm btn-light d-flex align-items-center"
-                @click="printContent"
+    <div class="map-popover pe-none" data-cy="popover" :style="cssPositionOnScreen">
+        <!--
+        IMPORTANT: the bootstrap pe-none (pointer-event: none) above is mandatory together with the
+        <div class="card"></div> below in order to avoid overlap of the popover triangle (generated
+        with the css ::before and ::after) with the openlayer move interaction. Without this hack we
+        cannot move anymore the drawing component with the floating tooltip.
+        -->
+        <div class="card">
+            <div class="card-header d-flex">
+                <span class="flex-grow-1 align-self-center">
+                    {{ title }}
+                </span>
+                <slot name="extra-buttons"></slot>
+                <button
+                    v-if="authorizePrint"
+                    class="btn btn-sm btn-light d-flex align-items-center"
+                    @click="printContent"
+                >
+                    <FontAwesomeIcon icon="print" />
+                </button>
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
+                    data-cy="map-popover-close-button"
+                    @click="onClose"
+                >
+                    <FontAwesomeIcon icon="times" />
+                </button>
+            </div>
+            <div
+                id="mapPopoverContent"
+                ref="mapPopoverContent"
+                class="map-popover-content"
+                :class="{ 'card-body': useContentPadding }"
             >
-                <FontAwesomeIcon icon="print" />
-            </button>
-            <button
-                class="btn btn-sm btn-light d-flex align-items-center"
-                data-cy="map-popover-close-button"
-                @click="onClose"
-            >
-                <FontAwesomeIcon icon="times" />
-            </button>
-        </div>
-        <div
-            id="mapPopoverContent"
-            ref="mapPopoverContent"
-            class="map-popover-content"
-            :class="{ 'card-body': useContentPadding }"
-        >
-            <slot />
+                <slot />
+            </div>
         </div>
     </div>
 </template>
