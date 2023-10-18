@@ -115,7 +115,7 @@ export class SelectableFeature extends EventEmitter {
      *
      * @param {ol/Feature} olFeature Ol Feature to get the coordinate from
      */
-    setCoordinates(olFeature) {
+    setCoordinatesFromFeature(olFeature) {
         this.coordinates = extractOlFeatureCoordinates(olFeature)
     }
 
@@ -270,7 +270,7 @@ export class EditableFeature extends SelectableFeature {
         }
         if (editableFeature) {
             // Set the EditableFeature coordinates from the olFeature geometry
-            editableFeature.setCoordinates(olFeature)
+            editableFeature.setCoordinatesFromFeature(olFeature)
 
             olFeature.set('editableFeature', editableFeature)
             olFeature.setStyle(featureStyleFunction)
@@ -290,8 +290,8 @@ export class EditableFeature extends SelectableFeature {
      *
      * @param {ol/Feature} olFeature Ol Feature to get the coordinate from
      */
-    setCoordinates(olFeature) {
-        super.setCoordinates(olFeature)
+    setCoordinatesFromFeature(olFeature) {
+        super.setCoordinatesFromFeature(olFeature)
         this.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(olFeature)
     }
 

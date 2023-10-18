@@ -1,6 +1,5 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { extractOlFeatureCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import {
     allStylingColors,
     allStylingSizes,
@@ -13,7 +12,6 @@ import {
 import log from '@/utils/logging'
 import Feature from 'ol/Feature'
 import { getDefaultStyle } from 'ol/format/KML'
-import { Polygon } from 'ol/geom'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
@@ -85,17 +83,6 @@ function parseStyle(legacyKmlFeature) {
         return styles
     }
     return null
-}
-
-function parseCoordinate(legacyKmlFeature) {
-    let coordinates = extractOlFeatureCoordinates(legacyKmlFeature)
-    // We do not want to store the z coordinate (height)
-    if (Array.isArray(coordinates[0])) {
-        coordinates = coordinates.map((coordinate) => coordinate.slice(0, 2))
-    } else {
-        coordinates = coordinates.slice(0, 2)
-    }
-    return coordinates
 }
 
 /**
