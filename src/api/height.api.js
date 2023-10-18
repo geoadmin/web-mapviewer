@@ -1,4 +1,4 @@
-import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { API_SERVICE_ALTI_BASE_URL, DEFAULT_PROJECTION } from '@/config'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
@@ -22,13 +22,16 @@ export class HeightForPosition {
 /**
  * Get the height of the given coordinate from the backend
  *
- * @param {Number[]} coordinates Lat/lon coordinates expressed in EPSG:3857
+ * @param {Number[]} coordinates coordinates of the point we want to know the height of
+ * @param {CoordinateSystem} projection the projection in which this point is expressed
  * @returns {Promise<HeightForPosition>} The height for the given coordinate
  */
-export const requestHeight = (coordinates) => {
+export const requestHeight = (coordinates, projection = DEFAULT_PROJECTION) => {
     return new Promise((resolve, reject) => {
         if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
-            const lv95coords = proj4(WEBMERCATOR.epsg, LV95.epsg, coordinates)
+            // this service only functions with LV95 coordinate, so we have to re-project the input to be sure
+            // we are giving it LV95 coordinates
+            const lv95coords = proj4(projection.epsg, LV95.epsg, coordinates)
             axios
                 .get(`${API_SERVICE_ALTI_BASE_URL}rest/services/height`, {
                     params: {
