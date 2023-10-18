@@ -1,13 +1,13 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
     isLayersUrlParamLegacy,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
+import proj4 from 'proj4'
 
 /**
  * @param {String} search
@@ -47,20 +47,20 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = { ...to.query }
-    const legacyCoordinates = []
+    let legacyCoordinates = []
+    let legacyCoordinatesAreExpressedInWGS84 = false
     Object.keys(legacyParams).forEach((param) => {
         let value
 
         let key = param
         switch (param) {
-            // we need te re-evaluate LV95 zoom, as it was a zoom level tailor made for this projection
-            // (and not made to cover the whole globe)
             case 'zoom':
-                value = translateSwisstopoPyramidZoomToMercatorZoom(legacyParams[param])
-                if (!value) {
-                    // if the value is not defined in the old zoom system, we use the 'default' zoom level
-                    // of 8 (which will roughly show the whole territory of Switzerland)
-                    value = 8
+                // if we are using WebMercator as the map projection we need te re-evaluate LV95 zoom,
+                // as it was a zoom level tailor-made for this projection (and not made to cover the whole globe)
+                if (store.state.position.projection.epsg === WEBMERCATOR.epsg) {
+                    value = translateSwisstopoPyramidZoomToMercatorZoom(legacyParams[param])
+                } else {
+                    value = legacyParams[param]
                 }
                 key = 'z'
                 break
@@ -68,11 +68,18 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             // storing coordinate parts for later conversion
             case 'E':
             case 'X':
+            case 'lon':
                 legacyCoordinates[0] = Number(legacyParams[param])
                 break
             case 'N':
             case 'Y':
+            case 'lat':
                 legacyCoordinates[1] = Number(legacyParams[param])
+                break
+
+            case 'lon':
+            case 'lat':
+                legacyCoordinatesAreExpressedInWGS84 = true
                 break
 
             // taking all layers related param aside so that they can be processed later (see below)
@@ -106,15 +113,25 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                 value = legacyParams[param]
         }
 
-        // if a legacy coordinate (x,y or N,E) was used, we need to guess the SRS used (either LV95 or LV03)
-        // and covert it back to EPSG:4326 (Mercator)
+        // if a legacy coordinate (x/y, N/E or lon/lat) was used, we need to build the center param from them
         if (legacyCoordinates.length === 2 && legacyCoordinates[0] && legacyCoordinates[1]) {
-            const center = reprojectUnknownSrsCoordsToWGS84(
-                legacyCoordinates[0],
-                legacyCoordinates[1]
-            )
-            newQuery['lon'] = round(center[0], 6)
-            newQuery['lat'] = round(center[1], 6)
+            // if lon/lat were used, we need to re-project them in the current projection system
+            if (legacyCoordinatesAreExpressedInWGS84) {
+                legacyCoordinates = proj4(
+                    WGS84.epsg,
+                    store.state.position.projection.epsg,
+                    legacyCoordinates
+                )
+            } else if (store.state.position.projection.epsg !== LV95.epsg) {
+                // if the current projection is not LV95, we also need to re-project x/y or N/E
+                // (the legacy viewer was always writing coordinates in LV95 in the URL)
+                legacyCoordinates = proj4(
+                    LV95.epsg,
+                    store.state.position.projection.epsg,
+                    legacyCoordinates
+                )
+            }
+            newQuery['center'] = legacyCoordinates.join(',')
         }
         if (value) {
             // When receiving a query, the application will encode the URI components
