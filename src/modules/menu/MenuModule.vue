@@ -23,7 +23,7 @@
             }"
         >
             <GeolocButton
-                v-if="!isFullscreenMode && !isEmbedded"
+                v-if="!isFullscreenMode && !isEmbedded && !inDrawingMode"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
                 @click="toggleGeolocation"
@@ -33,14 +33,14 @@
                 @zoom-in="increaseZoom"
                 @zoom-out="decreaseZoom"
             />
-            <Toggle3dButton />
+            <Toggle3dButton v-if="!inDrawingMode" />
             <div id="toolbox-compass-button" />
             <TimeSliderButton
-                v-if="visibleLayersWithTimeConfig.length"
+                v-if="visibleLayersWithTimeConfig.length && !inDrawingMode"
                 :active="showTimeSlider"
                 @click="showTimeSlider = !showTimeSlider"
             />
-            <ToggleProjectionButton />
+            <ToggleProjectionButton v-if="!inDrawingMode" />
         </div>
         <div
             class="menu-tray-container position-absolute w-100 h-100"
@@ -118,6 +118,7 @@ export default {
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             isEmbedded: (state) => state.ui.embeddedMode,
             previewYear: (state) => state.layers.previewYear,
+            inDrawingMode: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters([
             'isHeaderShown',
