@@ -1,6 +1,10 @@
 import { DEFAULT_PROJECTION, LV95_RESOLUTIONS } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, {
+    LV95,
+    WEBMERCATOR,
+    WGS84,
+} from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -332,11 +336,19 @@ const actions = {
         commit('setCameraPosition', cameraPosition)
     },
     setProjection({ commit }, projection) {
+        let matchingProjection
         if (
             projection instanceof CoordinateSystem &&
             (projection.epsg === LV95.epsg || projection.epsg === WEBMERCATOR.epsg)
         ) {
-            commit('setProjection', projection)
+            matchingProjection = projection
+        } else if (projection instanceof Number) {
+            matchingProjection = allCoordinateSystems.find(
+                (coordinateSystem) => coordinateSystem.epsgNumber === projection
+            )
+        }
+        if (matchingProjection) {
+            commit('setProjection', matchingProjection)
         } else {
             log.error('Unsupported projection', projection)
         }
