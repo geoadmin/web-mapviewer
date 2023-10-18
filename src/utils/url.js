@@ -171,7 +171,7 @@ export function appendParamsToUrl(url, paramString) {
 }
 
 /**
- *  Prepares URL for external layer upload
+ * Prepares URL for external layer upload
  *
  * @param url
  * @param lang

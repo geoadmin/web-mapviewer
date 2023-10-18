@@ -3,7 +3,7 @@ import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
-/** File import utils start **/
+/** File import utils start * */
 
 /**
  * Checks if file has WMS Capabilities XML content
@@ -52,7 +52,7 @@ export function isGpx(fileContent) {
  * @param layer - Layer item parsed from WMS getCap XML
  * @param visible
  * @param opacity
- * @returns {ExternalGroupOfLayers|undefined|ExternalWMSLayer}
+ * @returns {ExternalGroupOfLayers | undefined | ExternalWMSLayer}
  */
 export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
     // If the WMS layer has no name, it can't be displayed
@@ -85,7 +85,7 @@ export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
  * @param layer - Layer item parsed from WMTS getCap XML
  * @param visible
  * @param opacity
- * @returns {ExternalGroupOfLayers|undefined|ExternalWMSLayer}
+ * @returns {ExternalGroupOfLayers | undefined | ExternalWMSLayer}
  */
 export function getCapWMTSLayers(getCapUrl, getCap, layer, visible = true, opacity = 1) {
     if (!layer.Identifier) {
@@ -106,4 +106,4 @@ export function getCapWMTSLayers(getCapUrl, getCap, layer, visible = true, opaci
     )
 }
 
-/** File import utils end **/
+/** File import utils end * */
