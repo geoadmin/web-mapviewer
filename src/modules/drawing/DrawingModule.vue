@@ -170,7 +170,7 @@ export default {
             if (show) {
                 this.isLoading = true
                 this.isDrawingOpen = true
-                await this.initDrawingOverlay()
+                await this.showDrawingOverlay()
                 this.isLoading = false
             } else {
                 this.isLoading = true
@@ -219,7 +219,7 @@ export default {
             window.drawingLayer = this.drawingLayer
         }
         if (this.show) {
-            this.initDrawingOverlay()
+            this.showDrawingOverlay()
         }
     },
     unmounted() {
@@ -243,7 +243,10 @@ export default {
             'setDrawingFeatures',
             'setKmlLayerAddToMap',
         ]),
-        async initDrawingOverlay() {
+        async showDrawingOverlay() {
+            // We need to make sure that no drawing features are selected when entering the drawing
+            // mode otherwise we cannot edit the selected features.
+            this.clearAllSelectedFeatures()
             this.drawingState = DrawingState.INITIAL
             this.isNewDrawing = true
 
