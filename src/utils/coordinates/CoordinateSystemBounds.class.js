@@ -33,12 +33,16 @@ export default class CoordinateSystemBounds {
         return [this.upperX, this.upperY]
     }
 
+    get center() {
+        return [(this.lowerX + this.upperX) / 2.0, (this.lowerY + this.upperY) / 2.0]
+    }
+
     /**
      * Returns a flatten version of the bounds such as [lowerX, lowerY, upperX, upperY]
      *
      * @return {Number[]}
      */
-    flatten() {
+    get flatten() {
         return [this.lowerX, this.lowerY, this.upperX, this.upperY]
     }
 
@@ -122,7 +126,7 @@ function splitIfOutOfBoundsRecurse(coordinates, bounds, previousChunks = [], isF
     clip(
         lastCoordinateWithSameBounds,
         nextCoordinateWithoutSameBounds,
-        bounds.flatten(),
+        bounds.flatten,
         crossing1,
         crossing2
     )

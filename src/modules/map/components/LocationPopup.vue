@@ -111,15 +111,15 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { stringifyQuery } from '@/utils/url'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 
-function reproject(toEpsg, coordinate) {
-    return proj4(WEBMERCATOR.epsg, toEpsg, coordinate)
+function reproject(fromEpsg, toEpsg, coordinate) {
+    return proj4(fromEpsg, toEpsg, coordinate)
 }
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
@@ -165,11 +165,12 @@ export default {
             return LV03Format.format(this.coordinate, this.projection)
         },
         coordinateWGS84Metric() {
-            return reproject(WGS84.epsg, this.coordinate)
+            return reproject(this.projection.epsg, WGS84.epsg, this.coordinate)
         },
         coordinateWGS84Plain() {
-            const wgsMetric = this.coordinateWGS84Metric
-            return `${round(wgsMetric[1], 5, true)}, ${round(wgsMetric[0], 5, true)}`
+            return this.coordinateWGS84Metric
+                .map((val) => round(val, WGS84.acceptableDecimalPoints, true))
+                .join(', ')
         },
         coordinateWGS84() {
             return WGS84Format.format(this.coordinate, this.projection)
@@ -237,7 +238,7 @@ export default {
             }
         },
         updateShareLink(coordinate, routeQuery) {
-            let [lon, lat] = reproject(WGS84.epsg, coordinate)
+            let [lon, lat] = reproject(this.projection.epsg, WGS84.epsg, coordinate)
             let query = {
                 ...routeQuery,
                 crosshair: 'marker',

@@ -1,9 +1,11 @@
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { format } from '@/utils/numberUtils'
-import { wrapX as wrapXCoordinate } from 'ol/coordinate'
+import { wrapX } from 'ol/coordinate'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
+import KML from 'ol/format/KML'
+import { EditableFeature } from '@/api/features.api'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {
@@ -27,13 +29,33 @@ export function wrapWebmercatorCoords(coords, inPlace = false) {
             coords.forEach((coords) => wrapWebmercatorCoords(coords, true))
             return coords
         } else {
-            return wrapXCoordinate(coords, getProjection(WEBMERCATOR.epsg))
+            return wrapX(coords, getProjection(WEBMERCATOR.epsg))
         }
     } else {
         return Array.isArray(coords[0])
             ? coords.map((coords) => wrapWebmercatorCoords(coords, false))
-            : wrapXCoordinate(coords.slice(), getProjection(WEBMERCATOR.epsg))
+            : wrapX(coords.slice(), getProjection(WEBMERCATOR.epsg))
     }
+}
+
+/**
+ * Wraps the provided coordinates in the world extents (i.e. the coordinate range that
+ * if equivalent to the wgs84 [-180, 180))
+ *
+ * @param {Array} coordinates The coordinates (or array of coordinates) to wrap
+ * @param {CoordinateSystem} projection Projection of the coordinates
+ * @param {boolean} inPlace If false, the original coordinates remain untouched and only a copy is modified
+ * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
+ */
+export function wrapXCoordinates(coordinates, projection, inPlace = false) {
+    let wrappedCoords = coordinates
+    if (!inPlace) {
+        wrappedCoords = wrappedCoords.slice()
+    }
+    if (Array.isArray(wrappedCoords[0])) {
+        return wrappedCoords.map((c) => wrapXCoordinates(c, projection, inPlace))
+    }
+    return wrapX(wrappedCoords, getProjection(projection.epsg))
 }
 
 /** @param {[number, number]} coo Coordinates */
@@ -165,4 +187,25 @@ export function getVertexCoordinates(feature) {
     }
 
     return normalized
+}
+
+/**
+ * Parse KML file into OL Features including deserialization of EditableFeature
+ *
+ * @param {String} kml KML content to parse
+ * @param {ol/Projection} projection Projection to use for the OL Feature
+ * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
+ *
+ * @returns {ol/Feature[]} List of OL Features
+ */
+export function parseKml(kml, projection, iconSets) {
+    const features = new KML().readFeatures(kml, {
+        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        featureProjection: projection.epsg,
+    })
+    features.forEach((olFeature) => {
+        EditableFeature.deserialize(olFeature, iconSets)
+    })
+
+    return features
 }

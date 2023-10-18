@@ -1,8 +1,9 @@
 import store from '@/store'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
-describe('Zoom level is calculated correctly in the store', () => {
+describe('Zoom level is calculated correctly in the store when using WebMercator as the projection', () => {
     const screenSize = 100
     const lat = 45
     const lon = 8
@@ -11,6 +12,7 @@ describe('Zoom level is calculated correctly in the store', () => {
     const getResolution = () => store.getters.resolution
 
     beforeEach(async () => {
+        await store.dispatch('setProjection', WEBMERCATOR)
         // first we setup a fake screen of 100px by 100px
         await store.dispatch('setSize', {
             width: screenSize,

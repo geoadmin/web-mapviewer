@@ -63,7 +63,7 @@ export default {
                             this.projection
                         )}`
                     }
-                    return displayedFormat.format(coordinates, this.projection)
+                    return displayedFormat.format(coordinates, this.projection, true)
                 })
             } else {
                 log.error('Unknown coordinates display format', this.displayedFormatId)

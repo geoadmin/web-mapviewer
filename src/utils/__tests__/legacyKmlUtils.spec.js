@@ -13,12 +13,11 @@ import {
     WHITE,
     YELLOW,
 } from '@/utils/featureStyleUtils'
-import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import { expect } from 'chai'
 import { readFileSync } from 'fs'
-import KML from 'ol/format/KML'
 import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 const fakeDefaultIconSet = new DrawingIconSet(
     'default',
@@ -79,7 +78,7 @@ function performStandardChecks(
     expectedFeatureType,
     expectedTitle = '',
     expectedDescription = '',
-    expectedCoordinateCount = 2
+    expectedCoordinateCount = 3
 ) {
     expect(feature).to.be.not.null.and.not.undefined
     expect(feature.coordinates).to.have.length.greaterThan(0)
@@ -111,16 +110,12 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
 
     beforeEach(() => {
         const kml = readFileSync(resolve(__dirname, './mfgeoadmin3TestKml.kml'), 'utf8')
-        const olFeatures = new KML().readFeatures(kml, {
-            featureProjection: WEBMERCATOR.epsg,
+        const olFeatures = parseKml(kml, WEBMERCATOR, fakeIconSets)
+        features = olFeatures.map((f) => {
+            const ef = f.get('editableFeature')
+            ef.olFeature = f
+            return ef
         })
-        features = []
-        for (const olFeature of olFeatures) {
-            const feature = getEditableFeatureFromLegacyKmlFeature(olFeature, fakeIconSets)
-            expect(feature).to.be.not.null.and.not.undefined
-            feature.olFeature = olFeature
-            features.push(feature)
-        }
     })
     describe('icon parsing', () => {
         it('parses a marker with a very small scale and blue fill color correctly', () => {

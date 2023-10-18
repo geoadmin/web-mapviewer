@@ -52,8 +52,6 @@ export default class AbstractLayer {
         this.attributions = [...attributions]
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
-        // default projection used, as we want to achieve worldwide coverage, is web mercator metric
-        this.projection = WEBMERCATOR
     }
 
     /**

@@ -89,11 +89,10 @@ export default {
         },
     },
     watch: {
-        feature: {
-            handler() {
+        'feature.geometry'() {
+            if (this.doesFeatureHaveAGeometry) {
                 this.addFeatureToLayer()
-            },
-            deep: true,
+            }
         },
     },
     created() {
@@ -112,7 +111,7 @@ export default {
     },
     methods: {
         addFeatureToLayer() {
-            this.layer.setSource(
+            this.layer?.setSource(
                 new VectorSource({
                     features: [this.geometry],
                 })

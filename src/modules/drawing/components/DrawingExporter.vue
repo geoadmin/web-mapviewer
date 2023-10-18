@@ -19,6 +19,7 @@ import {
 } from '@/modules/drawing/lib/export-utils'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { saveAs } from 'file-saver'
+import { mapState } from 'vuex'
 
 export default {
     components: { DropdownButton },
@@ -34,6 +35,11 @@ export default {
             exportSelection: 'KML',
             exportOptions: [new DropdownItem('KML'), new DropdownItem('GPX')],
         }
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     methods: {
         onExportOptionSelected(dropdownItem) {
@@ -52,11 +58,11 @@ export default {
             let content, type, fileName
             if (gpx) {
                 fileName = generateFilename('.gpx')
-                content = generateGpxString(features)
+                content = generateGpxString(this.projection, features)
                 type = 'application/gpx+xml;charset=UTF-8'
             } else {
                 fileName = generateFilename('.kml')
-                content = generateKmlString(features)
+                content = generateKmlString(this.projection, features)
                 type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
             }
             const blob = new Blob([content], { type })

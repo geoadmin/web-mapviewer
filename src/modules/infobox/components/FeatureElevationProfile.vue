@@ -139,10 +139,10 @@ export default {
                             return [
                                 point.dist,
                                 point.elevation,
-                                round(easting, 3),
-                                round(northing, 3),
-                                round(lon, 6),
-                                round(lat, 6),
+                                round(easting, LV95.acceptableDecimalPoints),
+                                round(northing, LV95.acceptableDecimalPoints),
+                                round(lon, WGS84.acceptableDecimalPoints),
+                                round(lat, WGS84.acceptableDecimalPoints),
                             ]
                         }),
                     ]
