@@ -1,5 +1,5 @@
-import { API_SERVICE_ALTI_BASE_URL, DEFAULT_PROJECTION } from '@/config'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { API_SERVICE_ALTI_BASE_URL } from '@/config'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
@@ -26,7 +26,7 @@ export class HeightForPosition {
  * @param {CoordinateSystem} projection the projection in which this point is expressed
  * @returns {Promise<HeightForPosition>} The height for the given coordinate
  */
-export const requestHeight = (coordinates, projection = DEFAULT_PROJECTION) => {
+export const requestHeight = (coordinates, projection) => {
     return new Promise((resolve, reject) => {
         if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
             // this service only functions with LV95 coordinate, so we have to re-project the input to be sure
