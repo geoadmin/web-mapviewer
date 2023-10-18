@@ -78,8 +78,6 @@ function performStandardChecks(
     expectedFeatureType,
     expectedTitle = '',
     expectedDescription = '',
-    // TODO with the PR #X the ol geometries parsed from KML are with the layout 'xyz' instead
-    // of 'xy' therefore the expectedCoordinateCount has been increase to 3.
     expectedCoordinateCount = 3
 ) {
     expect(feature).to.be.not.null.and.not.undefined
