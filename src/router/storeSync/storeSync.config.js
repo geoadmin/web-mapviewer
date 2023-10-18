@@ -1,3 +1,4 @@
+import { DEFAULT_PROJECTION } from '@/config'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
@@ -34,6 +35,15 @@ const storeSyncConfig = [
         (store) => store.getters.centerEpsg4326[0],
         true,
         Number
+    ),
+    new SimpleUrlParamConfig(
+        'sr',
+        'setProjection',
+        'setProjection',
+        (store) => store.state.position.projection.epsgNumber,
+        false,
+        Number,
+        DEFAULT_PROJECTION.epsgNumber
     ),
     new SimpleUrlParamConfig(
         'z',
