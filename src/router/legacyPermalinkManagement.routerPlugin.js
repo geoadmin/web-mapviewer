@@ -1,4 +1,3 @@
-import { DEFAULT_PROJECTION } from '@/config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -63,9 +62,6 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                 } else {
                     value = legacyParams[param]
                 }
-                if (!value) {
-                    value = DEFAULT_PROJECTION.defaultZoom
-                }
                 key = 'z'
                 break
 
@@ -126,10 +122,9 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                     store.state.position.projection.epsg,
                     legacyCoordinates
                 )
-            }
-            // if the current projection is not LV95, we also need to re-project x/y or N/E
-            // (the legacy viewer was always writing coordinates in LV95 in the URL)
-            if (store.state.position.projection.epsg !== LV95.epsg) {
+            } else if (store.state.position.projection.epsg !== LV95.epsg) {
+                // if the current projection is not LV95, we also need to re-project x/y or N/E
+                // (the legacy viewer was always writing coordinates in LV95 in the URL)
                 legacyCoordinates = proj4(
                     LV95.epsg,
                     store.state.position.projection.epsg,
