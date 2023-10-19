@@ -9,7 +9,7 @@ import { UIModes } from '@/store/modules/ui.store'
 
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
-
+import CompareSlider from './components/CompareSlider.vue'
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
 const OpenLayersMap = defineAsyncComponent(
     () => import('./components/openlayers/OpenLayersMap.vue')
@@ -44,7 +44,9 @@ const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
             <teleport to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
+            <CompareSlider />
         </OpenLayersMap>
+
         <WarningRibbon />
     </div>
 </template>

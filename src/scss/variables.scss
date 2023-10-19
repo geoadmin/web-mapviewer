@@ -6,13 +6,17 @@ browser dev tools. */
 
 // Main stacking context
 $zindex-map: 1;
-$zindex-footer: $zindex-map + 1; // The menu should be displayed above the footer in phone mode
+/* compare slider should be above the map, and below anything else
+*/
+$zindex-compare-slider: $zindex-map + 1;
+$zindex-footer: $zindex-compare-slider + 1; // The menu should be displayed above the footer in phone mode
 $zindex-warning: 1;
 $zindex-menu: $zindex-footer + 1;
 //Is part of the footer, but should be displayed above other menu items if in desktop mode
 //In phone mode, it makes more sense for the menu to be above.
 $zindex-desktop-footer-infobox: $zindex-menu + 1;
 $zindex-swipable-element: $zindex-menu + 1; //Not used for the moment, please check the value before using it.
+
 
 // Modules teleported to the main stacking context (so that they can be on top of all other elements)
 $zindex-modal: 100;
