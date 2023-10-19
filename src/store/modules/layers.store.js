@@ -116,7 +116,7 @@ const getters = {
      * @returns {GeoAdminLayer[]} List of layers with time config
      */
     visibleLayersWithTimeConfig: (state, getters) =>
-        getters.visibleLayers.filter((layer) => layer.timeConfig.timeEntries.length),
+        getters.visibleLayers.filter((layer) => layer.timeConfig?.timeEntries?.length),
 
     /**
      * Returns true if the layer comes from a third party (external layer or KML layer).
