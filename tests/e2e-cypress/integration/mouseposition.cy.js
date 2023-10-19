@@ -180,7 +180,9 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system Plain WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-plain-wgs84"]').contains(
-                    `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+                    `${lat.toFixed(WGS84.acceptableDecimalPoints)}, ${lon.toFixed(
+                        WGS84.acceptableDecimalPoints
+                    )}`
                 )
             })
             it('Uses the coordination system WGS84 in the popup', () => {
@@ -245,8 +247,7 @@ describe('Test mouse position', () => {
             cy.intercept('POST', /^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl2, success: true },
             }).as('shortlink-bg-void')
-            cy.get('[data-cy="background-selector').click()
-            cy.get('[data-cy="background-selector-void').click()
+            cy.writeStoreValue('setBackground', null)
             cy.wait('@shortlink-bg-void').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]
@@ -296,8 +297,7 @@ describe('Test mouse position', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl2, success: true },
             }).as('shortlink')
-            cy.get('[data-cy="background-selector').click()
-            cy.get('[data-cy="background-selector-void').click()
+            cy.writeStoreValue('setBackground', null)
             cy.wait('@qrcode').then((interception) => {
                 expect(interception.request.url).not.to.be.empty
                 expect(interception.request.url).to.include('?')

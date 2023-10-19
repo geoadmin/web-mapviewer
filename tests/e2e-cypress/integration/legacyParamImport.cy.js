@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { round } from '@/utils/numberUtils'
 
@@ -29,8 +30,7 @@ describe('Test on legacy param import', () => {
             const zoom = 12
             cy.goToMapView(
                 {
-                    lat,
-                    lon,
+                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
                     z: zoom,
                 },
                 true
