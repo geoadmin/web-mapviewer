@@ -66,7 +66,7 @@ export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
         const layers = layer.Layer.map((l) => getCapWMSLayers(getCap, l))
         return new ExternalGroupOfLayers(layer.Title, wmsUrl, layers)
     }
-    const attribution = layer.Attribution || getCap.Capability.Layer.Attribution
+    const attribution = layer.Attribution || getCap.Capability.Layer.Attribution || getCap.Service
     return new ExternalWMSLayer(
         layer.Title,
         opacity,

@@ -52,7 +52,7 @@
             </div>
         </div>
         <div
-            class="connect-btn-container"
+            class="connect-btn-container mb-2"
             :class="{
                 disabled: isConnectDisabled,
             }"
@@ -66,23 +66,16 @@
                 {{ buttonText }}
             </button>
         </div>
-        <!-- todo just for test -->
-        <div class="d-flex flex-column h-50 overflow-y-auto">
-            <div
-                v-for="layer in importedLayers"
-                :key="layer.externalLayerId"
-                class="cursor-pointer"
-                @click="() => addLayer(layer)"
-            >
-                {{ layer.name }}
-            </div>
-        </div>
+        <ImportContentResultList
+            v-if="importedLayers?.length"
+            :imported-layers="importedLayers"
+        ></ImportContentResultList>
     </div>
 </template>
 <script>
 import externalLayerProviders from '@/external-layer-providers.json'
 import { isValidUrl, transformUrl } from '@/utils/url'
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import {
     getCapWMSLayers,
     getCapWMTSLayers,
@@ -94,10 +87,12 @@ import {
 import { WMSCapabilities } from 'ol/format'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import ImportContentResultList from './ImportContentResultList.vue'
 
 const BTN_RESET_TIMEOUT = 3000
 
 export default {
+    components: { ImportContentResultList },
     data() {
         return {
             importValue: '',
@@ -138,7 +133,6 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['addLayer']),
         onInputChange(event) {
             this.importValue = event.target.value
         },
@@ -242,7 +236,8 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .import-overlay-content {
-    height: 250px;
+    height: 450px;
+    overflow: hidden;
 }
 
 .import-input {
