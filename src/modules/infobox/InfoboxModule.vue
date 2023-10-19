@@ -20,6 +20,7 @@
                     <FontAwesomeIcon icon="caret-up" />
                 </button>
                 <button
+                    v-if="showPrintBtn"
                     class="btn btn-light btn-sm d-flex align-items-center"
                     @click.stop="onPrint"
                 >
@@ -63,6 +64,8 @@
                     :read-only="!showDrawingOverlay"
                 />
 
+                <ImportContent v-else-if="importOverlay" class="card-body" />
+
                 <FeatureList v-else-if="isList" />
             </div>
         </div>
@@ -78,9 +81,11 @@ import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
+import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 
 export default {
     components: {
+        ImportContent,
         FontAwesomeIcon,
         FeatureCombo,
         FeatureEdit,
@@ -101,6 +106,7 @@ export default {
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
             projection: (state) => state.position.projection,
+            importOverlay: (state) => state.ui.importOverlay,
         }),
         selectedFeature() {
             return this.selectedFeatures[0]
@@ -125,7 +131,13 @@ export default {
             )
         },
         showContainer() {
-            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
+            return (
+                this.isList ||
+                this.isEdit ||
+                this.showElevationProfile ||
+                this.isCombo ||
+                this.importOverlay
+            )
         },
         showFloatingToggle() {
             return (
@@ -133,6 +145,9 @@ export default {
                 (this.isEdit && !this.showElevationProfile) ||
                 (this.isCombo && !this.floatingTooltip)
             )
+        },
+        showPrintBtn() {
+            return !this.importOverlay
         },
     },
     watch: {
@@ -163,7 +178,7 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip', 'toggleImportOverlay']),
         computeHeightNextTick() {
             this.$nextTick(() => {
                 this.setMaxHeight()
@@ -182,7 +197,11 @@ export default {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            this.clearAllSelectedFeatures()
+            if (this.importOverlay) {
+                this.toggleImportOverlay()
+            } else {
+                this.clearAllSelectedFeatures()
+            }
         },
         setMaxHeight() {
             if (!this.showContainer || !this.$refs.content) {
