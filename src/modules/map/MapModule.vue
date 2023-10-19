@@ -17,7 +17,9 @@
             <teleport to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
+            <CompareSlider />
         </OpenLayersMap>
+
         <WarningRibbon />
     </div>
 </template>
@@ -31,7 +33,7 @@ import { defineAsyncComponent } from 'vue'
 import { mapState } from 'vuex'
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
-
+import CompareSlider from './components/CompareSlider.vue'
 export default {
     components: {
         OpenLayersCompassButton,
@@ -43,6 +45,7 @@ export default {
             import('./components/openlayers/OpenLayersMap.vue')
         ),
         CesiumMap: defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue')),
+        CompareSlider,
     },
     computed: {
         ...mapState({

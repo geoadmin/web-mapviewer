@@ -552,9 +552,11 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 #ol-map {
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    position: relative; // Element must be positioned to set a z-index
+    position: absolute; // Element must be positioned to set a z-index
     z-index: $zindex-map;
 }
 </style>
