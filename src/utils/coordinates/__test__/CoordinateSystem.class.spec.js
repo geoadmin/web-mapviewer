@@ -13,6 +13,7 @@ describe('CoordinateSystem', () => {
         1234,
         'test',
         '',
+        false,
         null
     )
     describe('getBoundsAs', () => {

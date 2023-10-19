@@ -22,6 +22,8 @@ export default class CoordinateSystem {
      *   re-projections.
      * @param {[Number, Number]} defaultCenter Coordinate to be used as the default center, will use
      *   the center of the bounds if none are given (and bounds are defined)
+     * @param {Boolean} isSwissProjection If this projection is made specifically to cover
+     *   Switzerland (if it uses our national LV95 or LV03 bounds, zoom level, etc...)
      */
     constructor(
         id,
@@ -29,6 +31,7 @@ export default class CoordinateSystem {
         epsgNumber,
         label,
         proj4transformationMatrix,
+        isSwissProjection = false,
         bounds = null,
         defaultZoom = 0,
         defaultCenter = null,
@@ -39,6 +42,7 @@ export default class CoordinateSystem {
         this.epsgNumber = epsgNumber
         this.label = label
         this.proj4transformationMatrix = proj4transformationMatrix
+        this.isSwissProjection = isSwissProjection
         this.bounds = bounds
         this.defaultCenter = defaultCenter || this.bounds?.center
         this.defaultZoom = defaultZoom

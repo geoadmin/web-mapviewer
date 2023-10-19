@@ -1,5 +1,5 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
@@ -57,7 +57,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             case 'zoom':
                 // if we are using WebMercator as the map projection we need te re-evaluate LV95 zoom,
                 // as it was a zoom level tailor-made for this projection (and not made to cover the whole globe)
-                if (store.state.position.projection.epsg === WEBMERCATOR.epsg) {
+                if (!store.state.position.projection.isSwissProjection) {
                     value = translateSwisstopoPyramidZoomToMercatorZoom(legacyParams[param])
                 } else {
                     value = legacyParams[param]

@@ -1,6 +1,7 @@
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { calculateWebMercatorZoom, normalizeAngle } from '@/store/modules/position.store'
+import { normalizeAngle } from '@/store/modules/position.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { calculateWebMercatorZoom } from '@/utils/zoomLevelUtils'
 import proj4 from 'proj4'
 
 /**

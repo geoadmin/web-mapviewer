@@ -1,5 +1,4 @@
 import getFeature, { EditableFeature, LayerFeature } from '@/api/features.api'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import {
     translateMercatorZoomToSwisstopoPyramidZoom,
@@ -77,7 +76,7 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
                     store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
                 })
 
-                if (newProjection.epsg === LV95.epsg) {
+                if (newProjection.isSwissProjection) {
                     store.dispatch(
                         'setZoom',
                         translateMercatorZoomToSwisstopoPyramidZoom(state.position.zoom)

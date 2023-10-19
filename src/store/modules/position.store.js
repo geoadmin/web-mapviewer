@@ -7,13 +7,12 @@ import allCoordinateSystems, {
 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
+import {
+    calculateWebMercatorResolution,
+    calculateWebMercatorZoom,
+    getSwisstopoPyramidZoomForResolution,
+} from '@/utils/zoomLevelUtils'
 import proj4 from 'proj4'
-
-// for constants' values
-// see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
-const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0
-const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
-const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
 /** @enum */
 export const CrossHairs = {
@@ -102,36 +101,6 @@ const state = {
      * @type {CameraPosition | null}
      */
     camera: null,
-}
-
-/**
- * @param mercatorZoomLevel
- * @param latitudeInRad
- * @returns {Number}
- */
-const calculateWebMercatorResolution = (mercatorZoomLevel, latitudeInRad) => {
-    // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-    // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-    return round(
-        Math.abs(
-            (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad)) /
-                Math.pow(2, mercatorZoomLevel)
-        ),
-        2
-    )
-}
-
-/**
- * @param resolution
- * @param latitudeInRad
- * @returns {Number}
- */
-export const calculateWebMercatorZoom = (resolution, latitudeInRad) => {
-    return (
-        Math.log2(
-            Math.abs(PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad))
-        ) - Math.log2(resolution)
-    )
 }
 
 const getters = {
@@ -263,16 +232,16 @@ const actions = {
     },
     zoomToExtent: ({ commit, getters, state, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
-            // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
+            // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
                 proj4(state.projection.epsg, WGS84.epsg, extent[0]),
                 proj4(state.projection.epsg, WGS84.epsg, extent[1]),
             ]
-            // Calculate center of extent and convert position back to EPSG:3857.
+            // Calculate center of extent and convert position back to the wanted projection
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
             const centerOfExtent = proj4(WGS84.epsg, state.projection.epsg, [
-                (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
-                (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
+                (points[0][0] + points[1][0]) / 2.0, // minX + maxX / 2
+                (points[0][1] + points[1][1]) / 2.0, // minY + maxY / 2
             ])
 
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
@@ -282,23 +251,13 @@ const actions = {
                 })
             }
             const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width
-            // calculating new zoom level by reversing
-            // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-            const zoom = Math.abs(
-                Math.log2(
-                    newResolution /
-                        PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
-                        Math.cos(getters.centerEpsg4326InRadian[1])
-                )
-            )
-            // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
-            // TODO: as soon as client zoom is implemented, remove this fixed value
-            if (state.projection.epsg === LV95.epsg && zoom > 13) {
-                commit('setZoom', 13)
-            } else if (state.projection.epsg !== LV95.epsg && zoom > 18) {
-                commit('setZoom', 18)
+            if (state.projection.isSwissProjection) {
+                commit('setZoom', getSwisstopoPyramidZoomForResolution(newResolution))
             } else {
-                commit('setZoom', zoom)
+                commit(
+                    'setZoom',
+                    calculateWebMercatorZoom(newResolution, (points[1] * Math.PI) / 180.0)
+                )
             }
         }
     },

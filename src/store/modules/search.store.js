@@ -3,7 +3,7 @@ import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
-import { ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
+import { MERCATOR_ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
 
 const state = {
     /**
@@ -53,12 +53,12 @@ const actions = {
             const coordinate = coordinateFromString(query)
             if (coordinate) {
                 dispatch('setCenter', coordinate)
-                dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP)
+                dispatch('setZoom', MERCATOR_ZOOM_LEVEL_1_25000_MAP)
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query).then((what3wordLocation) => {
                     dispatch('setCenter', what3wordLocation)
-                    dispatch('setZoom', ZOOM_LEVEL_1_25000_MAP)
+                    dispatch('setZoom', MERCATOR_ZOOM_LEVEL_1_25000_MAP)
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {
