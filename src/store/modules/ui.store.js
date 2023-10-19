@@ -97,6 +97,12 @@ export default {
          * @type Boolean
          */
         showIn3d: false,
+        /**
+         * Flag telling if import overlay shown
+         *
+         * @type Boolean
+         */
+        importOverlay: false,
     },
     getters: {
         screenDensity(state) {
@@ -210,6 +216,9 @@ export default {
         setShowIn3d({ commit }, showIn3d) {
             commit('setShowIn3d', !!showIn3d)
         },
+        toggleImportOverlay({ commit, state }) {
+            commit('setImportOverlay', !state.importOverlay)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -239,6 +248,9 @@ export default {
         },
         setShowIn3d(state, flagValue) {
             state.showIn3d = flagValue
+        },
+        setImportOverlay(state, flagValue) {
+            state.importOverlay = flagValue
         },
     },
 }
