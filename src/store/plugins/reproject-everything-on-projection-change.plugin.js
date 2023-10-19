@@ -11,7 +11,8 @@ let oldProjection = null
 let selectedFeaturesBeforeProjectionChange = []
 
 /**
- * Plugin that will reproject anything that needs to be reprojected as soon as it detects that the projection was changed
+ * Plugin that will reproject anything that needs to be reprojected as soon as it detects that the
+ * projection was changed
  *
  * @param {Vuex.Store} store
  */

@@ -22,8 +22,8 @@ export class HeightForPosition {
 /**
  * Get the height of the given coordinate from the backend
  *
- * @param {Number[]} coordinates coordinates of the point we want to know the height of
- * @param {CoordinateSystem} projection the projection in which this point is expressed
+ * @param {Number[]} coordinates Coordinates of the point we want to know the height of
+ * @param {CoordinateSystem} projection The projection in which this point is expressed
  * @returns {Promise<HeightForPosition>} The height for the given coordinate
  */
 export const requestHeight = (coordinates, projection) => {

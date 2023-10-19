@@ -39,12 +39,13 @@ export function wrapWebmercatorCoords(coords, inPlace = false) {
 }
 
 /**
- * Wraps the provided coordinates in the world extents (i.e. the coordinate range that
- * if equivalent to the wgs84 [-180, 180))
+ * Wraps the provided coordinates in the world extents (i.e. the coordinate range that if equivalent
+ * to the wgs84 [-180, 180))
  *
  * @param {Array} coordinates The coordinates (or array of coordinates) to wrap
  * @param {CoordinateSystem} projection Projection of the coordinates
- * @param {boolean} inPlace If false, the original coordinates remain untouched and only a copy is modified
+ * @param {boolean} inPlace If false, the original coordinates remain untouched and only a copy is
+ *   modified
  * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
  */
 export function wrapXCoordinates(coordinates, projection, inPlace = false) {
@@ -195,7 +196,6 @@ export function getVertexCoordinates(feature) {
  * @param {String} kml KML content to parse
  * @param {ol/Projection} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
- *
  * @returns {ol/Feature[]} List of OL Features
  */
 export function parseKml(kml, projection, iconSets) {

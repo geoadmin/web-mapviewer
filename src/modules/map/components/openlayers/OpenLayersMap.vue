@@ -228,9 +228,10 @@ export default {
         },
         /**
          * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
-         * current BG layer is pixelkarte-farbe and the mapping projection used is WebMercator.
-         * We place it this way so that we can keep pixelkarte-farbe while achieving world-wide
-         * coverage (while waiting to receive a full-fledged VT layer with more details than light base map)
+         * current BG layer is pixelkarte-farbe and the mapping projection used is WebMercator. We
+         * place it this way so that we can keep pixelkarte-farbe while achieving world-wide
+         * coverage (while waiting to receive a full-fledged VT layer with more details than light
+         * base map)
          *
          * @returns {GeoAdminVectorLayer | null}
          */

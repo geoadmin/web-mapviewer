@@ -30,7 +30,8 @@ function generateCenterUrlParamFromStoreValues(store) {
 }
 
 /**
- * Describe the position (center) of the map in the URL. It will make sure that the URL values are read as floating numbers.
+ * Describe the position (center) of the map in the URL. It will make sure that the URL values are
+ * read as floating numbers.
  */
 export default class PositionParamConfig extends AbstractParamConfig {
     constructor() {

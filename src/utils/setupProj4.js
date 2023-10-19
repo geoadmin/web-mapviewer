@@ -11,7 +11,8 @@ import proj4 from 'proj4'
  * [LV03/EPSG:21781]{@link https://epsg.io/21781}) and metric Web Mercator
  * ([EPSG:3857]{@link https://epsg.io/3857}) definitions to proj4
  *
- * Further projection can be added by settings the param projections (do not forget to include LV95, LV03 and/or WebMercator if you intended to use them too)
+ * Further projection can be added by settings the param projections (do not forget to include LV95,
+ * LV03 and/or WebMercator if you intended to use them too)
  *
  * @param {CoordinateSystem[]} projections
  */

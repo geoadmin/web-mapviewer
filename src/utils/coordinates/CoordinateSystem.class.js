@@ -8,16 +8,20 @@ export default class CoordinateSystem {
      * @param {String} epsg EPSG:xxxx representation of this coordinate system
      * @param {Number} epsgNumber Same as EPSG but only the numerical part (without the "EPSG:")
      * @param {String} label Label to show users when they are dealing with this coordinate system
-     * @param {String} proj4transformationMatrix A string describing how proj4 should handle projection/reprojection of
-     * this coordinate system, in regard to WGS84. These matrices can be found on the EPSG website for each projection
-     * in the Export section, inside the PROJ.4 export type (can be directly accessed by adding .proj4 to the URL of
-     * one projection's page on the EPSG website, i.e. https://epsg.io/3857.proj4 for WebMercator)
-     * @param {CoordinateSystemBounds} bounds Bounds of this projection system, expressed as in its own coordinate
-     * system. These boundaries can also be found on the EPSG website, in the section "Projected bounds" of a
-     * projection's page
+     * @param {String} proj4transformationMatrix A string describing how proj4 should handle
+     *   projection/reprojection of this coordinate system, in regard to WGS84. These matrices can
+     *   be found on the EPSG website for each projection in the Export section, inside the PROJ.4
+     *   export type (can be directly accessed by adding .proj4 to the URL of one projection's page
+     *   on the EPSG website, i.e. https://epsg.io/3857.proj4 for WebMercator)
+     * @param {CoordinateSystemBounds} bounds Bounds of this projection system, expressed as in its
+     *   own coordinate system. These boundaries can also be found on the EPSG website, in the
+     *   section "Projected bounds" of a projection's page
      * @param {Number} defaultZoom Zoom level to be used if none are already set
-     * @param {Number} acceptableDecimalPoints How many decimal points is acceptable (precision wise) with this projection system. It will be used to round values after calculations and re-projections.
-     * @param {[Number,Number]} defaultCenter Coordinate to be used as the default center, will use the center of the bounds if none are given (and bounds are defined)
+     * @param {Number} acceptableDecimalPoints How many decimal points is acceptable (precision
+     *   wise) with this projection system. It will be used to round values after calculations and
+     *   re-projections.
+     * @param {[Number, Number]} defaultCenter Coordinate to be used as the default center, will use
+     *   the center of the bounds if none are given (and bounds are defined)
      */
     constructor(
         id,
@@ -42,9 +46,11 @@ export default class CoordinateSystem {
     }
 
     /**
-     * Transforms the bounds of this coordinates system to be expressed in the given coordinate system
+     * Transforms the bounds of this coordinates system to be expressed in the given coordinate
+     * system
      *
-     * If the one of the coordinate system is invalid, or if bounds are not defined, it will return null
+     * If the one of the coordinate system is invalid, or if bounds are not defined, it will return
+     * null
      *
      * @param {CoordinateSystem} coordinateSystem
      * @returns {CoordinateSystemBounds | null}
@@ -71,7 +77,7 @@ export default class CoordinateSystem {
      *
      * @param {Number} x
      * @param {Number} y
-     * @return {boolean}
+     * @returns {boolean}
      */
     isInBounds(x, y) {
         return !!this.bounds?.isInBounds(x, y)

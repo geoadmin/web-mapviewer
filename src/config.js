@@ -26,6 +26,7 @@ export const APP_VERSION = __APP_VERSION__
 
 /**
  * Default projection to be used throughout the application
+ *
  * @type {CoordinateSystem}
  */
 export const DEFAULT_PROJECTION = LV95
@@ -190,6 +191,7 @@ export const TILEGRID_ORIGIN = [2420000, 1350000]
 
 /**
  * Resolutions for each LV95 zoom level, from 0 to 14
+ *
  * @type {number[]}
  */
 export const LV95_RESOLUTIONS = [

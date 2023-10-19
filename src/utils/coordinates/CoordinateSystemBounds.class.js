@@ -3,9 +3,9 @@ import clip from 'liang-barsky'
 /**
  * Representation of boundaries of a coordinate system (also sometime called extent)
  *
- * It is expressed by the most bottom left points possible / top right point possible,
- * meaning that a combination of these two gives us the area in which the coordinate
- * system can produce valid coordinates
+ * It is expressed by the most bottom left points possible / top right point possible, meaning that
+ * a combination of these two gives us the area in which the coordinate system can produce valid
+ * coordinates
  */
 export default class CoordinateSystemBounds {
     /**
@@ -40,7 +40,7 @@ export default class CoordinateSystemBounds {
     /**
      * Returns a flatten version of the bounds such as [lowerX, lowerY, upperX, upperY]
      *
-     * @return {Number[]}
+     * @returns {Number[]}
      */
     get flatten() {
         return [this.lowerX, this.lowerY, this.upperX, this.upperY]
@@ -56,15 +56,16 @@ export default class CoordinateSystemBounds {
 
     /**
      * Will split the coordinates in chunks if some portion of the coordinates are outside bounds
-     * (one chunk for the portion inside, one for the portion outside, rinse and repeat if necessary)
+     * (one chunk for the portion inside, one for the portion outside, rinse and repeat if
+     * necessary)
      *
-     * Can be helpful when requesting information from our backends, but said backend doesn't support
-     * world-wide coverage. Typical example is service-profile, if we give it coordinates outside LV95
-     * bounds it will fill what it doesn't know with coordinates following LV95 extent instead of
-     * returning null
+     * Can be helpful when requesting information from our backends, but said backend doesn't
+     * support world-wide coverage. Typical example is service-profile, if we give it coordinates
+     * outside LV95 bounds it will fill what it doesn't know with coordinates following LV95 extent
+     * instead of returning null
      *
-     * @param {[Number, Number][]} coordinates Coordinates
-     *   `[[x1,y1],[x2,y2],...]` expressed in the same coordinate system (projection) as the bounds
+     * @param {[Number, Number][]} coordinates Coordinates `[[x1,y1],[x2,y2],...]` expressed in the
+     *   same coordinate system (projection) as the bounds
      * @returns {null | CoordinatesChunk[]}
      */
     splitIfOutOfBounds(coordinates) {

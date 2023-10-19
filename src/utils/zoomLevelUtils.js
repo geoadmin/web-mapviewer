@@ -39,10 +39,11 @@ export const translateSwisstopoPyramidZoomToMercatorZoom = (swisstopoPyramidZoom
 }
 
 /**
- * Mapping between Web-Mercator zoom levels and Swiss map zooms. It will find the closest (ceil) LV95 zoom level for the given mercator zoom
+ * Mapping between Web-Mercator zoom levels and Swiss map zooms. It will find the closest (ceil)
+ * LV95 zoom level for the given mercator zoom
  *
  * @param {Number} mercatorZoom
- * @return {Number}
+ * @returns {Number}
  */
 export const translateMercatorZoomToSwisstopoPyramidZoom = (mercatorZoom) => {
     // checking first if the mercator zoom level is within range of LV95 zoom we have available

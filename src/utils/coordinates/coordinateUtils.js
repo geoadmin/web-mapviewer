@@ -49,7 +49,8 @@ export const reprojectUnknownSrsCoordsToWGS84 = (x, y) => {
  *
  * @param {[Number, Number]} coordinate The raw coordinate as array.
  * @param {Number} digits Decimal digits to round to.
- * @param {Boolean} withThousandsSeparator If thousands should be separated with a single quote character
+ * @param {Boolean} withThousandsSeparator If thousands should be separated with a single quote
+ *   character
  * @returns {String} Formatted coordinate.
  * @see https://stackoverflow.com/a/2901298/4840446
  */

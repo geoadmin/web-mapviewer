@@ -190,8 +190,8 @@ export class EditableFeature extends SelectableFeature {
     }
 
     /**
-     * Create a new Editable Features. Omitted parameters means the
-     * default value of the constructor will be used.
+     * Create a new Editable Features. Omitted parameters means the default value of the constructor
+     * will be used.
      *
      * @param {any} obj An object with key value pairs for the parameters of the constructor
      * @returns The new object
@@ -215,8 +215,8 @@ export class EditableFeature extends SelectableFeature {
      * Serialize the EditableFeature into a plain javascript object.
      *
      * NOTE: To avoid projection confusion and simplify the serialization/deserialization process,
-     * the coordinates are not serialized. During deserialization the coordinates are set from
-     * the geometry of the OL Feature.
+     * the coordinates are not serialized. During deserialization the coordinates are set from the
+     * geometry of the OL Feature.
      *
      * @returns {object} The serialized plain object
      */
@@ -489,7 +489,8 @@ export class LayerFeature extends SelectableFeature {
  * @param {Number} screenWidth
  * @param {Number} screenHeight
  * @param {String} lang
- * @param {CoordinateSystem} projection Projection in which the coordinates of the features should be expressed
+ * @param {CoordinateSystem} projection Projection in which the coordinates of the features should
+ *   be expressed
  * @returns {Promise<LayerFeature[]>}
  */
 export const identify = (
@@ -567,7 +568,8 @@ export const identify = (
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
  * @param {String} lang The language for the HTML popup
- * @param {CoordinateSystem} projection Projection in which the coordinates of the features should be expressed
+ * @param {CoordinateSystem} projection Projection in which the coordinates of the features should
+ *   be expressed
  * @returns {Promise<LayerFeature>}
  */
 const getFeature = (layer, featureID, lang = 'en', projection = WEBMERCATOR) => {

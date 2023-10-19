@@ -46,8 +46,6 @@ export const WEBMERCATOR = new CoordinateSystem(
     [917209.87, 5914737.43]
 )
 
-/**
- * Representation of many (available in this app) projection systems
- */
+/** Representation of many (available in this app) projection systems */
 const allCoordinateSystems = [LV95, LV03, WGS84, WEBMERCATOR]
 export default allCoordinateSystems

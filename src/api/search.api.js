@@ -127,7 +127,8 @@ let cancelToken = null
 /**
  * @param {String} queryString The query string that describe what is wanted from the search
  * @param {String} lang The lang ISO code in which the search must be conducted
- * @param {CoordinateSystem} outputProjection the projection in which the search results must be returned
+ * @param {CoordinateSystem} outputProjection The projection in which the search results must be
+ *   returned
  * @returns {Promise<CombinedSearchResults>}
  */
 async function search(queryString = '', lang = '', outputProjection = DEFAULT_PROJECTION) {

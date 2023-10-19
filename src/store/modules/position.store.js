@@ -79,9 +79,12 @@ const state = {
     center: DEFAULT_PROJECTION.defaultCenter,
 
     /**
-     * Projection used to express the position (and subsequently used to define how the mapping framework will have to work under the hood)
+     * Projection used to express the position (and subsequently used to define how the mapping
+     * framework will have to work under the hood)
      *
-     * If LV95 is chosen, the map will use custom resolution to fit Swisstopo's Landeskarte specific zooms (or scales) so that zoom levels will fit the different maps we have (1:500'000, 1:100'000, etc...)
+     * If LV95 is chosen, the map will use custom resolution to fit Swisstopo's Landeskarte specific
+     * zooms (or scales) so that zoom levels will fit the different maps we have (1:500'000,
+     * 1:100'000, etc...)
      *
      * @type {CoordinateSystem}
      */
@@ -91,11 +94,12 @@ const state = {
     crossHair: null,
 
     /**
-     * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system that works with Cesium)
+     * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
+     * that works with Cesium)
      *
      * Will be set to null when the 3D map is not active
      *
-     * @type {CameraPosition|null}
+     * @type {CameraPosition | null}
      */
     camera: null,
 }

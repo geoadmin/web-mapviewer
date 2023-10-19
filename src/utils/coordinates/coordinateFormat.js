@@ -5,15 +5,15 @@ import { formatThousand } from '@/utils/numberUtils'
 import { format as formatCoordinate, toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 
-/**
- * Representation of coordinates in a human-readable format
- */
+/** Representation of coordinates in a human-readable format */
 export class CoordinateFormat {
     /**
      * @param {String} id Used in the code to identify this coordinate format
      * @param {String} label Text shown to the user for this format
-     * @param {CoordinateSystem} requiredInputProjection Which coordinate system coordinates must be in, in order to be formatted
-     * @param {Function} formatCallback Function that formats coordinates into a human-readable string (used by the format function of the instance)
+     * @param {CoordinateSystem} requiredInputProjection Which coordinate system coordinates must be
+     *   in, in order to be formatted
+     * @param {Function} formatCallback Function that formats coordinates into a human-readable
+     *   string (used by the format function of the instance)
      */
     constructor(
         id,
@@ -29,10 +29,12 @@ export class CoordinateFormat {
 
     /**
      * Format given coordinates (represented in the given projection) to a human-readable string
+     *
      * @param {Number[]} coordinates Coordinates such as [x,y]
      * @param {CoordinateSystem} projection Projection used to express the coordinates
-     * @param {boolean} withExtra flags that when set to true will output extra information if available
-     * @return {String} Human-readable representation of the coordinates
+     * @param {boolean} withExtra Flags that when set to true will output extra information if
+     *   available
+     * @returns {String} Human-readable representation of the coordinates
      */
     format(coordinates, projection, withExtra = false) {
         let reprojectedCoordinates = [...coordinates]
@@ -89,9 +91,7 @@ export const MGRSFormat = new CoordinateFormat('MGRS', 'MGRS', WGS84, (coordinat
         .trim()
 )
 
-/**
- * @type {CoordinateFormat[]}
- */
+/** @type {CoordinateFormat[]} */
 const allFormats = [LV95Format, LV03Format, WGS84Format, MercatorFormat, UTMFormat, MGRSFormat]
 
 export default allFormats

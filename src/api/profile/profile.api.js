@@ -96,9 +96,9 @@ async function getProfileDataForChunk(
 /**
  * Gets profile from https://api3.geo.admin.ch/services/sdiservices.html#profile
  *
- * @param {[Number, Number][]} coordinates Coordinates, expressed in the given projection, from which we want
- *   the profile
- *   @param {CoordinateSystem} projection The projection used to describe the coordinates
+ * @param {[Number, Number][]} coordinates Coordinates, expressed in the given projection, from
+ *   which we want the profile
+ * @param {CoordinateSystem} projection The projection used to describe the coordinates
  * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
  *   profile
  */

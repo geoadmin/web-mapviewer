@@ -37,8 +37,8 @@ const Z = 90 // Z
 /**
  * Convert lat/lon to MGRS.
  *
- * @param {number} lat latitude on a WGS84 ellipsoid.
- * @param {number} lon longitude on a WGS84 ellipsoid.
+ * @param {number} lat Latitude on a WGS84 ellipsoid.
+ * @param {number} lon Longitude on a WGS84 ellipsoid.
  * @param {number} [accuracy=5] Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km,
  *   1 for 10 km or 0 for 100 km). Default is `5`
  * @returns {string} The MGRS string for the given location and accuracy.
