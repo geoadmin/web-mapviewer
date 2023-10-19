@@ -1,16 +1,13 @@
 <template>
-    <div class="compare-slider">
-        <font-awesome-icon
-            class="compare-slider-caret-left"
-            :icon="['fas', 'caret-up']"
-            :rotation="270"
-        />
+    <div class="test-slider">
+        <!--<FontAwesomeIcon :icon="['fas', 'square-caret-left']" class="compare-slider-caret-left" /> -->
         <div class="compare-slider-line"></div>
-
-        <font-awesome-icon
+        <!--<FontAwesomeIcon :icon="['fas', 'square-caret-right']" class="compare-slider-caret-right" /> -->
+        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'arrow-left']" />
+        <FontAwesomeIcon
             class="compare-slider-caret-right"
-            :icon="['fas', 'caret-up']"
-            :rotation="90"
+            :icon="['fas', 'arrow-left']"
+            :rotation="180"
         />
     </div>
 </template>
