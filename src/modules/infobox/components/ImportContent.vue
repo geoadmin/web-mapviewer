@@ -4,7 +4,8 @@
             <input
                 ref="importInput"
                 type="text"
-                class="form-control import-input rounded-end"
+                class="form-control import-input"
+                :class="{ 'rounded-end': !importValue?.length }"
                 :placeholder="$t('import_online_placeholder')"
                 :value="importValue"
                 data-cy="import"
@@ -127,11 +128,11 @@ export default {
         },
         buttonText() {
             if (this.uploadBtnStatus === 'loading') {
-                return this.$i18n.t('uploading_file')
+                return this.$i18n.t('parsing_file')
             } else if (this.uploadBtnStatus === 'failed') {
-                return this.$i18n.t('upload_failed')
+                return this.$i18n.t('parse_failed')
             } else if (this.uploadBtnStatus === 'succeeded') {
-                return this.$i18n.t('upload_succeeded')
+                return this.$i18n.t('parse_succeeded')
             }
             return this.$i18n.t('connect')
         },
