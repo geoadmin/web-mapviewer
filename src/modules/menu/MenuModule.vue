@@ -8,7 +8,7 @@
         </transition>
         <HeaderWithSearch v-if="isHeaderShown" class="header" />
         <div
-            v-if="visibleLayersWithTimeConfig.length > 0"
+            v-if="visibleLayersWithTimeConfig.length"
             class="time-sliders m-1 position-absolute"
             :class="{
                 'dev-disclaimer-present': hasDevSiteWarning,
@@ -124,10 +124,8 @@ export default {
             'isMenuTrayShown',
             'hasDevSiteWarning',
             'visibleLayers',
+            'visibleLayersWithTimeConfig',
         ]),
-        visibleLayersWithTimeConfig() {
-            return this.visibleLayers.filter((layer) => layer.timeConfig)
-        },
     },
     watch: {
         previewYear() {
