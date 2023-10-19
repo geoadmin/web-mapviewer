@@ -23,6 +23,7 @@ export default {
         FontAwesomeIcon,
     },
 }
+// TODO : scss translate for positions
 </script>
 
 <style lang="scss" scoped>
@@ -43,7 +44,7 @@ $slider-position: 50%;
 }
 .compare-slider-caret-left {
     position: relative;
-    margin: 2px;
+    translate: 24px;
     top: 50%;
     z-index: $zindex-compare-slider;
     width: 14px;
@@ -55,7 +56,7 @@ $slider-position: 50%;
 .compare-slider-caret-right {
     position: relative;
     top: 50%;
-    margin: 2px;
+    translate: 28px;
     z-index: $zindex-compare-slider;
     width: 14px;
     height: 14px;
@@ -63,11 +64,11 @@ $slider-position: 50%;
     background: red;
 }
 .compare-slider-line {
-    position: absolute;
+    position: relative;
     width: 4px;
     height: 100%;
     left: $slider-position;
-    margin: 2px;
+    margin: auto;
     z-index: $zindex-compare-slider;
     background-color: red;
 }
