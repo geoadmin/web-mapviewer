@@ -1,5 +1,5 @@
 <template>
-    <div class="test-slider">
+    <div class="compare-slider">
         <font-awesome-icon
             class="compare-slider-caret-left"
             :icon="['fas', 'caret-up']"
@@ -23,7 +23,6 @@ export default {
         FontAwesomeIcon,
     },
 }
-// TODO : scss translate for positions
 </script>
 
 <style lang="scss" scoped>
@@ -31,7 +30,7 @@ export default {
 
 $slider-position: 50%;
 
-.test-slider {
+.compare-slider {
     position: absolute;
     top: 0;
     display: inline-block;
