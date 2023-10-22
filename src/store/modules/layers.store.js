@@ -371,14 +371,23 @@ const actions = {
             }
         }
     },
-    setPreviewLayer({ commit, getters }, layerId) {
-        const layer = getters.getLayerConfigById(layerId)
+    /**
+     * @param {AbstractLayer | String} layerIdOrObject
+     * @returns {Number}
+     */
+    setPreviewLayer({ commit, getters }, layerIdOrObject) {
+        let layer = null
+        if (layerIdOrObject instanceof AbstractLayer) {
+            layer = layerIdOrObject.clone()
+        } else {
+            layer = getters.getLayerConfigById(layerIdOrObject)
+        }
         if (layer) {
             const cloned = layer.clone()
             cloned.visible = true
             commit('setPreviewLayer', cloned)
         } else {
-            log.error(`Layer "${layerId}" not found in configs.`)
+            log.error(`Layer "${layerIdOrObject}" not found in configs.`)
         }
     },
     clearPreviewLayer({ commit }) {

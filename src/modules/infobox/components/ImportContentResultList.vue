@@ -23,28 +23,31 @@
                         v-for="(layer, index) in sortedList"
                         :key="`${index}-${layer.externalLayerId}`"
                         :item="layer"
+                        :highlight-id="selectedLayer?.externalLayerId"
                         class="list-item"
-                        :class="{ odd: (index + 1) % 2 }"
-                        @click-on-item="() => addLayer(layer)"
-                        @preview-start="() => {}"
-                        @preview-stop="() => {}"
+                        :class="{
+                            odd: (index + 1) % 2,
+                        }"
+                        @click-on-item="onItemClick"
+                        @preview-start="onPreviewStart"
+                        @preview-stop="onPreviewStop"
                     />
                 </div>
             </div>
             <div class="d-flex flex-column flex-grow-1 description-container">
                 <span class="description-title">{{ $t('description') }}</span>
-                <textarea class="description-text" readonly></textarea>
+                <textarea class="description-text" :value="description" readonly></textarea>
                 <div
                     class="add-btn-container mb-2"
                     :class="{
-                        disabled: true,
+                        disabled: !selectedLayer,
                     }"
                 >
                     <button
                         type="button"
                         class="btn btn-outline-secondary add-btn mt-1 w-100"
-                        :disabled="true"
-                        @click="() => {}"
+                        :disabled="!selectedLayer"
+                        @click="onAddLayer"
                     >
                         {{ $t('add_layer') }}
                     </button>
@@ -58,6 +61,7 @@
 import { mapActions } from 'vuex'
 import ImportContentResultItem from './ImportContentResultItem.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 
 export default {
     components: { ImportContentResultItem, FontAwesomeIcon },
@@ -70,6 +74,8 @@ export default {
     data() {
         return {
             revertSort: false,
+            selectedLayer: undefined,
+            description: '',
         }
     },
     computed: {
@@ -91,6 +97,29 @@ export default {
         ...mapActions(['addLayer', 'setPreviewLayer', 'clearPreviewLayer']),
         toggleSort() {
             this.revertSort = !this.revertSort
+        },
+        onItemClick(layer) {
+            if (this.selectedLayer?.externalLayerId === layer.externalLayerId) {
+                this.selectedLayer = undefined
+                this.description = ''
+            } else {
+                this.selectedLayer = layer
+                this.description = this.selectedLayer.abstract
+            }
+        },
+        onPreviewStart(layer) {
+            this.setPreviewLayer(layer)
+            if (!this.selectedLayer) {
+                this.description = layer.abstract
+            }
+        },
+        onPreviewStop() {
+            this.clearPreviewLayer()
+        },
+        onAddLayer() {
+            if (this.selectedLayer) {
+                this.addLayer(this.selectedLayer)
+            }
         },
     },
 }
@@ -121,12 +150,6 @@ export default {
     height: 300px;
     .list-item:not(:last-child) {
         border-bottom: 1px solid $gray-300;
-    }
-    .list-item {
-        background-color: $gray-100;
-    }
-    .list-item.odd {
-        background-color: white;
     }
 }
 .description-container {

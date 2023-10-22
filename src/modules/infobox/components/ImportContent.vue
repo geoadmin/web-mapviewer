@@ -99,7 +99,7 @@ export default {
             listShown: false,
             // 'default | 'loading | 'failed' | 'succeeded'
             uploadBtnStatus: 'default',
-            importedLayers: [], // todo just for test
+            importedLayers: [],
         }
     },
     computed: {
@@ -190,14 +190,12 @@ export default {
             if (isWmsGetCap(fileContent)) {
                 const parser = new WMSCapabilities()
                 const getCap = parser.read(fileContent)
-                // todo just for test
                 this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
                     getCapWMSLayers(getCap, l)
                 ).filter((l) => !!l)
             } else if (isWmtsGetCap(fileContent)) {
                 const parser = new WMTSCapabilities()
                 const getCap = parser.read(fileContent)
-                // todo just for test
                 this.importedLayers = getCap.Contents.Layer.map((l) =>
                     getCapWMTSLayers(url, getCap, l)
                 ).filter((l) => !!l)

@@ -1,13 +1,16 @@
 <template>
-    <div class="import-list-item" data-cy="topic-tree-item">
+    <div class="import-list-item">
         <div
             class="import-list-item-title"
+            :class="{
+                selected: item.externalLayerId === highlightId,
+            }"
             @click="onItemClick"
             @mouseenter="startResultPreview"
             @mouseleave="stopResultPreview"
         >
             <div v-if="depth > 0" class="vr"></div>
-            <button class="btn d-flex align-items-center zoom-btn">
+            <button class="btn d-flex align-items-center zoom-btn" @click="zoomToLayer">
                 <FontAwesomeIcon icon="fa fa-search-plus" />
                 <div class="vr ms-2"></div>
             </button>
@@ -36,6 +39,7 @@
                     :key="`${index}-${layer.externalLayerId}`"
                     :item="layer"
                     :depth="depth + 1"
+                    :highlight-id="highlightId"
                     @click-on-item="bubbleEvent('clickOnItem', $event)"
                     @preview-start="bubbleEvent('previewStart', $event)"
                     @preview-stop="bubbleEvent('previewStop', $event)"
@@ -52,7 +56,7 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-/** Todo add description */
+
 export default {
     name: 'ImportContentResultItem',
     components: {
@@ -68,6 +72,10 @@ export default {
         depth: {
             type: Number,
             default: 0,
+        },
+        highlightId: {
+            type: String,
+            default: undefined,
         },
     },
     emits: ['clickOnItem', 'previewStart', 'previewStop'],
@@ -85,14 +93,19 @@ export default {
         },
     },
     methods: {
-        toggleItem() {
+        toggleItem(event) {
+            event.stopPropagation()
             this.showChildren = !this.showChildren
         },
+        zoomToLayer(event) {
+            event.stopPropagation()
+            // todo
+        },
         onItemClick() {
-            if (this.isLayer) this.$emit('clickOnItem', this.item.externalLayerId)
+            this.$emit('clickOnItem', this.item)
         },
         startResultPreview() {
-            this.$emit('previewStart', this.item.externalLayerId)
+            this.$emit('previewStart', this.item)
         },
         stopResultPreview() {
             this.$emit('previewStop')
@@ -119,6 +132,20 @@ export default {
         border: none;
     }
 }
+.import-list-item {
+    background-color: $gray-100;
+}
+.import-list-item.odd {
+    background-color: white;
+}
+.import-list-item-title.selected:hover,
+.import-list-item-title.selected {
+    background-color: $green-100;
+}
+
+.import-list-item-title:hover {
+    background-color: $smoke;
+}
 .import-list-item-title {
     @extend .menu-title;
     cursor: pointer;
@@ -140,6 +167,13 @@ export default {
     @extend .menu-list;
     border-top: 1px solid $gray-400;
     background: white;
+    .import-list-item-title {
+        padding: 0;
+    }
+    .import-list-item {
+        background: white;
+        padding-left: 0.8rem;
+    }
 }
 .zoom-btn:active {
     transform: scale(1.2);

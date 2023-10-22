@@ -64,7 +64,7 @@ export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
     // Go through the child to get valid layers
     if (layer.Layer?.length) {
         const layers = layer.Layer.map((l) => getCapWMSLayers(getCap, l))
-        return new ExternalGroupOfLayers(layer.Title, wmsUrl, layers)
+        return new ExternalGroupOfLayers(layer.Title, wmsUrl, layers, layer.Abstract)
     }
     const attribution = layer.Attribution || getCap.Capability.Layer.Attribution || getCap.Service
     return new ExternalWMSLayer(
@@ -74,7 +74,9 @@ export function getCapWMSLayers(getCap, layer, visible = true, opacity = 1) {
         wmsUrl,
         layer.Name,
         [new LayerAttribution(attribution.Title, attribution.OnlineResource)],
-        getCap.version
+        getCap.version,
+        'png',
+        layer.Abstract
     )
 }
 
