@@ -1,5 +1,6 @@
+import log from '@/utils/logging'
 import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,
@@ -27,9 +28,11 @@ export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
  * - Generating the measure styles that the measure feature uses to display intermediate distances,
  *   the total distance, the azimuth circle, and, in case of a polygon, the total area.
  *
- * Terminology used: Segment: Array of two coordinates describing a segment of the drawn line
- * Subsegment: This class will break the above mentioned segments up in subsegments to approximate a
- * geodesic line.
+ * Terminology used:
+ *
+ * - Segment: Array of two coordinates describing a segment of the drawn line
+ * - Subsegment: This class will break the above mentioned segments up in subsegments to approximate a
+ *   geodesic line.
  *
  * Won't fix: When drawing across the dateline and zooming near at the dateline, the drawn line may
  * disappear. This is because we cut the linestrings only ca. at 180deg and not exactly at 180deg.
@@ -69,8 +72,9 @@ export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
  * @property {Style} azimuthCircleStyle Style for the azimuth circle
  */
 export class GeodesicGeometries {
-    constructor(feature) {
+    constructor(feature, projection) {
         this.feature = feature
+        this.projection = projection
         this.featureRevision = feature.getRevision()
         if (
             !(this.feature.getGeometry() instanceof Polygon) &&
@@ -85,18 +89,33 @@ export class GeodesicGeometries {
     }
 
     _calculateEverything() {
-        this.geom = this.feature.getGeometry().clone().transform(WEBMERCATOR.epsg, WGS84.epsg)
+        this.geom = this.feature.getGeometry().clone().transform(this.projection.epsg, WGS84.epsg)
         this.coords = this.geom.getCoordinates()
         this.isDrawing = this.feature.get('isDrawing')
         this.isPolygon = false
         if (this.geom instanceof Polygon) {
+            // A Polygon is an array of Polygons, but because we don't support multi polygons
+            // we keep only the first polygon here.
+            if (this.geom.getCoordinates().length > 1) {
+                log.error(`Multi Polygon not supported in geodesic manager`)
+            }
             this.coords = this.geom.getCoordinates()[0]
             if (this.isDrawing) {
+                // When starting the drawing mode, it uses always Polygon. The polygon
+                // will be converted if needed to a LineString when the drawing mode is ended.
+                // Forming a polygon in drawing mode, automatically end the drawing mode (because
+                // we don't support multi polygon).
+                // Because of this, the coordinates always have the last point equal to the first
+                // point in order to form a polygon. That's why we remove the last point for the
+                // calculation.
                 this.coords = this.coords.slice(0, -1)
             } else {
                 this.isPolygon = true
             }
         }
+        // The azimuth circle is only for non polygon and if we have two points.
+        // If we have 3 points check that the last two points are different otherwise also
+        // show the azimuth circle.
         this.hasAzimuthCircle =
             !this.isPolygon &&
             (this.coords.length === 2 ||
@@ -180,8 +199,8 @@ export class GeodesicGeometries {
 
     _calculateGeodesicCoords() {
         let currentDistance = 0
-        const measurePoints = new MeasureStyles(this.resolution)
-        const geodesicCoords = new AutoSplitArray()
+        const measurePoints = new MeasureStyles(this.resolution, this.projection.epsg)
+        const geodesicCoords = new AutoSplitArray(this.projection.epsg)
         const segments = []
         for (let i = 0; i < this.coords.length - 1; i++) {
             const from = coordNormalize(this.coords[i])
@@ -228,7 +247,7 @@ export class GeodesicGeometries {
         if (this.hasAzimuthCircle) {
             const nbPoints = 1000
             const arcLength = 360 / nbPoints
-            const circleCoords = new AutoSplitArray()
+            const circleCoords = new AutoSplitArray(this.projection.epsg)
             for (let i = 0; i <= nbPoints; i++) {
                 const res = geod.Direct(
                     this.coords[0][1],
@@ -317,7 +336,7 @@ export class GeodesicGeometries {
                 text: getTooltipTextBox(lengthText),
                 geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
                     WGS84.epsg,
-                    WEBMERCATOR.epsg
+                    this.projection.epsg
                 ),
                 zIndex: 40,
             })
@@ -425,8 +444,9 @@ const getTooltipTextBox = (text) =>
  * display these points on the line.
  */
 class MeasureStyles {
-    constructor(resolution) {
+    constructor(resolution, epsg) {
         this.resolution = resolution
+        this.epsg = epsg
         this.top10Styles = []
         this.top100Styles = []
         this.styles = []
@@ -465,7 +485,7 @@ class MeasureStyles {
                 scale: 1,
                 offsetY: -15,
             }),
-            geometry: new Point(point).transform(WGS84.epsg, WEBMERCATOR.epsg),
+            geometry: new Point(point).transform(WGS84.epsg, this.epsg),
             zIndex: 21,
         })
     }
@@ -498,7 +518,8 @@ class MeasureStyles {
  * - As a list of subsegments
  */
 class AutoSplitArray {
-    constructor() {
+    constructor(epsg) {
+        this.epsg = epsg
         this.lastCoord = null
 
         this.lineStrNr = 0
@@ -553,8 +574,8 @@ class AutoSplitArray {
         if (this.segmentNr >= 0 && this.lineStrings[this.lineStrNr].length > 1) {
             const lastCoord = [this.lastCoord.lon, this.lastCoord.lat]
             let subsegment = [
-                proj4(WGS84.epsg, WEBMERCATOR.epsg, lastCoord),
-                proj4(WGS84.epsg, WEBMERCATOR.epsg, coord),
+                proj4(WGS84.epsg, this.epsg, lastCoord),
+                proj4(WGS84.epsg, this.epsg, coord),
             ]
             subsegment[1][0] += offset * 2 * HALFSIZE_WEBMERCATOR
             const subsegmentExtent = boundingExtent(subsegment)
@@ -575,7 +596,7 @@ class AutoSplitArray {
         if (this.lineStrings[this.lineStrNr].length <= 1) {
             this.lineStrings.pop()
         }
-        return new MultiLineString(this.lineStrings).transform(WGS84.epsg, WEBMERCATOR.epsg)
+        return new MultiLineString(this.lineStrings).transform(WGS84.epsg, this.epsg)
     }
     /**
      * @param {GeodesicGeometries} geodesic
@@ -607,6 +628,6 @@ class AutoSplitArray {
                 coords.push(first)
                 return [coords]
             })
-        ).transform(WGS84.epsg, WEBMERCATOR.epsg)
+        ).transform(WGS84.epsg, this.epsg)
     }
 }

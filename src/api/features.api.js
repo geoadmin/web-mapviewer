@@ -1,7 +1,6 @@
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -244,10 +243,11 @@ export class EditableFeature extends SelectableFeature {
      *
      * @param {ol/Feature} olFeature An olFeature that was just deserialized with
      * @param {DrawingIconSet[]} availableIconSets Icon sets to use for the EditableFeature.
+     * @param {CoordinateSystem} projection Projection currently in use
      * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
      *   otherwise
      */
-    static deserialize(olFeature, availableIconSets) {
+    static deserialize(olFeature, availableIconSets, projection) {
         let editableFeature = olFeature.get('editableFeature')
         // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
         // will not be present, and we will have to rebuild one from the styles tags in the KML
@@ -279,7 +279,7 @@ export class EditableFeature extends SelectableFeature {
                 if present. The lines connecting the vertices of the geometry will appear
                 geodesic (follow the shortest path) in this case instead of linear (be straight on
                 the screen)  */
-                olFeature.geodesic = new GeodesicGeometries(olFeature)
+                olFeature.geodesic = new GeodesicGeometries(olFeature, projection)
             }
         }
         return editableFeature
@@ -500,7 +500,7 @@ export const identify = (
     screenWidth,
     screenHeight,
     lang,
-    projection = WEBMERCATOR
+    projection
 ) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
@@ -543,7 +543,7 @@ export const identify = (
                 if (response.data && response.data.results && response.data.results.length > 0) {
                     // for each feature that has been identify, we will now load their metadata and tooltip content
                     response.data.results.forEach((feature) => {
-                        featureRequests.push(getFeature(layer, feature.id, lang, projection))
+                        featureRequests.push(getFeature(layer, feature.id, projection, lang))
                     })
                     Promise.all(featureRequests)
                         .then((values) => {
@@ -567,12 +567,12 @@ export const identify = (
  *
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
- * @param {String} lang The language for the HTML popup
  * @param {CoordinateSystem} projection Projection in which the coordinates of the features should
  *   be expressed
+ * @param {String} lang The language for the HTML popup
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, lang = 'en', projection = WEBMERCATOR) => {
+const getFeature = (layer, featureID, projection, lang = 'en') => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             reject('Needs a valid layer with an ID')

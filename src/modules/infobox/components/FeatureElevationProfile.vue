@@ -35,7 +35,6 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import getProfile from '@/api/profile/profile.api'
-import { DEFAULT_PROJECTION } from '@/config'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
@@ -66,7 +65,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
+            required: true,
         },
     },
     emits: ['updateElevationProfilePlot'],

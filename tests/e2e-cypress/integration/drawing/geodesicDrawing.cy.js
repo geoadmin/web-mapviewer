@@ -1,9 +1,7 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import {
-    extractOlFeatureCoordinates,
-    wrapWebmercatorCoords,
-} from '@/modules/drawing/lib/drawingUtils'
+import { extractOlFeatureCoordinates, wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const olSelector = '.ol-viewport'
 
@@ -125,7 +123,7 @@ describe('Correct handling of geodesic geometries', () => {
                 now, as we store the coordinates in their normalized form (We didn't normalize it
                 before drawing as we want to simulate a normal user that draws across the datetime
                 limit)*/
-                const lineDrawn = wrapWebmercatorCoords(lineToDraw)
+                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const centerOfLinearLine = offsetX([x + 500000, y], selectOffset)
@@ -133,7 +131,7 @@ describe('Correct handling of geodesic geometries', () => {
                 const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset)
                 const drawnLineWithCenterPoint = [
                     lineDrawn[0],
-                    wrapWebmercatorCoords(centerOfGeodesicLine),
+                    wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
                     lineDrawn[1],
                 ]
                 // As the line is not linear, clicking where the linear line passes should not trigger the
@@ -213,7 +211,7 @@ describe('Correct handling of geodesic geometries', () => {
                     [x, y],
                 ]
                 drawFeature(offsetX(lineToDraw, drawOffset), type)
-                const lineDrawn = wrapWebmercatorCoords(lineToDraw)
+                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const inLinearPolygon = [

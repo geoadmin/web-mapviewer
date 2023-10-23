@@ -47,8 +47,8 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
                             getFeature(
                                 selectedFeature.layer,
                                 selectedFeature.featureId,
-                                state.i18n.currentLang,
-                                newProjection
+                                newProjection,
+                                state.i18n.currentLang
                             ).then((feature) => reprojectedSelectedFeatures.push(feature))
                         )
                     } else if (selectedFeature.isEditable) {

@@ -2,7 +2,7 @@ import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import axios from 'axios'
@@ -29,12 +29,7 @@ function parseProfileFromBackendResponse(backendResponse, startingDist, outputPr
  * @param {CoordinateSystem} outputProjection
  * @returns {ElevationProfile}
  */
-async function getProfileDataForChunk(
-    chunk,
-    startingPoint,
-    startingDist = 0,
-    outputProjection = WEBMERCATOR
-) {
+async function getProfileDataForChunk(chunk, startingPoint, startingDist, outputProjection) {
     if (chunk.isWithinBounds) {
         try {
             const dataForChunk = await axios({
@@ -102,7 +97,7 @@ async function getProfileDataForChunk(
  * @returns {ElevationProfile | null} The profile, or null if there was no valid data to produce a
  *   profile
  */
-export default async (coordinates, projection = WEBMERCATOR) => {
+export default async (coordinates, projection) => {
     if (!coordinates || coordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
         log.error(errorMessage)

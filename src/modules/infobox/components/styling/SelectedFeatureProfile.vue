@@ -19,8 +19,8 @@
 <script>
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { mapState } from 'vuex'
 
 export default {
     components: { FontAwesomeIcon },
@@ -31,6 +31,7 @@ export default {
         },
     },
     computed: {
+        ...mapState({ projection: (state) => state.position.projection }),
         geometry: function () {
             return (
                 this.feature &&
@@ -43,7 +44,7 @@ export default {
                 return geometryInfo(
                     this.geometry.getType(),
                     this.geometry.getCoordinates(),
-                    WEBMERCATOR.epsg
+                    this.projection.epsg
                 )
             }
             return null

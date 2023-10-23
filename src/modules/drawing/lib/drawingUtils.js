@@ -1,4 +1,4 @@
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { format } from '@/utils/numberUtils'
 import { wrapX } from 'ol/coordinate'
 import { LineString, Point, Polygon } from 'ol/geom'
@@ -12,29 +12,6 @@ export function toLv95(input, epsg) {
         return input.map((si) => toLv95(si, epsg))
     } else {
         return proj4(epsg, LV95.epsg, [input[0], input[1]])
-    }
-}
-
-/**
- * Wraps the provided webmercator coordinates in the world extents (i.e. the coordinate range that
- * if equivalent to the wgs84 [-180, 180))
- *
- * @param coords The coordinates (or array of coordinates) to wrap
- * @param inPlace If false, the original coordinates remain untouched and only a copy is modified
- * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
- */
-export function wrapWebmercatorCoords(coords, inPlace = false) {
-    if (inPlace) {
-        if (Array.isArray(coords[0])) {
-            coords.forEach((coords) => wrapWebmercatorCoords(coords, true))
-            return coords
-        } else {
-            return wrapX(coords, getProjection(WEBMERCATOR.epsg))
-        }
-    } else {
-        return Array.isArray(coords[0])
-            ? coords.map((coords) => wrapWebmercatorCoords(coords, false))
-            : wrapX(coords.slice(), getProjection(WEBMERCATOR.epsg))
     }
 }
 
@@ -194,7 +171,7 @@ export function getVertexCoordinates(feature) {
  * Parse KML file into OL Features including deserialization of EditableFeature
  *
  * @param {String} kml KML content to parse
- * @param {ol/Projection} projection Projection to use for the OL Feature
+ * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
@@ -204,7 +181,7 @@ export function parseKml(kml, projection, iconSets) {
         featureProjection: projection.epsg,
     })
     features.forEach((olFeature) => {
-        EditableFeature.deserialize(olFeature, iconSets)
+        EditableFeature.deserialize(olFeature, iconSets, projection)
     })
 
     return features

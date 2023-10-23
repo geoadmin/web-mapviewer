@@ -2,10 +2,11 @@
     <slot />
 </template>
 <script>
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 import { CallbackProperty, Cartesian3, Color, Ellipsoid, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
+import { mapState } from 'vuex'
 
 export default {
     inject: ['getViewer'],
@@ -18,6 +19,11 @@ export default {
             type: FeatureStyleColor,
             default: RED,
         },
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     watch: {
         coordinates(newCoordinates) {
@@ -70,7 +76,7 @@ export default {
             this.getViewer()?.entities.remove(this.trackingPoint)
         },
         updatePosition() {
-            const wgs84Position = proj4(LV95.epsg, WGS84.epsg, this.coordinates)
+            const wgs84Position = proj4(this.projection.epsg, WGS84.epsg, this.coordinates)
             Cartesian3.fromDegrees(
                 wgs84Position[0],
                 wgs84Position[1],
