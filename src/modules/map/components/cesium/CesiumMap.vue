@@ -138,6 +138,7 @@ export default {
             previewYear: (state) => state.layers.previewYear,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            projection: (state) => state.position.projection,
         }),
         ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
         isDesktopMode() {
@@ -286,7 +287,7 @@ export default {
             const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
             const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
             const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
-            this.setCenter(proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]))
+            this.setCenter(proj4(WGS84.epsg, this.projection.epsg, [lon, lat]))
         }
     },
     unmounted() {
