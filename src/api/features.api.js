@@ -243,10 +243,11 @@ export class EditableFeature extends SelectableFeature {
      *
      * @param {ol/Feature} olFeature An olFeature that was just deserialized with
      * @param {DrawingIconSet[]} availableIconSets Icon sets to use for the EditableFeature.
+     * @param {CoordinateSystem} projection Projection currently in use
      * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
      *   otherwise
      */
-    static deserialize(olFeature, availableIconSets) {
+    static deserialize(olFeature, availableIconSets, projection) {
         let editableFeature = olFeature.get('editableFeature')
         // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
         // will not be present, and we will have to rebuild one from the styles tags in the KML
@@ -278,7 +279,7 @@ export class EditableFeature extends SelectableFeature {
                 if present. The lines connecting the vertices of the geometry will appear
                 geodesic (follow the shortest path) in this case instead of linear (be straight on
                 the screen)  */
-                olFeature.geodesic = new GeodesicGeometries(olFeature)
+                olFeature.geodesic = new GeodesicGeometries(olFeature, projection)
             }
         }
         return editableFeature

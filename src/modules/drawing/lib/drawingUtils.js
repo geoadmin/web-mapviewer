@@ -194,7 +194,7 @@ export function getVertexCoordinates(feature) {
  * Parse KML file into OL Features including deserialization of EditableFeature
  *
  * @param {String} kml KML content to parse
- * @param {ol/Projection} projection Projection to use for the OL Feature
+ * @param {CoordinateSystem} projection Projection to use for the OL Feature
  * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
  * @returns {ol/Feature[]} List of OL Features
  */
@@ -204,7 +204,7 @@ export function parseKml(kml, projection, iconSets) {
         featureProjection: projection.epsg,
     })
     features.forEach((olFeature) => {
-        EditableFeature.deserialize(olFeature, iconSets)
+        EditableFeature.deserialize(olFeature, iconSets, projection)
     })
 
     return features

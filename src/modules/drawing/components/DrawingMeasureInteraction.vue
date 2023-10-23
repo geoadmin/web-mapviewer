@@ -32,7 +32,7 @@ export default {
          * See {@link drawingInteractionMixin}
          */
         onDrawStart(feature) {
-            feature.geodesic = new GeodesicGeometries(feature)
+            feature.geodesic = new GeodesicGeometries(feature, this.projection)
         },
     },
 }
