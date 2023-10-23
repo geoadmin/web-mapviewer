@@ -10,10 +10,21 @@
             @mouseleave="stopResultPreview"
         >
             <div v-if="depth > 0" class="vr"></div>
-            <button class="btn d-flex align-items-center zoom-btn" @click="zoomToLayer">
-                <FontAwesomeIcon icon="fa fa-search-plus" />
-                <div class="vr ms-2"></div>
-            </button>
+            <div
+                class="zoom-btn-container"
+                :class="{
+                    disabled: !item.extent?.length,
+                }"
+            >
+                <button
+                    class="btn d-flex align-items-center zoom-btn"
+                    :disabled="!item.extent?.length"
+                    @click="zoomToLayer"
+                >
+                    <FontAwesomeIcon icon="fa fa-search-plus" />
+                    <div class="vr ms-2"></div>
+                </button>
+            </div>
             <button
                 class="btn d-flex align-items-center"
                 :class="{
@@ -32,7 +43,7 @@
             <div
                 v-show="showChildren"
                 class="import-list-item-children"
-                :class="`ps-${4 + 2 * depth}`"
+                :class="`ps-${5 + 2 * depth}`"
             >
                 <ImportContentResultItem
                     v-for="(layer, index) in item.layers"
@@ -56,6 +67,7 @@ import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTrans
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { mapActions } from 'vuex'
 
 export default {
     name: 'ImportContentResultItem',
@@ -93,13 +105,14 @@ export default {
         },
     },
     methods: {
+        ...mapActions(['zoomToExtent']),
         toggleItem(event) {
             event.stopPropagation()
             this.showChildren = !this.showChildren
         },
         zoomToLayer(event) {
             event.stopPropagation()
-            // todo
+            this.zoomToExtent(this.item.extent)
         },
         onItemClick() {
             this.$emit('clickOnItem', this.item)
@@ -172,10 +185,12 @@ export default {
     }
     .import-list-item {
         background: white;
-        padding-left: 0.8rem;
     }
 }
 .zoom-btn:active {
     transform: scale(1.2);
+}
+.zoom-btn-container.disabled {
+    cursor: not-allowed;
 }
 </style>

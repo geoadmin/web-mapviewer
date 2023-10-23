@@ -69,6 +69,7 @@
         <ImportContentResultList
             v-if="importedLayers?.length"
             :imported-layers="importedLayers"
+            :max-size="wmsMaxSize"
         ></ImportContentResultList>
     </div>
 </template>
@@ -100,6 +101,7 @@ export default {
             // 'default | 'loading | 'failed' | 'succeeded'
             uploadBtnStatus: 'default',
             importedLayers: [],
+            wmsMaxSize: undefined,
         }
     },
     computed: {
@@ -187,9 +189,16 @@ export default {
                 .focus()
         },
         handleFileContent(fileContent, url) {
+            this.wmsMaxSize = undefined
             if (isWmsGetCap(fileContent)) {
                 const parser = new WMSCapabilities()
                 const getCap = parser.read(fileContent)
+                if (getCap.Service.MaxWidth && getCap.Service.MaxHeight) {
+                    this.wmsMaxSize = {
+                        width: getCap.Service.MaxWidth,
+                        height: getCap.Service.MaxHeight,
+                    }
+                }
                 this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
                     getCapWMSLayers(getCap, l)
                 ).filter((l) => !!l)
@@ -234,12 +243,9 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .import-overlay-content {
-    height: 450px;
     overflow: hidden;
-}
-
-.import-input {
     font-size: 0.825rem;
+    height: min(450px, 35vh);
 }
 
 .import-input:focus {

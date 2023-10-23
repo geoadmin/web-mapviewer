@@ -28,7 +28,7 @@
             v-if="layerConfig.type === LayerTypes.WMS"
             :wms-layer-config="layerConfig"
             :preview-year="previewYear"
-            :projection="layerConfig.isExternal ? WEBMERCATOR.epsg : LV95"
+            :projection="layerConfig.isExternal ? WEBMERCATOR : LV95"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer

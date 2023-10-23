@@ -1,6 +1,8 @@
 <template>
-    <div class="d-flex flex-column">
-        <div></div>
+    <div class="d-flex flex-column results-list-container">
+        <div v-if="maxSize">
+            {{ $t('wms_max_size_allowed') }} {{ maxSize.width }} * {{ maxSize.height }}
+        </div>
         <div class="results-container gap-4">
             <div class="flex-grow-1 results-table-container">
                 <div class="d-flex justify-content-between align-items-center results-header">
@@ -70,6 +72,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        maxSize: {
+            type: Object,
+            default: undefined,
+        },
     },
     data() {
         return {
@@ -129,9 +135,14 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/scss/media-query.mixin';
 
+.results-list-container {
+    height: calc(100% - 80px);
+}
+
 .results-container {
     display: flex;
     flex-direction: row;
+    height: calc(100% - 20px);
 }
 
 .results-table-container {
@@ -147,7 +158,7 @@ export default {
     font-weight: bold;
 }
 .results-list {
-    height: 300px;
+    height: calc(100% - 40px);
     .list-item:not(:last-child) {
         border-bottom: 1px solid $gray-300;
     }
@@ -170,7 +181,7 @@ export default {
         flex-direction: column;
     }
     .results-table-container {
-        width: 100%;
+        max-width: 100%;
         .results-list {
             height: 150px;
         }

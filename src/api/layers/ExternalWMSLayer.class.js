@@ -16,6 +16,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
      *   holder (it typically is the hostname of the server for this layer)
      * @param {String} format Image format for this layer, default is PNG
      * @param {String} abstract Abstract of this layer to be shown to the user
+     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
      */
     constructor(
         name,
@@ -26,7 +27,8 @@ export default class ExternalWMSLayer extends ExternalLayer {
         attributions,
         wmsVersion = '1.3.0',
         format = 'png',
-        abstract = ''
+        abstract = '',
+        extent = undefined
     ) {
         super(
             name,
@@ -36,7 +38,8 @@ export default class ExternalWMSLayer extends ExternalLayer {
             opacity,
             visible,
             attributions,
-            abstract
+            abstract,
+            extent
         )
         this.wmsVersion = wmsVersion
         this.format = format
