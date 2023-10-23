@@ -1,7 +1,6 @@
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -500,7 +499,7 @@ export const identify = (
     screenWidth,
     screenHeight,
     lang,
-    projection = WEBMERCATOR
+    projection
 ) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
@@ -572,7 +571,7 @@ export const identify = (
  *   be expressed
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, lang = 'en', projection = WEBMERCATOR) => {
+const getFeature = (layer, featureID, lang = 'en', projection) => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             reject('Needs a valid layer with an ID')

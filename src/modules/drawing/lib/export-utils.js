@@ -1,6 +1,6 @@
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import i18n from '@/modules/i18n/index'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
