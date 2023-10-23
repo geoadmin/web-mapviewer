@@ -42,7 +42,7 @@ $slider-position: 50%;
     z-index: $zindex-compare-slider;
 }
 .compare-slider-caret-left {
-    position: relative;
+    position: absolute;
     translate: 24px;
     top: 50%;
     z-index: $zindex-compare-slider;
@@ -53,9 +53,9 @@ $slider-position: 50%;
 }
 
 .compare-slider-caret-right {
-    position: relative;
+    position: absolute;
     top: 50%;
-    translate: 28px;
+    translate: 42px;
     z-index: $zindex-compare-slider;
     width: 14px;
     height: 14px;
