@@ -16,29 +16,6 @@ export function toLv95(input, epsg) {
 }
 
 /**
- * Wraps the provided webmercator coordinates in the world extents (i.e. the coordinate range that
- * if equivalent to the wgs84 [-180, 180))
- *
- * @param coords The coordinates (or array of coordinates) to wrap
- * @param inPlace If false, the original coordinates remain untouched and only a copy is modified
- * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
- */
-export function wrapWebmercatorCoords(coords, inPlace = false) {
-    if (inPlace) {
-        if (Array.isArray(coords[0])) {
-            coords.forEach((coords) => wrapWebmercatorCoords(coords, true))
-            return coords
-        } else {
-            return wrapX(coords, getProjection(WEBMERCATOR.epsg))
-        }
-    } else {
-        return Array.isArray(coords[0])
-            ? coords.map((coords) => wrapWebmercatorCoords(coords, false))
-            : wrapX(coords.slice(), getProjection(WEBMERCATOR.epsg))
-    }
-}
-
-/**
  * Wraps the provided coordinates in the world extents (i.e. the coordinate range that if equivalent
  * to the wgs84 [-180, 180))
  *
