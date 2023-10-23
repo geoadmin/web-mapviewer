@@ -4,11 +4,9 @@
 
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
-import { DEFAULT_PROJECTION } from '@/config'
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
 import drawingLineMixin from '@/modules/drawing/components/drawingLine.mixin'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 export default {

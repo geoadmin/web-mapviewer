@@ -543,7 +543,7 @@ export const identify = (
                 if (response.data && response.data.results && response.data.results.length > 0) {
                     // for each feature that has been identify, we will now load their metadata and tooltip content
                     response.data.results.forEach((feature) => {
-                        featureRequests.push(getFeature(layer, feature.id, lang, projection))
+                        featureRequests.push(getFeature(layer, feature.id, projection, lang))
                     })
                     Promise.all(featureRequests)
                         .then((values) => {
@@ -567,12 +567,12 @@ export const identify = (
  *
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
- * @param {String} lang The language for the HTML popup
  * @param {CoordinateSystem} projection Projection in which the coordinates of the features should
  *   be expressed
+ * @param {String} lang The language for the HTML popup
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, lang = 'en', projection) => {
+const getFeature = (layer, featureID, projection, lang = 'en') => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             reject('Needs a valid layer with an ID')

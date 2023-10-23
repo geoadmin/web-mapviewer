@@ -113,12 +113,15 @@ export class GeodesicGeometries {
                 this.isPolygon = true
             }
         }
+        // The azimuth circle is only for non polygon and if we have two points.
+        // If we have 3 points check that the last two points are different otherwise also
+        // show the azimuth circle.
         this.hasAzimuthCircle =
             !this.isPolygon &&
             (this.coords.length === 2 ||
-                (this.coords.length === 3 && // ?
-                    this.coords[1][0] === this.coords[2][0] && // ?
-                    this.coords[1][1] === this.coords[2][1])) // ?
+                (this.coords.length === 3 &&
+                    this.coords[1][0] === this.coords[2][0] &&
+                    this.coords[1][1] === this.coords[2][1]))
         this.stylesReady = !(
             this.coords.length < 2 ||
             (this.coords.length === 2 &&
