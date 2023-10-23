@@ -99,6 +99,7 @@ export default {
             return this.activeLayers.length > 0
         },
         disableDrawing() {
+            // TODO BGDIINF_SB-2685: remove this protection once on prod
             if (
                 DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
                     (hostname) => hostname === this.hostname
