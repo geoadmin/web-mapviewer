@@ -17,7 +17,6 @@ $zindex-menu: $zindex-footer + 1;
 $zindex-desktop-footer-infobox: $zindex-menu + 1;
 $zindex-swipable-element: $zindex-menu + 1; //Not used for the moment, please check the value before using it.
 
-
 // Modules teleported to the main stacking context (so that they can be on top of all other elements)
 $zindex-modal: 100;
 $zindex-loading-screen: 101;
