@@ -1,31 +1,34 @@
 <template>
-    <div class="test-slider">
-        <!--<FontAwesomeIcon :icon="['fas', 'square-caret-left']" class="compare-slider-caret-left" /> -->
+    <div class="compare-slider" :style="compareSliderPosition">
+        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'caret-left']" />
         <div class="compare-slider-line"></div>
-        <!--<FontAwesomeIcon :icon="['fas', 'square-caret-right']" class="compare-slider-caret-right" /> -->
-        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'arrow-left']" />
-        <FontAwesomeIcon
-            class="compare-slider-caret-right"
-            :icon="['fas', 'arrow-left']"
-            :rotation="180"
-        />
+
+        <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
     </div>
 </template>
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
+import { mapActions, mapState } from 'vuex'
 export default {
     components: {
         FontAwesomeIcon,
+    },
+    computed: {
+        ...mapState({
+            compareRatio: (state) => state.ui.compareRatio,
+        }),
+        compareSliderPosition() {
+            return {
+                left: this.compareRatio * 100 + '%',
+            }
+        },
     },
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-
-$slider-position: 50%;
 
 .compare-slider {
     position: absolute;
