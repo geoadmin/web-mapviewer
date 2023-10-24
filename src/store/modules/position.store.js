@@ -57,9 +57,7 @@ const state = {
      *
      * @type Number
      */
-    // somehow some unit tests fail to have a proper DEFAULT_PROJECTION, so I've added
-    // an optional operator and fallback value to aleviate that
-    zoom: DEFAULT_PROJECTION?.getDefaultZoom() || 0,
+    zoom: DEFAULT_PROJECTION.getDefaultZoom(),
 
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
@@ -73,9 +71,7 @@ const state = {
      *
      * @type Array<Number>
      */
-    // somehow some unit tests fail to have a proper DEFAULT_PROJECTION, so I've added
-    // an optional operator and fallback value to aleviate that
-    center: DEFAULT_PROJECTION?.bounds.center || [],
+    center: DEFAULT_PROJECTION.bounds.center,
 
     /**
      * Projection used to express the position (and subsequently used to define how the mapping

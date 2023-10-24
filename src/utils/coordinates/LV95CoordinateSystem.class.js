@@ -14,7 +14,7 @@ import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.cla
  * @type {CoordinateSystemBounds}
  * @see https://github.com/geoadmin/mf-geoadmin3/blob/0ec560069e93fdceb54ce126a3c2d0ef23a50f45/mk/config.mk#L140
  */
-const LV95_BOUNDS = new CoordinateSystemBounds(2420000, 1030000, 2900000, 1350000)
+const LV95_BOUNDS = new CoordinateSystemBounds(2420000, 2900000, 1030000, 1350000)
 
 export default class LV95CoordinateSystem extends SwissCoordinateSystem {
     constructor() {

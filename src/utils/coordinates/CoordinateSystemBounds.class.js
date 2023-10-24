@@ -41,7 +41,7 @@ export default class CoordinateSystemBounds {
         if (this.customCenter) {
             return this.customCenter
         }
-        return [(this.lowerX + this.upperX) / 2.0, (this.lowerY + this.upperY) / 2.0]
+        return [(this.lowerX + this.upperX) / 2, (this.lowerY + this.upperY) / 2]
     }
 
     /**

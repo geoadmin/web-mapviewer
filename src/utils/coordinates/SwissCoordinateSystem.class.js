@@ -18,25 +18,18 @@ export const LV95_RESOLUTIONS = [
 ]
 
 /**
- * Origin of the TileGrid (comes from
- * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk})
- *
- * Is expressed as LV95 coordinates.
- *
- * @type {Number[]}
- */
-export const TILEGRID_ORIGIN = [2420000, 1350000]
-
-/**
  * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
  * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
  *
  * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
  * World Wide zoom level (see {@link SwissCoordinateSystem})
  *
+ * It is essentially, at low resolution, the same as {@link LV95_RESOLUTIONS}, but with added steps
+ * at higher zoom level (further from the ground)
+ *
  * @type {Number[]}
  */
-export const TILEGRID_RESOLUTIONS = [
+const TILEGRID_RESOLUTIONS = [
     4000,
     3750,
     3500,
@@ -64,21 +57,21 @@ export const TILEGRID_RESOLUTIONS = [
  * @type {Number[]}
  */
 export const swissPyramidZoomToStandardZoomMatrix = [
-    7.35, // 0
+    7.35, // min: 0
     7.75, // 1
-    8.75,
-    10,
-    11,
-    12.5,
-    13.5,
-    14.5,
-    STANDARD_ZOOM_LEVEL_1_25000_MAP,
-    15.75,
-    16.7,
-    17.75,
-    18.75,
-    20,
-    21,
+    8.75, // 2
+    10, // 3
+    11, // 4
+    12.5, // 5
+    13.5, // 6
+    14.5, // 7
+    STANDARD_ZOOM_LEVEL_1_25000_MAP, // 8
+    15.75, // 9
+    16.7, // 10
+    17.75, // 11
+    18.75, // 12
+    20, // 13
+    21, // max: 14
 ]
 
 /**
@@ -92,8 +85,12 @@ export const swissPyramidZoomToStandardZoomMatrix = [
  * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
  */
 export default class SwissCoordinateSystem extends CustomCoordinateSystem {
+    getResolutions() {
+        return TILEGRID_RESOLUTIONS
+    }
+
     getDefaultZoom() {
-        return 2
+        return 1
     }
 
     transformStandardZoomLevelToCustom(standardZoomLevel) {

@@ -8,17 +8,11 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import {
-    TILEGRID_ORIGIN,
-    TILEGRID_RESOLUTIONS,
-} from '@/utils/coordinates/SwissCoordinateSystem.class'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Tile as TileLayer } from 'ol/layer'
-import { transformExtent } from 'ol/proj'
 import { XYZ as XYZSource } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import proj4 from 'proj4'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 /** Renders a WMTS layer on the map */
@@ -79,45 +73,19 @@ export default {
     },
     methods: {
         createSourceForProjection() {
-            let source = new XYZSource({
+            let tileGrid = null
+            if (this.projection instanceof CustomCoordinateSystem) {
+                tileGrid = new TileGrid({
+                    resolutions: this.projection.getResolutions(),
+                    extent: this.projection.bounds.flatten,
+                    origin: this.projection.getTileOrigin(),
+                })
+            }
+            return new XYZSource({
                 projection: this.projection.epsg,
                 url: this.url,
+                tileGrid,
             })
-            // If we are using LV95, we can constrain the WMTS to only request tiles over Switzerland.
-            // We can also define the resolutions used in the LV95 WMTS pyramid, as it is different from the Mercator pyramid,
-            // otherwise tiles will be requested at a resolution such as they will appear zoomed in.
-            const tileGridLV95 = new TileGrid({
-                resolutions: TILEGRID_RESOLUTIONS,
-                extent: LV95.bounds.flatten,
-                origin: TILEGRID_ORIGIN,
-            })
-            if (this.projection.epsg === LV95.epsg) {
-                // we must redeclare a new instance of XYZ source in this case, see comment below
-                source = new XYZSource({
-                    projection: this.projection.epsg,
-                    url: this.url,
-                    // the TileGrid for the main projection must be declared at construction, otherwise it won't work as intended
-                    // (not possible to use setTileGridForProjection with the main TileGrid, it will go to a different class attributes in OL)
-                    tileGrid: tileGridLV95,
-                })
-            } else if (this.projection.epsg === WEBMERCATOR.epsg) {
-                // Declaring the same tile grid, reprojected to WebMercator, specifically for Mercator uses.
-                // If this is not done, the re-projection formula used internally by OL will render our layer
-                // two times on the map, at the two extremes of the hemisphere. Meaning our map will also be visible near New Zealand...
-                source.setTileGridForProjection(
-                    WEBMERCATOR.epsg,
-                    new TileGrid({
-                        resolutions: TILEGRID_RESOLUTIONS,
-                        origin: proj4(LV95.epsg, WEBMERCATOR.epsg, TILEGRID_ORIGIN),
-                        extent: transformExtent(
-                            tileGridLV95.getExtent(),
-                            LV95.epsg,
-                            WEBMERCATOR.epsg
-                        ),
-                    })
-                )
-            }
-            return source
         },
     },
 }
