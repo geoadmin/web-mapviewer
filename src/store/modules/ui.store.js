@@ -18,6 +18,7 @@ export const UIModes = {
  *
  * @type int
  */
+
 export const COMPARE_SLIDER_DEFAULT_VALUE = -1
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
