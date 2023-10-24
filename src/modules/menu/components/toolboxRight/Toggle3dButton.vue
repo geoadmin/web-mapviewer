@@ -3,7 +3,7 @@
         ref="toggle3dButton"
         class="toolbox-button"
         type="button"
-        :class="{ active: isActive, disabled: !webGlIsSupported }"
+        :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
         data-cy="3d-button"
         @click="toggle3d"
     >
@@ -45,6 +45,7 @@ export default {
         ...mapState({
             isActive: (state) => state.ui.showIn3d,
             currentLang: (state) => state.i18n.lang,
+            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
         tooltipContent() {
             if (this.webGlIsSupported) {
@@ -77,7 +78,7 @@ export default {
     methods: {
         ...mapActions(['setShowIn3d']),
         toggle3d() {
-            if (this.webGlIsSupported) {
+            if (this.webGlIsSupported && !this.showDrawingOverlay) {
                 this.setShowIn3d(!this.isActive)
             }
         },
