@@ -47,6 +47,9 @@ const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
                 <OpenLayersCompassButton />
             </teleport>
             <CompareSlider v-if="isCompareSliderActive" />
+        </OpenLayersMap>
+
+        <WarningRibbon />
     </div>
 </template>
 
