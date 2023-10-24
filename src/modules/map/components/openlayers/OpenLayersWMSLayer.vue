@@ -7,15 +7,13 @@
 <script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import {
-    DEFAULT_PROJECTION,
-    TILEGRID_EXTENT,
-    TILEGRID_ORIGIN,
-    TILEGRID_RESOLUTIONS,
-    WMS_TILE_SIZE,
-} from '@/config'
+import { DEFAULT_PROJECTION, WMS_TILE_SIZE } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import {
+    TILEGRID_ORIGIN,
+    TILEGRID_RESOLUTIONS,
+} from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
@@ -143,7 +141,7 @@ export default {
             }
             const tileGridLV95 = new TileGrid({
                 resolutions: TILEGRID_RESOLUTIONS,
-                extent: TILEGRID_EXTENT,
+                extent: LV95.bounds.flatten,
                 origin: TILEGRID_ORIGIN,
                 tileSize: WMS_TILE_SIZE,
             })

@@ -1,6 +1,8 @@
-import { LV95_RESOLUTIONS } from '@/config'
 import { LV03, LV95 } from '@/utils/coordinates/coordinateSystems'
-import { swissPyramidZoomToStandardZoomMatrix } from '@/utils/coordinates/SwissCoordinateSystem.class'
+import {
+    LV95_RESOLUTIONS,
+    swissPyramidZoomToStandardZoomMatrix,
+} from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { describe, expect, it } from 'vitest'
 
 describe('Unit test functions from SwissCoordinateSystem', () => {

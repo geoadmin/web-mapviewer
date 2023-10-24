@@ -6,14 +6,13 @@
 
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import {
-    DEFAULT_PROJECTION,
-    TILEGRID_EXTENT,
-    TILEGRID_ORIGIN,
-    TILEGRID_RESOLUTIONS,
-} from '@/config'
+import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import {
+    TILEGRID_ORIGIN,
+    TILEGRID_RESOLUTIONS,
+} from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Tile as TileLayer } from 'ol/layer'
 import { transformExtent } from 'ol/proj'
@@ -84,12 +83,12 @@ export default {
                 projection: this.projection.epsg,
                 url: this.url,
             })
-            // If we are using LV95, we can constrain the WMTS to only request tiles over Switzerland
-            // we can also define the resolutions used in the LV95 WMTS pyramid, as it is different from the Mercator pyramid
+            // If we are using LV95, we can constrain the WMTS to only request tiles over Switzerland.
+            // We can also define the resolutions used in the LV95 WMTS pyramid, as it is different from the Mercator pyramid,
             // otherwise tiles will be requested at a resolution such as they will appear zoomed in.
             const tileGridLV95 = new TileGrid({
                 resolutions: TILEGRID_RESOLUTIONS,
-                extent: TILEGRID_EXTENT,
+                extent: LV95.bounds.flatten,
                 origin: TILEGRID_ORIGIN,
             })
             if (this.projection.epsg === LV95.epsg) {
@@ -102,9 +101,9 @@ export default {
                     tileGrid: tileGridLV95,
                 })
             } else if (this.projection.epsg === WEBMERCATOR.epsg) {
-                // declaring the same tile grid, reprojected to WebMercator, specifically for Mercator use
-                // if this is not done, the re-projection formula used internally by OL will render our layer
-                // two times on the map, at the two extremes of the hemisphere. meaning our map will also be visible near New Zealand...
+                // Declaring the same tile grid, reprojected to WebMercator, specifically for Mercator uses.
+                // If this is not done, the re-projection formula used internally by OL will render our layer
+                // two times on the map, at the two extremes of the hemisphere. Meaning our map will also be visible near New Zealand...
                 source.setTileGridForProjection(
                     WEBMERCATOR.epsg,
                     new TileGrid({

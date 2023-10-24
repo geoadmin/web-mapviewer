@@ -1,9 +1,9 @@
 import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
-import { MERCATOR_ZOOM_LEVEL_1_25000_MAP } from '@/utils/zoomLevelUtils'
 
 const state = {
     /**
@@ -53,12 +53,12 @@ const actions = {
             const coordinate = coordinateFromString(query)
             if (coordinate) {
                 dispatch('setCenter', coordinate)
-                dispatch('setZoom', MERCATOR_ZOOM_LEVEL_1_25000_MAP)
+                dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query).then((what3wordLocation) => {
                     dispatch('setCenter', what3wordLocation)
-                    dispatch('setZoom', MERCATOR_ZOOM_LEVEL_1_25000_MAP)
+                    dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {

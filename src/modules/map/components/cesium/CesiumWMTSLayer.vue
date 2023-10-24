@@ -6,8 +6,9 @@
 
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { DEFAULT_PROJECTION, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
@@ -55,7 +56,7 @@ export default {
         createImagery(url) {
             return new ImageryLayer(
                 new UrlTemplateImageryProvider({
-                    rectangle: Rectangle.fromDegrees(...TILEGRID_EXTENT_EPSG_4326),
+                    rectangle: Rectangle.fromDegrees(...LV95.getBoundsAs(WGS84).flatten),
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
                     url: url,
                 }),
@@ -68,5 +69,3 @@ export default {
     },
 }
 </script>
-
-<style scoped lang="scss"></style>

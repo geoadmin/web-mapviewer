@@ -114,7 +114,6 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import {
     IS_TESTING_WITH_CYPRESS,
-    LV95_RESOLUTIONS,
     VECTOR_LIGHT_BASE_MAP_STYLE_ID,
     VIEW_MIN_RESOLUTION,
 } from '@/config'
@@ -126,6 +125,7 @@ import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayer
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { LV95_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'

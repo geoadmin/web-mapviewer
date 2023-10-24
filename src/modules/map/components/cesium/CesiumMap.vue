@@ -54,13 +54,7 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
-import {
-    BASE_URL_3D_TILES,
-    IS_TESTING_WITH_CYPRESS,
-    TILEGRID_EXTENT_EPSG_4326,
-    WMS_BASE_URL,
-    WMTS_BASE_URL,
-} from '@/config'
+import { BASE_URL_3D_TILES, IS_TESTING_WITH_CYPRESS, WMS_BASE_URL, WMTS_BASE_URL } from '@/config'
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -253,7 +247,9 @@ export default {
 
         this.viewerCreated = true
 
-        this.viewer.scene.postRender.addEventListener(limitCameraCenter(TILEGRID_EXTENT_EPSG_4326))
+        this.viewer.scene.postRender.addEventListener(
+            limitCameraCenter(LV95.getBoundsAs(WGS84).flatten)
+        )
         this.viewer.scene.postRender.addEventListener(
             limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
         )
