@@ -134,6 +134,13 @@ export default {
             return this.$i18n.t('connect')
         },
     },
+    watch: {
+        lang() {
+            if (this.importedLayers?.length) {
+                this.onConnect()
+            }
+        },
+    },
     methods: {
         onInputChange(event) {
             this.importValue = event.target.value
