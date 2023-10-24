@@ -12,6 +12,7 @@ export class CoordinateFormat {
      * @param {String} label Text shown to the user for this format
      * @param {CoordinateSystem} requiredInputProjection Which coordinate system coordinates must be
      *   in, in order to be formatted
+     * @param {Number} decimalPoints
      * @param {Function} formatCallback Function that formats coordinates into a human-readable
      *   string (used by the format function of the instance)
      */
@@ -19,11 +20,13 @@ export class CoordinateFormat {
         id,
         label,
         requiredInputProjection = WEBMERCATOR,
-        formatCallback = (coordinates) => toRoundedString(coordinates, 2)
+        decimalPoints = 2,
+        formatCallback = (coordinates) => toRoundedString(coordinates, decimalPoints)
     ) {
         this.id = id
         this.label = label
         this.requiredInputProjection = requiredInputProjection
+        this.decimalPoints = decimalPoints
         this.formatCallback = formatCallback
     }
 
@@ -49,35 +52,23 @@ export class CoordinateFormat {
     }
 }
 
-export const LV95Format = new CoordinateFormat('LV95', 'CH1903+ / LV95', LV95, (coordinates) =>
-    toRoundedString(coordinates, 2)
-)
-export const LV03Format = new CoordinateFormat('LV03', 'CH1903 / LV03', LV03, (coordinates) =>
-    toRoundedString(coordinates, 2)
-)
+export const LV95Format = new CoordinateFormat('LV95', 'CH1903+ / LV95', LV95)
+export const LV03Format = new CoordinateFormat('LV03', 'CH1903 / LV03', LV03)
 export const WGS84Format = new CoordinateFormat(
     'WGS84',
     'WGS 84 (lat/lon)',
     WGS84,
+    5,
     (coordinates, withPlain) => {
         let output = `${toStringHDMS(coordinates, 2)}`
         if (withPlain) {
-            output += ` (${formatCoordinate(
-                coordinates,
-                '{y}, {x}',
-                WGS84.acceptableDecimalPoints
-            )})`
+            output += ` (${formatCoordinate(coordinates, '{y}, {x}', 5)})`
         }
         return output
     }
 )
-export const MercatorFormat = new CoordinateFormat(
-    'Mercator',
-    'WebMercator',
-    WEBMERCATOR,
-    (coordinates) => toRoundedString(coordinates, 2)
-)
-export const UTMFormat = new CoordinateFormat('UTM', 'UTM', WGS84, (coordinates) => {
+export const MercatorFormat = new CoordinateFormat('Mercator', 'WebMercator', WEBMERCATOR)
+export const UTMFormat = new CoordinateFormat('UTM', 'UTM', WGS84, 5, (coordinates) => {
     let c = latLonToUTM(coordinates[1], coordinates[0])
     return [
         formatThousand(c.easting),
@@ -85,8 +76,8 @@ export const UTMFormat = new CoordinateFormat('UTM', 'UTM', WGS84, (coordinates)
         `(${c.zoneNumber}${c.zoneLetter})`,
     ].join(' ')
 })
-export const MGRSFormat = new CoordinateFormat('MGRS', 'MGRS', WGS84, (coordinates) =>
-    latLonToMGRS(coordinates[1], coordinates[0], WGS84.acceptableDecimalPoints)
+export const MGRSFormat = new CoordinateFormat('MGRS', 'MGRS', WGS84, 5, (coordinates) =>
+    latLonToMGRS(coordinates[1], coordinates[0], 6)
         .replace(/(.{5})/g, '$1 ')
         .trim()
 )

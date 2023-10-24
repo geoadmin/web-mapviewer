@@ -1,6 +1,5 @@
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import axios from 'axios'
 import proj4 from 'proj4'
 
@@ -40,12 +39,12 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-coords
                 .then((response) => {
                     const what3wordLocationEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
-                        round(response.data.coordinates.lng, WGS84.acceptableDecimalPoints),
-                        round(response.data.coordinates.lat, WGS84.acceptableDecimalPoints),
+                        response.data.coordinates.lng,
+                        response.data.coordinates.lat,
                     ])
                     resolve([
-                        round(what3wordLocationEpsg3857[0], WEBMERCATOR.acceptableDecimalPoints),
-                        round(what3wordLocationEpsg3857[1], WEBMERCATOR.acceptableDecimalPoints),
+                        WEBMERCATOR.roundCoordinateValue(what3wordLocationEpsg3857[0]),
+                        WEBMERCATOR.roundCoordinateValue(what3wordLocationEpsg3857[1]),
                     ])
                 })
                 .catch((error) => {

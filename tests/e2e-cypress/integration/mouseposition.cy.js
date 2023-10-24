@@ -96,7 +96,7 @@ describe('Test mouse position', () => {
             let dd = defaultCenter
                 .slice()
                 .reverse()
-                .map((value) => value.toFixed(WGS84.acceptableDecimalPoints))
+                .map((value) => `${WGS84.roundCoordinateValue(value)}`)
                 .join(', ')
             checkMousePositionStringValue(`47° 30′ N 7° 30′ E (${dd})`)
         })
@@ -180,9 +180,7 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system Plain WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-plain-wgs84"]').contains(
-                    `${lat.toFixed(WGS84.acceptableDecimalPoints)}, ${lon.toFixed(
-                        WGS84.acceptableDecimalPoints
-                    )}`
+                    `${WGS84.roundCoordinateValue(lat)}, ${WGS84.roundCoordinateValue(lon)}`
                 )
             })
             it('Uses the coordination system WGS84 in the popup', () => {

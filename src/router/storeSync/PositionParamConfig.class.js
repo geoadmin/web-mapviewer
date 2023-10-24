@@ -1,5 +1,4 @@
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
-import { round } from '@/utils/numberUtils'
 
 export function readCenterFromUrlParam(urlParamValue) {
     if (urlParamValue) {
@@ -23,7 +22,7 @@ function dispatchCenterFromUrlIntoStore(store, urlParamValue) {
 function generateCenterUrlParamFromStoreValues(store) {
     if (store.state.position.center) {
         return store.state.position.center
-            .map((val) => round(val, store.state.position.projection.acceptableDecimalPoints))
+            .map((val) => store.state.position.projection.roundCoordinateValue(val))
             .join(',')
     }
     return null

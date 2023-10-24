@@ -113,10 +113,8 @@ const getters = {
     centerEpsg4326: (state) => {
         const centerEpsg4326Unrounded = proj4(state.projection.epsg, WGS84.epsg, state.center)
         return [
-            // a precision of 6 digits means we can track position with 0.111m accuracy
-            // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
-            round(centerEpsg4326Unrounded[0], WGS84.acceptableDecimalPoints),
-            round(centerEpsg4326Unrounded[1], WGS84.acceptableDecimalPoints),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[0]),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[1]),
         ]
     },
     /**
@@ -158,24 +156,12 @@ const getters = {
         }
         // calculating extent with resolution
         const bottomLeft = [
-            round(
-                state.center[0] - halfScreenInMeter.width,
-                state.projection.acceptableDecimalPoints
-            ),
-            round(
-                state.center[1] - halfScreenInMeter.height,
-                state.projection.acceptableDecimalPoints
-            ),
+            state.projection.roundCoordinateValue(state.center[0] - halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] - halfScreenInMeter.height),
         ]
         const topRight = [
-            round(
-                state.center[0] + halfScreenInMeter.width,
-                state.projection.acceptableDecimalPoints
-            ),
-            round(
-                state.center[1] + halfScreenInMeter.height,
-                state.projection.acceptableDecimalPoints
-            ),
+            state.projection.roundCoordinateValue(state.center[0] + halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] + halfScreenInMeter.height),
         ]
         return [bottomLeft, topRight]
     },
