@@ -57,9 +57,11 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
                 )
             } else {
                 log.error('Incorrect/empty response while getting profile', dataForChunk)
+                return null
             }
         } catch (err) {
             log.error('Error while trying to fetch profile data', err)
+            return null
         }
     }
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
@@ -120,10 +122,12 @@ export default async (coordinates, projection) => {
     let lastDist = 0
     for (const chunk of coordinateChunks) {
         const segment = await getProfileDataForChunk(chunk, lastCoordinate, lastDist, projection)
-        const newSegmentLastPoint = segment.points.slice(-1)[0]
-        lastCoordinate = newSegmentLastPoint.coordinate
-        lastDist = newSegmentLastPoint.dist
-        segments.push(segment)
+        if (segment) {
+            const newSegmentLastPoint = segment.points.slice(-1)[0]
+            lastCoordinate = newSegmentLastPoint.coordinate
+            lastDist = newSegmentLastPoint.dist
+            segments.push(segment)
+        }
     }
     return new ElevationProfile(segments)
 }
