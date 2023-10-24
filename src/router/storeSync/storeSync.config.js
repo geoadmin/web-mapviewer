@@ -122,6 +122,15 @@ const storeSyncConfig = [
         Number,
         COMPARE_SLIDER_DEFAULT_VALUE
     ),
+    new SimpleUrlParamConfig(
+        'compare_ratio',
+        'setCompareRatio',
+        'setCompareRatio',
+        (store) => store.state.ui.compareRatio,
+        false,
+        Number,
+        COMPARE_SLIDER_DEFAULT_VALUE
+    ),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
         'embed',

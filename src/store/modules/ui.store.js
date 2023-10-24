@@ -260,6 +260,18 @@ export default {
                 commit('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
             }
         },
+        setCompareRatio({ commit }, value) {
+            /*
+                This check is here to make sure the compare ratio doesn't get out of hand
+                The logic is, when we toggle the ratio, we add or substract 1 depending on the sign of the
+                compare ratio. When the Compare Slider is < 0, it won't be here
+            */
+            if (0.0 < value && value < 1.0) {
+                commit('setCompareRatio', value)
+            } else {
+                commit('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+            }
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -292,6 +304,9 @@ export default {
         },
         setImportFile(state, flagValue) {
             state.importFile = flagValue
+        },
+        setCompareRatio(state, value) {
+            state.compareRatio = value
         },
         setCompareRatio(state, value) {
             state.compareRatio = value
