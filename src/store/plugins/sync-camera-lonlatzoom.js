@@ -24,9 +24,9 @@ export default function syncCameraLonLatZoom(store) {
             )
 
             const resolution = calculateResolution(height, state.ui.width)
-            const zoom = state.position.projection.getZoomForResolution(
+            const zoom = state.position.projection.getZoomForResolutionAndCenter(
                 resolution,
-                centerExpressedInWantedProjection[1]
+                centerExpressedInWantedProjection
             )
             store.dispatch(
                 'setCenter',
