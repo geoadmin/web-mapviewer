@@ -203,7 +203,7 @@ export const LV95_RESOLUTIONS = [
  * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
  *
  * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
- * World Wide zoom level (see {@link translateSwisstopoPyramidZoomToMercatorZoom})
+ * World Wide zoom level (see {@link SwissCoordinateSystem})
  *
  * @type {Number[]}
  */

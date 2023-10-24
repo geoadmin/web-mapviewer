@@ -13,12 +13,16 @@ export default class CoordinateSystemBounds {
      * @param {Number} upperX
      * @param {Number} lowerY
      * @param {Number} upperY
+     * @param {[Number, Number] | null} customCenter If this bounds must have a different center (if
+     *   we want to offset the natural center of those bounds). If no custom center is given, the
+     *   center will be calculated relative to the bounds.
      */
-    constructor(lowerX, upperX, lowerY, upperY) {
+    constructor(lowerX, upperX, lowerY, upperY, customCenter = null) {
         this.lowerX = lowerX
         this.upperX = upperX
         this.lowerY = lowerY
         this.upperY = upperY
+        this.customCenter = customCenter
     }
 
     isInBounds(x, y) {
@@ -34,11 +38,14 @@ export default class CoordinateSystemBounds {
     }
 
     get center() {
+        if (this.customCenter) {
+            return this.customCenter
+        }
         return [(this.lowerX + this.upperX) / 2.0, (this.lowerY + this.upperY) / 2.0]
     }
 
     /**
-     * Returns a flatten version of the bounds such as [lowerX, lowerY, upperX, upperY]
+     * Returns a flattened version of the bounds such as [lowerX, lowerY, upperX, upperY]
      *
      * @returns {Number[]}
      */
