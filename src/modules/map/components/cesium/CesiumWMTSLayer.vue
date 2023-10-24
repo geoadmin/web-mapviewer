@@ -8,7 +8,7 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
