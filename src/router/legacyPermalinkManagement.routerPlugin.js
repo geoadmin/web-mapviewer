@@ -93,13 +93,17 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
                     value = legacyParams[param]
                 }
                 break
+            // Setting the position of the compare slider
+            case 'swipe_ratio':
+                value = legacyParams[param]
+                key = 'compare_ratio'
+                break
             case 'layers_opacity':
             case 'layers_visibility':
             case 'layers_timestamp':
                 // we ignore those params as they are now obsolete
                 // see adr/2021_03_16_url_param_structure.md
                 break
-
             // if no special work to do, we just copy past legacy params to the new viewer
 
             default:
@@ -117,6 +121,11 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             newQuery['lat'] = round(center[1], 6)
         }
         if (value) {
+            if (key == 'compare_ratio' || key == 'swipe_ratio') {
+                console.log(key)
+                console.log('=============')
+                console.log(value)
+            }
             // When receiving a query, the application will encode the URI components
             // We decode those so that the new query won't encode encoded character
             // for example, we avoid having " " becoming %2520 in the URI

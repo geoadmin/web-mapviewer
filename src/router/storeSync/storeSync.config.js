@@ -3,7 +3,7 @@ import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlPa
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
-
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
  * vice-versa)
@@ -109,6 +109,15 @@ const storeSyncConfig = [
         (store) => store.state.position.crossHair,
         false,
         String
+    ),
+    new SimpleUrlParamConfig(
+        'compare_ratio',
+        'setCompareRatio',
+        'setCompareRatio',
+        (store) => store.state.ui.compareRatio,
+        false,
+        Number,
+        COMPARE_SLIDER_DEFAULT_VALUE
     ),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(

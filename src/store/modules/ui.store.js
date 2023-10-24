@@ -11,7 +11,8 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
-
+// TODO : faire un commentaire
+export const COMPARE_SLIDER_DEFAULT_VALUE = -1
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -103,6 +104,13 @@ export default {
          * @type Boolean
          */
         importOverlay: false,
+        /**
+         * Float telling where across the screen is the compare slider. The compare Slider should
+         * only be shown when the value is between 0 and 1
+         *
+         * @type Number
+         */
+        compareRatio: -1,
     },
     getters: {
         screenDensity(state) {
@@ -219,6 +227,18 @@ export default {
         toggleImportOverlay({ commit, state }) {
             commit('setImportOverlay', !state.importOverlay)
         },
+        setCompareRatio({ commit }, value) {
+            /*
+                This check is here to make sure the compare ratio doesn't get out of hand
+                The logic is, when we toggle the ratio, we add or substract 1 depending on the sign of the
+                compare ratio. When the Compare Slider is < 0, it won't be here
+            */
+            if (0.0 < value && value < 1.0) {
+                commit('setCompareRatio', value)
+            } else {
+                commit('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+            }
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -251,6 +271,9 @@ export default {
         },
         setImportOverlay(state, flagValue) {
             state.importOverlay = flagValue
+        },
+        setCompareRatio(state, value) {
+            state.compareRatio = value
         },
     },
 }

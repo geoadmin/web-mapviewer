@@ -17,7 +17,7 @@
             <teleport to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
-            <CompareSlider />
+            <CompareSlider v-if="isCompareSliderActive" />
         </OpenLayersMap>
 
         <WarningRibbon />
@@ -51,9 +51,13 @@ export default {
         ...mapState({
             is3DActive: (state) => state.ui.showIn3d,
             uiMode: (state) => state.ui.mode,
+            compareRatio: (state) => state.ui.compareRatio,
         }),
         isPhoneMode() {
             return this.uiMode === UIModes.PHONE
+        },
+        isCompareSliderActive() {
+            return 0.0 < this.compareRatio && this.compareRatio < 1.0
         },
     },
 }
