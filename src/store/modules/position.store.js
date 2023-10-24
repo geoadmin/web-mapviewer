@@ -1,4 +1,4 @@
-import { DEFAULT_PROJECTION, LV95_RESOLUTIONS } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, {
     LV95,
@@ -7,11 +7,6 @@ import allCoordinateSystems, {
 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import {
-    calculateWebMercatorResolution,
-    calculateWebMercatorZoom,
-    getSwisstopoPyramidZoomForResolution,
-} from '@/utils/zoomLevelUtils'
 import proj4 from 'proj4'
 
 /** @enum */
@@ -62,7 +57,10 @@ const state = {
      *
      * @type Number
      */
-    zoom: DEFAULT_PROJECTION.defaultZoom,
+    // somehow some unit tests fail to have a proper DEFAULT_PROJECTION, so I've added
+    // an optional operator and fallback value to aleviate that
+    zoom: DEFAULT_PROJECTION?.getDefaultZoom() || 0,
+
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
      *
@@ -75,7 +73,9 @@ const state = {
      *
      * @type Array<Number>
      */
-    center: DEFAULT_PROJECTION.defaultCenter,
+    // somehow some unit tests fail to have a proper DEFAULT_PROJECTION, so I've added
+    // an optional operator and fallback value to aleviate that
+    center: DEFAULT_PROJECTION?.bounds.center || [],
 
     /**
      * Projection used to express the position (and subsequently used to define how the mapping
@@ -118,27 +118,12 @@ const getters = {
         ]
     },
     /**
-     * The center of the map reprojected in EPSG:4326 expressed in radian
-     *
-     * @param _
-     * @param getters
-     * @returns {Number[]}
-     */
-    centerEpsg4326InRadian: (_, getters) => {
-        const centerEpsg4326 = getters.centerEpsg4326
-        return [(centerEpsg4326[0] * Math.PI) / 180.0, (centerEpsg4326[1] * Math.PI) / 180.0]
-    },
-    /**
      * Resolution of the view expressed in meter per pixel
      *
      * @type Number
      */
-    resolution: (state, getters) => {
-        if (state.projection.epsg === LV95.epsg) {
-            // for LV95 we have custom-made resolution by zoom level, so no need to calculate it, just map it to the zoom
-            return LV95_RESOLUTIONS[Math.floor(state.zoom)]
-        }
-        return calculateWebMercatorResolution(state.zoom, getters.centerEpsg4326InRadian[1])
+    resolution: (state) => {
+        return state.projection.getResolutionForZoomAndCenter(state.zoom, state.center)
     },
 
     /**
@@ -237,14 +222,10 @@ const actions = {
                 })
             }
             const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width
-            if (state.projection.isSwissProjection) {
-                commit('setZoom', getSwisstopoPyramidZoomForResolution(newResolution))
-            } else {
-                commit(
-                    'setZoom',
-                    calculateWebMercatorZoom(newResolution, (points[1] * Math.PI) / 180.0)
-                )
-            }
+            commit(
+                'setZoom',
+                state.projection.getZoomForResolutionAndCenter(newResolution, centerOfExtent)
+            )
         }
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
