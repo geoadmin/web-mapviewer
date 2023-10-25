@@ -1,4 +1,4 @@
-import { API_SERVICE_SEARCH_BASE_URL, DEFAULT_PROJECTION } from '@/config'
+import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
@@ -126,13 +126,13 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
 
 let cancelToken = null
 /**
- * @param {String} queryString The query string that describe what is wanted from the search
- * @param {String} lang The lang ISO code in which the search must be conducted
  * @param {CoordinateSystem} outputProjection The projection in which the search results must be
  *   returned
+ * @param {String} queryString The query string that describe what is wanted from the search
+ * @param {String} lang The lang ISO code in which the search must be conducted
  * @returns {Promise<CombinedSearchResults>}
  */
-async function search(queryString = '', lang = '', outputProjection = DEFAULT_PROJECTION) {
+async function search(outputProjection, queryString = '', lang = '') {
     if (!lang || lang.length !== 2) {
         const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
         log.error(errorMessage)
