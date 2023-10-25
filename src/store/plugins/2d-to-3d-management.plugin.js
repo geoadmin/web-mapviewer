@@ -8,13 +8,15 @@ import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
  * @param {Vuex.Store} store
  */
 export default function from2Dto3Dplugin(store) {
-    store.subscribe((mutation, state) => {
-        if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg && mutation.type === 'setShowIn3d') {
-            if (state.ui.showIn3d) {
-                store.dispatch('setProjection', WEBMERCATOR)
-            } else {
-                store.dispatch('setProjection', DEFAULT_PROJECTION)
+    store.subscribeAction({
+        after: (action, state) => {
+            if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg && action.type === 'setShowIn3d') {
+                if (state.ui.showIn3d) {
+                    store.dispatch('setProjection', WEBMERCATOR)
+                } else {
+                    store.dispatch('setProjection', DEFAULT_PROJECTION)
+                }
             }
-        }
+        },
     })
 }
