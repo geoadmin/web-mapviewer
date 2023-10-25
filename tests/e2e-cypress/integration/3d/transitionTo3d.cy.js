@@ -1,6 +1,12 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_PROJECTION } from '@/config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import setupProj4 from '@/utils/setupProj4'
 import { Math as CesiumMath } from 'cesium'
+import proj4 from 'proj4'
+
+setupProj4()
 
 describe('Testing transitioning between 2D and 3D', () => {
     context('3D toggle button', () => {
@@ -90,8 +96,7 @@ describe('Testing transitioning between 2D and 3D', () => {
             const lat = 46
             const lon = 7
             cy.goToMapView({
-                lat,
-                lon,
+                center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]),
                 z: 9,
             })
             cy.get('[data-cy="3d-button"]').click()
