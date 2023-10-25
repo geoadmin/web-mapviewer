@@ -54,15 +54,22 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
-import { BASE_URL_3D_TILES, IS_TESTING_WITH_CYPRESS, WMS_BASE_URL, WMTS_BASE_URL } from '@/config'
+import {
+    BASE_URL_3D_TILES,
+    DEFAULT_PROJECTION,
+    IS_TESTING_WITH_CYPRESS,
+    WMS_BASE_URL,
+    WMTS_BASE_URL,
+} from '@/config'
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
@@ -247,9 +254,13 @@ export default {
 
         this.viewerCreated = true
 
-        this.viewer.scene.postRender.addEventListener(
-            limitCameraCenter(LV95.getBoundsAs(WGS84).flatten)
-        )
+        // if the default projection is a national projection (or custom projection) we then constrain the camera to
+        // only move in bounds of this custom projection
+        if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
+            this.viewer.scene.postRender.addEventListener(
+                limitCameraCenter(DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten)
+            )
+        }
         this.viewer.scene.postRender.addEventListener(
             limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
         )
@@ -313,8 +324,7 @@ export default {
                         type = 'Point'
                     }
                     const coordinates = f.geometry.getCoordinates()
-                    const getCoordinates = (c) =>
-                        LV95.isInBounds(c[0], c[1]) ? proj4(LV95.epsg, WEBMERCATOR.epsg, c) : c
+                    const getCoordinates = (c) => proj4(this.projection.epsg, WEBMERCATOR.epsg, c)
                     return {
                         type,
                         coordinates:
@@ -429,7 +439,7 @@ export default {
                 const featureCoords = Array.isArray(features[0].coordinates[0])
                     ? features[0].coordinates[0]
                     : features[0].coordinates
-                coordinates = proj4(LV95.epsg, WEBMERCATOR.epsg, featureCoords)
+                coordinates = proj4(this.projection.epsg, WEBMERCATOR.epsg, featureCoords)
             }
             this.click(
                 new ClickInfo(

@@ -57,8 +57,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         let key = param
         switch (param) {
             case 'zoom':
-                // if we are using WebMercator as the map projection we need te re-evaluate LV95 zoom,
-                // as it was a zoom level tailor-made for this projection (and not made to cover the whole globe)
+                // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
                 if (!(projection instanceof SwissCoordinateSystem)) {
                     value = LV95.transformCustomZoomLevelToStandard(legacyParams[param])
                     if (projection instanceof CustomCoordinateSystem) {

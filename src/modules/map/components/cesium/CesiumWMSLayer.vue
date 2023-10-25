@@ -9,7 +9,7 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { mapState } from 'vuex'
@@ -90,7 +90,9 @@ export default {
                     subdomains: '0123',
                     layers: this.wmsLayerConfig.geoAdminID,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
-                    rectangle: Rectangle.fromDegrees(...LV95.getBoundsAs(WGS84).flatten),
+                    rectangle: Rectangle.fromDegrees(
+                        ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
+                    ),
                 }),
                 {
                     show: this.wmsLayerConfig.visible,

@@ -8,7 +8,7 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, UrlTemplateImageryProvider } from 'cesium'
 import addImageryLayerMixins from './utils/addImageryLayer-mixins'
@@ -56,7 +56,9 @@ export default {
         createImagery(url) {
             return new ImageryLayer(
                 new UrlTemplateImageryProvider({
-                    rectangle: Rectangle.fromDegrees(...LV95.getBoundsAs(WGS84).flatten),
+                    rectangle: Rectangle.fromDegrees(
+                        ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
+                    ),
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
                     url: url,
                 }),
