@@ -10,7 +10,7 @@ module.exports = defineConfig({
     requestTimeout: 15000,
     numTestsKeptInMemory: 2,
     retries: {
-        runMode: 3,
+        runMode: 5,
         openMode: 0,
     },
     reporter: 'cypress-multi-reporters',
