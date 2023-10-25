@@ -1,5 +1,5 @@
-import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { API_SERVICE_SEARCH_BASE_URL, DEFAULT_PROJECTION } from '@/config'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
 import log from '@/utils/logging'
@@ -132,7 +132,7 @@ let cancelToken = null
  *   returned
  * @returns {Promise<CombinedSearchResults>}
  */
-async function search(queryString = '', lang = '', outputProjection) {
+async function search(queryString = '', lang = '', outputProjection = DEFAULT_PROJECTION) {
     if (!lang || lang.length !== 2) {
         const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
         log.error(errorMessage)
@@ -190,17 +190,18 @@ async function search(queryString = '', lang = '', outputProjection) {
 
             let coordinate = []
             let zoom = location.attrs.zoomlevel
-            if (location.attrs.x && location.attrs.y) {
-                coordinate.push(location.attrs.x)
-                coordinate.push(location.attrs.y)
+            if (location.attrs.lon && location.attrs.lat) {
+                coordinate = [location.attrs.lon, location.attrs.lat]
+                if (outputProjection.epsg !== WGS84.epsg) {
+                    coordinate = proj4(WGS84.epsg, outputProjection.epsg, coordinate)
+                }
             }
-            if (!outputProjection instanceof LV95CoordinateSystem) {
+            if (!(outputProjection instanceof LV95CoordinateSystem)) {
                 // re-projecting result coordinate and zoom to wanted projection
                 zoom = LV95.transformCustomZoomLevelToStandard(zoom)
                 if (outputProjection instanceof CustomCoordinateSystem) {
                     zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
                 }
-                coordinate = proj4(LV95.epsg, outputProjection.epsg, coordinate)
             }
             // reading the extent from the LineString (if defined)
             const extent = []
