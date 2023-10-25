@@ -8,7 +8,7 @@ module.exports = defineConfig({
     video: false,
     defaultCommandTimeout: 10000,
     requestTimeout: 15000,
-    numTestsKeptInMemory: 5,
+    numTestsKeptInMemory: 2,
     retries: {
         runMode: 5,
         openMode: 0,

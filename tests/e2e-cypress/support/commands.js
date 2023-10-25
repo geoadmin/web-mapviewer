@@ -11,11 +11,11 @@ import { MapBrowserEvent } from 'ol'
 // ***********************************************
 
 const addLayerTileFixture = () => {
-    // catching WMTS type URLs
-    cy.intercept(`**/3857/**/**/**/**.jpeg`, {
+    // catching WMTS type URLs in web mercator and lv95
+    cy.intercept(/1.0.0\/.*\/.*\/.*\/(21781|2056|3857|4326)\/\d+\/\d+\/\d+.jpe?g/, {
         fixture: '256.jpeg',
     }).as('jpeg-tiles')
-    cy.intercept(`**/3857/**/**/**/**.png`, {
+    cy.intercept(/1.0.0\/.*\/.*\/.*\/(21781|2056|3857|4326)\/\d+\/\d+\/\d+.png/, {
         fixture: '256.png',
     }).as('png-tiles')
 }

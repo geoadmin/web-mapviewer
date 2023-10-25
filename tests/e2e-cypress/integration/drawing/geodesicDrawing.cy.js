@@ -107,7 +107,7 @@ const generateTestsInPacific = (testFunc) => {
 
 describe('Correct handling of geodesic geometries', () => {
     beforeEach(() => {
-        cy.goToDrawing({ z: 10 }, true)
+        cy.goToDrawing({ z: 10, sr: 3857 }, true)
     })
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',

@@ -326,7 +326,7 @@ const actions = {
             (projection.epsg === LV95.epsg || projection.epsg === WEBMERCATOR.epsg)
         ) {
             matchingProjection = projection
-        } else if (projection instanceof Number) {
+        } else if (typeof projection === 'number' || projection instanceof Number) {
             matchingProjection = allCoordinateSystems.find(
                 (coordinateSystem) => coordinateSystem.epsgNumber === projection
             )
