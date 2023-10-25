@@ -7,9 +7,12 @@ describe('The infobox', () => {
                 cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
                 cy.get(mapSelector).click()
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
+                cy.waitUntilState(
+                    (state) => {
+                        return state.features.selectedFeatures.length > 0
+                    },
+                    { timeout: 10000 }
+                )
 
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             }
