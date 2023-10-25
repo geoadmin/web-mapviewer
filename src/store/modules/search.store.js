@@ -64,9 +64,9 @@ const actions = {
             } else {
                 try {
                     const searchResults = await search(
+                        rootState.position.projection,
                         query,
-                        rootState.i18n.lang,
-                        rootState.position.projection
+                        rootState.i18n.lang
                     )
                     if (searchResults) {
                         commit('setSearchResults', searchResults)
