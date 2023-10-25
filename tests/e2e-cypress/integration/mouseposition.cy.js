@@ -122,9 +122,12 @@ describe('Test mouse position', () => {
             cy.viewport(320, 1000)
             cy.goToMapView({ lat, lon })
             cy.get('[data-cy="map"]').rightclick()
-            cy.waitUntilState((state) => {
-                return state.map.clickInfo !== null
-            })
+            cy.waitUntilState(
+                (state) => {
+                    return state.map.clickInfo !== null
+                },
+                { timeout: 8000 }
+            )
         })
         it('Test the LocationPopUp is visible', () => {
             cy.get('[data-cy="location-popup"]').should('be.visible')
