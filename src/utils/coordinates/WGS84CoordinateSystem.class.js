@@ -9,6 +9,7 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
         super(
             4326,
             'WGS 84 (lat/lon)',
+            // matrix comes from https://epsg.io/4326.proj4
             '+proj=longlat +datum=WGS84 +no_defs +type=crs',
             new CoordinateSystemBounds(
                 -180.0,
