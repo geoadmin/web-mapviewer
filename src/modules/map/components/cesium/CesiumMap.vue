@@ -5,6 +5,7 @@
             <CesiumInternalLayer
                 v-if="currentBackgroundLayer"
                 :layer-config="currentBackgroundLayer"
+                :projection="projection"
                 :z-index="0"
             />
             <!-- Adding all other layers -->
@@ -14,6 +15,7 @@
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
+                :projection="projection"
                 :z-index="index + startingZIndexForVisibleLayers"
             />
             <CesiumInternalLayer
@@ -21,6 +23,7 @@
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
+                :projection="projection"
                 :z-index="index"
             />
         </div>

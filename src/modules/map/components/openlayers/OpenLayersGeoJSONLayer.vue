@@ -7,13 +7,13 @@
 <script>
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
+import reprojectGeoJsonData from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import GeoJSON from 'ol/format/GeoJSON'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { reproject } from 'reproject'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import OlStyleForPropertyValue from './utils/styleFromLiterals'
 
@@ -129,32 +129,19 @@ export default {
                 return
             }
             // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
-            const dataProjection = this.geojsonData.crs
-                ? this.geojsonData.crs.properties.name
-                : null
-
-            // reprojecting the GeoJSON if not in the wanted projection, the default projection for GeoJSON is WGS84
-            // as stated in the reference https://tools.ietf.org/html/rfc7946#section-4
-            // if another projection was set in the GeoJSON (through the "crs" property) we use it instead
-            let reprojectedGeoJSON
-            if (dataProjection) {
-                if (dataProjection !== this.projection.epsg) {
-                    reprojectedGeoJSON = reproject(
-                        this.geojsonData,
-                        dataProjection,
-                        this.projection.epsg
-                    )
-                } else {
-                    // it's already in the correct projection, we don't reproject
-                    reprojectedGeoJSON = this.geojsonData
-                }
-            } else {
-                // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
-                reprojectedGeoJSON = reproject(this.geojsonData, WGS84.epsg, this.projection.epsg)
-            }
+            const matchingDataProjection = allCoordinateSystems.find(
+                (coordinateSystem) =>
+                    coordinateSystem.epsg === this.geojsonData?.crs?.properties?.name
+            )
             this.layer.setSource(
                 new VectorSource({
-                    features: new GeoJSON().readFeatures(reprojectedGeoJSON),
+                    features: new GeoJSON().readFeatures(
+                        reprojectGeoJsonData(
+                            this.geojsonData,
+                            this.projection,
+                            matchingDataProjection
+                        )
+                    ),
                 })
             )
         },

@@ -4,14 +4,14 @@
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
             :preview-year="previewYear"
-            :projection="WEBMERCATOR"
+            :projection="projection"
             :z-index="zIndex"
         />
         <CesiumWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS && !layerConfig.isExternal"
             :wms-layer-config="layerConfig"
             :preview-year="previewYear"
-            :projection="LV95"
+            :projection="projection"
             :z-index="zIndex"
         />
         <CesiumGeoJSONLayer
@@ -20,12 +20,14 @@
             :opacity="layerConfig.opacity"
             :geojson-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"
+            :projection="projection"
         />
         <CesiumKMLLayer
             v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
+            :projection="projection"
             :z-index="zIndex"
         />
         <slot />
@@ -35,7 +37,8 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { DEFAULT_PROJECTION } from '@/config'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
 import CesiumWMSLayer from './CesiumWMSLayer.vue'
@@ -65,12 +68,14 @@ export default {
             type: Number,
             default: null,
         },
+        projection: {
+            type: CoordinateSystem,
+            default: DEFAULT_PROJECTION,
+        },
     },
     data() {
         return {
             LayerTypes,
-            LV95,
-            WEBMERCATOR,
         }
     },
 }
