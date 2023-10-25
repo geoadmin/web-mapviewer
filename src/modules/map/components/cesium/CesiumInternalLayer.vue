@@ -37,7 +37,6 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
@@ -70,7 +69,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
+            required: true,
         },
     },
     data() {

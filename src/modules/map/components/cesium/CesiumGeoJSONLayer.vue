@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import { DEFAULT_PROJECTION } from '@/config'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
@@ -38,7 +37,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
+            required: true,
         },
     },
     methods: {

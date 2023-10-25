@@ -6,7 +6,6 @@
 
 <script>
 import { getKmlFromUrl } from '@/api/files.api'
-import { DEFAULT_PROJECTION } from '@/config'
 import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
@@ -36,7 +35,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
+            required: true,
         },
     },
     computed: {
