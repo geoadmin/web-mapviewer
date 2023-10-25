@@ -1,7 +1,5 @@
 import { LV03, LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { get as getProjection } from 'ol/proj'
-import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 
 /**
@@ -27,16 +25,6 @@ const setupProj4 = (projections = [WEBMERCATOR, LV95, LV03]) => {
                 log.error('Error while setting up projection in proj4', projection.epsg, err)
                 throw err
             }
-        })
-    // registering all "custom" projection with OpenLayers as well
-    register(proj4)
-    // setting the boundaries for projection, in the OpenLayers context, whenever bounds are defined
-    // this will help OpenLayers know when tiles shouldn't be requested because coordinates are out of bounds
-    projections
-        .filter((projection) => projection.bounds)
-        .forEach((projection) => {
-            const olProjection = getProjection(projection.epsg)
-            olProjection?.setExtent(projection.bounds.flatten)
         })
 }
 

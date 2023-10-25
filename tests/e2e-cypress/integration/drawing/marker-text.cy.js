@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { DEFAULT_PROJECTION } from '@/config'
 import { BLACK, GREEN, LARGE, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
 
 const drawingStyleMarkerPopup = '[data-cy="drawing-style-marker-popup"]'
@@ -19,8 +19,8 @@ const createAPoint = (
     kind,
     x = 0,
     y = 0,
-    xx = LV95.defaultCenter[0],
-    yy = LV95.defaultCenter[1]
+    xx = DEFAULT_PROJECTION.bounds.center[0],
+    yy = DEFAULT_PROJECTION.bounds.center[1]
 ) => {
     let kmlId
     cy.clickDrawingTool(kind)
@@ -91,7 +91,9 @@ const interceptGreenIcons = () => {
 
 describe('Drawing marker/points', () => {
     beforeEach(() => {
-        cy.goToDrawing()
+        cy.goToDrawing({
+            center: DEFAULT_PROJECTION.bounds.center.join(','),
+        })
     })
     it('Re-requests all icons from an icon sets with the new color whenever the color changed', () => {
         interceptGreenIcons()

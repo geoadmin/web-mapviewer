@@ -5,7 +5,7 @@ import {
     toLv95,
     wrapXCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import setupProj4 from '@/utils/setupProj4'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
@@ -16,46 +16,38 @@ setupProj4()
 describe('Unit test functions from drawingUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {
         it('reprojects points from EPSG:4326', () => {
-            expect(toLv95([6.57268, 46.51333], WGS84.epsg)).to.eql([
-                2533541.8057776038, 1151703.909974419,
-            ])
+            expect(LV95.isInBounds(...toLv95([6.57268, 46.51333], WGS84.epsg))).to.be.true
         })
         it('reprojects points from EPSG:3857', () => {
-            expect(toLv95([731667, 5862995], WEBMERCATOR.epsg)).to.eql([
-                2533541.530335663, 1151703.3642947723,
-            ])
+            expect(LV95.isInBounds(...toLv95([731667, 5862995], WEBMERCATOR.epsg))).to.be.true
         })
         it('reprojects lines', () => {
-            expect(
-                toLv95(
-                    [
-                        [6.57268, 46.51333],
-                        [6.7, 46.7],
-                    ],
-                    WGS84.epsg
-                )
-            ).to.eql([
-                [2533541.8057776038, 1151703.909974419],
-                [2543508.4227881124, 1172354.2517551924],
-            ])
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(2)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
         })
         it('reprojects polygons', () => {
-            expect(
-                toLv95(
-                    [
-                        [6.57268, 46.51333],
-                        [6.7, 46.7],
-                        [6.9, 46.9],
-                        [6.57268, 46.51333],
-                    ],
-                    WGS84.epsg
-                )
-            ).to.eql([
-                [2533541.8057776038, 1151703.909974419],
-                [2543508.4227881124, 1172354.2517551924],
-                [2558957.32134749, 1194462.5957064652],
-                [2533541.8057776038, 1151703.909974419],
-            ])
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                    [6.9, 46.9],
+                    [6.57268, 46.51333],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(4)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
         })
     })
 

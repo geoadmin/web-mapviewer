@@ -124,7 +124,11 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, {
+    LV95,
+    WEBMERCATOR,
+    WGS84,
+} from '@/utils/coordinates/coordinateSystems'
 import { LV95_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -136,6 +140,7 @@ import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interacti
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
 import 'ol/ol.css'
+import { get as getProjection } from 'ol/proj'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -372,6 +377,14 @@ export default {
     mounted() {
         // register any custom projection in OpenLayers
         register(proj4)
+        // setting the boundaries for projection, in the OpenLayers context, whenever bounds are defined
+        // this will help OpenLayers know when tiles shouldn't be requested because coordinates are out of bounds
+        allCoordinateSystems
+            .filter((projection) => projection.bounds && projection.epsg !== WGS84.epsg)
+            .forEach((projection) => {
+                const olProjection = getProjection(projection.epsg)
+                olProjection?.setExtent(projection.bounds.flatten)
+            })
         this.map.setTarget(this.$refs.map)
         // Setting up OL objects
         this.mercatorView = new View({
