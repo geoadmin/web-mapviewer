@@ -1,12 +1,13 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
     isLayersUrlParamLegacy,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import proj4 from 'proj4'
 
 /**
@@ -47,6 +48,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = { ...to.query }
+    const { projection } = store.state.position
     let legacyCoordinates = []
     let legacyCoordinatesAreExpressedInWGS84 = false
     Object.keys(legacyParams).forEach((param) => {
@@ -55,10 +57,12 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         let key = param
         switch (param) {
             case 'zoom':
-                // if we are using WebMercator as the map projection we need te re-evaluate LV95 zoom,
-                // as it was a zoom level tailor-made for this projection (and not made to cover the whole globe)
-                if (store.state.position.projection.epsg === WEBMERCATOR.epsg) {
-                    value = translateSwisstopoPyramidZoomToMercatorZoom(legacyParams[param])
+                // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
+                if (!(projection instanceof SwissCoordinateSystem)) {
+                    value = LV95.transformCustomZoomLevelToStandard(legacyParams[param])
+                    if (projection instanceof CustomCoordinateSystem) {
+                        value = projection.transformStandardZoomLevelToCustom(value)
+                    }
                 } else {
                     value = legacyParams[param]
                 }
@@ -117,19 +121,11 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         if (legacyCoordinates.length === 2 && legacyCoordinates[0] && legacyCoordinates[1]) {
             // if lon/lat were used, we need to re-project them in the current projection system
             if (legacyCoordinatesAreExpressedInWGS84) {
-                legacyCoordinates = proj4(
-                    WGS84.epsg,
-                    store.state.position.projection.epsg,
-                    legacyCoordinates
-                )
-            } else if (store.state.position.projection.epsg !== LV95.epsg) {
+                legacyCoordinates = proj4(WGS84.epsg, projection.epsg, legacyCoordinates)
+            } else if (projection.epsg !== LV95.epsg) {
                 // if the current projection is not LV95, we also need to re-project x/y or N/E
                 // (the legacy viewer was always writing coordinates in LV95 in the URL)
-                legacyCoordinates = proj4(
-                    LV95.epsg,
-                    store.state.position.projection.epsg,
-                    legacyCoordinates
-                )
+                legacyCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
             }
             newQuery['center'] = legacyCoordinates.join(',')
         }
@@ -187,7 +183,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
  * Some special cases are :
  *
  * - Zoom: as mf-geoadmin3 was using zoom level fitting the LV95 projection, we translate those zoom
- *   levels into world wide zoom levels. See {@link translateSwisstopoPyramidZoomToMercatorZoom}
+ *   levels into world wide zoom levels. See {@link SwissCoordinateSystem}
  * - Easting/northing, E/N or x/y: webmapviewer is using EPSG:3857 as its engine projection and shows
  *   EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to
  *   EPSG:4326 and relabel them lat and lon accordingly

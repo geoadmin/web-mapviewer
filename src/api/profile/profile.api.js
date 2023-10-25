@@ -4,7 +4,6 @@ import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import axios from 'axios'
 import proj4 from 'proj4'
 
@@ -84,7 +83,7 @@ async function getProfileDataForChunk(chunk, startingPoint, startingDist, output
             lastCoordinate = coordinate
             return new ElevationProfilePoint(
                 coordinate,
-                round(dist, outputProjection.acceptableDecimalPoints)
+                outputProjection.roundCoordinateValue(dist)
             )
         }),
     ])

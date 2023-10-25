@@ -1,10 +1,7 @@
 import getFeature, { EditableFeature, LayerFeature } from '@/api/features.api'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
-import {
-    translateMercatorZoomToSwisstopoPyramidZoom,
-    translateSwisstopoPyramidZoomToMercatorZoom,
-} from '@/utils/zoomLevelUtils'
 import proj4 from 'proj4'
 
 let oldProjection = null
@@ -77,15 +74,35 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
                     store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
                 })
 
-                if (newProjection.epsg === LV95.epsg) {
+                if (
+                    oldProjection instanceof StandardCoordinateSystem &&
+                    newProjection instanceof CustomCoordinateSystem
+                ) {
                     store.dispatch(
                         'setZoom',
-                        translateMercatorZoomToSwisstopoPyramidZoom(state.position.zoom)
+                        newProjection.transformStandardZoomLevelToCustom(state.position.zoom)
                     )
-                } else {
+                }
+                if (
+                    oldProjection instanceof CustomCoordinateSystem &&
+                    newProjection instanceof StandardCoordinateSystem
+                ) {
                     store.dispatch(
                         'setZoom',
-                        translateSwisstopoPyramidZoomToMercatorZoom(state.position.zoom)
+                        oldProjection.transformCustomZoomLevelToStandard(state.position.zoom)
+                    )
+                }
+                if (
+                    oldProjection instanceof CustomCoordinateSystem &&
+                    newProjection instanceof CustomCoordinateSystem &&
+                    oldProjection.epsg !== newProjection.epsg
+                ) {
+                    // we have to revert the old projection zoom level to standard, and then transform it to the new projection custom zoom level
+                    store.dispatch(
+                        'setZoom',
+                        oldProjection.transformCustomZoomLevelToStandard(
+                            newProjection.transformStandardZoomLevelToCustom(state.position.zoom)
+                        )
                     )
                 }
             }

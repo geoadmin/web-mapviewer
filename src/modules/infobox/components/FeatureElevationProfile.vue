@@ -42,7 +42,6 @@ import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
 import { mapActions } from 'vuex'
@@ -138,10 +137,10 @@ export default {
                             return [
                                 point.dist,
                                 point.elevation,
-                                round(easting, LV95.acceptableDecimalPoints),
-                                round(northing, LV95.acceptableDecimalPoints),
-                                round(lon, WGS84.acceptableDecimalPoints),
-                                round(lat, WGS84.acceptableDecimalPoints),
+                                LV95.roundCoordinateValue(easting),
+                                LV95.roundCoordinateValue(northing),
+                                WGS84.roundCoordinateValue(lon),
+                                WGS84.roundCoordinateValue(lat),
                             ]
                         }),
                     ]

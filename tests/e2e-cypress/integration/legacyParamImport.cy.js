@@ -2,7 +2,6 @@
 
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { round } from '@/utils/numberUtils'
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
@@ -62,8 +61,8 @@ describe('Test on legacy param import', () => {
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                 // the app applies a rounding to the 6th decimal for lon/lat
-                expect(center[0]).to.eq(round(8.2267733, WGS84.acceptableDecimalPoints))
-                expect(center[1]).to.eq(round(46.9483767, WGS84.acceptableDecimalPoints))
+                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
     })

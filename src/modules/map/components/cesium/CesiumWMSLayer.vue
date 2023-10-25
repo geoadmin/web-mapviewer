@@ -6,9 +6,10 @@
 
 <script>
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { DEFAULT_PROJECTION, TILEGRID_EXTENT_EPSG_4326 } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { mapState } from 'vuex'
@@ -89,7 +90,9 @@ export default {
                     subdomains: '0123',
                     layers: this.wmsLayerConfig.geoAdminID,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
-                    rectangle: Rectangle.fromDegrees(...TILEGRID_EXTENT_EPSG_4326),
+                    rectangle: Rectangle.fromDegrees(
+                        ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten
+                    ),
                 }),
                 {
                     show: this.wmsLayerConfig.visible,
@@ -100,5 +103,3 @@ export default {
     },
 }
 </script>
-
-<style scoped lang="scss"></style>

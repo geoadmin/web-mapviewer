@@ -1,4 +1,4 @@
-import { DEFAULT_PROJECTION, LV95_RESOLUTIONS } from '@/config'
+import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, {
     LV95,
@@ -8,12 +8,6 @@ import allCoordinateSystems, {
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
-
-// for constants' values
-// see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
-const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0
-const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
-const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
 /** @enum */
 export const CrossHairs = {
@@ -63,7 +57,8 @@ const state = {
      *
      * @type Number
      */
-    zoom: DEFAULT_PROJECTION.defaultZoom,
+    zoom: DEFAULT_PROJECTION.getDefaultZoom(),
+
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
      *
@@ -76,7 +71,7 @@ const state = {
      *
      * @type Array<Number>
      */
-    center: DEFAULT_PROJECTION.defaultCenter,
+    center: DEFAULT_PROJECTION.bounds.center,
 
     /**
      * Projection used to express the position (and subsequently used to define how the mapping
@@ -104,36 +99,6 @@ const state = {
     camera: null,
 }
 
-/**
- * @param mercatorZoomLevel
- * @param latitudeInRad
- * @returns {Number}
- */
-const calculateWebMercatorResolution = (mercatorZoomLevel, latitudeInRad) => {
-    // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-    // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-    return round(
-        Math.abs(
-            (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad)) /
-                Math.pow(2, mercatorZoomLevel)
-        ),
-        2
-    )
-}
-
-/**
- * @param resolution
- * @param latitudeInRad
- * @returns {Number}
- */
-export const calculateWebMercatorZoom = (resolution, latitudeInRad) => {
-    return (
-        Math.log2(
-            Math.abs(PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad))
-        ) - Math.log2(resolution)
-    )
-}
-
 const getters = {
     /**
      * The center of the map reprojected in EPSG:4326
@@ -144,34 +109,17 @@ const getters = {
     centerEpsg4326: (state) => {
         const centerEpsg4326Unrounded = proj4(state.projection.epsg, WGS84.epsg, state.center)
         return [
-            // a precision of 6 digits means we can track position with 0.111m accuracy
-            // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
-            round(centerEpsg4326Unrounded[0], WGS84.acceptableDecimalPoints),
-            round(centerEpsg4326Unrounded[1], WGS84.acceptableDecimalPoints),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[0]),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[1]),
         ]
-    },
-    /**
-     * The center of the map reprojected in EPSG:4326 expressed in radian
-     *
-     * @param _
-     * @param getters
-     * @returns {Number[]}
-     */
-    centerEpsg4326InRadian: (_, getters) => {
-        const centerEpsg4326 = getters.centerEpsg4326
-        return [(centerEpsg4326[0] * Math.PI) / 180.0, (centerEpsg4326[1] * Math.PI) / 180.0]
     },
     /**
      * Resolution of the view expressed in meter per pixel
      *
      * @type Number
      */
-    resolution: (state, getters) => {
-        if (state.projection.epsg === LV95.epsg) {
-            // for LV95 we have custom-made resolution by zoom level, so no need to calculate it, just map it to the zoom
-            return LV95_RESOLUTIONS[Math.floor(state.zoom)]
-        }
-        return calculateWebMercatorResolution(state.zoom, getters.centerEpsg4326InRadian[1])
+    resolution: (state) => {
+        return state.projection.getResolutionForZoomAndCenter(state.zoom, state.center)
     },
 
     /**
@@ -189,24 +137,12 @@ const getters = {
         }
         // calculating extent with resolution
         const bottomLeft = [
-            round(
-                state.center[0] - halfScreenInMeter.width,
-                state.projection.acceptableDecimalPoints
-            ),
-            round(
-                state.center[1] - halfScreenInMeter.height,
-                state.projection.acceptableDecimalPoints
-            ),
+            state.projection.roundCoordinateValue(state.center[0] - halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] - halfScreenInMeter.height),
         ]
         const topRight = [
-            round(
-                state.center[0] + halfScreenInMeter.width,
-                state.projection.acceptableDecimalPoints
-            ),
-            round(
-                state.center[1] + halfScreenInMeter.height,
-                state.projection.acceptableDecimalPoints
-            ),
+            state.projection.roundCoordinateValue(state.center[0] + halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] + halfScreenInMeter.height),
         ]
         return [bottomLeft, topRight]
     },
@@ -263,16 +199,16 @@ const actions = {
     },
     zoomToExtent: ({ commit, getters, state, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
-            // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
+            // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
                 proj4(state.projection.epsg, WGS84.epsg, extent[0]),
                 proj4(state.projection.epsg, WGS84.epsg, extent[1]),
             ]
-            // Calculate center of extent and convert position back to EPSG:3857.
+            // Calculate center of extent and convert position back to the wanted projection
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
             const centerOfExtent = proj4(WGS84.epsg, state.projection.epsg, [
-                (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
-                (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
+                (points[0][0] + points[1][0]) / 2.0, // minX + maxX / 2
+                (points[0][1] + points[1][1]) / 2.0, // minY + maxY / 2
             ])
 
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
@@ -282,24 +218,10 @@ const actions = {
                 })
             }
             const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width
-            // calculating new zoom level by reversing
-            // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-            const zoom = Math.abs(
-                Math.log2(
-                    newResolution /
-                        PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
-                        Math.cos(getters.centerEpsg4326InRadian[1])
-                )
+            commit(
+                'setZoom',
+                state.projection.getZoomForResolutionAndCenter(newResolution, centerOfExtent)
             )
-            // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
-            // TODO: as soon as client zoom is implemented, remove this fixed value
-            if (state.projection.epsg === LV95.epsg && zoom > 13) {
-                commit('setZoom', 13)
-            } else if (state.projection.epsg !== LV95.epsg && zoom > 18) {
-                commit('setZoom', 18)
-            } else {
-                commit('setZoom', zoom)
-            }
         }
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),

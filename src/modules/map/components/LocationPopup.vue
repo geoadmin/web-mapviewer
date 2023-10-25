@@ -113,7 +113,6 @@ import {
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import { stringifyQuery } from '@/utils/url'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
@@ -168,7 +167,7 @@ export default {
             return this.coordinateWGS84Metric
                 .slice()
                 .reverse()
-                .map((val) => round(val, WGS84.acceptableDecimalPoints, true))
+                .map((val) => WGS84.roundCoordinateValue(val).toFixed(6))
                 .join(', ')
         },
         coordinateWGS84() {
