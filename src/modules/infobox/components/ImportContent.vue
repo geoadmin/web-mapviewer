@@ -1,5 +1,9 @@
 <template>
-    <div data-infobox="height-reference" class="import-overlay-content">
+    <div
+        data-infobox="height-reference"
+        class="import-overlay-content"
+        :class="{ 'with-layers': importedLayers?.length }"
+    >
         <div class="input-group d-flex">
             <input
                 ref="importInput"
@@ -94,6 +98,7 @@ const BTN_RESET_TIMEOUT = 3000
 
 export default {
     components: { ImportContentResultList },
+    emits: ['connected'],
     data() {
         return {
             importValue: '',
@@ -149,9 +154,10 @@ export default {
             this.importValue = provider
             this.hideProviders()
         },
-        onConnect() {
+        async onConnect() {
             this.uploadBtnStatus = 'loading'
-            this.handleFileUrl()
+            await this.handleFileUrl()
+            this.$emit('connected')
         },
         showProviders() {
             this.listShown = true
@@ -252,6 +258,10 @@ export default {
 .import-overlay-content {
     overflow: hidden;
     font-size: 0.825rem;
+    height: min(260px, 35vh);
+}
+
+.import-overlay-content.with-layers {
     height: min(450px, 35vh);
 }
 
