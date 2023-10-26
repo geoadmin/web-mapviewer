@@ -24,6 +24,9 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
   - [List of npm scripts](#list-of-npm-scripts)
   - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
 - [Project deployment](#project-deployment)
+  - [Automatic deploy](#automatic-deploy)
+  - [Manual deploy](#manual-deploy)
+- [Check External Layer Provider list](#check-external-layer-provider-list)
 
 ## Roadmap
 
@@ -163,25 +166,23 @@ The CI will use `npm ci`, which act like `npm install` but it ignores the file `
 
 ## Project deployment
 
-The application is deployed on three targets :  `dev|int|prod`
+The application is deployed on three targets : `dev|int|prod`
 
 ### Automatic deploy
 
 After every successful build, a version of `develop` and `master` are deployed
 automatically.
 
-| environment 	| hostname             	| path                  	| branch       	|
-|-------------	|----------------------	|-------------------------|--------------	|
-| PR          	| sys-map.dev.bgdi.ch  	| /preview/<branch_name> 	| <bug-*/feat-*>|
-| dev         	| sys-map.dev.bgdi.ch  	| /             	        | develop      	|
-| int         	| sys-map.int.bgdi.ch  	| /             	        | master       	|
-| prod        	| sys-map.prod.bgdi.ch 	| /             	        | master       	|
-
+| environment | hostname             | path                   | branch         |
+| ----------- | -------------------- | ---------------------- | -------------- |
+| PR          | sys-map.dev.bgdi.ch  | /preview/<branch_name> | <bug-_/feat-_> |
+| dev         | sys-map.dev.bgdi.ch  | /                      | develop        |
+| int         | sys-map.int.bgdi.ch  | /                      | master         |
+| prod        | sys-map.prod.bgdi.ch | /                      | master         |
 
 On the `dev` and `int` targets, deployement is done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#ci-for-web-mapviewer).
 
 A [test link](https://github.com/geoadmin/web-mapviewer/blob/bug_update_doc_regarding_deploy/.github/workflows/add-testlink-to-pr.yml) is also added to the description of every PR.
-
 
 ### Manual deploy
 
@@ -189,16 +190,15 @@ A bash script [deploy.sh](https://github.com/geoadmin/infra-terraform-bgdi-build
 is used for manual deploy, either from a local directory or a bucket from the CI.
 
     ./scripts/deploy.sh: --staging STAGING {--version VERSION | --local-src DIR} [--preview TEST_LINK]
-    
+
     Deploy web-mapviewer on the given staging. Either deploy a version from the
     build-artifacts-swisstopo bucket (with --version option), or a local build version
     using the --local-src DIR option.
-    
+
     OPTIONS:
       -h|--help               Print the help and exit.
       -s|--staging STAGING    Staging to deploy; dev|int|prod. Default; dev
       -v|--version VERSION    Version to deploy.
-
 
 On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#deploy-on-prod) and use the script from within `infra-terraform-bgdi-builder/projects/web_mapviewer` to deploy **manually**.
 
@@ -206,5 +206,19 @@ On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bg
 > If deploying manually to `prod`, wait until the CI has finished building the project, as the deploy script only copy files.
 
 Depending on the target (`dev|int|prod`), you will have to build and bundle/minify the app (for `int` and `prod`) or simply build the app without minification (for `dev`) prior to deplay (`npm run build:(dev|int|prod)`)
+
 - Only `develop` branch can be deployed at the root of the `dev` bucket.
 - Only `master` branch can be deployed at the root of `int` and `prod` buckets.
+
+## Check External Layer Provider list
+
+In the `Import` tool we provide an hardcoded list of provider via the [src/external-layer-providers.json](./src/external-layer-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
+check their validity. The tool can also be used with a single url as input parameter to see the url would be valid
+for our application.
+
+```bash
+npm install
+./scripts/check-external-layers-providers.js
+```
+
+You can use `-h` option to get more detail on the script.

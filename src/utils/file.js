@@ -5,48 +5,6 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import proj4 from 'proj4'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
 
-/** File import utils start * */
-
-/**
- * Checks if file has WMS Capabilities XML content
- *
- * @param {string} fileContent
- * @returns {boolean}
- */
-export function isWmsGetCap(fileContent) {
-    return /<(WMT_MS_Capabilities|WMS_Capabilities)/.test(fileContent)
-}
-
-/**
- * Checks if file has WMTS Capabilities XML content
- *
- * @param {string} fileContent
- * @returns {boolean}
- */
-export function isWmtsGetCap(fileContent) {
-    return /<Capabilities/.test(fileContent)
-}
-
-/**
- * Checks if file is KML
- *
- * @param {string} fileContent
- * @returns {boolean}
- */
-export function isKml(fileContent) {
-    return /<kml/.test(fileContent) && /<\/kml\s*>/.test(fileContent)
-}
-
-/**
- * Checks if file is GPX
- *
- * @param {string} fileContent
- * @returns {boolean}
- */
-export function isGpx(fileContent) {
-    return /<gpx/.test(fileContent) && /<\/gpx\s*>/.test(fileContent)
-}
-
 /**
  * Creates WMS or Group layer config from parsed getCap content
  *
@@ -137,5 +95,3 @@ export function getCapWMTSLayers(getCapUrl, getCap, layer, visible = true, opaci
         layerExtent
     )
 }
-
-/** File import utils end * */

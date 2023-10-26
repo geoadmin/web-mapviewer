@@ -47,7 +47,7 @@
 
 <script>
 import { createShortLink } from '@/api/shortlink.api'
-import { stringifyQuery } from '@/utils/url'
+import { stringifyQuery } from '@/utils/url-router'
 import log from '@/utils/logging'
 
 export default {

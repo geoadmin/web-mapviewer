@@ -3,7 +3,7 @@ import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManag
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
 import store from '@/store'
 import LoadingView from '@/views/LoadingView.vue'
-import { parseQuery, stringifyQuery } from '@/utils/url'
+import { parseQuery, stringifyQuery } from '@/utils/url-router'
 
 import MapView from '@/views/MapView.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
