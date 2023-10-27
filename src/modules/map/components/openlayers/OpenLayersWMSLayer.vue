@@ -35,7 +35,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: WEBMERCATOR.epsg,
+            default: WEBMERCATOR,
         },
         zIndex: {
             type: Number,

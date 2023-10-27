@@ -14,8 +14,19 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   this layer
      * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
+     * @param {String} abstract Abstract of this layer to be shown to the user
+     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
      */
-    constructor(name, opacity, visible, getCapabilitiesUrl, externalLayerId, attributions) {
+    constructor(
+        name,
+        opacity,
+        visible,
+        getCapabilitiesUrl,
+        externalLayerId,
+        attributions,
+        abstract,
+        extent
+    ) {
         super(
             name,
             LayerTypes.WMTS,
@@ -23,7 +34,9 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             getCapabilitiesUrl,
             opacity,
             visible,
-            attributions
+            attributions,
+            abstract,
+            extent
         )
     }
 

@@ -158,14 +158,12 @@ describe('Layer z-index are calculated correctly in the store', () => {
     })
 
     it('counts a group layers correctly', async () => {
-        const groupLayer = new ExternalGroupOfLayers(
-            'group',
-            'group',
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer1', []),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer2', []),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer3', []),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer4', [])
-        )
+        const groupLayer = new ExternalGroupOfLayers('group', 'group', [
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer1', [], ''),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer2', [], ''),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer3', [], ''),
+            new ExternalWMTSLayer('', 1.0, true, '...', 'layer4', [], ''),
+        ])
         await store.dispatch('addLayer', firstLayer)
         await store.dispatch('addLayer', groupLayer)
         await store.dispatch('addLayer', secondLayer)
