@@ -1,6 +1,7 @@
 import search, { CombinedSearchResults, RESULT_TYPE } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -49,16 +50,34 @@ const actions = {
         let updatedSearchResults = false
         // only firing search if query is longer than 2 chars
         if (query.length > 2) {
+            const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
-            const coordinate = coordinateFromString(query)
+            const coordinate = coordinateFromString(query, currentProjection)
             if (coordinate) {
                 dispatch('setCenter', coordinate)
-                dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                if (currentProjection instanceof CustomCoordinateSystem) {
+                    dispatch.setZoom(
+                        currentProjection.transformStandardZoomLevelToCustom(
+                            STANDARD_ZOOM_LEVEL_1_25000_MAP
+                        )
+                    )
+                } else {
+                    dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                }
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query).then((what3wordLocation) => {
                     dispatch('setCenter', what3wordLocation)
-                    dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                    if (currentProjection instanceof CustomCoordinateSystem) {
+                        dispatch(
+                            'setZoom',
+                            currentProjection.transformStandardZoomLevelToCustom(
+                                STANDARD_ZOOM_LEVEL_1_25000_MAP
+                            )
+                        )
+                    } else {
+                        dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                    }
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
             } else {
