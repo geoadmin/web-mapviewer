@@ -1,24 +1,24 @@
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import proj4 from 'proj4'
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
 
-const readPositionEpsg3857 = (position) => {
+const readPosition = (position, projection) => {
     const { coords } = position
-    return proj4(WGS84.epsg, WEBMERCATOR.epsg, [coords.longitude, coords.latitude])
+    return proj4(WGS84.epsg, projection.epsg, [coords.longitude, coords.latitude])
 }
 
 const handlePositionAndDispatchToStore = (position, store) => {
-    const positionEpsg3857 = readPositionEpsg3857(position)
-    store.dispatch('setGeolocationPosition', positionEpsg3857)
+    const positionProjected = readPosition(position, store.state.position.projection)
+    store.dispatch('setGeolocationPosition', positionProjected)
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy)
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
-        store.dispatch('setCenter', positionEpsg3857)
+        store.dispatch('setCenter', positionProjected)
     }
 }
 
