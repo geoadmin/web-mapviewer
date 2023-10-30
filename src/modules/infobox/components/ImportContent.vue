@@ -112,6 +112,7 @@ export default {
     computed: {
         ...mapState({
             lang: (state) => state.i18n.lang,
+            projection: (state) => state.position.projection,
         }),
         filteredList() {
             let providers = externalLayerProviders
@@ -213,13 +214,13 @@ export default {
                     }
                 }
                 this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
-                    getCapWMSLayers(getCap, l)
+                    getCapWMSLayers(getCap, l, this.projection)
                 ).filter((l) => !!l)
             } else if (isWmtsGetCap(fileContent)) {
                 const parser = new WMTSCapabilities()
                 const getCap = parser.read(fileContent)
                 this.importedLayers = getCap.Contents.Layer.map((l) =>
-                    getCapWMTSLayers(url, getCap, l)
+                    getCapWMTSLayers(url, getCap, l, this.projection)
                 ).filter((l) => !!l)
             } else if (isKml(fileContent)) {
                 // todo just for test
