@@ -1,7 +1,6 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 /** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
@@ -56,14 +55,17 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     }
 
     /**
-     * @param {String} timestamp A timestamp to be used, instead of the one define in the time
-     *   config of the layer. Is used to preview a specific timestamp without having to change the
-     *   layer's config (very useful for the time slider for instance)
      * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
      *   EPSG:2056 will require an input of 2056)
+     * @param {String | null} timestamp A timestamp to be used, instead of the one define in the
+     *   time config of the layer. Is used to preview a specific timestamp without having to change
+     *   the layer's config (very useful for the time slider for instance)
      * @returns {String} A XYZ type URL to request this WMTS layer's tiles
      */
-    getURL(timestamp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
+    getURL(epsgNumber, timestamp = null) {
+        if (!epsgNumber) {
+            throw Error('epsgNumber is required')
+        }
         let timestampToUse = timestamp
         if (!timestampToUse || !this.timeConfig.hasTimestamp(timestampToUse)) {
             // if no timestamp was given as param, or if the given timestamp is not part of the possible timestamps

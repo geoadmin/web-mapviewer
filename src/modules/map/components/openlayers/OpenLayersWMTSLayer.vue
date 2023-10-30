@@ -47,8 +47,8 @@ export default {
         },
         url() {
             return this.wmtsLayerConfig.getURL(
-                this.timestampForPreviewYear,
-                this.projection.epsgNumber
+                this.projection.epsgNumber,
+                this.timestampForPreviewYear
             )
         },
     },
