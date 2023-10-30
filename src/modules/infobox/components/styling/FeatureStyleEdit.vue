@@ -31,10 +31,7 @@
                 {{ lengthRounded }} {{ length > 100 ? 'km' : 'm' }}
             </div>
             <div v-if="isFeaturePolygon">
-                <font-awesome-icon
-                    :icon="['far', 'square']"
-                    style="background: #888a85; color: #888a85"
-                />
+                <font-awesome-icon :icon="['far', 'square']" class="bg-secondary text-secondary" />
                 {{ areaRounded }} {{ area > 10000 ? 'km' : 'm' }}<sup>2</sup>
             </div>
         </div>
