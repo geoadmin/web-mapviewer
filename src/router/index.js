@@ -2,7 +2,7 @@ import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.rout
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
 import store from '@/store'
-import { parseQuery, stringifyQuery } from '@/utils/url'
+import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import LoadingView from '@/views/LoadingView.vue'
 import MapView from '@/views/MapView.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'

@@ -113,7 +113,7 @@ import {
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { stringifyQuery } from '@/utils/url'
+import { stringifyQuery } from '@/utils/url-router'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 

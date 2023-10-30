@@ -77,7 +77,7 @@ export default {
                     if (options) {
                         // finally setting the source with the options drawn from the getCapabilities helper function
                         // the layer might be shown on the map a little later than all the others because of that
-                        this.layer.setSource(new WMTS(options))
+                        this.layer?.setSource(new WMTS(options))
                     } else {
                         log.error(
                             `Layer ${this.layerId} not found in WMTS Capabilities:`,

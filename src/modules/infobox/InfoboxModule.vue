@@ -64,7 +64,11 @@
                     :read-only="!showDrawingOverlay"
                 />
 
-                <ImportContent v-else-if="importOverlay" class="card-body" />
+                <ImportContent
+                    v-else-if="importOverlay"
+                    class="card-body"
+                    @connected="setMaxHeight"
+                />
 
                 <FeatureList v-else-if="isList" />
             </div>

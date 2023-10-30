@@ -76,13 +76,7 @@ export default {
 
             // if the user zooms in (or out) we want to be sure that the new loaded terrain
             // is taken into account for the tooltip positioning
-            viewer.scene.globe.tileLoadProgressEvent.addEventListener(() => {
-                // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
-                if (viewer.scene.globe.tilesLoaded) {
-                    this.updateCoordinateHeight()
-                    this.updatePosition()
-                }
-            })
+            viewer.scene.globe.tileLoadProgressEvent.addEventListener(this.onTileLoadProgress)
             // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
             // but taking into account height using globe.getHeight for the given coordinate
             // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
@@ -97,6 +91,7 @@ export default {
         const viewer = this.getViewer()
         if (viewer) {
             viewer.camera.changed.removeEventListener(this.updatePosition)
+            viewer.scene.globe.tileLoadProgressEvent.removeEventListener(this.onTileLoadProgress)
             // Set back the camera change sensitivity to default value (see mounted())
             viewer.camera.percentageChanged = 0.5
         }
@@ -137,6 +132,14 @@ export default {
                 // adding 15px to the top so that the tip of the arrow of the tooltip is on the edge
                 // of the highlighting circle of the selected feature
                 this.anchorPosition.top = cartesianCoords.y + 15
+            }
+        },
+        onTileLoadProgress() {
+            const viewer = this.getViewer()
+            // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
+            if (viewer.scene.globe.tilesLoaded) {
+                this.updateCoordinateHeight()
+                this.updatePosition()
             }
         },
         onClose() {

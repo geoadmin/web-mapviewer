@@ -15,11 +15,25 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
      * @param {boolean} visible If the layer should be visible on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
+     * @param {String} abstract Abstract of this layer to be shown to the user
+     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
      */
-    constructor(name, layerType, externalLayerId, baseURL, opacity, visible, attributions = []) {
+    constructor(
+        name,
+        layerType,
+        externalLayerId,
+        baseURL,
+        opacity,
+        visible,
+        attributions = [],
+        abstract = '',
+        extent = undefined
+    ) {
         super(name, layerType, opacity, visible, attributions, false, true)
         this.externalLayerId = externalLayerId
         this.baseURL = baseURL
+        this.abstract = abstract
+        this.extent = extent
     }
 
     getURL() {

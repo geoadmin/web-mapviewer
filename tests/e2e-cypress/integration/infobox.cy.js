@@ -9,9 +9,12 @@ describe('The infobox', () => {
                 cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
                 cy.get(mapSelector).click()
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
+                cy.waitUntilState(
+                    (state) => {
+                        return state.features.selectedFeatures.length > 0
+                    },
+                    { timeout: 10000 }
+                )
 
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             }
@@ -27,11 +30,18 @@ describe('The infobox', () => {
                 cy.waitUntilState((state) => {
                     return state.features.selectedFeatures.length > 0
                 })
-                cy.get('[data-cy="infobox"]').should('be.visible')
-                cy.intercept('**/MapServer/identify**', {})
-                cy.get(mapSelector).click()
-                cy.get('[data-cy="infobox"]').should('not.be.visible')
-                cy.activateFullscreen(mapSelector)
+                cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
+                    if (isPhoneMode) {
+                        cy.get('[data-cy="infobox"]').should('be.visible')
+                    } else {
+                        cy.get('[data-cy="popover"]').should('be.visible')
+                    }
+                    cy.intercept('**/MapServer/identify**', {})
+                    cy.get(mapSelector).click('right')
+                    cy.get('[data-cy="infobox"]').should('not.be.visible')
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.activateFullscreen(mapSelector)
+                })
             }
             if (with3d) {
                 cy.waitUntilCesiumTilesLoaded().then(testContent)
@@ -46,17 +56,32 @@ describe('The infobox', () => {
                     return state.features.selectedFeatures.length > 0
                 })
 
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
+                cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
+                    if (isPhoneMode) {
+                        cy.get('[data-cy="popover"]').should('not.exist')
+                        cy.get('[data-cy="infobox"]').should('be.visible')
 
-                cy.get('[data-cy="infobox-toggle-floating"]').click()
-                cy.get('[data-cy="popover"]').should('be.visible')
-                cy.get('[data-cy="infobox"]').should('not.be.visible')
+                        cy.get('[data-cy="infobox-toggle-floating"]').click()
+                        cy.get('[data-cy="popover"]').should('be.visible')
+                        cy.get('[data-cy="infobox"]').should('not.be.visible')
 
-                // we have to force the click, as in the mobile viewport the button can sometimes be under the header
-                cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
+                        // we have to force the click, as in the mobile viewport the button can sometimes be under the header
+                        cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
+                        cy.get('[data-cy="popover"]').should('not.exist')
+                        cy.get('[data-cy="infobox"]').should('be.visible')
+                    } else {
+                        cy.get('[data-cy="popover"]').should('be.visible')
+                        cy.get('[data-cy="infobox"]').should('not.be.visible')
+
+                        cy.get('[data-cy="toggle-floating-off"]').click()
+                        cy.get('[data-cy="popover"]').should('not.exist')
+                        cy.get('[data-cy="infobox"]').should('be.visible')
+
+                        cy.get('[data-cy="infobox-toggle-floating"]').click()
+                        cy.get('[data-cy="popover"]').should('be.visible')
+                        cy.get('[data-cy="infobox"]').should('not.be.visible')
+                    }
+                })
             }
             if (with3d) {
                 cy.waitUntilCesiumTilesLoaded().then(testContent)

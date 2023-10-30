@@ -45,6 +45,7 @@ import {
     faQrcode,
     faRuler,
     faSearch,
+    faSearchPlus,
     faSortAmountDownAlt,
     faSortAmountUpAlt,
     faSpinner,
@@ -56,6 +57,8 @@ import {
     faUser,
     faWindowMinimize,
     faXmark,
+    faSortAlphaUp,
+    faSortAlphaDown,
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -95,6 +98,7 @@ library.add(
     faQrcode,
     faRuler,
     faSearch,
+    faSearchPlus,
     faSortAmountUpAlt,
     faSortAmountDownAlt,
     faSpinner,
@@ -106,6 +110,8 @@ library.add(
     faUser,
     faWindowMinimize,
     faXmark,
+    faSortAlphaUp,
+    faSortAlphaDown,
     // Regular
     faCheckSquare,
     faClock,

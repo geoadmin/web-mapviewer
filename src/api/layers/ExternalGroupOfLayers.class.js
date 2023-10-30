@@ -16,9 +16,21 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      *   generation
      * @param {ExternalLayer[]} layers Description of the layers being part of this group (they will
      *   all be displayed at the same time, in contrast to an aggregate layer)
+     * @param {String} abstract Abstract of this layer to be shown to the user
+     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
      */
-    constructor(name, hostname, ...layers) {
-        super(name, LayerTypes.GROUP, `${hostname}:${name.replaceAll(' ', '_')}`, null, 1, true)
+    constructor(name, hostname, layers, abstract = '', extent = undefined) {
+        super(
+            name,
+            LayerTypes.GROUP,
+            `${hostname}:${name.replaceAll(' ', '_')}`,
+            null,
+            1,
+            true,
+            [],
+            abstract,
+            extent
+        )
         this.layers = [...layers]
     }
 

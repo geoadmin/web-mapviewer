@@ -6,11 +6,11 @@ import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 
 module.exports = defineConfig({
     video: false,
-    defaultCommandTimeout: 10000,
-    requestTimeout: 15000,
+    defaultCommandTimeout: 5000,
+    requestTimeout: 5000,
     numTestsKeptInMemory: 2,
     retries: {
-        runMode: 5,
+        runMode: 1,
         openMode: 0,
     },
     reporter: 'cypress-multi-reporters',

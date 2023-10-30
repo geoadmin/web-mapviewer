@@ -1,5 +1,9 @@
 <template>
-    <div data-infobox="height-reference" class="import-overlay-content">
+    <div
+        data-infobox="height-reference"
+        class="import-overlay-content"
+        :class="{ 'with-layers': importedLayers?.length }"
+    >
         <div class="input-group d-flex">
             <input
                 ref="importInput"
@@ -52,7 +56,7 @@
             </div>
         </div>
         <div
-            class="connect-btn-container"
+            class="connect-btn-container mb-2"
             :class="{
                 disabled: isConnectDisabled,
             }"
@@ -66,45 +70,43 @@
                 {{ buttonText }}
             </button>
         </div>
-        <!-- todo just for test -->
-        <div class="d-flex flex-column h-50 overflow-y-auto">
-            <div
-                v-for="layer in importedLayers"
-                :key="layer.externalLayerId"
-                class="cursor-pointer"
-                @click="() => addLayer(layer)"
-            >
-                {{ layer.name }}
-            </div>
-        </div>
+        <ImportContentResultList
+            v-if="importedLayers?.length"
+            :imported-layers="importedLayers"
+            :max-size="wmsMaxSize"
+        ></ImportContentResultList>
     </div>
 </template>
 <script>
 import externalLayerProviders from '@/external-layer-providers.json'
-import { isValidUrl, transformUrl } from '@/utils/url'
-import { mapActions, mapState } from 'vuex'
 import {
-    getCapWMSLayers,
-    getCapWMTSLayers,
+    isValidUrl,
+    transformUrl,
     isGpx,
     isKml,
     isWmsGetCap,
     isWmtsGetCap,
-} from '@/utils/file'
+} from '@/utils/external-provider'
+import { mapState } from 'vuex'
+import { getCapWMSLayers, getCapWMTSLayers } from '@/utils/file'
 import { WMSCapabilities } from 'ol/format'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import ImportContentResultList from './ImportContentResultList.vue'
 
 const BTN_RESET_TIMEOUT = 3000
 
 export default {
+    components: { ImportContentResultList },
+    emits: ['connected'],
     data() {
         return {
             importValue: '',
             listShown: false,
             // 'default | 'loading | 'failed' | 'succeeded'
             uploadBtnStatus: 'default',
-            importedLayers: [], // todo just for test
+            importedLayers: [],
+            wmsMaxSize: undefined,
         }
     },
     computed: {
@@ -137,8 +139,14 @@ export default {
             return this.$i18n.t('connect')
         },
     },
+    watch: {
+        lang() {
+            if (this.importedLayers?.length) {
+                this.onConnect()
+            }
+        },
+    },
     methods: {
-        ...mapActions(['addLayer']),
         onInputChange(event) {
             this.importValue = event.target.value
         },
@@ -146,9 +154,10 @@ export default {
             this.importValue = provider
             this.hideProviders()
         },
-        onConnect() {
+        async onConnect() {
             this.uploadBtnStatus = 'loading'
-            this.handleFileUrl()
+            await this.handleFileUrl()
+            this.$emit('connected')
         },
         showProviders() {
             this.listShown = true
@@ -193,17 +202,22 @@ export default {
                 .focus()
         },
         handleFileContent(fileContent, url) {
+            this.wmsMaxSize = undefined
             if (isWmsGetCap(fileContent)) {
                 const parser = new WMSCapabilities()
                 const getCap = parser.read(fileContent)
-                // todo just for test
+                if (getCap.Service.MaxWidth && getCap.Service.MaxHeight) {
+                    this.wmsMaxSize = {
+                        width: getCap.Service.MaxWidth,
+                        height: getCap.Service.MaxHeight,
+                    }
+                }
                 this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
                     getCapWMSLayers(getCap, l)
                 ).filter((l) => !!l)
             } else if (isWmtsGetCap(fileContent)) {
                 const parser = new WMTSCapabilities()
                 const getCap = parser.read(fileContent)
-                // todo just for test
                 this.importedLayers = getCap.Contents.Layer.map((l) =>
                     getCapWMTSLayers(url, getCap, l)
                 ).filter((l) => !!l)
@@ -242,11 +256,13 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .import-overlay-content {
-    height: 250px;
+    overflow: hidden;
+    font-size: 0.825rem;
+    height: min(260px, 35vh);
 }
 
-.import-input {
-    font-size: 0.825rem;
+.import-overlay-content.with-layers {
+    height: min(450px, 35vh);
 }
 
 .import-input:focus {
