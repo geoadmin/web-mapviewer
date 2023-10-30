@@ -26,8 +26,15 @@
                 class="form-control"
                 rows="2"
             ></textarea>
+            <div v-if="isFeatureLine">
+                <font-awesome-icon :icon="['far', 'square']" />
+                {{ lengthRounded }} {{ length > 100 ? 'km' : 'm' }}
+            </div>
+            <div v-if="isFeaturePolygon">
+                <font-awesome-icon :icon="['far', 'square']" class="bg-secondary text-secondary" />
+                {{ areaRounded }} {{ area > 10000 ? 'km' : 'm' }}<sup>2</sup>
+            </div>
         </div>
-
         <div class="d-flex">
             <SelectedFeatureProfile :feature="feature" />
 
@@ -101,6 +108,9 @@ import SelectedFeatureProfile from '@/modules/infobox/components/styling/Selecte
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions } from 'vuex'
+import { getArea, getLength } from 'ol/sphere.js'
+import { Polygon } from 'ol/geom'
+import { round } from '@/utils/numberUtils'
 
 /**
  * Display a popup on the map when a drawing is selected.
@@ -159,6 +169,50 @@ export default {
                 this.changeFeatureTitle({ feature: this.feature, title: value })
             },
         },
+        geometry() {
+            /*
+                Openlayers polygons coordinates are in a triple array
+                The first array is the "ring", the second is to hold the coordinates, which are in an array themselves
+                We don't have rings in this case, so we need to create an ol geometry
+                */
+
+            const geom = [this.feature.coordinates]
+
+            return new Polygon(geom)
+        },
+        length() {
+            return getLength(this.geometry)
+        },
+        isClosed() {
+            /*
+                The length parameter must be greater than 3, because the polygon has one point
+                twice : the first and last point are both existing in the same exact space.
+                A point would be length 2, a line would be length 3. We do not consider the
+                case where there are more than 3 points, but all in a single line.
+            */
+            return (
+                this.feature.coordinates.length > 3 &&
+                this.feature.coordinates[0][0] ===
+                    this.feature.coordinates[this.feature.coordinates.length - 1][0] &&
+                this.feature.coordinates[0][1] ===
+                    this.feature.coordinates[this.feature.coordinates.length - 1][1]
+            )
+        },
+        lengthRounded() {
+            if (this.length > 100) {
+                return `${round(this.length / 1000, 2)}`
+            }
+            return `${round(this.length, 2)}`
+        },
+        area() {
+            return getArea(this.geometry)
+        },
+        areaRounded() {
+            if (this.area > 10000) {
+                return `${round(this.area / 1000000, 2)}`
+            }
+            return `${round(area, 2)}`
+        },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER
         },
@@ -170,6 +224,9 @@ export default {
         },
         isFeatureMeasure() {
             return this.feature.featureType === EditableFeatureTypes.MEASURE
+        },
+        isFeaturePolygon() {
+            return this.feature.featureType === EditableFeatureTypes.LINEPOLYGON && this.isClosed
         },
     },
     methods: {
