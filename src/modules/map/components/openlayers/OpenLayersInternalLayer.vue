@@ -48,7 +48,7 @@
             :z-index="zIndex"
         />
         <div v-if="layerConfig.type === LayerTypes.GROUP">
-            <open-layers-internal-layer
+            <OpenLayersInternalLayer
                 v-for="(layer, index) in layerConfig.layers"
                 :key="`${layer.getID()}-${index}`"
                 :layer-config="layer"
@@ -68,7 +68,7 @@
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
             >
-                <open-layers-internal-layer
+                <OpenLayersInternalLayer
                     v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                     :layer-config="aggregateSubLayer.layer"
                     :projection="projection"
