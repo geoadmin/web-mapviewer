@@ -34,7 +34,7 @@ export default {
         },
         projection: {
             type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
+            required: true,
         },
         zIndex: {
             type: Number,

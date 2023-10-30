@@ -12,25 +12,23 @@
     <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
 <script>
-import { DEFAULT_PROJECTION } from '@/config'
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
 import MousePosition from 'ol/control/MousePosition'
+import { mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
-    props: {
-        projection: {
-            type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
-        },
-    },
     data() {
         return {
             availableFormats: allFormats,
             displayedFormatId: LV95Format.id,
         }
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     created() {
         this.mousePositionControl = new MousePosition({
