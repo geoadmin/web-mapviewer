@@ -30,3 +30,11 @@ tests/results/*
 
 # Git
 *.orig
+
+# script check-external-layers-providers.mjs
+scripts/check-layer-providers-results/*invalid_providers_cors.yaml
+scripts/check-layer-providers-results/*invalid_providers.yaml
+scripts/check-layer-providers-results/*invalid_providers_wms.yaml
+scripts/check-layer-providers-results/*invalid_providers_wmts.yaml
+scripts/check-layer-providers-results/*invalid_providers_content.yaml
+scripts/check-layer-providers-results/*valid_providers.json

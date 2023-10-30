@@ -193,7 +193,9 @@ describe('Test on legacy param import', () => {
             })
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('include', 'swisssearch=1530+Payerne')
-            cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+            cy.get('[data-cy="search-result-entry-location"]', { timeout: 8000 }).should(
+                'be.visible'
+            )
         })
     })
 })

@@ -79,16 +79,16 @@
 </template>
 <script>
 import externalLayerProviders from '@/external-layer-providers.json'
-import { isValidUrl, transformUrl } from '@/utils/url'
-import { mapState } from 'vuex'
 import {
-    getCapWMSLayers,
-    getCapWMTSLayers,
+    isValidUrl,
+    transformUrl,
     isGpx,
     isKml,
     isWmsGetCap,
     isWmtsGetCap,
-} from '@/utils/file'
+} from '@/utils/external-provider'
+import { mapState } from 'vuex'
+import { getCapWMSLayers, getCapWMTSLayers } from '@/utils/file'
 import { WMSCapabilities } from 'ol/format'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import KMLLayer from '@/api/layers/KMLLayer.class'

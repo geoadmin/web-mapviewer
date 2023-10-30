@@ -107,7 +107,7 @@ import { LV03, LV95, MGRS, UTM, WEBMERCATOR, WGS84 } from '@/utils/coordinateSys
 import { printHumanReadableCoordinates } from '@/utils/coordinateUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import { stringifyQuery } from '@/utils/url'
+import { stringifyQuery } from '@/utils/url-router'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 
