@@ -18,7 +18,8 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
                 90.0,
                 // center of LV95's extent transformed with epsg.io website
                 [8.239436, 46.832259]
-            )
+            ),
+            ['CRS:84']
         )
     }
 

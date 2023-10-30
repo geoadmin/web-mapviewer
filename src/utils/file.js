@@ -4,6 +4,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import proj4 from 'proj4'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from './logging'
 
 /**
  * Creates WMS or Group layer config from parsed getCap content
@@ -32,10 +33,15 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
                 [extent[2], extent[3]],
             ]
         } else {
-            layerExtent = [
-                proj4(crs, projection.epsg, [extent[0], extent[1]]),
-                proj4(crs, projection.epsg, [extent[2], extent[3]]),
-            ]
+            try {
+                layerExtent = [
+                    proj4(crs, projection.epsg, [extent[0], extent[1]]),
+                    proj4(crs, projection.epsg, [extent[2], extent[3]]),
+                ]
+            } catch (error) {
+                log.error(`Failed to re-project ${crs} to ${projection.epsg}: ${error}`)
+                throw error
+            }
         }
     }
 

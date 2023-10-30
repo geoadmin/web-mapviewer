@@ -1,4 +1,4 @@
-import { LV03, LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import proj4 from 'proj4'
 
@@ -14,7 +14,7 @@ import proj4 from 'proj4'
  *
  * @param {CoordinateSystem[]} projections
  */
-const setupProj4 = (projections = [WEBMERCATOR, LV95, LV03]) => {
+const setupProj4 = (projections = allCoordinateSystems) => {
     // adding projection defining a transformation matrix to proj4 (these projection matrices can be found on the epsg.io website)
     projections
         .filter((projection) => projection.proj4transformationMatrix)
@@ -25,6 +25,14 @@ const setupProj4 = (projections = [WEBMERCATOR, LV95, LV03]) => {
                 log.error('Error while setting up projection in proj4', projection.epsg, err)
                 throw err
             }
+        })
+    // Adding projection alias
+    projections
+        .filter((projection) => projection.aliases)
+        .forEach((projection) => {
+            projection.aliases.forEach((alias) => {
+                proj4.defs(alias, proj4.defs(projection.epsg))
+            })
         })
 }
 

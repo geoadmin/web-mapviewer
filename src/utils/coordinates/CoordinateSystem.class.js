@@ -27,12 +27,14 @@ export default class CoordinateSystem {
      *   section "Projected bounds" of a projection's page. It is possible to specify a custom
      *   center to these bounds, so that the application starts at this custom center instead of the
      *   natural center (when no coordinates are specified at startup).
+     * @param {string[]} aliases List Alias used for proj4
      */
-    constructor(epsgNumber, label, proj4transformationMatrix, bounds = null) {
+    constructor(epsgNumber, label, proj4transformationMatrix, bounds = null, aliases = []) {
         this.epsgNumber = epsgNumber
         this.label = label
         this.proj4transformationMatrix = proj4transformationMatrix
         this.bounds = bounds
+        this.aliases = aliases
     }
 
     /**
