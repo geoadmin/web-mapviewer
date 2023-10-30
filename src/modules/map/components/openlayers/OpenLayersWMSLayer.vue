@@ -7,7 +7,7 @@
 <script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { DEFAULT_PROJECTION, WMS_TILE_SIZE } from '@/config'
+import { WMS_TILE_SIZE } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'

@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import reprojectGeoJsonData from '@/utils/geoJsonUtils'

@@ -6,7 +6,6 @@
 
 <script>
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'

@@ -12,7 +12,6 @@
 
 <script>
 import { SelectableFeature } from '@/api/features.api'
-import { DEFAULT_PROJECTION } from '@/config'
 import OpenLayersMarker, {
     highlightedFill,
     highlightedStroke,

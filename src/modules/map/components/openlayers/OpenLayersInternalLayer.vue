@@ -91,7 +91,6 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_PROJECTION } from '@/config'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
