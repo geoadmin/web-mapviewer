@@ -63,7 +63,6 @@
             v-for="(feature, index) in selectedFeatures"
             :key="feature.id"
             :feature="feature"
-            :projection="mappingProjection"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
         <OpenLayersPopover

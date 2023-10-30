@@ -19,12 +19,12 @@ import OpenLayersMarker, {
     markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import { Vector as VectorSource } from 'ol/source'
 import Style from 'ol/style/Style'
+import { mapState } from 'vuex'
 
 const geoJsonStyleFunction = (olFeature) => {
     const geoJsonType = olFeature.get('geometry').getType()
@@ -59,10 +59,6 @@ export default {
             type: SelectableFeature,
             required: true,
         },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
         zIndex: {
             type: Number,
             default: -1,
@@ -75,6 +71,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
         doesFeatureHaveAGeometry() {
             return this.feature?.geometry
         },
