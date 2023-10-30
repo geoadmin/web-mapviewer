@@ -1,7 +1,6 @@
 import { identify } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 /**
@@ -13,7 +12,7 @@ import log from '@/utils/logging'
  * @param {String} lang
  * @param {CoordinateSystem} projection
  */
-const runIdentify = async (store, clickInfo, visibleLayers, lang, projection = WEBMERCATOR) => {
+const runIdentify = async (store, clickInfo, visibleLayers, lang, projection) => {
     // we run identify only if there are visible layers (other than background)
     if (visibleLayers.length > 0) {
         const allRequests = []
