@@ -104,7 +104,7 @@ function checkProviderResponse(provider, url, response, result) {
         )
     ) {
         console.error(
-            `Provider ${provider} does not geoadmin in its CORS: status=${
+            `Provider ${provider} does not have geoadmin in its CORS: status=${
                 response.status
             }, Access-Control-Allow-Origin=${response.headers.get('access-control-allow-origin')}`
         )
