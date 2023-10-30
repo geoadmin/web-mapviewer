@@ -6,7 +6,6 @@
 
 <script>
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'

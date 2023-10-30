@@ -27,7 +27,6 @@
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
             :layer-config="currentBackgroundLayer"
-            :projection="mappingProjection"
             :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
         />
         <!-- Adding all other layers -->
@@ -37,7 +36,6 @@
             :layer-config="layer"
             :preview-year="previewYear"
             :current-map-resolution="resolution"
-            :projection="mappingProjection"
             :z-index="zIndexForVisibleLayer(layer)"
         />
         <!-- Adding pinned location -->
@@ -65,7 +63,6 @@
             v-for="(feature, index) in selectedFeatures"
             :key="feature.id"
             :feature="feature"
-            :projection="mappingProjection"
             :z-index="index + startingZIndexForHighlightedFeatures"
         />
         <OpenLayersPopover

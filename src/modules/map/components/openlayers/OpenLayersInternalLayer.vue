@@ -48,7 +48,7 @@
             :z-index="zIndex"
         />
         <div v-if="layerConfig.type === LayerTypes.GROUP">
-            <open-layers-internal-layer
+            <OpenLayersInternalLayer
                 v-for="(layer, index) in layerConfig.layers"
                 :key="`${layer.getID()}-${index}`"
                 :layer-config="layer"
@@ -68,7 +68,7 @@
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
             >
-                <open-layers-internal-layer
+                <OpenLayersInternalLayer
                     v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                     :layer-config="aggregateSubLayer.layer"
                     :projection="projection"
@@ -91,15 +91,14 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { DEFAULT_PROJECTION } from '@/config'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+import { mapState } from 'vuex'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
@@ -130,10 +129,6 @@ export default {
             type: Number,
             default: null,
         },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
         zIndex: {
             type: Number,
             default: -1,
@@ -145,6 +140,11 @@ export default {
             LV95,
             WEBMERCATOR,
         }
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     methods: {
         shouldAggregateSubLayerBeVisible(subLayer) {

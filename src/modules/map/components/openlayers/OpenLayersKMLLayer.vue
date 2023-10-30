@@ -6,7 +6,7 @@
 
 <script>
 import { getKmlFromUrl } from '@/api/files.api'
-import { DEFAULT_PROJECTION, IS_TESTING_WITH_CYPRESS } from '@/config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import log from '@/utils/logging'
 import VectorLayer from 'ol/layer/Vector'
