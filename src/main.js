@@ -22,7 +22,6 @@ import router from '@/router'
 import store from '@/store'
 import log from '@/utils/logging'
 import setupChartJS from '@/utils/setupChartJS'
-import setupProj4 from '@/utils/setupProj4'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // Importing styling CSS libraries
@@ -56,7 +55,6 @@ log.debug('Config is', {
 })
 
 tippy.setDefaultProps({ theme: 'light-border' })
-setupProj4()
 setupChartJS()
 
 const app = createApp(App)

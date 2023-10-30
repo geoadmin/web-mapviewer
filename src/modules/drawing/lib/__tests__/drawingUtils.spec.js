@@ -6,12 +6,8 @@ import {
     wrapXCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import setupProj4 from '@/utils/setupProj4'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
-
-// setting up projection for proj4 otherwise they will fail when asked
-setupProj4()
 
 describe('Unit test functions from drawingUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {

@@ -5,11 +5,8 @@ import {
 } from '@/modules/map/components/cesium/constants'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import setupProj4 from '@/utils/setupProj4'
 import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
-
-setupProj4()
 
 describe('Testing 3D navigation', () => {
     context('camera limits', () => {
