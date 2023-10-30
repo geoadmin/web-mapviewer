@@ -99,6 +99,7 @@ import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+import { mapState } from 'vuex'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
@@ -129,10 +130,6 @@ export default {
             type: Number,
             default: null,
         },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
         zIndex: {
             type: Number,
             default: -1,
@@ -144,6 +141,11 @@ export default {
             LV95,
             WEBMERCATOR,
         }
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     methods: {
         shouldAggregateSubLayerBeVisible(subLayer) {
