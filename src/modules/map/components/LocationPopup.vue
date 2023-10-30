@@ -99,7 +99,6 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
-import { DEFAULT_PROJECTION } from '@/config'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
@@ -110,7 +109,6 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
@@ -125,12 +123,6 @@ export default {
         LocationPopupCopySlot,
     },
     inject: ['getMap'],
-    props: {
-        projection: {
-            type: CoordinateSystem,
-            default: DEFAULT_PROJECTION,
-        },
-    },
     data() {
         return {
             what3Words: '',
@@ -149,6 +141,7 @@ export default {
             clickInfo: (state) => state.map.clickInfo,
             currentLang: (state) => state.i18n.lang,
             displayLocationPopup: (state) => state.map.displayLocationPopup,
+            projection: (state) => state.position.projection,
         }),
         coordinate() {
             return this.clickInfo?.coordinate
@@ -221,7 +214,11 @@ export default {
         },
         async updateWhat3Word(coordinate, lang) {
             try {
-                this.what3Words = await registerWhat3WordsLocation(coordinate, lang)
+                this.what3Words = await registerWhat3WordsLocation(
+                    coordinate,
+                    this.projection,
+                    lang
+                )
             } catch (error) {
                 log.error(`Failed to retrieve What3Words Location`)
                 this.what3Words = ''
