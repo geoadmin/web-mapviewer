@@ -3,7 +3,8 @@ import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import proj4 from 'proj4'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from './logging'
 
 /**
  * Creates WMS or Group layer config from parsed getCap content
@@ -24,18 +25,28 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
     const wmsUrl = getCap.Capability.Request.GetMap.DCPType[0].HTTP.Get.OnlineResource
     let layerExtent = undefined
     if (layer.BoundingBox?.length) {
-        const crs = layer.BoundingBox[0].crs
-        const extent = layer.BoundingBox[0].extent
-        if (crs === projection.epsg) {
+        const matchedBbox = layer.BoundingBox.find((bbox) => bbox.crs === projection.epsg)
+        if (matchedBbox) {
             layerExtent = [
-                [extent[0], extent[1]],
-                [extent[2], extent[3]],
+                [matchedBbox.extent[0], matchedBbox.extent[1]],
+                [matchedBbox.extent[2], matchedBbox.extent[3]],
             ]
         } else {
-            layerExtent = [
-                proj4(crs, projection.epsg, [extent[0], extent[1]]),
-                proj4(crs, projection.epsg, [extent[2], extent[3]]),
-            ]
+            const bbox = layer.BoundingBox.find((bbox) =>
+                allCoordinateSystems.find((projection) => projection.epsg === bbox.crs)
+            )
+            if (bbox) {
+                layerExtent = [
+                    proj4(bbox.crs, projection.epsg, [bbox.extent[0], bbox.extent[1]]),
+                    proj4(bbox.crs, projection.epsg, [bbox.extent[2], bbox.extent[3]]),
+                ]
+            } else {
+                log.error(
+                    `No valid bounding box found in GetCapabilities for layer ${layer.title}`,
+                    getCap,
+                    layer
+                )
+            }
         }
     }
 
