@@ -14,12 +14,10 @@
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import debounce from '@/utils/debounce'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
     data() {
         return {
-            compareSliderIsGrabbed: false,
             clientWidth: window.innerWidth,
             compareRatio: -0.5,
         }
@@ -45,14 +43,6 @@ export default {
     methods: {
         ...mapActions(['setCompareRatio']),
         grabSlider(event) {
-            this.compareSliderIsGrabbed = true
-            if (event.type === 'touchstart') {
-                // for touch events we have to select which touch we want to get the screen position
-                // (there can be multiple fingers gestures)
-                this.cursorX = event.touches[0].screenX
-            } else {
-                this.cursorX = event.screenX
-            }
             window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
             window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
             window.addEventListener('mouseup', this.releaseSlider, { passive: true })
@@ -60,15 +50,11 @@ export default {
         },
         listenToMouseMove(event) {
             const currentPosition =
-                event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
-            const deltaX = this.cursorX - currentPosition
-            // COMMIT to compareRatio
-            console.log(deltaX)
-            console.log((currentPosition + deltaX) / this.clientWidth)
-            this.compareRatio = (currentPosition + deltaX) / this.clientWidth
+                event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
+            // THIS DIES ON CLIENT SMALLER THAN SCREEN
+            this.compareRatio = currentPosition / this.clientWidth
         },
         releaseSlider() {
-            this.compareSliderIsGrabbed = false
             window.removeEventListener('mousemove', this.listenToMouseMove)
             window.removeEventListener('touchmove', this.listenToMouseMove)
             window.removeEventListener('mouseup', this.releaseSlider)
