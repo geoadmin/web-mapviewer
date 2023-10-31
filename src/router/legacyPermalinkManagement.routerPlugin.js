@@ -111,7 +111,7 @@ const handleLegacyParam = (
             break
         // Setting the position of the compare slider
         case 'swipe_ratio':
-            value = legacyParams[param]
+            newValue = legacyValue
             key = 'compare_ratio'
             break
         case 'layers_opacity':

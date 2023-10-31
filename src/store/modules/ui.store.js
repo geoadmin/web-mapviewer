@@ -11,7 +11,13 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
-// TODO : faire un commentaire
+/**
+ * The default value of the compare slider ratio. As long as the ratio is not between 0 and 1, the
+ * slider won't be active, and this allow us to have a reset value which is constant across the
+ * code.
+ *
+ * @type int
+ */
 export const COMPARE_SLIDER_DEFAULT_VALUE = -1
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
