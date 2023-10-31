@@ -78,7 +78,7 @@
     </div>
 </template>
 <script>
-import externalLayerProviders from '@/external-layer-providers.json'
+import externalLayerProviders from '@/modules/infobox/utils/external-layer-providers.json'
 import {
     isValidUrl,
     transformUrl,
@@ -86,7 +86,7 @@ import {
     isKml,
     isWmsGetCap,
     isWmtsGetCap,
-} from '@/utils/external-provider'
+} from '@/modules/infobox/utils/external-provider'
 import { mapState } from 'vuex'
 import { getCapWMSLayers, getCapWMTSLayers } from '@/utils/file'
 import { WMSCapabilities } from 'ol/format'
@@ -323,3 +323,4 @@ export default {
     right: 50px;
 }
 </style>
+../utils/external-layer-providers.js

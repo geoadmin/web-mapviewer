@@ -212,7 +212,7 @@ Depending on the target (`dev|int|prod`), you will have to build and bundle/mini
 
 ## Check External Layer Provider list
 
-In the `Import` tool we provide an hardcoded list of provider via the [src/external-layer-providers.json](./src/external-layer-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
+In the `Import` tool we provide an hardcoded list of provider via the [src/modules/infobox/utils/external-layer-providers.json](./src/modules/infobox/utils/external-layer-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
 check their validity. The tool can also be used with a single url as input parameter to see the url would be valid
 for our application.
 
