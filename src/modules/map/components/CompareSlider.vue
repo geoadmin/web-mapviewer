@@ -1,3 +1,57 @@
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
+
+import { round } from '@/utils/numberUtils'
+const props = defineProps({
+    clientWidth: {
+        type: Number,
+        default: window.innerWidth,
+    },
+})
+
+const { clientWidth } = toRefs(props)
+
+const compareRatio = ref(-0.5)
+
+const store = useStore()
+const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const compareSliderPosition = computed(() => {
+    return {
+        left: compareRatio.value * 100 + '%',
+    }
+})
+
+watch(storeCompareRatio, (newValue) => {
+    compareRatio.value = newValue
+})
+
+onMounted(() => {
+    compareRatio.value = storeCompareRatio.value
+})
+
+function grabSlider() {
+    window.addEventListener('mousemove', listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+    window.addEventListener('mouseup', releaseSlider, { passive: true })
+    window.addEventListener('touchend', releaseSlider, { passive: true })
+}
+
+function listenToMouseMove(event) {
+    const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
+    compareRatio.value = round(currentPosition / clientWidth.value, 2)
+}
+
+function releaseSlider() {
+    window.removeEventListener('mousemove', listenToMouseMove)
+    window.removeEventListener('touchmove', listenToMouseMove)
+    window.removeEventListener('mouseup', releaseSlider)
+    window.removeEventListener('touchend', releaseSlider)
+    store.dispatch('setCompareRatio', compareRatio.value)
+}
+</script>
+
 <template>
     <div
         class="compare-slider"
@@ -11,78 +65,6 @@
         <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import debounce from '@/utils/debounce'
-export default {
-    data() {
-        return {
-            compareSliderIsGrabbed: false,
-            clientWidth: window.innerWidth,
-            compareRatio: -0.5,
-        }
-    },
-    inject: ['getMap'],
-    components: {
-        FontAwesomeIcon,
-    },
-    computed: {
-        ...mapState({
-            storeCompareRatio: (state) => state.ui.compareRatio,
-        }),
-        ...mapGetters(['visibleLayers']),
-        compareSliderPosition() {
-            return {
-                left: this.compareRatio * 100 + '%',
-            }
-        },
-    },
-    mounted() {
-        this.compareRatio = this.storeCompareRatio
-    },
-    methods: {
-        ...mapActions(['setCompareRatio']),
-        grabSlider(event) {
-            this.compareSliderIsGrabbed = true
-            if (event.type === 'touchstart') {
-                // for touch events we have to select which touch we want to get the screen position
-                // (there can be multiple fingers gestures)
-                this.cursorX = event.touches[0].screenX
-            } else {
-                this.cursorX = event.screenX
-            }
-            window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
-            window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
-            window.addEventListener('mouseup', this.releaseSlider, { passive: true })
-            window.addEventListener('touchend', this.releaseSlider, { passive: true })
-        },
-        listenToMouseMove(event) {
-            const currentPosition =
-                event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
-            const deltaX = this.cursorX - currentPosition
-            // COMMIT to compareRatio
-            console.log(deltaX)
-            console.log((currentPosition + deltaX) / this.clientWidth)
-            this.compareRatio = (currentPosition + deltaX) / this.clientWidth
-        },
-        releaseSlider() {
-            this.compareSliderIsGrabbed = false
-            window.removeEventListener('mousemove', this.listenToMouseMove)
-            window.removeEventListener('touchmove', this.listenToMouseMove)
-            window.removeEventListener('mouseup', this.releaseSlider)
-            window.removeEventListener('touchend', this.releaseSlider)
-            this.setCompareRatio(this.compareRatio)
-        },
-    },
-    watch: {
-        storeCompareRatio() {
-            this.compareRatio = this.storeCompareRatio
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
