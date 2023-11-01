@@ -89,7 +89,8 @@ const state = {
 
     /** @type CrossHairs */
     crossHair: null,
-
+    /** @type Number[] */
+    crossHairPosition: null,
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
      * that works with Cesium)
@@ -229,11 +230,18 @@ const actions = {
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
     decreaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) - 1),
     /** @param {CrossHairs | String | null} crossHair */
-    setCrossHair: ({ commit }, crossHair) => {
+    setCrossHair: ({ commit, state }, { crossHair, crossHairPosition }) => {
         if (crossHair === null) {
             commit('setCrossHair', crossHair)
         } else if (crossHair in CrossHairs) {
             commit('setCrossHair', CrossHairs[crossHair])
+        }
+        // if a position is defined as param we use it
+        if (crossHairPosition) {
+            commit('setCrossHairPosition', crossHairPosition)
+        } else {
+            // if no position was given, we use the current center of the map as crosshair position
+            commit('setCrossHairPosition', state.center)
         }
     },
     /**
@@ -296,6 +304,13 @@ const actions = {
                 )
             }
 
+            if (state.crossHairPosition) {
+                commit(
+                    'setCrossHairPosition',
+                    proj4(oldProjection.epsg, matchingProjection.epsg, state.crossHairPosition)
+                )
+            }
+
             commit('setProjection', matchingProjection)
         } else {
             log.error('Unsupported projection', projection)
@@ -308,6 +323,8 @@ const mutations = {
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
+    setCrossHairPosition: (state, crossHairPosition) =>
+        (state.crossHairPosition = crossHairPosition),
     setCameraPosition: (state, cameraPosition) => (state.camera = cameraPosition),
     setProjection: (state, projection) => (state.projection = projection),
 }
