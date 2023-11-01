@@ -43,6 +43,88 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     return newQuery
 }
 
+const handleLegacyParam = (
+    param,
+    legacyValue,
+    store,
+    newQuery,
+    latlongCoordinates,
+    legacyCoordinates
+) => {
+    const { projection } = store.state.position
+    let newValue
+
+    let key = param
+    switch (param) {
+        case 'zoom':
+            // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
+            if (!(projection instanceof SwissCoordinateSystem)) {
+                newValue = LV95.transformCustomZoomLevelToStandard(legacyValue)
+                if (projection instanceof CustomCoordinateSystem) {
+                    newValue = projection.transformStandardZoomLevelToCustom(newValue)
+                }
+            } else {
+                newValue = legacyValue
+            }
+            key = 'z'
+            break
+
+        // storing coordinate parts for later conversion
+        case 'E':
+        case 'X':
+            legacyCoordinates[0] = Number(legacyValue)
+            break
+        case 'N':
+        case 'Y':
+            legacyCoordinates[1] = Number(legacyValue)
+            break
+
+        case 'lon':
+            latlongCoordinates[0] = Number(legacyValue)
+            break
+        case 'lat':
+            latlongCoordinates[1] = Number(legacyValue)
+            break
+
+        // taking all layers related param aside so that they can be processed later (see below)
+        // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
+        case 'layers':
+            if (isLayersUrlParamLegacy(legacyValue)) {
+                // for legacy layers param, we need to give the whole search query
+                // as it needs to look for layers, layers_visibility, layers_opacity and
+                // layers_timestamp param altogether
+                const layers = getLayersFromLegacyUrlParams(
+                    store.state.layers.config,
+                    window.location.search
+                )
+                newValue = layers.map((layer) => transformLayerIntoUrlString(layer)).join(';')
+                log.debug('Importing legacy layers as', newValue)
+            } else {
+                // if not legacy, we let it go as it is
+                newValue = legacyValue
+            }
+            break
+        case 'layers_opacity':
+        case 'layers_visibility':
+        case 'layers_timestamp':
+            // we ignore those params as they are now obsolete
+            // see adr/2021_03_16_url_param_structure.md
+            break
+
+        // if no special work to do, we just copy past legacy params to the new viewer
+
+        default:
+            newValue = legacyValue
+    }
+
+    if (newValue) {
+        // When receiving a query, the application will encode the URI components
+        // We decode those so that the new query won't encode encoded character
+        // for example, we avoid having " " becoming %2520 in the URI
+        newQuery[key] = decodeURIComponent(newValue)
+    }
+}
+
 const handleLegacyParams = (legacyParams, store, to, next) => {
     log.info(`Legacy permalink with param=`, legacyParams)
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
@@ -50,92 +132,35 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const newQuery = { ...to.query }
     const { projection } = store.state.position
     let legacyCoordinates = []
-    let legacyCoordinatesAreExpressedInWGS84 = false
+    let latlongCoordinates = []
+
     Object.keys(legacyParams).forEach((param) => {
-        let value
-
-        let key = param
-        switch (param) {
-            case 'zoom':
-                // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
-                if (!(projection instanceof SwissCoordinateSystem)) {
-                    value = LV95.transformCustomZoomLevelToStandard(legacyParams[param])
-                    if (projection instanceof CustomCoordinateSystem) {
-                        value = projection.transformStandardZoomLevelToCustom(value)
-                    }
-                } else {
-                    value = legacyParams[param]
-                }
-                key = 'z'
-                break
-
-            // storing coordinate parts for later conversion
-            case 'E':
-            case 'X':
-            case 'lon':
-                legacyCoordinates[0] = Number(legacyParams[param])
-                break
-            case 'N':
-            case 'Y':
-            case 'lat':
-                legacyCoordinates[1] = Number(legacyParams[param])
-                break
-
-            case 'lon':
-            case 'lat':
-                legacyCoordinatesAreExpressedInWGS84 = true
-                break
-
-            // taking all layers related param aside so that they can be processed later (see below)
-            // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
-            case 'layers':
-                if (isLayersUrlParamLegacy(legacyParams[param])) {
-                    // for legacy layers param, we need to give the whole search query
-                    // as it needs to look for layers, layers_visibility, layers_opacity and
-                    // layers_timestamp param altogether
-                    const layers = getLayersFromLegacyUrlParams(
-                        store.state.layers.config,
-                        window.location.search
-                    )
-                    value = layers.map((layer) => transformLayerIntoUrlString(layer)).join(';')
-                    log.debug('Importing legacy layers as', value)
-                } else {
-                    // if not legacy, we let it go as it is
-                    value = legacyParams[param]
-                }
-                break
-            case 'layers_opacity':
-            case 'layers_visibility':
-            case 'layers_timestamp':
-                // we ignore those params as they are now obsolete
-                // see adr/2021_03_16_url_param_structure.md
-                break
-
-            // if no special work to do, we just copy past legacy params to the new viewer
-
-            default:
-                value = legacyParams[param]
-        }
-
-        // if a legacy coordinate (x/y, N/E or lon/lat) was used, we need to build the center param from them
-        if (legacyCoordinates.length === 2 && legacyCoordinates[0] && legacyCoordinates[1]) {
-            // if lon/lat were used, we need to re-project them in the current projection system
-            if (legacyCoordinatesAreExpressedInWGS84) {
-                legacyCoordinates = proj4(WGS84.epsg, projection.epsg, legacyCoordinates)
-            } else if (projection.epsg !== LV95.epsg) {
-                // if the current projection is not LV95, we also need to re-project x/y or N/E
-                // (the legacy viewer was always writing coordinates in LV95 in the URL)
-                legacyCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
-            }
-            newQuery['center'] = legacyCoordinates.join(',')
-        }
-        if (value) {
-            // When receiving a query, the application will encode the URI components
-            // We decode those so that the new query won't encode encoded character
-            // for example, we avoid having " " becoming %2520 in the URI
-            newQuery[key] = decodeURIComponent(value)
-        }
+        handleLegacyParam(
+            param,
+            legacyParams[param],
+            store,
+            newQuery,
+            latlongCoordinates,
+            legacyCoordinates
+        )
     })
+
+    // Convert legacies coordinates if needed
+    if (latlongCoordinates.length === 2) {
+        legacyCoordinates = proj4(WGS84.epsg, projection.epsg, latlongCoordinates)
+    } else if (legacyCoordinates.length === 2) {
+        if (projection.epsg !== LV95.epsg) {
+            // if the current projection is not LV95, we also need to re-project x/y or N/E
+            // (the legacy viewer was always writing coordinates in LV95 in the URL)
+            legacyCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
+        }
+    }
+
+    // if a legacy coordinate (x/y, N/E or lon/lat) was used, we need to build the
+    // center param from them
+    if (legacyCoordinates.length === 2) {
+        newQuery['center'] = legacyCoordinates.join(',')
+    }
 
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))

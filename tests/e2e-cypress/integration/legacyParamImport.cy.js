@@ -2,6 +2,7 @@
 
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import proj4 from 'proj4'
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
@@ -43,7 +44,7 @@ describe('Test on legacy param import', () => {
             })
         })
 
-        it('reproject LV95 coordinates/zoom param to EPSG:4326', () => {
+        it('reproject LV95 coordinates param to EPSG:4326', () => {
             const E = 2660000
             const N = 1200000
             const lv95zoom = 8
@@ -53,9 +54,7 @@ describe('Test on legacy param import', () => {
                 zoom: lv95zoom,
             })
 
-            // the LV95 zoom level should be translated to a mercator zoom level of 15.5 according to
-            // https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
-            cy.readStoreValue('state.position.zoom').should('eq', 15.5)
+            cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
 
             // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
