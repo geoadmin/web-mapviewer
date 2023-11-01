@@ -82,7 +82,6 @@
 <script>
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import ToggleProjectionButton from '@/modules/menu/components/debug/ToggleProjectionButton.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
@@ -96,7 +95,6 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
     components: {
         DebugToolbar,
-        ToggleProjectionButton,
         Toggle3dButton,
         FontAwesomeIcon,
         TimeSlider,
