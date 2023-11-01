@@ -105,13 +105,8 @@ export default {
             this.revertSort = !this.revertSort
         },
         onItemClick(layer) {
-            if (this.selectedLayer?.externalLayerId === layer.externalLayerId) {
-                this.selectedLayer = undefined
-                this.description = ''
-            } else {
-                this.selectedLayer = layer
-                this.description = this.selectedLayer.abstract
-            }
+            this.selectedLayer = layer
+            this.description = this.selectedLayer.abstract
         },
         onPreviewStart(layer) {
             this.setPreviewLayer(layer)
