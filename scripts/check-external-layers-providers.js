@@ -54,9 +54,13 @@ function setupAxiosRetry() {
 }
 
 function compareResultByProvider(a, b) {
-    if (a['provider'] > b['provider']) {
+    return compareCaseInsensitive(a['provider'], b['provider'])
+}
+
+function compareCaseInsensitive(a, b) {
+    if (a.toLowerCase() > b.toLowerCase()) {
         return 1
-    } else if (a['provider'] < b['provider']) {
+    } else if (a.toLowerCase() < b.toLowerCase()) {
         return -1
     }
     return 0
@@ -197,7 +201,10 @@ async function writeResult(result) {
             count: result.invalid_content.length,
             result: result.invalid_content.sort(compareResultByProvider),
         }),
-        fs.writeFile(valid_providers_file, JSON.stringify(result.valid_providers.sort(), null, 4)),
+        fs.writeFile(
+            valid_providers_file,
+            JSON.stringify(result.valid_providers.sort(compareCaseInsensitive), null, 4) + '\n'
+        ),
     ])
 }
 
