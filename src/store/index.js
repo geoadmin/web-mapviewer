@@ -1,5 +1,5 @@
 import from2Dto3Dplugin from '@/store/plugins/2d-to-3d-management.plugin'
-import reprojectEverythingOnProjectionChangePlugin from '@/store/plugins/reproject-everything-on-projection-change.plugin'
+import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import { createStore } from 'vuex'
 import app from './modules/app.store'
 import drawing from './modules/drawing.store'
@@ -38,7 +38,7 @@ export default createStore({
         loadingBarManagementPlugin,
         screenSizeManagementPlugin,
         syncCameraLonLatZoom,
-        reprojectEverythingOnProjectionChangePlugin,
+        reprojectSelectedFeaturesOnProjectionChangePlugin,
         from2Dto3Dplugin,
     ],
     modules: {

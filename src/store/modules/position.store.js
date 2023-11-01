@@ -258,6 +258,12 @@ const actions = {
                     coordinateSystem.epsgNumber === parseInt(projection)
             )
         }
+        if (matchingProjection.epsg === state.projection.epsg) {
+            log.debug(
+                'Attempt at setting the same projection than the one already set in the store, ignoring'
+            )
+            return
+        }
         if (matchingProjection) {
             const oldProjection = state.projection
             // reprojecting the center of the map
