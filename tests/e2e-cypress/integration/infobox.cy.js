@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector, with3d = false) => {
@@ -161,7 +161,7 @@ describe('The infobox', () => {
     })
     context('Cesium map', () => {
         beforeEach(() => {
-            cy.goToMapView({ layers: layer, '3d': true })
+            cy.goToMapView({ layers: layer, '3d': true, sr: WEBMERCATOR.epsgNumber })
         })
         generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]', true)
     })
