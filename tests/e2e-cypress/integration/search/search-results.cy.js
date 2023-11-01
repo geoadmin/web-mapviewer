@@ -2,10 +2,7 @@
 
 import { BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import setupProj4 from '@/utils/setupProj4'
 import proj4 from 'proj4'
-
-setupProj4()
 
 const searchbarSelector = '[data-cy="searchbar"]'
 const locationsSelector = '[data-cy="search-results-locations"]'

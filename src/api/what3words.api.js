@@ -1,4 +1,4 @@
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import axios from 'axios'
 import proj4 from 'proj4'
@@ -25,9 +25,10 @@ export const isWhat3WordsString = (text) => {
  *
  * @param {String} what3wordsString A what3word string (validity will be checked before sending it
  *   to the API)
+ * @param {CoordinateSystem} outputProjection The wanted output projection for the W3W result
  * @returns {Promise<Number[]>} Lat, lon array (in EPSG:3857 so in meters)
  */
-export const retrieveWhat3WordsLocation = (what3wordsString) => {
+export const retrieveWhat3WordsLocation = (what3wordsString, outputProjection) => {
     return new Promise((resolve, reject) => {
         if (!isWhat3WordsString(what3wordsString)) {
             reject('Bad what3words string :' + what3wordsString)
@@ -38,13 +39,13 @@ export const retrieveWhat3WordsLocation = (what3wordsString) => {
                 )
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-coords
                 .then((response) => {
-                    const what3wordLocationEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                    const what3wordLocationEpsg3857 = proj4(WGS84.epsg, outputProjection.epsg, [
                         response.data.coordinates.lng,
                         response.data.coordinates.lat,
                     ])
                     resolve([
-                        WEBMERCATOR.roundCoordinateValue(what3wordLocationEpsg3857[0]),
-                        WEBMERCATOR.roundCoordinateValue(what3wordLocationEpsg3857[1]),
+                        outputProjection.roundCoordinateValue(what3wordLocationEpsg3857[0]),
+                        outputProjection.roundCoordinateValue(what3wordLocationEpsg3857[1]),
                     ])
                 })
                 .catch((error) => {

@@ -2,11 +2,8 @@
 
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import setupProj4 from '@/utils/setupProj4'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
-
-setupProj4()
 
 describe('Testing transitioning between 2D and 3D', () => {
     context('3D toggle button', () => {
