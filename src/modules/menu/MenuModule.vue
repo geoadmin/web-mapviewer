@@ -40,8 +40,8 @@
                 :active="showTimeSlider"
                 @click="showTimeSlider = !showTimeSlider"
             />
-            <ToggleProjectionButton v-if="!inDrawingMode" />
         </div>
+        <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 top-50" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
@@ -81,20 +81,20 @@
 
 <script>
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
+import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
-import ToggleProjectionButton from '@/modules/menu/components/toolboxRight/ToggleProjectionButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
-        ToggleProjectionButton,
+        DebugToolbar,
         Toggle3dButton,
         FontAwesomeIcon,
         TimeSlider,

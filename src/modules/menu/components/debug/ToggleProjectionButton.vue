@@ -37,5 +37,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/modules/menu/scss/toolbox-buttons';
+@import '../../scss/toolbox-buttons';
 </style>
