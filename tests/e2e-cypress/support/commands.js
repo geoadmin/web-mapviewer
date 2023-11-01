@@ -132,7 +132,7 @@ Cypress.Commands.add(
         if (!queryParams.hasOwnProperty('lang')) {
             queryParams.lang = 'en'
         }
-        if (!queryParams.hasOwnProperty('center')) {
+        if (!queryParams.hasOwnProperty('center') && !queryParams.hasOwnProperty('3d')) {
             // "old" MAP_CENTER constant re-projected in LV95
             queryParams.center = '2660013.5,1185172'
         }

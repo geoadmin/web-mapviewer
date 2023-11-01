@@ -1,6 +1,4 @@
 import getFeature, { EditableFeature, LayerFeature } from '@/api/features.api'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
 import proj4 from 'proj4'
 
@@ -19,7 +17,9 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
             if (action.type === 'setProjection') {
                 oldProjection = state.position.projection
                 selectedFeaturesBeforeProjectionChange = [...state.features.selectedFeatures]
-                store.dispatch('clearAllSelectedFeatures')
+                if (selectedFeaturesBeforeProjectionChange.length > 0) {
+                    store.dispatch('clearAllSelectedFeatures')
+                }
             }
         },
         after: (action, state) => {
@@ -31,9 +31,6 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
                 )
                 const reprojectCoordinates = (coordinates = []) =>
                     proj4(oldProjection.epsg, newProjection.epsg, coordinates)
-
-                // reprojecting the center of the map
-                store.dispatch('setCenter', reprojectCoordinates(state.position.center))
 
                 // re-requesting selected features with the new projection
                 const reprojectedSelectedFeatures = []
@@ -73,38 +70,6 @@ const reprojectEverythingOnProjectionChangePlugin = (store) => {
                 Promise.all(allGetFeaturePromises).then(() => {
                     store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
                 })
-
-                if (
-                    oldProjection instanceof StandardCoordinateSystem &&
-                    newProjection instanceof CustomCoordinateSystem
-                ) {
-                    store.dispatch(
-                        'setZoom',
-                        newProjection.transformStandardZoomLevelToCustom(state.position.zoom)
-                    )
-                }
-                if (
-                    oldProjection instanceof CustomCoordinateSystem &&
-                    newProjection instanceof StandardCoordinateSystem
-                ) {
-                    store.dispatch(
-                        'setZoom',
-                        oldProjection.transformCustomZoomLevelToStandard(state.position.zoom)
-                    )
-                }
-                if (
-                    oldProjection instanceof CustomCoordinateSystem &&
-                    newProjection instanceof CustomCoordinateSystem &&
-                    oldProjection.epsg !== newProjection.epsg
-                ) {
-                    // we have to revert the old projection zoom level to standard, and then transform it to the new projection custom zoom level
-                    store.dispatch(
-                        'setZoom',
-                        oldProjection.transformCustomZoomLevelToStandard(
-                            newProjection.transformStandardZoomLevelToCustom(state.position.zoom)
-                        )
-                    )
-                }
             }
         },
     })

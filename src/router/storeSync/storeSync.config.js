@@ -21,7 +21,6 @@ const storeSyncConfig = [
         true,
         String
     ),
-    new PositionParamConfig(),
     new SimpleUrlParamConfig(
         'sr',
         'setProjection',
@@ -31,6 +30,10 @@ const storeSyncConfig = [
         Number,
         DEFAULT_PROJECTION.epsgNumber
     ),
+    // Position must be processed after the projection param,
+    // otherwise the position might be wrongly reprojected at app startup when SR is not equal
+    // to the default projection EPSG number
+    new PositionParamConfig(),
     new SimpleUrlParamConfig(
         'z',
         'setZoom',

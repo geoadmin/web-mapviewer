@@ -1,5 +1,5 @@
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
 import {
@@ -111,8 +111,16 @@ const handleLegacyParam = (
             // see adr/2021_03_16_url_param_structure.md
             break
 
-        // if no special work to do, we just copy past legacy params to the new viewer
+        case '3d':
+            // if the 3d flag is given without being placed behind the hash (meaning at startup),
+            // we need to make sure the projection is set to Mercator, otherwise the startup sequence
+            // ends up not working properly and center the view wrongly
+            if ((typeof legacyValue === 'string' && legacyValue === 'true') || legacyValue) {
+                newQuery['sr'] = WEBMERCATOR.epsgNumber
+            }
+        // no break so we go into default too
 
+        // if no special work to do, we just copy past legacy params to the new viewer
         default:
             newValue = legacyValue
     }

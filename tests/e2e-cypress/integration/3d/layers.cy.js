@@ -1,4 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features.api'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test of layer handling in 3D', () => {
     const visibleLayerIds = [
@@ -42,7 +43,7 @@ describe('Test of layer handling in 3D', () => {
         cy.wait(['@search-locations', '@search-layers'])
         cy.get('[data-cy="search-result-entry-layer"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
             const layers = viewer.scene.imageryLayers
             expect(layers.length).to.eq(2)
             expect(layers.get(1).show).to.eq(true)
@@ -86,6 +87,7 @@ describe('Test of layer handling in 3D', () => {
         cy.goToMapView(
             {
                 '3d': true,
+                sr: WEBMERCATOR.epsgNumber,
                 layers: `${firstLayerId};${secondLayerId}`,
             },
             true
