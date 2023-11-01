@@ -256,6 +256,12 @@ const actions = {
             matchingProjection = allCoordinateSystems.find(
                 (coordinateSystem) => coordinateSystem.epsgNumber === projection
             )
+        } else if (typeof projection === 'string' || projection instanceof String) {
+            matchingProjection = allCoordinateSystems.find(
+                (coordinateSystem) =>
+                    coordinateSystem.epsg === projection ||
+                    coordinateSystem.epsgNumber === parseInt(projection)
+            )
         }
         if (matchingProjection) {
             commit('setProjection', matchingProjection)

@@ -4,6 +4,8 @@ import { DEFAULT_PROJECTION } from '@/config'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
+import { latLonToMGRS } from '@/utils/militaryGridProjection'
+import { toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 
 const searchbarSelector = '[data-cy="searchbar"]'
@@ -27,8 +29,8 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
         })
     })
     const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value) => value - 1000)
-    const expectedCenterLV95 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, expectedCenter).map(
-        LV03.roundCoordinateValue
+    const expectedCenterLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, expectedCenter).map(
+        LV95.roundCoordinateValue
     )
     const expectedCenterLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, expectedCenter).map(
         LV03.roundCoordinateValue
@@ -38,7 +40,7 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
         WEBMERCATOR.epsg,
         expectedCenter
     ).map(WEBMERCATOR.roundCoordinateValue)
-    const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, expectedCenter).map(
+    const expectedCenterWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, expectedCenter).map(
         WGS84.roundCoordinateValue
     )
 
@@ -52,8 +54,9 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
         let expectedZoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
         if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
-            expectedZoomLevel =
-                DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(expectedZoomLevel)
+            expectedZoomLevel = DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(
+                STANDARD_ZOOM_LEVEL_1_25000_MAP
+            )
         }
         cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)
     }
@@ -148,28 +151,68 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
     })
 
     context('EPSG:4326 (Web-Mercator) inputs', () => {
-        // the search bar only supports input in lat/lon format, so X is lat
-        const WGS84_DM = ["47°12.6095'", "6°57.12372'"]
-        const WGS84_DM_GOOGLE_STYLE = ['47 12.6095', '6 57.12372']
-        const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
-        const WGS84_DMS_WITH_CARDINAL = ['47°12\'36.57"N', '6°57\'7.423"E']
-        tryAllInputPossibilities(centerWGS84[1], centerWGS84[0], 'DD format')
-        tryAllInputPossibilities(WGS84_DM[0], WGS84_DM[1], 'DM format')
-        tryAllInputPossibilities(
-            WGS84_DM_GOOGLE_STYLE[0],
-            WGS84_DM_GOOGLE_STYLE[1],
-            'DM format (Google style)'
+        const expectedCenterWGS84_DD = expectedCenterWGS84.map((val) => {
+            const [degree, minutesFraction] = `${val}`.split('.')
+            const minutes = parseFloat(`0.${minutesFraction}`)
+            return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
+        })
+        const expectedCenterWGS84_DD_NoSymbol = expectedCenterWGS84_DD.map((val) =>
+            val.replace(/[°']/g, '')
         )
-        tryAllInputPossibilities(WGS84_DMS[0], WGS84_DMS[1], 'DMS format')
+
+        const dmsString = toStringHDMS(expectedCenterWGS84, 2).replace(/′/g, "'").replace(/″/g, '"')
+        const expectedCenterWGS84_DMS = [
+            dmsString.slice(dmsString.indexOf('N') + 1, dmsString.length).trim(),
+            dmsString.slice(0, dmsString.indexOf('N') + 1).trim(),
+        ]
+        const expectedCenterWGS84_DMS_No_NE = expectedCenterWGS84_DMS.map((val) =>
+            val.replace(/[NE]/g, '').trim()
+        )
+        const expectedCenterWGS84_DMS_NoSymbol = expectedCenterWGS84_DMS_No_NE.map((val) =>
+            val.replace(/[°'"]/g, '')
+        )
+        const acceptableDetla = 0.25
         tryAllInputPossibilities(
-            WGS84_DMS_WITH_CARDINAL[0],
-            WGS84_DMS_WITH_CARDINAL[1],
-            'DMS format with cardinal point'
+            expectedCenterWGS84[1],
+            expectedCenterWGS84[0],
+            'DD format',
+            acceptableDetla
         )
         tryAllInputPossibilities(
-            WGS84_DMS_WITH_CARDINAL[1],
-            WGS84_DMS_WITH_CARDINAL[0],
-            'inverted DMS format with cardinal point'
+            expectedCenterWGS84_DD[0],
+            expectedCenterWGS84_DD[1],
+            'DD format',
+            acceptableDetla
+        )
+        tryAllInputPossibilities(
+            expectedCenterWGS84_DD_NoSymbol[0],
+            expectedCenterWGS84_DD_NoSymbol[1],
+            'DD format (Google style)',
+            acceptableDetla
+        )
+        tryAllInputPossibilities(
+            expectedCenterWGS84_DMS[0],
+            expectedCenterWGS84_DMS[1],
+            'DMS format with cardinal point',
+            acceptableDetla
+        )
+        tryAllInputPossibilities(
+            expectedCenterWGS84_DMS[1],
+            expectedCenterWGS84_DMS[0],
+            'inverted DMS format with cardinal point',
+            acceptableDetla
+        )
+        tryAllInputPossibilities(
+            expectedCenterWGS84_DMS_No_NE[0],
+            expectedCenterWGS84_DMS_No_NE[1],
+            'DMS format without cardinal point',
+            acceptableDetla
+        )
+        tryAllInputPossibilities(
+            expectedCenterWGS84_DMS_NoSymbol[0],
+            expectedCenterWGS84_DMS_NoSymbol[1],
+            'DMS format without symbols',
+            acceptableDetla
         )
     })
     context('EPSG:2056 (LV95) inputs', () => {
@@ -198,8 +241,8 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
         const w3wStub = {
             country: 'CH',
             coordinates: {
-                lat: centerWGS84[0],
-                lng: centerWGS84[1],
+                lng: expectedCenterWGS84[0],
+                lat: expectedCenterWGS84[1],
             },
             words: what3words,
             language: 'en',
@@ -211,18 +254,19 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
             cy.get(searchbarSelector).paste(what3words)
             // checking that the request to W3W has been made (and caught by Cypress)
             cy.wait('@w3w-convert')
-            checkCenterInStore(1)
+            checkCenterInStore(1.0)
             checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(1)
+            checkThatCoordinateAreHighlighted(1.0)
         })
     })
     context('MGRS input', () => {
-        const MGRS = '32TLT 44918 30553'
         // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
         const acceptableDeltaForMGRS = 1
 
         it('sets center accordingly when a MGRS input is given', () => {
-            cy.get(searchbarSelector).paste(MGRS)
+            cy.get(searchbarSelector).paste(
+                latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
+            )
             checkCenterInStore(acceptableDeltaForMGRS)
             checkZoomLevelInStore()
             checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)

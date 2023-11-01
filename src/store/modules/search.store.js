@@ -56,7 +56,8 @@ const actions = {
             if (coordinate) {
                 dispatch('setCenter', coordinate)
                 if (currentProjection instanceof CustomCoordinateSystem) {
-                    dispatch.setZoom(
+                    dispatch(
+                        'setZoom',
                         currentProjection.transformStandardZoomLevelToCustom(
                             STANDARD_ZOOM_LEVEL_1_25000_MAP
                         )
@@ -66,7 +67,7 @@ const actions = {
                 }
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
-                retrieveWhat3WordsLocation(query).then((what3wordLocation) => {
+                retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
                     dispatch('setCenter', what3wordLocation)
                     if (currentProjection instanceof CustomCoordinateSystem) {
                         dispatch(
@@ -83,7 +84,7 @@ const actions = {
             } else {
                 try {
                     const searchResults = await search(
-                        rootState.position.projection,
+                        currentProjection,
                         query,
                         rootState.i18n.lang
                     )
