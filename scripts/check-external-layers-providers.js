@@ -9,14 +9,20 @@ import { hideBin } from 'yargs/helpers'
 import ogcParser from 'ogc-parser'
 import { exit } from 'process'
 
-import { transformUrl, isWmsGetCap, isWmtsGetCap, isKml, isGpx } from '@/utils/external-provider'
+import {
+    transformUrl,
+    isWmsGetCap,
+    isWmtsGetCap,
+    isKml,
+    isGpx,
+} from '@/modules/infobox/utils/external-provider'
 
 const options = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
     .version('1.0.0')
     .epilog('Check validity of all providers')
     .option('input', {
-        default: './src/external-layer-providers.json',
+        default: './src/modules/infobox/utils/external-layer-providers.json',
         describe: 'Input JSON providers file to check',
         type: 'string',
     })
