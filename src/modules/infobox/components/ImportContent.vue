@@ -323,4 +323,3 @@ export default {
     right: 50px;
 }
 </style>
-../utils/external-layer-providers.js
