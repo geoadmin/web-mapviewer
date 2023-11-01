@@ -88,14 +88,9 @@ describe('Test mouse position', () => {
             getMousePositionAndSelect(MGRSFormat)
             checkMousePositionStringValue('32TLT 87030 61820')
         })
-        it('switches to WebMercator when this SRS is selected in the UI', () => {
+        it('switches to WGS84 when this SRS is selected in the UI', () => {
             getMousePositionAndSelect(WGS84Format)
-            let dd = defaultCenter
-                .slice()
-                .reverse()
-                .map((value) => `${WGS84.roundCoordinateValue(value)}`)
-                .join(', ')
-            checkMousePositionStringValue(`47° 30′ N 7° 30′ E (${dd})`)
+            checkMousePositionStringValue(`47° 30′ N 7° 30′ E (47.50000, 7.50000)`)
         })
         it('goes back to LV95 display if selected again', () => {
             // Change display projection without moving the mouse
@@ -180,7 +175,7 @@ describe('Test mouse position', () => {
             })
             it('Uses the coordination system Plain WGS84 in the popup', () => {
                 cy.get('[data-cy="location-popup-coordinates-plain-wgs84"]').contains(
-                    `${WGS84.roundCoordinateValue(lat)}, ${WGS84.roundCoordinateValue(lon)}`
+                    `${lat.toFixed(6)}, ${lon.toFixed(6)}`
                 )
             })
             it('Uses the coordination system WGS84 in the popup', () => {
