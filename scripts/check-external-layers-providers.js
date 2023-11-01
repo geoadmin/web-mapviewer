@@ -54,12 +54,7 @@ function setupAxiosRetry() {
 }
 
 function compareResultByProvider(a, b) {
-    if (a['provider'].toLowerCase() > b['provider'].toLowerCase()) {
-        return 1
-    } else if (a['provider'].toLowerCase() < b['provider'].toLowerCase()) {
-        return -1
-    }
-    return 0
+    return compareCaseInsensitive(a['provider'], b['provider'])
 }
 
 function compareCaseInsensitive(a, b) {
