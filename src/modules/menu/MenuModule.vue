@@ -40,8 +40,8 @@
                 :active="showTimeSlider"
                 @click="showTimeSlider = !showTimeSlider"
             />
+            <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0" />
         </div>
-        <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 top-50" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
