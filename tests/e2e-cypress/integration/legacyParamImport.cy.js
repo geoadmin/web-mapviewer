@@ -2,10 +2,7 @@
 
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import setupProj4 from '@/utils/setupProj4'
 import proj4 from 'proj4'
-
-setupProj4()
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
