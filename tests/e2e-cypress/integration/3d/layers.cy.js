@@ -1,4 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features.api'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test of layer handling in 3D', () => {
     const visibleLayerIds = [
@@ -10,11 +11,11 @@ describe('Test of layer handling in 3D', () => {
 
     it('add layer from search bar', () => {
         const expectedLayerId = visibleLayerIds[1]
-        cy.intercept(`/1.0.0/${expectedLayerId}/default/**`, {
+        cy.intercept(`**/1.0.0/${expectedLayerId}/default/**`, {
             statusCode: 200,
         }).as('get-wmts-layer')
         cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=layers*',
+            '**rest/services/ech/SearchServer*?type=layers*',
             {
                 results: [
                     {
@@ -30,7 +31,7 @@ describe('Test of layer handling in 3D', () => {
             'search-layers'
         )
         cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=locations*',
+            '**rest/services/ech/SearchServer*?type=locations*',
             { results: [] },
             'search-locations'
         )
@@ -42,12 +43,12 @@ describe('Test of layer handling in 3D', () => {
         cy.wait(['@search-locations', '@search-layers'])
         cy.get('[data-cy="search-result-entry-layer"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
             const layers = viewer.scene.imageryLayers
             expect(layers.length).to.eq(2)
             expect(layers.get(1).show).to.eq(true)
-            expect(layers.get(1).imageryProvider.url).to.eq(
-                `https://sys-wmts.dev.bgdi.ch/1.0.0/${expectedLayerId}/default/current/3857/{z}/{x}/{y}.png`
+            expect(layers.get(1).imageryProvider.url).to.have.string(
+                `1.0.0/${expectedLayerId}/default/current/3857/{z}/{x}/{y}.png`
             )
         })
     })
@@ -74,8 +75,8 @@ describe('Test of layer handling in 3D', () => {
                     )}`,
                 })
                 cy.readWindowValue('cesiumViewer').then((viewer) => {
-                    expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.eq(
-                        `https://sys-wmts.dev.bgdi.ch/1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
+                    expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
+                        `1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
                     )
                 })
             })
@@ -86,6 +87,7 @@ describe('Test of layer handling in 3D', () => {
         cy.goToMapView(
             {
                 '3d': true,
+                sr: WEBMERCATOR.epsgNumber,
                 layers: `${firstLayerId};${secondLayerId}`,
             },
             true
@@ -96,8 +98,8 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`).should('be.visible').click()
         // checking that the order has changed
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.eq(
-                `https://sys-wmts.dev.bgdi.ch/1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
+            expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
+                `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
             )
             expect(viewer.scene.imageryLayers.get(2).imageryProvider.layers).to.eq(firstLayerId)
         })
@@ -106,8 +108,8 @@ describe('Test of layer handling in 3D', () => {
         // re-checking the order that should be back to the starting values
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.imageryLayers.get(1).imageryProvider.layers).to.eq(firstLayerId)
-            expect(viewer.scene.imageryLayers.get(2).imageryProvider.url).to.eq(
-                `https://sys-wmts.dev.bgdi.ch/1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
+            expect(viewer.scene.imageryLayers.get(2).imageryProvider.url).to.have.string(
+                `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
             )
         })
     })

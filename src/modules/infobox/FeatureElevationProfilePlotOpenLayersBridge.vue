@@ -2,10 +2,8 @@
     <slot />
 </template>
 <script>
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
 import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 import Overlay from 'ol/Overlay'
-import proj4 from 'proj4'
 
 export default {
     inject: ['getMap'],
@@ -22,9 +20,7 @@ export default {
     watch: {
         coordinates(newCoordinates) {
             if (newCoordinates) {
-                this.currentHoverPosOverlay.setPosition(
-                    proj4(LV95.epsg, WEBMERCATOR.epsg, newCoordinates)
-                )
+                this.currentHoverPosOverlay.setPosition(newCoordinates)
                 this.addHoverPositionOverlay()
             } else {
                 this.currentHoverPosOverlay.setPosition(null)
@@ -47,9 +43,7 @@ export default {
         this.currentHoverPosOverlay.getElement().style.backgroundColor =
             this.trackingPointColor.fill
         if (this.coordinates) {
-            this.currentHoverPosOverlay.setPosition(
-                proj4(LV95.epsg, WEBMERCATOR.epsg, this.coordinates)
-            )
+            this.currentHoverPosOverlay.setPosition(this.coordinates)
             this.addHoverPositionOverlay()
         }
     },

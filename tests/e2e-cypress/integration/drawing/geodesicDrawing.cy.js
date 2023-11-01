@@ -1,11 +1,11 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import {
-    extractOlFeatureCoordinates,
-    wrapWebmercatorCoords,
-} from '@/modules/drawing/lib/drawingUtils'
+import { extractOlFeatureCoordinates, wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 const olSelector = '.ol-viewport'
+
+const acceptableDelta = 0.01
 
 function moveMapPos(newCenter) {
     cy.writeStoreValue('setCenter', newCenter)
@@ -52,7 +52,7 @@ function offsetX(coords, offset) {
     return [coords[0] + offset, coords[1]]
 }
 
-function checkCoordsEqual(coords1, coords2, precision) {
+function checkCoordsEqual(coords1, coords2) {
     expect(
         coords1,
         'Expected the feature to be made of ' + coords2.length + ' points.'
@@ -61,12 +61,12 @@ function checkCoordsEqual(coords1, coords2, precision) {
     coords1.forEach((coord, i) => {
         expect(coord, 'A coord should contain exactly two values (x and y coord)').to.have.length(2)
         expect(coords2[i], 'A coord should contain exactly two values').to.have.length(2)
-        expect(coord[0], 'X coords differ. ' + log).to.be.closeTo(coords2[i][0], precision ?? 0.001)
-        expect(coord[1], 'Y coords differ. ' + log).to.be.closeTo(coords2[i][1], precision ?? 0.001)
+        expect(coord[0], 'X coords differ. ' + log).to.be.closeTo(coords2[i][0], acceptableDelta)
+        expect(coord[1], 'Y coords differ. ' + log).to.be.closeTo(coords2[i][1], acceptableDelta)
     })
 }
 
-function checkFeatureSelected(featureCoords, precision) {
+function checkFeatureSelected(featureCoords) {
     cy.waitUntilState((state) => state.features.selectedFeatures.length === 1)
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
@@ -74,11 +74,11 @@ function checkFeatureSelected(featureCoords, precision) {
         const features = layer.getSource().getFeatures()
         expect(features, 'Expected the drawing layer to contain exactly one feat').to.have.length(1)
         const coords = extractOlFeatureCoordinates(features[0])
-        checkCoordsEqual(coords, featureCoords, precision)
+        checkCoordsEqual(coords, featureCoords)
     })
     cy.readStoreValue('state.features.selectedFeatures').then((features) => {
         expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
-        checkCoordsEqual(features[0].coordinates, featureCoords, precision)
+        checkCoordsEqual(features[0].coordinates, featureCoords)
     })
 }
 
@@ -107,7 +107,7 @@ const generateTestsInPacific = (testFunc) => {
 
 describe('Correct handling of geodesic geometries', () => {
     beforeEach(() => {
-        cy.goToDrawing({ z: 10 }, true)
+        cy.goToDrawing({ z: 10, sr: 3857 }, true)
     })
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',
@@ -123,7 +123,7 @@ describe('Correct handling of geodesic geometries', () => {
                 now, as we store the coordinates in their normalized form (We didn't normalize it
                 before drawing as we want to simulate a normal user that draws across the datetime
                 limit)*/
-                const lineDrawn = wrapWebmercatorCoords(lineToDraw)
+                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const centerOfLinearLine = offsetX([x + 500000, y], selectOffset)
@@ -131,7 +131,7 @@ describe('Correct handling of geodesic geometries', () => {
                 const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset)
                 const drawnLineWithCenterPoint = [
                     lineDrawn[0],
-                    wrapWebmercatorCoords(centerOfGeodesicLine),
+                    wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
                     lineDrawn[1],
                 ]
                 // As the line is not linear, clicking where the linear line passes should not trigger the
@@ -158,7 +158,7 @@ describe('Correct handling of geodesic geometries', () => {
                 /* As explained in geodesicManager.js, the maximal discrepancy should be about 2.1cm for
             a line at 47° less than 1000km long. But as 1 equatorial meter < 1 meter at 47°, we are a
             bit more tolerant and allow 0.04 equatorial meters */
-                checkFeatureSelected(drawnLineWithCenterPoint, 0.04)
+                checkFeatureSelected(drawnLineWithCenterPoint)
 
                 // As the line is not linear, clicking where the linear line passes should not create a new
                 // point when the line is already selected (tests the modify interaction)
@@ -211,7 +211,7 @@ describe('Correct handling of geodesic geometries', () => {
                     [x, y],
                 ]
                 drawFeature(offsetX(lineToDraw, drawOffset), type)
-                const lineDrawn = wrapWebmercatorCoords(lineToDraw)
+                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const inLinearPolygon = [

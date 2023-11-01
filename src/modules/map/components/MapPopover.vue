@@ -1,11 +1,11 @@
 <template>
-    <div
-        ref="mapPopover"
-        class="map-popover"
-        :class="{ cesium: is3DActive }"
-        data-cy="popover"
-        @contextmenu.stop
-    >
+    <div class="map-popover pe-none" data-cy="popover" :style="cssPositionOnScreen">
+        <!--
+        IMPORTANT: the bootstrap pe-none (pointer-event: none) above is mandatory together with the
+        <div class="card"></div> below in order to avoid overlap of the popover triangle (generated
+        with the css ::before and ::after) with the openlayer move interaction. Without this hack we
+        cannot move anymore the drawing component with the floating tooltip.
+        -->
         <div class="card">
             <div class="card-header d-flex">
                 <span class="flex-grow-1 align-self-center">
@@ -36,32 +36,17 @@
                 <slot />
             </div>
         </div>
-        <OpenLayersPopover v-if="!is3DActive" :coordinates="coordinates"></OpenLayersPopover>
-        <CesiumPopover v-if="is3DActive" :coordinates="coordinates"></CesiumPopover>
     </div>
 </template>
 
 <script>
-import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapState } from 'vuex'
 
 /** Map popover content and styles. Position handling is done in corresponding library components */
 export default {
-    components: { CesiumPopover, OpenLayersPopover, FontAwesomeIcon },
-    provide() {
-        return {
-            onClose: () => this.onClose(),
-            getMapPopoverRef: () => this.getMapPopoverRef(),
-        }
-    },
+    components: { FontAwesomeIcon },
     props: {
-        coordinates: {
-            type: Array,
-            required: true,
-        },
         authorizePrint: {
             type: Boolean,
             default: false,
@@ -74,17 +59,25 @@ export default {
             type: Boolean,
             default: false,
         },
+        topPosition: {
+            type: Number,
+            default: 0,
+        },
+        leftPosition: {
+            type: Number,
+            default: 0,
+        },
     },
     emits: ['close'],
     computed: {
-        ...mapState({
-            is3DActive: (state) => state.ui.showIn3d,
-        }),
+        cssPositionOnScreen() {
+            return {
+                top: `${this.topPosition}px`,
+                left: `${this.leftPosition}px`,
+            }
+        },
     },
     methods: {
-        getMapPopoverRef() {
-            return this.$refs.mapPopover
-        },
         onClose() {
             this.$emit('close')
         },
@@ -99,7 +92,8 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .map-popover {
-    pointer-events: none;
+    position: absolute;
+    z-index: $zindex-map + 1;
     .card {
         max-width: $overlay-width;
         pointer-events: auto;
@@ -134,10 +128,6 @@ export default {
         left: 50%;
         margin-left: -$arrow-border-height;
     }
-}
-.map-popover.cesium {
-    position: absolute;
-    z-index: 1;
 }
 @media (min-height: 600px) {
     .map-popover .card-body {

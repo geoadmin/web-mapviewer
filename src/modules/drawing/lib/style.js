@@ -1,7 +1,6 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import { LineString, MultiPoint, Polygon, Point } from 'ol/geom'
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
-import { wrapWebmercatorCoords } from '@/modules/drawing/lib/drawingUtils'
 
 /* Z-INDICES
 The z indices for the styles are given according to the following table:
@@ -225,8 +224,7 @@ export function drawLineOrMeasureStyle(sketch, resolution, displayMeasures) {
     const type = sketch.getGeometry().getType()
     switch (type) {
         case 'Point':
-            const coord = wrapWebmercatorCoords(sketch.getGeometry().getCoordinates())
-            return getSketchPointStyle(coord)
+            return getSketchPointStyle(sketch.getGeometry().getCoordinates())
         case 'Polygon':
             const styles = [
                 new Style({

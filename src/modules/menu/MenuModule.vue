@@ -23,7 +23,7 @@
             }"
         >
             <GeolocButton
-                v-if="!isFullscreenMode && !isEmbedded"
+                v-if="!isFullscreenMode && !isEmbedded && !inDrawingMode"
                 :is-active="isGeolocationActive"
                 :is-denied="isGeolocationDenied"
                 @click="toggleGeolocation"
@@ -33,14 +33,15 @@
                 @zoom-in="increaseZoom"
                 @zoom-out="decreaseZoom"
             />
-            <Toggle3dButton />
+            <Toggle3dButton v-if="!inDrawingMode" />
             <div id="toolbox-compass-button" />
             <TimeSliderButton
-                v-if="visibleLayersWithTimeConfig.length"
+                v-if="visibleLayersWithTimeConfig.length && !inDrawingMode"
                 :active="showTimeSlider"
                 @click="showTimeSlider = !showTimeSlider"
             />
         </div>
+        <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
@@ -80,6 +81,7 @@
 
 <script>
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
+import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
@@ -92,6 +94,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
+        DebugToolbar,
         Toggle3dButton,
         FontAwesomeIcon,
         TimeSlider,
@@ -115,6 +118,7 @@ export default {
             isFullscreenMode: (state) => state.ui.fullscreenMode,
             isEmbedded: (state) => state.ui.embeddedMode,
             previewYear: (state) => state.layers.previewYear,
+            inDrawingMode: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters([
             'isHeaderShown',
@@ -176,6 +180,9 @@ $openCloseButtonHeight: 2.5rem;
         &.dev-disclaimer-present {
             top: $header-height + $dev-disclaimer-height;
         }
+    }
+    .debug-toolbar {
+        top: 66%;
     }
     .menu-tray-container {
         pointer-events: none;

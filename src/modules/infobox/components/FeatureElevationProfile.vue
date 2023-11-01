@@ -38,10 +38,10 @@ import getProfile from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import { LV95, WGS84 } from '@/utils/coordinateSystems'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
 import { mapActions } from 'vuex'
@@ -62,6 +62,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        projection: {
+            type: CoordinateSystem,
+            required: true,
+        },
     },
     emits: ['updateElevationProfilePlot'],
     data() {
@@ -75,7 +79,7 @@ export default {
     },
     computed: {
         elevationProfileHasData() {
-            return this.elevationProfile && this.elevationProfile.hasElevationData
+            return this.elevationProfile?.hasElevationData
         },
         featureGeodesicCoordinates() {
             if (this.feature.geodesicCoordinates) {
@@ -115,19 +119,28 @@ export default {
             this.deleteDrawingFeature(id)
         },
         onCSVDownload() {
-            if (this.elevationProfile.hasElevationData) {
+            if (this.elevationProfileHasData) {
                 const csvData =
                     [
                         ['Distance', 'Altitude', 'Easting', 'Northing', 'Longitude', 'Latitude'],
                         ...this.elevationProfile.points.map((point) => {
-                            const [lon, lat] = proj4(LV95.epsg, WGS84.epsg, point.coordinate)
+                            const [lon, lat] = proj4(
+                                this.projection.epsg,
+                                WGS84.epsg,
+                                point.coordinate
+                            )
+                            const [easting, northing] = proj4(
+                                this.projection.epsg,
+                                LV95.epsg,
+                                point.coordinate
+                            )
                             return [
                                 point.dist,
                                 point.elevation,
-                                point.coordinate[0],
-                                point.coordinate[1],
-                                round(lon, 6),
-                                round(lat, 6),
+                                LV95.roundCoordinateValue(easting),
+                                LV95.roundCoordinateValue(northing),
+                                WGS84.roundCoordinateValue(lon),
+                                WGS84.roundCoordinateValue(lat),
                             ]
                         }),
                     ]
@@ -145,7 +158,7 @@ export default {
         },
         updateElevationProfileData() {
             this.request.pending = true
-            getProfile(this.featureGeodesicCoordinates)
+            getProfile(this.featureGeodesicCoordinates, this.projection)
                 .then((profile) => {
                     this.elevationProfile = profile
                 })

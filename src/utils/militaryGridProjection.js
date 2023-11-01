@@ -37,25 +37,15 @@ const Z = 90 // Z
 /**
  * Convert lat/lon to MGRS.
  *
- * @param {[number, number]} ll Array with longitude and latitude on a WGS84 ellipsoid.
+ * @param {number} lat Latitude on a WGS84 ellipsoid.
+ * @param {number} lon Longitude on a WGS84 ellipsoid.
  * @param {number} [accuracy=5] Accuracy in digits (5 for 1 m, 4 for 10 m, 3 for 100 m, 2 for 1 km,
  *   1 for 10 km or 0 for 100 km). Default is `5`
  * @returns {string} The MGRS string for the given location and accuracy.
  */
-export function forward(ll, accuracy) {
+export function latLonToMGRS(lat, lon, accuracy) {
     accuracy = typeof accuracy === 'number' ? accuracy : 5 // default accuracy 1m
 
-    if (!Array.isArray(ll)) {
-        throw new TypeError('forward did not receive an array')
-    }
-
-    if (typeof ll[0] === 'string' || typeof ll[1] === 'string') {
-        throw new TypeError(
-            'forward received an array of strings, but it only accepts an array of numbers.'
-        )
-    }
-
-    const [lon, lat] = ll
     if (lon < -180 || lon > 180) {
         throw new TypeError(`forward received an invalid longitude of ${lon}`)
     }
@@ -69,7 +59,7 @@ export function forward(ll, accuracy) {
         )
     }
 
-    return encode(LLtoUTM({ lat, lon }), accuracy)
+    return encodeUTM(latLonToUTM(lat, lon), accuracy)
 }
 
 /**
@@ -81,7 +71,7 @@ export function forward(ll, accuracy) {
  *   provided MGRS reference.
  */
 export function inverse(mgrs) {
-    const bbox = UTMtoLL(decode(mgrs.toUpperCase()))
+    const bbox = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
     if (bbox.lat && bbox.lon) {
         return [bbox.lon, bbox.lat, bbox.lon, bbox.lat]
     }
@@ -92,7 +82,7 @@ export function toPoint(mgrs) {
     if (mgrs === '') {
         throw new TypeError('toPoint received a blank string')
     }
-    const bbox = UTMtoLL(decode(mgrs.toUpperCase()))
+    const bbox = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
     if (bbox.lat && bbox.lon) {
         return [bbox.lon, bbox.lat]
     }
@@ -124,43 +114,41 @@ function radToDeg(rad) {
 /**
  * Converts a set of Longitude and Latitude co-ordinates to UTM using the WGS84 ellipsoid.
  *
- * @param {object} ll Object literal with lat and lon properties representing the WGS84 coordinate
- *   to be converted.
+ * @param {Number} lat Latitude represented in WGS84
+ * @param {Number} lon Longitude represented in WGS84
  * @returns {object} Object literal containing the UTM value with easting, northing, zoneNumber and
  *   zoneLetter properties, and an optional accuracy property in digits. Returns null if the
  *   conversion failed.
  */
-export function LLtoUTM(ll) {
-    const Lat = ll.lat
-    const Long = ll.lon
+export function latLonToUTM(lat, lon) {
     const a = 6378137 //ellip.radius;
     const eccSquared = 0.00669438 //ellip.eccsq;
     const k0 = 0.9996
-    const LatRad = degToRad(Lat)
-    const LongRad = degToRad(Long)
+    const LatRad = degToRad(lat)
+    const LongRad = degToRad(lon)
     let ZoneNumber
     // (int)
-    ZoneNumber = Math.floor((Long + 180) / 6) + 1
+    ZoneNumber = Math.floor((lon + 180) / 6) + 1
 
     //Make sure the longitude 180 is in Zone 60
-    if (Long === 180) {
+    if (lon === 180) {
         ZoneNumber = 60
     }
 
     // Special zone for Norway
-    if (Lat >= 56 && Lat < 64 && Long >= 3 && Long < 12) {
+    if (lat >= 56 && lat < 64 && lon >= 3 && lon < 12) {
         ZoneNumber = 32
     }
 
     // Special zones for Svalbard
-    if (Lat >= 72 && Lat < 84) {
-        if (Long >= 0 && Long < 9) {
+    if (lat >= 72 && lat < 84) {
+        if (lon >= 0 && lon < 9) {
             ZoneNumber = 31
-        } else if (Long >= 9 && Long < 21) {
+        } else if (lon >= 9 && lon < 21) {
             ZoneNumber = 33
-        } else if (Long >= 21 && Long < 33) {
+        } else if (lon >= 21 && lon < 33) {
             ZoneNumber = 35
-        } else if (Long >= 33 && Long < 42) {
+        } else if (lon >= 33 && lon < 42) {
             ZoneNumber = 37
         }
     }
@@ -216,7 +204,7 @@ export function LLtoUTM(ll) {
                         A *
                         A) /
                         720))
-    if (Lat < 0) {
+    if (lat < 0) {
         UTMNorthing += 10000000 //10000000 meter offset for
         // southern hemisphere
     }
@@ -225,7 +213,7 @@ export function LLtoUTM(ll) {
         northing: Math.trunc(UTMNorthing),
         easting: Math.trunc(UTMEasting),
         zoneNumber: ZoneNumber,
-        zoneLetter: getLetterDesignator(Lat),
+        zoneLetter: getLetterDesignator(lat),
     }
 }
 
@@ -242,7 +230,7 @@ export function LLtoUTM(ll) {
  *   provided), or top, right, bottom and left values for the bounding box calculated according to
  *   the provided accuracy. Returns null if the conversion failed.
  */
-function UTMtoLL(utm) {
+function UTMtoLatLon(utm) {
     const UTMNorthing = utm.northing
     const UTMEasting = utm.easting
     const { zoneLetter, zoneNumber } = utm
@@ -330,7 +318,7 @@ function UTMtoLL(utm) {
 
     let result
     if (typeof utm.accuracy === 'number') {
-        const topRight = UTMtoLL({
+        const topRight = UTMtoLatLon({
             northing: utm.northing + utm.accuracy,
             easting: utm.easting + utm.accuracy,
             zoneLetter: utm.zoneLetter,
@@ -384,7 +372,7 @@ export function getLetterDesignator(latitude) {
  * @param {number} accuracy Accuracy in digits (0-5).
  * @returns {string} MGRS string for the given UTM location.
  */
-function encode(utm, accuracy) {
+function encodeUTM(utm, accuracy) {
     // prepend with leading zeroes
     const seasting = '00000' + utm.easting,
         snorthing = '00000' + utm.northing
@@ -526,7 +514,7 @@ function getLetter100kID(column, row, parm) {
  * @returns {object} An object literal with easting, northing, zoneLetter, zoneNumber and accuracy
  *   (in meters) properties.
  */
-function decode(mgrsString) {
+function decodeUTM(mgrsString) {
     if (mgrsString && mgrsString.length === 0) {
         throw new TypeError('MGRSPoint coverting from nothing')
     }

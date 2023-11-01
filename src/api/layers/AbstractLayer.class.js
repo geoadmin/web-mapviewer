@@ -1,4 +1,3 @@
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import LayerTypes from './LayerTypes.enum'
 
 /** Name (or description) of a data holder for a layer, with the possibility to define a URL */
@@ -52,20 +51,18 @@ export default class AbstractLayer {
         this.attributions = [...attributions]
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
-        // default projection used, as we want to achieve worldwide coverage, is web mercator metric
-        this.projection = WEBMERCATOR
     }
 
     /**
      * @abstract
-     * @param {String} timestamp A timestamp to be used, instead of the one define in the time
-     *   config of the layer. Is used to preview a specific timestamp without having to change the
-     *   layer's config (very useful for the time slider for instance)
-     * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
-     *   EPSG:2056 will require an input of 2056)
+     * @param {Number | null} epsgNumber The EPSG number of the projection system to use if needed
+     *   for the layer
+     * @param {String | null} timestamp A timestamp to be used, instead of the one define in the
+     *   time config of the layer. Is used to preview a specific timestamp without having to change
+     *   the layer's config (very useful for the time slider for instance)
      * @returns {String} The URL to use to request tile/image/data for this layer
      */
-    getURL(timestamp = null, epsgNumber = WEBMERCATOR.epsgNumber) {
+    getURL(epsgNumber = null, timestamp = null) {
         throw new Error('You have to implement the method getURL!')
     }
 

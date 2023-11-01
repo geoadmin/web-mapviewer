@@ -1,10 +1,11 @@
 <template>
-    <div id="cesium" ref="viewer" data-cy="cesium-map">
+    <div v-if="isProjectionWebMercator" id="cesium" ref="viewer" data-cy="cesium-map">
         <div v-if="viewerCreated">
             <!-- Adding background layer -->
             <CesiumInternalLayer
                 v-if="currentBackgroundLayer"
                 :layer-config="currentBackgroundLayer"
+                :projection="projection"
                 :z-index="0"
             />
             <!-- Adding all other layers -->
@@ -14,6 +15,7 @@
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
+                :projection="projection"
                 :z-index="index + startingZIndexForVisibleLayers"
             />
             <CesiumInternalLayer
@@ -21,10 +23,11 @@
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
+                :projection="projection"
                 :z-index="index"
             />
         </div>
-        <MapPopover
+        <CesiumPopover
             v-if="viewerCreated && showFeaturesPopover"
             :coordinates="popoverCoordinates"
             authorize-print
@@ -42,10 +45,10 @@
             </template>
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
-        </MapPopover>
+        </CesiumPopover>
+        <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
+        <slot />
     </div>
-    <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
-    <slot />
 </template>
 <script>
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
@@ -56,23 +59,20 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import {
     BASE_URL_3D_TILES,
+    DEFAULT_PROJECTION,
     IS_TESTING_WITH_CYPRESS,
-    TILEGRID_EXTENT_EPSG_4326,
     WMS_BASE_URL,
     WMTS_BASE_URL,
 } from '@/config'
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import MapPopover from '@/modules/map/components/MapPopover.vue'
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
-import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import {
-    isInBounds,
-    LV95_BOUNDS,
-    reprojectUnknownSrsCoordsToWebMercator,
-} from '@/utils/coordinateUtils'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import '@geoblocks/cesium-compass'
@@ -105,7 +105,7 @@ import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './util
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
 
 export default {
-    components: { MapPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: { CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -142,8 +142,12 @@ export default {
             previewYear: (state) => state.layers.previewYear,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
+            projection: (state) => state.position.projection,
         }),
         ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
+        isProjectionWebMercator() {
+            return this.projection.epsg === WEBMERCATOR.epsg
+        },
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
         },
@@ -178,6 +182,19 @@ export default {
             },
             deep: true,
         },
+        isProjectionWebMercator: {
+            handler() {
+                if (!this.viewer && this.isProjectionWebMercator) {
+                    this.createViewer()
+                } else {
+                    log.error('Cesium only supports WebMercator as projection')
+                }
+            },
+            // so that we trigger the handler AFTER the component has updated
+            // (meaning after the main <div> has been added and can be linked to Cesium)
+            // see https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing
+            flush: 'post',
+        },
     },
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
@@ -201,96 +218,34 @@ export default {
         // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
         Object.assign(RequestScheduler.requestsByServer, backendUsedToServe3dData)
     },
-    async mounted() {
-        this.viewer = new Viewer(this.$refs.viewer, {
-            contextOptions: {
-                webgl: {
-                    powerPreference: 'high-performance',
-                },
-            },
-            showRenderLoopErrors: this.hasDevSiteWarning,
-            animation: false,
-            baseLayerPicker: false,
-            fullscreenButton: false,
-            vrButton: false,
-            geocoder: false,
-            homeButton: false,
-            infoBox: false,
-            sceneModePicker: false,
-            selectionIndicator: false,
-            timeline: false,
-            navigationHelpButton: false,
-            navigationInstructionsInitiallyVisible: false,
-            scene3DOnly: true,
-            skyBox: false,
-            baseLayer: false,
-            useBrowserRecommendedResolution: true,
-            terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
-            requestRenderMode: true,
-        })
-
-        const compass = this.$refs.compass
-        compass.scene = this.viewer.scene
-        compass.clock = this.viewer.clock
-
-        const scene = this.viewer.scene
-        scene.useDepthPicking = true
-        scene.pickTranslucentDepth = true
-        scene.backgroundColor = Color.TRANSPARENT
-
-        this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
-        this.viewer.screenSpaceEventHandler.setInputAction(
-            this.onClick,
-            ScreenSpaceEventType.LEFT_CLICK
-        )
-
-        const globe = scene.globe
-        globe.baseColor = Color.TRANSPARENT
-        globe.depthTestAgainstTerrain = true
-        globe.showGroundAtmosphere = false
-        globe.showWaterEffect = false
-
-        const sscController = scene.screenSpaceCameraController
-        sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
-        sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
-
-        this.viewerCreated = true
-
-        this.viewer.scene.postRender.addEventListener(limitCameraCenter(TILEGRID_EXTENT_EPSG_4326))
-        this.viewer.scene.postRender.addEventListener(
-            limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
-        )
-
-        this.flyToPosition()
-
-        if (this.selectedFeatures.length > 0) {
-            this.highlightSelectedFeatures()
-        }
-
-        if (IS_TESTING_WITH_CYPRESS) {
-            window.cesiumViewer = this.viewer
-            // reduce screen space error to downgrade visual quality but speed up tests
-            globe.maximumScreenSpaceError = 30
+    mounted() {
+        if (this.isProjectionWebMercator) {
+            this.createViewer()
+        } else {
+            log.debug('Projection is not yet set to WebMercator, Cesium will not load yet')
         }
     },
     beforeUnmount() {
-        // the camera position that is for now dispatched to the store doesn't correspond where the 2D
-        // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
-        // have nothing to do with the top-down 2D view.
-        // here we ray trace the coordinate of where the camera is looking at, and send this "target"
-        // to the store as the new center
-        const ray = this.viewer.camera.getPickRay(
-            new Cartesian2(
-                Math.round(this.viewer.scene.canvas.clientWidth / 2),
-                Math.round(this.viewer.scene.canvas.clientHeight / 2)
+        if (this.viewer) {
+            // the camera position that is for now dispatched to the store doesn't correspond where the 2D
+            // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
+            // have nothing to do with the top-down 2D view.
+            // here we ray trace the coordinate of where the camera is looking at, and send this "target"
+            // to the store as the new center
+            const ray = this.viewer.camera.getPickRay(
+                new Cartesian2(
+                    Math.round(this.viewer.scene.canvas.clientWidth / 2),
+                    Math.round(this.viewer.scene.canvas.clientHeight / 2)
+                )
             )
-        )
-        const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
-        if (defined(cameraTarget)) {
-            const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
-            const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
-            const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
-            this.setCenter(proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]))
+            const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
+            if (defined(cameraTarget)) {
+                const cameraTargetCartographic =
+                    Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
+                const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
+                const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
+                this.setCenter(proj4(WGS84.epsg, this.projection.epsg, [lon, lat]))
+            }
         }
     },
     unmounted() {
@@ -306,6 +261,85 @@ export default {
             'toggleFloatingTooltip',
             'setCenter',
         ]),
+        async createViewer() {
+            console.log('creating Cesium viewer')
+            this.viewer = new Viewer(this.$refs.viewer, {
+                contextOptions: {
+                    webgl: {
+                        powerPreference: 'high-performance',
+                    },
+                },
+                showRenderLoopErrors: this.hasDevSiteWarning,
+                animation: false,
+                baseLayerPicker: false,
+                fullscreenButton: false,
+                vrButton: false,
+                geocoder: false,
+                homeButton: false,
+                infoBox: false,
+                sceneModePicker: false,
+                selectionIndicator: false,
+                timeline: false,
+                navigationHelpButton: false,
+                navigationInstructionsInitiallyVisible: false,
+                scene3DOnly: true,
+                skyBox: false,
+                baseLayer: false,
+                useBrowserRecommendedResolution: true,
+                terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
+                requestRenderMode: true,
+            })
+
+            const compass = this.$refs.compass
+            compass.scene = this.viewer.scene
+            compass.clock = this.viewer.clock
+
+            const scene = this.viewer.scene
+            scene.useDepthPicking = true
+            scene.pickTranslucentDepth = true
+            scene.backgroundColor = Color.TRANSPARENT
+
+            this.viewer.camera.moveEnd.addEventListener(this.onCameraMoveEnd)
+            this.viewer.screenSpaceEventHandler.setInputAction(
+                this.onClick,
+                ScreenSpaceEventType.LEFT_CLICK
+            )
+
+            const globe = scene.globe
+            globe.baseColor = Color.TRANSPARENT
+            globe.depthTestAgainstTerrain = true
+            globe.showGroundAtmosphere = false
+            globe.showWaterEffect = false
+
+            const sscController = scene.screenSpaceCameraController
+            sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
+            sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
+
+            this.viewerCreated = true
+
+            // if the default projection is a national projection (or custom projection) we then constrain the camera to
+            // only move in bounds of this custom projection
+            if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
+                this.viewer.scene.postRender.addEventListener(
+                    limitCameraCenter(DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten)
+                )
+            }
+            this.viewer.scene.postRender.addEventListener(
+                limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
+            )
+
+            this.flyToPosition()
+
+            if (this.selectedFeatures.length > 0) {
+                this.highlightSelectedFeatures()
+            }
+
+            if (IS_TESTING_WITH_CYPRESS) {
+                window.cesiumViewer = this.viewer
+                // reduce screen space error to downgrade visual quality but speed up tests
+                globe.maximumScreenSpaceError = 30
+            }
+        },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
             const geometries = this.selectedFeatures.map((f) => {
@@ -320,10 +354,7 @@ export default {
                         type = 'Point'
                     }
                     const coordinates = f.geometry.getCoordinates()
-                    const getCoordinates = (c) =>
-                        isInBounds(c[0], c[1], LV95_BOUNDS)
-                            ? proj4(LV95.epsg, WEBMERCATOR.epsg, c)
-                            : c
+                    const getCoordinates = (c) => proj4(this.projection.epsg, WEBMERCATOR.epsg, c)
                     return {
                         type,
                         coordinates:
@@ -338,7 +369,7 @@ export default {
             const featureCoords = Array.isArray(firstFeature.coordinates[0])
                 ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
                 : firstFeature.coordinates
-            this.popoverCoordinates = reprojectUnknownSrsCoordsToWebMercator(
+            this.popoverCoordinates = reprojectUnknownSrsCoordsToWGS84(
                 featureCoords[0],
                 featureCoords[1]
             )
@@ -438,7 +469,7 @@ export default {
                 const featureCoords = Array.isArray(features[0].coordinates[0])
                     ? features[0].coordinates[0]
                     : features[0].coordinates
-                coordinates = proj4(LV95.epsg, WEBMERCATOR.epsg, featureCoords)
+                coordinates = proj4(this.projection.epsg, WEBMERCATOR.epsg, featureCoords)
             }
             this.click(
                 new ClickInfo(

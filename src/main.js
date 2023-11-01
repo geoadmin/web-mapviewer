@@ -13,9 +13,6 @@ import {
     DATA_BASE_URL,
     ENVIRONMENT,
     IS_TESTING_WITH_CYPRESS,
-    MAP_CENTER,
-    TILEGRID_ORIGIN,
-    TILEGRID_RESOLUTIONS,
     WMS_BASE_URL,
     WMS_TILE_SIZE,
     WMTS_BASE_URL,
@@ -25,7 +22,6 @@ import router from '@/router'
 import store from '@/store'
 import log from '@/utils/logging'
 import setupChartJS from '@/utils/setupChartJS'
-import setupProj4 from '@/utils/setupProj4'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // Importing styling CSS libraries
@@ -53,16 +49,12 @@ log.debug('Config is', {
     WMTS_BASE_URL,
     WMS_BASE_URL,
     WMS_TILE_SIZE,
-    TILEGRID_ORIGIN,
-    TILEGRID_RESOLUTIONS,
-    MAP_CENTER,
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_TABLET,
 })
 
 tippy.setDefaultProps({ theme: 'light-border' })
-setupProj4()
 setupChartJS()
 
 const app = createApp(App)

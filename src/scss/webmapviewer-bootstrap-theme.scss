@@ -28,6 +28,8 @@ $card-spacer-y: 0.75rem;
 
 $caret-spacing: 0.75rem;
 
+$enable-negative-margins: true;
+
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
 }

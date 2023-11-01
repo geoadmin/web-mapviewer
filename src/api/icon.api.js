@@ -90,7 +90,7 @@ export class DrawingIcon {
         this._anchor = anchor
     }
 
-    getStrippedObject() {
+    serialize() {
         /* Warning: Changing this method will break the compability of KML files */
         return {
             name: this.name,
@@ -101,7 +101,7 @@ export class DrawingIcon {
         }
     }
 
-    static recreateObject(o) {
+    static deserialize(o) {
         return new DrawingIcon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
     }
 

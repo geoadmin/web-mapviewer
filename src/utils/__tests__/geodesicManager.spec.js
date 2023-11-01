@@ -1,4 +1,5 @@
 import { HALFSIZE_WEBMERCATOR, GeodesicGeometries } from '@/utils/geodesicManager'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { Feature } from 'ol'
 import { expect } from 'chai'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
@@ -8,7 +9,7 @@ import { Style } from 'ol/style'
 function constructGeodLineString(...coords) {
     const feature = new Feature(new LineString(coords))
     feature.set('isDrawing', true)
-    return new GeodesicGeometries(feature)
+    return new GeodesicGeometries(feature, WEBMERCATOR)
 }
 
 function checkCoordsEqual(coords1, coords2, precision) {

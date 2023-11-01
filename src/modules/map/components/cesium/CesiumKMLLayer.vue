@@ -5,18 +5,17 @@
 </template>
 
 <script>
-import log from '@/utils/logging'
 import { getKmlFromUrl } from '@/api/files.api'
-import KML from 'ol/format/KML'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
-import { EditableFeature } from '@/api/features.api'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import log from '@/utils/logging'
 import VectorSource from 'ol/source/Vector'
 import { mapState } from 'vuex'
-import addPrimitiveLayerMixins from './utils/addPrimitiveLayer-mixins'
+import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
 
 /** Renders a KML file to the Cesium viewer */
 export default {
-    mixins: [addPrimitiveLayerMixins],
+    mixins: [addPrimitiveFromOLLayerMixins],
     props: {
         layerId: {
             type: String,
@@ -34,6 +33,10 @@ export default {
             type: Number,
             default: -1,
         },
+        projection: {
+            type: CoordinateSystem,
+            required: true,
+        },
     },
     computed: {
         ...mapState({
@@ -41,30 +44,25 @@ export default {
         }),
     },
     methods: {
-        async loadLayer() {
+        async loadDataInOLLayer() {
             try {
                 const kml = await getKmlFromUrl(this.url)
-                const features = new KML().readFeatures(kml, {
-                    // Reproject all features to webmercator, as this is the projection used for the view
-                    featureProjection: WEBMERCATOR.epsg,
-                })
+                const features = parseKml(kml, this.projection, this.availableIconSets)
                 if (features) {
-                    this.olLayer.setSource(new VectorSource({ wrapX: true }))
-                    features.forEach((olFeature) => {
-                        EditableFeature.deserialize(olFeature, this.availableIconSets)
-                    })
+                    this.olLayer.setSource(
+                        new VectorSource({ wrapX: true, projection: this.projection.epsg })
+                    )
                     // remove all old features first
                     this.olLayer.getSource().clear()
                     // add the deserialized features
                     this.olLayer.getSource().addFeatures(features)
-                    return WEBMERCATOR.epsg
                 } else {
                     log.error(`No KML features available to add`, features)
                 }
             } catch (error) {
                 log.error(`Failed to load kml from ${this.url}`, error)
+                throw error
             }
-            return undefined
         },
     },
 }

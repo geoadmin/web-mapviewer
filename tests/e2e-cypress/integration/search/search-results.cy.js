@@ -1,12 +1,8 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET } from '@/config'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
-import { round } from '@/utils/numberUtils'
-import setupProj4 from '@/utils/setupProj4'
+import { BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import proj4 from 'proj4'
-
-setupProj4()
 
 const searchbarSelector = '[data-cy="searchbar"]'
 const locationsSelector = '[data-cy="search-results-locations"]'
@@ -51,7 +47,11 @@ describe('Test the search bar result handling', () => {
     const expectedLayerLabel = '<b>Test layer</b>'
     const expectedLegendContent = '<div>Test</div>'
     const expectedCenterEpsg4326 = [7.0, 47.0] // lon/lat
-    const expectedCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, expectedCenterEpsg4326)
+    const expectedCenterDefaultProjection = proj4(
+        WGS84.epsg,
+        DEFAULT_PROJECTION.epsg,
+        expectedCenterEpsg4326
+    )
     const expectedLayerId = 'test.wmts.layer'
     const locationResponse = {
         results: [
@@ -59,13 +59,17 @@ describe('Test the search bar result handling', () => {
                 id: 1234,
                 weight: 1,
                 attrs: {
-                    x: expectedCenterEpsg3857[0],
-                    y: expectedCenterEpsg3857[1],
+                    x: expectedCenterDefaultProjection[0],
+                    y: expectedCenterDefaultProjection[1],
+                    lon: expectedCenterEpsg4326[0],
+                    lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterEpsg3857[0] - 500} ${
-                        expectedCenterEpsg3857[1] - 500
-                    },${expectedCenterEpsg3857[0] + 500} ${expectedCenterEpsg3857[1] + 500})`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0] - 500} ${
+                        expectedCenterDefaultProjection[1] - 500
+                    },${expectedCenterDefaultProjection[0] + 500} ${
+                        expectedCenterDefaultProjection[1] + 500
+                    })`,
                     label: expectedLocationLabel,
                 },
             },
@@ -87,18 +91,13 @@ describe('Test the search bar result handling', () => {
             { attrs: { label: 'Test layer #3' } },
         ],
     }
-    // see https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-    // reverting formula resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-    // => zoomlevel = log2(156543.03 meters/pixel * cos(latitude) / resolution)
-    const resolutionAtZoomLevelZero = 156543.03 // in m/px
     const calculateExpectedZoom = (currentViewportWidth, currentViewPortHeight) => {
         // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
         // on the smaller value between width or height
         const resolution = 1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
-        const latitudeInRadians = (expectedCenterEpsg4326[1] * Math.PI) / 180.0
-        return round(
-            Math.log2((resolutionAtZoomLevelZero * Math.cos(latitudeInRadians)) / resolution),
-            2
+        return DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
+            resolution,
+            proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, expectedCenterEpsg4326)
         )
     }
     const checkLocation = (expected, result) => {
@@ -136,7 +135,7 @@ describe('Test the search bar result handling', () => {
             .click()
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').then((center) =>
-            checkLocation(expectedCenterEpsg3857, center)
+            checkLocation(expectedCenterDefaultProjection, center)
         )
         // checking that the zoom level corresponds to the extent of the feature
         // TODO: this somehow fail on the desktop viewport, see https://jira.swisstopo.ch/browse/BGDIINF_SB-2156
@@ -148,7 +147,7 @@ describe('Test the search bar result handling', () => {
             })
         // checking that a dropped pin has been placed at the feature's location
         cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
-            checkLocation(expectedCenterEpsg3857, pinnedLocation)
+            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
     })
     it('adds the search query as swisssearch URL param', () => {
@@ -258,7 +257,7 @@ describe('Test the search bar result handling', () => {
         cy.focused().trigger('keyup', { key: 'Enter' })
 
         cy.readStoreValue('state.map.pinnedLocation').then((pinnedLocation) =>
-            checkLocation(expectedCenterEpsg3857, pinnedLocation)
+            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         )
     })
     it('previews the location or layer on hover', () => {
@@ -273,7 +272,7 @@ describe('Test the search bar result handling', () => {
         // Location - Enter
         cy.get(locationSelector).first().trigger('mouseenter')
         cy.readStoreValue('state.map.previewedPinnedLocation').then((pinnedLocation) => {
-            checkLocation(expectedCenterEpsg3857, pinnedLocation)
+            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
         })
         // Location - Leave
         cy.get(locationSelector).first().trigger('mouseleave')

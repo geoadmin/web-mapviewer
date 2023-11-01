@@ -35,5 +35,6 @@
     &.disabled {
         background-color: $light-grey;
         border: $light-grey;
+        cursor: not-allowed;
     }
 }

@@ -1,6 +1,8 @@
+import { DEFAULT_PROJECTION } from '@/config'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
@@ -20,21 +22,18 @@ const storeSyncConfig = [
         String
     ),
     new SimpleUrlParamConfig(
-        'lat',
-        'setCenter',
-        'setLatitude',
-        (store) => store.getters.centerEpsg4326[1],
-        true,
-        Number
+        'sr',
+        'setProjection',
+        'setProjection',
+        (store) => store.state.position.projection.epsgNumber,
+        false,
+        Number,
+        DEFAULT_PROJECTION.epsgNumber
     ),
-    new SimpleUrlParamConfig(
-        'lon',
-        'setCenter',
-        'setLongitude',
-        (store) => store.getters.centerEpsg4326[0],
-        true,
-        Number
-    ),
+    // Position must be processed after the projection param,
+    // otherwise the position might be wrongly reprojected at app startup when SR is not equal
+    // to the default projection EPSG number
+    new PositionParamConfig(),
     new SimpleUrlParamConfig(
         'z',
         'setZoom',

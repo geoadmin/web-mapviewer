@@ -19,12 +19,12 @@ import OpenLayersMarker, {
     markerStyles,
 } from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import addLayerToMapMixin from '@/modules/map/components/openlayers/utils/addLayerToMap-mixins'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
 import OpenLayersFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import { Vector as VectorSource } from 'ol/source'
 import Style from 'ol/style/Style'
+import { mapState } from 'vuex'
 
 const geoJsonStyleFunction = (olFeature) => {
     const geoJsonType = olFeature.get('geometry').getType()
@@ -71,16 +71,26 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
         doesFeatureHaveAGeometry() {
-            return this.feature && this.feature.geometry
+            return this.feature?.geometry
         },
         openLayersGeoJsonGeometry() {
             if (this.doesFeatureHaveAGeometry) {
                 return new GeoJSON().readGeometry(this.feature.geometry, {
-                    dataProject: WEBMERCATOR.epsg,
+                    dataProject: this.projection.epsg,
                 })
             }
             return null
+        },
+    },
+    watch: {
+        'feature.geometry'() {
+            if (this.doesFeatureHaveAGeometry) {
+                this.addFeatureToLayer()
+            }
         },
     },
     created() {
@@ -92,12 +102,19 @@ export default {
             })
             this.layer = new VectorLayer({
                 id: `geometry-layer-feature-${this.feature.id}`,
-                source: new VectorSource({
-                    features: [this.geometry],
-                }),
                 style: geoJsonStyleFunction,
             })
+            this.addFeatureToLayer()
         }
+    },
+    methods: {
+        addFeatureToLayer() {
+            this.layer?.setSource(
+                new VectorSource({
+                    features: [this.geometry],
+                })
+            )
+        },
     },
 }
 </script>

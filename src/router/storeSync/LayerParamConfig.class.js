@@ -3,7 +3,6 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
@@ -148,7 +147,11 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             )
         ) {
             const layerObject = createLayerObject(parsedLayer)
-            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
+            if (
+                layerObject.type === LayerTypes.KML &&
+                layerObject.adminId &&
+                !layerObject.isLegacy() // TODO BGDIINF_SB-2685: remove once on prod
+            ) {
                 promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
             }
             log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)

@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
@@ -69,11 +69,11 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import LoadingScreen from '@/utils/LoadingScreen.vue'
 import log from '@/utils/logging'
-import KML from 'ol/format/KML'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { DrawingState } from './lib/export-utils'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 export default {
     components: {
@@ -115,6 +115,7 @@ export default {
             availableIconSets: (state) => state.drawing.iconSets,
             selectedFeatures: (state) => state.features.selectedFeatures,
             featureIds: (state) => state.drawing.featureIds,
+            projection: (state) => state.position.projection,
         }),
         kmlLayerId() {
             return this.kmlLayer?.getID()
@@ -169,7 +170,7 @@ export default {
             if (show) {
                 this.isLoading = true
                 this.isDrawingOpen = true
-                await this.initDrawingOverlay()
+                await this.showDrawingOverlay()
                 this.isLoading = false
             } else {
                 this.isLoading = true
@@ -192,10 +193,13 @@ export default {
                 this.onChange()
             }
         },
+        projection() {
+            this.drawingLayer.setSource(this.createSourceForProjection())
+        },
     },
     created() {
         this.drawingLayer = new VectorLayer({
-            source: new VectorSource({ useSpatialIndex: false, wrapX: true }),
+            source: this.createSourceForProjection(),
         })
         this.drawingLayer.setZIndex(9999)
         // if icons have not yet been loaded, we do so
@@ -215,7 +219,7 @@ export default {
             window.drawingLayer = this.drawingLayer
         }
         if (this.show) {
-            this.initDrawingOverlay()
+            this.showDrawingOverlay()
         }
     },
     unmounted() {
@@ -239,7 +243,10 @@ export default {
             'setDrawingFeatures',
             'setKmlLayerAddToMap',
         ]),
-        async initDrawingOverlay() {
+        async showDrawingOverlay() {
+            // We need to make sure that no drawing features are selected when entering the drawing
+            // mode otherwise we cannot edit the selected features.
+            this.clearAllSelectedFeatures()
             this.drawingState = DrawingState.INITIAL
             this.isNewDrawing = true
 
@@ -321,7 +328,10 @@ export default {
             log.debug(`Save drawing retryOnError ${retryOnError}`)
             this.drawingState = DrawingState.SAVING
             clearTimeout(this.differSaveDrawingTimeout)
-            const kml = generateKmlString(this.drawingLayer.getSource().getFeatures())
+            const kml = generateKmlString(
+                this.projection,
+                this.drawingLayer.getSource().getFeatures()
+            )
             try {
                 if (!this.kmlAdminId) {
                     const oldKmlId = this.kmlLayerId
@@ -434,12 +444,7 @@ export default {
             clearTimeout(this.addKmlLayerTimeout)
             try {
                 const kml = await getKml(layer.fileId)
-                const features = new KML().readFeatures(kml, {
-                    featureProjection: layer.projection.epsg,
-                })
-                features.forEach((olFeature) => {
-                    EditableFeature.deserialize(olFeature, this.availableIconSets)
-                })
+                const features = parseKml(kml, this.projection, this.availableIconSets)
                 this.drawingLayer.getSource().addFeatures(features)
                 this.setDrawingFeatures(features.map((feature) => feature.getId()))
                 this.drawingState = DrawingState.LOADED
@@ -450,6 +455,13 @@ export default {
                     this.differAddKmlLayerToDrawing(layer)
                 }
             }
+        },
+        createSourceForProjection() {
+            return new VectorSource({
+                useSpatialIndex: false,
+                wrapX: true,
+                projection: this.projection.epsg,
+            })
         },
     },
 }

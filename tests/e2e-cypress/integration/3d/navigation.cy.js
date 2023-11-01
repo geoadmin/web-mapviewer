@@ -4,8 +4,9 @@ import {
     CAMERA_MIN_ZOOM_DISTANCE,
 } from '@/modules/map/components/cesium/constants'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { calculateZoom } from '@/store/modules/position.store'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Cartesian3 } from 'cesium'
+import proj4 from 'proj4'
 
 describe('Testing 3D navigation', () => {
     context('camera limits', () => {
@@ -68,10 +69,17 @@ describe('Testing 3D navigation', () => {
                         expect(center[0]).to.eq(lon)
                         expect(center[1]).to.eq(lat)
                     })
-                    cy.readStoreValue('state.position.zoom').should((zoom) => {
+                    cy.readStoreValue('state').then((state) => {
+                        const { zoom, projection } = state.position
                         const height = viewer.camera.positionCartographic.height
                         const resolution = calculateResolution(height, viewer.canvas.clientWidth)
-                        expect(zoom).to.approximately(calculateZoom(resolution, lat), 0.001)
+                        expect(zoom).to.approximately(
+                            projection.getZoomForResolutionAndCenter(
+                                resolution,
+                                proj4(WGS84.epsg, projection.epsg, [lon, lat])
+                            ),
+                            0.001
+                        )
                     })
                     cy.readStoreValue('state.position.rotation').should((rotation) => {
                         expect(rotation).to.eq(Math.PI)

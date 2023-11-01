@@ -28,8 +28,8 @@ export default class ElevationProfile {
     /** @returns {boolean} True if all segments have distance data */
     get hasDistanceData() {
         return (
-            this.segments.filter((segment) => segment.hasDistanceData).length ===
-            this.segments.length
+            this.segments.length > 0 &&
+            this.segments.filter((s) => s.hasDistanceData).length === this.segments.length
         )
     }
 

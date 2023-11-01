@@ -1,42 +1,34 @@
 <template>
     <select
+        v-model="displayedFormatId"
         class="map-projection form-control-xs"
-        :value="displayedProjectionId"
         data-cy="mouse-position-select"
-        @change="onProjectionChange"
+        @change="setDisplayedFormatWithId"
     >
-        <option
-            v-for="projection in availableProjections"
-            :key="projection.id"
-            :value="projection.id"
-        >
-            {{ projection.label }}
+        <option v-for="format in availableFormats" :key="format.id" :value="format.id">
+            {{ format.label }}
         </option>
     </select>
     <div ref="mousePosition" class="mouse-position" data-cy="mouse-position"></div>
 </template>
 <script>
-import allCoordinateSystems from '@/utils/coordinateSystems'
+import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import log from '@/utils/logging'
 import MousePosition from 'ol/control/MousePosition'
-import { get as getProjection } from 'ol/proj'
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
     inject: ['getMap'],
     data() {
         return {
-            availableProjections: allCoordinateSystems,
+            availableFormats: allFormats,
+            displayedFormatId: LV95Format.id,
         }
     },
     computed: {
         ...mapState({
-            displayedProjectionId: (state) => state.map.displayedProjection.id,
+            projection: (state) => state.position.projection,
         }),
-    },
-    watch: {
-        displayedProjectionId() {
-            this.changeCoordinateFormat()
-        },
     },
     created() {
         this.mousePositionControl = new MousePosition({
@@ -50,28 +42,33 @@ export default {
         // we wait for the next cycle to set the projection, otherwise the info can
         // sometimes be lost (and we end up with a different projection in the position display)
         this.$nextTick(() => {
-            this.changeCoordinateFormat()
+            this.setDisplayedFormatWithId()
         })
     },
     unmounted() {
         this.getMap().removeControl(this.mousePositionControl)
     },
     methods: {
-        ...mapActions(['setDisplayedProjectionWithId']),
-        onProjectionChange(event) {
-            this.setDisplayedProjectionWithId(event.target.value)
-        },
-        changeCoordinateFormat() {
-            const { id, format, epsg } = allCoordinateSystems.find(
-                (coordinateSystem) => coordinateSystem.id === this.displayedProjectionId
+        setDisplayedFormatWithId() {
+            const displayedFormat = allFormats.find(
+                (format) => format.id === this.displayedFormatId
             )
-
-            const displayFormat = id.startsWith('LV')
-                ? (coordinate) => `${this.$t('coordinates_label')} ${format(coordinate)}`
-                : format
-
-            this.mousePositionControl.setCoordinateFormat(displayFormat)
-            this.mousePositionControl.setProjection(getProjection(epsg))
+            if (displayedFormat) {
+                this.mousePositionControl.setCoordinateFormat((coordinates) => {
+                    if (this.showCoordinateLabel(displayedFormat)) {
+                        return `${this.$t('coordinates_label')} ${displayedFormat.format(
+                            coordinates,
+                            this.projection
+                        )}`
+                    }
+                    return displayedFormat.format(coordinates, this.projection, true)
+                })
+            } else {
+                log.error('Unknown coordinates display format', this.displayedFormatId)
+            }
+        },
+        showCoordinateLabel(displayedFormat) {
+            return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
         },
     },
 }

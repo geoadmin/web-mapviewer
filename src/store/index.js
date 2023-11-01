@@ -1,5 +1,6 @@
+import from2Dto3Dplugin from '@/store/plugins/2d-to-3d-management.plugin'
+import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import { createStore } from 'vuex'
-
 import app from './modules/app.store'
 import drawing from './modules/drawing.store'
 import features from './modules/features.store'
@@ -15,15 +16,13 @@ import ui from './modules/ui.store'
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
-
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
 import loadingBarManagementPlugin from './plugins/loading-bar-management.plugin'
 import menuSearchBarInteractionManagementPlugin from './plugins/menu-search-interaction.plugin'
 import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
 import screenSizeManagementPlugin from './plugins/screen-size-management.plugin'
-import topicChangeManagementPlugin from './plugins/topic-change-management.plugin'
-
 import syncCameraLonLatZoom from './plugins/sync-camera-lonlatzoom'
+import topicChangeManagementPlugin from './plugins/topic-change-management.plugin'
 
 export default createStore({
     strict: true,
@@ -39,6 +38,8 @@ export default createStore({
         loadingBarManagementPlugin,
         screenSizeManagementPlugin,
         syncCameraLonLatZoom,
+        reprojectSelectedFeaturesOnProjectionChangePlugin,
+        from2Dto3Dplugin,
     ],
     modules: {
         app,

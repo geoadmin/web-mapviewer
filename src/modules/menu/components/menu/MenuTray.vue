@@ -16,6 +16,7 @@
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection
+                v-if="!is3dMode"
                 id="drawSection"
                 :title="$t('draw_panel_title')"
                 :always-keep-closed="true"
@@ -93,12 +94,14 @@ export default {
             activeLayers: (state) => state.layers.activeLayers,
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
+            is3dMode: (state) => state.ui.showIn3d,
         }),
         ...mapGetters(['isPhoneMode']),
         showLayerList() {
             return this.activeLayers.length > 0
         },
         disableDrawing() {
+            // TODO BGDIINF_SB-2685: remove this protection once on prod
             if (
                 DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
                     (hostname) => hostname === this.hostname
