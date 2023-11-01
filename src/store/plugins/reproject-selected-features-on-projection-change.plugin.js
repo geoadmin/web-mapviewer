@@ -1,63 +1,76 @@
-import getFeature, { EditableFeature, LayerFeature } from '@/api/features.api'
+import { EditableFeature, LayerFeature } from '@/api/features.api'
+import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 import proj4 from 'proj4'
 
+let oldProjection = null
 /**
  * Plugin that will reproject selected features after it detects that the projection was changed
  *
  * @param {Vuex.Store} store
  */
 const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
-    store.subscribe((mutation, state) => {
-        if (mutation.type === 'setProjection') {
-            const newProjection = mutation.payload
-            const oldProjection = state.position.projection
+    store.subscribeAction({
+        before: (action, state) => {
+            if (action.type === 'setProjection') {
+                oldProjection = state.position.projection
+            }
+        },
+        after: (action, state) => {
+            if (action.type === 'setProjection') {
+                const newProjection = state.position.projection
 
-            log.debug(
-                `starting to reproject the app from ${oldProjection.epsg} to ${newProjection.epsg}`
-            )
-            const reprojectCoordinates = (coordinates = []) =>
-                proj4(oldProjection.epsg, newProjection.epsg, coordinates)
-
-            // re-requesting selected features with the new projection
-            const reprojectedSelectedFeatures = []
-            const allGetFeaturePromises = []
-            state.features.selectedFeatures.forEach((selectedFeature) => {
-                if (selectedFeature instanceof LayerFeature) {
-                    allGetFeaturePromises.push(
-                        getFeature(
-                            selectedFeature.layer,
-                            selectedFeature.featureId,
-                            newProjection,
-                            state.i18n.currentLang
-                        ).then((feature) => reprojectedSelectedFeatures.push(feature))
-                    )
-                } else if (selectedFeature.isEditable) {
-                    const reprojectedFeatureCoordinates = selectedFeature.coordinates.map(
-                        (coordinate) => reprojectCoordinates(coordinate)
-                    )
-                    reprojectedSelectedFeatures.push(
-                        new EditableFeature(
-                            selectedFeature.id,
-                            reprojectedFeatureCoordinates,
-                            selectedFeature.time,
-                            selectedFeature.description,
-                            selectedFeature.featureType,
-                            selectedFeature.textColor,
-                            selectedFeature.textSize,
-                            selectedFeature.fillColor,
-                            selectedFeature.icon,
-                            selectedFeature.iconSize
+                log.debug(
+                    `starting to reproject the app from ${oldProjection.epsg} to ${newProjection.epsg}`
+                )
+                const reprojectCoordinates = (coordinates = []) => {
+                    if (coordinates.length === 2 && typeof coordinates[0] === 'number') {
+                        return proj4(oldProjection.epsg, newProjection.epsg, coordinates).map(
+                            (value) => newProjection.roundCoordinateValue(value)
                         )
-                    )
-                } else {
-                    log.debug('do not know what to do with this feature', selectedFeature)
+                    }
+                    return coordinates.map((coordinate) => reprojectCoordinates(coordinate))
                 }
-            })
-            Promise.all(allGetFeaturePromises).then(() => {
-                store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
-            })
-        }
+
+                // re-projecting selected features with the new projection
+                const reprojectedSelectedFeatures = []
+                state.features.selectedFeatures.forEach((selectedFeature) => {
+                    if (selectedFeature instanceof LayerFeature) {
+                        reprojectedSelectedFeatures.push(
+                            new LayerFeature(
+                                selectedFeature.layer,
+                                selectedFeature.id,
+                                selectedFeature.name,
+                                selectedFeature.htmlPopup,
+                                reprojectCoordinates(selectedFeature.coordinates),
+                                projExtent(oldProjection, newProjection, selectedFeature.extent),
+                                selectedFeature.geometry
+                            )
+                        )
+                    } else if (selectedFeature.isEditable) {
+                        reprojectedSelectedFeatures.push(
+                            new EditableFeature(
+                                selectedFeature.id,
+                                reprojectCoordinates(selectedFeature.coordinates),
+                                selectedFeature.time,
+                                selectedFeature.description,
+                                selectedFeature.featureType,
+                                selectedFeature.textColor,
+                                selectedFeature.textSize,
+                                selectedFeature.fillColor,
+                                selectedFeature.icon,
+                                selectedFeature.iconSize
+                            )
+                        )
+                    } else {
+                        log.debug('do not know what to do with this feature', selectedFeature)
+                    }
+                })
+                if (reprojectedSelectedFeatures.length > 0) {
+                    store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
+                }
+            }
+        },
     })
 }
 

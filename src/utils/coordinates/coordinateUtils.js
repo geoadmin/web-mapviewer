@@ -62,3 +62,22 @@ export function toRoundedString(coordinate, digits, withThousandsSeparator = tru
         .join(', ')
         .replace(/\B(?=(\d{3})+(?!\d))/g, "'")
 }
+
+/**
+ * Projection of an extent, described as [topLeftX, topLeftY, bottomRightX, bottomRightY]
+ *
+ * @param {CoordinateSystem} fromProj Current projection used to describe the extent
+ * @param {CoordinateSystem} toProj Target projection we want the extent be expressed in
+ * @param {Number[]} extent An extent, described as `[topLeftX, topLeftY, bottomRightX,
+ *   bottomRightY]`
+ * @returns {null | Number[]} The reprojected extent, or null if the given extent is not an array of
+ *   four numbers
+ */
+export function projExtent(fromProj, toProj, extent) {
+    if (extent.length === 4) {
+        const topLeft = proj4(fromProj.epsg, toProj.epsg, [extent[0], extent[1]])
+        const bottomRight = proj4(fromProj.epsg, toProj.epsg, [extent[2], extent[3]])
+        return [...topLeft, ...bottomRight]
+    }
+    return null
+}

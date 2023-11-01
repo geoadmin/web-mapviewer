@@ -40,8 +40,8 @@
                 :active="showTimeSlider"
                 @click="showTimeSlider = !showTimeSlider"
             />
-            <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0" />
         </div>
+        <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
             :class="{
@@ -180,6 +180,9 @@ $openCloseButtonHeight: 2.5rem;
         &.dev-disclaimer-present {
             top: $header-height + $dev-disclaimer-height;
         }
+    }
+    .debug-toolbar {
+        top: 66%;
     }
     .menu-tray-container {
         pointer-events: none;

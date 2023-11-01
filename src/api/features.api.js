@@ -1,6 +1,12 @@
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
+import {
+    extractOlFeatureCoordinates,
+    extractOlFeatureGeodesicCoordinates,
+} from '@/modules/drawing/lib/drawingUtils'
 import { featureStyleFunction } from '@/modules/drawing/lib/style'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
 import {
     allStylingColors,
@@ -15,10 +21,7 @@ import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/modules/drawing/lib/drawingUtils'
+import proj4 from 'proj4'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be
@@ -436,9 +439,9 @@ export class LayerFeature extends SelectableFeature {
      * @param {Number | String} id The unique feature ID in the layer it is part of
      * @param {String} name The name (localized) of this feature
      * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
-     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinate in EPSG:3857
+     * @param {Number[][]} coordinates Coordinate in the current projection ([[x,y],[x2,y2],...])
      * @param {Number[]} extent Extent of the feature expressed with two point, bottom left and top
-     *   right, in EPSG:3857
+     *   right
      * @param {Object} geometry GeoJSON geometry (if exists)
      */
     constructor(layer, id, name, htmlPopup, coordinates, extent, geometry = null) {
@@ -567,12 +570,12 @@ export const identify = (
  *
  * @param {GeoAdminLayer} layer The layer from which the feature is part of
  * @param {String | Number} featureID The feature ID in the BGDI
- * @param {CoordinateSystem} projection Projection in which the coordinates of the features should
- *   be expressed
+ * @param {CoordinateSystem} outputProjection Projection in which the coordinates (and possible
+ *   extent) of the features should be expressed
  * @param {String} lang The language for the HTML popup
  * @returns {Promise<LayerFeature>}
  */
-const getFeature = (layer, featureID, projection, lang = 'en') => {
+const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
     return new Promise((resolve, reject) => {
         if (!layer || !layer.getID()) {
             reject('Needs a valid layer with an ID')
@@ -587,13 +590,13 @@ const getFeature = (layer, featureID, projection, lang = 'en') => {
             .all([
                 axios.get(featureUrl, {
                     params: {
-                        sr: projection.epsgNumber,
+                        sr: LV95.epsgNumber,
                         geometryFormat: 'geojson',
                     },
                 }),
                 axios.get(`${featureUrl}/htmlPopup`, {
                     params: {
-                        sr: projection.epsgNumber,
+                        sr: LV95.epsgNumber,
                         lang: lang,
                     },
                 }),
@@ -604,7 +607,7 @@ const getFeature = (layer, featureID, projection, lang = 'en') => {
                     : responses[0].data
                 const featureHtmlPopup = responses[1].data
                 const featureGeoJSONGeometry = featureMetadata.geometry
-                const featureExtent = []
+                let featureExtent = []
                 if (featureMetadata.bbox) {
                     featureExtent.push(...featureMetadata.bbox)
                 }
@@ -627,6 +630,14 @@ const getFeature = (layer, featureID, projection, lang = 'en') => {
                     ]
                 }
                 const featureName = featureMetadata?.properties?.name
+
+                if (outputProjection.epsg !== LV95.epsg) {
+                    featureCoordinate = proj4(LV95.epsg, outputProjection.epsg, featureCoordinate)
+                    if (featureExtent.length === 4) {
+                        featureExtent = projExtent(LV95, outputProjection, featureExtent)
+                    }
+                }
+
                 resolve(
                     new LayerFeature(
                         layer,
