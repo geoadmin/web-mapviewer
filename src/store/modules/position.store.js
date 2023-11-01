@@ -1,10 +1,8 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import allCoordinateSystems, {
-    LV95,
-    WEBMERCATOR,
-    WGS84,
-} from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
@@ -245,12 +243,9 @@ const actions = {
     setCameraPosition({ commit }, cameraPosition) {
         commit('setCameraPosition', cameraPosition)
     },
-    setProjection({ commit }, projection) {
+    setProjection({ commit, state }, projection) {
         let matchingProjection
-        if (
-            projection instanceof CoordinateSystem &&
-            (projection.epsg === LV95.epsg || projection.epsg === WEBMERCATOR.epsg)
-        ) {
+        if (projection instanceof CoordinateSystem) {
             matchingProjection = projection
         } else if (typeof projection === 'number' || projection instanceof Number) {
             matchingProjection = allCoordinateSystems.find(
@@ -263,7 +258,44 @@ const actions = {
                     coordinateSystem.epsgNumber === parseInt(projection)
             )
         }
+        if (matchingProjection.epsg === state.projection.epsg) {
+            log.debug(
+                'Attempt at setting the same projection than the one already set in the store, ignoring'
+            )
+            return
+        }
         if (matchingProjection) {
+            const oldProjection = state.projection
+            // reprojecting the center of the map
+            const [x, y] = proj4(oldProjection.epsg, matchingProjection.epsg, state.center)
+            commit('setCenter', { x, y })
+            // adapting the zoom level (if needed)
+            if (
+                oldProjection instanceof StandardCoordinateSystem &&
+                matchingProjection instanceof CustomCoordinateSystem
+            ) {
+                commit('setZoom', matchingProjection.transformStandardZoomLevelToCustom(state.zoom))
+            }
+            if (
+                oldProjection instanceof CustomCoordinateSystem &&
+                matchingProjection instanceof StandardCoordinateSystem
+            ) {
+                commit('setZoom', oldProjection.transformCustomZoomLevelToStandard(state.zoom))
+            }
+            if (
+                oldProjection instanceof CustomCoordinateSystem &&
+                matchingProjection instanceof CustomCoordinateSystem &&
+                oldProjection.epsg !== matchingProjection.epsg
+            ) {
+                // we have to revert the old projection zoom level to standard, and then transform it to the new projection custom zoom level
+                commit(
+                    'setZoom',
+                    oldProjection.transformCustomZoomLevelToStandard(
+                        matchingProjection.transformStandardZoomLevelToCustom(state.zoom)
+                    )
+                )
+            }
+
             commit('setProjection', matchingProjection)
         } else {
             log.error('Unsupported projection', projection)
