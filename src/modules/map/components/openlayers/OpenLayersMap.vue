@@ -11,23 +11,10 @@
         @contextmenu="onContextMenu"
     >
         <!-- Adding background layer -->
-        <!-- Placing LightBaseMap first if needed, while excluding sources that covers Switzerland
-             (as they are not needed when this layer is added to achieve world-wide coverage while another
-             BG layers covers Switzerland)
-             see load-layersconfig-on-lang-change.js for exclusion definition
-        -->
-        <OpenLayersVectorLayer
-            v-if="lightBaseMapConfigUnderMainBackgroundLayer"
-            :layer-id="lightBaseMapConfigUnderMainBackgroundLayer.getID()"
-            :opacity="lightBaseMapConfigUnderMainBackgroundLayer.opacity"
-            :style-url="lightBaseMapConfigUnderMainBackgroundLayer.getURL()"
-            :exclude-source="lightBaseMapConfigUnderMainBackgroundLayer.excludeSource"
-            :z-index="0"
-        />
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
             :layer-config="currentBackgroundLayer"
-            :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
+            :z-index="0"
         />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
@@ -109,16 +96,11 @@
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import {
-    IS_TESTING_WITH_CYPRESS,
-    VECTOR_LIGHT_BASE_MAP_STYLE_ID,
-    VIEW_MIN_RESOLUTION,
-} from '@/config'
+import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
 import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
 import allCoordinateSystems, {
@@ -164,7 +146,6 @@ export default {
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersMarker,
-        OpenLayersVectorLayer,
     },
     provide() {
         return {
@@ -204,11 +185,8 @@ export default {
         }),
         ...mapGetters([
             'visibleLayers',
-            'isExtentOnlyWithinLV95Bounds',
             'resolution',
             'isCurrentlyDrawing',
-            'backgroundLayers',
-            'isDesktopMode',
             'zIndexForVisibleLayer',
         ]),
         crossHairStyle() {
@@ -228,38 +206,8 @@ export default {
             }
             return null
         },
-        /**
-         * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
-         * current BG layer is pixelkarte-farbe and the mapping projection used is WebMercator. We
-         * place it this way so that we can keep pixelkarte-farbe while achieving world-wide
-         * coverage (while waiting to receive a full-fledged VT layer with more details than light
-         * base map)
-         *
-         * @returns {GeoAdminVectorLayer | null}
-         */
-        lightBaseMapConfigUnderMainBackgroundLayer() {
-            if (
-                this.mappingProjection.epsg === WEBMERCATOR.epsg &&
-                this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe'
-            ) {
-                // we only want LightBaseMap behind pixelkarte-farbe when the map is showing things outside
-                // LV95 extent (outside of Switzerland)
-                if (this.isExtentOnlyWithinLV95Bounds) {
-                    log.debug('no need to show MapLibre, we are totally within LV95 extent')
-                } else {
-                    return this.backgroundLayers.find(
-                        (layer) => layer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
-                    )
-                }
-            }
-            return null
-        },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
-            // checking if light base map is used under another layer (we need to start counting from 2 then)
-            if (this.lightBaseMapConfigUnderMainBackgroundLayer) {
-                return 2
-            }
             return this.currentBackgroundLayer ? 1 : 0
         },
         zIndexDroppedPinned() {
