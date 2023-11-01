@@ -43,9 +43,9 @@ describe('Geolocation cypress', () => {
             // lon/lat to mock up the Geolocation API (see beforeEach)
             const latitude = 47.5
             const longitude = 6.8
-            // same position but in EPSG:3857 (that's what will be stored by our app)
-            const x = 756972.54
-            const y = 6024072.12
+            // same position but in EPSG:2056 (default projection of the app)
+            const x = 2551881.86
+            const y = 1261223.97
 
             beforeEach(() => {
                 cy.goToMapView({}, false, { latitude, longitude })
