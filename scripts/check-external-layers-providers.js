@@ -208,7 +208,7 @@ async function writeResult(result) {
         }),
         fs.writeFile(
             valid_providers_file,
-            JSON.stringify(result.valid_providers.sort(compareCaseInsensitive), null, 4)
+            JSON.stringify(result.valid_providers.sort(compareCaseInsensitive), null, 4) + '\n'
         ),
     ])
 }
