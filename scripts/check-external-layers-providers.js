@@ -9,14 +9,20 @@ import { hideBin } from 'yargs/helpers'
 import ogcParser from 'ogc-parser'
 import { exit } from 'process'
 
-import { transformUrl, isWmsGetCap, isWmtsGetCap, isKml, isGpx } from '@/utils/external-provider'
+import {
+    transformUrl,
+    isWmsGetCap,
+    isWmtsGetCap,
+    isKml,
+    isGpx,
+} from '@/modules/infobox/utils/external-provider'
 
 const options = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
     .version('1.0.0')
     .epilog('Check validity of all providers')
     .option('input', {
-        default: './src/external-layer-providers.json',
+        default: './src/modules/infobox/utils/external-layer-providers.json',
         describe: 'Input JSON providers file to check',
         type: 'string',
     })
@@ -48,9 +54,13 @@ function setupAxiosRetry() {
 }
 
 function compareResultByProvider(a, b) {
-    if (a['provider'] > b['provider']) {
+    return compareCaseInsensitive(a['provider'], b['provider'])
+}
+
+function compareCaseInsensitive(a, b) {
+    if (a.toLowerCase() > b.toLowerCase()) {
         return 1
-    } else if (a['provider'] < b['provider']) {
+    } else if (a.toLowerCase() < b.toLowerCase()) {
         return -1
     }
     return 0
@@ -191,7 +201,10 @@ async function writeResult(result) {
             count: result.invalid_content.length,
             result: result.invalid_content.sort(compareResultByProvider),
         }),
-        fs.writeFile(valid_providers_file, JSON.stringify(result.valid_providers.sort(), null, 4)),
+        fs.writeFile(
+            valid_providers_file,
+            JSON.stringify(result.valid_providers.sort(compareCaseInsensitive), null, 4) + '\n'
+        ),
     ])
 }
 
