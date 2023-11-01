@@ -1,5 +1,12 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_PROJECTION } from '@/config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import setupProj4 from '@/utils/setupProj4'
+import proj4 from 'proj4'
+
+setupProj4()
+
 const geolocationButtonSelector = '[data-cy="geolocation-button"]'
 
 function getGeolocationButtonAndClickIt() {
@@ -44,8 +51,7 @@ describe('Geolocation cypress', () => {
             const latitude = 47.5
             const longitude = 6.8
             // same position but in EPSG:2056 (default projection of the app)
-            const x = 2551881.86
-            const y = 1261223.97
+            const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
 
             beforeEach(() => {
                 cy.goToMapView({}, false, { latitude, longitude })
