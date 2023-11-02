@@ -262,7 +262,6 @@ export default {
             'setCenter',
         ]),
         async createViewer() {
-            console.log('creating Cesium viewer')
             this.viewer = new Viewer(this.$refs.viewer, {
                 contextOptions: {
                     webgl: {

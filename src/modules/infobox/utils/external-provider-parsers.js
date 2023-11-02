@@ -19,7 +19,13 @@ import log from '@/utils/logging'
  */
 export function getCapWMSLayers(getCap, layer, projection, visible = true, opacity = 1) {
     // If the WMS layer has no name, it can't be displayed
-    if (!layer.Name) {
+    let name = layer.name
+    if (!name && layer.Title) {
+        // if we don't have a name use the title as name
+        name = layer.Title
+    }
+    if (!name) {
+        log.error(`No layer and/or title available`, layer)
         return undefined
     }
     const wmsUrl = getCap.Capability.Request.GetMap.DCPType[0].HTTP.Get.OnlineResource
@@ -42,7 +48,7 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
                 ]
             } else {
                 log.error(
-                    `No valid bounding box found in GetCapabilities for layer ${layer.title}`,
+                    `No valid bounding box found in GetCapabilities for layer ${name}`,
                     getCap,
                     layer
                 )
@@ -90,6 +96,7 @@ export function getCapWMTSLayers(
     opacity = 1
 ) {
     if (!layer.Identifier) {
+        log.error(`No layer identifier available`, layer)
         return undefined
     }
     let layerExtent = undefined

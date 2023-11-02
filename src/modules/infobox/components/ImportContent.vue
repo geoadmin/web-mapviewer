@@ -88,11 +88,15 @@ import {
     isWmtsGetCap,
 } from '@/modules/infobox/utils/external-provider'
 import { mapState } from 'vuex'
-import { getCapWMSLayers, getCapWMTSLayers } from '@/utils/file'
+import {
+    getCapWMSLayers,
+    getCapWMTSLayers,
+} from '@/modules/infobox/utils/external-provider-parsers'
 import { WMSCapabilities } from 'ol/format'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import ImportContentResultList from './ImportContentResultList.vue'
+import log from '@/utils/logging'
 
 const BTN_RESET_TIMEOUT = 3000
 
@@ -202,7 +206,7 @@ export default {
                 .querySelector(`[tabindex="${this.filteredList.length - 1}"]`)
                 .focus()
         },
-        handleFileContent(fileContent, url) {
+        handleFileContent(fileContent, url, contentType) {
             this.wmsMaxSize = undefined
             if (isWmsGetCap(fileContent)) {
                 const parser = new WMSCapabilities()
@@ -228,7 +232,12 @@ export default {
             } else if (isGpx(fileContent)) {
                 // TODO GPX layer not done yet
             } else {
-                throw new Error('Wrong file content.')
+                throw new Error(
+                    `Unsupported url ${url} response content; Content-Type=${contentType}`
+                )
+            }
+            if (this.importedLayers.length === 0) {
+                throw new Error(`No valid layer found in ${url}`)
             }
         },
         async handleFileUrl() {
@@ -236,11 +245,11 @@ export default {
             try {
                 const response = await fetch(url)
                 const fileContent = await response.text()
-                this.handleFileContent(fileContent, url)
+                this.handleFileContent(fileContent, url, response.headers.get('Content-Type'))
                 this.uploadBtnStatus = 'succeeded'
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
             } catch (e) {
-                console.error(e)
+                log.error(e)
                 this.uploadBtnStatus = 'failed'
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
             }
