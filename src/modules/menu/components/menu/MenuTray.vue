@@ -29,6 +29,7 @@
         <MenuSection
             id="toolsSection"
             ref="toolsSection"
+            data-cy="menu-tray-tool-section"
             :title="$t('map_tools')"
             secondary
             @open-menu-section="onOpenMenuSection"

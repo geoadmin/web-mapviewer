@@ -3,6 +3,7 @@
         data-infobox="height-reference"
         class="import-overlay-content"
         :class="{ 'with-layers': importedLayers?.length }"
+        data-cy="import-tool-content"
     >
         <div class="input-group d-flex">
             <input
@@ -21,6 +22,7 @@
             <button
                 class="list-switch"
                 :class="{ 'clear-btn-shown': importValue?.length > 0 }"
+                data-cy="import-list-switch-button"
                 @click="toggleProviders"
             >
                 <FontAwesomeIcon :icon="listShown ? 'caret-up' : 'caret-down'" />
@@ -30,13 +32,13 @@
                 id="button-addon1"
                 class="btn btn-outline-group rounded-end"
                 type="button"
-                data-cy="searchbar-clear"
+                data-cy="import-input-clear"
                 @click="clearImportQuery"
             >
                 <FontAwesomeIcon :icon="['fas', 'times-circle']" />
             </button>
             <div v-if="listShown" ref="providers" class="providers-list-container bg-light">
-                <div class="providers-list">
+                <div class="providers-list" data-cy="import-provider-list">
                     <div
                         v-for="(provider, key) in filteredList"
                         :key="provider"
@@ -65,6 +67,7 @@
                 type="button"
                 class="btn btn-outline-secondary connect-btn mt-1"
                 :disabled="isConnectDisabled"
+                data-cy="import-connect-button"
                 @click="onConnect"
             >
                 {{ buttonText }}

@@ -5,6 +5,7 @@
                 class="advanced-tools-title"
                 :class="{ 'text-primary': importOverlay }"
                 :title="$t('import_tooltip')"
+                data-cy="menu-import-tool"
                 @click.stop="onToggleImportOverlay"
                 >{{ $t('import') }}</a
             >
