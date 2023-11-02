@@ -1,8 +1,5 @@
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
-import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -35,67 +32,8 @@ async function loadLayersConfig(lang) {
 
 const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
     try {
-        const openStreetMapAndMapTilersAttributions = [
-            new LayerAttribution('MapTiler', 'https://www.maptiler.com/copyright/'),
-            new LayerAttribution(
-                'OpenStreetMap contributors',
-                'https://www.openstreetmap.org/copyright'
-            ),
-        ]
-        /*
-         * adding vector tile backend through a hardcoded entry (for now)
-         *
-         * this should be removed as soon as the backend delivers a proper configuration for our vector tile background layer
-         */
-        const lightBaseMapBackgroundLayer = new GeoAdminVectorLayer(
-            VECTOR_LIGHT_BASE_MAP_STYLE_ID,
-            openStreetMapAndMapTilersAttributions,
-            // filtering out any layer that uses swisstopo data (meaning all layers that are over Switzerland)
-            // will be used when this layer is placed under pixelkarte-farbe, this should improve performances as lesser
-            // data will be on-screen hidden by the WMTS tiles
-            'swissmaptiles'
-        )
-        const imageryBackgroundLayer = new GeoAdminVectorLayer(VECTOR_TILES_IMAGERY_STYLE_ID, [
-            ...openStreetMapAndMapTilersAttributions,
-            new LayerAttribution(
-                'Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020)',
-                'https://s2maps.eu/'
-            ),
-        ])
-        const layersConfig = [
-            lightBaseMapBackgroundLayer,
-            imageryBackgroundLayer,
-            ...(await loadLayersConfig(store.state.i18n.lang)),
-        ]
+        const layersConfig = [...(await loadLayersConfig(store.state.i18n.lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
-        // as we want the vector tile background as default, we edit on the fly
-        // the default topic ECH to have the vector layer as its default background
-        const topicEch = topicsConfig.find((topic) => topic.id === 'ech')
-        if (topicEch) {
-            // adding light base map as a background option
-            topicEch.backgroundLayers.push(lightBaseMapBackgroundLayer)
-            // replacing the SWISSIMAGE WMTS layer with the SWISSIMAGE vector layer
-            // same as the other one above, this should be removed ASAP (as soon as our backend
-            // is serving this configuration through the standard layersConfig endpoint)
-            const swissimageLayer = topicEch.backgroundLayers.find(
-                (layer) => layer.geoAdminID === 'ch.swisstopo.swissimage'
-            )
-            if (swissimageLayer) {
-                log.debug('replacing SwissImage background layer with vector style equivalent')
-                swissimageLayer.isBackground = false
-                topicEch.backgroundLayers[topicEch.backgroundLayers.indexOf(swissimageLayer)] =
-                    imageryBackgroundLayer
-            }
-            // removing the Pixelkarte Grau from the background layers. Same hack as
-            // for the SWISSIMAGE above)
-            const pixelgreyLayer = topicEch.backgroundLayers.find(
-                (layer) => layer.geoAdminID === 'ch.swisstopo.pixelkarte-grau'
-            )
-            if (swissimageLayer) {
-                log.debug('removing "ch.swisstopo.pixelkarte-grau" from background layer')
-                pixelgreyLayer.isBackground = false
-            }
-        }
         store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
         if (store.state.topics.current) {

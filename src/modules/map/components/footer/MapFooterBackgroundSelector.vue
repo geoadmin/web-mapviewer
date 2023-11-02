@@ -20,17 +20,14 @@
                 :data-cy="`background-selector-${background.getID()}`"
                 @click="selectBackground(background, $event)"
             >
-                <div class="bg-selector-button-label">
+                <div class="bg-selector-button-label text-wrap">
                     {{ $t(getLayerTranslationLabel(background)) }}
                 </div>
             </button>
         </div>
         <button
             class="bg-selector-trigger"
-            :class="[
-                { 'bigger-pulse': animateMainButton },
-                'bg-ch-swisstopo-leichte-basiskarte-imagery_world-vt',
-            ]"
+            :class="[{ 'bigger-pulse': animateMainButton }]"
             type="button"
             :title="$t('bg_toggle')"
             @click="toggleBackgroundWheel"
@@ -47,7 +44,6 @@
 </template>
 
 <script>
-import { VECTOR_LIGHT_BASE_MAP_STYLE_ID, VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 const voidLayer = {
@@ -104,11 +100,10 @@ export default {
                     return 'void_layer'
                 case 'ch.swisstopo.pixelkarte-farbe':
                     return 'bg_pixel_color'
+                case 'ch.swisstopo.pixelkarte-grau':
+                    return 'bg_pixel_grey'
                 case 'ch.swisstopo.swissimage':
-                case VECTOR_TILES_IMAGERY_STYLE_ID:
                     return 'bg_luftbild'
-                case VECTOR_LIGHT_BASE_MAP_STYLE_ID:
-                    return 'basis'
                 default:
                     return layer.name || layer.getID()
             }
