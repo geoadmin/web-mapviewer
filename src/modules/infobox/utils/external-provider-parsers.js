@@ -4,7 +4,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import proj4 from 'proj4'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import log from './logging'
+import log from '@/utils/logging'
 
 /**
  * Creates WMS or Group layer config from parsed getCap content
