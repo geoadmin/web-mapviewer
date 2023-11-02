@@ -1,5 +1,4 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
-import { VECTOR_LIGHT_BASE_MAP_STYLE_ID } from '@/config'
 import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 
 let isFirstSetTopic = true
@@ -34,15 +33,7 @@ const topicChangeManagementPlugin = (store) => {
             // we set it anyway if the URL doesn't contain a bgLayer URL param
             if (!isFirstSetTopic || window.location.href.indexOf('bgLayer=') === -1) {
                 if (currentTopic.defaultBackgroundLayer) {
-                    // edge case for pixelkarte-grau, we force LightBaseMap as background instead
-                    if (
-                        currentTopic.defaultBackgroundLayer.getID() ===
-                        'ch.swisstopo.pixelkarte-grau'
-                    ) {
-                        store.dispatch('setBackground', VECTOR_LIGHT_BASE_MAP_STYLE_ID)
-                    } else {
-                        store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
-                    }
+                    store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
                 } else {
                     store.dispatch('setBackground', null)
                 }
