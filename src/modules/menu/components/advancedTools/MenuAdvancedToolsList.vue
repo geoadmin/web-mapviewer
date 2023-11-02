@@ -3,6 +3,7 @@
         <li class="advanced-tools-item">
             <a
                 class="advanced-tools-title"
+                :class="{ 'text-primary': importOverlay }"
                 :title="$t('import_tooltip')"
                 @click.stop="onToggleImportOverlay"
                 >{{ $t('import') }}</a
@@ -12,9 +13,10 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
+    computed: { ...mapState({ importOverlay: (state) => state.ui.importOverlay }) },
     methods: {
         ...mapActions(['toggleImportOverlay']),
         onToggleImportOverlay() {
