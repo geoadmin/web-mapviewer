@@ -3,10 +3,11 @@
         <div v-if="viewerCreated">
             <!-- Adding background layer -->
             <CesiumInternalLayer
-                v-if="currentBackgroundLayer"
-                :layer-config="currentBackgroundLayer"
+                v-for="(bgLayer, index) in backgroundLayersConfig"
+                :key="bgLayer.id"
+                :layer-config="bgLayer"
                 :projection="projection"
-                :z-index="0"
+                :z-index="index"
             />
             <!-- Adding all other layers -->
             <!-- Layers split for correct zIndex ordering -->
@@ -19,12 +20,11 @@
                 :z-index="index + startingZIndexForVisibleLayers"
             />
             <CesiumInternalLayer
-                v-for="(layer, index) in visiblePrimitiveLayers"
+                v-for="layer in visiblePrimitiveLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
-                :z-index="index"
             />
         </div>
         <CesiumPopover
@@ -46,12 +46,31 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
+        <div class="cesium-toolbar d-flex">
+            <button
+                class="toolbox-button"
+                :class="{ active: showBuildings }"
+                @click="showBuildings = !showBuildings"
+            >
+                <FontAwesomeIcon icon="house" />
+            </button>
+            <cesium-compass v-show="isDesktopMode" class="compass" ref="compass" />
+            <button
+                class="toolbox-button"
+                :class="{ active: showVegetation }"
+                @click="showVegetation = !showVegetation"
+            >
+                <FontAwesomeIcon icon="tree" />
+            </button>
+        </div>
         <slot />
     </div>
 </template>
 <script>
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import GeoAdminVectorLayer, {
+    GeoAdminVectorLayerTypes,
+} from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -75,6 +94,7 @@ import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinate
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import '@geoblocks/cesium-compass'
 import * as cesium from 'cesium'
 import {
@@ -105,7 +125,7 @@ import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './util
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
 
 export default {
-    components: { CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -115,22 +135,10 @@ export default {
     data() {
         return {
             viewerCreated: false,
-            // todo just for testing, remove when 3d background switch will be implemented
-            currentBackgroundLayer: new GeoAdminWMTSLayer(
-                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-                1,
-                true,
-                [],
-                'jpeg',
-                new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
-                true,
-                WMTS_BASE_URL,
-                false,
-                false,
-                []
-            ),
             popoverCoordinates: [],
+            showLabels: true,
+            showBuildings: false,
+            showVegetation: false,
         }
     },
     computed: {
@@ -145,6 +153,22 @@ export default {
             projection: (state) => state.position.projection,
         }),
         ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
+        backgroundLayersConfig() {
+            const configs = []
+            if (this.currentBackgroundLayer) {
+                configs.push(this.currentBackgroundLayer)
+            }
+            if (this.showLabels) {
+                configs.push(this.labelLayer)
+            }
+            if (this.showVegetation) {
+                configs.push(this.vegetationLayer)
+            }
+            if (this.showBuildings) {
+                configs.push(this.buildingsLayer)
+            }
+            return configs
+        },
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
         },
@@ -152,7 +176,7 @@ export default {
             return this.uiMode === UIModes.DESKTOP
         },
         startingZIndexForVisibleLayers() {
-            return this.currentBackgroundLayer ? 1 : 0
+            return this.backgroundLayersConfig.length
         },
         visibleImageryLayers() {
             return this.visibleLayers.filter(
@@ -217,6 +241,37 @@ export default {
         // A per server key list of overrides to use for throttling limits.
         // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
         Object.assign(RequestScheduler.requestsByServer, backendUsedToServe3dData)
+
+        // TODO: just for testing, remove when 3d background switch will be implemented
+        this.currentBackgroundLayer = new GeoAdminWMTSLayer(
+            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
+            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
+            1,
+            true,
+            [],
+            'jpeg',
+            new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
+            true,
+            WMTS_BASE_URL,
+            false,
+            false,
+            []
+        )
+        this.labelLayer = new GeoAdminVectorLayer(
+            'ch.swisstopo.swissnames3d.3d',
+            GeoAdminVectorLayerTypes.CESIUM,
+            '20180716'
+        )
+        this.vegetationLayer = new GeoAdminVectorLayer(
+            'ch.swisstopo.vegetation.3d',
+            GeoAdminVectorLayerTypes.CESIUM,
+            '20190313'
+        )
+        this.buildingsLayer = new GeoAdminVectorLayer(
+            'ch.swisstopo.swisstlm3d.3d',
+            GeoAdminVectorLayerTypes.CESIUM,
+            '20201020'
+        )
     },
     mounted() {
         if (this.isProjectionWebMercator) {
@@ -490,6 +545,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/modules/menu/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise canvas styles will be not applied
 :global(#cesium .cesium-viewer),
@@ -513,12 +569,19 @@ export default {
         display: none;
     }
 }
-cesium-compass {
+.cesium-toolbar {
     position: absolute;
     bottom: 130px;
     right: 50%;
+    transform: translateX(50%);
     z-index: 3;
-    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
-    --cesium-compass-fill-color: rgb(224, 225, 226);
+    .compass {
+        --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+        --cesium-compass-fill-color: rgb(224, 225, 226);
+    }
+    .compass:not([style*='display: none;']) {
+        width: 95px;
+        transform: translateX(0);
+    }
 }
 </style>

@@ -3,7 +3,6 @@ import GeoAdminAggregateLayer, {
     AggregateSubLayer,
 } from '@/api/layers/GeoAdminAggregateLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
@@ -63,9 +62,6 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             attributions.push(new LayerAttribution(attributionName, attributionUrl))
         }
         switch (type.toLowerCase()) {
-            case 'vector':
-                layer = new GeoAdminVectorLayer(id, opacity, layerConfig.styleUrl, attributions)
-                break
             case 'wmts':
                 layer = new GeoAdminWMTSLayer(
                     name,

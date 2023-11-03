@@ -1,5 +1,14 @@
 <template>
     <div>
+        <CesiumVectorLayer
+            v-if="
+                layerConfig.type === LayerTypes.VECTOR &&
+                layerConfig.vectorLayerType === GeoAdminVectorLayerTypes.CESIUM
+            "
+            :vector-layer-config="layerConfig"
+            :projection="projection"
+            :z-index="zIndex"
+        />
         <CesiumWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
@@ -28,7 +37,6 @@
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
             :projection="projection"
-            :z-index="zIndex"
         />
         <slot />
     </div>
@@ -36,7 +44,9 @@
 
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { GeoAdminVectorLayerTypes } from '@/api/layers/GeoAdminVectorLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
@@ -48,7 +58,13 @@ import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
  * correct Cesium counterpart depending on the layer type.
  */
 export default {
+    computed: {
+        GeoAdminVectorLayerTypes() {
+            return GeoAdminVectorLayerTypes
+        },
+    },
     components: {
+        CesiumVectorLayer,
         CesiumKMLLayer,
         CesiumGeoJSONLayer,
         CesiumWMTSLayer,

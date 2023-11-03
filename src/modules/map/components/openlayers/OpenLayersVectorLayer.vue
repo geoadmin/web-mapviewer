@@ -12,10 +12,13 @@ import axios from 'axios'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 
 /**
- * Renders a Vector layer on the map with MapLibre This component should be heavily modified as soon
- * as https://jira.swisstopo.ch/browse/BGDIINF_SB-2741 can be done (as soon as layers config serves
- * configs for VT layers) Most of the specific code found bellow, plus import of layer ID should be
- * removed then.
+ * Renders a Vector layer on the map with MapLibre.
+ *
+ * This component should be heavily modified as soon as
+ * https://jira.swisstopo.ch/browse/BGDIINF_SB-2741 can be done (as soon as layers config serves
+ * configs for VT layers)
+ *
+ * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 export default {
     mixins: [addLayerToMapMixin],
@@ -35,10 +38,6 @@ export default {
         zIndex: {
             type: Number,
             default: -1,
-        },
-        excludeSource: {
-            type: String,
-            default: null,
         },
     },
     watch: {
@@ -66,24 +65,7 @@ export default {
                 return
             }
             // most of this methods will be edited while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2741
-            if (this.excludeSource) {
-                // we load the style on the side in order to be able to filter out some source
-                axios
-                    .get(styleUrl)
-                    .then((response) => {
-                        const vectorStyle = response.data
-                        vectorStyle.layers = vectorStyle.layers.filter(
-                            (layer) => layer.source !== this.excludeSource
-                        )
-                        // checking if the layer was removed during style fetching
-                        if (this.layer?.maplibreMap) {
-                            this.layer.maplibreMap.setStyle(vectorStyle)
-                        }
-                    })
-                    .catch((err) => {
-                        log.error('Error while fetching MapLibre style', styleUrl, err)
-                    })
-            } else if (this.layerId === VECTOR_TILES_IMAGERY_STYLE_ID) {
+            if (this.layerId === VECTOR_TILES_IMAGERY_STYLE_ID) {
                 // special case here, as the imagery is only over Switzerland (for now)
                 // we inject a fair-use WMTS that covers the globe under our aerial images
                 axios
