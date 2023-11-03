@@ -1,4 +1,5 @@
 import { BREAKPOINT_TABLET } from '@/config'
+import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 import { randomIntBetween } from '@/utils/numberUtils'
 import 'cypress-real-events'
 import 'cypress-wait-until'
@@ -9,6 +10,12 @@ import { MapBrowserEvent } from 'ol'
 // commands please read more here:
 // https://on.cypress.io/custom-commands
 // ***********************************************
+
+const addVueRouterIntercept = () => {
+    cy.intercept(FAKE_URL_CALLED_AFTER_ROUTE_CHANGE, {
+        statusCode: 200,
+    }).as('routeChange')
+}
 
 const addLayerTileFixture = () => {
     // catching WMTS type URLs in web mercator and lv95
@@ -86,6 +93,7 @@ const addGeoJsonIntercept = () => {
 
 export function getDefaultFixturesAndIntercepts() {
     return {
+        addVueRouterIntercept,
         addLayerTileFixture,
         addLayerFixtureAndIntercept,
         addTopicFixtureAndIntercept,
@@ -190,6 +198,57 @@ Cypress.Commands.add(
         } else {
             cy.get('[data-cy="ol-map"]').should('be.visible')
         }
+    }
+)
+
+/**
+ * Changes a URL parameter without reloading the app.
+ *
+ * Help when you want to change a value in the URL but don't want the whole app be reloaded from
+ * scratch in the process.
+ *
+ * @param {string} urlParamName URL param name (present or not in the URL, will be added or
+ *   overwritten)
+ * @param {string} urlParamValue The new URL param value we want to have
+ * @param {number} amountOfExpectedStoreDispatches The number of dispatches this change in the URL
+ *   is going to trigger. This function will then wait for this amount of dispatch in the store
+ *   before letting the test go further
+ */
+Cypress.Commands.add(
+    'changeUrlParam',
+    (urlParamName, urlParamValue, amountOfExpectedStoreDispatches = 1) => {
+        cy.window()
+            .its('vueRouterHistory')
+            .then((vueRouterHistory) => {
+                // the router location will everything behind the hash sign, meaning /map?param1=...&param2=...
+                const queryPart = vueRouterHistory.location.split('?')[1]
+                const query = new URLSearchParams(queryPart)
+                if (urlParamValue) {
+                    query.set(urlParamName, urlParamValue)
+                } else {
+                    query.delete(urlParamName)
+                }
+
+                // We have to do the toString by hand, as if we use the standard toString all param value
+                // will be encoded. And so comas will be URL encoded instead of left untouched, meaning layers, camera and
+                // other params that use the coma to split values will not work.
+                const unencodedQuery = Array.from(query.entries())
+                    .map(([key, value]) => `${key}=${value}`)
+                    .reduce((param1, param2) => `${param1}${param2}&`, '?')
+                    // removing the trailing & resulting of the reduction above
+                    .slice(0, -1)
+                // regenerating the complete router location
+                const newLocation = `${vueRouterHistory.location.split('?')[0]}${unencodedQuery}`
+                cy.log('router location changed from', vueRouterHistory.location, 'to', newLocation)
+                cy.window()
+                    .its('vueRouter')
+                    .then((vueRouter) => {
+                        vueRouter.push(newLocation)
+                        for (let i = 0; i < amountOfExpectedStoreDispatches; i++) {
+                            cy.wait('@routeChange')
+                        }
+                    })
+            })
     }
 )
 

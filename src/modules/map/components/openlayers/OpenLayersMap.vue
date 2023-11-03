@@ -41,7 +41,7 @@
         <!-- Showing cross hair if needed-->
         <OpenLayersMarker
             v-if="crossHairStyle"
-            :position="initialCenter"
+            :position="crossHairPosition"
             :marker-style="crossHairStyle"
             :z-index="zIndexCrossHair"
         />
@@ -157,8 +157,6 @@ export default {
         return {
             // exposing marker styles to the template
             markerStyles,
-            /** Keeping trace of the starting center in order to place the cross hair */
-            initialCenter: null,
             popoverCoordinates: [],
             animationDuration: IS_TESTING_WITH_CYPRESS ? 0 : 250,
         }
@@ -178,6 +176,7 @@ export default {
             geolocationPosition: (state) => state.geolocation.position,
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
+            crossHairPosition: (state) => state.position.crossHairPosition,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             clickInfo: (state) => state.map.clickInfo,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
@@ -315,9 +314,6 @@ export default {
         if (IS_TESTING_WITH_CYPRESS) {
             window.map = this.map
         }
-    },
-    created() {
-        this.initialCenter = [...this.center]
     },
     mounted() {
         // register any custom projection in OpenLayers

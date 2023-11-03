@@ -1,5 +1,6 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
+import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
@@ -101,14 +102,7 @@ const storeSyncConfig = [
         String,
         ''
     ),
-    new SimpleUrlParamConfig(
-        'crosshair',
-        'setCrossHair',
-        'setCrossHair',
-        (store) => store.state.position.crossHair,
-        false,
-        String
-    ),
+    new CrossHairParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
         'embed',
