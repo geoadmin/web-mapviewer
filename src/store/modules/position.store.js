@@ -229,19 +229,24 @@ const actions = {
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
     decreaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) - 1),
-    /** @param {CrossHairs | String | null} crossHair */
+    /**
+     * @param {CrossHairs | String | null} crossHair
+     * @param {Number[] | null} crossHairPosition
+     */
     setCrossHair: ({ commit, state }, { crossHair, crossHairPosition }) => {
         if (crossHair === null) {
-            commit('setCrossHair', crossHair)
+            commit('setCrossHair', null)
+            commit('setCrossHairPosition', null)
         } else if (crossHair in CrossHairs) {
             commit('setCrossHair', CrossHairs[crossHair])
-        }
-        // if a position is defined as param we use it
-        if (crossHairPosition) {
-            commit('setCrossHairPosition', crossHairPosition)
-        } else {
-            // if no position was given, we use the current center of the map as crosshair position
-            commit('setCrossHairPosition', state.center)
+
+            // if a position is defined as param we use it
+            if (crossHairPosition) {
+                commit('setCrossHairPosition', crossHairPosition)
+            } else {
+                // if no position was given, we use the current center of the map as crosshair position
+                commit('setCrossHairPosition', state.center)
+            }
         }
     },
     /**

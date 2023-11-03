@@ -4,6 +4,10 @@ import { round } from '@/utils/numberUtils'
 function dispatchCrossHairFromUrlIntoStore(store, urlParamValue) {
     const promisesForAllDispatch = []
 
+    if (typeof urlParamValue !== 'string') {
+        promisesForAllDispatch.push(store.dispatch('setCrossHair', { crossHair: null }))
+    }
+
     const parts = urlParamValue.split(',')
     if (parts.length === 1) {
         promisesForAllDispatch.push(store.dispatch('setCrossHair', { crossHair: urlParamValue }))

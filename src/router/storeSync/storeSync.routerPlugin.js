@@ -1,5 +1,9 @@
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
+import axios from 'axios'
+
+export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 
 const watchedMutations = [
     ...new Set(
@@ -97,25 +101,25 @@ function urlQueryWatcher(store, to) {
         routeChangeIsTriggeredByThisModule = false
         return undefined
     }
+    const pendingStoreDispatch = []
     let requireQueryUpdate = false
-    const newQuery = Object.assign({}, to.query)
-    // if the route change is not made by this module we need to check if a store change is needed
+    const newQuery = { ...to.query }
+    // if this module did not trigger the route change, we need to check if a store change is needed
     storeSyncConfig.forEach((paramConfig) => {
         const queryValue = paramConfig.readValueFromQuery(to.query)
         const storeValue = paramConfig.readValueFromStore(store)
 
-        const setValueInStore = (paramConfig, store, value) => {
-            // preventing store.subscribe above to change what is in the URL while dispatching this change
-            // if we don't ignore this next mutation, all other param than the one treated here could go back
+        const setValueInStore = async (paramConfig, store, value) => {
+            // Preventing store.subscribe above to change what is in the URL, while dispatching this change.
+            // If we don't ignore this next mutation, all other param than the one treated here could go back
             // to default/store value even though they could be defined differently in the URL.
             pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
-            paramConfig.populateStoreWithQueryValue(store, value).then(() => {
-                // removing mutation name from the pending ones
-                pendingMutationTriggeredByThisModule.splice(
-                    pendingMutationTriggeredByThisModule.indexOf(paramConfig.mutationsToWatch),
-                    1
-                )
-            })
+            await paramConfig.populateStoreWithQueryValue(store, value)
+            // removing mutation name from the pending ones
+            pendingMutationTriggeredByThisModule.splice(
+                pendingMutationTriggeredByThisModule.indexOf(paramConfig.mutationsToWatch),
+                1
+            )
         }
 
         if (queryValue && queryValue !== storeValue) {
@@ -126,7 +130,7 @@ function urlQueryWatcher(store, to) {
                 'to store with value',
                 queryValue
             )
-            setValueInStore(paramConfig, store, queryValue)
+            pendingStoreDispatch.push(setValueInStore(paramConfig, store, queryValue))
         } else if (!queryValue && storeValue) {
             if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
@@ -145,16 +149,26 @@ function urlQueryWatcher(store, to) {
                     paramConfig.urlParamName,
                     'has been removed from the URL, setting it to falsy value in the store'
                 )
-                setValueInStore(
-                    paramConfig,
-                    store,
-                    paramConfig.valueType === Boolean ? false : null
+                pendingStoreDispatch.push(
+                    setValueInStore(
+                        paramConfig,
+                        store,
+                        paramConfig.valueType === Boolean ? false : null
+                    )
                 )
                 delete newQuery[paramConfig.urlParamName]
             }
             requireQueryUpdate = true
         }
     })
+    // Fake call to a URL so that Cypress can wait for route changes without waiting for arbitrary length of time
+    if (IS_TESTING_WITH_CYPRESS) {
+        Promise.all(pendingStoreDispatch).then(() => {
+            axios({
+                url: FAKE_URL_CALLED_AFTER_ROUTE_CHANGE,
+            })
+        })
+    }
     if (requireQueryUpdate) {
         log.debug('Update URL query to', newQuery)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
