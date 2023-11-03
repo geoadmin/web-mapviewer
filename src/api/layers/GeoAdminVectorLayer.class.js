@@ -1,19 +1,26 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import log from '@/utils/logging'
+
+/** @enum */
+export const GeoAdminVectorLayerTypes = {
+    MAPLIBRE: 'MAPLIBRE',
+    CESIUM: 'CESIUM',
+}
 
 /** Metadata for a vector tile layer (MapLibre layer) served by our backend */
 export default class GeoAdminVectorLayer extends GeoAdminLayer {
     /**
      * @param {string} layerId The ID of this layer
+     * @param {GeoAdminVectorLayerTypes} vectorLayerType Which type of vector data this layer stores
+     * @param {String | null} urlTimestampToUse If this layers' JSON is stored in a dedicated timed
+     *   folder, it can be described with this property. This will be added at the end of the URL,
+     *   before the /tileset.json (or /style.json, depending on the layer type)
      * @param {LayerAttribution[]} extraAttributions Extra attribution in case this vector layer is
      *   a mix of many sources
-     * @param {String} excludeSource Tells the app to filter out Maplibre layers that have this
-     *   source (so no tiles will be loaded from this source). Is used to hack the LightBaseMap
-     *   style and remove Swisstopo data, so that we only keep what's outside Switzerland (the
-     *   rastered national map covers our territory)
      */
-    constructor(layerId, extraAttributions = [], excludeSource = null) {
+    constructor(layerId, vectorLayerType, urlTimestampToUse = null, extraAttributions = []) {
         super(
             layerId,
             LayerTypes.VECTOR,
@@ -26,10 +33,30 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
             ],
             true
         )
-        this.excludeSource = excludeSource
+        this.vectorLayerType = vectorLayerType
+        this.urlTimestampToUse = urlTimestampToUse
     }
 
     getURL() {
-        return `https://vectortiles.geo.admin.ch/styles/${this.geoAdminID}/style.json`
+        let rootFolder
+        let jsonFilename
+        switch (this.vectorLayerType) {
+            case GeoAdminVectorLayerTypes.MAPLIBRE:
+                rootFolder = 'styles'
+                jsonFilename = 'style.json'
+                break
+            case GeoAdminVectorLayerTypes.CESIUM:
+                rootFolder = '3d-tiles'
+                jsonFilename = 'tileset.json'
+                break
+            default:
+                log.error('Vector layer type has not been set, unable to build URL')
+                return null
+        }
+        let timeFolder = ''
+        if (this.urlTimestampToUse) {
+            timeFolder = `/${this.urlTimestampToUse}`
+        }
+        return `https://vectortiles.geo.admin.ch/${rootFolder}/${this.geoAdminID}${timeFolder}/${jsonFilename}`
     }
 }
