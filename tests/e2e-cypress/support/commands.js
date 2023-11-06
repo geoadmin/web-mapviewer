@@ -1,9 +1,9 @@
-import { BREAKPOINT_TABLET } from '@/config'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 import { randomIntBetween } from '@/utils/numberUtils'
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
+import { isMobile } from './utils'
 
 // ***********************************************
 // For more comprehensive examples of custom
@@ -267,8 +267,7 @@ Cypress.Commands.add(
  */
 Cypress.Commands.add('clickOnLanguage', (lang) => {
     let menuSection = null
-    const width = Cypress.config('viewportWidth')
-    if (width < BREAKPOINT_TABLET) {
+    if (isMobile()) {
         // mobile/tablet : clicking on the menu button first
         menuSection = cy.get('[data-cy="menu-settings-section"]')
         menuSection.click()
@@ -450,7 +449,7 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
 })
 
 Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {
-    if (Cypress.config('viewportWidth') < BREAKPOINT_TABLET) {
+    if (isMobile()) {
         // mobile/tablet : clicking on the menu button
         cy.get('[data-cy="menu-button"]').click()
     }
