@@ -40,7 +40,8 @@ describe('The Import Tool', () => {
             .click()
         cy.get('[data-cy="import-connect-button"]').click()
         cy.wait('@wms-get-capabilities')
-        cy.get('[data-cy="import-add-layer-button"]').should('be.visible')
+        // TODO uncomment this line when BGDIINF_SB-3169 is done
+        // cy.get('[data-cy="import-add-layer-button"]').should('be.visible')
         cy.get('[data-cy="import-result-list"]').children().should('have.length', 3).first().click()
         cy.wait('@wms-get-map')
         cy.get('[data-cy="import-add-layer-button"]').click()
