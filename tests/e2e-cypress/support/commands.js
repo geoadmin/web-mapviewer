@@ -173,30 +173,35 @@ Cypress.Commands.add(
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
-        cy.waitUntilState((state) => state.app.isReady)
-        cy.waitUntilState((state) => {
-            const active = state.layers.activeLayers.length
-            // The required layers can be set via topic or manually.
-            const targetTopic = state.topics.current?.layersToActivate.length
-            const targetLayers =
-                'layers' in queryParams
-                    ? // Legacy layers come with an additional param. At least in our tests.
-                      'layers_opacity' in queryParams || 'layers_visibility' in queryParams
-                        ? queryParams.layers.split(',').length
-                        : queryParams.layers.split(';').length
-                    : 0
-            // There are situations where neither value is falsy.
-            // But the higher value seems to always be the right one.
-            let target = Math.max(targetTopic, targetLayers)
-            // If a layer has been set via adminId we just increment by one.
-            target += Boolean(queryParams.adminId)
-
-            return active === target
-        })
+        cy.waitUntilState((state) => state.app.isReady, { timeout: 10000 })
+        cy.waitUntilState(
+            (state) => {
+                const active = state.layers.activeLayers.length
+                // The required layers can be set via topic or manually.
+                const targetTopic = state.topics.current?.layersToActivate.length
+                const targetLayers =
+                    'layers' in queryParams
+                        ? // Legacy layers come with an additional param. At least in our tests.
+                          'layers_opacity' in queryParams || 'layers_visibility' in queryParams
+                            ? queryParams.layers.split(',').length
+                            : queryParams.layers.split(';').length
+                        : 0
+                // There are situations where neither value is falsy.
+                // But the higher value seems to always be the right one.
+                let target = Math.max(targetTopic, targetLayers)
+                // If a layer has been set via adminId we just increment by one.
+                target += Boolean(queryParams.adminId)
+                return active === target
+            },
+            {
+                customMessage: 'all layers have been loaded',
+                errorMsg: 'Timeout waiting for all layers to be loaded',
+            }
+        )
         if (queryParams.hasOwnProperty('3d') && queryParams['3d'] === true) {
             cy.get('[data-cy="cesium-map"]').should('be.visible')
         } else {
-            cy.get('[data-cy="ol-map"]').should('be.visible')
+            cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
         }
     }
 )
@@ -279,13 +284,16 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
 // cy.readStoreValue doesn't work as `.its` will prevent retries.
 Cypress.Commands.add('waitUntilState', (predicate, options = {}) => {
     cy.waitUntil(
-        () => cy.window().then((win) => predicate(win.store.state)),
-        {
-            errorMsg:
-                '"waitUntilState" failed, as the following predicate stayed false: ' +
-                predicate.toString(),
-        },
-        options
+        () => cy.window({ log: false }).then((win) => predicate(win.store.state)),
+        Object.assign(
+            {
+                errorMsg:
+                    '"waitUntilState" failed, as the following predicate stayed false: ' +
+                    predicate.toString(),
+                customMessage: `predicate ${predicate.toString()} is true`,
+            },
+            options
+        )
     )
 })
 
