@@ -14,7 +14,7 @@ describe('The Import Tool', () => {
         cy.get('[data-cy="infobox-close"]').click()
         cy.get('[data-cy="import-tool-content"]').should('not.exist')
     })
-    it.only('Import external wms layers', () => {
+    it('Import external wms layers', () => {
         cy.intercept(
             {
                 https: true,

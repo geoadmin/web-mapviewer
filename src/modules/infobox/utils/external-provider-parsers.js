@@ -19,7 +19,7 @@ import log from '@/utils/logging'
  */
 export function getCapWMSLayers(getCap, layer, projection, visible = true, opacity = 1) {
     // If the WMS layer has no name, it can't be displayed
-    let name = layer.name
+    let name = layer.Name
     if (!name && layer.Title) {
         // if we don't have a name use the title as name
         name = layer.Title
@@ -67,7 +67,7 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
         opacity,
         visible,
         wmsUrl,
-        layer.Name,
+        name,
         [new LayerAttribution(attribution.Title, attribution.OnlineResource)],
         getCap.version,
         'png',
