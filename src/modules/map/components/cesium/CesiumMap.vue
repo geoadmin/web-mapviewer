@@ -67,10 +67,8 @@
     </div>
 </template>
 <script>
+import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminVectorLayer, {
-    GeoAdminVectorLayerTypes,
-} from '@/api/layers/GeoAdminVectorLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -175,8 +173,11 @@ export default {
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
         },
-        startingZIndexForVisibleLayers() {
-            return this.backgroundLayersConfig.length
+        startingZIndexForVisibleImageryLayers() {
+            // only the WMTS layer (pixelkarte-farbe.3d) counts for z-index calculation
+            // others (buildings, labels, etc...) are primitive layers, that will be
+            // added on top of everything else
+            return this.currentBackgroundLayer ? 1 : 0
         },
         visibleImageryLayers() {
             return this.visibleLayers.filter(
@@ -257,20 +258,12 @@ export default {
             false,
             []
         )
-        this.labelLayer = new GeoAdminVectorLayer(
-            'ch.swisstopo.swissnames3d.3d',
-            GeoAdminVectorLayerTypes.CESIUM,
-            '20180716'
-        )
-        this.vegetationLayer = new GeoAdminVectorLayer(
-            'ch.swisstopo.vegetation.3d',
-            GeoAdminVectorLayerTypes.CESIUM,
-            '20190313'
-        )
-        this.buildingsLayer = new GeoAdminVectorLayer(
+        this.labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
+        this.vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
+        this.buildingsLayer = new GeoAdmin3DLayer(
             'ch.swisstopo.swisstlm3d.3d',
-            GeoAdminVectorLayerTypes.CESIUM,
-            '20201020'
+            'v1',
+            false // buildings JSON has already been migrated to the new URL nomenclature
         )
     },
     mounted() {

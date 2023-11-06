@@ -3,21 +3,16 @@
 </template>
 
 <script>
-import GeoAdminVectorLayer, {
-    GeoAdminVectorLayerTypes,
-} from '@/api/layers/GeoAdminVectorLayer.class'
+import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import { loadTileSetAndApplyStyle } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { Cesium3DTileset } from 'cesium'
 
 export default {
     inject: ['getViewer'],
     props: {
-        vectorLayerConfig: {
-            type: GeoAdminVectorLayer,
+        layerConfig: {
+            type: GeoAdmin3DLayer,
             required: true,
-            validator(value) {
-                return value?.vectorLayerType === GeoAdminVectorLayerTypes.CESIUM
-            },
         },
         previewYear: {
             type: Number,
@@ -33,16 +28,12 @@ export default {
         },
     },
     async mounted() {
-        this.layer = await Cesium3DTileset.fromUrl(this.vectorLayerConfig.getURL(), {
-            // skipLevelOfDetail: true,
-            // baseScreenSpaceError: 1024,
-            // skipScreenSpaceErrorFactor: 16,
-            // skipLevels: 1,
-            // immediatelyLoadDesiredLevelOfDetail: false,
-            loadSiblings: false,
-            // cullWithChildrenBounds: true,
-        })
-        this.getViewer().scene.primitives.add(this.layer)
+        this.layer = this.getViewer().scene.primitives.add(
+            await loadTileSetAndApplyStyle(
+                this.layerConfig.getURL(),
+                this.layerConfig.getID() === 'ch.swisstopo.swissnames3d.3d'
+            )
+        )
     },
     beforeUnmount() {
         const viewer = this.getViewer()

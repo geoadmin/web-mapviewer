@@ -224,6 +224,10 @@ export const BREAKPOINT_TABLET = 768
  */
 export const DRAWING_HIT_TOLERANCE = 6
 
+export const VECTOR_TILE_BASE_URL = enforceEndingSlashInUrl(
+    import.meta.env.VITE_APP_VECTORTILES_BASE_URL
+)
+
 /**
  * Light base map style ID
  *
