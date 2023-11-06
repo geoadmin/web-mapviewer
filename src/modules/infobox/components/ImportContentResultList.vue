@@ -64,7 +64,6 @@
 import { mapActions } from 'vuex'
 import ImportContentResultItem from './ImportContentResultItem.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 
 export default {
     components: { ImportContentResultItem, FontAwesomeIcon },

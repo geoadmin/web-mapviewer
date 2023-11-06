@@ -19,8 +19,13 @@ import { mapActions, mapState } from 'vuex'
 export default {
     computed: { ...mapState({ importOverlay: (state) => state.ui.importOverlay }) },
     methods: {
-        ...mapActions(['toggleImportOverlay']),
+        ...mapActions(['toggleImportOverlay', 'toggleMenu']),
         onToggleImportOverlay() {
+            if (!this.importOverlay) {
+                // To avoid the menu overlapping the import overlay after open we automatically
+                // close the menu
+                this.toggleMenu()
+            }
             this.toggleImportOverlay()
         },
     },

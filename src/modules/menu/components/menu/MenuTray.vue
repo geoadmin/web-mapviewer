@@ -86,7 +86,7 @@ export default {
             /* Please note that if the following 2 arrays are updated, "grid-template-rows" in
             the css section must also be updated. */
             scrollableMenuSections: ['topicsSection', 'activeLayersSection'],
-            nonScrollableMenuSections: ['settingsSection', 'shareSection'],
+            nonScrollableMenuSections: ['settingsSection', 'shareSection', 'toolsSection'],
         }
     },
     computed: {
