@@ -55,20 +55,27 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
             }
         }
     }
-
+    const attribution = layer.Attribution || getCap.Capability.Layer.Attribution || getCap.Service
+    const attributions = [new LayerAttribution(attribution.Title, attribution.OnlineResource)]
     // Go through the child to get valid layers
     if (layer.Layer?.length) {
         const layers = layer.Layer.map((l) => getCapWMSLayers(getCap, l, projection))
-        return new ExternalGroupOfLayers(layer.Title, wmsUrl, layers, layer.Abstract, layerExtent)
+        return new ExternalGroupOfLayers(
+            layer.Title,
+            wmsUrl,
+            layers,
+            attributions,
+            layer.Abstract,
+            layerExtent
+        )
     }
-    const attribution = layer.Attribution || getCap.Capability.Layer.Attribution || getCap.Service
     return new ExternalWMSLayer(
         layer.Title,
         opacity,
         visible,
         wmsUrl,
         name,
-        [new LayerAttribution(attribution.Title, attribution.OnlineResource)],
+        attributions,
         getCap.version,
         'png',
         layer.Abstract,
