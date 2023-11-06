@@ -19,6 +19,10 @@
                         </strong>
                         <ToggleProjectionButton class="align-self-center" />
                     </div>
+                    <div v-if="is3dActive" class="mb-1">
+                        <h5 class="text-decoration-underline">3D</h5>
+                        <Toggle3DLayerButton class="align-self-center" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -26,6 +30,7 @@
 </template>
 
 <script setup>
+import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
 import ToggleProjectionButton from '@/modules/menu/components/debug/ToggleProjectionButton.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref } from 'vue'
@@ -34,7 +39,9 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 const showDebugTool = ref(false)
+
 const currentProjection = computed(() => store.state.position.projection)
+const is3dActive = computed(() => store.state.cesium.active)
 </script>
 
 <style lang="scss" scoped>

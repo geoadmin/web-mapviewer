@@ -1,23 +1,31 @@
 <template>
     <div v-if="isProjectionWebMercator" id="cesium" ref="viewer" data-cy="cesium-map">
         <div v-if="viewerCreated">
-            <!-- Adding background layer -->
+            <!--
+               Adding background layer, z-index can be set to zero for all, as only the WMTS
+               background layer is an imagery layer (and requires one), all other BG layer are
+               primitive layer and will ignore this prop
+            -->
             <CesiumInternalLayer
-                v-for="(bgLayer, index) in backgroundLayersConfig"
-                :key="bgLayer.id"
+                v-for="bgLayer in backgroundLayersFor3D"
+                :key="bgLayer.getID()"
                 :layer-config="bgLayer"
                 :projection="projection"
-                :z-index="index"
+                :z-index="0"
             />
-            <!-- Adding all other layers -->
-            <!-- Layers split for correct zIndex ordering -->
+            <!--
+               Adding all other layers
+               Layers split between imagery and primitive type for correct zIndex ordering.
+               Only imagery layers require a z-index, we start to count them at 1 because of the
+               background WMTS layer
+            -->
             <CesiumInternalLayer
                 v-for="(layer, index) in visibleImageryLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
-                :z-index="index + startingZIndexForVisibleLayers"
+                :z-index="index + 1"
             />
             <CesiumInternalLayer
                 v-for="layer in visiblePrimitiveLayers"
@@ -46,34 +54,15 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <div class="cesium-toolbar d-flex">
-            <button
-                class="toolbox-button"
-                :class="{ active: showBuildings }"
-                @click="showBuildings = !showBuildings"
-            >
-                <FontAwesomeIcon icon="house" />
-            </button>
-            <cesium-compass v-show="isDesktopMode" class="compass" ref="compass" />
-            <button
-                class="toolbox-button"
-                :class="{ active: showVegetation }"
-                @click="showVegetation = !showVegetation"
-            >
-                <FontAwesomeIcon icon="tree" />
-            </button>
-        </div>
+        <cesium-compass v-show="isDesktopMode" ref="compass" class="compass" />
         <slot />
     </div>
 </template>
 <script>
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import {
     BASE_URL_3D_TILES,
     DEFAULT_PROJECTION,
@@ -134,50 +123,31 @@ export default {
         return {
             viewerCreated: false,
             popoverCoordinates: [],
-            showLabels: true,
-            showBuildings: false,
-            showVegetation: false,
         }
     },
     computed: {
         ...mapState({
             zoom: (state) => state.position.zoom,
             rotation: (state) => state.position.rotation,
-            camera: (state) => state.position.camera,
+            cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
         }),
-        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
-        backgroundLayersConfig() {
-            const configs = []
-            if (this.currentBackgroundLayer) {
-                configs.push(this.currentBackgroundLayer)
-            }
-            if (this.showLabels) {
-                configs.push(this.labelLayer)
-            }
-            if (this.showVegetation) {
-                configs.push(this.vegetationLayer)
-            }
-            if (this.showBuildings) {
-                configs.push(this.buildingsLayer)
-            }
-            return configs
-        },
+        ...mapGetters([
+            'centerEpsg4326',
+            'resolution',
+            'hasDevSiteWarning',
+            'visibleLayers',
+            'backgroundLayersFor3D',
+        ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
         },
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
-        },
-        startingZIndexForVisibleImageryLayers() {
-            // only the WMTS layer (pixelkarte-farbe.3d) counts for z-index calculation
-            // others (buildings, labels, etc...) are primitive layers, that will be
-            // added on top of everything else
-            return this.currentBackgroundLayer ? 1 : 0
         },
         visibleImageryLayers() {
             return this.visibleLayers.filter(
@@ -242,29 +212,6 @@ export default {
         // A per server key list of overrides to use for throttling limits.
         // Useful when streaming data from a known HTTP/2 or HTTP/3 server.
         Object.assign(RequestScheduler.requestsByServer, backendUsedToServe3dData)
-
-        // TODO: just for testing, remove when 3d background switch will be implemented
-        this.currentBackgroundLayer = new GeoAdminWMTSLayer(
-            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-            'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-            1,
-            true,
-            [],
-            'jpeg',
-            new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
-            true,
-            WMTS_BASE_URL,
-            false,
-            false,
-            []
-        )
-        this.labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
-        this.vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
-        this.buildingsLayer = new GeoAdmin3DLayer(
-            'ch.swisstopo.swisstlm3d.3d',
-            'v1',
-            false // buildings JSON has already been migrated to the new URL nomenclature
-        )
     },
     mounted() {
         if (this.isProjectionWebMercator) {
@@ -364,8 +311,8 @@ export default {
 
             this.viewerCreated = true
 
-            // if the default projection is a national projection (or custom projection) we then constrain the camera to
-            // only move in bounds of this custom projection
+            // if the default projection is a national projection (or custom projection), we then constrain
+            // the camera to only move in bounds of this custom projection
             if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
                 this.viewer.scene.postRender.addEventListener(
                     limitCameraCenter(DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten)
@@ -392,7 +339,7 @@ export default {
             const geometries = this.selectedFeatures.map((f) => {
                 // GeoJSON and KML layers have different geometry structure
                 if (!f.geometry.type) {
-                    let type = undefined
+                    let type
                     if (f.geometry instanceof Polygon) {
                         type = 'Polygon'
                     } else if (f.geometry instanceof LineString) {
@@ -401,13 +348,9 @@ export default {
                         type = 'Point'
                     }
                     const coordinates = f.geometry.getCoordinates()
-                    const getCoordinates = (c) => proj4(this.projection.epsg, WEBMERCATOR.epsg, c)
                     return {
                         type,
-                        coordinates:
-                            typeof coordinates[0] === 'number'
-                                ? getCoordinates(coordinates)
-                                : coordinates.map(getCoordinates),
+                        coordinates,
                     }
                 }
                 return f.geometry
@@ -422,25 +365,35 @@ export default {
             )
         },
         flyToPosition() {
-            const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
-            const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
-            const z = this.camera
-                ? this.camera.z
-                : calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
-            const heading = this.camera ? CesiumMath.toRadians(this.camera.heading) : -this.rotation
-            const pitch = this.camera
-                ? CesiumMath.toRadians(this.camera.pitch)
-                : -CesiumMath.PI_OVER_TWO
-            const roll = this.camera ? CesiumMath.toRadians(this.camera.roll) : 0
-            this.viewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(x, y, z),
-                orientation: {
-                    heading,
-                    pitch,
-                    roll,
-                },
-                duration: 0,
-            })
+            if (this.cameraPosition) {
+                this.viewer.camera.flyTo({
+                    destination: Cartesian3.fromDegrees(
+                        this.cameraPosition.x,
+                        this.cameraPosition.y,
+                        this.cameraPosition.z
+                    ),
+                    orientation: {
+                        heading: CesiumMath.toRadians(this.cameraPosition.heading),
+                        pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
+                        roll: CesiumMath.toRadians(this.cameraPosition.roll),
+                    },
+                    duration: 0,
+                })
+            } else {
+                this.viewer.camera.flyTo({
+                    destination: Cartesian3.fromDegrees(
+                        this.centerEpsg4326[0],
+                        this.centerEpsg4326[1],
+                        calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+                    ),
+                    orientation: {
+                        heading: -this.rotation,
+                        pitch: -CesiumMath.PI_OVER_TWO,
+                        roll: 0,
+                    },
+                    duration: 0,
+                })
+            }
         },
         onCameraMoveEnd() {
             const camera = this.viewer.camera
@@ -461,10 +414,12 @@ export default {
             const cartesian = this.viewer.scene.pickPosition(event.position)
             if (cartesian) {
                 const cartCoords = Cartographic.fromCartesian(cartesian)
-                coordinates = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                coordinates = proj4(WGS84.epsg, this.projection.epsg, [
                     (cartCoords.longitude * 180) / Math.PI,
                     (cartCoords.latitude * 180) / Math.PI,
                 ])
+            } else {
+                log.error('no coordinate found under the mouse cursor', event)
             }
 
             let objects = this.viewer.scene.drillPick(event.position)
@@ -561,19 +516,15 @@ export default {
         display: none;
     }
 }
-.cesium-toolbar {
+$compass-size: 95px;
+cesium-compass {
     position: absolute;
-    bottom: 130px;
+    bottom: $footer-height + $screen-padding-for-ui-elements;
     right: 50%;
-    transform: translateX(50%);
-    z-index: 3;
-    .compass {
-        --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
-        --cesium-compass-fill-color: rgb(224, 225, 226);
-    }
-    .compass:not([style*='display: none;']) {
-        width: 95px;
-        transform: translateX(0);
-    }
+    z-index: $zindex-map + 1;
+    width: $compass-size;
+    height: $compass-size;
+    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
+    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>
