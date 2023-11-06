@@ -20,7 +20,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="results-list overflow-y-auto">
+                <div class="results-list overflow-y-auto" data-cy="import-result-list">
                     <ImportContentResultItem
                         v-for="(layer, index) in sortedList"
                         :key="`${index}-${layer.externalLayerId}`"
@@ -49,6 +49,7 @@
                         type="button"
                         class="btn btn-outline-secondary add-btn mt-1 w-100"
                         :disabled="!selectedLayer"
+                        data-cy="import-add-layer-button"
                         @click="onAddLayer"
                     >
                         {{ $t('add_layer') }}
@@ -63,7 +64,6 @@
 import { mapActions } from 'vuex'
 import ImportContentResultItem from './ImportContentResultItem.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
 
 export default {
     components: { ImportContentResultItem, FontAwesomeIcon },

@@ -3,7 +3,9 @@
         <li class="advanced-tools-item">
             <a
                 class="advanced-tools-title"
+                :class="{ 'text-primary': importOverlay }"
                 :title="$t('import_tooltip')"
+                data-cy="menu-import-tool"
                 @click.stop="onToggleImportOverlay"
                 >{{ $t('import') }}</a
             >
@@ -12,12 +14,21 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
+    computed: {
+        ...mapState({ importOverlay: (state) => state.ui.importOverlay }),
+        ...mapGetters(['isPhoneMode']),
+    },
     methods: {
-        ...mapActions(['toggleImportOverlay']),
+        ...mapActions(['toggleImportOverlay', 'toggleMenu']),
         onToggleImportOverlay() {
+            if (!this.importOverlay && this.isPhoneMode) {
+                // To avoid the menu overlapping the import overlay after open we automatically
+                // close the menu
+                this.toggleMenu()
+            }
             this.toggleImportOverlay()
         },
     },

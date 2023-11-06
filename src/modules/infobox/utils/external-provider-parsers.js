@@ -4,7 +4,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import proj4 from 'proj4'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import log from './logging'
+import log from '@/utils/logging'
 
 /**
  * Creates WMS or Group layer config from parsed getCap content
@@ -19,7 +19,13 @@ import log from './logging'
  */
 export function getCapWMSLayers(getCap, layer, projection, visible = true, opacity = 1) {
     // If the WMS layer has no name, it can't be displayed
-    if (!layer.Name) {
+    let name = layer.Name
+    if (!name && layer.Title) {
+        // if we don't have a name use the title as name
+        name = layer.Title
+    }
+    if (!name) {
+        log.error(`No layer and/or title available`, layer)
         return undefined
     }
     const wmsUrl = getCap.Capability.Request.GetMap.DCPType[0].HTTP.Get.OnlineResource
@@ -42,7 +48,7 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
                 ]
             } else {
                 log.error(
-                    `No valid bounding box found in GetCapabilities for layer ${layer.title}`,
+                    `No valid bounding box found in GetCapabilities for layer ${name}`,
                     getCap,
                     layer
                 )
@@ -61,7 +67,7 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
         opacity,
         visible,
         wmsUrl,
-        layer.Name,
+        name,
         [new LayerAttribution(attribution.Title, attribution.OnlineResource)],
         getCap.version,
         'png',
@@ -90,6 +96,7 @@ export function getCapWMTSLayers(
     opacity = 1
 ) {
     if (!layer.Identifier) {
+        log.error(`No layer identifier available`, layer)
         return undefined
     }
     let layerExtent = undefined
