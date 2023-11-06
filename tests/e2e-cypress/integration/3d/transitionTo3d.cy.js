@@ -11,15 +11,15 @@ describe('Testing transitioning between 2D and 3D', () => {
             cy.goToMapView()
         })
         it('activates 3D when we click on the 3D toggle button', () => {
-            cy.readStoreValue('state.ui.showIn3d').should('be.false')
+            cy.readStoreValue('state.cesium.active').should('be.false')
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.readStoreValue('state.ui.showIn3d').should('be.true')
+            cy.readStoreValue('state.cesium.active').should('be.true')
         })
         it('deactivate 3D when clicking twice on the button', () => {
-            cy.readStoreValue('state.ui.showIn3d').should('be.false')
+            cy.readStoreValue('state.cesium.active').should('be.false')
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.readStoreValue('state.ui.showIn3d').should('be.false')
+            cy.readStoreValue('state.cesium.active').should('be.false')
         })
         it('shows the users that 3D is active by changing its color', () => {
             cy.get('[data-cy="3d-button"]').should('not.have.class', 'active')
@@ -46,7 +46,7 @@ describe('Testing transitioning between 2D and 3D', () => {
                 cy.goToMapView({
                     '3d': true,
                 })
-                cy.readStoreValue('state.ui.showIn3d').should('be.true')
+                cy.readStoreValue('state.cesium.active').should('be.true')
             })
         })
         context('camera position in URL', () => {

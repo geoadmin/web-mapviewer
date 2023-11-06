@@ -38,14 +38,18 @@ describe('Test of layer handling in 3D', () => {
         cy.goToMapView({
             '3d': true,
         })
+        cy.waitUntilCesiumTilesLoaded()
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="searchbar"]').paste('test')
         cy.wait(['@search-locations', '@search-layers'])
         cy.get('[data-cy="search-result-entry-layer"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
-        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
             const layers = viewer.scene.imageryLayers
-            expect(layers.length).to.eq(2)
+            expect(layers.length).to.eq(
+                2,
+                'There should be the background layer + the layer added through the search'
+            )
             expect(layers.get(1).show).to.eq(true)
             expect(layers.get(1).imageryProvider.url).to.have.string(
                 `1.0.0/${expectedLayerId}/default/current/3857/{z}/{x}/{y}.png`
@@ -57,7 +61,7 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${visibleLayerIds[0]},,0.5`,
         })
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
             const layers = viewer.scene.imageryLayers
             expect(layers.get(1).alpha).to.eq(0.5)
         })
@@ -74,7 +78,7 @@ describe('Test of layer handling in 3D', () => {
                         4
                     )}`,
                 })
-                cy.readWindowValue('cesiumViewer').then((viewer) => {
+                cy.waitUntilCesiumTilesLoaded().then((viewer) => {
                     expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
                         `1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
                     )
@@ -92,6 +96,7 @@ describe('Test of layer handling in 3D', () => {
             },
             true
         ) // with hash, so that we can have external layer support
+        cy.waitUntilCesiumTilesLoaded()
         cy.clickOnMenuButtonIfMobile()
         // lower the order of the first layer
         cy.openLayerSettings(firstLayerId)
@@ -118,13 +123,22 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${visibleLayerIds[3]},,0.5`,
         })
-        cy.wait(['@geojson-data', '@geojson-style'])
-        cy.readWindowValue('cesiumViewer').then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
+            expect(viewer.scene.primitives.length).to.eq(
+                3,
+                'should have 1 primitive (GeoJSON) on top of labels and buildings primitives'
+            )
             // test layer added correctly
             const mainCollection = viewer.scene.primitives.get(0)
-            expect(mainCollection.length).to.eq(1)
+            expect(mainCollection.length).to.eq(
+                1,
+                'There should be 1 layers added to the main collection when a GeoJSON is added'
+            )
             const layerCollection = mainCollection.get(0)
-            expect(layerCollection.length).to.eq(2)
+            expect(layerCollection.length).to.eq(
+                2,
+                'A GeoJSON is made of 2 internal layers in the collection'
+            )
             // test opacity
             const billboard = layerCollection.get(0).get(0)
             expect(billboard.color.alpha).to.eq(0.5)
@@ -135,11 +149,15 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${visibleLayerIds[3]}`,
         })
+        cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
+            expect(viewer.scene.primitives.length).to.eq(3) // labels + buildings + GeoJSON layer
+        })
         cy.clickOnMenuButtonIfMobile()
         cy.get(`[data-cy="button-remove-layer-${visibleLayerIds[3]}"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(0)
+            expect(viewer.scene.primitives.length).to.eq(2) // labels anb buildings are still present
         })
     })
     it('add KML layer from drawing', () => {
@@ -162,9 +180,8 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="3d-button"]').click()
+        cy.waitUntilCesiumTilesLoaded()
         cy.wait('@get-kml')
-        // wait until layer added
-        cy.wait(1000)
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const mainCollection = viewer.scene.primitives.get(0)
             expect(mainCollection.length).to.eq(1)
