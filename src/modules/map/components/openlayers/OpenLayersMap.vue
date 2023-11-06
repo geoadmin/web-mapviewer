@@ -333,6 +333,8 @@ export default {
             minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
             projection: WEBMERCATOR.epsg,
+            extent: LV95.getBoundsAs(WEBMERCATOR).flatten,
+            constrainOnlyCenter: true,
         })
         this.lv95View = new View({
             zoom: this.zoom,
@@ -340,6 +342,8 @@ export default {
             rotation: this.rotation,
             resolutions: LV95_RESOLUTIONS,
             projection: LV95.epsg,
+            extent: LV95.bounds.flatten,
+            constrainOnlyCenter: true,
         })
         this.setCurrentMapViewAccordingToProjection()
 
