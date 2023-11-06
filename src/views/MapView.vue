@@ -36,7 +36,7 @@ export default {
     computed: {
         ...mapState({
             embedded: (state) => state.ui.embeddedMode,
-            is3DActive: (state) => state.ui.showIn3d,
+            is3DActive: (state) => state.cesium.active,
         }),
     },
 }

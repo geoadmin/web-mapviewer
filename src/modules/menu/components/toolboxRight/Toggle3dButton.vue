@@ -43,7 +43,7 @@ export default {
     },
     computed: {
         ...mapState({
-            isActive: (state) => state.ui.showIn3d,
+            isActive: (state) => state.cesium.active,
             currentLang: (state) => state.i18n.lang,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
@@ -76,10 +76,10 @@ export default {
         this.tooltip.destroy()
     },
     methods: {
-        ...mapActions(['setShowIn3d']),
+        ...mapActions(['set3dActive']),
         toggle3d() {
             if (this.webGlIsSupported && !this.showDrawingOverlay) {
-                this.setShowIn3d(!this.isActive)
+                this.set3dActive(!this.isActive)
             }
         },
         updateTooltipContent() {

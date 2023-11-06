@@ -10,8 +10,8 @@ import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 export default function from2Dto3Dplugin(store) {
     store.subscribeAction({
         after: (action, state) => {
-            if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg && action.type === 'setShowIn3d') {
-                if (state.ui.showIn3d) {
+            if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg && action.type === 'set3dActive') {
+                if (state.cesium.active) {
                     store.dispatch('setProjection', WEBMERCATOR)
                 } else {
                     store.dispatch('setProjection', DEFAULT_PROJECTION)

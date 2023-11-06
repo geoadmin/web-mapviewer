@@ -46,7 +46,7 @@ export default {
     },
     computed: {
         ...mapState({
-            is3DActive: (state) => state.ui.showIn3d,
+            is3DActive: (state) => state.cesium.active,
             uiMode: (state) => state.ui.mode,
         }),
         isPhoneMode() {
