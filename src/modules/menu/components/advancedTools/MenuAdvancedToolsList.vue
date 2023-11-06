@@ -14,14 +14,17 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
-    computed: { ...mapState({ importOverlay: (state) => state.ui.importOverlay }) },
+    computed: {
+        ...mapState({ importOverlay: (state) => state.ui.importOverlay }),
+        ...mapGetters(['isPhoneMode']),
+    },
     methods: {
         ...mapActions(['toggleImportOverlay', 'toggleMenu']),
         onToggleImportOverlay() {
-            if (!this.importOverlay) {
+            if (!this.importOverlay && this.isPhoneMode) {
                 // To avoid the menu overlapping the import overlay after open we automatically
                 // close the menu
                 this.toggleMenu()
