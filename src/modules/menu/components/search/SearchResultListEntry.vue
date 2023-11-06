@@ -115,8 +115,7 @@ export default {
     }
     @include respond-above(phone) {
         &:hover {
-            background-color: $secondary;
-            color: $light;
+            background-color: $hover-selection;
             .btn {
                 color: $light;
             }

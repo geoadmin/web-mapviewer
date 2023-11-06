@@ -1,6 +1,6 @@
 <template>
     <div class="search-category">
-        <div class="search-category-header p-2">
+        <div class="search-category-header p-2 text-bg-secondary">
             {{ title }}
         </div>
         <ul class="search-category-body">
@@ -35,7 +35,6 @@ export default {
         overflow: visible;
         font-size: 0.825rem;
         font-weight: bold;
-        background-color: $input-group-addon-bg;
     }
     &-body {
         flex: initial;

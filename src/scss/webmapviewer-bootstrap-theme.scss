@@ -33,3 +33,5 @@ $enable-negative-margins: true;
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
 }
+
+$hover-selection: $gray-300;
