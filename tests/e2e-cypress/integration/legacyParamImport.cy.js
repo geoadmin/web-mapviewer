@@ -196,5 +196,66 @@ describe('Test on legacy param import', () => {
                 'be.visible'
             )
         })
+        it('External WMS layer', () => {
+            cy.intercept('http://wms-test.url/**', {
+                fixture: '256.png',
+            })
+            const layerName = 'TestExternalWMS'
+            const layerId = 'test-external-wms'
+            const url = 'http://wms-test.url/'
+            cy.goToMapView({
+                layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
+                layers_opacity: '1,1',
+                layers_visibility: 'false,true',
+                layers_timestam: ',',
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(2)
+                const externalLayer = activeLayers[1]
+                expect(externalLayer.isExternal).to.be.true
+                expect(externalLayer.visible).to.be.true
+                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.externalLayerId).to.eq(layerId)
+                expect(externalLayer.name).to.eq(layerName)
+            })
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}%7C1.3.0%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            cy.location().should((location) => {
+                expect(location.hash).to.eq(expectedHash)
+                expect(location.search).to.eq('')
+            })
+        })
+        it('External WMTS layer', () => {
+            cy.intercept('http://wmts-test.url/**', {
+                fixture: 'external-wmts.fixture.xml',
+            })
+            cy.intercept(
+                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                {
+                    fixture: '256.png',
+                }
+            )
+            const layerName = 'TestExternalWMTS'
+            const url = 'http://wmts-test.url/'
+            cy.goToMapView({
+                layers: `test.wmts.layer,WMTS||${layerName}||${url}`,
+                layers_opacity: '1,1',
+                layers_visibility: 'false,true',
+                layers_timestam: ',',
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(2)
+                const externalLayer = activeLayers[1]
+                expect(externalLayer.isExternal).to.be.true
+                expect(externalLayer.visible).to.be.true
+                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.externalLayerId).to.eq(layerName)
+                expect(externalLayer.name).to.eq(layerName)
+            })
+            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerName}%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            cy.location().should((location) => {
+                expect(location.hash).to.eq(expectedHash)
+                expect(location.search).to.eq('')
+            })
+        })
     })
 })
