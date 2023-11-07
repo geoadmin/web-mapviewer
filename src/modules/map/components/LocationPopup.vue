@@ -1,36 +1,38 @@
 <template>
-    <OpenLayersPopover
+    <component
+        :is="mappingFrameworkSpecificPopup"
         v-if="displayLocationPopup"
         :title="$t('position')"
         :coordinates="coordinate"
+        :projection="projection"
         use-content-padding
         class="location-popup"
         data-cy="location-popup"
         @close="onClose"
     >
         <div class="location-popup-coordinates">
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a :href="$t('contextpopup_lv95_url')" target="_blank">{{ LV95Format.label }}</a>
             </div>
-            <div class="lp-data">
+            <div class="location-popup-coordinates-data">
                 <span data-cy="location-popup-coordinates-lv95">
                     {{ coordinateLV95 }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateLV95" />
             </div>
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a :href="$t('contextpopup_lv03_url')" target="_blank">{{ LV03Format.label }}</a>
             </div>
-            <div class="lp-data">
+            <div class="location-popup-coordinates-data">
                 <span data-cy="location-popup-coordinates-lv03">
                     {{ coordinateLV03 }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateLV03" />
             </div>
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
             </div>
-            <div class="lp-data">
+            <div class="location-popup-coordinates-data">
                 <span
                     class="location-popup-coordinates-wgs84-plain"
                     data-cy="location-popup-coordinates-plain-wgs84"
@@ -43,45 +45,45 @@
                     {{ coordinateWGS84 }}
                 </span>
             </div>
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
             </div>
-            <div class="lp-data">
+            <div class="location-popup-coordinates-data">
                 <span data-cy="location-popup-coordinates-utm">
                     {{ coordinateUTM }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateUTM" />
             </div>
-            <div class="lp-label">{{ 'MGRS' }}</div>
-            <div class="lp-data">
+            <div class="location-popup-coordinates-label">{{ 'MGRS' }}</div>
+            <div class="location-popup-coordinates-data">
                 <span data-cy="location-popup-coordinates-mgrs">
                     {{ coordinateMGRS }}
                 </span>
                 <LocationPopupCopySlot :value="coordinateMGRS" />
             </div>
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </div>
-            <div v-if="what3Words" class="lp-data what-3-words">
+            <div v-if="what3Words" class="location-popup-coordinates-data what-3-words">
                 <span v-show="what3Words" data-cy="location-popup-w3w">
                     {{ what3Words }}
                 </span>
                 <LocationPopupCopySlot :value="what3Words" />
             </div>
             <div v-else>-</div>
-            <div class="lp-label">
+            <div class="location-popup-coordinates-label">
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </div>
-            <div v-if="height" class="lp-data">
+            <div v-if="height" class="location-popup-coordinates-data">
                 <span data-cy="location-popup-height"> {{ heightInMeter }} m</span> /
                 <span>{{ heightInFeet }} ft</span>
                 <LocationPopupCopySlot :value="heightInMeter" />
             </div>
             <div v-else>-</div>
-            <div class="location-popup-link lp-label">
+            <div class="location-popup-link location-popup-coordinates-label">
                 {{ $t('share_link') }}
             </div>
-            <div class="location-popup-link lp-data">
+            <div class="location-popup-link location-popup-coordinates-data">
                 <LocationPopupCopyInput
                     :value="shareLinkUrlDisplay"
                     data-cy="location-popup-link-bowl-crosshair"
@@ -89,9 +91,14 @@
             </div>
         </div>
         <div class="location-popup-qrcode">
-            <img v-if="qrCodeImageSrc" :src="qrCodeImageSrc" data-cy="location-popup-qr-code" />
+            <img
+                v-if="qrCodeImageSrc"
+                :src="qrCodeImageSrc"
+                alt="qrcode"
+                data-cy="location-popup-qr-code"
+            />
         </div>
-    </OpenLayersPopover>
+    </component>
 </template>
 
 <script>
@@ -99,8 +106,10 @@ import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
 import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import {
     LV03Format,
@@ -118,11 +127,10 @@ import { mapActions, mapState } from 'vuex'
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {
     components: {
-        OpenLayersPopover,
+        MapPopover,
         LocationPopupCopyInput,
         LocationPopupCopySlot,
     },
-    inject: ['getMap'],
     data() {
         return {
             what3Words: '',
@@ -142,7 +150,14 @@ export default {
             currentLang: (state) => state.i18n.lang,
             displayLocationPopup: (state) => state.map.displayLocationPopup,
             projection: (state) => state.position.projection,
+            showIn3d: (state) => state.ui.showIn3d,
         }),
+        mappingFrameworkSpecificPopup() {
+            if (this.showIn3d) {
+                return CesiumPopover
+            }
+            return OpenLayersPopover
+        },
         coordinate() {
             return this.clickInfo?.coordinate
         },
@@ -271,10 +286,10 @@ export default {
         grid-column-gap: 8px;
         font-size: 0.75rem;
         grid-row-gap: 2px;
-        .lp-label {
+        &-label {
             white-space: nowrap;
         }
-        .lp-data.what-3-words {
+        &-data.what-3-words {
             display: grid;
             grid-template-columns: auto min-content;
             span {
