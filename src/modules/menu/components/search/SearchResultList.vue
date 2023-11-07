@@ -6,13 +6,13 @@
         <div
             class="search-results bg-light"
             :class="{
-                'border-top border-bottom rounded-bottom': isPhoneMode,
+                'border-top border-bottom': isPhoneMode,
                 'border rounded': !isPhoneMode,
             }"
             data-cy="search-results"
             @keydown.esc.prevent="$emit('close')"
         >
-            <div class="search-results-inner">
+            <div class="search-results-inner" :class="{ rounded: !isPhoneMode }">
                 <SearchResultCategory
                     :title="$t('locations_results_header')"
                     :entries="results.locationResults"
