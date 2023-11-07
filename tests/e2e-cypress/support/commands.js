@@ -452,10 +452,6 @@ function cesiumTilesLoaded(viewer) {
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
     cy.wait(['@cesiumTileset', '@cesiumTile'])
-    cy.readWindowValue('cesiumViewer').then(async (viewer) => {
-        await cesiumTilesLoaded(viewer)
-        return viewer
-    })
 })
 
 Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {

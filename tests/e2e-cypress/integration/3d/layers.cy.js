@@ -61,7 +61,8 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${visibleLayerIds[0]},,0.5`,
         })
-        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded()
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
             const layers = viewer.scene.imageryLayers
             expect(layers.get(1).alpha).to.eq(0.5)
         })
@@ -78,7 +79,8 @@ describe('Test of layer handling in 3D', () => {
                         4
                     )}`,
                 })
-                cy.waitUntilCesiumTilesLoaded().then((viewer) => {
+                cy.waitUntilCesiumTilesLoaded()
+                cy.readWindowValue('cesiumViewer').then((viewer) => {
                     expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
                         `1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
                     )
@@ -123,7 +125,8 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
             layers: `${visibleLayerIds[3]},,0.5`,
         })
-        cy.waitUntilCesiumTilesLoaded().then((viewer) => {
+        cy.waitUntilCesiumTilesLoaded()
+        cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(
                 3,
                 'should have 1 primitive (GeoJSON) on top of labels and buildings primitives'
