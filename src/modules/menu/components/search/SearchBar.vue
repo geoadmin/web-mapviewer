@@ -28,7 +28,11 @@
         >
             <FontAwesomeIcon :icon="['fas', 'times-circle']" />
         </button>
-        <SearchResultList v-show="resultsShown" ref="results" @close="closeSearchResults" />
+        <SearchResultList
+            v-show="resultsShown && hasResults"
+            ref="results"
+            @close="closeSearchResults"
+        />
     </div>
 </template>
 
