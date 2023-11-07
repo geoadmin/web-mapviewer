@@ -60,7 +60,7 @@ describe('The Import Tool', () => {
         // Check the map attribution
         cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
             .should('be.visible')
-            .contains('Da s Geoportal des Bundes')
+            .contains('Das Geoportal des Bundes')
         // Check the layer attribution
         if (isMobile()) {
             cy.get('[data-cy="menu-button"]').click()
