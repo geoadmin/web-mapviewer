@@ -17,9 +17,10 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      * @param {ExternalLayer[]} layers Description of the layers being part of this group (they will
      *   all be displayed at the same time, in contrast to an aggregate layer)
      * @param {String} abstract Abstract of this layer to be shown to the user
+     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {[[number, number], [number, number]] | undefined} extent Layer extent
      */
-    constructor(name, hostname, layers, abstract = '', extent = undefined) {
+    constructor(name, hostname, layers, attributions = [], abstract = '', extent = undefined) {
         super(
             name,
             LayerTypes.GROUP,
@@ -27,7 +28,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             null,
             1,
             true,
-            [],
+            attributions,
             abstract,
             extent
         )

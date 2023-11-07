@@ -1,14 +1,16 @@
 /// <reference types="cypress" />
 
+import { isMobile } from '../support/utils'
+
 describe('The Import Tool', () => {
     beforeEach(() => {
         cy.goToMapView({}, true)
-        cy.get('[data-cy="menu-button"]').click()
+        cy.clickOnMenuButtonIfMobile()
     })
     it('Open and close the infobox import tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]').click()
         cy.get('[data-cy="menu-import-tool"]').click()
-        // the menu should be automatically close on opening import tool box
+        // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-tool-content"]').should('be.visible')
         cy.get('[data-cy="infobox-close"]').click()
@@ -54,5 +56,19 @@ describe('The Import Tool', () => {
             expect(externalLayer.externalLayerId).to.eq('ch.vbs.armeelogistikcenter')
             expect(externalLayer.name).to.eq('Centres logistiques de l`armée CLA')
         })
+
+        // Check the map attribution
+        cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
+            .should('be.visible')
+            .contains('Das Geoportal des Bundes')
+        // Check the layer attribution
+        if (isMobile()) {
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+        }
+        cy.get('[data-cy="menu-external-disclaimer-icon"]').should('be.visible').click()
+        cy.get('[data-cy="modal-content"]').contains(
+            'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
+        )
     })
 })
