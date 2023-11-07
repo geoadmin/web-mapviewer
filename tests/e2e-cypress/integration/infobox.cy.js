@@ -9,10 +9,10 @@ describe('The infobox', () => {
 
             cy.get(mapSelector).click()
             cy.waitUntilState(
-              (state) => {
-                  return state.features.selectedFeatures.length > 0
-              },
-              { timeout: 10000 }
+                (state) => {
+                    return state.features.selectedFeatures.length > 0
+                },
+                { timeout: 10000 }
             )
 
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
@@ -78,10 +78,10 @@ describe('The infobox', () => {
                 const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
                 const viewportHeight = Cypress.config('viewportHeight')
                 let maxHeight = $element
-                  .find('[data-infobox="height-reference"]')
-                  .toArray()
-                  .map((child) => child.offsetHeight)
-                  .reduce((max, height) => Math.max(max, height), 0)
+                    .find('[data-infobox="height-reference"]')
+                    .toArray()
+                    .map((child) => child.offsetHeight)
+                    .reduce((max, height) => Math.max(max, height), 0)
                 maxHeight = Math.min(maxHeight + verticalPadding, viewportHeight * 0.35)
                 expect($element.height()).to.be.closeTo(maxHeight - verticalPadding, 0.5)
             })
