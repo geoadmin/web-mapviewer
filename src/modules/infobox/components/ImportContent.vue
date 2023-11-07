@@ -312,8 +312,7 @@ export default {
         }
         .providers-list-item:focus,
         .providers-list-item:hover {
-            background-color: $secondary;
-            color: $light;
+            background-color: $list-item-hover-color;
         }
     }
 }
