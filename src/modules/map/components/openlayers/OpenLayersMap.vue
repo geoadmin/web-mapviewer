@@ -333,8 +333,6 @@ export default {
             minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
             projection: WEBMERCATOR.epsg,
-            extent: LV95.getBoundsAs(WEBMERCATOR).flatten,
-            constrainOnlyCenter: true,
         })
         this.lv95View = new View({
             zoom: this.zoom,
