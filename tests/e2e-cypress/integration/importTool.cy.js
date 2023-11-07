@@ -10,7 +10,7 @@ describe('The Import Tool', () => {
     it('Open and close the infobox import tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]').click()
         cy.get('[data-cy="menu-import-tool"]').click()
-        // the menu should be automatically close on opening import tool box
+        // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-tool-content"]').should('be.visible')
         cy.get('[data-cy="infobox-close"]').click()
