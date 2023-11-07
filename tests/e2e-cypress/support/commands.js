@@ -452,13 +452,9 @@ function cesiumTilesLoaded(viewer) {
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
     cy.wait(['@cesiumTileset', '@cesiumTile'])
-    cy.readWindowValue('cesiumViewer').then((viewer) => {
-        // cesium is slow to load, so we need to increase the default 10000 timeout:
-        // https://docs.cypress.io/guides/references/configuration#Timeouts
-        cy.wrap(null).then({ timeout: 50000 }, async () => {
-            await cesiumTilesLoaded(viewer)
-            return viewer
-        })
+    cy.readWindowValue('cesiumViewer').then(async (viewer) => {
+        await cesiumTilesLoaded(viewer)
+        return viewer
     })
 })
 
