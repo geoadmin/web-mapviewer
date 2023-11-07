@@ -153,11 +153,11 @@ export default {
 }
 .import-list-item-title.selected:hover,
 .import-list-item-title.selected {
-    background-color: $green-100;
+    background-color: $list-item-hover-color;
 }
 
 .import-list-item-title:hover {
-    background-color: $smoke;
+    background-color: $list-item-hover-color;
 }
 .import-list-item-title {
     @extend .menu-title;

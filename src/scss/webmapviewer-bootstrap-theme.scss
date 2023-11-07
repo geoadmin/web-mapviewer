@@ -1,34 +1,43 @@
 @import 'src/scss/variables';
 @import 'src/scss/variables-admin';
 
-$component-active-bg: $malibu;
+// Override bootstrap variables here
+$card-cap-padding-y: 0.25rem;
+$card-spacer-y: 0.75rem;
+$caret-spacing: 0.75rem;
+$enable-negative-margins: true;
+
 // https://stackoverflow.com/a/49033912/4840446
 $input-btn-focus-box-shadow: none;
 $input-btn-focus-width: 0;
+
+// Override bootstrap color here
 $primary: $venetian-red;
+$danger: $red;
+$info: $cerulean;
+$component-active-bg: $malibu;
 
 @import 'node_modules/bootstrap/scss/functions';
 @import 'node_modules/bootstrap/scss/variables';
 @import 'node_modules/bootstrap/scss/mixins';
 
+// Add custom variables based on bootstrap here
+
+$list-item-hover-color: $gray-300;
+$map-button-border-color: $gray-800;
+$map-button-hover-border-color: $gray-700;
+
+// Override bootstrap class here
+
+// Add our custom class here
 .btn-outline-group {
     @include button-outline-variant($gray-400);
     border-color: $gray-400 !important;
 }
 
-$map-button-border-color: $gray-800;
-$map-button-hover-border-color: $gray-700;
-
 .form-control:focus {
     box-shadow: 0 1px 4px lighten($dark, 8%);
 }
-
-$card-cap-padding-y: 0.25rem;
-$card-spacer-y: 0.75rem;
-
-$caret-spacing: 0.75rem;
-
-$enable-negative-margins: true;
 
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
