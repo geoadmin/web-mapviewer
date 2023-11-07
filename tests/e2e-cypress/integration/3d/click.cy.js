@@ -33,6 +33,7 @@ describe('Testing click', () => {
             // since switching to fake tileset and tiles for testing
             // these tests here do not functioning properly, they are commented until we find
             // a way to give fake tile that Cesium can "pick" (ray trace) with again
+            // TODO : BGDIINF_SB-3181
             /*
             expect(clickInfo.coordinate).to.be.an(
                 'Array',
