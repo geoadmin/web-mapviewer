@@ -6,6 +6,7 @@ import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 import vitePreprocessor from 'cypress-vite'
 
 module.exports = defineConfig({
+    projectId: "fj2ezv",
     video: false,
     defaultCommandTimeout: 5000,
     requestTimeout: 5000,
