@@ -55,9 +55,8 @@ describe('Testing coordinates typing in search bar', () => {
         })
     }
     const standardCheck = (x, y, acceptableDelta = 0.0) => {
-        const searchBar = cy.get(searchbarSelector)
-        searchBar.should('be.visible')
-        searchBar.paste(`${x} ${y}`)
+        cy.get(searchbarSelector).should('be.visible')
+        cy.get(searchbarSelector).paste(`${x} ${y}`)
         checkCenterInStore(acceptableDelta)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDelta)
