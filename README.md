@@ -14,6 +14,7 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
 - [Contributing](#contributing)
 - [Project structure](#project-structure)
   - [Architectural decisions](#architectural-decisions)
+  - [Vue Composition API](#vue-composition-api)
   - [Store module](#store-module)
   - [Testing](#testing)
 - [Project setup](#project-setup)
@@ -80,6 +81,23 @@ Here's a sample of what project folder structure looks like :
 ### Architectural decisions
 
 All project related architectural decision will be described in the folder [`/adr`](adr/) (ADR stands for "Architectural Decision Report"). For all more macro decisions (like the CI we use or other broad subjects), please refer to [the `/adr` folder on the project doc-guidelines](https://github.com/geoadmin/doc-guidelines/tree/master/adr).
+
+### Vue Composition API
+
+New components should be written using the Vue Composition API.
+
+The structure of the file should be :
+  - `<script setup>` tag should be the first tag of the `.vue` file (instead of `<template>`, that's the new best practice with this approach)
+  - declares things in this order in the `<script setup>` tag
+    - imports
+    - props (input)
+    - store link (input)
+    - computed (transformation of inputs)
+    - life-cycle hooks (mounted and such)
+    - interaction with the user (was called `methods` in the OptionAPI)
+
+Components that are extensively edited should be rewritten using the Composition API
+
 
 ### Store module
 
