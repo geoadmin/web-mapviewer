@@ -4,7 +4,7 @@
             <MapFooterAttributionList />
             <div>
                 <div class="map-background-selector">
-                    <MapFooterBackgroundSelector />
+                    <BackgroundSelector />
                 </div>
                 <div id="map-footer-mobile-scale-line" />
             </div>
@@ -23,18 +23,18 @@
 </template>
 
 <script>
+import BackgroundSelector from '@/modules/map/components/footer/BackgroundSelector.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import { mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
-import MapFooterBackgroundSelector from './MapFooterBackgroundSelector.vue'
 
 export default {
     components: {
+        BackgroundSelector,
         MapFooterAttributionList,
         MapFooterAppCopyright,
         MapFooterAppVersion,
-        MapFooterBackgroundSelector,
     },
     computed: {
         ...mapState({
