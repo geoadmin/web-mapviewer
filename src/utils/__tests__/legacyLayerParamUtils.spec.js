@@ -15,6 +15,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             new GeoAdminWMSLayer(
                 'Test layer WMS',
                 'test.wms.layer',
+                'test.wms.layer',
                 0.8,
                 true,
                 [new LayerAttribution('attribution.test.wms.layer')],
@@ -25,6 +26,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             new GeoAdminWMTSLayer('Test layer WMTS', 'test.wmts.layer'),
             new GeoAdminWMTSLayer(
                 'Test timed layer WMTS',
+                'test.timed.wmts.layer',
                 'test.timed.wmts.layer',
                 0.8,
                 true,
