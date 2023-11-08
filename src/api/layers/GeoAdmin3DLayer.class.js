@@ -18,6 +18,7 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
             layerId,
             LayerTypes.VECTOR,
             layerId,
+            layerId,
             1.0,
             true,
             [new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html')],

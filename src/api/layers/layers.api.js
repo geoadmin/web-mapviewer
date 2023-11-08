@@ -29,6 +29,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
     let layer = undefined
     if (layerConfig) {
         const {
+            serverLayerName,
             label: name,
             type,
             opacity,
@@ -69,6 +70,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 layer = new GeoAdminWMTSLayer(
                     name,
                     id,
+                    serverLayerName,
                     opacity,
                     false,
                     attributions,
@@ -85,6 +87,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 layer = new GeoAdminWMSLayer(
                     name,
                     id,
+                    serverLayerName,
                     opacity,
                     false,
                     attributions,
