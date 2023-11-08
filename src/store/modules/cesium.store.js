@@ -39,6 +39,10 @@ export default {
          * Flag telling if the 3D viewer should show the vegetation layer
          * (ch.swisstopo.vegetation.3d)
          *
+         * The vegetation layer needs to be updated to work optimally with the latest version of
+         * Cesium. While waiting for this update to be available, we disable the vegetation layer by
+         * default (it can be activated through the debug tools on the side of the map)
+         *
          * @type Boolean
          */
         showVegetation: false,
@@ -52,7 +56,11 @@ export default {
     },
     getters: {
         backgroundLayersFor3D(state) {
-            const bgLayers = [wmtsBackgroundLayer, labelLayer]
+            const bgLayers = [
+                wmtsBackgroundLayer,
+                // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯
+                labelLayer,
+            ]
             if (state.showBuildings) {
                 bgLayers.push(buildingsLayer)
             }

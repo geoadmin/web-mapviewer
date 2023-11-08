@@ -62,6 +62,9 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             attributions.push(new LayerAttribution(attributionName, attributionUrl))
         }
         switch (type.toLowerCase()) {
+            case 'vector':
+                log.info('Vector layer format is TBD in our backends')
+                break
             case 'wmts':
                 layer = new GeoAdminWMTSLayer(
                     name,
