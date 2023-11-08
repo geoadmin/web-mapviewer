@@ -45,9 +45,9 @@ const storeSyncConfig = [
     ),
     new SimpleUrlParamConfig(
         '3d',
-        'setShowIn3d',
-        'setShowIn3d',
-        (store) => store.state.ui.showIn3d,
+        'set3dActive',
+        'set3dActive',
+        (store) => store.state.cesium.active,
         false,
         Boolean,
         false

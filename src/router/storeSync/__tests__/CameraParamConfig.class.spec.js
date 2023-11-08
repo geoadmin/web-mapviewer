@@ -21,8 +21,8 @@ describe('CameraParamConfig class test', () => {
                         roll: 0,
                     },
                 },
-                ui: {
-                    showIn3d: false,
+                cesium: {
+                    active: false,
                 },
             },
             getters: {
@@ -98,7 +98,7 @@ describe('CameraParamConfig class test', () => {
             roll: 49,
         }
         beforeEach(() => {
-            fakeStore.state.ui.showIn3d = true
+            fakeStore.state.cesium.active = true
             fakeStore.state.position.camera = camera
         })
         it('writes all 3D parameters correctly', () => {
@@ -120,7 +120,7 @@ describe('CameraParamConfig class test', () => {
     })
     describe('setting/dispatching the store', () => {
         beforeEach(() => {
-            fakeStore.state.ui.showIn3d = true
+            fakeStore.state.cesium.active = true
         })
         it('dispatches 3D param correctly to the store', () => {
             testInstance.populateStoreWithQueryValue(fakeStore, '1,2,3,4,5,6')
@@ -130,7 +130,7 @@ describe('CameraParamConfig class test', () => {
     })
     describe('valuesAreDifferentBetweenQueryAndStore', () => {
         beforeEach(() => {
-            fakeStore.state.ui.showIn3d = true
+            fakeStore.state.cesium.active = true
             fakeStore.state.position.camera = {
                 x: 1,
                 y: 1,

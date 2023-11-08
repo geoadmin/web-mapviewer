@@ -91,6 +91,18 @@ const addGeoJsonIntercept = () => {
     }).as('geojson-style')
 }
 
+const addCesiumTilesetIntercepts = () => {
+    cy.intercept('**/tileset.json', {
+        fixture: '3d/tileset.json',
+    }).as('cesiumTileset')
+    cy.intercept('**/*.vctr**', {
+        fixture: '3d/tile.vctr',
+    }).as('cesiumTile')
+    cy.intercept('**/*.terrain**', {
+        fixture: '3d/tile.terrain',
+    }).as('cesiumTerrainTile')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
@@ -104,6 +116,7 @@ export function getDefaultFixturesAndIntercepts() {
         addDefaultIconsFixtureAndIntercept,
         addSecondIconsFixtureAndIntercept,
         addGeoJsonIntercept,
+        addCesiumTilesetIntercepts,
     }
 }
 
@@ -438,14 +451,7 @@ function cesiumTilesLoaded(viewer) {
 }
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
-    cy.readWindowValue('cesiumViewer').then((viewer) => {
-        // cesium is slow to load, so we need to increase the default 10000 timeout:
-        // https://docs.cypress.io/guides/references/configuration#Timeouts
-        cy.wrap(null).then({ timeout: 50000 }, async () => {
-            await cesiumTilesLoaded(viewer)
-            return viewer
-        })
-    })
+    cy.wait(['@cesiumTileset', '@cesiumTile'])
 })
 
 Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {

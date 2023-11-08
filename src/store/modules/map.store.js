@@ -9,7 +9,7 @@ export const ClickType = {
 
 export class ClickInfo {
     /**
-     * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
+     * @param {Number[]} coordinate Of the last click expressed in the current mapping projection
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
      * @param {Object[]} features List of potential features (geoJSON or KML) that where under the

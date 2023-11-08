@@ -92,12 +92,6 @@ export default {
          */
         hostname: window.location.hostname,
         /**
-         * Flag telling if the app should be displaying the map in 3D or not
-         *
-         * @type Boolean
-         */
-        showIn3d: false,
-        /**
          * Flag telling if import overlay shown
          *
          * @type Boolean
@@ -213,9 +207,6 @@ export default {
                 }
             }
         },
-        setShowIn3d({ commit }, showIn3d) {
-            commit('setShowIn3d', !!showIn3d)
-        },
         toggleImportOverlay({ commit, state }) {
             commit('setImportOverlay', !state.importOverlay)
         },
@@ -245,9 +236,6 @@ export default {
         },
         setUiMode(state, mode) {
             state.mode = mode
-        },
-        setShowIn3d(state, flagValue) {
-            state.showIn3d = flagValue
         },
         setImportOverlay(state, flagValue) {
             state.importOverlay = flagValue

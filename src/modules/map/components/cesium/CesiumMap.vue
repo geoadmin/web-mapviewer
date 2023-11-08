@@ -1,30 +1,38 @@
 <template>
     <div v-if="isProjectionWebMercator" id="cesium" ref="viewer" data-cy="cesium-map">
         <div v-if="viewerCreated">
-            <!-- Adding background layer -->
+            <!--
+               Adding background layer, z-index can be set to zero for all, as only the WMTS
+               background layer is an imagery layer (and requires one), all other BG layer are
+               primitive layer and will ignore this prop
+            -->
             <CesiumInternalLayer
-                v-if="currentBackgroundLayer"
-                :layer-config="currentBackgroundLayer"
+                v-for="bgLayer in backgroundLayersFor3D"
+                :key="bgLayer.getID()"
+                :layer-config="bgLayer"
                 :projection="projection"
                 :z-index="0"
             />
-            <!-- Adding all other layers -->
-            <!-- Layers split for correct zIndex ordering -->
+            <!--
+               Adding all other layers
+               Layers split between imagery and primitive type for correct zIndex ordering.
+               Only imagery layers require a z-index, we start to count them at 1 because of the
+               background WMTS layer
+            -->
             <CesiumInternalLayer
                 v-for="(layer, index) in visibleImageryLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
-                :z-index="index + startingZIndexForVisibleLayers"
+                :z-index="index + 1"
             />
             <CesiumInternalLayer
-                v-for="(layer, index) in visiblePrimitiveLayers"
+                v-for="layer in visiblePrimitiveLayers"
                 :key="layer.getID()"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
-                :z-index="index"
             />
         </div>
         <CesiumPopover
@@ -46,7 +54,7 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <cesium-compass v-show="isDesktopMode" ref="compass"></cesium-compass>
+        <cesium-compass v-show="isDesktopMode" ref="compass" class="compass" />
         <slot />
     </div>
 </template>
@@ -55,8 +63,6 @@ import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import {
     BASE_URL_3D_TILES,
     DEFAULT_PROJECTION,
@@ -75,6 +81,7 @@ import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinate
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import '@geoblocks/cesium-compass'
 import * as cesium from 'cesium'
 import {
@@ -105,7 +112,7 @@ import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './util
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
 
 export default {
-    components: { CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -115,21 +122,6 @@ export default {
     data() {
         return {
             viewerCreated: false,
-            // todo just for testing, remove when 3d background switch will be implemented
-            currentBackgroundLayer: new GeoAdminWMTSLayer(
-                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-                'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-                1,
-                true,
-                [],
-                'jpeg',
-                new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
-                true,
-                WMTS_BASE_URL,
-                false,
-                false,
-                []
-            ),
             popoverCoordinates: [],
         }
     },
@@ -137,22 +129,25 @@ export default {
         ...mapState({
             zoom: (state) => state.position.zoom,
             rotation: (state) => state.position.rotation,
-            camera: (state) => state.position.camera,
+            cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
         }),
-        ...mapGetters(['centerEpsg4326', 'resolution', 'hasDevSiteWarning', 'visibleLayers']),
+        ...mapGetters([
+            'centerEpsg4326',
+            'resolution',
+            'hasDevSiteWarning',
+            'visibleLayers',
+            'backgroundLayersFor3D',
+        ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
         },
         isDesktopMode() {
             return this.uiMode === UIModes.DESKTOP
-        },
-        startingZIndexForVisibleLayers() {
-            return this.currentBackgroundLayer ? 1 : 0
         },
         visibleImageryLayers() {
             return this.visibleLayers.filter(
@@ -316,8 +311,8 @@ export default {
 
             this.viewerCreated = true
 
-            // if the default projection is a national projection (or custom projection) we then constrain the camera to
-            // only move in bounds of this custom projection
+            // if the default projection is a national projection (or custom projection), we then constrain
+            // the camera to only move in bounds of this custom projection
             if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
                 this.viewer.scene.postRender.addEventListener(
                     limitCameraCenter(DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten)
@@ -344,7 +339,7 @@ export default {
             const geometries = this.selectedFeatures.map((f) => {
                 // GeoJSON and KML layers have different geometry structure
                 if (!f.geometry.type) {
-                    let type = undefined
+                    let type
                     if (f.geometry instanceof Polygon) {
                         type = 'Polygon'
                     } else if (f.geometry instanceof LineString) {
@@ -353,13 +348,9 @@ export default {
                         type = 'Point'
                     }
                     const coordinates = f.geometry.getCoordinates()
-                    const getCoordinates = (c) => proj4(this.projection.epsg, WEBMERCATOR.epsg, c)
                     return {
                         type,
-                        coordinates:
-                            typeof coordinates[0] === 'number'
-                                ? getCoordinates(coordinates)
-                                : coordinates.map(getCoordinates),
+                        coordinates,
                     }
                 }
                 return f.geometry
@@ -374,25 +365,35 @@ export default {
             )
         },
         flyToPosition() {
-            const x = this.camera ? this.camera.x : this.centerEpsg4326[0]
-            const y = this.camera ? this.camera.y : this.centerEpsg4326[1]
-            const z = this.camera
-                ? this.camera.z
-                : calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
-            const heading = this.camera ? CesiumMath.toRadians(this.camera.heading) : -this.rotation
-            const pitch = this.camera
-                ? CesiumMath.toRadians(this.camera.pitch)
-                : -CesiumMath.PI_OVER_TWO
-            const roll = this.camera ? CesiumMath.toRadians(this.camera.roll) : 0
-            this.viewer.camera.flyTo({
-                destination: Cartesian3.fromDegrees(x, y, z),
-                orientation: {
-                    heading,
-                    pitch,
-                    roll,
-                },
-                duration: 0,
-            })
+            if (this.cameraPosition) {
+                this.viewer.camera.flyTo({
+                    destination: Cartesian3.fromDegrees(
+                        this.cameraPosition.x,
+                        this.cameraPosition.y,
+                        this.cameraPosition.z
+                    ),
+                    orientation: {
+                        heading: CesiumMath.toRadians(this.cameraPosition.heading),
+                        pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
+                        roll: CesiumMath.toRadians(this.cameraPosition.roll),
+                    },
+                    duration: 0,
+                })
+            } else {
+                this.viewer.camera.flyTo({
+                    destination: Cartesian3.fromDegrees(
+                        this.centerEpsg4326[0],
+                        this.centerEpsg4326[1],
+                        calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+                    ),
+                    orientation: {
+                        heading: -this.rotation,
+                        pitch: -CesiumMath.PI_OVER_TWO,
+                        roll: 0,
+                    },
+                    duration: 0,
+                })
+            }
         },
         onCameraMoveEnd() {
             const camera = this.viewer.camera
@@ -413,10 +414,12 @@ export default {
             const cartesian = this.viewer.scene.pickPosition(event.position)
             if (cartesian) {
                 const cartCoords = Cartographic.fromCartesian(cartesian)
-                coordinates = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+                coordinates = proj4(WGS84.epsg, this.projection.epsg, [
                     (cartCoords.longitude * 180) / Math.PI,
                     (cartCoords.latitude * 180) / Math.PI,
                 ])
+            } else {
+                log.error('no coordinate found under the mouse cursor', event)
             }
 
             let objects = this.viewer.scene.drillPick(event.position)
@@ -489,6 +492,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/modules/menu/scss/toolbox-buttons';
 
 // rule can't be scoped otherwise canvas styles will be not applied
 :global(#cesium .cesium-viewer),
@@ -512,11 +516,14 @@ export default {
         display: none;
     }
 }
+$compass-size: 95px;
 cesium-compass {
     position: absolute;
-    bottom: 130px;
+    bottom: $footer-height + $screen-padding-for-ui-elements;
     right: 50%;
-    z-index: 3;
+    z-index: $zindex-map + 1;
+    width: $compass-size;
+    height: $compass-size;
     --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
     --cesium-compass-fill-color: rgb(224, 225, 226);
 }

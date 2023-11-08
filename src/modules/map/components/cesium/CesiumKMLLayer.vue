@@ -29,10 +29,6 @@ export default {
             type: Number,
             default: 1.0,
         },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
         projection: {
             type: CoordinateSystem,
             required: true,

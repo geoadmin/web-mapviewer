@@ -1,5 +1,11 @@
 <template>
     <div>
+        <CesiumVectorLayer
+            v-if="layerConfig.type === LayerTypes.VECTOR"
+            :layer-config="layerConfig"
+            :projection="projection"
+            :z-index="zIndex"
+        />
         <CesiumWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
@@ -28,7 +34,6 @@
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
             :projection="projection"
-            :z-index="zIndex"
         />
         <slot />
     </div>
@@ -37,6 +42,7 @@
 <script>
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
@@ -49,6 +55,7 @@ import CesiumWMTSLayer from './CesiumWMTSLayer.vue'
  */
 export default {
     components: {
+        CesiumVectorLayer,
         CesiumKMLLayer,
         CesiumGeoJSONLayer,
         CesiumWMTSLayer,
