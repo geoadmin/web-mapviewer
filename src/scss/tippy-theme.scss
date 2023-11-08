@@ -4,7 +4,7 @@
 @import 'tippy.js/themes/light-border.css';
 
 @mixin createTippyTheme($themeName, $themeBackgroundColor, $themeTextColor) {
-    .tippy-box[data-theme~=#{$themeName}] {
+    .tippy-box[data-theme~='#{$themeName}'] {
         background-color: $themeBackgroundColor;
         color: $themeTextColor;
         &[data-placement^='top'] > .tippy-arrow::before {
