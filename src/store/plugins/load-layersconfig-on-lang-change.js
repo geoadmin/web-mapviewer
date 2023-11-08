@@ -2,6 +2,7 @@ import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
@@ -34,6 +35,29 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
     try {
         const layersConfig = [...(await loadLayersConfig(store.state.i18n.lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
+
+        // adding SWISSIMAGE as a possible background for 3D
+        const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
+        if (swissimage) {
+            layersConfig.push(
+                new GeoAdminWMTSLayer(
+                    swissimage.name,
+                    `${swissimage.getID()}_3d`,
+                    swissimage.serverLayerId,
+                    1.0,
+                    false,
+                    swissimage.attributions,
+                    swissimage.format,
+                    swissimage.timeConfig,
+                    true,
+                    swissimage.baseURL,
+                    false,
+                    false,
+                    swissimage.topics
+                )
+            )
+        }
+
         store.dispatch('setLayerConfig', layersConfig)
         store.dispatch('setTopics', topicsConfig)
         if (store.state.topics.current) {
