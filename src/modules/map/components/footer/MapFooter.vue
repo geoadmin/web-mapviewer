@@ -77,7 +77,7 @@ $flex-gap: 1em;
         .map-background-selector {
             padding: $screen-padding-for-ui-elements;
         }
-        @include respond-above(tablet) {
+        @include respond-above(phone) {
             flex-direction: column-reverse;
         }
     }
