@@ -25,7 +25,7 @@
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
-                :z-index="index + 1"
+                :z-index="index + startingZIndexForImageryLayers"
             />
             <CesiumInternalLayer
                 v-for="layer in visiblePrimitiveLayers"
@@ -110,6 +110,7 @@ import {
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 export default {
     components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
@@ -164,6 +165,11 @@ export default {
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)
+        },
+        startingZIndexForImageryLayers() {
+            return this.backgroundLayersFor3D.find((layer) => layer.type === LayerTypes.WMTS)
+                ? 1
+                : 0
         },
     },
     watch: {
@@ -304,7 +310,7 @@ export default {
             )
 
             const globe = scene.globe
-            globe.baseColor = Color.TRANSPARENT
+            globe.baseColor = Color.WHITE
             globe.depthTestAgainstTerrain = true
             globe.showGroundAtmosphere = false
             globe.showWaterEffect = false

@@ -87,12 +87,13 @@ const getters = {
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
      * background layer).
      *
-     * @param state
      * @returns Object returned with the same structure as the config, meaning keys of the object
      *   are BG layer IDs and values are BG layer metadata.
      */
-    backgroundLayers: (state) =>
-        state.config.filter((layer) => layer.isBackground && !layer.isSpecificFor3D),
+    backgroundLayers: (state, _, rootState) =>
+        state.config.filter(
+            (layer) => layer.isBackground && rootState.cesium.active === layer.isSpecificFor3D
+        ),
     /**
      * Retrieves a layer config metadata defined by its unique ID
      *
@@ -411,6 +412,10 @@ const actions = {
 const mutations = {
     setBackground(state, backgroundLayer) {
         state.currentBackgroundLayer = backgroundLayer
+        // forcing its visibility (if not void layer), as 3D layers have their visible flag set to false somehow
+        if (state.currentBackgroundLayer) {
+            state.currentBackgroundLayer.visible = true
+        }
     },
     setLayerConfig(state, config) {
         state.config = config

@@ -52,7 +52,6 @@ const tippyContent = ref(null)
 let tippyInstance
 if (withTooltip) {
     onMounted(() => {
-        console.log('with tooltip', tippyAnchor, tippyContent)
         tippyInstance = tippy(tippyAnchor.value, {
             theme: 'dark',
             content: tippyContent.value,

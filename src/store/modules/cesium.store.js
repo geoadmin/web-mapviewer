@@ -1,23 +1,5 @@
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
-import { WMTS_BASE_URL } from '@/config'
 
-const wmtsBackgroundLayer = new GeoAdminWMTSLayer(
-    'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-    'ch.swisstopo.swisstlm3d-karte-farbe.3d',
-    1,
-    true,
-    [],
-    'jpeg',
-    new LayerTimeConfig(CURRENT_YEAR_WMTS_TIMESTAMP, []),
-    true,
-    WMTS_BASE_URL,
-    false,
-    false,
-    []
-)
 const labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
 const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
 const buildingsLayer = new GeoAdmin3DLayer(
@@ -55,12 +37,14 @@ export default {
         showBuildings: true,
     },
     getters: {
-        backgroundLayersFor3D(state) {
-            const bgLayers = [
-                wmtsBackgroundLayer,
-                // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯
-                labelLayer,
-            ]
+        backgroundLayersFor3D(state, _, rootState) {
+            const bgLayers = []
+            const backgroundLayer = rootState.layers.currentBackgroundLayer
+            if (backgroundLayer) {
+                bgLayers.push(backgroundLayer)
+            }
+            // labels are not up-to-date with the latest Cesium version, but we need then anyway ¯\_(ツ)_/¯
+            bgLayers.push(labelLayer)
             if (state.showBuildings) {
                 bgLayers.push(buildingsLayer)
             }
