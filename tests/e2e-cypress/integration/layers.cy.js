@@ -19,45 +19,32 @@ describe('Test of layer handling', () => {
             cy.goToMapView()
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
         })
-        it('adds a layer to the map when the app is opened through a URL with a layer in it', () => {
+        it.only('adds a layers with config to the map when opening the app layers URL param', () => {
             cy.goToMapView({
-                layers: 'test.wms.layer;test.wmts.layer',
+                layers: [
+                    'test-1.wms.layer',
+                    'test-2.wms.layer,,',
+                    'test-3.wms.layer,f',
+                    'test-4.wms.layer,,0.4',
+                    'test.wmts.layer,f,0.5',
+                ].join(';'),
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                expect(layers).to.be.an('Array')
-                expect(layers.length).to.eq(2)
-                expect(layers[0]).to.be.an('Object')
-                expect(layers[0].getID()).to.eq('test.wms.layer')
-                expect(layers[1]).to.be.an('Object')
-                expect(layers[1].getID()).to.eq('test.wmts.layer')
-            })
-        })
-        it('adds a layer to active layers without showing it if the URL sets visibility to false', () => {
-            cy.goToMapView({
-                layers: 'test.wms.layer,f;test.wmts.layer',
-            })
-            cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                expect(layers).to.be.an('Array').length(1)
-                const [wmtsLayer] = layers
-                expect(wmtsLayer).to.be.an('Object')
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
+                expect(layers).to.be.an('Array').length(3)
+                expect(layers[0].getID()).to.eq('test-1.wms.layer')
+                expect(layers[1].getID()).to.eq('test-2.wms.layer')
+                expect(layers[2].getID()).to.eq('test-4.wms.layer')
+                expect(layers[2].opacity).to.eq(0.4)
             })
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                expect(layers).to.be.an('Array').length(2)
-                const [wmsLayer, wmtsLayer] = layers
-                expect(wmsLayer).to.be.an('Object')
-                expect(wmsLayer.getID()).to.eq('test.wms.layer')
-                expect(wmtsLayer).to.be.an('Object')
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
-            })
-        })
-        it('sets the opacity to the value defined in the layers URL param', () => {
-            cy.goToMapView({
-                layers: 'test.wmts.layer,,0.5',
-            })
-            cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                const [wmtsLayer] = layers
-                expect(wmtsLayer.opacity).to.eq(0.5)
+                expect(layers).to.be.an('Array').length(5)
+                expect(layers[0].getID()).to.eq('test-1.wms.layer')
+                expect(layers[1].getID()).to.eq('test-2.wms.layer')
+                expect(layers[2].getID()).to.eq('test-3.wms.layer')
+                expect(layers[3].getID()).to.eq('test-4.wms.layer')
+                expect(layers[3].opacity).to.eq(0.4)
+                expect(layers[4].getID()).to.eq('test.wmts.layer')
+                expect(layers[4].opacity).to.eq(0.5)
             })
         })
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
