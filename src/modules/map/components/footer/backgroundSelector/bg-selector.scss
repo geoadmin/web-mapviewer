@@ -1,0 +1,143 @@
+@import '../../../../../scss/webmapviewer-bootstrap-theme';
+
+$bg-selector-transition-duration: 0.4s;
+$bg-selector-button-border: 4px;
+$bg-selector-button-thick-border: 7px;
+$bg-selector-button-gap: 4px;
+$nb-max-bg: 10;
+
+// Sets up the relevant CSS to animate background button into a spread animation
+// This requires the main component to follow a certain sets of rules when .XXX is given as main component selector :
+//   - have a .XXX-wheel element that contains the BG buttons
+//   - have buttons with .XXX-wheel-button class attached
+//   - add .show to the .XXX component when it should be visible
+//   - if .animate is also added to the .XXX component, when .show is added/removed, this mixin will add a animation
+//     to the wheel buttons
+@mixin spread-wheel-buttons(
+    $main-element,
+    $button-width: $map-button-diameter,
+    $spread-direction: 'bottom'
+) {
+    #{$main-element} {
+        @if $spread-direction != 'bottom' {
+            // on order to place the wheel container BEFORE the main button, we use a flexbox
+            // When the spread is right, and no flexbox is set, the right: 0 position for the wheel container
+            // is at the side of the screen, not at the side of the main button
+            display: flex;
+        }
+        &-wheel {
+            display: none;
+            // resets the position "stack" so that absolute positioning of children is now relative to the parent
+            position: relative;
+            opacity: 0;
+            z-index: $zindex-map + 1;
+            // animate the display/opacity changes
+            transition: all $bg-selector-transition-duration;
+            &.show,
+            &.animate {
+                display: block;
+            }
+
+            // as we are using this selector down in the for loop, we hit a limitation of SASS and can't use the
+            // &- notation, but have to declare a full fledged selector (otherwise & is misinterpreted in the loop and
+            // it fails)
+            $buttons: '#{$main-element}-wheel-button';
+            #{$buttons} {
+                // the parent is set to position relative, so this element will now be placed under the parent
+                position: absolute;
+                #{$spread-direction}: 0;
+                // setting up spread/fade-in animation
+                transition-property: $spread-direction, opacity;
+                transition-duration: $bg-selector-transition-duration;
+            }
+            &.show:not(.animate) {
+                // fade in/out on show/hide
+                opacity: 1;
+            }
+
+            @for $i from 0 through $nb-max-bg {
+                // doubling the starting margin between the first child and the parent (hence $i + 2 when calculating margin)
+                $spread-amount: calc($i * $button-width + $bg-selector-button-gap * ($i + 2));
+                &.show:not(.animate) {
+                    #{$buttons}-#{$i} {
+                        // move from a stacked under the main button position to a spread position (and vide-versa on hide)
+                        #{$spread-direction}: $spread-amount;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Sets up the base style to have a background selector wheel
+// This wheel must have a structure so that :
+//   - there is a main container (the one for which a CSS selector is asked as 1st parameter)
+//   - this container can contain children container called ...-wheel-button that will be styled accordingly
+//      - the size of the button can be set as 2nd parameter
+//      - by default, buttons will be squared (or rounded), meaning a ratio of 1:1 between width and height, this can be
+//        changed by setting the 3rd parameter of the mixin to another fraction
+@mixin setup-background-buttons(
+    $main-element,
+    $background-button-width: $map-button-diameter,
+    $background-button-height-ratio: 1
+) {
+    $background-button-height: floor($background-button-width * $background-button-height-ratio);
+    #{$main-element} {
+        &-wheel-button {
+            padding: 0;
+            border: $bg-selector-button-border solid $map-button-border-color;
+            width: $background-button-width;
+            height: $background-button-height;
+            &:hover,
+            &.active {
+                border-color: $primary;
+            }
+            &.thick {
+                border: $bg-selector-button-thick-border solid $map-button-border-color;
+            }
+            &-image-cropper {
+                $cropper-width: calc($background-button-width - 2 * $bg-selector-button-border);
+                $cropper-height: calc($background-button-height - 2 * $bg-selector-button-border);
+                width: $cropper-width;
+                height: $cropper-height;
+                display: block;
+                position: relative;
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                background: $white url('../../../assets/void.png');
+                img {
+                    display: inline;
+                    margin: 0 auto;
+                }
+            }
+            &.thick &-image-cropper {
+                $thick-cropper-width: calc(
+                    $background-button-width - 2 * $bg-selector-button-thick-border
+                );
+                $thick-cropper-height: calc(
+                    $background-button-height - 2 * $bg-selector-button-thick-border
+                );
+                width: $thick-cropper-width;
+                height: $thick-cropper-height;
+            }
+
+            @keyframes pulse {
+                from {
+                    transform: scale3d(1, 1, 1);
+                }
+                20% {
+                    transform: scale3d(1.25, 1.25, 1.25);
+                }
+                to {
+                    transform: scale3d(1, 1, 1);
+                }
+            }
+            &.pulse {
+                animation-name: pulse;
+                animation-timing-function: ease-in-out;
+                animation-duration: $bg-selector-transition-duration;
+            }
+        }
+    }
+}

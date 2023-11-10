@@ -616,5 +616,15 @@
     "feedback_invalid_email": "e-mail non valide",
     "profile_no_data": "Nessun dato",
     "view_on_mapgeoadminch_webmapviewer": "Vedi in {url}",
-    "full_width": "Larghezza intera"
+    "full_width": "Larghezza intera",
+    "georessourcen": "Georisorse",
+    "georessourcen_service_link_label": "Ulteriori informazioni",
+    "georessourcen_service_link_href": "https://www.swisstopo.admin.ch/it/conoscenze-fatti/geologia/georisorse.html",
+    "topic_georessourcen_tooltip": "Georisorse",
+    "ch.swisstopo.swissimage": "Veduta aerea",
+    "ch.swisstopo.pixelkarte-grau": "Carta bianca e nera",
+    "ch.swisstopo.pixelkarte-farbe": "Carta a colori",
+    "ch.swisstopo.swissimage_3d": "Veduta aerea",
+    "ch.swisstopo.swisstlm3d-karte-grau_3d": "Carta bianca e nera",
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Carta a colori"
 }

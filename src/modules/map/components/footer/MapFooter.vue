@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import BackgroundSelector from '@/modules/map/components/footer/BackgroundSelector.vue'
+import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import { mapState } from 'vuex'
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
