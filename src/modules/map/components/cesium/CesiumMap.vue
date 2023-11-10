@@ -298,6 +298,10 @@ export default {
                 this.onClick,
                 ScreenSpaceEventType.LEFT_CLICK
             )
+            this.viewer.screenSpaceEventHandler.setInputAction(
+                this.onRightClick,
+                ScreenSpaceEventType.RIGHT_CLICK
+            )
 
             const globe = scene.globe
             globe.baseColor = Color.TRANSPARENT
@@ -407,9 +411,7 @@ export default {
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
         },
-        onClick(event) {
-            unhighlightGroup(this.viewer)
-            const features = []
+        getCoordinateAtMouseEvent(event) {
             let coordinates = []
             const cartesian = this.viewer.scene.pickPosition(event.position)
             if (cartesian) {
@@ -421,6 +423,12 @@ export default {
             } else {
                 log.error('no coordinate found under the mouse cursor', event)
             }
+            return coordinates
+        },
+        onClick(event) {
+            unhighlightGroup(this.viewer)
+            const features = []
+            let coordinates = this.getCoordinateAtMouseEvent(event)
 
             let objects = this.viewer.scene.drillPick(event.position)
             const geoJsonFeatures = {}
@@ -479,6 +487,17 @@ export default {
                     [event.position.x, event.position.y],
                     features,
                     ClickType.LEFT_SINGLECLICK
+                )
+            )
+        },
+        onRightClick(event) {
+            const coordinates = this.getCoordinateAtMouseEvent(event)
+            this.click(
+                new ClickInfo(
+                    coordinates,
+                    [event.position.x, event.position.y],
+                    [],
+                    ClickType.CONTEXTMENU
                 )
             )
         },

@@ -3,6 +3,7 @@
         <CesiumMap v-if="is3DActive">
             <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />
+            <LocationPopup />
         </CesiumMap>
         <OpenLayersMap v-else>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->

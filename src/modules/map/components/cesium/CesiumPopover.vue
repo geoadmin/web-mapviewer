@@ -17,8 +17,11 @@
 
 <script>
 import MapPopover from '@/modules/map/components/MapPopover.vue'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+import proj4 from 'proj4'
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
@@ -35,6 +38,10 @@ export default {
     props: {
         coordinates: {
             type: Array,
+            required: true,
+        },
+        projection: {
+            type: CoordinateSystem,
             required: true,
         },
         authorizePrint: {
@@ -58,6 +65,11 @@ export default {
                 left: 0,
             },
         }
+    },
+    computed: {
+        wgs84Coordinates() {
+            return proj4(this.projection.epsg, WGS84.epsg, this.coordinates)
+        },
     },
     watch: {
         coordinates() {
@@ -104,8 +116,8 @@ export default {
         updateCoordinateHeight() {
             this.coordinatesHeight = this.getViewer()?.scene.globe.getHeight(
                 Cartographic.fromDegrees(
-                    this.coordinates[0],
-                    this.coordinates[1],
+                    this.wgs84Coordinates[0],
+                    this.wgs84Coordinates[1],
                     0,
                     tempCartographic
                 )
@@ -119,8 +131,8 @@ export default {
             const cartesianCoords = SceneTransforms.wgs84ToWindowCoordinates(
                 this.getViewer().scene,
                 Cartesian3.fromDegrees(
-                    this.coordinates[0],
-                    this.coordinates[1],
+                    this.wgs84Coordinates[0],
+                    this.wgs84Coordinates[1],
                     this.coordinatesHeight,
                     Ellipsoid.WGS84,
                     tempCartesian3
