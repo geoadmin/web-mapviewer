@@ -16,7 +16,11 @@ export default function (backgroundLayers, currentBackgroundLayer, emit) {
     const show = ref(false)
     const animate = ref(false)
     function getImageForBackgroundLayer(backgroundLayer) {
-        return new URL(`../../../assets/${backgroundLayer.getID()}.png`, import.meta.url).href
+        let backgroundId = backgroundLayer?.getID()
+        if (!backgroundId) {
+            backgroundId = 'void'
+        }
+        return new URL(`../../../assets/${backgroundId}.png`, import.meta.url).href
     }
     function onSelectBackground(backgroundLayer) {
         emit('selectBackground', backgroundLayer)
