@@ -545,7 +545,7 @@
     "verteidigung_service_link_href": "http://www.vtg.admin.ch/en/armee.html",
     "verteidigung_service_link_label": "www.vtg.admin.ch",
     "view_on_mapgeoadminch": "View on {{url}}",
-    "void_layer": "White background",
+    "void_layer": "No background",
     "vu": "Road accidents",
     "vu_service_link_href": "http://www.unfalldaten.ch ",
     "vu_service_link_label": "FEDRO - Road accident data",
@@ -616,5 +616,15 @@
     "feedback_invalid_email": "Invalid email",
     "profile_no_data": "No data",
     "view_on_mapgeoadminch_webmapviewer": "View on {url}",
-    "full_width": "Full width"
+    "full_width": "Full width",
+    "georessourcen": "Geo-resources",
+    "georessourcen_service_link_label": "More information",
+    "georessourcen_service_link_href": "https://www.swisstopo.admin.ch/en/knowledge-facts/geology/geo-resources.html",
+    "topic_georessourcen_tooltip": "Geo-resources",
+    "ch.swisstopo.swissimage": "Aerial imagery",
+    "ch.swisstopo.pixelkarte-grau": "Grey map",
+    "ch.swisstopo.pixelkarte-farbe": "Color map",
+    "ch.swisstopo.swissimage_3d": "Aerial imagery",
+    "ch.swisstopo.swisstlm3d-karte-grau_3d": "Grey map",
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Color map"
 }

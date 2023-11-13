@@ -41,7 +41,7 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         layerId() {
-            return this.wmsLayerConfig.geoAdminID || this.wmsLayerConfig.externalLayerId
+            return this.wmsLayerConfig.serverLayerName || this.wmsLayerConfig.externalLayerId
         },
         opacity() {
             return this.wmsLayerConfig.opacity || 1.0

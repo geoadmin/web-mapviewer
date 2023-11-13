@@ -6,7 +6,8 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
-     * @param {String} id Unique layer ID used in our backend
+     * @param {String} id Unique layer ID
+     * @param {String} serverLayerName ID to be used in our backend (can be different from the id)
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
      * @param {boolean} visible If the layer should be shown on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
@@ -26,6 +27,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     constructor(
         name = '',
         id = '',
+        serverLayerName = '',
         opacity = 1.0,
         visible = false,
         attributions = [],
@@ -41,6 +43,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             name,
             LayerTypes.WMTS,
             id,
+            serverLayerName,
             opacity,
             visible,
             attributions,
@@ -76,9 +79,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             // if no timestamp was found (no time config or preview year) we fall back to 'current' as the default WMTS timestamp
             timestampToUse = CURRENT_YEAR_WMTS_TIMESTAMP
         }
-        return `${
-            this.baseURL
-        }1.0.0/${this.getID()}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
+        return `${this.baseURL}1.0.0/${this.serverLayerId}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 
     get hasMultipleTimestamps() {

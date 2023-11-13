@@ -10,8 +10,11 @@ export default class GeoAdminLayer extends AbstractLayer {
     /**
      * @param {String} name Name of this layer in the current lang
      * @param {LayerTypes} type See {@link LayerTypes}
-     * @param {String} geoAdminID The unique ID of this layer that will be used to request the
-     *   different backends of map.geo.admin.ch
+     * @param {String} geoAdminID The unique ID of this layer that will be used to identify this
+     *   layer
+     * @param {String} serverLayerId The ID to use when requesting the WMS/WMTS backend, this might
+     *   be different than geoAdminID, and many layers (with different geoAdminID) can in fact
+     *   request the same serverLayerId in the end)
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
      * @param {boolean} visible If the layer should be shown on the map
@@ -36,6 +39,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         name = '',
         type = null,
         geoAdminID = '',
+        serverLayerId = '',
         opacity = 1.0,
         visible = false,
         attributions = [],
@@ -48,6 +52,7 @@ export default class GeoAdminLayer extends AbstractLayer {
     ) {
         super(name, type, opacity, visible, attributions, hasTooltip, false)
         this.geoAdminID = geoAdminID
+        this.serverLayerId = serverLayerId
         this.isBackground = isBackground
         this.baseURL = baseURL
         if (ensureTrailingSlashInBaseUrl && this.baseURL && !this.baseURL.endsWith('/')) {

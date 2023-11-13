@@ -616,5 +616,15 @@
     "feedback_invalid_email": "ungültige E-Mail",
     "profile_no_data": "kein Datum",
     "view_on_mapgeoadminch_webmapviewer": "In {url} ansehen",
-    "full_width": "Vollständige Breite"
+    "full_width": "Vollständige Breite",
+    "georessourcen": "Georessourcen",
+    "georessourcen_service_link_label": "Weitere Informationen",
+    "georessourcen_service_link_href": "https://www.swisstopo.admin.ch/de/wissen-fakten/geologie/georessourcen.html",
+    "topic_georessourcen_tooltip": "Georessourcen",
+    "ch.swisstopo.swissimage": "Luftbilder",
+    "ch.swisstopo.pixelkarte-grau": "Karte SW",
+    "ch.swisstopo.pixelkarte-farbe": "Karte farbig",
+    "ch.swisstopo.swissimage_3d": "Luftbild",
+    "ch.swisstopo.swisstlm3d-karte-grau_3d": "Karte SW",
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Karte farbig"
 }

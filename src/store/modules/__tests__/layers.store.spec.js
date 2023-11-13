@@ -8,10 +8,21 @@ import store from '@/store'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
-const bgLayer = new GeoAdminWMTSLayer('background', 'bg.layer', 1.0, true, [], 'jpeg', null, true)
-const firstLayer = new GeoAdminWMTSLayer('First layer', 'first.layer', 1.0, true, [])
+const bgLayer = new GeoAdminWMTSLayer(
+    'background',
+    'bg.layer',
+    'bg.layer',
+    1.0,
+    true,
+    [],
+    'jpeg',
+    null,
+    true
+)
+const firstLayer = new GeoAdminWMTSLayer('First layer', 'first.layer', 1.0, 'first.layer', true, [])
 const secondLayer = new GeoAdminWMSLayer(
     'Second layer',
+    'second.layer',
     'second.layer',
     1.0,
     true,

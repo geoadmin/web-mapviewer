@@ -169,15 +169,7 @@ export function updateCollectionProperties(collection, properties) {
 
 export async function loadTileSetAndApplyStyle(tileSetJsonURL, withEnhancedLabelStyle = false) {
     try {
-        const tileset = await Cesium3DTileset.fromUrl(tileSetJsonURL, {
-            // skipLevelOfDetail: true,
-            // baseScreenSpaceError: 1024,
-            // skipScreenSpaceErrorFactor: 16,
-            // skipLevels: 1,
-            // immediatelyLoadDesiredLevelOfDetail: false,
-            // loadSiblings: false,
-            // cullWithChildrenBounds: true,
-        })
+        const tileset = await Cesium3DTileset.fromUrl(tileSetJsonURL)
         if (withEnhancedLabelStyle) {
             tileset.style = cesiumEnchancedLabelStzle
         }

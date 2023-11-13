@@ -614,5 +614,15 @@
     "feedback_invalid_email": "ungültige E-Mail",
     "profile_no_data": "kein Datum",
     "view_on_mapgeoadminch_webmapviewer": "Contemplar in {url}",
-    "full_width": "Vollständige Breite"
+    "full_width": "Vollständige Breite",
+    "georessourcen": "Georessourcen",
+    "georessourcen_service_link_label": "Ulteriuras infurmaziuns",
+    "georessourcen_service_link_href": "https://www.swisstopo.admin.ch/de/wissen-fakten/geologie/georessourcen.html",
+    "topic_georessourcen_tooltip": "Georessourcen",
+    "ch.swisstopo.swissimage": "Fotografia ord l'aria",
+    "ch.swisstopo.pixelkarte-grau": "Charta en alv e nair",
+    "ch.swisstopo.pixelkarte-farbe": "Charta en colur",
+    "ch.swisstopo.swissimage_3d": "Fotografia ord l'aria",
+    "ch.swisstopo.swisstlm3d-karte-grau_3d": "Charta en alv e nair",
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Charta en colur"
 }
