@@ -488,3 +488,23 @@ Cypress.Commands.add('openLayerSettings', (layerId) => {
     cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`).should('be.visible').click()
     cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
 })
+
+Cypress.Commands.add(
+    'skipTestsIf',
+    /**
+     * Will skip this test (or all tests if this is run inside a context/describe) when the
+     * condition is true.
+     *
+     * @param {Boolean} condition
+     * @param {String} message A message to cy.log in case tests are skipped
+     */
+    (condition, message) => {
+        if (condition) {
+            if (message) {
+                cy.log(message)
+            }
+            const mochaContext = cy.state('runnable').ctx
+            mochaContext?.skip()
+        }
+    }
+)

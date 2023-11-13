@@ -372,7 +372,7 @@ export function getLetterDesignator(latitude) {
  * @param {number} accuracy Accuracy in digits (0-5).
  * @returns {string} MGRS string for the given UTM location.
  */
-function encodeUTM(utm, accuracy) {
+export function encodeUTM(utm, accuracy) {
     // prepend with leading zeroes
     const seasting = '00000' + utm.easting,
         snorthing = '00000' + utm.northing

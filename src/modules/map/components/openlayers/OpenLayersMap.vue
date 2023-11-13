@@ -340,6 +340,8 @@ export default {
             rotation: this.rotation,
             resolutions: LV95_RESOLUTIONS,
             projection: LV95.epsg,
+            extent: LV95.bounds.flatten,
+            constrainOnlyCenter: true,
         })
         this.setCurrentMapViewAccordingToProjection()
 
