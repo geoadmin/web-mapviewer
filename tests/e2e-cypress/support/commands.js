@@ -500,11 +500,11 @@ Cypress.Commands.add(
      */
     (condition, message) => {
         if (condition) {
-            const mochaContext = cy.state('runnable').ctx
-            mochaContext?.skip()
             if (message) {
                 cy.log(message)
             }
+            const mochaContext = cy.state('runnable').ctx
+            mochaContext?.skip()
         }
     }
 )

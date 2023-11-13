@@ -74,11 +74,13 @@ describe('Test mouse position and interactions', () => {
     const centerUTM = UTMFormat.format(center, DEFAULT_PROJECTION)
 
     context('Tablet/desktop tests', () => {
-        beforeEach(() => {
+        before(() => {
             cy.skipTestsIf(
                 Cypress.config('viewportWidth') < BREAKPOINT_TABLET,
                 'This test will only be run on tablet and bigger viewports'
             )
+        })
+        beforeEach(() => {
             cy.goToMapView({
                 center: center.join(','),
                 z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
@@ -103,11 +105,13 @@ describe('Test mouse position and interactions', () => {
         })
     })
     context('Mobile only tests', () => {
-        beforeEach(() => {
+        before(() => {
             cy.skipTestsIf(
                 Cypress.config('viewportWidth') >= BREAKPOINT_TABLET,
                 'This test will only be run on mobile'
             )
+        })
+        beforeEach(() => {
             cy.goToMapView({
                 center: center.join(','),
                 z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
