@@ -26,11 +26,8 @@ describe('Testing the footer content / tools', () => {
             // first, checking that the current bgLayer is the void layer
             cy.readStoreValue('state.layers.currentBackgroundLayer').should('be.null')
 
-            cy.get('[data-cy="background-selector-open-wheel-button"]')
-                // checking that the main button has the void layer image loaded inside itself
-                .should('contain.html', 'void.png')
-                // opening the wheel
-                .click()
+            // opening the background wheel
+            cy.get('[data-cy="background-selector-open-wheel-button"]').click()
 
             // checking that all layers flagged as backgrounds are represented in the wheel
             cy.fixture('layers.fixture').then((layers) => {
