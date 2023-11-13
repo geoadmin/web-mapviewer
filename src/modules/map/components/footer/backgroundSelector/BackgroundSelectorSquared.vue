@@ -54,9 +54,9 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             @click="toggleShowSelector"
         >
             <FontAwesomeIcon
-                v-if="show"
                 icon="circle-chevron-right"
-                class="position-absolute top-50 left-50 translate-middle z-3"
+                class="bg-selector-squared-wheel-button-close"
+                :class="{ show, animate }"
             />
             <span class="bg-selector-squared-wheel-button-image-cropper">
                 <img
@@ -71,8 +71,9 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 <span
                     class="text-nowrap bg-selector-squared-wheel-button-label-inner"
                     :class="{ show: !show, animate }"
-                    >{{ $t('bg_chooser_label') }}</span
                 >
+                    {{ $t('bg_chooser_label') }}
+                </span>
             </span>
         </button>
     </div>
@@ -82,7 +83,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
 @import './bg-selector';
 
 $main-element: '.bg-selector-squared';
-$square-button-width: 7rem;
+$square-button-width: 98px;
 $square-button-radius: 8px;
 
 // assets have been sized to have a 4:3 ratio, so we can adapt "squared" button to have this exact ratio
@@ -91,7 +92,7 @@ $square-button-radius: 8px;
 
 #{$main-element} {
     &-wheel-button {
-        $opened-width: 3rem;
+        $opened-width: calc($square-button-width / 2.5);
         $cropper-opened-width: calc($opened-width - 2 * $bg-selector-button-border);
         border-radius: $square-button-radius;
         &.opened {
@@ -113,7 +114,19 @@ $square-button-radius: 8px;
             transition: all $bg-selector-transition-duration;
             img {
                 // arbitrary scale/translate so that something "nice" is shown in the cropper
-                transform: scale(0.8) translate(-25%, -25%);
+                transform: scale(0.8) translate(-22%, -50%);
+            }
+        }
+        &-close {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity $bg-selector-transition-duration;
+            &.show {
+                opacity: 1;
             }
         }
         &-label {
@@ -121,7 +134,6 @@ $square-button-radius: 8px;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 1rem;
             text-align: center;
             font-size: 0.75rem;
             opacity: 1;
@@ -141,8 +153,16 @@ $square-button-radius: 8px;
                     opacity: 1;
                 }
             }
+            &.spread.animate {
+                // fixing the height at animation start, so that it can then spread to 100%
+                // (otherwise it jumps straight to 100% without animating)
+                height: 1.1rem;
+            }
             &.spread {
                 height: 100%;
+                // when spread, the top part of the label will touch the top of the container
+                // so we also round the top part of the label
+                border-radius: $label-radius;
             }
         }
     }

@@ -545,7 +545,7 @@
     "verteidigung_service_link_href": "http://www.vtg.admin.ch/en/armee.html",
     "verteidigung_service_link_label": "www.vtg.admin.ch",
     "view_on_mapgeoadminch": "View on {{url}}",
-    "void_layer": "White background",
+    "void_layer": "No background",
     "vu": "Road accidents",
     "vu_service_link_href": "http://www.unfalldaten.ch ",
     "vu_service_link_label": "FEDRO - Road accident data",
