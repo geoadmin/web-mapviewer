@@ -329,6 +329,8 @@ export default {
             globe.depthTestAgainstTerrain = true
             globe.showGroundAtmosphere = false
             globe.showWaterEffect = false
+            // increases the LOD (Cesium will load one tile further down the zoom pyramid) => higher rez WMTS
+            globe.maximumScreenSpaceError = 0.5
 
             const sscController = scene.screenSpaceCameraController
             sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
