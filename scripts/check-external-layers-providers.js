@@ -6,9 +6,7 @@ import writeYamlFile from 'write-yaml-file'
 import axiosRetry from 'axios-retry'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import ogcParser from 'ogc-parser'
 import { exit } from 'process'
-
 import {
     transformUrl,
     isWmsGetCap,
@@ -16,6 +14,14 @@ import {
     isKml,
     isGpx,
 } from '@/modules/infobox/utils/external-provider'
+import { WMSCapabilities } from "ol/format";
+import WMTSCapabilities from "ol/format/WMTSCapabilities";
+import { JSDOM } from 'jsdom'
+
+// faking browser support, so that OpenLayers has what it requires to parse XMLs
+const dom = new JSDOM()
+global.DOMParser = dom.window.DOMParser
+global.Node = dom.window.Node
 
 const options = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
@@ -130,20 +136,23 @@ function checkProviderResponse(provider, url, response, result) {
     }
 }
 
+const wmsCapParser = new WMSCapabilities()
+const wmtsCapParser = new WMTSCapabilities()
+
 function checkProviderResponseContent(provider, url, response, result) {
     const content = response.data
     let isValid = true
 
     if (isWmsGetCap(content)) {
-        const capabilities = ogcParser.wms(content)
-        if (!capabilities || !capabilities.layer) {
+        const capabilities = wmsCapParser.read(content)
+        if (!capabilities?.Capability?.Layer?.Layer) {
             isValid = false
             console.error(`Invalid provider ${provider}, WMS get Cap parsing failed`)
             result.invalid_wms.push({ provider: provider, url: url, content: content.slice(0, 50) })
         }
     } else if (isWmtsGetCap(content)) {
-        const capabilities = ogcParser.wmts(content)
-        if (!capabilities || !capabilities.layer) {
+        const capabilities = wmtsCapParser.read(content)
+        if (!capabilities?.Contents?.Layer) {
             isValid = false
             console.error(`Invalid provider ${provider}, WMTS get Cap parsing failed`)
             result.invalid_wmts.push({
