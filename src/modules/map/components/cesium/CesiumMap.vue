@@ -63,6 +63,7 @@ import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 import {
     BASE_URL_3D_TILES,
     DEFAULT_PROJECTION,
@@ -95,6 +96,7 @@ import {
     Math as CesiumMath,
     RequestScheduler,
     ScreenSpaceEventType,
+    SkyBox,
     Viewer,
 } from 'cesium'
 import { LineString, Point, Polygon } from 'ol/geom'
@@ -110,7 +112,6 @@ import {
 } from './constants'
 import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
 import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 export default {
     components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
@@ -270,6 +271,7 @@ export default {
                     },
                 },
                 showRenderLoopErrors: this.hasDevSiteWarning,
+                // de-activating default Cesium UI elements
                 animation: false,
                 baseLayerPicker: false,
                 fullscreenButton: false,
@@ -282,8 +284,21 @@ export default {
                 timeline: false,
                 navigationHelpButton: false,
                 navigationInstructionsInitiallyVisible: false,
+                // each geometry instance will only be rendered in 3D to save GPU memory.
                 scene3DOnly: true,
-                skyBox: false,
+                // skybox/stars visible if sufficiently zoomed out and looking at the horizon
+                skyBox: new SkyBox({
+                    sources: {
+                        positiveX: new URL('./assets/starbox_px.jpg', import.meta.url).href,
+                        negativeX: new URL('./assets/starbox_mx.jpg', import.meta.url).href,
+                        positiveY: new URL('./assets/starbox_py.jpg', import.meta.url).href,
+                        negativeY: new URL('./assets/starbox_my.jpg', import.meta.url).href,
+                        positiveZ: new URL('./assets/starbox_pz.jpg', import.meta.url).href,
+                        negativeZ: new URL('./assets/starbox_mz.jpg', import.meta.url).href,
+                    },
+                }),
+                // we want to see the stars!
+                skyAtmosphere: false,
                 baseLayer: false,
                 useBrowserRecommendedResolution: true,
                 terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
@@ -314,6 +329,8 @@ export default {
             globe.depthTestAgainstTerrain = true
             globe.showGroundAtmosphere = false
             globe.showWaterEffect = false
+            // increases the LOD (Cesium will load one tile further down the zoom pyramid) => higher rez WMTS
+            globe.maximumScreenSpaceError = 0.5
 
             const sscController = scene.screenSpaceCameraController
             sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
