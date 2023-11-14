@@ -1,5 +1,9 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+
+const attributionsSeparator = ','
+const attributionSeparator = ';'
 
 /** Metadata for an external WMS layer. */
 export default class ExternalWMSLayer extends ExternalLayer {
@@ -48,6 +52,78 @@ export default class ExternalWMSLayer extends ExternalLayer {
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
         // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
-        return `WMS|${this.baseURL}|${this.externalLayerId}|${this.wmsVersion}|${this.name}`
+        return `WMS|${this.baseURL}|${this.externalLayerId}|${this.wmsVersion}|${
+            this.name
+        }${this.attributionsID()}`
+    }
+
+    /**
+     * Parse attributions string from layer ID
+     *
+     * @param {string} layerIdAttributions Attributions part of the layer ID to parse
+     * @returns {[LayerAttribution]} List of layer Attributions
+     */
+    static parseAttributions(layerIdAttributions) {
+        if (layerIdAttributions) {
+            return decodeURIComponent(layerIdAttributions)
+                .split(attributionsSeparator)
+                .map(
+                    (attribution) =>
+                        new LayerAttribution(
+                            ...attribution
+                                .split(attributionSeparator)
+                                .map((a) => decodeURIComponent(a))
+                        )
+                )
+        }
+        return []
+    }
+
+    /**
+     * Returns the attributions as ID to be used in the URL parameter
+     *
+     * @returns {string} Attributions ID
+     * @see also parseAttributions() method
+     */
+    attributionsID() {
+        if (this.attributions) {
+            return `|${encodeURIComponent(
+                this.attributions
+                    .map(
+                        (attribution) =>
+                            `${encodeURIComponent(
+                                attribution.name
+                            )}${attributionSeparator}${encodeURIComponent(attribution.url)}`
+                    )
+                    .join(attributionsSeparator)
+            )}`
+        }
+        return ''
+    }
+
+    /**
+     * Parse a layer ID (from the URL) into an ExternalLayer object
+     *
+     * @param {ActiveLayerConfig} parsedLayer Active layer config parsed from URL
+     * @returns {ExternalLayer} External layer object
+     */
+    static parseLayerID(parsedLayer) {
+        const [
+            externalLayerType,
+            wmsServerBaseURL,
+            wmsLayerIds,
+            wmsVersion,
+            layerName,
+            attributions,
+        ] = parsedLayer.id.split('|')
+        return new ExternalWMSLayer(
+            layerName,
+            parsedLayer.opacity,
+            parsedLayer.visible,
+            wmsServerBaseURL,
+            wmsLayerIds,
+            ExternalWMSLayer.parseAttributions(attributions),
+            wmsVersion
+        )
     }
 }

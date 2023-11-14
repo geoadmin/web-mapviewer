@@ -71,17 +71,7 @@ export function createLayerObject(parsedLayer) {
     }
     // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
     else if (parsedLayer.id.startsWith('WMS|')) {
-        const [externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
-            parsedLayer.id.split('|')
-        layer = new ExternalWMSLayer(
-            layerName,
-            parsedLayer.opacity,
-            parsedLayer.visible,
-            wmsServerBaseURL,
-            wmsLayerIds,
-            [new LayerAttribution(new URL(wmsServerBaseURL).hostname)],
-            wmsVersion
-        )
+        layer = ExternalWMSLayer.parseLayerID(parsedLayer)
     }
     return layer
 }
