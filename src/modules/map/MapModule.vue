@@ -40,8 +40,8 @@ export default {
         OpenLayersScale,
         LocationPopup,
         WarningRibbon,
-        OpenLayersMap: defineAsyncComponent(() =>
-            import('./components/openlayers/OpenLayersMap.vue')
+        OpenLayersMap: defineAsyncComponent(
+            () => import('./components/openlayers/OpenLayersMap.vue')
         ),
         CesiumMap: defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue')),
     },

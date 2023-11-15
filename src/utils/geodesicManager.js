@@ -503,10 +503,10 @@ class MeasureStyles {
         return ratio <= 1
             ? this.styles
             : ratio <= 10
-            ? this.top100Styles
-            : ratio <= 100
-            ? this.top10Styles
-            : []
+              ? this.top100Styles
+              : ratio <= 100
+                ? this.top10Styles
+                : []
     }
 }
 
