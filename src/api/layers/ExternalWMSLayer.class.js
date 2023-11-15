@@ -1,6 +1,7 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import axios from 'axios'
 
 const attributionsSeparator = ','
 const attributionSeparator = ';'
@@ -28,7 +29,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
         visible,
         serverBaseURL,
         layerId,
-        attributions,
+        attributions = [],
         wmsVersion = '1.3.0',
         format = 'png',
         abstract = '',
@@ -58,72 +59,95 @@ export default class ExternalWMSLayer extends ExternalLayer {
     }
 
     /**
-     * Parse attributions string from layer ID
-     *
-     * @param {string} layerIdAttributions Attributions part of the layer ID to parse
-     * @returns {[LayerAttribution]} List of layer Attributions
+     * @param {string} baseUrl
+     * @returns {Promise([ExternalWMSLayer|ExternalGroupOfLayers])}
      */
-    static parseAttributions(layerIdAttributions) {
-        if (layerIdAttributions) {
-            return decodeURIComponent(layerIdAttributions)
-                .split(attributionsSeparator)
-                .map(
-                    (attribution) =>
-                        new LayerAttribution(
-                            ...attribution
-                                .split(attributionSeparator)
-                                .map((a) => decodeURIComponent(a))
-                        )
-                )
-        }
-        return []
-    }
+    static async parseGetCapabilities(baseUrl) {
+        const getCap = await ExternalLayer.getCapabilities(baseUrl)
 
-    /**
-     * Returns the attributions as ID to be used in the URL parameter
-     *
-     * @returns {string} Attributions ID
-     * @see also parseAttributions() method
-     */
-    attributionsID() {
-        if (this.attributions) {
-            return `|${encodeURIComponent(
-                this.attributions
-                    .map(
-                        (attribution) =>
-                            `${encodeURIComponent(
-                                attribution.name
-                            )}${attributionSeparator}${encodeURIComponent(attribution.url)}`
-                    )
-                    .join(attributionsSeparator)
-            )}`
-        }
-        return ''
-    }
-
-    /**
-     * Parse a layer ID (from the URL) into an ExternalLayer object
-     *
-     * @param {ActiveLayerConfig} parsedLayer Active layer config parsed from URL
-     * @returns {ExternalLayer} External layer object
-     */
-    static parseLayerID(parsedLayer) {
-        const [
-            externalLayerType,
-            wmsServerBaseURL,
-            wmsLayerIds,
-            wmsVersion,
-            layerName,
-            attributions,
-        ] = parsedLayer.id.split('|')
-        return new ExternalWMSLayer(
-            layerName,
-            parsedLayer.opacity,
-            parsedLayer.visible,
-            wmsServerBaseURL,
-            wmsLayerIds,
-            ExternalWMSLayer.parseAttributions(attributions),
-            wmsVersion
+        return getCap.Capability.Layer.Layer.map((layer) =>
+            ExternalWMSLayer.parseGetCapLayer(getCap, layer)
         )
     }
+
+    /** Read the GetCapabilities of the external WMS endpoint */
+    static async getCapabilities(baseUrl) {
+        return null
+    }
+
+    static getExtentFromGetCap(getCap, layer, projection) {
+        let layerExtent = undefined
+        if (layer.BoundingBox?.length) {
+            const matchedBbox = layer.BoundingBox.find((bbox) => bbox.crs === projection.epsg)
+            if (matchedBbox) {
+                layerExtent = [
+                    [matchedBbox.extent[0], matchedBbox.extent[1]],
+                    [matchedBbox.extent[2], matchedBbox.extent[3]],
+                ]
+            } else {
+                const bbox = layer.BoundingBox.find((bbox) =>
+                    allCoordinateSystems.find((projection) => projection.epsg === bbox.crs)
+                )
+                if (bbox) {
+                    layerExtent = [
+                        proj4(bbox.crs, projection.epsg, [bbox.extent[0], bbox.extent[1]]),
+                        proj4(bbox.crs, projection.epsg, [bbox.extent[2], bbox.extent[3]]),
+                    ]
+                } else {
+                    log.error(
+                        `No valid bounding box found in GetCapabilities for layer ${name}`,
+                        getCap,
+                        layer
+                    )
+                }
+            }
+        }
+        return layerExtent
+    }
+
+    static parseGetCapLayer(getCap, layer, projection) {
+        // If the WMS layer has no name, it can't be displayed
+        let name = layer.Name
+        if (!name && layer.Title) {
+            // if we don't have a name use the title as name
+            name = layer.Title
+        }
+        if (!name) {
+            log.error(`No layer and/or title available`, layer)
+            return null
+        }
+        const wmsUrl = getCap.Capability.Request.GetMap.DCPType[0].HTTP.Get.OnlineResource
+        const layerExtent = ExternalWMSLayer.getExtentFromGetCap(getCap, layer)
+        const attribution =
+            layer.Attribution || getCap.Capability.Layer.Attribution || getCap.Service
+        const attributions = [new LayerAttribution(attribution.Title, attribution.OnlineResource)]
+        // Go through the child to get valid layers
+        if (layer.Layer?.length) {
+            const layers = layer.Layer.map((l) =>
+                ExternalWMSLayer.parseGetCapLayer(getCap, l, projection)
+            )
+            return new ExternalGroupOfLayers(
+                layer.Title,
+                wmsUrl,
+                layers,
+                attributions,
+                layer.Abstract,
+                layerExtent
+            )
+        }
+        return new ExternalWMSLayer(
+            layer.Title,
+            opacity,
+            visible,
+            wmsUrl,
+            name,
+            attributions,
+            getCap.version,
+            'png',
+            layer.Abstract,
+            layerExtent
+        )
+    }
+
+    /** Parse GetCapabilities */
 }
