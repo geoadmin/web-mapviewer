@@ -18,6 +18,7 @@
                     role="tab"
                     aria-controls="nav-online"
                     aria-selected="true"
+                    data-cy="online-import-btn"
                     @click="() => (selectedTab = 'online')"
                 >
                     <!-- TODO add translation -->
@@ -36,6 +37,7 @@
                     role="tab"
                     aria-controls="nav-local"
                     aria-selected="false"
+                    data-cy="local-import-btn"
                     @click="() => (selectedTab = 'local')"
                 >
                     <!-- TODO add translation -->
@@ -134,6 +136,7 @@
                         :accept="localUploadAccept"
                         :size="localUploadMaxSize"
                         hidden
+                        data-cy="import-local-input"
                         @change="onFileSelected"
                     />
                     <input

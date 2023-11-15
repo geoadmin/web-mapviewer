@@ -71,4 +71,14 @@ describe('The Import Tool', () => {
             'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
         )
     })
+    it('Import type switch', () => {
+        cy.get('[data-cy="menu-tray-tool-section"]').click()
+        cy.get('[data-cy="menu-import-tool"]').click()
+        cy.get('[data-cy="online-import-btn"]').should('have.class', 'active')
+        cy.get('[data-cy="local-import-btn"]').click()
+        cy.get('[data-cy="local-import-btn"]').should('have.class', 'active')
+        cy.get('[data-cy="online-import-btn"]').should('not.have.class', 'active')
+        cy.get('[data-cy="import-local-input"]').should('have.value', '')
+        cy.get('[data-cy="import-load-button"]').should('be.disabled')
+    })
 })
