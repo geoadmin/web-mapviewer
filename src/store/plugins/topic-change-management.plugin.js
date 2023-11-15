@@ -60,9 +60,12 @@ const topicChangeManagementPlugin = (store) => {
                 store.state.layers.config
             ).then((topicTree) => {
                 store.dispatch('setTopicTree', topicTree.layers)
-                store.dispatch('setTopicTreeOpenedThemesIds', topicTree.itemIdToOpen)
+                // checking that no values were set in the URL at app startup, otherwise we might overwrite them here
+                if (!isFirstSetTopic || store.state.topics.openedTreeThemesIds.length === 0) {
+                    store.dispatch('setTopicTreeOpenedThemesIds', topicTree.itemIdToOpen)
+                }
+                isFirstSetTopic = false
             })
-            isFirstSetTopic = false
         }
     })
 }

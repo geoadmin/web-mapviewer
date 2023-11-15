@@ -67,7 +67,10 @@ const actions = {
     },
     setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
         if (typeof themes === 'string') {
-            commit('setTopicTreeOpenedThemesIds', themes.split(','))
+            commit(
+                'setTopicTreeOpenedThemesIds',
+                themes.indexOf(',') !== -1 ? themes.split(',') : [themes]
+            )
         } else if (Array.isArray(themes)) {
             commit('setTopicTreeOpenedThemesIds', themes)
         }
