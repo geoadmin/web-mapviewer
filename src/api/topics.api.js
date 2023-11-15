@@ -1,3 +1,4 @@
+import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import { API_BASE_URL } from '@/config'
 import {
     getBackgroundLayerFromLegacyUrlParams,
@@ -15,7 +16,7 @@ export class Topic {
      * @param {GeoAdminLayer} defaultBackgroundLayer The layer that should be activated as
      *   background layer by default when this topic is selected
      * @param {GeoAdminLayer[]} layersToActivate All layers that should be added to the displayed
-     *   layer (but not necessarily visible, that will depends on their state)
+     *   layer (but not necessarily visible, that will depend on their state)
      */
     constructor(id, backgroundLayers, defaultBackgroundLayer, layersToActivate) {
         this.id = id
@@ -25,76 +26,44 @@ export class Topic {
     }
 }
 
-/** @enum */
-export const topicTypes = {
-    THEME: 'THEME',
-    LAYER: 'LAYER',
-}
-
-/**
- * Element of a topic tree, can be a node (or theme) or a leaf (a layer)
- *
- * @abstract
- */
-class TopicTreeItem {
-    /**
-     * @param {Number | String} id The ID of the node
-     * @param {String} name The name of this node translated in the current lang
-     * @param {topicTypes} type The type of this node, layer or theme
-     */
-    constructor(id, name, type) {
-        this.id = id
-        this.name = name
-        this.type = type
+const gatherItemIdThatShouldBeOpened = (node) => {
+    const ids = []
+    node?.children?.forEach((child) => {
+        ids.push(...gatherItemIdThatShouldBeOpened(child))
+    })
+    if (node?.selectedOpen) {
+        ids.push(`${node.id}`)
     }
+    return ids
 }
-
-/** Node of a topic three containing more themes and/or a list of layers */
-export class TopicTreeTheme extends TopicTreeItem {
-    /**
-     * @param {Number} id The ID of this node
-     * @param {String} name The name of the theme, in the current lang
-     * @param {TopicTreeItem[]} children All the children of this node (can be either layers or
-     *   themes, all mixed together)
-     */
-    constructor(id, name, children) {
-        super(id, name, topicTypes.THEME)
-        this.children = [...children]
-        this.showChildren = false
-    }
-}
-
-/** A layer in the topic tree */
-export class TopicTreeLayer extends TopicTreeItem {
-    /**
-     * @param {String} layerId The BOD layer ID of this layer
-     * @param {String} name The name of this layer in the current lang
-     */
-    constructor(layerId, name) {
-        super(layerId, name, topicTypes.LAYER)
-        this.layerId = layerId
-    }
-}
-
 /**
  * Reads the output of the topic tree endpoint, and creates all themes and layers object accordingly
  *
  * @param {Object} node The node for whom we are looking into
- * @returns {TopicTreeItem}
+ * @param {GeoAdminLayer[]} availableLayers All layers available from the layers' config
+ * @returns {GeoAdminLayer}
  */
-const readTopicTreeRecursive = (node) => {
+const readTopicTreeRecursive = (node, availableLayers) => {
     if (node.category === 'topic') {
         const children = []
         node.children.forEach((topicChild) => {
-            children.push(readTopicTreeRecursive(topicChild))
+            try {
+                children.push(readTopicTreeRecursive(topicChild, availableLayers))
+            } catch (err) {
+                log.error(`Child ${topicChild.id} can't be loaded`, err)
+            }
         })
-        return new TopicTreeTheme(node.id, node.label, children)
+        return new GeoAdminGroupOfLayers(`${node.id}`, node.label, children)
     } else if (node.category === 'layer') {
-        return new TopicTreeLayer(node.layerBodId, node.label)
-    } else {
-        log.error('unknown topic node type', node.category)
-        return null
+        const matchingLayer = availableLayers.find(
+            (layer) => layer.serverLayerId === node.layerBodId || layer.getID() === node.layerBodId
+        )
+        if (matchingLayer) {
+            return matchingLayer
+        }
+        throw new Error(`Layer with BOD ID ${node.layerBodId} not found in the layers config`)
     }
+    throw new Error(`unknown topic node type : ${node.category}`)
 }
 
 /**
@@ -102,9 +71,10 @@ const readTopicTreeRecursive = (node) => {
  *
  * @param {String} lang The lang in which to load the topic tree
  * @param {Topic} topic The topic we want to load the topic tree
- * @returns {Promise<TopicTreeItem[]>} A list of topic tree nodes
+ * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
+ * @returns {Promise<{ layers: GeoAdminLayer[]; itemIdToOpen: String[] }>} A list of topic's layers
  */
-export const loadTopicTreeForTopic = (lang, topic) => {
+export const loadTopicTreeForTopic = (lang, topic, layersConfig) => {
     return new Promise((resolve, reject) => {
         axios
             .get(`${API_BASE_URL}rest/services/${topic.id}/CatalogServer?lang=${lang}`)
@@ -112,9 +82,17 @@ export const loadTopicTreeForTopic = (lang, topic) => {
                 const treeItems = []
                 const topicRoot = response.data.results.root
                 topicRoot.children.forEach((child) => {
-                    treeItems.push(readTopicTreeRecursive(child))
+                    try {
+                        treeItems.push(readTopicTreeRecursive(child, layersConfig))
+                    } catch (err) {
+                        log.error(
+                            `Error while loading Layer ${child.id} for Topic ${topic.id}`,
+                            err
+                        )
+                    }
                 })
-                resolve(treeItems)
+                const itemIdToOpen = gatherItemIdThatShouldBeOpened(topicRoot)
+                resolve({ layers: treeItems, itemIdToOpen })
             })
             .catch((error) => {
                 reject(error)

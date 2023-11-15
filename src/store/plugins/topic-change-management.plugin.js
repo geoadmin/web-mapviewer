@@ -54,8 +54,13 @@ const topicChangeManagementPlugin = (store) => {
                     })
             }
             // loading topic tree
-            loadTopicTreeForTopic(store.state.i18n.lang, currentTopic).then((topicTree) => {
-                store.dispatch('setTopicTree', topicTree)
+            loadTopicTreeForTopic(
+                store.state.i18n.lang,
+                currentTopic,
+                store.state.layers.config
+            ).then((topicTree) => {
+                store.dispatch('setTopicTree', topicTree.layers)
+                store.dispatch('setTopicTreeOpenedThemesIds', topicTree.itemIdToOpen)
             })
             isFirstSetTopic = false
         }

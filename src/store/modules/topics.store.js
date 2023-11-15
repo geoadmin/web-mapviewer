@@ -19,13 +19,13 @@ const state = {
     /**
      * Current topic's layers tree (that will help the user select layers belonging to this topic)
      *
-     * @type {TopicTreeItem[]}
+     * @type {GeoAdminLayer[]}
      */
     tree: [],
     /**
      * The ids of the catalog nodes that should be open.
      *
-     * @type {Number[]}
+     * @type {String[]}
      */
     openedTreeThemesIds: [],
 }
@@ -67,10 +67,9 @@ const actions = {
     },
     setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
         if (typeof themes === 'string') {
-            commit(
-                'setTopicTreeOpenedThemesIds',
-                themes.split(',').map((id) => parseInt(id))
-            )
+            commit('setTopicTreeOpenedThemesIds', themes.split(','))
+        } else if (Array.isArray(themes)) {
+            commit('setTopicTreeOpenedThemesIds', themes)
         }
     },
 }
