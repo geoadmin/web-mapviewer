@@ -8,7 +8,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
                 <button
-                    class="nav-link"
+                    class="nav-link py-1"
                     :class="{
                         active: selectedTab === 'online',
                     }"
@@ -26,7 +26,7 @@
             </li>
             <li class="nav-item">
                 <button
-                    class="nav-link"
+                    class="nav-link py-1"
                     :class="{
                         active: selectedTab === 'local',
                     }"
@@ -163,7 +163,7 @@
                         type="button"
                         class="btn btn-outline-secondary connect-btn mt-1"
                         :disabled="isLoadDisabled"
-                        data-cy="import-connect-button"
+                        data-cy="import-load-button"
                         @click="onConnectOrLoad"
                     >
                         {{ buttonText }}
@@ -411,7 +411,8 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .import-overlay-content {
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     font-size: 0.825rem;
     height: min(260px, 35vh);
 }
@@ -483,10 +484,6 @@ export default {
     cursor: pointer;
 }
 .nav-tabs {
-    .nav-link {
-        background-color: black;
-        color: white;
-    }
     .nav-link.active {
         background-color: $primary;
         color: white;
