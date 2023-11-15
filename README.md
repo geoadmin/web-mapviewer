@@ -116,8 +116,8 @@ See [TESTING.md](cypress/TESTING.md) for more documentation on testing in this p
 
 The followings programs/tools are required in order to develop on `web-mapviewer`
 
-- Nodejs 14
-- npm 8
+- Nodejs 18
+- npm 9
 
 ### Install
 
@@ -133,7 +133,7 @@ Environment variables are defined in the following files
 - .env.integration
 - .env.prodcution
 
-The first one is used by `npm run serve` as well as for all `development` modes. The second is used to build for and deploy to our integration server. Otherwise `.env.production` is used by default.
+The first one is used by `npm run dev` as well as for all `development` modes. The second is used to build for and deploy to our integration server. Otherwise `.env.production` is used by default.
 For more information about loading environment variables see [Vue - Modes and Environment Variables](https://cli.vuejs.org/guide/mode-and-env.html#modes-and-environment-variables)
 
 ### Tooling for translation update
@@ -161,20 +161,23 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 ### List of npm scripts
 
 <!-- prettier-ignore -->
-| command                          | what it does                                 |
-| ---------------------------------| -------------------------------------------- |
-| `npm run start`                  | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `npm run build`                  | Compiles all file without bundling and minification |
-| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`    
-| `npm run lint`                   | Lints and fixes files                        |
-| `npm run test:unit`              | Runs unit tests from cypress (equivalent to `npm run cypress:run`). |
-| `npm run test:e2e`               | Opens up the cypress app that lets you run tests with Chrome (or Firefox, but support is still in beta) |
-| `npm run test:e2e:tablet`        | Opens up the cypress app that lets you run tests with Chrome using tablet view (or Firefox, but support is still in beta) |
-| `npm run test:e2e:ci`            | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests) |
-| `npm run test:ci`                | Runs both `npm run test:unit` and `npm run test:ci`, this is a shortcut for the CI to run all tests at once |
-| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
+| command                          | what it does                                                                                                                                                               |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `npm run dev`                    | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
+| `npm run build`                  | Compiles all file without bundling and minification                                                                                                                        |
+| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                                                                                                                                 |
+| `npm run lint`                   | Lints and fixes files                                                                                                                                                      |
+| `npm run format`                 | Format (with Prettier) source files                                                                                                                                        |
+| `npm run format-lint`            | run both target above in succession                                                                                                                                        |
+| `npm run test:unit`              | Runs unit tests from vitest.                                                                                                                                               |
+| `npm run test:unit:watch`        | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed).                        |
+| `npm run test:e2e`               | Opens up the cypress app with a mobile sized view                                                                                                                          |
+| `npm run test:e2e:tablet`        | Opens up the cypress app with a iPad sized view                                                                                                                            |
+| `npm run test:e2e:desktop`       | Opens up the cypress app with a 1080p sized view                                                                                                                           |
+| `npm run test:e2e:ci`            | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests). Only tests the mobile sized view.                                       |
+| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools.                                             |
 
-All script commands starting a webserver or using one (`serve` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
+All script commands starting a webserver or using one (`dev` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
 ### What about `package-lock.json` file?
 
@@ -198,7 +201,7 @@ automatically.
 | int         | sys-map.int.bgdi.ch  | /                      | master         |
 | prod        | sys-map.prod.bgdi.ch | /                      | master         |
 
-On the `dev` and `int` targets, deployement is done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#ci-for-web-mapviewer).
+On the `dev` and `int` targets, deployment is done **automatically** via the [CI for web-mapviewer](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#ci-for-web-mapviewer).
 
 A [test link](https://github.com/geoadmin/web-mapviewer/blob/bug_update_doc_regarding_deploy/.github/workflows/add-testlink-to-pr.yml) is also added to the description of every PR.
 

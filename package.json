@@ -13,10 +13,6 @@
         "test:e2e:tablet": "start-server-and-test preview 8080 'cypress open --config viewportWidth=768,viewportHeight=1024'",
         "test:e2e:desktop": "start-server-and-test preview 8080 'cypress open --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:ci": "npm run delete:reports:e2e && start-server-and-test preview 8080 'cypress run'",
-        "test:e2e:ci:dev": "npm run delete:reports:e2e && start-server-and-test preview:dev 8080 'cypress run'",
-        "test:e2e:ci:int": "npm run delete:reports:e2e && start-server-and-test preview:int 8080 'cypress run'",
-        "test:e2e:ci:prod": "npm run test:e2e:ci",
-        "test:ci": "npm run test:unit && npm run test:e2e:ci",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
         "format": "prettier --write src --list-different && prettier --write tests --list-different",
         "ci-format-check": "prettier --check --log-level warn src && prettier --check --log-level warn tests",
@@ -27,7 +23,6 @@
         "build:int": "npm run build -- --mode integration",
         "build:prod": "npm run build -- --mode production",
         "update:translations": "node scripts/generate-i18n-files.js",
-        "update:browserlist": "npx browserslist@latest --update-db",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true",
         "delete:reports:e2e": "rimraf tests/results/e2e/ || true"
