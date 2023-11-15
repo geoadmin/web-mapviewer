@@ -13,8 +13,8 @@ function appendParamsToUrl(url, paramString) {
             parts.pop() === ' '
                 ? paramString
                 : parts.length > 0
-                ? '&' + paramString
-                : '?' + paramString
+                  ? '&' + paramString
+                  : '?' + paramString
     }
     return url
 }
