@@ -103,7 +103,6 @@
         "jsdom": "^22.1.0",
         "mime-types": "^2.1.35",
         "mocha-junit-reporter": "^2.2.1",
-        "ogc-parser": "^1.5.0",
         "prettier": "^3.0.3",
         "prettier-plugin-jsdoc": "^1.1.1",
         "rimraf": "^5.0.1",
