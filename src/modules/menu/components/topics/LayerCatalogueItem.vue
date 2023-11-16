@@ -57,13 +57,14 @@ const isCurrentlyHidden = computed(
         activeLayers.value.find((layer) => layer.getID() === item.getID() && !layer.visible)
 )
 
-// reading the current topic at startup and opening any required category
-onMounted(() => {
-    showChildren.value = openThemesIds.value.indexOf(item.getID()) !== -1
-})
 // reacting to topic changes (some categories might need some auto-opening)
 watch(openThemesIds, (newValue) => {
     showChildren.value = showChildren.value || newValue.indexOf(item.getID()) !== -1
+})
+
+// reading the current topic at startup and opening any required category
+onMounted(() => {
+    showChildren.value = openThemesIds.value.indexOf(item.getID()) !== -1
 })
 
 function startLayerPreview() {
