@@ -1,8 +1,8 @@
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
 import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
@@ -63,9 +63,11 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
         if (store.state.topics.current) {
             const tree = await loadTopicTreeForTopic(
                 store.state.i18n.lang,
-                store.state.topics.current
+                store.state.topics.current,
+                store.state.layers.config
             )
-            store.dispatch('setTopicTree', tree)
+            store.dispatch('setTopicTree', tree.layers)
+            store.dispatch('setTopicTreeOpenedThemesIds', tree.itemIdToOpen)
         } else {
             // if no topic was set in the URL, we load the default topic ECH
             store.dispatch(
@@ -87,10 +89,22 @@ const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
             loadLayersAndTopicsConfigAndDispatchToStore(store)
+                .then(() => {
+                    log.debug('Layers config for new lang loaded with success')
+                })
+                .catch((err) => {
+                    log.error('Error while loading the layers config for the new lang', err)
+                })
         }
     })
     // on app init, we load the first layersConfig
     loadLayersAndTopicsConfigAndDispatchToStore(store)
+        .then(() => {
+            log.debug('Initial layers config loaded')
+        })
+        .catch((err) => {
+            log.error('Error while loading initial layers config', err)
+        })
 }
 
 export default loadLayersConfigOnLangChange

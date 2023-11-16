@@ -1,6 +1,7 @@
 <template>
     <MenuSection
         v-if="currentTopic"
+        id="menu-topic-section"
         ref="menuTopicSection"
         :title="$t(currentTopic?.id)"
         :show-content="showTopicTree"
@@ -23,40 +24,21 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <ul class="menu-topic-list" data-cy="menu-topic-tree">
-            <MenuTopicTreeItem
-                v-for="item in currentTopicTree"
-                :key="item.name"
-                :item="item"
-                :compact="compact"
-                @click-on-topic-item="onClickTopicItem"
-                @click-on-layer-info="onClickLayerInfo"
-                @preview-start="setPreviewLayer"
-                @preview-stop="clearPreviewLayer"
-            />
-        </ul>
-        <LayerLegendPopup
-            v-if="showLayerInfoFor"
-            :layer-id="showLayerInfoFor"
-            @close="showLayerInfoFor = null"
-        />
+        <LayerCatalogue :layer-catalogue="currentTopicTree" :compact="compact" />
     </MenuSection>
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import LayerCatalogue from '@/modules/menu/components/topics/LayerCatalogue.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
     components: {
-        LayerLegendPopup,
         MenuTopicSelectionPopup,
-        MenuTopicTreeItem,
+        LayerCatalogue,
         MenuSection,
     },
     props: {
@@ -89,31 +71,13 @@ export default {
         },
     },
     methods: {
-        ...mapActions([
-            'addLayer',
-            'toggleLayerVisibility',
-            'setLayerVisibility',
-            'changeTopic',
-            'setPreviewLayer',
-            'clearPreviewLayer',
-        ]),
+        ...mapActions(['changeTopic']),
         setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
         },
         selectTopic(topic) {
             this.changeTopic(topic)
             this.showTopicSelectionPopup = false
-        },
-        onClickTopicItem(layerId) {
-            const layer = this.getActiveLayerById(layerId)
-            if (layer) {
-                this.toggleLayerVisibility(layer)
-            } else {
-                this.addLayer(new ActiveLayerConfig(layerId, true))
-            }
-        },
-        onClickLayerInfo(layerId) {
-            this.showLayerInfoFor = layerId
         },
         close() {
             this.$refs.menuTopicSection.close()
