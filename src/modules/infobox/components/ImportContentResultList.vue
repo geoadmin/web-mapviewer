@@ -3,7 +3,7 @@
         <div v-if="maxSize">
             {{ $t('wms_max_size_allowed') }} {{ maxSize.width }} * {{ maxSize.height }}
         </div>
-        <div class="results-container gap-4">
+        <div class="results-container column-gap-2">
             <div class="flex-grow-1 results-table-container">
                 <div class="d-flex justify-content-between align-items-center results-header">
                     <div></div>
@@ -131,7 +131,7 @@ export default {
 @import 'src/scss/media-query.mixin';
 
 .results-list-container {
-    height: calc(100% - 80px);
+    height: calc(100% - 130px);
 }
 
 .results-container {

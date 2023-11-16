@@ -42,8 +42,8 @@ describe('The Import Tool', () => {
             .click()
         cy.get('[data-cy="import-connect-button"]').click()
         cy.wait('@wms-get-capabilities')
-        // TODO uncomment this line when BGDIINF_SB-3169 is done
-        // cy.get('[data-cy="import-add-layer-button"]').should('be.visible')
+        // TODO remove 'scrollIntoView' when BGDIINF_SB-3169 is done
+        cy.get('[data-cy="import-add-layer-button"]').scrollIntoView().should('be.visible')
         cy.get('[data-cy="import-result-list"]').children().should('have.length', 3).first().click()
         cy.wait('@wms-get-map')
         cy.get('[data-cy="import-add-layer-button"]').click()
@@ -70,5 +70,15 @@ describe('The Import Tool', () => {
         cy.get('[data-cy="modal-content"]').contains(
             'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
         )
+    })
+    it('Import type switch', () => {
+        cy.get('[data-cy="menu-tray-tool-section"]').click()
+        cy.get('[data-cy="menu-import-tool"]').click()
+        cy.get('[data-cy="online-import-btn"]').should('have.class', 'active')
+        cy.get('[data-cy="local-import-btn"]').click()
+        cy.get('[data-cy="local-import-btn"]').should('have.class', 'active')
+        cy.get('[data-cy="online-import-btn"]').should('not.have.class', 'active')
+        cy.get('[data-cy="import-local-input"]').should('have.value', '')
+        cy.get('[data-cy="import-load-button"]').should('be.disabled')
     })
 })
