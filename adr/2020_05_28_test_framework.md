@@ -29,7 +29,6 @@ Good alternative to Selenium, is compatible with Saucelab (we already have some 
 
 This could also be a good cross browser testing framework, but the cross browser feature will be hard to have deployed on every developers' machine.
 
-
 ### Cypress
 
 Made by devs for devs.
@@ -39,7 +38,6 @@ Made by devs for devs.
 - Solid and clear documentation
 - Newest addition (2017) to the big frameworks (very active community)
 
-
 ## Decision
 
 After playing a bit with these frameworks, Cypress clearly had something for it.
@@ -48,7 +46,6 @@ The documentation is well maintained and complete, tests are described with Moch
 
 Cypress will be a great help during the development phase of the new viewer.
 But we have to keep in mind that it doesn't really do cross browser testing.
-
 
 ## Consequences
 

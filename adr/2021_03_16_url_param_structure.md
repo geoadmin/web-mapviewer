@@ -8,7 +8,7 @@
 
 The mapviewer application is configured with several URL parameters. The current format for the layer configuration looks as follows (example for topic "Snow"):
 
-```
+```text
 ...
 layers=ch.swisstopo.pixelkarte-farbe-winter,ch.swisstopo.hangneigung-ueber_30,ch.swisstopo-karto.hangneigung,ch.bafu.wrz-jagdbanngebiete_select,ch.bafu.wrz-wildruhezonen_portal,ch.bazl.gebirgslandeplaetze,ch.swisstopo.schneeschuhwandern,ch.swisstopo-karto.schneeschuhrouten,ch.swisstopo-karto.skitouren,ch.swisstopo.skitourenkarte-50.metadata,ch.bav.haltestellen-oev&
 layers_opacity=0.85,0.5,0.2,0.6,0.6,1,0.7,0.8,0.8,1,1&
@@ -18,7 +18,7 @@ layers_visibility=true,false,true,true,true,false,true,true,true,false,false
 
 and including layers with different timestamps probably also
 
-```
+```text
 layers_timestamp=18641231,,,
 ```
 
@@ -33,7 +33,7 @@ The current format has some limitations:
 
 The new format looks as follows (in the generic form):
 
-```
+```text
 layers={layerID1},{visibility=t|f},{opacity=%f};{layerID2},{visibility=t|f},{opacity=%f}
 ```
 
@@ -56,7 +56,7 @@ In case a wrong format is given, the errors are printed on the console.
 
 The above example boils down to the following (given that all opacity values are the defaults defined in the topic):
 
-```
+```text
 ...
 layers=ch.swisstopo.pixelkarte-farbe-winter;
 ch.swisstopo.hangneigung-ueber_30,f;
