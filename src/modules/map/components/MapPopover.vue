@@ -96,6 +96,7 @@ export default {
     z-index: $zindex-map + 1;
     .card {
         max-width: $overlay-width;
+        min-width: $overlay-width;
         pointer-events: auto;
     }
     .map-popover-content {

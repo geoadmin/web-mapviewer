@@ -150,7 +150,7 @@ export default {
             currentLang: (state) => state.i18n.lang,
             displayLocationPopup: (state) => state.map.displayLocationPopup,
             projection: (state) => state.position.projection,
-            showIn3d: (state) => state.ui.showIn3d,
+            showIn3d: (state) => state.cesium.active,
         }),
         mappingFrameworkSpecificPopup() {
             if (this.showIn3d) {
