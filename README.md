@@ -2,8 +2,8 @@
 
 | Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version             |
 | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | https://sys-map.dev.bgdi.ch/ |
-| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | https://sys-map.int.bgdi.ch/ |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | <https://sys-map.dev.bgdi.ch/> |
+| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | <https://sys-map.int.bgdi.ch/> |
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
@@ -87,17 +87,67 @@ All project related architectural decision will be described in the folder [`/ad
 New components should be written using the Vue Composition API.
 
 The structure of the file should be :
-  - `<script setup>` tag should be the first tag of the `.vue` file (instead of `<template>`, that's the new best practice with this approach)
-  - declares things in this order in the `<script setup>` tag
-    - imports
-    - props (input)
-    - store link (input)
-    - computed (transformation of inputs)
-    - life-cycle hooks (mounted and such)
-    - interaction with the user (was called `methods` in the OptionAPI)
+
+- `<script setup>` tag should be the first tag of the `.vue` file (instead of `<template>`, that's the new best practice with this approach)
+- declares things in this order in the `<script setup>` tag
+  1. imports
+  1. props (input)
+  1. data
+  1. store mapping (input)
+  1. computed (transformation of inputs)
+  1. watchs
+  1. life-cycle hooks (mounted and such)
+  1. interaction with the user (was called `methods` in the OptionAPI)
+
+```vue
+<script setup>
+// 1. First put the imports
+import { computed, defineProps, onMounted, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+// 2. Put all the props (input)
+const {myProp} = defineProps({
+  myProp: {
+    type: Boolean
+    default: false
+  }
+})
+
+// 3. reactive data
+const myData = ref('My reactive value')
+
+// 4. Put then all store mapping (input)
+const store = useStore()
+
+// 5. Computed properties
+const myComputed = computed(() => store.state.myValue)
+
+// 6. Watchs
+watch(myComputed, (newValue) => {
+  // do something on myComputed changes
+})
+
+// 7. Life-cycle hooks
+onMounted(() => {
+  // write you code here
+})
+
+// 8. Methods
+function myMethod() {
+
+}
+</script>
+
+<template>
+  <!-- Write your template here -->
+</template>
+
+<style lang="scss" scoped>
+// Write your styles here
+</style>
+```
 
 Components that are extensively edited should be rewritten using the Composition API
-
 
 ### Store module
 
@@ -210,16 +260,18 @@ A [test link](https://github.com/geoadmin/web-mapviewer/blob/bug_update_doc_rega
 A bash script [deploy.sh](https://github.com/geoadmin/infra-terraform-bgdi-builder/blob/master/projects/web_mapviewer/scripts/deploy.sh)
 is used for manual deploy, either from a local directory or a bucket from the CI.
 
-    ./scripts/deploy.sh: --staging STAGING {--version VERSION | --local-src DIR} [--preview TEST_LINK]
+```bash
+./scripts/deploy.sh: --staging STAGING {--version VERSION | --local-src DIR} [--preview TEST_LINK]
 
-    Deploy web-mapviewer on the given staging. Either deploy a version from the
-    build-artifacts-swisstopo bucket (with --version option), or a local build version
-    using the --local-src DIR option.
+Deploy web-mapviewer on the given staging. Either deploy a version from the
+build-artifacts-swisstopo bucket (with --version option), or a local build version
+using the --local-src DIR option.
 
-    OPTIONS:
-      -h|--help               Print the help and exit.
-      -s|--staging STAGING    Staging to deploy; dev|int|prod. Default; dev
-      -v|--version VERSION    Version to deploy.
+OPTIONS:
+  -h|--help               Print the help and exit.
+  -s|--staging STAGING    Staging to deploy; dev|int|prod. Default; dev
+  -v|--version VERSION    Version to deploy.
+```
 
 On `prod`, check [deploy on prod](https://github.com/geoadmin/infra-terraform-bgdi-builder/tree/master/projects/web_mapviewer#deploy-on-prod) and use the script from within `infra-terraform-bgdi-builder/projects/web_mapviewer` to deploy **manually**.
 

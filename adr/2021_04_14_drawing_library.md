@@ -30,4 +30,4 @@ This leaves us with the OpenLayers approach, that has already proven itself on t
 
 Development of the drawing module can now start with OpenLayers as its backbone.
 
-In order to make it clear it is a different module as the map module, we will inject the current OpenLayers map instance with [Vue's provide/inject](https://v3.vuejs.org/guide/component-provide-inject.html) 
+In order to make it clear it is a different module as the map module, we will inject the curren/component-provide-inject.html)
