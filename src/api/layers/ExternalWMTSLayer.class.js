@@ -1,3 +1,4 @@
+import { getDefaultAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
@@ -10,38 +11,41 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {String} name Name of this layer to be shown to the user
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
      * @param {boolean} visible If the layer should be shown on the map or be hidden
-     * @param {String} getCapabilitiesUrl URL to the getCapabilities.xml endpoint of the server for
-     *   this layer
+     * @param {String} baseURL URL to the getCapabilities.xml endpoint of the server for this layer
      * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
+     * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
+     *   loading
      */
     constructor(
         name,
         opacity,
         visible,
-        getCapabilitiesUrl,
+        baseURL,
         externalLayerId,
-        attributions,
-        abstract,
-        extent
+        attributions = getDefaultAttribution(baseURL),
+        abstract = '',
+        extent = null,
+        isLoading = true
     ) {
         super(
             name,
             LayerTypes.WMTS,
             externalLayerId,
-            getCapabilitiesUrl,
+            baseURL,
             opacity,
             visible,
             attributions,
             abstract,
-            extent
+            extent,
+            isLoading
         )
     }
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `WMTS|${this.baseURL}|${this.externalLayerId}|${this.name}`
+        return `WMTS|${this.baseURL}|${this.externalLayerId}`
     }
 }

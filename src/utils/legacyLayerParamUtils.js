@@ -1,4 +1,5 @@
 import { getKmlMetadataByAdminId } from '@/api/files.api'
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -85,34 +86,28 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         layer = layer.clone()
                     }
                     if (layerId.startsWith('KML||')) {
-                        const kmlLayerParts = layerId.split('||')
-                        layer = new KMLLayer(kmlLayerParts[1] /* kml url */, true /* visible */)
+                        const [layerType, url] = layerId.split('||')
+                        layer = new KMLLayer(url, true /* visible */)
                     }
                     if (layerId.startsWith('WMTS||')) {
-                        const wmtsLayerParts = layerId.split('||')
-                        if (wmtsLayerParts.length >= 3) {
-                            layer = new ExternalWMTSLayer(
-                                wmtsLayerParts[1],
-                                1.0,
-                                true,
-                                wmtsLayerParts[2],
-                                wmtsLayerParts[1],
-                                wmtsLayerParts[2]
-                            )
+                        const [layerType, id, url] = layerId.split('||')
+                        if (layerId && url) {
+                            const attributions = [new LayerAttribution(new URL(url).hostname)]
+                            layer = new ExternalWMTSLayer(id, 1.0, true, url, id, attributions)
                         }
                     }
                     if (layerId.startsWith('WMS||')) {
-                        const wmsLayerParts = layerId.split('||')
+                        const [layerType, name, url, id, version] = layerId.split('||')
                         // we only decode if we have enough material
-                        if (wmsLayerParts.length >= 5) {
+                        if (url && id) {
                             layer = new ExternalWMSLayer(
-                                wmsLayerParts[1],
+                                name ? name : id,
                                 1.0,
                                 true,
-                                wmsLayerParts[2],
-                                wmsLayerParts[3],
-                                wmsLayerParts[2],
-                                wmsLayerParts[4]
+                                url,
+                                id,
+                                [new LayerAttribution(new URL(url).hostname)],
+                                version
                             )
                         }
                     }

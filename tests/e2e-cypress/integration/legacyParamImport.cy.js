@@ -216,9 +216,8 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.visible).to.be.true
                 expect(externalLayer.baseURL).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
-                expect(externalLayer.name).to.eq(layerName)
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}%7C1.3.0%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -251,7 +250,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.externalLayerId).to.eq(layerName)
                 expect(externalLayer.name).to.eq(layerName)
             })
-            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerName}%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')

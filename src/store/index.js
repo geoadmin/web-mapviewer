@@ -24,6 +24,7 @@ import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
 import screenSizeManagementPlugin from './plugins/screen-size-management.plugin'
 import syncCameraLonLatZoom from './plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from './plugins/topic-change-management.plugin'
+import loadExternalLayerAttributes from './plugins/external-layers.plugin'
 
 export default createStore({
     strict: true,
@@ -41,6 +42,7 @@ export default createStore({
         syncCameraLonLatZoom,
         reprojectSelectedFeaturesOnProjectionChangePlugin,
         from2Dto3Dplugin,
+        loadExternalLayerAttributes,
     ],
     modules: {
         app,

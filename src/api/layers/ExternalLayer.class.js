@@ -1,4 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { getDefaultAttribution } from '@/api/layers/AbstractLayer.class'
 
 /**
  * Base for all external layers, defining a flag to diferentiate them from GeoAdminLayers
@@ -16,7 +17,9 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {boolean} visible If the layer should be visible on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {[[number, number], [number, number]] | undefined} extent Layer extent
+     * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
+     *   loading
      */
     constructor(
         name,
@@ -25,15 +28,17 @@ export default class ExternalLayer extends AbstractLayer {
         baseURL,
         opacity,
         visible,
-        attributions = [],
+        attributions = getDefaultAttribution(baseUrl),
         abstract = '',
-        extent = undefined
+        extent = null,
+        isLoading = true
     ) {
         super(name, layerType, opacity, visible, attributions, false, true)
         this.externalLayerId = externalLayerId
         this.baseURL = baseURL
         this.abstract = abstract
         this.extent = extent
+        this.isLoading = isLoading
     }
 
     getURL() {

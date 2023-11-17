@@ -62,11 +62,15 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
         const layers = layer.Layer.map((l) => getCapWMSLayers(getCap, l, projection))
         return new ExternalGroupOfLayers(
             layer.Title,
+            opacity,
+            visible,
             wmsUrl,
+            layer.Name,
             layers,
             attributions,
             layer.Abstract,
-            layerExtent
+            layerExtent,
+            false
         )
     }
     return new ExternalWMSLayer(
@@ -79,7 +83,8 @@ export function getCapWMSLayers(getCap, layer, projection, visible = true, opaci
         getCap.version,
         'png',
         layer.Abstract,
-        layerExtent
+        layerExtent,
+        false
     )
 }
 
@@ -128,6 +133,7 @@ export function getCapWMTSLayers(
             ),
         ],
         layer.Abstract,
-        layerExtent
+        layerExtent,
+        false
     )
 }

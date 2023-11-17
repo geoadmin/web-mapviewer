@@ -281,6 +281,12 @@ const actions = {
             log.error('Can not remove layer that is not yet added', layerIdOrObject)
         }
     },
+    updateLayer({ commit }, layer) {
+        if ((!layer) instanceof AbstractLayer) {
+            throw Error(`Failed to update layer, invalid type ${typeof layer}`)
+        }
+        commit('updateLayer', layer)
+    },
     clearLayers({ commit }) {
         commit('clearLayers')
     },
@@ -427,6 +433,9 @@ const mutations = {
             layer.metadata = metadata
         }
         state.activeLayers.push(layer)
+    },
+    updateLayer(state, { layer: layer }) {
+        Object.assign(getActiveLayerById(state, layer.getID()), layer)
     },
     removeLayerWithId(state, layerId) {
         state.activeLayers = removeActiveLayerById(state, layerId)
