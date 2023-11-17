@@ -4,6 +4,8 @@
 
 > Date: 16.03.2021
 
+> Updated: 17.11.2023
+
 ## Context
 
 The mapviewer application is configured with several URL parameters. The current format for the layer configuration looks as follows (example for topic "Snow"):
@@ -87,15 +89,23 @@ The timestamp format must be ISO8601 compliant, i.e.
 - `YYYY-MM-DDThh:mm:ss.sss`
 - `YYYY-MM-DDThh:mm:ss+hh:mm`
 
-External Layers are in the following format (note that only one `|` is used and the WMS order is changed to have consistently `TYPE|URL|OTHER OPTIONS`)
+### External Layers
 
-- an external WMS: `WMS|wms.geo.gr.ch%2Fadmineinteilung%3F|Gemeinden,layerb,layerc|1.3.0|Gemeinden`
-- an external WMTS: `WMTS|wmts.geo.ti.ch%2Fwmts%2F1.0.0%2FWMTSCapabilities.xml|ch.ti.051_1.piano_registro_fondiario_catasto_rdpp@time=18641231|Optionales Label`
-- an external KML: `KML|www.slf.ch/avalanche/accidents/accidents_season_de.kml|Mein Titel`
-- a geoadmin KML: `KML|public.geo.admin.ch/api/files/KML_ID|Mein Titel`
-- a geoadmin KML with adminId: `KML|public.geo.admin.ch/api/files/KML_ID|Mein Titel@adminId=ADMIN_ID`
-- an external GPX: `GPX|www.slf.ch/avalanche/accidents/accidents_season_de.gpx`
-- an external KMZ: `KMZ|www.slf.ch/avalanche/accidents/accidents_season_de.kmz` (needs to pass by proxy to be unzipped)
+The layer ID of the external Layers are in the following format (note that only one `|` is used and the WMS order is changed to have consistently `TYPE|URL|OTHER OPTIONS`)
+
+- an external WMS: `WMS|GET_CAP_BASE_URL|LAYER_ID`
+  - The WMS version is taken from the Get Capabilities
+- an external WMTS: `WMTS|GET_CAP_BASE_URL|LAYER_ID`
+  - The WMTS version is taken from the Get Capabilities
+- an external KML: `KML|URL|TITLE`
+  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `KML`
+- a geoadmin KML: `KML|URL|TITLE`
+  - TITLE is set to `Drawing` upon drawing creation and in the current language at that time
+- a geoadmin KML with adminId: `KML|URL|TITLE@adminId=ADMIN_ID`
+- an external GPX: `GPX|GPX|TITLE`
+  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `GPX`
+- an external KMZ: `KMZ|KMZ|TITLE` (needs to pass by proxy to be unzipped)
+  - TITLE is optional and used as display in the active layers, if omitted then it will be displayed as `KMZ`
 
 ## Consequences
 
