@@ -10,8 +10,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
      * @param {String} id The unique ID of this layer
-     * @param {String} serverLayerName The ID of this layer in the GeoAdmin backends (can be the
-     *   same, or different from the id)
+     * @param {String} serverLayerId The ID of this layer in the GeoAdmin backends (can be the same,
+     *   or different from the id)
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
      * @param {boolean} visible If the layer should be shown on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
@@ -35,7 +35,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
     constructor(
         name,
         id,
-        serverLayerName,
+        serverLayerId,
         opacity,
         visible,
         attributions,
@@ -53,7 +53,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             name,
             LayerTypes.WMS,
             id,
-            serverLayerName,
+            serverLayerId,
             opacity,
             visible,
             attributions,

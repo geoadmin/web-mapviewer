@@ -68,7 +68,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             name,
             LayerTypes.AGGREGATE,
             id,
-            // no serverLayerName for aggregate, as they are made of 2 layers
+            // no serverLayerId for aggregate, as they are made of 2 layers
             null,
             opacity,
             visible,
