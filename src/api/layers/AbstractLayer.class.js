@@ -62,7 +62,7 @@ export default class AbstractLayer {
      *   the layer's config (very useful for the time slider for instance)
      * @returns {String} The URL to use to request tile/image/data for this layer
      */
-    getURL(epsgNumber = null, timestamp = null) {
+    getURL(_epsgNumber = null, _timestamp = null) {
         throw new Error('You have to implement the method getURL!')
     }
 

@@ -28,7 +28,7 @@ describe('CameraParamConfig class test', () => {
             getters: {
                 centerEpsg4326: [0, 0],
             },
-            dispatch: vi.fn().mockImplementation((actionName) => {}),
+            dispatch: vi.fn().mockImplementation((_actionName) => {}),
         }
     })
 

@@ -118,11 +118,13 @@ const handleLegacyParam = (
             if ((typeof legacyValue === 'string' && legacyValue === 'true') || legacyValue) {
                 newQuery['sr'] = WEBMERCATOR.epsgNumber
             }
-        // no break so we go into default too
+            newValue = legacyValue
+            break
 
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
             newValue = legacyValue
+            break
     }
 
     if (newValue) {

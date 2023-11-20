@@ -13,7 +13,7 @@ const REGEX_MERCATOR_WITH_DEGREES_MINUTES =
     /^\s*([\d]{1,3})[° ]+([\d]{1,2})[' ]+([\d.]+)['′"″]{0,2}\s*[,/]?\s*([\d]{1,3})[° ]+([\d.]+)['′ ]+([\d.]+)['′"″]{0,2}\s*$/i
 // 47°38'48''N 7°38'48''E or 47°38'48"N 7°38'48"E
 const REGEX_MERCATOR_WITH_DEGREES_MINUTES_AND_CARDINAL_POINT =
-    /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[′' ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*[,\/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)['′ ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*$/i
+    /^\s*([\d]{1,3})[° ]+\s*([\d]{1,2})[′' ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*[,/]?\s*([\d]{1,3})[° ]+\s*([\d.]+)['′ ]+\s*([\d.]+)['′"″ ]*([NSEW]?)\s*$/i
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
 const REGEX_METRIC_COORDINATES =

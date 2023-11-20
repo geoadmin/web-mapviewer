@@ -38,5 +38,5 @@ export default class QueryToStoreOnlyParamConfig extends AbstractParamConfig {
             defaultValue
         )
     }
-    populateQueryWithStoreValue(query, store) {}
+    populateQueryWithStoreValue(_query, _store) {}
 }

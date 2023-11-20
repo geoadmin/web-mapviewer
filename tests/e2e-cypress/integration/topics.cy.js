@@ -1,23 +1,10 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config'
-
-function getSpecificUrlParameter(parameterName) {
-    const url = cy.url
-    const allParameters = url.split('/?')[1].split('&')
-    allParameters.forEach((param) => {
-        const [key, value] = param.split('=')
-        if (key === parameterName) {
-            return value
-        }
-    })
-    return null
-}
+import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 
 describe('Topics', () => {
     const width = Cypress.config('viewportWidth')
     const isMobileViewport = width < BREAKPOINT_PHONE_WIDTH
-    const isTabletViewport = !isMobileViewport && width < BREAKPOINT_TABLET
     // mimic the output of `/rest/services` endpoint
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {

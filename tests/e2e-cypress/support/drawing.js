@@ -36,7 +36,9 @@ const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyM
         async (req) => {
             try {
                 kmlBody = await getKmlFromRequest(req)
-            } catch (error) {}
+            } catch (error) {
+                console.error(`failed to get KML from request`, error)
+            }
             req.reply(201, kmlMetadataTemplate({ id: '1234_fileId', adminId: '1234_adminId' }))
         }
     ).as('post-kml')
@@ -93,7 +95,10 @@ Cypress.Commands.add('drawGeoms', () => {
     cy.get('[data-cy="infobox-close"]').click()
 
     cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-    cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
+    cy.get(olSelector).click(100, 200)
+    cy.get(olSelector).click(150, 200)
+    cy.get(olSelector).click(150, 230)
+    cy.get(olSelector).click(100, 200)
     cy.get('[data-cy="infobox-close"]').click()
 
     cy.drawMeasure()
@@ -101,7 +106,9 @@ Cypress.Commands.add('drawGeoms', () => {
 
 Cypress.Commands.add('drawMeasure', () => {
     cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
-    cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
+    cy.get(olSelector).click(210, 200)
+    cy.get(olSelector).click(220, 200)
+    cy.get(olSelector).dblclick(230, 230)
 })
 
 // https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions

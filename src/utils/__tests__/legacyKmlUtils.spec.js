@@ -1,4 +1,4 @@
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {
