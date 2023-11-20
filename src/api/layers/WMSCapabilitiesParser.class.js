@@ -1,13 +1,13 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import { WMSCapabilities as OlWmsCapabilities } from 'ol/format'
+import { WMSCapabilities } from 'ol/format'
 import log from '@/utils/logging'
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
-export default class WmsCapabilities {
+export default class WMSCapabilitiesParser {
     constructor(content, originUrl) {
-        const parser = new OlWmsCapabilities()
+        const parser = new WMSCapabilities()
         Object.assign(this, parser.read(content))
         this.originUrl = new URL(originUrl)
     }
@@ -16,8 +16,8 @@ export default class WmsCapabilities {
      * Find recursively in the capabilities the matching layer ID node
      *
      * @param {string} layerId Layer ID to search for
-     * @param {OlWmsCapabilities.Capability.Layer} startFrom Layer node to start from
-     * @returns {OlWmsCapabilities.Capability.Layer} Capability layer node
+     * @param {WMSCapabilities.Capability.Layer} startFrom Layer node to start from
+     * @returns {WMSCapabilities.Capability.Layer} Capability layer node
      */
     findLayer(layerId, startFrom = null) {
         let layer = null
@@ -41,7 +41,7 @@ export default class WmsCapabilities {
     /**
      * Get Layer attributes from the WMS Capabilities to be used in ExternalWMSLayer
      *
-     * @param {OlWmsCapabilities.Layer} layer WMS Capabilities layer object
+     * @param {WMSCapabilities.Layer} layer WMS Capabilities layer object
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
@@ -79,7 +79,7 @@ export default class WmsCapabilities {
     /**
      * Get ExternalWMSLayer object from capabilities
      *
-     * @param {OlWmsCapabilities.Layer} layer WMS Capabilities layer object
+     * @param {WMSCapabilities.Layer} layer WMS Capabilities layer object
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible

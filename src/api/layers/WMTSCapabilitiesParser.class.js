@@ -1,12 +1,12 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import OlWmtsCapabilities from 'ol/format/WMTSCapabilities'
+import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import log from '@/utils/logging'
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
-export default class WmtsCapabilities {
+export default class WMTSCapabilitiesParser {
     constructor(content, originUrl) {
-        const parser = new OlWmtsCapabilities()
+        const parser = new WMTSCapabilities()
         Object.assign(this, parser.read(content))
         this.originUrl = new URL(originUrl)
     }
@@ -15,8 +15,8 @@ export default class WmtsCapabilities {
      * Find recursively in the capabilities the matching layer ID node
      *
      * @param {string} layerId Layer ID to search for
-     * @param {OlWmtsCapabilities.Contents.Layer} startFrom Layer node to start from
-     * @returns {OlWmtsCapabilities.Contents.Layer} Capability layer node
+     * @param {WMTSCapabilities.Contents.Layer} startFrom Layer node to start from
+     * @returns {WMTSCapabilities.Contents.Layer} Capability layer node
      */
     findLayer(layerId, startFrom = null) {
         let layer = null
@@ -38,7 +38,7 @@ export default class WmtsCapabilities {
     /**
      * Get Layer attributes from the WMTS Capabilities to be used in ExternalWMTSLayer
      *
-     * @param {OlWmtsCapabilities.Contents.Layer} layer WMTS Capabilities layer object
+     * @param {WMTSCapabilities.Contents.Layer} layer WMTS Capabilities layer object
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
      *   value or null
@@ -77,7 +77,7 @@ export default class WmtsCapabilities {
     /**
      * Get ExternalWMTSLayer object from the capabilities
      *
-     * @param {OlWmtsCapabilities.Contents.Layer} layer WMTS Capabilities layer object
+     * @param {WMTSCapabilities.Contents.Layer} layer WMTS Capabilities layer object
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible

@@ -1,6 +1,6 @@
 import axios from 'axios'
-import WmsCapabilities from '@/api/layers/wms-capabilities.class'
-import WmtsCapabilities from '@/api/layers/wmts-capabilities.class'
+import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
+import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
 import log from '@/utils/logging'
 
 /** Timeout for accessing external server in [ms] */
@@ -10,7 +10,7 @@ const externalServerTimeout = 30000
  * Read and parse WMS GetCapabilities
  *
  * @param {string} baseUrl Base URL for the WMS server
- * @returns {Promise<WmsCapabilities | null>} WMS Capabilities
+ * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
  */
 export async function readWmsCapabilities(baseUrl) {
     const url = new URL(baseUrl)
@@ -32,11 +32,11 @@ export async function readWmsCapabilities(baseUrl) {
  * @param {string} content Input content to parse
  * @param {string} originUrl Origin URL of the content, this is used as default GetCapabilities URL
  *   if not found in the Capabilities
- * @returns {WmsCapabilities} Get Capabilities object
+ * @returns {WMSCapabilitiesParser} Get Capabilities object
  */
 export function parseWmsCapabilities(content, originUrl) {
     try {
-        return new WmsCapabilities(content, originUrl)
+        return new WMSCapabilitiesParser(content, originUrl)
     } catch (error) {
         log.error(`Failed to parse WMS Get Capabilities`, error)
         return null
@@ -47,7 +47,7 @@ export function parseWmsCapabilities(content, originUrl) {
  * Read and parse WMTS GetCapabilities
  *
  * @param {string} baseUrl Base URL for the WMTS server
- * @returns {Promise<WmtsCapabilities | null>} WMTS Capabilities
+ * @returns {Promise<WMTSCapabilitiesParser | null>} WMTS Capabilities
  */
 export async function readWmtsCapabilities(baseUrl) {
     const url = new URL(baseUrl)
@@ -74,11 +74,11 @@ export async function readWmtsCapabilities(baseUrl) {
  * @param {string} content Input content to parse
  * @param {string} originUrl Origin URL of the content, this is used as default GetCapabilities URL
  *   if not found in the Capabilities
- * @returns {WmtsCapabilities} Get Capabilities object
+ * @returns {WMTSCapabilitiesParser} Get Capabilities object
  */
 export function parseWmtsCapabilities(content, originUrl) {
     try {
-        return new WmtsCapabilities(content, originUrl)
+        return new WMTSCapabilitiesParser(content, originUrl)
     } catch (error) {
         log.error(`Failed to parse WMTS Get Capabilities`, error)
         return null
