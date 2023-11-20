@@ -214,7 +214,9 @@ export default {
         })
     },
     beforeUnmount() {
-        this.tippyInstances?.forEach((tooltip) => tooltip.destroy())
+        this.tippyInstances?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         onToggleLayerDetails() {

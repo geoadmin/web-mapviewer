@@ -1,5 +1,4 @@
 import { getKmlMetadataByAdminId } from '@/api/files.api'
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -92,8 +91,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                     if (layerId.startsWith('WMTS||')) {
                         const [layerType, id, url] = layerId.split('||')
                         if (layerId && url) {
-                            const attributions = [new LayerAttribution(new URL(url).hostname)]
-                            layer = new ExternalWMTSLayer(id, 1.0, true, url, id, attributions)
+                            layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
                         }
                     }
                     if (layerId.startsWith('WMS||')) {
@@ -106,7 +104,7 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                                 true,
                                 url,
                                 id,
-                                [new LayerAttribution(new URL(url).hostname)],
+                                null,
                                 version
                             )
                         }

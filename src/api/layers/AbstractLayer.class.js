@@ -17,16 +17,6 @@ export class LayerAttribution {
 }
 
 /**
- * Get the default layer attributions based on URL
- *
- * @param {string} baseUrl Get Capabilities base URL
- * @returns {LayerAttribution[]} Default list of layer attributions
- */
-export function getDefaultAttribution(baseUrl) {
-    return [new LayerAttribution(new URL(baseUrl).hostname)]
-}
-
-/**
  * Base class for layers' config description, must be extended to a more specific flavor of Layer
  * (e.g. {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer}, {@link GeoAdminGeoJsonLayer},
  * {@link GeoAdminAggregateLayer} or {@link KMLLayer})

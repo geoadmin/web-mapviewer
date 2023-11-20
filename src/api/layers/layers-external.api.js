@@ -3,6 +3,9 @@ import WmsCapabilities from '@/api/layers/wms-capabilities.class'
 import WmtsCapabilities from '@/api/layers/wmts-capabilities.class'
 import log from '@/utils/logging'
 
+/** Timeout for accessing external server in [ms] */
+const externalServerTimeout = 30000
+
 /**
  * Read and parse WMS GetCapabilities
  *
@@ -13,10 +16,10 @@ export async function readWmsCapabilities(baseUrl) {
     const url = new URL(baseUrl)
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
-    const response = await axios.get(url.toString(), { timeout: 20000 })
+    const response = await axios.get(url.toString(), { timeout: externalServerTimeout })
 
     if (response.status !== 200) {
-        log.error(`Failed to read GetCapabilities from ${url.toJSON()}`, response)
+        log.error(`Failed to read GetCapabilities from ${url.topString()}`, response)
         return null
     }
 
@@ -51,10 +54,10 @@ export async function readWmtsCapabilities(baseUrl) {
     url.searchParams.set('SERVICE', 'WMTS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
     try {
-        const response = await axios.get(url.toString(), { timeout: 20000 })
+        const response = await axios.get(url.toString(), { timeout: externalServerTimeout })
 
         if (response.status !== 200) {
-            log.error(`Failed to read GetCapabilities from ${url.toJSON()}`, response)
+            log.error(`Failed to read GetCapabilities from ${url.toString()}`, response)
             return null
         }
 

@@ -1,4 +1,3 @@
-import { getDefaultAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
@@ -13,7 +12,9 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {boolean} visible If the layer should be shown on the map or be hidden
      * @param {String} baseURL URL to the getCapabilities.xml endpoint of the server for this layer
      * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
+     * @param {LayerAttribution[] | null} attributions Description of the data owner(s) for this
+     *   layer. When `null` is given it uses the default attribution which is based on the hostname
+     *   of the GetCapabilities server.
      * @param {String} abstract Abstract of this layer to be shown to the user
      * @param {[[number, number], [number, number]] | null} extent Layer extent
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
@@ -25,7 +26,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
         visible,
         baseURL,
         externalLayerId,
-        attributions = getDefaultAttribution(baseURL),
+        attributions = null,
         abstract = '',
         extent = null,
         isLoading = true

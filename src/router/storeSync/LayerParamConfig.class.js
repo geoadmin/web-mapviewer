@@ -1,4 +1,3 @@
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
@@ -65,8 +64,7 @@ export function createLayerObject(parsedLayer) {
             parsedLayer.opacity,
             parsedLayer.visible,
             wmtsServerGetCapabilitiesUrl,
-            wmtsLayerId,
-            [new LayerAttribution(new URL(wmtsServerGetCapabilitiesUrl).hostname)]
+            wmtsLayerId
         )
     }
     // format is : WMS|BASE_URL|LAYER_ID
@@ -77,8 +75,7 @@ export function createLayerObject(parsedLayer) {
             parsedLayer.opacity,
             parsedLayer.visible,
             wmsServerBaseURL,
-            wmsLayerId,
-            [new LayerAttribution(new URL(wmsServerBaseURL).hostname)]
+            wmsLayerId
         )
     }
     // format is : GRP|BASE_URL|LAYER_ID
@@ -89,9 +86,7 @@ export function createLayerObject(parsedLayer) {
             parsedLayer.opacity,
             parsedLayer.visible,
             serverBaseURL,
-            layerId,
-            [],
-            [new LayerAttribution(new URL(serverBaseURL).hostname)]
+            layerId
         )
     }
     return layer

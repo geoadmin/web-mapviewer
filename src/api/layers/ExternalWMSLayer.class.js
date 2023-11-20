@@ -1,4 +1,3 @@
-import { getDefaultAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
@@ -26,7 +25,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
         visible,
         baseURL,
         layerId,
-        attributions = getDefaultAttribution(baseURL),
+        attributions = null,
         wmsVersion = '1.3.0',
         format = 'png',
         abstract = '',

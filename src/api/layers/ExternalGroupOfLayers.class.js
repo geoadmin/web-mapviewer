@@ -1,6 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getDefaultAttribution } from '@/api/layers/AbstractLayer.class'
 
 /**
  * Description of a group of layers, that could be added altogether or separately, that stems from a
@@ -20,7 +19,9 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      * @param {ExternalLayer[]} layers Description of the layers being part of this group (they will
      *   all be displayed at the same time, in contrast to an aggregate layer)
      * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
+     * @param {LayerAttribution[] | null} attributions Description of the data owner(s) for this
+     *   layer. When `null` is given it uses the default attribution which is based on the hostname
+     *   of the GetCapabilities server.
      * @param {[[number, number], [number, number]] | null} extent Layer extent
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
@@ -32,7 +33,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
         baseUrl,
         layerId,
         layers = [],
-        attributions = getDefaultAttribution(baseUrl),
+        attributions = null,
         abstract = '',
         extent = null,
         isLoading = true
