@@ -1,3 +1,56 @@
+<script setup>
+import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
+import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
+import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
+const props = defineProps({
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+
+const { compact } = toRefs(props)
+
+const store = useStore()
+
+const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
+const showImportFile = computed(() => store.state.ui.importFile)
+const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+function onToggleImportCatalogue() {
+    store.dispatch('toggleImportCatalogue')
+}
+function onToggleCompareSlider() {
+    if (storeCompareRatio.value <= 0.0 || storeCompareRatio.value >= 1.0) {
+        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
+        this.setCompareRatio(-COMPARE_SLIDER_DEFAULT_VALUE)
+    } else {
+        store.dispatch('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+    }
+}
+
+function isCompareSliderToggleAvailable() {
+    return visibleLayerOnTop.value === null ? false : true
+}
+
+function onToggleImportFile() {
+    if (!showImportFile.value && isPhoneMode.value) {
+        // To avoid the menu overlapping the import overlay after open we automatically
+        // close the menu
+        store.dispatch('toggleMenu')
+    }
+    store.dispatch('toggleImportFile')
+}
+</script>
+
 <template>
     <div class="advanced-tools-list px-2 py-1">
         <MenuAdvancedToolsListItem
@@ -25,48 +78,16 @@
                 <ImportFile />
             </ModalWithBackdrop>
         </MenuAdvancedToolsListItem>
+        <MenuAdvancedToolsListItem
+            class="advanced-tools-title"
+            :title="$t('compare_slider')"
+            :v-if="isCompareSliderToggleAvailable"
+            @click.stop="onToggleCompareSlider"
+        >
+            ({ $t('compare')})
+        </MenuAdvancedToolsListItem>
     </div>
 </template>
-
-<script>
-import { mapActions, mapGetters, mapState } from 'vuex'
-
-import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
-import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
-import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-
-export default {
-    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem, ImportCatalogue },
-    props: {
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    computed: {
-        ...mapState({
-            showImportCatalogue: (state) => state.ui.importCatalogue,
-            showImportFile: (state) => state.ui.importFile,
-        }),
-        ...mapGetters(['isPhoneMode']),
-    },
-    methods: {
-        ...mapActions(['toggleImportCatalogue', 'toggleImportFile', 'toggleMenu']),
-        onToggleImportCatalogue() {
-            this.toggleImportCatalogue()
-        },
-        onToggleImportFile() {
-            if (!this.importFile && this.isPhoneMode) {
-                // To avoid the menu overlapping the import overlay after open we automatically
-                // close the menu
-                this.toggleMenu()
-            }
-            this.toggleImportFile()
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/modules/menu/scss/menu-items';

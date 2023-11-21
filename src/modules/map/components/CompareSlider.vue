@@ -5,6 +5,7 @@ import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store'
 const getMap = inject('getMap')
 
 const preRenderKey = ref(null)
@@ -28,6 +29,9 @@ watch(storeCompareRatio, (newValue) => {
 })
 
 watch(visibleLayerOnTop, () => {
+    if (!visibleLayerOnTop.value) {
+        store.dispatch('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+    }
     nextTick(slice)
 })
 
