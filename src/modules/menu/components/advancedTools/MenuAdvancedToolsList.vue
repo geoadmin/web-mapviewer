@@ -43,7 +43,7 @@ export default {
             }
         },
         isCompareSliderToggleAvailable() {
-            return this.visibleLayerOnTop !== null
+            return this.visibleLayerOnTop === null ? false : true
         },
     },
 }

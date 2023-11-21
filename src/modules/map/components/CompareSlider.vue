@@ -42,11 +42,9 @@ export default {
     },
     watch: {
         storeCompareRatio() {
-            if (this.compareRatio <= 0) {
-                this.compareRatio = 1.0
-            }
-            this.slice
             this.compareRatio = this.storeCompareRatio
+            this.slice()
+            this.getMap().render()
         },
         visibleLayerOnTop() {
             //this ensure the layers are all loaded before we try to do anything on them
@@ -59,6 +57,7 @@ export default {
     mounted() {
         this.compareRatio = this.storeCompareRatio
         this.slice()
+        this.getMap().render()
     },
     methods: {
         ...mapActions(['setCompareRatio']),
@@ -74,9 +73,8 @@ export default {
                         this.visibleLayerOnTop && layer.get('id') === this.visibleLayerOnTop.getID()
                     )
                 })
-            if (olLayer) {
+            if (olLayer && this.compareRatio > 0.0 && this.compareRatio <= 1.0) {
                 olLayer.on('prerender', this.onPreCompose)
-
                 olLayer.on('postrender', this.onPostCompose)
             }
         },
