@@ -22,7 +22,7 @@
 <script>
 import { mapActions } from 'vuex'
 import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
-import {sign} from Math
+import { sign } from 'Math'
 
 export default {
     computed: {

@@ -19,15 +19,15 @@ import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
 
 let olLayer
 export default {
+    components: {
+        FontAwesomeIcon,
+    },
+    inject: ['getMap'],
     data() {
         return {
             clientWidth: window.innerWidth,
             compareRatio: COMPARE_SLIDER_DEFAULT_VALUE,
         }
-    },
-    inject: ['getMap'],
-    components: {
-        FontAwesomeIcon,
     },
     computed: {
         ...mapState({
@@ -38,6 +38,18 @@ export default {
             return {
                 left: this.compareRatio * 100 + '%',
             }
+        },
+    },
+    watch: {
+        storeCompareRatio() {
+            this.compareRatio = this.storeCompareRatio
+        },
+        visibleLayerOnTop() {
+            //this ensure the layers are all loaded before we try to do anything on them
+            if (!this.visibleLayerOnTop) {
+                this.storeCompareRatio = COMPARE_SLIDER_DEFAULT_VALUE
+            }
+            this.$nextTick(this.slice)
         },
     },
     mounted() {
@@ -95,18 +107,6 @@ export default {
             window.removeEventListener('mouseup', this.releaseSlider)
             window.removeEventListener('touchend', this.releaseSlider)
             this.setCompareRatio(this.compareRatio)
-        },
-    },
-    watch: {
-        storeCompareRatio() {
-            this.compareRatio = this.storeCompareRatio
-        },
-        visibleLayerOnTop() {
-            //this ensure the layers are all loaded before we try to do anything on them
-            if (!this.visibleLayerOnTop) {
-                this.storeCompareRatio = COMPARE_SLIDER_DEFAULT_VALUE
-            }
-            this.$nextTick(this.slice)
         },
     },
 }
