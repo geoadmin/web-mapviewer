@@ -12,7 +12,7 @@ export const UIModes = {
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
 // TODO : faire un commentaire
-export const COMPARE_SLIDER_DEFAULT_VALUE = -1
+export const COMPARE_SLIDER_DEFAULT_VALUE = -0.5
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be

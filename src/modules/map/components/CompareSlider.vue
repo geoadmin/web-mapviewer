@@ -15,13 +15,14 @@
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { getRenderPixel } from 'ol/render.js'
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
+
 let olLayer
 export default {
     data() {
         return {
             clientWidth: window.innerWidth,
-            compareRatio: -0.5,
+            compareRatio: COMPARE_SLIDER_DEFAULT_VALUE,
         }
     },
     inject: ['getMap'],
@@ -102,6 +103,9 @@ export default {
         },
         visibleLayerOnTop() {
             //this ensure the layers are all loaded before we try to do anything on them
+            if (!this.visibleLayerOnTop) {
+                this.storeCompareRatio = COMPARE_SLIDER_DEFAULT_VALUE
+            }
             this.$nextTick(this.slice)
         },
     },
