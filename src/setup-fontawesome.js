@@ -20,7 +20,6 @@ import {
     faCaretLeft,
     faCaretRight,
     faCaretUp,
-    faCaretLeft,
     faCheck,
     faChevronDown,
     faChevronUp,

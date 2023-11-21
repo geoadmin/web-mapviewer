@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, defineProps, inject, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
@@ -10,11 +10,12 @@ const props = defineProps({
         default: window.innerWidth,
     },
 })
+inject['getMap']
 
 const { clientWidth } = toRefs(props)
+const olMap = ref(null)
 
 const compareRatio = ref(-0.5)
-
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
 const compareSliderPosition = computed(() => {
@@ -22,14 +23,50 @@ const compareSliderPosition = computed(() => {
         left: compareRatio.value * 100 + '%',
     }
 })
+const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
 })
 
+watch(visibleLayerOnTop, () => {
+    $nextTick(slice())
+})
+
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
+    slice()
 })
+
+function slice() {
+    if (olMap.value) {
+        olMap.value.un('prerender', onPreCompose)
+        olMap.value.un('postrender', onPostCompose)
+    }
+    olMap.value = getMap()
+        .getAllLayers()
+        .find((layer) => {
+            return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
+        })
+    if (olMap.value) {
+        olMap.value.on('prerender', onPreCompose)
+
+        olMap.value.on('postrender', onPostCompose)
+    }
+}
+
+function onPreCompose(event) {
+    const ctx = event.context
+    const width = ctx.canvas.width * this.compareRatio + 20
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(0, 0, width, ctx.canvas.height)
+    ctx.clip()
+}
+
+function onPostCompose(event) {
+    event.context.restore()
+}
 
 function grabSlider() {
     window.addEventListener('mousemove', listenToMouseMove, { passive: true })
@@ -41,6 +78,7 @@ function grabSlider() {
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
     compareRatio.value = round(currentPosition / clientWidth.value, 2)
+    this.getMap().render()
 }
 
 function releaseSlider() {
