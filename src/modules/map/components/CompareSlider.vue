@@ -58,12 +58,12 @@ export default {
                     )
                 })
             if (olLayer) {
-                olLayer.on('prerender', this.onPreRender)
+                olLayer.on('prerender', this.onPreCompose)
 
-                olLayer.on('postrender', this.onPostRender)
+                olLayer.on('postrender', this.onPostCompose)
             }
         },
-        onPreRender(event) {
+        onPreCompose(event) {
             const ctx = event.context
             const width = ctx.canvas.width * this.compareRatio + 20
             ctx.save()
@@ -72,7 +72,7 @@ export default {
             ctx.clip()
         },
 
-        onPostRender(event) {
+        onPostCompose(event) {
             event.context.restore()
         },
         grabSlider(event) {
