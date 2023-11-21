@@ -8,9 +8,9 @@
                 >{{ $t('import') }}</a
             >
             <a
+                v-if="isCompareSliderToggleAvailable()"
                 class="advanced-tools-title"
                 :title="$t('compare_slider')"
-                :v-if="isCompareSliderToggleAvailable"
                 @click.stop="onToggleCompareSlider"
             >
                 {{ $t('compare') }}
