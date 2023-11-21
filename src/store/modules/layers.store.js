@@ -67,6 +67,12 @@ const getters = {
         }
         return visibleLayers
     },
+    visibleLayerOnTop: (state, getters) => {
+        if (getters.visibleLayers.length > 0) {
+            return getters.visibleLayers.slice(-1)[0]
+        }
+        return null
+    },
     /**
      * Get current KML layer selected for drawing.
      *

@@ -15,6 +15,8 @@
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { getRenderPixel } from 'ol/render.js'
+let olLayer
 export default {
     data() {
         return {
@@ -30,7 +32,7 @@ export default {
         ...mapState({
             storeCompareRatio: (state) => state.ui.compareRatio,
         }),
-        ...mapGetters(['visibleLayers']),
+        ...mapGetters(['visibleLayerOnTop']),
         compareSliderPosition() {
             return {
                 left: this.compareRatio * 100 + '%',
@@ -39,9 +41,40 @@ export default {
     },
     mounted() {
         this.compareRatio = this.storeCompareRatio
+        this.slice()
     },
     methods: {
         ...mapActions(['setCompareRatio']),
+        slice() {
+            if (olLayer) {
+                olLayer.un('prerender', this.onPreCompose)
+                olLayer.un('postrender', this.onPostCompose)
+            }
+            olLayer = this.getMap()
+                .getAllLayers()
+                .find((layer) => {
+                    return (
+                        this.visibleLayerOnTop && layer.get('id') === this.visibleLayerOnTop.getID()
+                    )
+                })
+            if (olLayer) {
+                olLayer.on('prerender', this.onPreRender)
+
+                olLayer.on('postrender', this.onPostRender)
+            }
+        },
+        onPreRender(event) {
+            const ctx = event.context
+            const width = ctx.canvas.width * this.compareRatio + 20
+            ctx.save()
+            ctx.beginPath()
+            ctx.rect(0, 0, width, ctx.canvas.height)
+            ctx.clip()
+        },
+
+        onPostRender(event) {
+            event.context.restore()
+        },
         grabSlider(event) {
             window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
             window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
@@ -53,6 +86,7 @@ export default {
                 event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
             // THIS DIES ON CLIENT SMALLER THAN SCREEN
             this.compareRatio = currentPosition / this.clientWidth
+            this.getMap().render()
         },
         releaseSlider() {
             window.removeEventListener('mousemove', this.listenToMouseMove)
@@ -65,6 +99,10 @@ export default {
     watch: {
         storeCompareRatio() {
             this.compareRatio = this.storeCompareRatio
+        },
+        visibleLayerOnTop() {
+            //this ensure the layers are all loaded before we try to do anything on them
+            this.$nextTick(this.slice)
         },
     },
 }
