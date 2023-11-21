@@ -42,12 +42,16 @@ export default {
     },
     watch: {
         storeCompareRatio() {
+            if (this.compareRatio <= 0) {
+                this.compareRatio = 1.0
+            }
+            this.slice
             this.compareRatio = this.storeCompareRatio
         },
         visibleLayerOnTop() {
             //this ensure the layers are all loaded before we try to do anything on them
             if (!this.visibleLayerOnTop) {
-                this.storeCompareRatio = COMPARE_SLIDER_DEFAULT_VALUE
+                this.setCompareRatio(COMPARE_SLIDER_DEFAULT_VALUE)
             }
             this.$nextTick(this.slice)
         },
