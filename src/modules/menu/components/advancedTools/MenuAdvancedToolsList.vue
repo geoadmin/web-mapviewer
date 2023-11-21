@@ -7,18 +7,44 @@
                 @click.stop="onToggleImportOverlay"
                 >{{ $t('import') }}</a
             >
+            <a
+                class="advanced-tools-title"
+                :title="$t('compare_slider')"
+                :v-if="isCompareSliderToggleAvailable"
+                @click.stop="onToggleCompareSlider"
+            >
+                ({ $t('compare')})
+            </a>
         </li>
     </ul>
 </template>
 
 <script>
 import { mapActions } from 'vuex'
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
+import {sign} from Math
 
 export default {
+    computed: {
+        ...mapGetters(['visibleLayerOnTop']),
+        ...mapState({
+            storeCompareRatio: (state) => state.ui.compareRatio,
+        }),
+    },
     methods: {
-        ...mapActions(['toggleImportOverlay']),
+        ...mapActions(['toggleImportOverlay', 'setCompareRatio']),
         onToggleImportOverlay() {
             this.toggleImportOverlay()
+        },
+        onToggleCompareSlider() {
+            /* If someone put exactly 'compare_ratio=-0.01' in the URL,
+            then click, we have a compare ratio of 0 and it sets it to 0,
+            asking for three clicks total to activate it.
+            (-0.01 --> 0.0 --> -0.5 --> 0.5) */
+            this.setCompareRatio(COMPARE_SLIDER_DEFAULT_VALUE * sign(this.storeCompareRatio + 0.01))
+        },
+        isCompareSliderToggleAvailable() {
+            return this.visibleLayerOnTop !== null
         },
     },
 }
