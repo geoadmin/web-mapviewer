@@ -275,3 +275,10 @@ export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
     'sys-map.dev.bgdi.ch',
     'localhost',
 ]
+
+/**
+ * WMS supported versions list
+ *
+ * @type {String[]}
+ */
+export const WMS_SUPPORTED_VERSIONS = ['1.3.0', '1.1.1', '1.1.0', '1.0.0']

@@ -1,3 +1,4 @@
+import { WMS_SUPPORTED_VERSIONS } from '@/config'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
@@ -65,6 +66,14 @@ export default class WMSCapabilitiesParser {
             throw new Error(msg)
         }
 
+        if (!this.version) {
+            throw new Error(`No WMS version found in Capabilities of ${this.originUrl.toString()}`)
+        }
+        if (!WMS_SUPPORTED_VERSIONS.includes(this.version)) {
+            throw new Error(
+                `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
+            )
+        }
         return {
             layerId: layerId,
             title: layer.Title,
