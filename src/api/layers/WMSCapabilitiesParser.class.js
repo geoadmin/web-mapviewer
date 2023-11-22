@@ -109,7 +109,9 @@ export default class WMSCapabilitiesParser {
 
         // Go through the child to get valid layers
         if (layer.Layer?.length) {
-            const layers = layer.Layer.map((l) => this.getExternalLayerObject(l, projection))
+            const layers = layer.Layer.map((l) =>
+                this.getExternalLayerObject(l, projection, opacity, visible, ignoreError)
+            )
             return new ExternalGroupOfLayers(
                 title,
                 opacity,
