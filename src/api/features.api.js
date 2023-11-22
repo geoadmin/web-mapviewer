@@ -1,4 +1,4 @@
-import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import {
     extractOlFeatureCoordinates,

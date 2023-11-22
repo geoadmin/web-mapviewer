@@ -206,7 +206,6 @@ export class GeodesicGeometries {
             const from = coordNormalize(this.coords[i])
             const to = coordNormalize(this.coords[i + 1])
             segments[i] = []
-            const segment = segments[i]
             geodesicCoords.autoPush(from, true)
             const geodesicLine = geod.InverseLine(from[1], from[0], to[1], to[0])
             let length = geodesicLine.s13
@@ -366,21 +365,6 @@ function coordNormalize(coord) {
     }
     return [geographicMath.AngNormalize(coord.lon), coord.lat]
 }
-
-const generateExtentStyle = (extent) =>
-    new Style({
-        geometry: new LineString([
-            [extent[0], extent[1]],
-            [extent[0], extent[3]],
-            [extent[2], extent[3]],
-            [extent[2], extent[1]],
-            [extent[0], extent[1]],
-        ]),
-        stroke: new Stroke({
-            color: '#000000',
-            width: 3,
-        }),
-    })
 
 export function segmentExtent(feature, segmentIndex) {
     if (feature.geodesic) {

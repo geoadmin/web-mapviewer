@@ -13,7 +13,6 @@ const stringifyWithoutLangOrNull = (key, value) =>
     key === 'lang' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
-    const width = Cypress.config('viewportWidth')
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
@@ -297,7 +296,8 @@ describe('Test of layer handling', () => {
                             .forEach((menuItem) => cy.wrap(menuItem).click())
                     })
                 // Add the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
                     expect(visibleLayers[0].getID(), testLayerId)
@@ -367,13 +367,15 @@ describe('Test of layer handling', () => {
                             .forEach((menuItem) => cy.wrap(menuItem).click())
                     })
                 // Toggle (hide) the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     const visibleIds = visibleLayers.map((layer) => layer.getID())
                     expect(visibleIds).to.not.contain(testLayerId)
                 })
                 // Toggle (show) the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     const visibleIds = visibleLayers.map((layer) => layer.getID())
                     expect(visibleIds).to.contain(testLayerId)

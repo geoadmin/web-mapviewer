@@ -110,7 +110,7 @@ export default class CoordinateSystem {
      * @returns {Number} The resolution at the given zoom level, in the context of this coordinate
      *   system
      */
-    getResolutionForZoomAndCenter(zoom, center) {
+    getResolutionForZoomAndCenter(_zoom, _center) {
         throw Error('Not yet implemented')
     }
 
@@ -124,7 +124,7 @@ export default class CoordinateSystem {
      *   system
      * @returns {Number} The corresponding zoom level, in the context of this coordinate system
      */
-    getZoomForResolutionAndCenter(resolution, center) {
+    getZoomForResolutionAndCenter(_resolution, _center) {
         throw Error('Not yet implemented')
     }
 
@@ -139,7 +139,7 @@ export default class CoordinateSystem {
      * @returns {Number} The rounded value, with desired remaining decimal point for this coordinate
      *   system
      */
-    roundCoordinateValue(value) {
+    roundCoordinateValue(_value) {
         throw Error('Not yet implemented')
     }
 }

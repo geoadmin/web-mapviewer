@@ -131,11 +131,11 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
         return STANDARD_ZOOM_LEVEL_1_25000_MAP
     }
 
-    getResolutionForZoomAndCenter(zoom, _) {
+    getResolutionForZoomAndCenter(zoom) {
         return LV95_RESOLUTIONS[Math.round(zoom)]
     }
 
-    getZoomForResolutionAndCenter(resolution, _) {
+    getZoomForResolutionAndCenter(resolution) {
         const matchingResolution = LV95_RESOLUTIONS.find(
             (lv95Resolution) => lv95Resolution <= resolution
         )

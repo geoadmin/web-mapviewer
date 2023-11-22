@@ -127,7 +127,7 @@ describe('Drawing marker/points', () => {
                     cy.simulateEvent(map, 'pointerup')
                 })
                 cy.wait('@update-kml')
-                cy.readStoreValue('getters.resolution').then((resolution) => {
+                cy.readStoreValue('getters.resolution').then(() => {
                     cy.readDrawingFeatures('Point', (features) => {
                         expect(features).to.be.an('Array').lengthOf(1)
                         const coos = features[0].getGeometry().getCoordinates()

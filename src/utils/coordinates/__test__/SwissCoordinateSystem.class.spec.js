@@ -96,13 +96,13 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
             expect(LV03.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[0] + 1)).to.eq(0)
         })
         it('returns zoom correctly while resolution is exactly on a threshold', () => {
-            for (let i = 0; i > LV95_RESOLUTIONS.length - 1; i++) {
+            for (let i = 0; i < LV95_RESOLUTIONS.length - 1; i++) {
                 expect(LV95.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[i])).to.eq(i)
                 expect(LV03.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[i])).to.eq(i)
             }
         })
         it('returns zoom correctly while resolution is in between the two thresholds', () => {
-            for (let i = 0; i > LV95_RESOLUTIONS.length - 2; i++) {
+            for (let i = 0; i < LV95_RESOLUTIONS.length - 2; i++) {
                 for (
                     let resolution = LV95_RESOLUTIONS[i] - 1;
                     resolution > LV95_RESOLUTIONS[i + 1];

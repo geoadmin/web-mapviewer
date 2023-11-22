@@ -14,11 +14,15 @@ describe('Testing the footer content / tools', () => {
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
 
         // triple zoom, the scale line should appear (zoom level 10)
-        cy.get('[data-cy="zoom-in"]').click().click().click()
+        cy.get('[data-cy="zoom-in"]').click()
+        cy.get('[data-cy="zoom-in"]').click()
+        cy.get('[data-cy="zoom-in"]').click()
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
         // it should disappear again if we zoom out again
-        cy.get('[data-cy="zoom-out"]').click().click().click()
+        cy.get('[data-cy="zoom-out"]').click()
+        cy.get('[data-cy="zoom-out"]').click()
+        cy.get('[data-cy="zoom-out"]').click()
         cy.get('[data-cy="scaleline"]').should('not.be.visible')
     })
     it('has a functional background wheel', () => {

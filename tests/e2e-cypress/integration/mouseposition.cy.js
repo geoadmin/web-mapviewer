@@ -71,7 +71,6 @@ describe('Test mouse position and interactions', () => {
     const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center)
     const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center)
     const centerMGRS = MGRSFormat.format(center, DEFAULT_PROJECTION)
-    const centerUTM = UTMFormat.format(center, DEFAULT_PROJECTION)
 
     context('Tablet/desktop tests', () => {
         before(() => {

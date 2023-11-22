@@ -57,7 +57,7 @@ export function createLayerObject(parsedLayer) {
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
     else if (parsedLayer.id.startsWith('WMTS|')) {
-        const [externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId, layerName] =
+        const [_externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId, layerName] =
             parsedLayer.id.split('|')
         layer = new ExternalWMTSLayer(
             layerName,
@@ -71,7 +71,7 @@ export function createLayerObject(parsedLayer) {
     }
     // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
     else if (parsedLayer.id.startsWith('WMS|')) {
-        const [externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
+        const [_externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
             parsedLayer.id.split('|')
         layer = new ExternalWMSLayer(
             layerName,

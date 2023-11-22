@@ -112,11 +112,10 @@ describe('Drawing new KML', () => {
         cy.get('[data-cy="infobox-close"]').click()
         // adding a line and checking that the KML is updated again
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-        cy.get(olSelector)
-            .should('be.visible')
-            .click(210, 200)
-            .click(220, 200)
-            .dblclick(230, 230, { force: true })
+        cy.get(olSelector).should('be.visible')
+        cy.get(olSelector).click(210, 200)
+        cy.get(olSelector).click(220, 200)
+        cy.get(olSelector).dblclick(230, 230, { force: true })
         cy.wait('@update-kml').then(
             (interception) =>
                 cy.checkKMLRequest(interception, [

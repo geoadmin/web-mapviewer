@@ -150,10 +150,10 @@ Cypress.Commands.add(
             }
         }
 
-        if (!queryParams.hasOwnProperty('lang')) {
+        if (!('lang' in queryParams)) {
             queryParams.lang = 'en'
         }
-        if (!queryParams.hasOwnProperty('center') && !queryParams.hasOwnProperty('3d')) {
+        if (!('center' in queryParams) && !('3d' in queryParams)) {
             // "old" MAP_CENTER constant re-projected in LV95
             queryParams.center = '2660013.5,1185172'
         }
@@ -211,7 +211,7 @@ Cypress.Commands.add(
                 errorMsg: 'Timeout waiting for all layers to be loaded',
             }
         )
-        if (queryParams.hasOwnProperty('3d') && queryParams['3d'] === true) {
+        if ('3d' in queryParams && queryParams['3d'] === true) {
             cy.get('[data-cy="cesium-map"]').should('be.visible')
         } else {
             cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
@@ -359,13 +359,12 @@ Cypress.Commands.add(
         const subString = text.substr(0, text.length - 1)
         const lastChar = text.slice(-1)
 
-        cy.get($element)
-            .click()
-            .then(() => {
-                $element.text(subString)
-                $element.val(subString)
-                cy.get($element).type(lastChar)
-            })
+        cy.get($element).click()
+        cy.get($element).then(() => {
+            $element.text(subString)
+            $element.val(subString)
+            cy.get($element).type(lastChar)
+        })
     }
 )
 
@@ -439,16 +438,6 @@ Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
         }).as('profile')
     }
 })
-
-function cesiumTilesLoaded(viewer) {
-    return new Cypress.Promise((resolve) => {
-        viewer.scene.postRender.addEventListener(() => {
-            if (viewer.scene.globe.tilesLoaded) {
-                resolve()
-            }
-        })
-    })
-}
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
     cy.wait(['@cesiumTileset', '@cesiumTile'])

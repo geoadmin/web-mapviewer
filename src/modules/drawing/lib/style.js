@@ -225,7 +225,7 @@ export function drawLineOrMeasureStyle(sketch, resolution, displayMeasures) {
     switch (type) {
         case 'Point':
             return getSketchPointStyle(sketch.getGeometry().getCoordinates())
-        case 'Polygon':
+        case 'Polygon': {
             const styles = [
                 new Style({
                     stroke: displayMeasures ? dashedRedStroke : redStroke,
@@ -247,5 +247,6 @@ export function drawLineOrMeasureStyle(sketch, resolution, displayMeasures) {
                 )
             }
             return styles
+        }
     }
 }

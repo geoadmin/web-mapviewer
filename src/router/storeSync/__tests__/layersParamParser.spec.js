@@ -1,4 +1,3 @@
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'

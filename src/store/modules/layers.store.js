@@ -394,7 +394,7 @@ const actions = {
     clearPreviewLayer({ commit }) {
         commit('setPreviewLayer', null)
     },
-    setPreviewYear({ commit, state, getters }, year) {
+    setPreviewYear({ commit, getters }, year) {
         const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
             (layer) => layer.timeConfig.years
         )

@@ -21,6 +21,7 @@ import './drawing'
 // require('./commands')
 
 Cypress.on('uncaught:exception', (err, runnable) => {
+    console.error(err, runnable)
     // returning false here prevents Cypress from failing the test
     return false
 })

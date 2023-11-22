@@ -43,7 +43,8 @@ describe('The Import Tool', () => {
         cy.get('[data-cy="import-connect-button"]').click()
         cy.wait('@wms-get-capabilities')
         // TODO remove 'scrollIntoView' when BGDIINF_SB-3169 is done
-        cy.get('[data-cy="import-add-layer-button"]').scrollIntoView().should('be.visible')
+        cy.get('[data-cy="import-add-layer-button"]').scrollIntoView()
+        cy.get('[data-cy="import-add-layer-button"]').should('be.visible')
         cy.get('[data-cy="import-result-list"]').children().should('have.length', 3).first().click()
         cy.wait('@wms-get-map')
         cy.get('[data-cy="import-add-layer-button"]').click()

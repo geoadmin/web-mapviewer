@@ -45,7 +45,7 @@ export default class CustomCoordinateSystem extends CoordinateSystem {
      * @param {Number} customZoomLevel A zoom level in this custom coordinate system
      * @returns {Number} A standard (or OpenStreetMap) zoom level
      */
-    transformCustomZoomLevelToStandard(customZoomLevel) {
+    transformCustomZoomLevelToStandard(_customZoomLevel) {
         throw new Error('Not yet implemented')
     }
 
@@ -56,7 +56,7 @@ export default class CustomCoordinateSystem extends CoordinateSystem {
      * @param {Number} standardZoomLevel A standard zoom level
      * @returns {Number} A zoom level in this custom coordinate system
      */
-    transformStandardZoomLevelToCustom(standardZoomLevel) {
+    transformStandardZoomLevelToCustom(_standardZoomLevel) {
         throw new Error('Not yet implemented')
     }
 }

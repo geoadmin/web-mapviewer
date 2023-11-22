@@ -81,7 +81,6 @@ const CIRCLE_CENTER_INDEX = 0;
 const CIRCLE_CIRCUMFERENCE_INDEX = 1;
 
 const tempExtent = [0, 0, 0, 0];
-const tempSegment = [];
 
 /**
  * @enum {string}
@@ -1801,7 +1800,7 @@ function compareIndexes(a, b) {
  */
 function getDefaultStyleFunction() {
   const style = createEditingStyle();
-  return function (feature, resolution) {
+  return function (_feature, _resolution) {
     return style['Point'];
   };
 }

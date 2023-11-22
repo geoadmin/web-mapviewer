@@ -200,7 +200,7 @@ const actions = {
             commit('setCenter', { x, y })
         }
     },
-    zoomToExtent: ({ commit, getters, state, rootState }, extent) => {
+    zoomToExtent: ({ commit, state, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [

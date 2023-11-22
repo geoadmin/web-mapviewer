@@ -1,14 +1,6 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import {
-    allStylingColors,
-    allStylingSizes,
-    FeatureStyleColor,
-    FeatureStyleSize,
-    MEDIUM,
-    RED,
-    SMALL,
-} from '@/utils/featureStyleUtils'
+import { DrawingIcon } from '@/api/icon.api'
+import { allStylingColors, allStylingSizes, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import Feature from 'ol/Feature'
 import { getDefaultStyle } from 'ol/format/KML'
@@ -37,7 +29,6 @@ export function getEditableFeatureFromLegacyKmlFeature(legacyKmlFeature, availab
         )
         return null
     }
-    const geom = legacyKmlFeature.getGeometry()
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
     // We will now analyse this style to retrieve all information we need to generate the editable feature.
     const style = parseStyle(legacyKmlFeature)
@@ -146,7 +137,7 @@ function findIconFromOlIcon(style, availableIconSets) {
     }
     iconStyle.setDisplacement([0, 0])
     const url = iconStyle.getSrc()
-    const setName = url.match(/images\/(\w+)\/[^\/]+\.png$/)?.[1] ?? 'default'
+    const setName = url.match(/images\/(\w+)\/[^/]+\.png$/)?.[1] ?? 'default'
 
     const iconSet = availableIconSets.find((drawingIconSet) => drawingIconSet.name === setName)
     if (!iconSet) {
@@ -157,7 +148,7 @@ function findIconFromOlIcon(style, availableIconSets) {
         args = {}
     if (setName === 'default') {
         let color = url
-            .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^\/]+\.png$/)
+            .match(/color\/([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\/[^/]+\.png$/)
             ?.slice(1, 4)
             ?.map((nb) => Math.min(Number(nb), 255))
         if (!Array.isArray(color) || color.length !== 3) {
@@ -166,7 +157,7 @@ function findIconFromOlIcon(style, availableIconSets) {
         } else {
             args.fillColor = getFromFillColorArray(color)
         }
-        let iconName = url.match(/color\/[^\/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
+        let iconName = url.match(/color\/[^/]+\/(\w+)-24@2x\.png$/)?.[1] ?? 'unknown'
         icon = iconSet.icons.find((drawingIcon) =>
             drawingIcon.name.match('^[0-9]+-' + iconName + '$')
         )
