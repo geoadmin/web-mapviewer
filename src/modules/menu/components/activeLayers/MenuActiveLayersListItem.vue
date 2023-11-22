@@ -31,7 +31,6 @@
             >
             <button
                 v-if="layer.isLoading"
-                id="loadingButton"
                 class="loading-button btn"
                 :class="{
                     'btn-lg': !compact,
@@ -206,7 +205,7 @@ export default {
         },
     },
     mounted() {
-        this.tippyInstances = tippy('#loadingButton', {
+        this.tippyInstances = tippy('.loading-button', {
             content: this.tooltipContent,
             arrow: true,
             placement: 'top',
