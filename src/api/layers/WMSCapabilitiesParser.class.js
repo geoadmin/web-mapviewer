@@ -149,7 +149,7 @@ export default class WMSCapabilitiesParser {
                 [matchedBbox.extent[2], matchedBbox.extent[3]],
             ]
         } else {
-            const bbox = layer.BoundingBox.find((bbox) =>
+            const bbox = layer.BoundingBox?.find((bbox) =>
                 allCoordinateSystems.find((projection) => projection.epsg === bbox.crs)
             )
             if (bbox) {
