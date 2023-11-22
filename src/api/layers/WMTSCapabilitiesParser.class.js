@@ -1,7 +1,9 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import log from '@/utils/logging'
+import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import proj4 from 'proj4'
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export default class WMTSCapabilitiesParser {
@@ -51,17 +53,18 @@ export default class WMTSCapabilitiesParser {
             layerId = layer.Title
         }
         if (!layerId) {
-            msg = `No layer identifier available`
+            const msg = `No layer identifier available`
             log.error(msg, layer)
             if (ignoreError) {
-                return null
+                return {}
             }
-            throw Error(msg)
+            throw new Error(msg)
         }
         const title = layer.Title || layerId
 
         const getCapUrl =
-            this.OperationsMetadata?.GetCapabilities?.DCP?.HTTP?.Get[0]?.href || this.originUrl
+            this.OperationsMetadata?.GetCapabilities?.DCP?.HTTP?.Get[0]?.href ||
+            this.originUrl.toString()
 
         return {
             layerId: layerId,
@@ -69,7 +72,7 @@ export default class WMTSCapabilitiesParser {
             url: getCapUrl,
             version: this.version,
             abstract: layer.Abstract,
-            attributions: this.getLayerAttribution(layerId, ignoreError),
+            attributions: this.getLayerAttribution(layerId),
             extent: this.getLayerExtent(layerId, layer, projection, ignoreError),
         }
     }
@@ -116,15 +119,15 @@ export default class WMTSCapabilitiesParser {
         }
         if (!layerExtent) {
             const msg = `No layer extent found for ${layerId}`
-            log.error(msg)
+            log.error(msg, layer)
             if (!ignoreError) {
-                throw Error(msg)
+                throw new Error(msg)
             }
         }
         return layerExtent
     }
 
-    getLayerAttribution(layerId, ignoreError = true) {
+    getLayerAttribution(layerId) {
         let title = this.ServiceProvider?.ProviderName
         let url = this.ServiceProvider?.ProviderSite
 

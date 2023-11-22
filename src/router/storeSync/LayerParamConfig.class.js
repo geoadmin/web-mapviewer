@@ -80,7 +80,7 @@ export function createLayerObject(parsedLayer) {
     }
     // format is : GRP|BASE_URL|LAYER_ID
     else if (parsedLayer.id.startsWith('GRP|')) {
-        const [externalLayerType, serverBaseURL, layerId] = parsedLayer.id.split('|')
+        const [_externalLayerType, serverBaseURL, layerId] = parsedLayer.id.split('|')
         layer = new ExternalGroupOfLayers(
             layerId,
             parsedLayer.opacity,

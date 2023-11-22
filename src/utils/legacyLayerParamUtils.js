@@ -85,17 +85,17 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         layer = layer.clone()
                     }
                     if (layerId.startsWith('KML||')) {
-                        const [layerType, url] = layerId.split('||')
+                        const [_layerType, url] = layerId.split('||')
                         layer = new KMLLayer(url, true /* visible */)
                     }
                     if (layerId.startsWith('WMTS||')) {
-                        const [layerType, id, url] = layerId.split('||')
+                        const [_layerType, id, url] = layerId.split('||')
                         if (layerId && url) {
                             layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
                         }
                     }
                     if (layerId.startsWith('WMS||')) {
-                        const [layerType, name, url, id, version] = layerId.split('||')
+                        const [_layerType, name, url, id, version] = layerId.split('||')
                         // we only decode if we have enough material
                         if (url && id) {
                             layer = new ExternalWMSLayer(

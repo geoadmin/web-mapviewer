@@ -1,8 +1,10 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import { WMSCapabilities } from 'ol/format'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
+import { WMSCapabilities } from 'ol/format'
+import proj4 from 'proj4'
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export default class WMSCapabilitiesParser {
@@ -56,11 +58,11 @@ export default class WMSCapabilitiesParser {
         }
         if (!layerId) {
             const msg = `No layerId found in WMS capabilities for layer`
-            console.log(msg, layer)
+            log.error(msg, layer)
             if (ignoreError) {
-                return null
+                return {}
             }
-            throw Error(msg)
+            throw new Error(msg)
         }
 
         return {
@@ -72,7 +74,7 @@ export default class WMSCapabilitiesParser {
             version: this.version,
             abstract: layer.Abstract,
             attributions: this.getLayerAttribution(layer),
-            extent: this.getLayerExtent(layer, projection),
+            extent: this.getLayerExtent(layerId, layer, projection, ignoreError),
         }
     }
 
@@ -89,7 +91,7 @@ export default class WMSCapabilitiesParser {
      */
     getExternalLayerObject(layer, projection, opacity = 1, visible = true, ignoreError = true) {
         const { layerId, title, url, version, abstract, attributions, extent } =
-            this.getLayerAttributes(layer, projection)
+            this.getLayerAttributes(layer, projection, ignoreError)
 
         if (!layerId) {
             // without layerId we can do nothing
@@ -127,7 +129,7 @@ export default class WMSCapabilitiesParser {
         )
     }
 
-    getLayerExtent(layer, projection, ignoreError = true) {
+    getLayerExtent(layerId, layer, projection, ignoreError = true) {
         let layerExtent = null
         const matchedBbox = layer.BoundingBox?.find((bbox) => bbox.crs === projection.epsg)
         if (matchedBbox) {
