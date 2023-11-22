@@ -19,15 +19,15 @@ export default class WMSCapabilitiesParser {
      * Find recursively in the capabilities the matching layer ID node
      *
      * @param {string} layerId Layer ID to search for
-     * @param {WMSCapabilities.Capability.Layer} startFrom Layer node to start from
      * @returns {WMSCapabilities.Capability.Layer} Capability layer node
      */
-    findLayer(layerId, startFrom = null) {
+    findLayer(layerId) {
+        return this._findLayer(layerId, this.Capability.Layer.Layer)
+    }
+
+    _findLayer(layerId, startFrom) {
         let layer = null
-        let layers = this.Capability.Layer.Layer
-        if (startFrom) {
-            layers = startFrom
-        }
+        const layers = startFrom
 
         for (let i = 0; i < layers.length && !layer; i++) {
             if (layers[i].Name === layerId) {
@@ -35,7 +35,7 @@ export default class WMSCapabilitiesParser {
             } else if (!layers[i].Name && layers[i].Title === layerId) {
                 layer = layers[i]
             } else if (layers[i].Layer?.length > 0) {
-                layer = this.findLayer(layerId, layers[i].Layer)
+                layer = this._findLayer(layerId, layers[i].Layer)
             }
         }
         return layer
@@ -88,9 +88,9 @@ export default class WMSCapabilitiesParser {
     }
 
     /**
-     * Get ExternalWMSLayer object from capabilities
+     * Get ExternalWMSLayer object from capabilities for the given layer ID
      *
-     * @param {WMSCapabilities.Layer} layer WMS Capabilities layer object
+     * @param {string} layerId Layer ID of the layer to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible
@@ -98,7 +98,34 @@ export default class WMSCapabilitiesParser {
      *   value or null
      * @returns {ExternalWMSLayer | null} ExternalWMSLayer object or nul in case of error
      */
-    getExternalLayerObject(layer, projection, opacity = 1, visible = true, ignoreError = true) {
+    getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
+        const layer = this.findLayer(layerId)
+        if (!layer) {
+            throw new Error(
+                `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            )
+        }
+        return this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+    }
+
+    /**
+     * Get all ExternalWMSLayer objects from capabilities
+     *
+     * @param {CoordinateSystem} projection Projection currently used by the application
+     * @param {number} opacity
+     * @param {boolean} visible
+     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
+     *   value or null
+     * @returns {[ExternalWMSLayer | ExternalGroupOfLayers]} List of
+     *   ExternalWMSLayer|ExternalGroupOfLayers objects
+     */
+    getAllExternalLayerObjects(projection, opacity = 1, visible = true, ignoreError = true) {
+        return this.Capability.Layer.Layer.map((layer) =>
+            this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+        ).filter((layer) => !!layer)
+    }
+
+    _getExternalLayerObject(layer, projection, opacity, visible, ignoreError) {
         const { layerId, title, url, version, abstract, attributions, extent } =
             this.getLayerAttributes(layer, projection, ignoreError)
 
@@ -110,7 +137,7 @@ export default class WMSCapabilitiesParser {
         // Go through the child to get valid layers
         if (layer.Layer?.length) {
             const layers = layer.Layer.map((l) =>
-                this.getExternalLayerObject(l, projection, opacity, visible, ignoreError)
+                this._getExternalLayerObject(l, projection, opacity, visible, ignoreError)
             )
             return new ExternalGroupOfLayers(
                 title,

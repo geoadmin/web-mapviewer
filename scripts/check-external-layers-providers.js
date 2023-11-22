@@ -154,9 +154,12 @@ function checkProviderResponseContent(provider, url, response, result) {
     if (isWmsGetCap(content)) {
         try {
             const capabilities = parseWmsCapabilities(content, url)
-            const layers = capabilities.Capability.Layer.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
-            ).filter((layer) => !!layer)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* ignoreError */
+            )
             if (layers.length === 0) {
                 throw new Error(`No valid WMS layers found`)
             }
@@ -173,9 +176,12 @@ function checkProviderResponseContent(provider, url, response, result) {
     } else if (isWmtsGetCap(content)) {
         try {
             const capabilities = parseWmtsCapabilities(content, url)
-            const layers = capabilities.Contents.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
-            ).filter((layer) => !!layer)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* ignoreError */
+            )
             if (layers.length === 0) {
                 throw new Error(`No valid WMTS layers found`)
             }

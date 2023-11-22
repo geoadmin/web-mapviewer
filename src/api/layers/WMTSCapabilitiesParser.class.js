@@ -17,15 +17,15 @@ export default class WMTSCapabilitiesParser {
      * Find recursively in the capabilities the matching layer ID node
      *
      * @param {string} layerId Layer ID to search for
-     * @param {WMTSCapabilities.Contents.Layer} startFrom Layer node to start from
      * @returns {WMTSCapabilities.Contents.Layer} Capability layer node
      */
-    findLayer(layerId, startFrom = null) {
+    findLayer(layerId) {
+        return this._findLayer(layerId, this.Contents.Layer)
+    }
+
+    _findLayer(layerId, startFrom) {
         let layer = null
-        let layers = this.Contents.Layer
-        if (startFrom) {
-            layers = startFrom
-        }
+        const layers = startFrom
 
         for (let i = 0; i < layers.length && !layer; i++) {
             if (layers[i].Identifier === layerId) {
@@ -78,9 +78,9 @@ export default class WMTSCapabilitiesParser {
     }
 
     /**
-     * Get ExternalWMTSLayer object from the capabilities
+     * Get ExternalWMTSLayer object from the capabilities for the given layer ID
      *
-     * @param {WMTSCapabilities.Contents.Layer} layer WMTS Capabilities layer object
+     * @param {string} layerId WMTS Capabilities layer ID to retrieve
      * @param {CoordinateSystem} projection Projection currently used by the application
      * @param {number} opacity
      * @param {boolean} visible
@@ -88,7 +88,33 @@ export default class WMTSCapabilitiesParser {
      *   value or null
      * @returns {ExternalWMTSLayer | null} ExternalWMTSLayer object
      */
-    getExternalLayerObject(layer, projection, opacity = 1, visible = true, ignoreError = true) {
+    getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
+        const layer = this.findLayer(layerId)
+        if (!layer) {
+            throw new Error(
+                `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            )
+        }
+        return this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+    }
+
+    /**
+     * Get all ExternalWMTSLayer objects from capabilities
+     *
+     * @param {CoordinateSystem} projection Projection currently used by the application
+     * @param {number} opacity
+     * @param {boolean} visible
+     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
+     *   value or null
+     * @returns {[ExternalWMTSLayer]} List of ExternalWMTSLayer objects
+     */
+    getAllExternalLayerObjects(projection, opacity = 1, visible = true, ignoreError = true) {
+        return this.Contents.Layer.map((layer) =>
+            this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
+        ).filter((layer) => !!layer)
+    }
+
+    _getExternalLayerObject(layer, projection, opacity, visible, ignoreError) {
         const attributes = this.getLayerAttributes(layer, projection, ignoreError)
 
         if (!attributes) {
