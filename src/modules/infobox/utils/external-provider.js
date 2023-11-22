@@ -1,4 +1,4 @@
-import { setWmsUrlParameters, setWmtsUrlParameters } from '@/api/layers/layers-external.api'
+import { setWmsGetCapParams, setWmtsGetCapParams } from '@/api/layers/layers-external.api'
 
 /**
  * Check is provided string valid URL
@@ -109,11 +109,11 @@ export function guessExternalLayerUrl(provider, language) {
         return new URL(provider)
     }
     if (isWmtsUrl(provider)) {
-        return setWmtsUrlParameters(new URL(provider), language)
+        return setWmtsGetCapParams(new URL(provider), language)
     }
     if (isWmsUrl(provider)) {
-        return setWmsUrlParameters(new URL(provider), language)
+        return setWmsGetCapParams(new URL(provider), language)
     }
     // By default if the URL service type cannot be guessed we use WMS
-    return setWmsUrlParameters(new URL(provider), language)
+    return setWmsGetCapParams(new URL(provider), language)
 }

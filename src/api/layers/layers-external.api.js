@@ -4,16 +4,16 @@ import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
 import log from '@/utils/logging'
 
 /** Timeout for accessing external server in [ms] */
-const EXTERNAL_SERVER_TIMEOUT = 30000
+export const EXTERNAL_SERVER_TIMEOUT = 30000
 
 /**
- * Sets the WMS url parameters
+ * Sets the WMS GetCapabilities url parameters
  *
  * @param {URL} url Url to set
  * @param {string} language Language to use
  * @returns {URL} Url with wms parameter
  */
-export function setWmsUrlParameters(url, language) {
+export function setWmsGetCapParams(url, language) {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
@@ -33,7 +33,7 @@ export function setWmsUrlParameters(url, language) {
  * @returns {Promise<WMSCapabilitiesParser | null>} WMS Capabilities
  */
 export async function readWmsCapabilities(baseUrl, language = null) {
-    const url = setWmsUrlParameters(new URL(baseUrl), language).toString()
+    const url = setWmsGetCapParams(new URL(baseUrl), language).toString()
     let response = null
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
@@ -67,13 +67,13 @@ export function parseWmsCapabilities(content, originUrl) {
 }
 
 /**
- * Sets the WMTS url parameters
+ * Sets the WMTS GetCapabilities url parameters
  *
  * @param {URL} url Url to set
  * @param {string} language Language to use
  * @returns {URL} Url with wmts parameters
  */
-export function setWmtsUrlParameters(url, language) {
+export function setWmtsGetCapParams(url, language) {
     // Set mandatory parameters
     url.searchParams.set('SERVICE', 'WMTS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
@@ -93,7 +93,7 @@ export function setWmtsUrlParameters(url, language) {
  * @returns {Promise<WMTSCapabilitiesParser | null>} WMTS Capabilities
  */
 export async function readWmtsCapabilities(baseUrl, language = null) {
-    const url = setWmtsUrlParameters(new URL(baseUrl), language).toString()
+    const url = setWmtsGetCapParams(new URL(baseUrl), language).toString()
 
     let response = null
     try {
