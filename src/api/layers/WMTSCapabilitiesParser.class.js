@@ -2,14 +2,26 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import log from '@/utils/logging'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import proj4 from 'proj4'
+
+export function parseCrs(crs) {
+    let epsgNumber = crs?.split(':').pop()
+    if (/84/.test(epsgNumber)) {
+        epsgNumber = '4326'
+    }
+    return allCoordinateSystems.find((system) => system.epsg === `EPSG:${epsgNumber}`)
+}
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export default class WMTSCapabilitiesParser {
     constructor(content, originUrl) {
         const parser = new WMTSCapabilities()
-        Object.assign(this, parser.read(content))
+        const capabilities = parser.read(content)
+        if (!capabilities.version) {
+            throw new Error(`Failed to parse WMTS Capabilities: invalid content`)
+        }
+        Object.assign(this, capabilities)
         this.originUrl = new URL(originUrl)
     }
 
@@ -35,46 +47,6 @@ export default class WMTSCapabilitiesParser {
             }
         }
         return layer
-    }
-
-    /**
-     * Get Layer attributes from the WMTS Capabilities to be used in ExternalWMTSLayer
-     *
-     * @param {WMTSCapabilities.Contents.Layer} layer WMTS Capabilities layer object
-     * @param {CoordinateSystem} projection Projection currently used by the application
-     * @param {boolean} ignoreError Don't throw exception in case of error, but return a default
-     *   value or null
-     * @returns {Object} Layer attributes
-     */
-    getLayerAttributes(layer, projection, ignoreError = true) {
-        let layerId = layer.Identifier
-        if (!layerId) {
-            // fallback to Title
-            layerId = layer.Title
-        }
-        if (!layerId) {
-            const msg = `No layer identifier available`
-            log.error(msg, layer)
-            if (ignoreError) {
-                return {}
-            }
-            throw new Error(msg)
-        }
-        const title = layer.Title || layerId
-
-        const getCapUrl =
-            this.OperationsMetadata?.GetCapabilities?.DCP?.HTTP?.Get[0]?.href ||
-            this.originUrl.toString()
-
-        return {
-            layerId: layerId,
-            title: title,
-            url: getCapUrl,
-            version: this.version,
-            abstract: layer.Abstract,
-            attributions: this.getLayerAttribution(layerId),
-            extent: this.getLayerExtent(layerId, layer, projection, ignoreError),
-        }
     }
 
     /**
@@ -115,7 +87,7 @@ export default class WMTSCapabilitiesParser {
     }
 
     _getExternalLayerObject(layer, projection, opacity, visible, ignoreError) {
-        const attributes = this.getLayerAttributes(layer, projection, ignoreError)
+        const attributes = this._getLayerAttributes(layer, projection, ignoreError)
 
         if (!attributes) {
             return null
@@ -128,19 +100,118 @@ export default class WMTSCapabilitiesParser {
             attributes.url,
             attributes.layerId,
             attributes.attributions,
-            attributes.Abstract,
+            attributes.abstract,
             attributes.extent,
             false
         )
     }
 
-    getLayerExtent(layerId, layer, projection, ignoreError = true) {
+    _getLayerAttributes(layer, projection, ignoreError = true) {
+        let layerId = layer.Identifier
+        if (!layerId) {
+            // fallback to Title
+            layerId = layer.Title
+        }
+        if (!layerId) {
+            const msg = `No layer identifier found in Capabilities ${this.originUrl.toString()}`
+            log.error(msg, layer)
+            if (ignoreError) {
+                return {}
+            }
+            throw new Error(msg)
+        }
+        const title = layer.Title || layerId
+
+        const getCapUrl =
+            this.OperationsMetadata?.GetCapabilities?.DCP?.HTTP?.Get[0]?.href ||
+            this.originUrl.toString()
+
+        return {
+            layerId: layerId,
+            title: title,
+            url: getCapUrl,
+            version: this.version,
+            abstract: layer.Abstract,
+            attributions: this._getLayerAttribution(layerId),
+            extent: this._getLayerExtent(layerId, layer, projection, ignoreError),
+        }
+    }
+
+    _findTileMatrixSetFromLinks(links) {
+        let tileMatrixSet = null
+        links?.forEach((link) => {
+            tileMatrixSet = this.Contents.TileMatrixSet?.find(
+                (set) => set.Identifier === link.TileMatrixSet
+            )
+            if (tileMatrixSet) {
+                return
+            }
+        })
+        return tileMatrixSet
+    }
+
+    _getLayerExtent(layerId, layer, projection, ignoreError) {
         let layerExtent = null
+        let extentEpsg = null
+        // First try to get the extent from the default bounding box
         if (layer.WGS84BoundingBox?.length) {
-            const extent = layer.WGS84BoundingBox
             layerExtent = [
-                proj4(WGS84.epsg, projection.epsg, [extent[0], extent[1]]),
-                proj4(WGS84.epsg, projection.epsg, [extent[2], extent[3]]),
+                [layer.WGS84BoundingBox[0], layer.WGS84BoundingBox[1]],
+                [layer.WGS84BoundingBox[2], layer.WGS84BoundingBox[3]],
+            ]
+            extentEpsg = WGS84.epsg
+        }
+        // Some provider don't uses the WGS84BoundingBox, but uses the BoundingBox instead
+        else if (layer.BoundingBox) {
+            // search for a matching crs bounding box
+            const matching = layer.BoundingBox.find((bbox) => parseCrs(bbox.crs) === projection)
+            if (matching) {
+                layerExtent = [
+                    [matching.extent[0], matching.extent[1]],
+                    [matching.extent[2], matching.extent[3]],
+                ]
+            } else if (layer.BoundingBox.length === 1 && !layer.BoundingBox[0].crs) {
+                // if we have only one bounding box without CRS, then take it searching the CRS
+                // fom the TileMatrixSet
+                const tileMatrixSet = this._findTileMatrixSetFromLinks(layer.TileMatrixSetLink)
+                extentEpsg = parseCrs(tileMatrixSet?.SupportedCRS)?.epsg
+                if (extentEpsg) {
+                    layerExtent = [
+                        [layer.BoundingBox[0].extent[0], layer.BoundingBox[0].extent[1]],
+                        [layer.BoundingBox[0].extent[2], layer.BoundingBox[0].extent[3]],
+                    ]
+                }
+            } else {
+                // if we have multiple bounding box search for the one that specify a supported CRS
+                const supported = layer.BoundingBox.find((bbox) => parseCrs(bbox.crs))
+                if (supported) {
+                    extentEpsg = parseCrs(supported.crs).epsg
+                    layerExtent = [
+                        [supported.extent[0], supported.extent[1]],
+                        [supported.extent[2], supported.extent[3]],
+                    ]
+                }
+            }
+        }
+        // If we didn't find a valid and supported bounding box in the layer then fallback to the
+        // linked TileMatrixSet. NOTE: some provider don't specify the bounding box at the layer
+        // level but on the TileMatrixSet
+        if (!layerExtent && this.Contents.TileMatrixSet) {
+            const tileMatrixSet = this._findTileMatrixSetFromLinks(layer.TileMatrixSetLink)
+            const system = parseCrs(tileMatrixSet?.SupportedCRS)
+            if (tileMatrixSet && system && tileMatrixSet.BoundingBox) {
+                layerExtent = [
+                    [tileMatrixSet.BoundingBox[0], tileMatrixSet.BoundingBox[1]],
+                    [tileMatrixSet.BoundingBox[2], tileMatrixSet.BoundingBox[3]],
+                ]
+                extentEpsg = system.epsg
+            }
+        }
+        // Convert the extent if needed
+        if (layerExtent && extentEpsg && projection.epsg !== extentEpsg) {
+            layerExtent = [
+                proj4(extentEpsg, projection.epsg, layerExtent[0]),
+                proj4(extentEpsg, projection.epsg, layerExtent[1]),
             ]
         }
         if (!layerExtent) {
@@ -153,7 +224,7 @@ export default class WMTSCapabilitiesParser {
         return layerExtent
     }
 
-    getLayerAttribution(layerId) {
+    _getLayerAttribution(layerId) {
         let title = this.ServiceProvider?.ProviderName
         let url = this.ServiceProvider?.ProviderSite
 
