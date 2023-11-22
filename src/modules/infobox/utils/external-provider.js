@@ -1,56 +1,4 @@
-/**
- * WARNING: This code is intended to be run both on the browser application and as standalone Node
- * JS script application !
- *
- * These are helpers function for the import tool that are also used by the
- * check-external-layers-providers.js script.
- */
-
-function appendParamsToUrl(url, paramString) {
-    if (paramString) {
-        const parts = (url + ' ').split(/[?&]/)
-        url +=
-            parts.pop() === ' '
-                ? paramString
-                : parts.length > 0
-                  ? '&' + paramString
-                  : '?' + paramString
-    }
-    return url
-}
-
-/**
- * Prepares URL for external layer upload
- *
- * @param url
- * @param lang
- * @returns {Promise<string>}
- */
-export function transformUrl(url, lang) {
-    // If the url has no file extension or a map parameter,
-    // try to load a WMS/WMTS GetCapabilities.
-    if (
-        (!/\.(kml|kmz|xml|txt)/i.test(url) && !/\w+\/\w+\.[a-zA-Z]+$/i.test(url)) ||
-        /map=/i.test(url)
-    ) {
-        // Append WMS GetCapabilities default parameters
-        url = appendParamsToUrl(
-            url,
-            /wmts/i.test(url)
-                ? 'SERVICE=WMTS&REQUEST=GetCapabilities&VERSION=1.0.0'
-                : 'SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0'
-        )
-
-        // Use lang param only for admin.ch servers
-        if (/admin\.ch/.test(url)) {
-            url = appendParamsToUrl(url, `lang=${lang}`)
-        }
-        // Replace the subdomain template if exists
-        url = url.replace(/{s}/, '')
-    }
-    // Save the good url for the import component.
-    return url
-}
+import { setWmsUrlParameters, setWmtsUrlParameters } from '@/api/layers/layers-external.api'
 
 /**
  * Check is provided string valid URL
@@ -107,4 +55,65 @@ export function isKml(fileContent) {
  */
 export function isGpx(fileContent) {
     return /<gpx/.test(fileContent) && /<\/gpx\s*>/.test(fileContent)
+}
+
+/**
+ * Checks if the URL is a WMS url
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isWmsUrl(url) {
+    return /(wms|map=|\.map)/i.test(url)
+}
+
+/**
+ * Checks if the URL is a WMTS url
+ *
+ * @param {string} urlreturn SetWmsUrlParameters(new URL(provider), language)
+ * @returns {boolean}
+ */
+export function isWmtsUrl(url) {
+    return /wmts/i.test(url)
+}
+
+/**
+ * Checks if the URL is a KML url
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isKmlUrl(url) {
+    return /kml/i.test(url)
+}
+
+/**
+ * Checks if the URL is a GPX url
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isGpxUrl(url) {
+    return /gpx/i.test(url)
+}
+
+/**
+ * Guess the provider URL type and return URL with correct parameters if needed
+ *
+ * @param {string} provider Base url of the provider
+ * @param {string} language Current viewer language
+ * @returns {URL} Url object with backend parameters (eg. SERVICE=WMS, ...)
+ */
+export function guessExternalLayerUrl(provider, language) {
+    if (isKmlUrl(provider) || isGpxUrl(provider)) {
+        return new URL(provider)
+    }
+    if (isWmtsUrl(provider)) {
+        return setWmtsUrlParameters(new URL(provider), language)
+    }
+    if (isWmsUrl(provider)) {
+        return setWmsUrlParameters(new URL(provider), language)
+    }
+    // By default if the URL service type cannot be guessed we use WMS
+    return setWmsUrlParameters(new URL(provider), language)
 }

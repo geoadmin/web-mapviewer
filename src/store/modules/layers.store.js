@@ -283,7 +283,7 @@ const actions = {
     },
     updateLayer({ commit }, layer) {
         if (!(layer instanceof AbstractLayer)) {
-            throw Error(`Failed to update layer, invalid type ${typeof layer}`)
+            throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
         commit('updateLayer', layer)
     },

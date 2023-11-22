@@ -13,9 +13,12 @@ export const ENVIRONMENT = VITE_ENVIRONMENT
 /**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
  *
+ * NOTE: this file might be imported by nodejs for external scripts therefore make sure that
+ * `window` exists
+ *
  * @type Boolean
  */
-export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
+export const IS_TESTING_WITH_CYPRESS = typeof window !== 'undefined' ? !!window.Cypress : false
 
 /**
  * Current app version (from package.json)

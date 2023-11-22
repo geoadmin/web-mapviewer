@@ -185,22 +185,18 @@
 import externalLayerProviders from '@/modules/infobox/utils/external-layer-providers.json'
 import {
     isValidUrl,
-    transformUrl,
     isGpx,
     isKml,
     isWmsGetCap,
     isWmtsGetCap,
+    guessExternalLayerUrl,
 } from '@/modules/infobox/utils/external-provider'
 import { mapState } from 'vuex'
-import {
-    getCapWMSLayers,
-    getCapWMTSLayers,
-} from '@/modules/infobox/utils/external-provider-parsers'
-import { WMSCapabilities } from 'ol/format'
-import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import ImportContentResultList from './ImportContentResultList.vue'
 import log from '@/utils/logging'
+import { parseWmsCapabilities, parseWmtsCapabilities } from '@/api/layers/layers-external.api'
+import axios from 'axios'
 
 const BTN_RESET_TIMEOUT = 3000
 
@@ -332,25 +328,12 @@ export default {
                 .focus()
         },
         handleFileContent(fileContent, url, contentType) {
-            this.wmsMaxSize = undefined
             if (isWmsGetCap(fileContent)) {
-                const parser = new WMSCapabilities()
-                const getCap = parser.read(fileContent)
-                if (getCap.Service.MaxWidth && getCap.Service.MaxHeight) {
-                    this.wmsMaxSize = {
-                        width: getCap.Service.MaxWidth,
-                        height: getCap.Service.MaxHeight,
-                    }
-                }
-                this.importedLayers = getCap.Capability.Layer.Layer.map((l) =>
-                    getCapWMSLayers(getCap, l, this.projection)
-                ).filter((l) => !!l)
+                const capabilities = parseWmsCapabilities(fileContent, url)
+                this.handleWms(capabilities)
             } else if (isWmtsGetCap(fileContent)) {
-                const parser = new WMTSCapabilities()
-                const getCap = parser.read(fileContent)
-                this.importedLayers = getCap.Contents.Layer.map((l) =>
-                    getCapWMTSLayers(url, getCap, l, this.projection)
-                ).filter((l) => !!l)
+                const capabilities = parseWmtsCapabilities(fileContent, url)
+                this.handleWmts(capabilities)
             } else if (isKml(fileContent)) {
                 // todo just for test
                 this.importedLayers = [new KMLLayer(url, true, 1, null, null, null, null, true)]
@@ -361,20 +344,39 @@ export default {
                     `Unsupported url ${url} response content; Content-Type=${contentType}`
                 )
             }
-            if (this.importedLayers.length === 0) {
-                throw new Error(`No valid layer found in ${url}`)
+        },
+        handleWms(capabilities) {
+            if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
+                this.wmsMaxSize = {
+                    width: capabilities.Service.MaxWidth,
+                    height: capabilities.Service.MaxHeight,
+                }
             }
+            this.importedLayers = capabilities.Capability.Layer.Layer.map((layer) =>
+                capabilities.getExternalLayerObject(layer, this.projection, 1, true)
+            ).filter((layer) => !!layer)
+        },
+        handleWmts(capabilities) {
+            this.importedLayers = capabilities.Contents.Layer.map((layer) =>
+                capabilities.getExternalLayerObject(layer, this.projection, 1, true)
+            ).filter((layer) => !!layer)
         },
         async handleFileUrl() {
-            const url = await transformUrl(this.onlineImportValue, this.lang)
+            this.wmsMaxSize = undefined
+            const url = guessExternalLayerUrl(this.onlineImportValue, this.lang).toString()
             try {
-                const response = await fetch(url)
-                const fileContent = await response.text()
-                this.handleFileContent(fileContent, url, response.headers.get('Content-Type'))
+                const response = await axios.get(url)
+                if (response.status !== 200) {
+                    throw new Error(`Failed to fetch ${url}; status_code=${response.status}`)
+                }
+                this.handleFileContent(response.data, url, response.headers.get('Content-Type'))
+                if (this.importedLayers.length === 0) {
+                    throw new Error(`No valid layer found in ${url}`)
+                }
                 this.uploadBtnStatus = 'succeeded'
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
-            } catch (e) {
-                log.error(e)
+            } catch (error) {
+                log.error(`Failed to fetch url ${url}`, error, error.stack)
                 this.uploadBtnStatus = 'failed'
                 setTimeout(() => (this.uploadBtnStatus = 'default'), BTN_RESET_TIMEOUT)
             }

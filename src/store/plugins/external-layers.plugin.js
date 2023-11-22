@@ -46,7 +46,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
         } else if (externalLayer instanceof ExternalWMTSLayer) {
             updatedExternalLayer = await updatedWMTSLayerAttributes(externalLayer, projection)
         } else {
-            throw Error(`Unsupported type of layer: ${typeof externalLayer}`)
+            throw new Error(`Unsupported type of layer: ${typeof externalLayer}`)
         }
 
         updatedExternalLayer.isLoading = false
@@ -61,7 +61,7 @@ async function updatedWMSLayerAttributes(externalLayer, projection) {
 
     const layer = capabilities.findLayer(externalLayer.externalLayerId)
     if (!layer) {
-        throw Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
+        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
     }
     const newObject = capabilities.getExternalLayerObject(
         layer,
@@ -70,7 +70,7 @@ async function updatedWMSLayerAttributes(externalLayer, projection) {
         externalLayer.visible
     )
     if (!newObject) {
-        throw Error(
+        throw new Error(
             `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
         )
     }
@@ -82,7 +82,7 @@ async function updatedWMTSLayerAttributes(externalLayer, projection) {
 
     const layer = capabilities.findLayer(externalLayer.externalLayerId)
     if (!layer) {
-        throw Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
+        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
     }
     const newObject = capabilities.getExternalLayerObject(
         layer,
@@ -91,7 +91,7 @@ async function updatedWMTSLayerAttributes(externalLayer, projection) {
         externalLayer.visible
     )
     if (!newObject) {
-        throw Error(
+        throw new Error(
             `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
         )
     }
