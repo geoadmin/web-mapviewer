@@ -1,5 +1,12 @@
 #!./node_modules/.bin/vite-node --script
 
+import { JSDOM } from 'jsdom'
+
+// faking browser support, so that OpenLayers has what it requires to parse XMLs
+const dom = new JSDOM()
+global.DOMParser = dom.window.DOMParser
+global.Node = dom.window.Node
+
 import { promises as fs } from 'fs'
 import axios, { AxiosError } from 'axios'
 import writeYamlFile from 'write-yaml-file'
@@ -8,20 +15,20 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { exit } from 'process'
 import {
-    transformUrl,
     isWmsGetCap,
     isWmtsGetCap,
     isKml,
     isGpx,
+    guessExternalLayerUrl,
 } from '@/modules/infobox/utils/external-provider'
-import { WMSCapabilities } from "ol/format";
-import WMTSCapabilities from "ol/format/WMTSCapabilities";
-import { JSDOM } from 'jsdom'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import {
+    parseWmsCapabilities,
+    parseWmtsCapabilities,
+    EXTERNAL_SERVER_TIMEOUT,
+} from '@/api/layers/layers-external.api'
 
-// faking browser support, so that OpenLayers has what it requires to parse XMLs
-const dom = new JSDOM()
-global.DOMParser = dom.window.DOMParser
-global.Node = dom.window.Node
+const SIZE_OF_CONTENT_DISPLAY = 150
 
 const options = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
@@ -73,7 +80,7 @@ function compareCaseInsensitive(a, b) {
 }
 
 async function checkProvider(provider, result) {
-    const url = transformUrl(provider)
+    const url = guessExternalLayerUrl(provider, 'en').toString()
     try {
         const response = await axios.get(url, {
             headers: {
@@ -81,7 +88,7 @@ async function checkProvider(provider, result) {
                 Referer: 'https://map.geo.admin.ch',
                 'Sec-Fetch-Site': 'cross-site',
             },
-            timeout: 60000,
+            timeout: EXTERNAL_SERVER_TIMEOUT,
         })
         checkProviderResponse(provider, url, response, result)
     } catch (error) {
@@ -100,9 +107,13 @@ async function checkProvider(provider, result) {
 }
 
 function checkProviderResponse(provider, url, response, result) {
-    if (![200, 301, 302, 303, 307].includes(response.status)) {
+    if (![200, 201].includes(response.status)) {
         console.error(`Provider ${provider} is not valid: status=${response.status}`)
-        result.invalid_providers.push({ provider: provider, url: url, status: response.status })
+        result.invalid_providers.push({
+            provider: provider,
+            url: url,
+            status: response.status,
+        })
     } else if (!response.headers.has('access-control-allow-origin')) {
         console.error(
             `Provider ${provider} does not support CORS: status=${response.status}, ` +
@@ -136,41 +147,62 @@ function checkProviderResponse(provider, url, response, result) {
     }
 }
 
-const wmsCapParser = new WMSCapabilities()
-const wmtsCapParser = new WMTSCapabilities()
-
 function checkProviderResponseContent(provider, url, response, result) {
     const content = response.data
     let isValid = true
 
     if (isWmsGetCap(content)) {
-        const capabilities = wmsCapParser.read(content)
-        if (!capabilities?.Capability?.Layer?.Layer) {
+        try {
+            const capabilities = parseWmsCapabilities(content, url)
+            const layers = capabilities.Capability.Layer.Layer.map((layer) =>
+                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
+            ).filter((layer) => !!layer)
+            if (layers.length === 0) {
+                throw new Error(`No valid WMS layers found`)
+            }
+        } catch (error) {
             isValid = false
-            console.error(`Invalid provider ${provider}, WMS get Cap parsing failed`)
-            result.invalid_wms.push({ provider: provider, url: url, content: content.slice(0, 50) })
+            console.error(`Invalid provider ${provider}, WMS get Cap parsing failed: ${error}`)
+            result.invalid_wms.push({
+                provider: provider,
+                url: url,
+                error: `${error}`,
+                content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+            })
         }
     } else if (isWmtsGetCap(content)) {
-        const capabilities = wmtsCapParser.read(content)
-        if (!capabilities?.Contents?.Layer) {
+        try {
+            const capabilities = parseWmtsCapabilities(content, url)
+            const layers = capabilities.Contents.Layer.map((layer) =>
+                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
+            ).filter((layer) => !!layer)
+            if (layers.length === 0) {
+                throw new Error(`No valid WMTS layers found`)
+            }
+        } catch (error) {
             isValid = false
-            console.error(`Invalid provider ${provider}, WMTS get Cap parsing failed`)
+            console.error(`Invalid provider ${provider}, WMTS get Cap parsing failed: ${error}`)
             result.invalid_wmts.push({
                 provider: provider,
                 url: url,
-                content: content.slice(0, 50),
+                error: `${error}`,
+                content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
             })
         }
     } else if (isKml(content)) {
         // TODO check for KML validity
-        throw Error('kml not supported yet')
+        throw new Error('kml not supported yet')
     } else if (isGpx(content)) {
         // TODO check for GPX validity
-        throw Error('gpx not supported yet')
+        throw new Error('gpx not supported yet')
     } else {
         isValid = false
         console.error(`Invalid provider ${url}; file type not recognized`)
-        result.invalid_content.push({ provider: provider, url: url, content: content.slice(0, 50) })
+        result.invalid_content.push({
+            provider: provider,
+            url: url,
+            content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+        })
     }
     return isValid
 }
@@ -240,7 +272,9 @@ async function main() {
     try {
         await writeResult(result)
         console.log(
-            `Checked ${providers.length} providers, ${result.invalid_providers.length} where invalids and ${result.invalid_cors.length} don't support CORS`
+            `Checked ${providers.length} providers, ${
+                providers.length - result.valid_providers.length
+            } where invalids and ${result.invalid_cors.length} don't support CORS`
         )
     } catch (error) {
         console.error(`Failed to write results: ${error}`)
