@@ -34,6 +34,8 @@ export default class AbstractLayer {
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {Boolean} isExternal Define if this layer comes from our backend, or is from another
      *   (external) source
+     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
+     *   loading
      */
     constructor(
         name = '',
@@ -42,7 +44,8 @@ export default class AbstractLayer {
         visible = false,
         attributions = [],
         hasTooltip = false,
-        isExternal = false
+        isExternal = false,
+        isLoading = false
     ) {
         this.name = name
         this.type = type
@@ -51,6 +54,7 @@ export default class AbstractLayer {
         this.attributions = [...attributions]
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
+        this.isLoading = isLoading
     }
 
     /**

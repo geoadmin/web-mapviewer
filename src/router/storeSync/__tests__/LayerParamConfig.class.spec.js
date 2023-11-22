@@ -24,34 +24,22 @@ describe('External layer parsing with createLayerObject', () => {
     })
     it('parses an external WMS layer correctly', () => {
         const wmsBaseUrl = 'https://base.wms.url/?SERVICE=GetMap'
-        const wmsVersion = '4.5.6'
+        const wmsVersion = '1.3.0'
         const wmsLayerId = 'random.wms.layer_id'
-        const wmsLayerName = 'Totally random name'
-        const parsedLayer = new ActiveLayerConfig(
-            `WMS|${wmsBaseUrl}|${wmsLayerId}|${wmsVersion}|${wmsLayerName}`,
-            true,
-            0.8
-        )
+        const parsedLayer = new ActiveLayerConfig(`WMS|${wmsBaseUrl}|${wmsLayerId}`, true, 0.8)
         const result = createLayerObject(parsedLayer)
         expect(result).to.be.an.instanceof(ExternalWMSLayer)
         expect(result.baseURL).to.eq(wmsBaseUrl)
         expect(result.wmsVersion).to.eq(wmsVersion)
         expect(result.externalLayerId).to.eq(wmsLayerId)
-        expect(result.name).to.eq(wmsLayerName)
     })
     it('parses an external WMTS layer correctly', () => {
         const wmtsGetCapUrl = 'https://base.wmts.url/getCapabilitiesEndpoint.xml'
         const wmtsLayerId = 'random.wmts.layer_id'
-        const wmtsLayerName = 'Another random name'
-        const parsedLayer = new ActiveLayerConfig(
-            `WMTS|${wmtsGetCapUrl}|${wmtsLayerId}|${wmtsLayerName}`,
-            true,
-            0.8
-        )
+        const parsedLayer = new ActiveLayerConfig(`WMTS|${wmtsGetCapUrl}|${wmtsLayerId}`, true, 0.8)
         const result = createLayerObject(parsedLayer)
         expect(result).to.be.an.instanceof(ExternalWMTSLayer)
         expect(result.baseURL).to.eq(wmtsGetCapUrl)
         expect(result.externalLayerId).to.eq(wmtsLayerId)
-        expect(result.name).to.eq(wmtsLayerName)
     })
 })

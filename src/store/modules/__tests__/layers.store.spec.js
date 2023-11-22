@@ -1,6 +1,6 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
@@ -169,12 +169,19 @@ describe('Layer z-index are calculated correctly in the store', () => {
     })
 
     it('counts a group layers correctly', async () => {
-        const groupLayer = new ExternalGroupOfLayers('group', 'group', [
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer1', [], ''),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer2', [], ''),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer3', [], ''),
-            new ExternalWMTSLayer('', 1.0, true, '...', 'layer4', [], ''),
-        ])
+        const groupLayer = new ExternalGroupOfLayers(
+            'group',
+            1.0,
+            true,
+            'https://wms.com',
+            'group',
+            [
+                new ExternalWMSLayer('Layer 1', 1.0, true, '...', 'layer1', [], ''),
+                new ExternalWMSLayer('Layer 2', 1.0, true, '...', 'layer2', [], ''),
+                new ExternalWMSLayer('Layer 3', 1.0, true, '...', 'layer3', [], ''),
+                new ExternalWMSLayer('Layer 4', 1.0, true, '...', 'layer4', [], ''),
+            ]
+        )
         await store.dispatch('addLayer', firstLayer)
         await store.dispatch('addLayer', groupLayer)
         await store.dispatch('addLayer', secondLayer)

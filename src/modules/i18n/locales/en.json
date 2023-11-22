@@ -626,5 +626,6 @@
     "ch.swisstopo.pixelkarte-farbe": "Color map",
     "ch.swisstopo.swissimage_3d": "Aerial imagery",
     "ch.swisstopo.swisstlm3d-karte-grau_3d": "Grey map",
-    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Color map"
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Color map",
+    "loading_external_layer": "Loading external layer"
 }

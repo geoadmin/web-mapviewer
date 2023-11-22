@@ -1,6 +1,6 @@
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
@@ -55,32 +55,38 @@ export function createLayerObject(parsedLayer) {
             splitLayerId[2] // name
         )
     }
-    // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
+    // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (parsedLayer.id.startsWith('WMTS|')) {
-        const [_externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId, layerName] =
+        const [_externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId] =
             parsedLayer.id.split('|')
         layer = new ExternalWMTSLayer(
-            layerName,
+            wmtsLayerId,
             parsedLayer.opacity,
             parsedLayer.visible,
             wmtsServerGetCapabilitiesUrl,
-            wmtsLayerId,
-            // grabbing only the host name as attribution
-            [new LayerAttribution(new URL(wmtsServerGetCapabilitiesUrl).hostname)]
+            wmtsLayerId
         )
     }
-    // format is : WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
+    // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.id.startsWith('WMS|')) {
-        const [_externalLayerType, wmsServerBaseURL, wmsLayerIds, wmsVersion, layerName] =
-            parsedLayer.id.split('|')
+        const [_externalLayerType, wmsServerBaseURL, wmsLayerId] = parsedLayer.id.split('|')
         layer = new ExternalWMSLayer(
-            layerName,
+            wmsLayerId,
             parsedLayer.opacity,
             parsedLayer.visible,
             wmsServerBaseURL,
-            wmsLayerIds,
-            [new LayerAttribution(new URL(wmsServerBaseURL).hostname)],
-            wmsVersion
+            wmsLayerId
+        )
+    }
+    // format is : GRP|BASE_URL|LAYER_ID
+    else if (parsedLayer.id.startsWith('GRP|')) {
+        const [_externalLayerType, serverBaseURL, layerId] = parsedLayer.id.split('|')
+        layer = new ExternalGroupOfLayers(
+            layerId,
+            parsedLayer.opacity,
+            parsedLayer.visible,
+            serverBaseURL,
+            layerId
         )
     }
     return layer

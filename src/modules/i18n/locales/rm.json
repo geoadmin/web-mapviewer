@@ -624,5 +624,6 @@
     "ch.swisstopo.pixelkarte-farbe": "Charta en colur",
     "ch.swisstopo.swissimage_3d": "Fotografia ord l'aria",
     "ch.swisstopo.swisstlm3d-karte-grau_3d": "Charta en alv e nair",
-    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Charta en colur"
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Charta en colur",
+    "loading_external_layer": "Laden der externen Layer"
 }

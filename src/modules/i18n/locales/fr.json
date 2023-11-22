@@ -626,5 +626,6 @@
     "ch.swisstopo.pixelkarte-farbe": "Cartes couleurs",
     "ch.swisstopo.swissimage_3d": "Photo aérienne",
     "ch.swisstopo.swisstlm3d-karte-grau_3d": "Cartes N&B",
-    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Cartes couleurs"
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Cartes couleurs",
+    "loading_external_layer": "Chargement de la couche externe"
 }

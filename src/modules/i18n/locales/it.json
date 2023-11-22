@@ -626,5 +626,6 @@
     "ch.swisstopo.pixelkarte-farbe": "Carta a colori",
     "ch.swisstopo.swissimage_3d": "Veduta aerea",
     "ch.swisstopo.swisstlm3d-karte-grau_3d": "Carta B/N",
-    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Carta a colori"
+    "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Carta a colori",
+    "loading_external_layer": "Caricamento del livello esterno"
 }
