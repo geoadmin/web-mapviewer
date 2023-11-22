@@ -17,6 +17,8 @@ export function setWmsGetCapParams(url, language) {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
+    // Currently openlayers only supports version 1.3.0 !
+    url.searchParams.set('VERSION', '1.3.0')
     // Optional params
     url.searchParams.set('FORMAT', 'text/xml')
     if (language) {
