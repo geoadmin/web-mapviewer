@@ -50,7 +50,7 @@ export default class ExternalLayer extends AbstractLayer {
             layerType,
             opacity,
             visible,
-            attributions ? attributions : getDefaultAttribution(baseURL),
+            attributions || getDefaultAttribution(baseURL),
             false,
             true
         )
