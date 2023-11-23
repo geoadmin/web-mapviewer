@@ -13,9 +13,12 @@ export const ENVIRONMENT = VITE_ENVIRONMENT
 /**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
  *
+ * NOTE: this file might be imported by nodejs for external scripts therefore make sure that
+ * `window` exists
+ *
  * @type Boolean
  */
-export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
+export const IS_TESTING_WITH_CYPRESS = typeof window !== 'undefined' ? !!window.Cypress : false
 
 /**
  * Current app version (from package.json)
@@ -272,3 +275,10 @@ export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
     'sys-map.dev.bgdi.ch',
     'localhost',
 ]
+
+/**
+ * WMS supported versions list
+ *
+ * @type {String[]}
+ */
+export const WMS_SUPPORTED_VERSIONS = ['1.3.0', '1.1.1', '1.1.0', '1.0.0']

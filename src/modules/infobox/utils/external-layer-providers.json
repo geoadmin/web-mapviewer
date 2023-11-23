@@ -230,7 +230,7 @@
     "https://vogis.cnv.at/mapserver/mapserv?map=i_naturschutz_v_wms.map",
     "https://vogis.cnv.at/mapserver/mapserv?map=i_relief_r_wms.map",
     "https://vogis.cnv.at/mapserver/mapserv?map=i_topographie_r_wms.map",
-    "https://wms.geo.admin.ch/?lang=",
+    "https://wms.geo.admin.ch/",
     "https://wms.geo.ag.ch/",
     "https://wms.geo.bs.ch/",
     "https://wms.geo.gl.ch/",

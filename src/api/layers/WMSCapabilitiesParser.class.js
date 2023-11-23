@@ -1,3 +1,4 @@
+import { WMS_SUPPORTED_VERSIONS } from '@/config'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
@@ -65,6 +66,14 @@ export default class WMSCapabilitiesParser {
             throw new Error(msg)
         }
 
+        if (!this.version) {
+            throw new Error(`No WMS version found in Capabilities of ${this.originUrl.toString()}`)
+        }
+        if (!WMS_SUPPORTED_VERSIONS.includes(this.version)) {
+            throw new Error(
+                `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
+            )
+        }
         return {
             layerId: layerId,
             title: layer.Title,
@@ -100,7 +109,9 @@ export default class WMSCapabilitiesParser {
 
         // Go through the child to get valid layers
         if (layer.Layer?.length) {
-            const layers = layer.Layer.map((l) => this.getExternalLayerObject(l, projection))
+            const layers = layer.Layer.map((l) =>
+                this.getExternalLayerObject(l, projection, opacity, visible, ignoreError)
+            )
             return new ExternalGroupOfLayers(
                 title,
                 opacity,
@@ -138,7 +149,7 @@ export default class WMSCapabilitiesParser {
                 [matchedBbox.extent[2], matchedBbox.extent[3]],
             ]
         } else {
-            const bbox = layer.BoundingBox.find((bbox) =>
+            const bbox = layer.BoundingBox?.find((bbox) =>
                 allCoordinateSystems.find((projection) => projection.epsg === bbox.crs)
             )
             if (bbox) {
