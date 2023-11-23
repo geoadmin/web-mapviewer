@@ -434,7 +434,7 @@ const mutations = {
         }
         state.activeLayers.push(layer)
     },
-    updateLayer(state, { layer: layer }) {
+    updateLayer(state, layer) {
         Object.assign(getActiveLayerById(state, layer.getID()), layer)
     },
     removeLayerWithId(state, layerId) {

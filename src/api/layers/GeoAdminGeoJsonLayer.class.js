@@ -10,16 +10,20 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      * @param {boolean} visible If the layer should be shown on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
      * @param geoJsonUrl The URL to use when requesting the GeoJSON data (the true GeoJSON per
-     *   say...)
+     *   se...)
      * @param styleUrl The URL to use to request the styling to apply to the data
      */
     constructor(name, id, opacity, visible, attributions, geoJsonUrl, styleUrl) {
         super(name, LayerTypes.GEOJSON, id, id, opacity, visible, attributions)
         this.geoJsonUrl = geoJsonUrl
         this.styleUrl = styleUrl
+
+        this.isLoading = true
+        this.geoJsonData = null
+        this.geoJsonStyle = null
     }
 
-    getURL() {
+    getURL(_epsgNumber, _timestamp) {
         return this.geoJsonUrl
     }
 }
