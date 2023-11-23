@@ -1,5 +1,6 @@
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { identifyGeoJSONFeatureAt, identifyKMLFeatureAt } from '@/utils/identifyOnVectorLayer'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -18,6 +19,8 @@ export function useMouseOnMap() {
     const visibleKMLLayers = computed(() =>
         store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
     )
+    const currentMapResolution = computed(() => store.getters.resolution)
+    const currentProjection = computed(() => store.state.position.projection)
 
     /**
      * @param {[Number, Number]} screenPosition
@@ -41,17 +44,25 @@ export function useMouseOnMap() {
         // if we've already "handled" this click event, we do nothing more
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
             const features = []
-            // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
             visibleGeoJsonLayers.value.forEach((geoJSonLayer) => {
-                console.log(
-                    'GeoJSON features',
-                    geoJSonLayer
-                    // booleanIntersects(geoJSonLayer, coordinate)
+                features.push(
+                    ...identifyGeoJSONFeatureAt(
+                        geoJSonLayer,
+                        coordinate,
+                        currentProjection.value,
+                        currentMapResolution.value
+                    )
                 )
-                // features.push(...this.handleClickOnGeoJsonLayer(event, geoJSonLayer))
             })
-            visibleKMLLayers.value.forEach((KMLLayer) => {
-                // features.push(...this.handleClickOnKMLLayer(event, KMLLayer))
+            visibleKMLLayers.value.forEach((kmlLayer) => {
+                features.push(
+                    ...identifyKMLFeatureAt(
+                        kmlLayer.kmlData,
+                        coordinate,
+                        currentProjection.value,
+                        currentMapResolution.value
+                    )
+                )
             })
             store.dispatch(
                 'click',

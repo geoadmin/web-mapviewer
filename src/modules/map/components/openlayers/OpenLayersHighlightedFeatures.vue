@@ -30,6 +30,9 @@ const nonEditableFeature = computed(() =>
 const popoverCoordinate = computed(() => {
     if (selectedFeatures.value.length > 0) {
         const [firstFeature] = selectedFeatures.value
+        if (firstFeature.geometry) {
+            return firstFeature.geometry.coordinates
+        }
         return Array.isArray(firstFeature.coordinates[0])
             ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
             : firstFeature.coordinates
