@@ -1,5 +1,16 @@
 <template>
-    <div v-if="isProjectionWebMercator" id="cesium" ref="viewer" data-cy="cesium-map">
+    <div
+        v-if="isProjectionWebMercator"
+        id="cesium"
+        ref="viewer"
+        class="cesium-widget"
+        data-cy="cesium-map"
+        @touchstart.passive="onTouchStart"
+        @touchmove.passive="clearLongPressTimer"
+        @touchend.passive="clearLongPressTimer"
+        @touchcancel="clearLongPressTimer"
+        @contextmenu="onContextMenu"
+    >
         <div v-if="viewerCreated">
             <!--
                Adding background layer, z-index can be set to zero for all, as only the WMTS
@@ -38,6 +49,7 @@
         <CesiumPopover
             v-if="viewerCreated && showFeaturesPopover"
             :coordinates="popoverCoordinates"
+            :projection="projection"
             authorize-print
             :use-content-padding="!!editFeature"
             @close="onPopupClose"
@@ -78,7 +90,6 @@ import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -99,6 +110,7 @@ import {
     SkyBox,
     Viewer,
 } from 'cesium'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
@@ -319,10 +331,6 @@ export default {
                 this.onClick,
                 ScreenSpaceEventType.LEFT_CLICK
             )
-            this.viewer.screenSpaceEventHandler.setInputAction(
-                this.onRightClick,
-                ScreenSpaceEventType.RIGHT_CLICK
-            )
 
             const globe = scene.globe
             globe.baseColor = Color.WHITE
@@ -383,13 +391,9 @@ export default {
                 return f.geometry
             })
             highlightGroup(this.viewer, geometries)
-            const featureCoords = Array.isArray(firstFeature.coordinates[0])
+            this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
                 ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
                 : firstFeature.coordinates
-            this.popoverCoordinates = reprojectUnknownSrsCoordsToWGS84(
-                featureCoords[0],
-                featureCoords[1]
-            )
         },
         flyToPosition() {
             if (this.cameraPosition) {
@@ -434,9 +438,9 @@ export default {
                 roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
             })
         },
-        getCoordinateAtMouseEvent(event) {
+        getCoordinateAtScreenCoordinate(x, y) {
+            const cartesian = this.viewer.scene.pickPosition(new Cartesian2(x, y))
             let coordinates = []
-            const cartesian = this.viewer.scene.pickPosition(event.position)
             if (cartesian) {
                 const cartCoords = Cartographic.fromCartesian(cartesian)
                 coordinates = proj4(WGS84.epsg, this.projection.epsg, [
@@ -444,14 +448,17 @@ export default {
                     (cartCoords.latitude * 180) / Math.PI,
                 ])
             } else {
-                log.error('no coordinate found under the mouse cursor', event)
+                log.error('no coordinate found at this screen coordinates', [x, y])
             }
             return coordinates
         },
         onClick(event) {
             unhighlightGroup(this.viewer)
             const features = []
-            let coordinates = this.getCoordinateAtMouseEvent(event)
+            let coordinates = this.getCoordinateAtScreenCoordinate(
+                event.position.x,
+                event.position.y
+            )
 
             let objects = this.viewer.scene.drillPick(event.position)
             const geoJsonFeatures = {}
@@ -513,12 +520,12 @@ export default {
                 )
             )
         },
-        onRightClick(event) {
-            const coordinates = this.getCoordinateAtMouseEvent(event)
+        onContextMenu(event) {
+            const coordinates = this.getCoordinateAtScreenCoordinate(event.clientX, event.clientY)
             this.click(
                 new ClickInfo(
                     coordinates,
-                    [event.position.x, event.position.y],
+                    [event.clientX, event.clientY],
                     [],
                     ClickType.CONTEXTMENU
                 )
@@ -528,6 +535,18 @@ export default {
             unhighlightGroup(this.viewer)
             this.clearAllSelectedFeatures()
         },
+        onTouchStart(event) {
+            this.clearLongPressTimer()
+            if (event.touches.length === 1) {
+                this.contextMenuTimeoutId = setTimeout(() => {
+                    const touch = event.touches[0]
+                    this.onContextMenu(touch)
+                }, 500)
+            }
+        },
+        clearLongPressTimer() {
+            clearTimeout(this.contextMenuTimeoutId)
+        },
     },
 }
 </script>
@@ -536,28 +555,11 @@ export default {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/toolbox-buttons';
 
-// rule can't be scoped otherwise canvas styles will be not applied
-:global(#cesium .cesium-viewer),
-:global(#cesium .cesium-widget canvas) {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+// rule can't be scoped otherwise styles will be not applied
+:global(.cesium-viewer .cesium-widget-credits) {
+    display: none !important;
 }
 
-#cesium {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    z-index: $zindex-map;
-
-    .cesium-viewer-bottom {
-        position: absolute;
-    }
-
-    .cesium-widget-credits {
-        display: none;
-    }
-}
 $compass-size: 95px;
 cesium-compass {
     position: absolute;
