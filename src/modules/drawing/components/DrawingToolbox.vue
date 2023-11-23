@@ -122,6 +122,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useI18n } from 'vue-i18n'
 import { mapGetters } from 'vuex'
 import { DrawingState } from '../lib/export-utils'
 import DrawingHeader from './DrawingHeader.vue'
@@ -178,15 +179,16 @@ export default {
 
         /** Return a different translation key depending on the saving status */
         drawingStateMessage() {
+            const i18n = useI18n()
             switch (this.drawingState) {
                 case DrawingState.SAVING:
-                    return this.$i18n.t('draw_file_saving')
+                    return i18n.t('draw_file_saving')
                 case DrawingState.SAVED:
-                    return this.$i18n.t('draw_file_saved')
+                    return i18n.t('draw_file_saved')
                 case DrawingState.SAVE_ERROR:
-                    return this.$i18n.t('draw_file_load_error')
+                    return i18n.t('draw_file_load_error')
                 case DrawingState.LOAD_ERROR:
-                    return this.$i18n.t('draw_file_save_error')
+                    return i18n.t('draw_file_save_error')
                 default:
                     return null
             }

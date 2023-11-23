@@ -17,6 +17,7 @@
 <script>
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
+import { useI18n } from 'vue-i18n'
 
 export default {
     components: { DropdownButton },
@@ -41,7 +42,7 @@ export default {
         },
         dropdownItems() {
             return this.sizes.map((size) => {
-                return new DropdownItem(this.$i18n.t(size.label), size)
+                return new DropdownItem(useI18n().t(size.label), size)
             })
         },
     },

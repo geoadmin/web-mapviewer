@@ -182,21 +182,22 @@
     </div>
 </template>
 <script>
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import { parseWmsCapabilities, parseWmtsCapabilities } from '@/api/layers/layers-external.api'
 import externalLayerProviders from '@/modules/infobox/utils/external-layer-providers.json'
 import {
-    isValidUrl,
+    guessExternalLayerUrl,
     isGpx,
     isKml,
+    isValidUrl,
     isWmsGetCap,
     isWmtsGetCap,
-    guessExternalLayerUrl,
 } from '@/modules/infobox/utils/external-provider'
-import { mapState } from 'vuex'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import ImportContentResultList from './ImportContentResultList.vue'
 import log from '@/utils/logging'
-import { parseWmsCapabilities, parseWmtsCapabilities } from '@/api/layers/layers-external.api'
 import axios from 'axios'
+import { useI18n } from 'vue-i18n'
+import { mapState } from 'vuex'
+import ImportContentResultList from './ImportContentResultList.vue'
 
 const BTN_RESET_TIMEOUT = 3000
 
@@ -249,16 +250,17 @@ export default {
             return !this.selectedFile
         },
         buttonText() {
+            const i18n = useI18n()
             if (this.uploadBtnStatus === 'loading') {
-                return this.$i18n.t('parsing_file')
+                return i18n.t('parsing_file')
             } else if (this.uploadBtnStatus === 'failed') {
-                return this.$i18n.t('parse_failed')
+                return i18n.t('parse_failed')
             } else if (this.uploadBtnStatus === 'succeeded') {
-                return this.$i18n.t('parse_succeeded')
+                return i18n.t('parse_succeeded')
             } else if (this.selectedTab === 'local') {
-                return this.$i18n.t('load_local_file')
+                return i18n.t('load_local_file')
             }
-            return this.$i18n.t('connect')
+            return i18n.t('connect')
         },
     },
     watch: {

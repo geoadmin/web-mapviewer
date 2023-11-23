@@ -13,6 +13,7 @@
 <script>
 import log from '@/utils/logging'
 import tippy from 'tippy.js'
+import { useI18n } from 'vue-i18n'
 import { mapState } from 'vuex'
 
 export default {
@@ -66,10 +67,10 @@ export default {
         },
         setTooltipContent() {
             this.copyTooltip?.forEach((instance) => {
-                instance.setContent(this.$i18n.t('copy_cta'))
+                instance.setContent(useI18n().t('copy_cta'))
             })
             this.copiedTooltip?.forEach((instance) => {
-                instance.setContent(this.$i18n.t('copy_done'))
+                instance.setContent(useI18n().t('copy_done'))
             })
         },
     },

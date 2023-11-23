@@ -19,6 +19,7 @@ if (navigator.languages) {
 const i18n = createI18n({
     locale: matchedLanguage || 'en', // default locale
     messages: languages,
+    legacy: false,
 })
 
 export default i18n
