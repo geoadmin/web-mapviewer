@@ -27,6 +27,7 @@
             />
         </div>
         <MenuSection
+            v-if="hasDevSiteWarning"
             id="toolsSection"
             ref="toolsSection"
             data-cy="menu-tray-tool-section"
@@ -97,7 +98,7 @@ export default {
             lang: (state) => state.i18n.lang,
             is3dMode: (state) => state.cesium.active,
         }),
-        ...mapGetters(['isPhoneMode']),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
         showLayerList() {
             return this.activeLayers.length > 0
         },

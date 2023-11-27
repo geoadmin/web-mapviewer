@@ -183,8 +183,8 @@ export const BASE_URL_3D_TILES = enforceEndingSlashInUrl(import.meta.env.VITE_AP
 export const WMS_TILE_SIZE = 512 // px
 
 /**
- * Map view's mininal resolution Currently set so that OL scalebar displays 10 meters Scalebar about
- * 1" on screen, hence about 100px. So, 10 meters/100px = 0.1 Caveat: setting resolution (mininum
+ * Map view's minimal resolution Currently set so that OL scalebar displays 10 meters Scalebar about
+ * 1" on screen, hence about 100px. So, 10 meters/100px = 0.1 Caveat: setting resolution (minimum
  * and maximum) has the precedence over zoom (minimum/maximum)
  */
 
@@ -250,7 +250,7 @@ export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_w
 export const VECTOR_TILES_IMAGERY_STYLE_ID = 'ch.swisstopo.leichte-basiskarte-imagery_world.vt'
 
 /**
- * Display a big developpment banner on all but these hosts.
+ * Display a big development banner on all but these hosts.
  *
  * @type {String[]}
  */
