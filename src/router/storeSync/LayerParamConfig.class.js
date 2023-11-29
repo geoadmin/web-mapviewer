@@ -159,12 +159,8 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             )
         ) {
             const layerObject = createLayerObject(parsedLayer)
-            if (
-                layerObject.type === LayerTypes.KML &&
-                layerObject.adminId &&
-                !layerObject.isLegacy() // TODO BGDIINF_SB-2685: remove once on prod
-            ) {
-                promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
+            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
+                promisesForAllDispatch.push(store.commit('setShowDrawingOverlay', true))
             }
             log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
             promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))

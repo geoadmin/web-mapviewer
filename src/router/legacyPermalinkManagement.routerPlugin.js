@@ -176,7 +176,11 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
 
-    if ('adminId' in legacyParams) {
+    // TODO BGDIINF_SB-2685: re-activate once on prod
+    //  we cannot let adminId get through right now because legacy KML will be broken by the new viewer if edited
+    //  (broken in a sense that they will not be usable by mf-geoadmin3 anymore)
+    const absolutelyNot = () => false
+    if (absolutelyNot() && 'adminId' in legacyParams) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         handleLegacyKmlAdminIdParam(legacyParams, newQuery)
