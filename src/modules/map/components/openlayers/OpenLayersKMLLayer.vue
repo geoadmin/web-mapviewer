@@ -1,7 +1,6 @@
 <script setup>
 /** Renders a KML file on the map */
 
-import { getKmlFromUrl } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { parseKml } from '@/modules/drawing/lib/drawingUtils'
@@ -9,7 +8,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-laye
 import log from '@/utils/logging'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, defineProps, inject, onUnmounted, ref, toRef, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -31,35 +30,31 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
+const iconsArePresent = computed(() => availableIconSets.value.length > 0)
+
 // extracting useful info from what we've linked so far
 const layerId = computed(() => layerConfig.value.getID())
 const opacity = computed(() => layerConfig.value.opacity || 1.0)
 const url = computed(() => layerConfig.value.getURL())
+const isLoading = computed(() => layerConfig.value.isLoading)
+const kmlData = computed(() => layerConfig.value.kmlData)
 
-const kmlData = ref(null)
-
-function addFeatures(features) {
-    if (features) {
-        layer.setSource(new VectorSource({ wrapX: true, projection: projection.value.epsg }))
-        layer.getSource().addFeatures(features)
-    } else {
-        log.error(`No KML features available to add`, features)
+function createSourceForProjection() {
+    if (!kmlData.value) {
+        log.debug('no KML data loaded yet, could not create source')
+        return
     }
-}
-async function loadKml(url) {
-    try {
-        kmlData.value = await getKmlFromUrl(url)
-
-        // We cannot add the KML features without deserializing it.
-        // And to deserialize we need the icon sets, which might not be yet available.
-        // Therefore, we keep the raw kml features in memory when the icon sets are not yet available.
-        if (availableIconSets.value?.length) {
-            const features = parseKml(kmlData.value, projection.value, availableIconSets.value)
-            addFeatures(features)
-        }
-    } catch (error) {
-        log.error(`Failed to load kml from ${url}`, error)
+    if (!availableIconSets.value || availableIconSets.value.length === 0) {
+        log.debug('no icons loaded yet, could not create source')
+        return
     }
+    layer.setSource(
+        new VectorSource({
+            wrapX: true,
+            projection: projection.value.epsg,
+            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
+        })
+    )
 }
 
 /* We cannot directly let the vectorSource load the URL. We need to run the deserialize
@@ -70,7 +65,6 @@ const layer = new VectorLayer({
     id: layerId.value,
     opacity: opacity.value,
 })
-loadKml(url.value)
 
 const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
@@ -80,6 +74,11 @@ if (IS_TESTING_WITH_CYPRESS) {
     window.kmlLayer = layer
     window.kmlLayerUrl = url.value
 }
+onMounted(() => {
+    if (!iconsArePresent.value) {
+        store.dispatch('loadAvailableIconSets')
+    }
+})
 onUnmounted(() => {
     if (IS_TESTING_WITH_CYPRESS) {
         delete window.kmlLayer
@@ -87,15 +86,15 @@ onUnmounted(() => {
     }
 })
 
-watch(url, (newUrl) => loadKml(newUrl))
+createSourceForProjection()
+
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, () => loadKml(url.value))
-watch(availableIconSets, (newIconSets) => {
-    // If we have previously loaded raw kml features, see loadKml(), then
-    // add them to the vector source.
-    if (kmlData.value) {
-        const features = parseKml(kmlData.value, projection.value, newIconSets)
-        addFeatures(features)
-    }
-})
+watch(projection, createSourceForProjection)
+watch(iconsArePresent, createSourceForProjection)
+watch(isLoading, createSourceForProjection)
+watch(availableIconSets, createSourceForProjection)
 </script>
+
+<template>
+    <slot />
+</template>

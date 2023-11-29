@@ -1,6 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
-import log from '@/utils/logging'
 
 /**
  * @typedef SelectedFeatureData
@@ -61,21 +60,6 @@ export default {
         },
         setDrawingFeatures({ commit }, featureIds) {
             commit('setDrawingFeatures', featureIds)
-        },
-        setKmlLayerAddToMap({ commit, rootGetters }, payload) {
-            if ('addToMap' in payload && 'layerId' in payload) {
-                const layer = rootGetters.getActiveLayerById(payload.layerId)?.clone()
-                if (layer) {
-                    layer.addToMap = payload.addToMap
-                    commit('addLayer', { layer: layer, metadata: null })
-                } else {
-                    log.error(
-                        `KML Layer ID ${payload.layerId} not found in active layers, cannot change its addToMap flag`
-                    )
-                }
-            } else {
-                log.error('Cannot set KML layer addToMap invalid payload', payload)
-            }
         },
     },
     mutations: {

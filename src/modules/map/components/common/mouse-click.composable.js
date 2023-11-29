@@ -57,7 +57,7 @@ export function useMouseOnMap() {
             visibleKMLLayers.value.forEach((kmlLayer) => {
                 features.push(
                     ...identifyKMLFeatureAt(
-                        kmlLayer.kmlData,
+                        kmlLayer,
                         coordinate,
                         currentProjection.value,
                         currentMapResolution.value

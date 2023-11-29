@@ -85,15 +85,6 @@ export default class AbstractLayer {
         return clone
     }
 
-    /**
-     * Get layer metadata
-     *
-     * @returns {Object | null} Metadata object
-     */
-    async getMetadata() {
-        return null
-    }
-
     get hasLegend() {
         return this.type !== LayerTypes.KML && !this.isExternal
     }

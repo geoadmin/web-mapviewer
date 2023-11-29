@@ -170,7 +170,7 @@ export default {
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
-                (l) => l instanceof GeoAdminGeoJsonLayer || (l.addToMap && l instanceof KMLLayer)
+                (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer
             )
         },
         showFeaturesPopover() {
