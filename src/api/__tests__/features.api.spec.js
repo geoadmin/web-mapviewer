@@ -1,9 +1,9 @@
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
 import { expect } from 'chai'
-import { describe, it } from 'vitest'
 import Feature from 'ol/Feature.js'
 import Polygon from 'ol/geom/Polygon.js'
+import { describe, it } from 'vitest'
 
 const stringifiedTestObject = `{"id":"drawing_feature_2",\
 "title":"This is a title",\
@@ -59,7 +59,7 @@ describe('Validate features api', () => {
             expect(editableFeature).to.be.not.null
             expect(editableFeature).to.be.equal(stringifiedTestObject)
 
-            const reconstructed = EditableFeature.deserialize(testFeature)
+            const reconstructed = EditableFeature.fromOlFeature(testFeature)
             expect(reconstructed).to.be.instanceOf(EditableFeature)
             expect(reconstructed.id).to.be.equal(testObject.id)
             expect(reconstructed.coordinates).to.deep.equal(testObject.coordinates)
