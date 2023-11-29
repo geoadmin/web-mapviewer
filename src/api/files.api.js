@@ -1,4 +1,4 @@
-import { API_SERVICE_KML_BASE_URL, API_SERVICE_KML_STORAGE_BASE_URL } from '@/config'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 import axios from 'axios'
 import FormData from 'form-data'
@@ -65,7 +65,7 @@ export class KmlMetadata {
     }
 }
 
-const urlPrefix = 'api/kml/'
+const kmlBaseUrl = `${API_SERVICE_KML_BASE_URL}api/kml/`
 
 function validateId(id, reject) {
     if (!id) {
@@ -107,17 +107,7 @@ function buildKmlForm(kml, reject) {
  * @returns {string} URL of the kml file
  */
 export const getKmlUrl = (id) => {
-    return `${API_SERVICE_KML_STORAGE_BASE_URL}${urlPrefix}files/${id}`
-}
-
-/**
- * Get KML file metada URL
- *
- * @param {string} id KML id
- * @returns {string} URL of the kml file metadata
- */
-export const getKmlMetadataUrl = (id) => {
-    return `${API_SERVICE_KML_BASE_URL}${urlPrefix}admin/${id}`
+    return `${kmlBaseUrl}files/${id}`
 }
 
 /**
@@ -132,7 +122,7 @@ export const createKml = (kml) => {
         form.append('author', 'web-mapviewer')
         form.append('author_version', '1.0.0')
         axios
-            .post(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin`, form)
+            .post(`${kmlBaseUrl}admin`, form)
             .then((response) => {
                 if (
                     response.status === 201 &&
@@ -169,7 +159,7 @@ export const updateKml = (id, adminId, kml) => {
         const form = buildKmlForm(kml, reject)
         form.append('admin_id', adminId)
         axios
-            .put(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin/${id}`, form)
+            .put(`${kmlBaseUrl}admin/${id}`, form)
             .then((response) => {
                 if (
                     response.status === 200 &&
@@ -242,7 +232,11 @@ export const getKmlMetadataByAdminId = (adminId) => {
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
-            .get(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin?admin_id=${adminId}`)
+            .get(`${kmlBaseUrl}admin`, {
+                params: {
+                    admin_id: adminId,
+                },
+            })
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     resolve(KmlMetadata.fromApiData(response.data))
@@ -270,7 +264,7 @@ export const getKmlMetadata = (fileId, adminId = null) => {
     return new Promise((resolve, reject) => {
         validateId(fileId, reject)
         axios
-            .get(getKmlMetadataUrl(fileId))
+            .get(`${kmlBaseUrl}admin/${kmlLayer.fileId}`)
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     let metadata = KmlMetadata.fromApiData(response.data)
