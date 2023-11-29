@@ -1,16 +1,4 @@
-<template>
-    <div>
-        <slot />
-    </div>
-</template>
-
-<script>
-import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
-import log from '@/utils/logging'
-import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
-import axios from 'axios'
-import addLayerToMapMixin from './utils/addLayerToMap-mixins'
-
+<script setup>
 /**
  * Renders a Vector layer on the map with MapLibre.
  *
@@ -20,87 +8,90 @@ import addLayerToMapMixin from './utils/addLayerToMap-mixins'
  *
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
-export default {
-    mixins: [addLayerToMapMixin],
-    props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        styleUrl: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 1.0,
-        },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
+
+import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
+import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import log from '@/utils/logging'
+import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
+import axios from 'axios'
+import { computed, inject, toRef, watch } from 'vue'
+
+const props = defineProps({
+    vectorLayerConfig: {
+        type: GeoAdminVectorLayer,
+        required: true,
     },
-    watch: {
-        opacity(newOpacity) {
-            this.layer.setOpacity(newOpacity)
-        },
-        styleUrl(newStyleUrl) {
-            this.setMapLibreStyle(newStyleUrl)
-        },
+    zIndex: {
+        type: Number,
+        default: -1,
     },
-    created() {
-        this.layer = new MapLibreLayer({
-            id: this.layerId,
-            opacity: this.opacity,
-            maplibreOptions: {
-                style: this.styleUrl,
-            },
-        })
-        this.setMapLibreStyle(this.styleUrl)
-    },
-    methods: {
-        setMapLibreStyle(styleUrl) {
-            if (!this.layer?.maplibreMap) {
-                log.error('MapLibre instance is not attached to the layer')
-                return
-            }
-            // most of this methods will be edited while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2741
-            if (this.layerId === VECTOR_TILES_IMAGERY_STYLE_ID) {
-                // special case here, as the imagery is only over Switzerland (for now)
-                // we inject a fair-use WMTS that covers the globe under our aerial images
-                axios
-                    .get(styleUrl)
-                    .then((response) => {
-                        const vectorStyle = response.data
-                        // settings SwissImage to use the tiled WMS instead
-                        // otherwise it covers the whole world with white tiles (when no data is present)
-                        vectorStyle.sources.swissimage_wmts.tiles = [
-                            'https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.swisstopo.swissimage&LANG=en&WIDTH=256&HEIGHT=256&CRS=EPSG%3A3857&STYLES=&BBOX={bbox-epsg-3857}',
-                        ]
-                        // setting up Sentinel2 WMTS to cover the globe outside of Switzerland
-                        vectorStyle.sources['sentinel2_wmts'] = {
-                            minzoom: 0,
-                            maxzoom: 22,
-                            tileSize: 256,
-                            type: 'raster',
-                            tiles: [
-                                'https://tiles.maps.eox.at/wmts?layer=s2cloudless-2020_3857&style=default&tilematrixset=g&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix={z}&TileCol={x}&TileRow={y}',
-                            ],
-                        }
-                        vectorStyle.layers.splice(1, 0, {
-                            id: 'sentinel2',
-                            source: 'sentinel2_wmts',
-                            type: 'raster',
-                        })
-                        this.layer.maplibreMap.setStyle(vectorStyle)
-                    })
-                    .catch((err) => {
-                        log.error('Error while fetching MapLibre style', styleUrl, err)
-                    })
-            } else {
-                this.layer.maplibreMap.setStyle(styleUrl)
-            }
-        },
-    },
+})
+// if we do not wrap props around refs, we lose reactivity
+const layerConfig = toRef(props, 'vectorLayerConfig')
+const zIndex = toRef(props, 'zIndex')
+
+// extracting useful info from what we've linked so far
+const layerId = computed(() => layerConfig.value.getID())
+const opacity = computed(() => layerConfig.value.opacity || 1.0)
+const styleUrl = computed(() => layerConfig.value.getURL())
+
+function setMapLibreStyle(styleUrl) {
+    if (!layer?.maplibreMap) {
+        log.error('MapLibre instance is not attached to the layer')
+        return
+    }
+    // most of this methods will be edited while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2741
+    if (layerId.value === VECTOR_TILES_IMAGERY_STYLE_ID) {
+        // special case here, as the imagery is only over Switzerland (for now)
+        // we inject a fair-use WMTS that covers the globe under our aerial images
+        axios
+            .get(styleUrl)
+            .then((response) => {
+                const vectorStyle = response.data
+                // settings SwissImage to use the tiled WMS instead
+                // otherwise it covers the whole world with white tiles (when no data is present)
+                vectorStyle.sources.swissimage_wmts.tiles = [
+                    'https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.swisstopo.swissimage&LANG=en&WIDTH=256&HEIGHT=256&CRS=EPSG%3A3857&STYLES=&BBOX={bbox-epsg-3857}',
+                ]
+                // setting up Sentinel2 WMTS to cover the globe outside of Switzerland
+                vectorStyle.sources['sentinel2_wmts'] = {
+                    minzoom: 0,
+                    maxzoom: 22,
+                    tileSize: 256,
+                    type: 'raster',
+                    tiles: [
+                        'https://tiles.maps.eox.at/wmts?layer=s2cloudless-2020_3857&style=default&tilematrixset=g&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix={z}&TileCol={x}&TileRow={y}',
+                    ],
+                }
+                vectorStyle.layers.splice(1, 0, {
+                    id: 'sentinel2',
+                    source: 'sentinel2_wmts',
+                    type: 'raster',
+                })
+                layer.maplibreMap.setStyle(vectorStyle)
+            })
+            .catch((err) => {
+                log.error('Error while fetching MapLibre style', styleUrl, err)
+            })
+    } else {
+        layer.maplibreMap.setStyle(styleUrl)
+    }
 }
+
+const layer = new MapLibreLayer({
+    id: layerId.value,
+    opacity: opacity.value,
+})
+setMapLibreStyle(styleUrl.value)
+
+const olMap = inject('olMap')
+useAddLayerToMap(layer, olMap, zIndex)
+
+watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(styleUrl, (newStyleUrl) => setMapLibreStyle(newStyleUrl))
 </script>
+
+<template>
+    <slot />
+</template>

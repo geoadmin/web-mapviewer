@@ -1,3 +1,45 @@
+<script setup>
+/**
+ * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
+ * correct OpenLayers counterpart depending on the layer type.
+ */
+
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
+import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { computed, toRef } from 'vue'
+import { useStore } from 'vuex'
+import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
+import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
+import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
+import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+
+const props = defineProps({
+    layerConfig: {
+        type: AbstractLayer,
+        default: null,
+    },
+    zIndex: {
+        type: Number,
+        default: -1,
+    },
+})
+const layerConfig = toRef(props, 'layerConfig')
+const zIndex = toRef(props, 'zIndex')
+
+const store = useStore()
+const projection = computed(() => store.state.position.projection)
+const resolution = computed(() => store.getters.resolution)
+
+function shouldAggregateSubLayerBeVisible(subLayer) {
+    // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
+    // have to worry about checking their validity
+    return resolution.value >= subLayer.minResolution && resolution.value <= subLayer.maxResolution
+}
+</script>
+
 <template>
     <div>
         <!--
@@ -10,41 +52,29 @@
         -->
         <OpenLayersVectorLayer
             v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
+            :vector-layer-config="layerConfig"
             :z-index="zIndex"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :style-url="layerConfig.getURL()"
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
-            :preview-year="previewYear"
-            :projection="projection"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
             :external-wmts-layer-config="layerConfig"
-            :projection="projection"
             :z-index="zIndex"
         />
-        <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :wms-layer-config="layerConfig"
-            :preview-year="previewYear"
-            :projection="projection"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :geojson-url="layerConfig.geoJsonUrl"
-            :style-url="layerConfig.styleUrl"
-            :projection="projection"
+            :geo-json-config="layerConfig"
             :z-index="zIndex"
         />
         <div v-if="layerConfig.type === LayerTypes.GROUP">
@@ -71,90 +101,15 @@
                 <OpenLayersInternalLayer
                     v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                     :layer-config="aggregateSubLayer.layer"
-                    :projection="projection"
                     :z-index="zIndex"
                 />
             </div>
         </div>
         <OpenLayersKMLLayer
             v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
-            :projection="projection"
+            :kml-layer-config="layerConfig"
             :z-index="zIndex"
         />
         <slot />
     </div>
 </template>
-
-<script>
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
-import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
-import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
-import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
-import { mapState } from 'vuex'
-
-/**
- * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
- * correct OpenLayers counterpart depending on the layer type.
- */
-export default {
-    // So that we can recursively call ourselves in the template for aggregate layers
-    name: 'OpenLayersInternalLayer',
-    components: {
-        OpenLayersExternalWMTSLayer,
-        OpenLayersKMLLayer,
-        OpenLayersGeoJSONLayer,
-        OpenLayersWMSLayer,
-        OpenLayersWMTSLayer,
-        OpenLayersVectorLayer,
-    },
-    props: {
-        layerConfig: {
-            type: AbstractLayer,
-            default: null,
-        },
-        // In order to be able to manage aggregate layers we need to know the current map resolution
-        currentMapResolution: {
-            type: Number,
-            default: -1,
-        },
-        previewYear: {
-            type: Number,
-            default: null,
-        },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
-    },
-    data() {
-        return {
-            LayerTypes,
-            LV95,
-            WEBMERCATOR,
-        }
-    },
-    computed: {
-        ...mapState({
-            projection: (state) => state.position.projection,
-        }),
-    },
-    methods: {
-        shouldAggregateSubLayerBeVisible(subLayer) {
-            // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
-            // have to worry about checking their validity
-            return (
-                this.currentMapResolution >= subLayer.minResolution &&
-                this.currentMapResolution <= subLayer.maxResolution
-            )
-        },
-    },
-}
-</script>

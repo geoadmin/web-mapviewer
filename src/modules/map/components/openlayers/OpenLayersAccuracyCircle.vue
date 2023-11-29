@@ -1,68 +1,59 @@
-<template>
-    <div>
-        <slot />
-    </div>
-</template>
+<script setup>
+/**
+ * Component managing the rendering of a red transparent circle to show currently how accurate is
+ * the geolocation
+ */
 
-<script>
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { Fill, Stroke, Style } from 'ol/style'
-import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { computed, inject, toRef, watch } from 'vue'
+import { useStore } from 'vuex'
 
-const accuracyCircleStyle = new Style({
-    fill: new Fill({
-        color: [255, 0, 0, 0.1],
-    }),
-    stroke: new Stroke({
-        color: [255, 0, 0, 0.9],
-        width: 3,
+const props = defineProps({
+    zIndex: {
+        type: Number,
+        default: -1,
+    },
+})
+// if we do not wrap props around refs, we lose reactivity
+const zIndex = toRef(props, 'zIndex')
+
+// mapping relevant store values
+const store = useStore()
+const position = computed(() => store.state.layers.previewYear)
+const accuracy = computed(() => store.state.position.projection)
+
+const accuracyCircle = new Circle(position.value, accuracy.value)
+const accuracyCircleFeature = new Feature({
+    geometry: accuracyCircle,
+})
+accuracyCircleFeature.setStyle(
+    new Style({
+        fill: new Fill({
+            color: [255, 0, 0, 0.1],
+        }),
+        stroke: new Stroke({
+            color: [255, 0, 0, 0.9],
+            width: 3,
+        }),
+    })
+)
+const layer = new VectorLayer({
+    id: `geolocation-accuracy-layer`,
+    source: new VectorSource({
+        features: [accuracyCircleFeature],
     }),
 })
 
-/**
- * Component managing the rendering of a red transparent circle to show currently how accurate is
- * the geolocation
- */
-export default {
-    mixins: [addLayerToMapMixin],
-    inject: ['getMap'],
-    props: {
-        position: {
-            type: Array,
-            required: true,
-        },
-        accuracy: {
-            type: Number,
-            required: true,
-        },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
-    },
-    watch: {
-        position(newPosition) {
-            this.accuracyCircle.setCenter(newPosition)
-        },
-        accuracy(newAccuracy) {
-            this.accuracyCircle.setRadius(newAccuracy)
-        },
-    },
-    created() {
-        this.accuracyCircle = new Circle(this.position, this.accuracy)
-        this.accuracyCircleFeature = new Feature({
-            geometry: this.accuracyCircle,
-        })
-        this.accuracyCircleFeature.setStyle(accuracyCircleStyle)
-        this.layer = new VectorLayer({
-            id: `geolocation-accuracy-layer`,
-            source: new VectorSource({
-                features: [this.accuracyCircleFeature],
-            }),
-        })
-    },
-}
+// grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
+const olMap = inject('olMap', null)
+useAddLayerToMap(layer, olMap, zIndex)
+
+// reacting to changes accordingly
+watch(position, (newPosition) => accuracyCircle.setCenter(newPosition))
+watch(accuracy, (newAccuracy) => accuracyCircle.setRadius(newAccuracy))
 </script>
