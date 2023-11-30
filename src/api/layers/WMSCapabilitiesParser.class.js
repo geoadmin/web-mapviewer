@@ -7,6 +7,21 @@ import log from '@/utils/logging'
 import { WMSCapabilities } from 'ol/format'
 import proj4 from 'proj4'
 
+function findLayer(layerId, startFrom, parents) {
+    let found = {}
+    const layers = startFrom
+
+    for (let i = 0; i < layers.length && !found.layer; i++) {
+        if (layers[i].Name === layerId || layers[i].Title === layerId) {
+            found.layer = layers[i]
+            found.parents = parents
+        } else if (layers[i].Layer?.length > 0) {
+            found = findLayer(layerId, layers[i].Layer, [layers[i], ...parents])
+        }
+    }
+    return found
+}
+
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
 export default class WMSCapabilitiesParser {
     constructor(content, originUrl) {
@@ -15,7 +30,7 @@ export default class WMSCapabilitiesParser {
             Object.assign(this, parser.read(content))
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
-            throw new Error(`Failed to parse WMTS Capabilities: invalid content`)
+            throw new Error(`Failed to parse WMTS Capabilities: invalid content: ${error}`)
         }
 
         this.originUrl = new URL(originUrl)
@@ -32,22 +47,7 @@ export default class WMSCapabilitiesParser {
      *   Capability layer node and its parents or an empty object if not found
      */
     findLayer(layerId) {
-        return this._findLayer(layerId, this.Capability.Layer.Layer, [this.Capability.Layer])
-    }
-
-    _findLayer(layerId, startFrom, parents) {
-        let found = {}
-        const layers = startFrom
-
-        for (let i = 0; i < layers.length && !found.layer; i++) {
-            if (layers[i].Name === layerId || layers[i].Title === layerId) {
-                found.layer = layers[i]
-                found.parents = parents
-            } else if (layers[i].Layer?.length > 0) {
-                found = this._findLayer(layerId, layers[i].Layer, [layers[i], ...parents])
-            }
-        }
-        return found
+        return findLayer(layerId, this.Capability.Layer.Layer, [this.Capability.Layer])
     }
 
     /**
@@ -64,9 +64,12 @@ export default class WMSCapabilitiesParser {
     getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
         const { layer, parents } = this.findLayer(layerId)
         if (!layer) {
-            throw new Error(
-                `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
-            )
+            const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            log.error(msg)
+            if (ignoreError) {
+                return null
+            }
+            throw new Error(msg)
         }
         return this._getExternalLayerObject(
             layer,
@@ -168,14 +171,20 @@ export default class WMSCapabilitiesParser {
             throw new Error(msg)
         }
 
-        if (!this.version) {
-            throw new Error(`No WMS version found in Capabilities of ${this.originUrl.toString()}`)
+        if (!this.version || !WMS_SUPPORTED_VERSIONS.includes(this.version)) {
+            let msg = ''
+            if (!this.version) {
+                msg = `No WMS version found in Capabilities of ${this.originUrl.toString()}`
+            } else {
+                msg = `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
+            }
+            log.error(msg, layer)
+            if (ignoreError) {
+                return {}
+            }
+            throw new Error(msg)
         }
-        if (!WMS_SUPPORTED_VERSIONS.includes(this.version)) {
-            throw new Error(
-                `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
-            )
-        }
+
         return {
             layerId: layerId,
             title: layer.Title,
@@ -184,7 +193,7 @@ export default class WMSCapabilitiesParser {
                 this.originUrl.toString(),
             version: this.version,
             abstract: layer.Abstract,
-            attributions: this._getLayerAttribution(layer),
+            attributions: this._getLayerAttribution(layerId, layer, ignoreError),
             extent: this._getLayerExtent(layerId, layer, parents, projection, ignoreError),
         }
     }
@@ -248,18 +257,25 @@ export default class WMSCapabilitiesParser {
         return layerExtent
     }
 
-    _getLayerAttribution(layer) {
+    _getLayerAttribution(layerId, layer, ignoreError) {
         let title = null
         let url = null
-        if (layer.Attribution || this.Capability.Layer.Attribution) {
-            const attribution = layer.Attribution || this.Capability.Layer.Attribution
-            url = attribution.OnlineResource
-            title =
-                attribution.Title || new URL(attribution.OnlineResource || this.originUrl).hostname
-        } else {
-            title =
-                this.Service?.Title ||
-                new URL(this.Service?.OnlineResource || this.originUrl).hostname
+        try {
+            if (layer.Attribution || this.Capability.Layer.Attribution) {
+                const attribution = layer.Attribution || this.Capability.Layer.Attribution
+                url = attribution.OnlineResource
+                title = attribution.Title || new URL(attribution.OnlineResource).hostname
+            } else {
+                title = this.Service?.Title || new URL(this.Service?.OnlineResource).hostname
+            }
+        } catch (error) {
+            const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
+            log.error(msg, layer, error)
+            if (!ignoreError) {
+                throw new Error(msg)
+            }
+            title = new URL(this.originUrl).hostname
+            url = null
         }
 
         return [new LayerAttribution(title, url)]

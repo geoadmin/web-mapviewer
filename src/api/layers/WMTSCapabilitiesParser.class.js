@@ -5,12 +5,26 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import proj4 from 'proj4'
 
-export function parseCrs(crs) {
+function parseCrs(crs) {
     let epsgNumber = crs?.split(':').pop()
     if (/84/.test(epsgNumber)) {
         epsgNumber = '4326'
     }
     return allCoordinateSystems.find((system) => system.epsg === `EPSG:${epsgNumber}`)
+}
+
+function findLayer(layerId, startFrom) {
+    let layer = null
+    const layers = startFrom
+
+    for (let i = 0; i < layers.length && !layer; i++) {
+        if (layers[i].Identifier === layerId) {
+            layer = layers[i]
+        } else if (!layers[i].Identifier && layers[i].Title === layerId) {
+            layer = layers[i]
+        }
+    }
+    return layer
 }
 
 /** Wrapper around the OpenLayer WMSCapabilities to add more functionalities */
@@ -32,21 +46,7 @@ export default class WMTSCapabilitiesParser {
      * @returns {WMTSCapabilities.Contents.Layer} Capability layer node
      */
     findLayer(layerId) {
-        return this._findLayer(layerId, this.Contents.Layer)
-    }
-
-    _findLayer(layerId, startFrom) {
-        let layer = null
-        const layers = startFrom
-
-        for (let i = 0; i < layers.length && !layer; i++) {
-            if (layers[i].Identifier === layerId) {
-                layer = layers[i]
-            } else if (!layers[i].Identifier && layers[i].Title === layerId) {
-                layer = layers[i]
-            }
-        }
-        return layer
+        return findLayer(layerId, this.Contents.Layer)
     }
 
     /**
@@ -63,9 +63,12 @@ export default class WMTSCapabilitiesParser {
     getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
         const layer = this.findLayer(layerId)
         if (!layer) {
-            throw new Error(
-                `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
-            )
+            const msg = `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            log.error(msg)
+            if (!ignoreError) {
+                throw new Error(msg)
+            }
+            return null
         }
         return this._getExternalLayerObject(layer, projection, opacity, visible, ignoreError)
     }
