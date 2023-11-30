@@ -58,13 +58,8 @@ async function updateExternalLayer(store, externalLayer, projection) {
 
 async function updatedWMSLayerAttributes(externalLayer, projection) {
     const capabilities = await readWmsCapabilities(externalLayer.baseURL)
-
-    const layer = capabilities.findLayer(externalLayer.externalLayerId)
-    if (!layer) {
-        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
-    }
     const newObject = capabilities.getExternalLayerObject(
-        layer,
+        externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
         externalLayer.visible
@@ -79,13 +74,8 @@ async function updatedWMSLayerAttributes(externalLayer, projection) {
 
 async function updatedWMTSLayerAttributes(externalLayer, projection) {
     const capabilities = await readWmtsCapabilities(externalLayer.baseURL)
-
-    const layer = capabilities.findLayer(externalLayer.externalLayerId)
-    if (!layer) {
-        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
-    }
     const newObject = capabilities.getExternalLayerObject(
-        layer,
+        externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
         externalLayer.visible

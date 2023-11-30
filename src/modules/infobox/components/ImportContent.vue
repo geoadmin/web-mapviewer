@@ -352,14 +352,10 @@ export default {
                     height: capabilities.Service.MaxHeight,
                 }
             }
-            this.importedLayers = capabilities.Capability.Layer.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, this.projection, 1, true)
-            ).filter((layer) => !!layer)
+            this.importedLayers = capabilities.getAllExternalLayerObjects(this.projection, 1, true)
         },
         handleWmts(capabilities) {
-            this.importedLayers = capabilities.Contents.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, this.projection, 1, true)
-            ).filter((layer) => !!layer)
+            this.importedLayers = capabilities.getAllExternalLayerObjects(this.projection, 1, true)
         },
         async handleFileUrl() {
             this.wmsMaxSize = undefined
