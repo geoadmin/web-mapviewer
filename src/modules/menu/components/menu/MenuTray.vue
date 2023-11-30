@@ -65,6 +65,7 @@ import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import tippy, { followCursor } from 'tippy.js'
+import { useI18n } from 'vue-i18n'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
@@ -81,6 +82,12 @@ export default {
             type: Boolean,
             default: false,
         },
+    },
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
     },
     data() {
         return {
@@ -151,7 +158,7 @@ export default {
         },
         setDisableDrawingTooltipContent() {
             this.disableDrawingTooltip?.forEach((instance) => {
-                instance.setContent(this.$i18n.t('legacy_drawing_warning'))
+                instance.setContent(this.i18n.t('legacy_drawing_warning'))
             })
         },
     },

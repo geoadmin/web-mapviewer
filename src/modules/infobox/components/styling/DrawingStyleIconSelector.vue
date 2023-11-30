@@ -79,6 +79,7 @@ import DrawingStyleColorSelector from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { MEDIUM } from '@/utils/featureStyleUtils'
+import { useI18n } from 'vue-i18n'
 
 export default {
     components: {
@@ -97,6 +98,12 @@ export default {
         },
     },
     emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
+    },
     data: function () {
         return {
             showAllSymbols: false,
@@ -109,13 +116,13 @@ export default {
     computed: {
         currentIconSetName() {
             return this.currentIconSet
-                ? this.$i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
+                ? this.i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
                 : ''
         },
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
                 return new DropdownItem(
-                    this.$i18n.t(`modify_icon_category_${iconSet.name}_label`),
+                    this.i18n.t(`modify_icon_category_${iconSet.name}_label`),
                     iconSet
                 )
             })
