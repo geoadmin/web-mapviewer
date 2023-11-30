@@ -342,6 +342,37 @@ describe('WMSCapabilitiesParser - attributions', () => {
         expect(layer.attributions[0].name).toBe('www.geo.admin.ch')
         expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
     })
+
+    it('Parse layer attribution - invalid attribution URL', () => {
+        let content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
+        <WMS_Capabilities version="1.3.0">
+            <Capability>
+                <Layer>
+                    <Title>WMS BGDI</Title>
+                    <Layer queryable="1" opaque="0" cascaded="1">
+                        <Name>ch.swisstopo-vd.official-survey</Name>
+                        <Title>OpenData-AV</Title>
+                        <Attribution>
+                        <OnlineResource
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:href="invalid-url"
+                        />
+                        </Attribution>
+                    </Layer>
+                </Layer>
+            </Capability>
+        </WMS_Capabilities>
+        `
+        let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        // No attribution, use Service
+        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer.externalLayerId).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer.attributions).toBeArray()
+        expect(layer.attributions.length).toBe(1)
+        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer.attributions[0].name).toBe('wms.geo.admin.ch')
+        expect(layer.attributions[0].url).toBeNull()
+    })
 })
 
 describe('WMSCapabilitiesParser - layer extent', () => {
