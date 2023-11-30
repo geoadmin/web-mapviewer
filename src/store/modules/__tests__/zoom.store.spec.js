@@ -1,8 +1,10 @@
 import store from '@/store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { expect } from 'chai'
+import proj4 from 'proj4'
 import { beforeEach, describe, it } from 'vitest'
 
-describe('Zoom level is calculated correctly in the store', () => {
+describe('Zoom level is calculated correctly in the store when using WebMercator as the projection', () => {
     const screenSize = 100
     const lat = 45
     const lon = 8
@@ -11,14 +13,14 @@ describe('Zoom level is calculated correctly in the store', () => {
     const getResolution = () => store.getters.resolution
 
     beforeEach(async () => {
+        await store.dispatch('setProjection', WEBMERCATOR)
         // first we setup a fake screen of 100px by 100px
         await store.dispatch('setSize', {
             width: screenSize,
             height: screenSize,
         })
         // we now then center the view on wanted coordinates
-        await store.dispatch('setLatitude', lat)
-        await store.dispatch('setLongitude', lon)
+        await store.dispatch('setCenter', proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]))
     })
 
     it("Doesn't allow negative zoom level, or non numerical value as a zoom level", async () => {
@@ -78,7 +80,7 @@ describe('Zoom level is calculated correctly in the store', () => {
         )
 
         // we move to the equator so that resolution values should then match tables
-        await store.dispatch('setLatitude', 0)
+        await store.dispatch('setCenter', proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, 0]))
         expect(getResolution()).to.approximately(resolutionAtZoom10, toleratedDelta)
 
         await store.dispatch('setZoom', 2)
@@ -89,7 +91,7 @@ describe('Zoom level is calculated correctly in the store', () => {
         // at zoom level 2, resolution should be of about 39'103 meter per pixel at equator
         expect(getResolution()).to.approximately(resolutionAtZoom2, toleratedDelta)
         // let's go back to latitude 45 and check resolution again
-        await store.dispatch('setLatitude', lat)
+        await store.dispatch('setCenter', proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]))
         expect(getResolution()).to.approximately(
             resolutionAtZoom2 * Math.cos((lat * Math.PI) / 180.0),
             toleratedDelta

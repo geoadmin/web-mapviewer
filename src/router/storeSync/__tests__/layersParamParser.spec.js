@@ -1,4 +1,3 @@
-import ExternalWMTSLayer from "@/api/layers/ExternalWMTSLayer.class";
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
@@ -69,7 +68,7 @@ describe('Testing layersParamParser', () => {
             {
                 id: 'WMTS|https://totally.fake.wmts.url/WMTSGetCapabilties.xml|a.layer.id|A name for the external WMTS layer',
                 opacity: 0.8,
-            }
+            },
         ]
         // building query string
         let queryString = ''
@@ -166,7 +165,8 @@ describe('Testing layersParamParser', () => {
             expect(layer.opacity).to.eq(0.6)
         })
         it('parses an external WMTS layer correctly', () => {
-            const externalLayerIdInUrl = 'WMTS|https://fake.wmts.admin.ch|some_fake_layer_id|Fake WMTS Layer'
+            const externalLayerIdInUrl =
+                'WMTS|https://fake.wmts.admin.ch|some_fake_layer_id|Fake WMTS Layer'
             const results = layersParamParser(`${externalLayerIdInUrl},t,1.0`)
             expect(results).to.be.an('Array').length(1)
             const [externalWMTSLayer] = results
@@ -176,7 +176,8 @@ describe('Testing layersParamParser', () => {
             expect(externalWMTSLayer.opacity).to.eq(1.0)
         })
         it('parses an external WMS layer correctly', () => {
-            const externalLayerIdInUrl = 'WMS|https://fake.wms.admin.ch|some_fake_layer_id|0.0.0|Fake WMS Layer'
+            const externalLayerIdInUrl =
+                'WMS|https://fake.wms.admin.ch|some_fake_layer_id|0.0.0|Fake WMS Layer'
             const results = layersParamParser(`${externalLayerIdInUrl},t,0.8`)
             expect(results).to.be.an('Array').length(1)
             const [externalWMSLayer] = results

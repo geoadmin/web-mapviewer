@@ -11,7 +11,13 @@
         <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
         <div v-if="shortLink" class="p-2">
             <MenuShareSocialNetworks :short-link="shortLink" class="pt-1" />
-            <MenuShareShortLinkInput :short-link="shortLink" class="px-2 py-3" />
+            <MenuShareInputCopyButton
+                :input-text="shortLink"
+                :label-text="'share_link'"
+                :copy-text="'copy_url'"
+                :copied-text="'copy_success'"
+                class="px-2 py-3"
+            />
             <MenuShareEmbed :short-link="embeddedShortLink" class="pb-1" />
         </div>
     </MenuSection>
@@ -20,7 +26,7 @@
 <script>
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
-import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareShortLinkInput.vue'
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import { mapActions, mapState } from 'vuex'
 
@@ -28,7 +34,7 @@ import { mapActions, mapState } from 'vuex'
 export default {
     components: {
         MenuShareEmbed,
-        MenuShareShortLinkInput,
+        MenuShareInputCopyButton,
         MenuShareSocialNetworks,
         MenuSection,
     },

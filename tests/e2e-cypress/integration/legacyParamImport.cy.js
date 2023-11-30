@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 
-import { round } from '@/utils/numberUtils'
+import { DEFAULT_PROJECTION } from '@/config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import proj4 from 'proj4'
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
@@ -8,7 +10,7 @@ describe('Test on legacy param import', () => {
             const lat = 47.3
             const lon = 7.3
             const zoom = 10.4
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 lat,
                 lon,
                 z: zoom,
@@ -27,10 +29,8 @@ describe('Test on legacy param import', () => {
             const lon = 7.5
             const zoom = 12
             cy.goToMapView(
-                'en',
                 {
-                    lat,
-                    lon,
+                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
                     z: zoom,
                 },
                 true
@@ -44,26 +44,24 @@ describe('Test on legacy param import', () => {
             })
         })
 
-        it('reproject LV95 coordinates/zoom param to EPSG:4326', () => {
+        it('reproject LV95 coordinates param to EPSG:4326', () => {
             const E = 2660000
             const N = 1200000
             const lv95zoom = 8
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 E,
                 N,
                 zoom: lv95zoom,
             })
 
-            // the LV95 zoom level should be translated to a mercator zoom level of 15.5 according to
-            // https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631
-            cy.readStoreValue('state.position.zoom').should('eq', 15.5)
+            cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
 
             // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                 // the app applies a rounding to the 6th decimal for lon/lat
-                expect(center[0]).to.eq(round(8.2267733, 6))
-                expect(center[1]).to.eq(round(46.9483767, 6))
+                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
     })
@@ -104,7 +102,7 @@ describe('Test on legacy param import', () => {
         })
 
         it('Combines all old layers_*** params into the new one', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: 'test.wms.layer,test.wmts.layer',
                 layers_opacity: '0.6,0.5',
                 layers_visibility: 'true,false',
@@ -121,7 +119,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
                 layers_opacity: '0.6',
                 layers_visibility: 'true',
@@ -135,7 +133,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
             })
             cy.wait('@get-kml-metada-by-admin-id')
@@ -150,7 +148,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it("don't keep KML adminId in URL after import", () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
             })
             cy.wait('@get-kml-metada-by-admin-id')
@@ -166,7 +164,7 @@ describe('Test on legacy param import', () => {
             cy.url().should('not.contain', adminId)
         })
         it('is able to import an external KML from a legacy adminId query param with other layers', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 adminId: adminId,
                 layers: 'test.wms.layer,test.wmts.layer',
                 layers_opacity: '0.6,0.5',
@@ -189,12 +187,74 @@ describe('Test on legacy param import', () => {
             })
         })
         it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
-            cy.goToMapView('en', {
-                swisssearch: '1530 Payerne'
+            cy.goToMapView({
+                swisssearch: '1530 Payerne',
             })
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('include', 'swisssearch=1530+Payerne')
-            cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
+            cy.get('[data-cy="search-result-entry-location"]', { timeout: 8000 }).should(
+                'be.visible'
+            )
+        })
+        it('External WMS layer', () => {
+            cy.intercept('http://wms-test.url/**', {
+                fixture: '256.png',
+            })
+            const layerName = 'TestExternalWMS'
+            const layerId = 'test-external-wms'
+            const url = 'http://wms-test.url/'
+            cy.goToMapView({
+                layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
+                layers_opacity: '1,1',
+                layers_visibility: 'false,true',
+                layers_timestam: ',',
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(2)
+                const externalLayer = activeLayers[1]
+                expect(externalLayer.isExternal).to.be.true
+                expect(externalLayer.visible).to.be.true
+                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.externalLayerId).to.eq(layerId)
+            })
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            cy.location().should((location) => {
+                expect(location.hash).to.eq(expectedHash)
+                expect(location.search).to.eq('')
+            })
+        })
+        it('External WMTS layer', () => {
+            cy.intercept('http://wmts-test.url/**', {
+                fixture: 'external-wmts.fixture.xml',
+            })
+            cy.intercept(
+                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                {
+                    fixture: '256.png',
+                }
+            )
+            const layerName = 'TestExternalWMTS'
+            const url = 'http://wmts-test.url/'
+            cy.goToMapView({
+                layers: `test.wmts.layer,WMTS||${layerName}||${url}`,
+                layers_opacity: '1,1',
+                layers_visibility: 'false,true',
+                layers_timestam: ',',
+            })
+            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                expect(activeLayers).to.be.an('Array').length(2)
+                const externalLayer = activeLayers[1]
+                expect(externalLayer.isExternal).to.be.true
+                expect(externalLayer.visible).to.be.true
+                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.externalLayerId).to.eq(layerName)
+                expect(externalLayer.name).to.eq(layerName)
+            })
+            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            cy.location().should((location) => {
+                expect(location.hash).to.eq(expectedHash)
+                expect(location.search).to.eq('')
+            })
         })
     })
 })

@@ -19,23 +19,19 @@ describe('Test functions for the header / search bar', () => {
     const width = Cypress.config('viewportWidth')
 
     if (width < BREAKPOINT_PHONE_WIDTH) {
-        context('Menu mobile functionalities', () => {
-            it("doesn't show the menu at app startup", () => {
-                checkMenuValue(false)
-            })
-            it('shows the menu when the menu button is pressed', () => {
-                cy.get(menuButtonSelector).click()
-                checkMenuValue(true)
-            })
-            it('hides the menu if the menu button is clicked again', () => {
-                cy.get(menuButtonSelector).click().click()
-                checkMenuValue(false)
-            })
-            it('hides the menu when the backdrop is clicked', () => {
-                cy.get(menuButtonSelector).click()
-                cy.get(backdropSelector).click()
-                checkMenuValue(false)
-            })
+        it('Menu mobile functionalities', () => {
+            checkMenuValue(false)
+
+            cy.get(menuButtonSelector).click()
+            checkMenuValue(true)
+
+            cy.get(menuButtonSelector).click()
+            checkMenuValue(false)
+
+            cy.get(menuButtonSelector).click()
+            checkMenuValue(true)
+            cy.get(backdropSelector).click()
+            checkMenuValue(false)
         })
     }
 
@@ -56,29 +52,15 @@ describe('Test functions for the header / search bar', () => {
     }
 
     context('Settings Menu Section', () => {
-        it('does not show the settings sections on opening the menu', () => {
+        it('shows/hide the settings on clicking on the settings section', () => {
             if (width < BREAKPOINT_TABLET) {
                 // mobile/tablet only
                 cy.get(menuButtonSelector).click()
             }
             cy.get(menuSettingsContentSelector).should('be.hidden')
-        })
-
-        it('shows the settings on clicking on the settings section', () => {
-            if (width < BREAKPOINT_TABLET) {
-                // mobile/tablet only
-                cy.get(menuButtonSelector).click()
-            }
             cy.get(menuSettingsSectionSelector).click()
             cy.get(menuSettingsContentSelector).should('be.visible')
-        })
-
-        it('hides the settings section if clicked again', () => {
-            if (width < BREAKPOINT_TABLET) {
-                // mobile/tablet only
-                cy.get(menuButtonSelector).click()
-            }
-            cy.get(menuSettingsSectionSelector).click().click()
+            cy.get(menuSettingsSectionSelector).click()
             cy.get(menuSettingsContentSelector).should('be.hidden')
         })
     })
@@ -116,7 +98,8 @@ describe('Test functions for the header / search bar', () => {
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         }
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
-            cy.goToMapView('fr', {
+            cy.goToMapView({
+                lang: 'fr',
                 topic: 'test-topic-standard',
             })
             clickOnLogo()
@@ -126,7 +109,8 @@ describe('Test functions for the header / search bar', () => {
         if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
-                cy.goToMapView('fr', {
+                cy.goToMapView({
+                    lang: 'fr',
                     topic: 'test-topic-standard',
                 })
                 clickOnConfederationText()

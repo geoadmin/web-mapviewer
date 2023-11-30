@@ -8,7 +8,12 @@
             />
         </div>
 
-        <FeatureProfile class="edit-feature-plot" :feature="feature" :read-only="readOnly" />
+        <FeatureProfile
+            class="edit-feature-plot"
+            :feature="feature"
+            :read-only="readOnly"
+            :projection="projection"
+        />
     </div>
 </template>
 
@@ -36,6 +41,7 @@ export default {
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
+            projection: (state) => state.position.projection,
         }),
     },
 }

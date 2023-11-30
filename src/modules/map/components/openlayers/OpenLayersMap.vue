@@ -3,6 +3,7 @@
     <div
         id="ol-map"
         ref="map"
+        data-cy="ol-map"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="clearLongPressTimer"
         @touchend.passive="clearLongPressTimer"
@@ -10,32 +11,19 @@
         @contextmenu="onContextMenu"
     >
         <!-- Adding background layer -->
-        <!-- Placing LightBaseMap first if needed, while excluding sources that covers Switzerland
-             (as they are not needed when this layer is added to achieve world-wide coverage while another
-             BG layers covers Switzerland)
-             see load-layersconfig-on-lang-change.js for exclusion definition
-        -->
-        <OpenLayersVectorLayer
-            v-if="lightBaseMapConfigUnderMainBackgroundLayer"
-            :layer-id="lightBaseMapConfigUnderMainBackgroundLayer.getID()"
-            :opacity="lightBaseMapConfigUnderMainBackgroundLayer.opacity"
-            :style-url="lightBaseMapConfigUnderMainBackgroundLayer.getURL()"
-            :exclude-source="lightBaseMapConfigUnderMainBackgroundLayer.excludeSource"
-            :z-index="0"
-        />
         <OpenLayersInternalLayer
             v-if="currentBackgroundLayer"
             :layer-config="currentBackgroundLayer"
-            :z-index="lightBaseMapConfigUnderMainBackgroundLayer ? 1 : 0"
+            :z-index="0"
         />
         <!-- Adding all other layers -->
         <OpenLayersInternalLayer
-            v-for="(layer, index) in visibleLayers"
+            v-for="layer in visibleLayers"
             :key="layer.getID()"
             :layer-config="layer"
             :preview-year="previewYear"
             :current-map-resolution="resolution"
-            :z-index="index + startingZIndexForVisibleLayers"
+            :z-index="zIndexForVisibleLayer(layer)"
         />
         <!-- Adding pinned location -->
         <OpenLayersMarker
@@ -44,10 +32,16 @@
             :marker-style="markerStyles.BALLOON"
             :z-index="zIndexDroppedPinned"
         />
+        <OpenLayersMarker
+            v-if="previewedPinnedLocation"
+            :position="previewedPinnedLocation"
+            :marker-style="markerStyles.BALLOON"
+            :z-index="zIndexPreviewedDroppedPinned"
+        />
         <!-- Showing cross hair if needed-->
         <OpenLayersMarker
             v-if="crossHairStyle"
-            :position="initialCenter"
+            :position="crossHairPosition"
             :marker-style="crossHairStyle"
             :z-index="zIndexCrossHair"
         />
@@ -100,30 +94,34 @@
 </template>
 
 <script>
-import { EditableFeatureTypes, LayerFeature } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-
-import { IS_TESTING_WITH_CYPRESS, VECTOR_LIGHT_BASE_MAP_STYLE_ID, VIEW_MIN_RESOLUTION } from '@/config'
-import { extractOlFeatureGeodesicCoordinates } from "@/modules/drawing/lib/drawingUtils";
+import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { CrossHairs } from '@/store/modules/position.store'
+import allCoordinateSystems, {
+    LV95,
+    WEBMERCATOR,
+    WGS84,
+} from '@/utils/coordinates/coordinateSystems'
+import { LV95_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
+import { createGeoJSONFeature } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Map, View } from 'ol'
 import { platformModifierKeyOnly } from 'ol/events/condition'
-import { defaults as getDefaultInteractions } from 'ol/interaction'
+import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
-
 import 'ol/ol.css'
+import { get as getProjection } from 'ol/proj'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-
 import { mapActions, mapGetters, mapState } from 'vuex'
 import OpenLayersAccuracyCircle from './OpenLayersAccuracyCircle.vue'
 import OpenLayersHighlightedFeature from './OpenLayersHighlightedFeature.vue'
@@ -140,6 +138,7 @@ import OpenLayersMarker, { markerStyles } from './OpenLayersMarker.vue'
  */
 export default {
     components: {
+        OpenLayersPopover,
         FontAwesomeIcon,
         FeatureEdit,
         FeatureList,
@@ -147,8 +146,6 @@ export default {
         OpenLayersHighlightedFeature,
         OpenLayersInternalLayer,
         OpenLayersMarker,
-        OpenLayersPopover,
-        OpenLayersVectorLayer,
     },
     provide() {
         return {
@@ -160,8 +157,6 @@ export default {
         return {
             // exposing marker styles to the template
             markerStyles,
-            /** Keeping trace of the starting center in order to place the cross hair */
-            initialCenter: null,
             popoverCoordinates: [],
             animationDuration: IS_TESTING_WITH_CYPRESS ? 0 : 250,
         }
@@ -171,13 +166,17 @@ export default {
             zoom: (state) => state.position.zoom,
             rotation: (state) => state.position.rotation,
             center: (state) => state.position.center,
+            currentBackgroundLayer: (state) => state.layers.currentBackgroundLayer,
+            mappingProjection: (state) => state.position.projection,
             selectedFeatures: (state) => state.features.selectedFeatures,
             pinnedLocation: (state) => state.map.pinnedLocation,
+            previewedPinnedLocation: (state) => state.map.previewedPinnedLocation,
             mapIsBeingDragged: (state) => state.map.isBeingDragged,
             geolocationActive: (state) => state.geolocation.active,
             geolocationPosition: (state) => state.geolocation.position,
             geolocationAccuracy: (state) => state.geolocation.accuracy,
             crossHair: (state) => state.position.crossHair,
+            crossHairPosition: (state) => state.position.crossHairPosition,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             clickInfo: (state) => state.map.clickInfo,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
@@ -185,12 +184,9 @@ export default {
         }),
         ...mapGetters([
             'visibleLayers',
-            'currentBackgroundLayer',
-            'isExtentOnlyWithinLV95Bounds',
             'resolution',
             'isCurrentlyDrawing',
-            'backgroundLayers',
-            'isDesktopMode',
+            'zIndexForVisibleLayer',
         ]),
         crossHairStyle() {
             if (this.crossHair) {
@@ -209,41 +205,18 @@ export default {
             }
             return null
         },
-        /**
-         * Returns the config for the Light Base Map layer (vector tiles) if, and only if, the
-         * current BG layer is pixelkarte-farbe. We place it this way so that we can keep
-         * pixelkarte-farbe while achieving world-wide coverage (while waiting to receive a
-         * full-fledged VT layer with more details than light base map)
-         *
-         * @returns {GeoAdminVectorLayer | null}
-         */
-        lightBaseMapConfigUnderMainBackgroundLayer() {
-            if (this.currentBackgroundLayer?.getID() === 'ch.swisstopo.pixelkarte-farbe') {
-                // we only want LightBaseMap behind pixelkarte-farbe when the map is showing things outside
-                // LV95 extent (outside of Switzerland)
-                if (this.isExtentOnlyWithinLV95Bounds) {
-                    log.debug('no need to show MapLibre, we are totally within LV95 extent')
-                } else {
-                    return this.backgroundLayers.find(
-                        (layer) => layer.getID() === VECTOR_LIGHT_BASE_MAP_STYLE_ID
-                    )
-                }
-            }
-            return null
-        },
         // zIndex calculation conundrum...
         startingZIndexForVisibleLayers() {
-            // checking if light base map is used under another layer (we need to start counting from 2 then)
-            if (this.lightBaseMapConfigUnderMainBackgroundLayer) {
-                return 2
-            }
             return this.currentBackgroundLayer ? 1 : 0
         },
         zIndexDroppedPinned() {
             return this.startingZIndexForVisibleLayers + this.visibleLayers.length
         },
+        zIndexPreviewedDroppedPinned() {
+            return this.zIndexDroppedPinned + (this.previewedPinnedLocation ? 1 : 0)
+        },
         zIndexCrossHair() {
-            return this.zIndexDroppedPinned + (this.pinnedLocation ? 1 : 0)
+            return this.zIndexPreviewedDroppedPinned + (this.pinnedLocation ? 1 : 0)
         },
         startingZIndexForHighlightedFeatures() {
             return this.zIndexCrossHair + (this.crossHairStyle ? 1 : 0)
@@ -276,19 +249,19 @@ export default {
     // let's watch changes for center and zoom, and animate what has changed with a small easing
     watch: {
         center() {
-            this.view.animate({
+            this.currentView.animate({
                 center: this.center,
                 duration: this.animationDuration,
             })
         },
         zoom() {
-            this.view.animate({
+            this.currentView.animate({
                 zoom: this.zoom,
                 duration: this.animationDuration,
             })
         },
         rotation() {
-            this.view.animate({
+            this.currentView.animate({
                 rotation: this.rotation,
                 duration: this.animationDuration,
             })
@@ -309,19 +282,23 @@ export default {
             // coordinates are changed (but only when one feature is added/removed)
             handler(newSelectedFeatures) {
                 if (newSelectedFeatures.length > 0) {
-                    const [firstFeature] = newSelectedFeatures
-                    this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
-                        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
-                        : firstFeature.coordinates
+                    this.highlightSelectedFeatures()
                 }
             },
             deep: true,
+        },
+        mappingProjection() {
+            this.setCurrentMapViewAccordingToProjection()
         },
     },
     beforeCreate() {
         // we build the OL instance right away as it is required for "provide" below (otherwise
         // children components will receive a null instance and won't ask for another one later on)
 
+        this.freeMouseWheelInteraction = new MouseWheelZoom()
+        this.constrainedMouseWheelInteraction = new MouseWheelZoom({
+            constrainResolution: true,
+        })
         /* Make it possible to rotate the map with ctrl+drag (in addition to openlayers default
         Alt+Shift+Drag). This is probably more intuitive. Also, Windows and some Linux distros use
         alt+shift to switch the keyboard layout, so using alt+shift may have unintended side effects
@@ -330,6 +307,7 @@ export default {
             new DragRotateInteraction({
                 condition: platformModifierKeyOnly,
             }),
+            this.constrainedMouseWheelInteraction,
         ])
         this.map = new Map({ controls: [], interactions })
 
@@ -337,37 +315,58 @@ export default {
             window.map = this.map
         }
     },
-    created() {
-        this.initialCenter = [...this.center]
-    },
     mounted() {
         // register any custom projection in OpenLayers
         register(proj4)
+        // setting the boundaries for projection, in the OpenLayers context, whenever bounds are defined
+        // this will help OpenLayers know when tiles shouldn't be requested because coordinates are out of bounds
+        allCoordinateSystems
+            .filter((projection) => projection.bounds && projection.epsg !== WGS84.epsg)
+            .forEach((projection) => {
+                const olProjection = getProjection(projection.epsg)
+                olProjection?.setExtent(projection.bounds.flatten)
+            })
         this.map.setTarget(this.$refs.map)
         // Setting up OL objects
-        this.view = new View({
-            center: this.center,
+        this.mercatorView = new View({
             zoom: this.zoom,
             minResolution: VIEW_MIN_RESOLUTION,
             rotation: this.rotation,
+            projection: WEBMERCATOR.epsg,
         })
-        this.map.setView(this.view)
+        this.lv95View = new View({
+            zoom: this.zoom,
+            minResolution: VIEW_MIN_RESOLUTION,
+            rotation: this.rotation,
+            resolutions: LV95_RESOLUTIONS,
+            projection: LV95.epsg,
+            extent: LV95.bounds.flatten,
+            constrainOnlyCenter: true,
+        })
+        this.setCurrentMapViewAccordingToProjection()
 
         // Click management
         this.map.on('pointerdown', this.onMapPointerDown)
         // TODO: trigger a click after pointer is down at (roughly) the same spot
         // for longer than 1sec (no need to wait for the user to stop the click)
-        this.map.on('pointerup', this.onMapPointerUp)
+        // this.map.on('pointerup', this.onMapPointerUp) todo onMapPointerUp undefined
         // using 'singleclick' event instead of 'click', otherwise a double click
         // (for zooming) on mobile will trigger two 'click' actions in a row
         this.map.on('singleclick', this.onMapSingleClick)
         this.map.on('pointerdrag', this.onMapPointerDrag)
         this.map.on('moveend', this.onMapMoveEnd)
 
+        if (this.selectedFeatures.length > 0) {
+            this.highlightSelectedFeatures()
+        }
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.olMap = this.map
+        }
     },
     unmounted() {
         this.map.un('pointerdown', this.onMapPointerDown)
-        this.map.un('pointerup', this.onMapPointerUp)
+        // this.map.un('pointerup', this.onMapPointerUp) todo onMapPointerUp undefined
         this.map.un('singleclick', this.onMapSingleClick)
         this.map.un('pointerdrag', this.onMapPointerDrag)
         this.map.un('moveend', this.onMapMoveEnd)
@@ -375,7 +374,9 @@ export default {
         this.map.setView(null)
 
         delete this.map
-        delete this.view
+        delete this.currentView
+        delete this.lv95View
+        delete this.mercatorView
     },
     methods: {
         ...mapActions([
@@ -388,6 +389,26 @@ export default {
             'toggleFloatingTooltip',
             'clearAllSelectedFeatures',
         ]),
+        highlightSelectedFeatures() {
+            const [firstFeature] = this.selectedFeatures
+            this.popoverCoordinates = Array.isArray(firstFeature.coordinates[0])
+                ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
+                : firstFeature.coordinates
+        },
+        setCurrentMapViewAccordingToProjection() {
+            const projectionIsLV95 = this.mappingProjection.epsg === LV95.epsg
+            if (projectionIsLV95) {
+                this.currentView = this.lv95View
+                this.map.removeInteraction(this.freeMouseWheelInteraction)
+                this.map.addInteraction(this.constrainedMouseWheelInteraction)
+            } else {
+                this.currentView = this.mercatorView
+                this.map.removeInteraction(this.constrainedMouseWheelInteraction)
+                this.map.addInteraction(this.freeMouseWheelInteraction)
+            }
+            this.currentView.setCenter(this.center)
+            this.map.setView(this.currentView)
+        },
         // Pointer down and up are triggered by both left and right clicks.
         onMapPointerDown() {
             /* Flag that inhibits multiple actions for the same mouse down event. So if on mobile,
@@ -412,7 +433,8 @@ export default {
                     .forEach((feature) => {
                         const editableFeature = feature.get('editableFeature')
                         if (editableFeature) {
-                            editableFeature.geodesicCoordinates = extractOlFeatureGeodesicCoordinates(feature)
+                            editableFeature.geodesicCoordinates =
+                                extractOlFeatureGeodesicCoordinates(feature)
                             features.push(editableFeature)
                         } else {
                             log.debug(
@@ -439,26 +461,7 @@ export default {
                         layerFilter: (layer) => layer.get('id') === geoJsonLayer.getID(),
                     })
                     .forEach((feature) => {
-                        const featureGeometry = feature.getGeometry()
-                        // for GeoJSON features, there's a catch as they only provide us with the inner tooltip content
-                        // we have to wrap it around the "usual" wrapper from the backend
-                        // (not very fancy but otherwise the look and feel is different from a typical backend tooltip)
-                        const geoJsonFeature = new LayerFeature(
-                            geoJsonLayer,
-                            geoJsonLayer.getID(),
-                            geoJsonLayer.name,
-                            `<div class="htmlpopup-container">
-                                <div class="htmlpopup-header">
-                                    <span>${geoJsonLayer.name}</span>
-                                </div>
-                                <div class="htmlpopup-content">
-                                    ${feature.get('description')}
-                                </div>
-                            </div>`,
-                            featureGeometry.flatCoordinates,
-                            featureGeometry.getExtent()
-                        )
-                        log.debug('GeoJSON feature found', geoJsonFeature)
+                        const geoJsonFeature = createGeoJSONFeature(feature, geoJsonLayer)
                         features.push(geoJsonFeature)
                     })
             }
@@ -497,16 +500,16 @@ export default {
             if (this.mapIsBeingDragged) {
                 this.mapStoppedBeingDragged()
             }
-            if (this.view) {
-                const [x, y] = this.view.getCenter()
+            if (this.currentView) {
+                const [x, y] = this.currentView.getCenter()
                 if (x !== this.center[0] || y !== this.center[1]) {
                     this.setCenter({ x, y })
                 }
-                const zoom = round(this.view.getZoom(), 3)
+                const zoom = round(this.currentView.getZoom(), 3)
                 if (zoom && zoom !== this.zoom) {
                     this.setZoom(zoom)
                 }
-                const rotation = this.view.getRotation()
+                const rotation = this.currentView.getRotation()
                 if (rotation !== this.rotation) {
                     this.setRotation(rotation)
                 }

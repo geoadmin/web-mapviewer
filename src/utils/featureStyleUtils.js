@@ -13,7 +13,7 @@ export class FeatureStyleColor {
         this._border = border
     }
 
-    getStrippedObject() {
+    serialize() {
         /* Warning: Changing this method will break the compability of KML files */
         return {
             name: this.name,
@@ -22,7 +22,7 @@ export class FeatureStyleColor {
         }
     }
 
-    static recreateObject(o) {
+    static deserialize(o) {
         return new FeatureStyleColor(o.name, o.fill, o.border)
     }
 
@@ -97,7 +97,7 @@ export class FeatureStyleSize {
         this._iconScale = iconScale
     }
 
-    getStrippedObject() {
+    serialize() {
         /* Warning: Changing this method will break the compability of KML files */
         return {
             label: this.label,
@@ -106,7 +106,7 @@ export class FeatureStyleSize {
         }
     }
 
-    static recreateObject(o) {
+    static deserialize(o) {
         return new FeatureStyleSize(o.label, o.textScale, o.iconScale)
     }
 

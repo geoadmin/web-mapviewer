@@ -1,19 +1,24 @@
 // loading and exporting all values from the .env file as ES6 importable variables
 
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+
 /**
  * Enum that tells for which (deployment) environment the app has been built.
  *
  * @type {'development' | 'integration' | 'production'}
- * @see {@link https://en.wikipedia.org/wiki/Deployment_environment}
+ * @see https://en.wikipedia.org/wiki/Deployment_environment
  */
 export const ENVIRONMENT = VITE_ENVIRONMENT
 
 /**
  * Flag that tells if the app is currently running in a Cypress environment for E2E testing
  *
+ * NOTE: this file might be imported by nodejs for external scripts therefore make sure that
+ * `window` exists
+ *
  * @type Boolean
  */
-export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
+export const IS_TESTING_WITH_CYPRESS = typeof window !== 'undefined' ? !!window.Cypress : false
 
 /**
  * Current app version (from package.json)
@@ -21,6 +26,13 @@ export const IS_TESTING_WITH_CYPRESS = !!window.Cypress
  * @type {String}
  */
 export const APP_VERSION = __APP_VERSION__
+
+/**
+ * Default projection to be used throughout the application
+ *
+ * @type {CoordinateSystem}
+ */
+export const DEFAULT_PROJECTION = LV95
 
 /**
  * Adds a slash at the end of the URL if there is none
@@ -154,6 +166,13 @@ export const WMTS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMTS_B
 export const WMS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMS_BASE_URL)
 
 /**
+ * Root of the buckets serving 3D tiles
+ *
+ * @type {String}
+ */
+export const BASE_URL_3D_TILES = enforceEndingSlashInUrl(import.meta.env.VITE_APP_3D_TILES_BASE_URL)
+
+/**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)
  *
  * Comes from
@@ -164,65 +183,12 @@ export const WMS_BASE_URL = enforceEndingSlashInUrl(import.meta.env.VITE_WMS_BAS
 export const WMS_TILE_SIZE = 512 // px
 
 /**
- * Origin of the TileGrid (comes from
- * {@link https://github.com/geoadmin/mf-geoadmin3/blob/master/mk/config.mk})
- *
- * Is expressed as LV95 coordinates.
- *
- * @type {Number[]}
- */
-export const TILEGRID_ORIGIN = [2420000, 1350000]
-
-/**
- * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
- * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
- *
- * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
- * World Wide zoom level (see {@link translateSwisstopoPyramidZoomToMercatorZoom})
- *
- * @type {Number[]}
- */
-export const TILEGRID_RESOLUTIONS = [
-    4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500,
-    250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.1,
-]
-
-/**
- * Map view's mininal resolution
- * Currently set so that OL scalebar displays 10 meters
- * Scalebar about 1" on screen, hence about 100px.  So, 10 meters/100px = 0.1
- * Caveat: setting resolution (mininum and maximum) has the precedence over zoom (minimum/maximum)
+ * Map view's minimal resolution Currently set so that OL scalebar displays 10 meters Scalebar about
+ * 1" on screen, hence about 100px. So, 10 meters/100px = 0.1 Caveat: setting resolution (minimum
+ * and maximum) has the precedence over zoom (minimum/maximum)
  */
 
-export const VIEW_MIN_RESOLUTION = 0.1  // meters/pixel
-
-/**
- * Array of coordinates with bottom left / top right values of the extent. This can be used to
- * constrain OpenLayers (or other mapping framework) to only ask for tiles that are within the
- * extent. It should remove for instance the big white zone that are around the pixelkarte-farbe.
- *
- * This is a ripoff of
- * https://github.com/geoadmin/mf-geoadmin3/blob/0ec560069e93fdceb54ce126a3c2d0ef23a50f45/mk/config.mk#L140
- *
- * Those are coordinates expressed in EPSG:2056 (or LV95)
- *
- * @type {Number[]}
- */
-export const TILEGRID_EXTENT = [2420000, 1030000, 2900000, 1350000]
-
-/**
- * Bounds of the LV95 projection expressed in metric mercator (WGS84). It is essentially
- * TILEGRID_EXTENT (defined above) reprojected in EPSG:3857 through epsg.io website.
- *
- * @type {Number[]}
- */
-export const LV95_EXTENT = [572215.44, 5684416.96, 1277662.37, 6145307.4]
-
-/**
- * Map center default value is the center of switzerland LV:95 projection's extent (from
- * {@link https://epsg.io/2056}) re-projected in EPSG:3857
- */
-export const MAP_CENTER = [915602.81, 5911929.47]
+export const VIEW_MIN_RESOLUTION = 0.1 // meters/pixel
 
 /**
  * Horizontal threshold for the phone view. (min-width for tablet) This will change the menu and
@@ -261,6 +227,10 @@ export const BREAKPOINT_TABLET = 768
  */
 export const DRAWING_HIT_TOLERANCE = 6
 
+export const VECTOR_TILE_BASE_URL = enforceEndingSlashInUrl(
+    import.meta.env.VITE_APP_VECTORTILES_BASE_URL
+)
+
 /**
  * Light base map style ID
  *
@@ -280,7 +250,7 @@ export const VECTOR_LIGHT_BASE_MAP_STYLE_ID = 'ch.swisstopo.leichte-basiskarte_w
 export const VECTOR_TILES_IMAGERY_STYLE_ID = 'ch.swisstopo.leichte-basiskarte-imagery_world.vt'
 
 /**
- * Display a big developpment banner on all but these hosts.
+ * Display a big development banner on all but these hosts.
  *
  * @type {String[]}
  */
@@ -305,3 +275,10 @@ export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
     'sys-map.dev.bgdi.ch',
     'localhost',
 ]
+
+/**
+ * WMS supported versions list
+ *
+ * @type {String[]}
+ */
+export const WMS_SUPPORTED_VERSIONS = ['1.3.0', '1.1.1', '1.1.0', '1.0.0']

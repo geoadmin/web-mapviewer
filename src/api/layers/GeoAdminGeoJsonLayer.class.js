@@ -14,7 +14,7 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      * @param styleUrl The URL to use to request the styling to apply to the data
      */
     constructor(name, id, opacity, visible, attributions, geoJsonUrl, styleUrl) {
-        super(name, LayerTypes.GEOJSON, id, opacity, visible, attributions)
+        super(name, LayerTypes.GEOJSON, id, id, opacity, visible, attributions)
         this.geoJsonUrl = geoJsonUrl
         this.styleUrl = styleUrl
     }

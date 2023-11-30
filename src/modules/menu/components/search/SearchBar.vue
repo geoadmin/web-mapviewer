@@ -7,7 +7,7 @@
             ref="search"
             type="text"
             class="form-control search-bar-input"
-            :class="{ 'rounded-end': searchQuery?.length == 0 }"
+            :class="{ 'rounded-end': searchQuery?.length === 0 }"
             :placeholder="$t('search_placeholder')"
             aria-label="Search"
             aria-describedby="button-addon1"
@@ -28,7 +28,11 @@
         >
             <FontAwesomeIcon :icon="['fas', 'times-circle']" />
         </button>
-        <SearchResultList v-show="resultsShown" ref="results" @close="closeSearchResults" />
+        <SearchResultList
+            v-show="resultsShown && hasResults"
+            ref="results"
+            @close="closeSearchResults"
+        />
     </div>
 </template>
 
@@ -96,18 +100,17 @@ export default {
 @import 'src/scss/media-query.mixin';
 
 .search-bar-input {
-    font-size: 0.825rem;;
+    font-size: 0.825rem;
 }
 
 .search-bar {
     &:focus-within > span.input-group-text {
-        display:none
+        display: none;
     }
     @include respond-above(phone) {
-        &:focus-within > span.input-group-text{
+        &:focus-within > span.input-group-text {
             display: flex;
         }
     }
 }
-
 </style>

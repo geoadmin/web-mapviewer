@@ -173,7 +173,8 @@ export default {
         cursorPosition() {
             const yearCursorWidth = this.$refs.yearCursor?.clientWidth || 0
             let left = this.yearPositionOnSlider - yearCursorWidth / 2
-            // we give an overlap of 12px as there is some space between the play button and the end of the slider
+            // we give an overlap of 12px as there is some space between the play button and the end
+            // of the slider
             if (left > this.sliderWidth - (yearCursorWidth - 12)) {
                 left = this.sliderWidth - (yearCursorWidth - 12)
             }
@@ -225,7 +226,8 @@ export default {
                     )
                 }
             } else {
-                // only one layer left, checking that it can comply with the current year, otherwise we take the most recent instead
+                // only one layer left, checking that it can comply with the current year, otherwise
+                // we take the most recent instead
                 const [onlyLayerLeft] = newLayers
                 if (!onlyLayerLeft.timeConfig.years.includes(this.currentYear)) {
                     this.setCurrentYearAndDispatchToStore(onlyLayerLeft.timeConfig.years[0])
@@ -233,31 +235,35 @@ export default {
             }
         },
         // we can't watch currentYear and dispatch changes to the store here, otherwise the store gets
-        // dispatch too many times when the user is moving the time slider (we wait for mouseup our touchend to commit the change)
+        // dispatch too many times when the user is moving the time slider (we wait for mouseup our
+        // touchend to commit the change)
     },
     mounted() {
+        let initialYear
         this.setSliderWidth()
         // let's define the current year to apply to all (future) layer added to this time slider
         const [firstLayer] = this.layersWithTimestamps
         if (this.layersWithTimestamps.length === 1) {
             // if there is only one layer, and its current timestamp is a valid year, we take it
             if (firstLayer.timeConfig.currentYear !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA) {
-                this.currentYear = firstLayer.timeConfig.currentYear
+                initialYear = firstLayer.timeConfig.currentYear
             } else {
-                const firstYearNotAllYears = firstLayer.timeConfig.years.find(
+                // otherwise take the first year that is not ALL_YEARS
+                initialYear = firstLayer.timeConfig.years.find(
                     (year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
                 )
-                // as we've changed the selected year from the default, we have to propagate this change to the store
-                this.setCurrentYearAndDispatchToStore(firstYearNotAllYears)
             }
         } else {
-            // if multiple layers are visible, we need to find the closest year (from now) that is a common year between all layers
-            this.setCurrentYearAndDispatchToStore(
+            // if multiple layers are visible, we need to find the closest year (from now) that is
+            // a common year between all layers
+            initialYear =
                 findMostRecentCommonYear(
                     this.layersWithTimestamps.map((layer) => layer.timeConfig)
                 ) || YOUNGEST_YEAR
-            )
         }
+        // We always need to propagate the changes to the store in order to have a proper time
+        // slider toggling
+        this.setCurrentYearAndDispatchToStore(initialYear)
     },
     beforeUnmount() {
         this.clearPreviewYear()
@@ -344,7 +350,8 @@ export default {
         togglePlayYearsWithData() {
             this.playYearsWithData = !this.playYearsWithData
             if (this.playYearsWithData) {
-                // if current year is the last (most recent) one, we set the starting year for our player to the oldest
+                // if current year is the last (most recent) one, we set the starting year for our
+                // player to the oldest
                 if (this.currentYear === this.yearsWithData[0]) {
                     this.setCurrentYearAndDispatchToStore(this.yearsWithData.slice(-1)[0])
                 }

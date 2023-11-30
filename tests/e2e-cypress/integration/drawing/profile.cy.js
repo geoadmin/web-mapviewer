@@ -43,7 +43,7 @@ describe('Profile popup', () => {
                     })
                     req.reply({
                         statusCode: 200,
-                        body: testResponse,
+                        fixture: 'service-alti/profile.fixture.json',
                     })
                 }
             ).as('profile')
@@ -86,7 +86,8 @@ describe('Profile popup', () => {
                     testInfo[key]
                 )
             })
-            cy.get('[data-cy="profile-graph"]').trigger('mouseover').trigger('mousemove', 'center')
+            cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
+            cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
             cy.get('[data-cy="profile-popup-tooltip"] .distance').should('contain.text', '2.5 m')
             cy.get('[data-cy="profile-popup-tooltip"] .elevation').should(
                 'contain.text',
@@ -116,8 +117,7 @@ describe('Profile popup', () => {
         })
         it('opens up the popup again if the user clicks on the feature', () => {
             cy.get('[data-cy="infobox-close"]').click()
-            cy.get(olSelector).then(($map) => {
-                let center = $map.outerWidth() / 2
+            cy.get(olSelector).then(() => {
                 cy.get(olSelector).click(150, 200)
                 cy.get('[data-cy="infobox"]').should('be.visible')
             })

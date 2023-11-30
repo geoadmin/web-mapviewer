@@ -9,7 +9,9 @@ import { WMS_BASE_URL } from '@/config'
 export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
-     * @param {String} id The unique ID of this layer in the GeoAdmin backends
+     * @param {String} id The unique ID of this layer
+     * @param {String} serverLayerId The ID of this layer in the GeoAdmin backends (can be the same,
+     *   or different from the id)
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
      * @param {boolean} visible If the layer should be shown on the map
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
@@ -27,11 +29,13 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
-     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this layer
+     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this
+     *   layer
      */
     constructor(
         name,
         id,
+        serverLayerId,
         opacity,
         visible,
         attributions,
@@ -49,6 +53,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             name,
             LayerTypes.WMS,
             id,
+            serverLayerId,
             opacity,
             visible,
             attributions,

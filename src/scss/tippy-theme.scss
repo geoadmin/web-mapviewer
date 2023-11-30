@@ -1,47 +1,30 @@
+@import './webmapviewer-bootstrap-theme';
 // Importing Tippy globally, so that we do not need to import it in each component using it
 @import 'tippy.js/dist/tippy.css';
 @import 'tippy.js/themes/light-border.css';
 
-
-// Tippy custom style, with a danger red background color
-.tippy-box[data-theme~='danger'] {
-    $bgColor: $danger;
-    background-color: $bgColor;
-    color: $white;
-    &[data-placement^='top'] > .tippy-arrow::before {
-        border-top-color: $bgColor;
-    }
-    &[data-placement^='bottom'] > .tippy-arrow::before {
-        border-bottom-color: $bgColor;
-    }
-    &[data-placement^='left'] > .tippy-arrow::before {
-        border-left-color: $bgColor;
-    }
-    &[data-placement^='right'] > .tippy-arrow::before {
-        border-right-color: $bgColor;
-    }
-}
-
-
-// Tippy custom style, with a primary red background color
-.tippy-box[data-theme~='primary'] {
-    $bgColor: $primary;
-    background-color: $bgColor;
-    color: $white;
-    &[data-placement^='top'] > .tippy-arrow::before {
-        border-top-color: $bgColor;
-    }
-    &[data-placement^='bottom'] > .tippy-arrow::before {
-        border-bottom-color: $bgColor;
-    }
-    &[data-placement^='left'] > .tippy-arrow::before {
-        border-left-color: $bgColor;
-    }
-    &[data-placement^='right'] > .tippy-arrow::before {
-        border-right-color: $bgColor;
+@mixin createTippyTheme($themeName, $themeBackgroundColor, $themeTextColor) {
+    .tippy-box[data-theme~='#{$themeName}'] {
+        background-color: $themeBackgroundColor;
+        color: $themeTextColor;
+        &[data-placement^='top'] > .tippy-arrow::before {
+            border-top-color: $themeBackgroundColor;
+        }
+        &[data-placement^='bottom'] > .tippy-arrow::before {
+            border-bottom-color: $themeBackgroundColor;
+        }
+        &[data-placement^='left'] > .tippy-arrow::before {
+            border-left-color: $themeBackgroundColor;
+        }
+        &[data-placement^='right'] > .tippy-arrow::before {
+            border-right-color: $themeBackgroundColor;
+        }
     }
 }
 
+@include createTippyTheme('danger', $danger, $white);
+@include createTippyTheme('primary', $primary, $white);
+@include createTippyTheme('dark', $gray-800, $white);
 
 .tippy-box[data-theme~='popover-button'] {
     border-radius: 0.375rem;

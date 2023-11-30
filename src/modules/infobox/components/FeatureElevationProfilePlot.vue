@@ -1,8 +1,8 @@
 <template>
     <div
         ref="profileChartContainer"
-        @mouseenter="addHoverPositionOverlay"
-        @mouseleave="removeHoverPositionOverlay"
+        @mouseenter="startPositionTracking"
+        @mouseleave="stopPositionTracking"
     >
         <LineChart
             ref="chart"
@@ -47,19 +47,29 @@
                 class="profile-tooltip-arrow"
                 :style="tooltipArrowStyle"
             ></div>
+            <FeatureElevationProfilePlotOpenLayersBridge
+                v-if="!is3dActive"
+                :tracking-point-color="trackingPointColor"
+                :coordinates="pointBeingHovered?.coordinates"
+            />
+            <FeatureElevationProfilePlotCesiumBridge
+                v-if="is3dActive"
+                :tracking-point-color="trackingPointColor"
+                :coordinates="pointBeingHovered?.coordinates"
+            />
         </div>
     </div>
 </template>
 
 <script>
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import FeatureElevationProfilePlotCesiumBridge from '@/modules/infobox/FeatureElevationProfilePlotCesiumBridge.vue'
+import FeatureElevationProfilePlotOpenLayersBridge from '@/modules/infobox/FeatureElevationProfilePlotOpenLayersBridge.vue'
 import { FeatureStyleColor } from '@/utils/featureStyleUtils'
 import { round } from '@/utils/numberUtils'
 import { resetZoom } from 'chartjs-plugin-zoom'
-import Overlay from 'ol/Overlay'
-import proj4 from 'proj4'
 import { Line as LineChart } from 'vue-chartjs'
+import { mapState } from 'vuex'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
 
@@ -80,9 +90,10 @@ const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
  */
 export default {
     components: {
+        FeatureElevationProfilePlotOpenLayersBridge,
+        FeatureElevationProfilePlotCesiumBridge,
         LineChart,
     },
-    inject: ['getMap'],
     props: {
         elevationProfile: {
             type: ElevationProfile,
@@ -108,6 +119,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            is3dActive: (state) => state.cesium.active,
+        }),
         tooltipStyle() {
             if (this.pointBeingHovered) {
                 const tooltipWidth = this.$refs.profileTooltip.clientWidth
@@ -264,7 +278,7 @@ export default {
                         this.clearHoverPosition()
                         return
                     }
-                    if (tooltip.dataPoints.length > 0) {
+                    if (tooltip.dataPoints.length > 0 && this.track) {
                         const point = tooltip.dataPoints[0]
                         const chartPosition = chart.canvas.getBoundingClientRect()
                         this.pointBeingHovered = {
@@ -351,33 +365,7 @@ export default {
             }
         },
     },
-    watch: {
-        /** Updating the tracking point color if the props with the color is changed */
-        trackingPointColor(newColor) {
-            this.currentHoverPosOverlay.getElement().style.backgroundColor = newColor.fill
-        },
-        pointBeingHovered(newPoint) {
-            if (newPoint) {
-                this.currentHoverPosOverlay.setPosition(
-                    proj4(LV95.epsg, WEBMERCATOR.epsg, newPoint.coordinates)
-                )
-            } else {
-                this.currentHoverPosOverlay.setPosition(null)
-            }
-        },
-    },
     mounted() {
-        /* Overlay that shows the corresponding position on the map when hovering over the profile
-        graph. */
-        this.currentHoverPosOverlay = new Overlay({
-            element: document.createElement('div'),
-            positioning: 'center-center',
-            stopEvent: false,
-        })
-        // setting up a CSS class on the element so that we can style it (see below in the <style> section)
-        this.currentHoverPosOverlay.getElement().classList.add('profile-circle-current-hover-pos')
-        this.currentHoverPosOverlay.getElement().style.backgroundColor =
-            this.trackingPointColor.fill
         this.$nextTick(() => {
             // sending an update event after Vue-ChartJS has been rendered, so that the parent container can be resized
             // to fit the canvas from Vue-ChartJS
@@ -385,23 +373,12 @@ export default {
             this.$emit('update')
         })
     },
-    unmounted() {
-        this.getMap().removeOverlay(this.currentHoverPosOverlay)
-    },
     methods: {
         startPositionTracking() {
             this.track = true
         },
         stopPositionTracking() {
             this.track = false
-        },
-        addHoverPositionOverlay() {
-            this.startPositionTracking()
-            this.getMap().addOverlay(this.currentHoverPosOverlay)
-        },
-        removeHoverPositionOverlay() {
-            this.stopPositionTracking()
-            this.getMap().removeOverlay(this.currentHoverPosOverlay)
         },
         clearHoverPosition() {
             this.pointBeingHovered = null

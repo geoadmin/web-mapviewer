@@ -1,29 +1,5 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_TABLET } from '@/config'
-import { randomIntBetween } from '@/utils/numberUtils'
-
-/**
- * Returns a timestamp from the layer's config that is different from the default behaviour
- *
- * @param {Object} layer A layer's metadata, that usually come from the fixture layers.fixture.json
- * @returns {String} One of the layer's timestamp, different from the default one (not equal to
- *   `timeBehaviour`)
- */
-const getRandomTimestampFromSeries = (layer) => {
-    expect(layer).to.be.an('Object')
-    expect(layer).to.haveOwnProperty('timeBehaviour')
-    expect(layer).to.haveOwnProperty('timestamps')
-    expect(layer.timestamps).to.be.an('Array')
-    expect(layer.timestamps.length).to.be.greaterThan(1)
-    const defaultTimestamp = layer.timeBehaviour
-    let randomTimestampFromLayer = defaultTimestamp
-    do {
-        randomTimestampFromLayer =
-            layer.timestamps[randomIntBetween(0, layer.timestamps.length - 1)]
-    } while (randomTimestampFromLayer === defaultTimestamp)
-    return randomTimestampFromLayer
-}
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
  * `lang`.
@@ -37,62 +13,42 @@ const stringifyWithoutLangOrNull = (key, value) =>
     key === 'lang' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
-    const width = Cypress.config('viewportWidth')
-    const clickOnMenuButtonIfMobile = () => {
-        if (width < BREAKPOINT_TABLET) {
-            // mobile/tablet : clicking on the menu button
-            cy.get('[data-cy="menu-button"]').click()
-        }
-    }
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
         })
-        it('adds a layer to the map when the app is opened through a URL with a layer in it', () => {
-            cy.goToMapView('en', {
-                layers: 'test.wms.layer;test.wmts.layer',
+        it.only('adds a layers with config to the map when opening the app layers URL param', () => {
+            cy.goToMapView({
+                layers: [
+                    'test-1.wms.layer',
+                    'test-2.wms.layer,,',
+                    'test-3.wms.layer,f',
+                    'test-4.wms.layer,,0.4',
+                    'test.wmts.layer,f,0.5',
+                ].join(';'),
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                expect(layers).to.be.an('Array')
-                expect(layers.length).to.eq(2)
-                expect(layers[0]).to.be.an('Object')
-                expect(layers[0].getID()).to.eq('test.wms.layer')
-                expect(layers[1]).to.be.an('Object')
-                expect(layers[1].getID()).to.eq('test.wmts.layer')
-            })
-        })
-        it('adds a layer to active layers without showing it if the URL sets visibility to false', () => {
-            cy.goToMapView('en', {
-                layers: 'test.wms.layer,f;test.wmts.layer',
-            })
-            cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                expect(layers).to.be.an('Array').length(1)
-                const [wmtsLayer] = layers
-                expect(wmtsLayer).to.be.an('Object')
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
+                expect(layers).to.be.an('Array').length(3)
+                expect(layers[0].getID()).to.eq('test-1.wms.layer')
+                expect(layers[1].getID()).to.eq('test-2.wms.layer')
+                expect(layers[2].getID()).to.eq('test-4.wms.layer')
+                expect(layers[2].opacity).to.eq(0.4)
             })
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                expect(layers).to.be.an('Array').length(2)
-                const [wmsLayer, wmtsLayer] = layers
-                expect(wmsLayer).to.be.an('Object')
-                expect(wmsLayer.getID()).to.eq('test.wms.layer')
-                expect(wmtsLayer).to.be.an('Object')
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
-            })
-        })
-        it('sets the opacity to the value defined in the layers URL param', () => {
-            cy.goToMapView('en', {
-                layers: 'test.wmts.layer,,0.5',
-            })
-            cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                const [wmtsLayer] = layers
-                expect(wmtsLayer.opacity).to.eq(0.5)
+                expect(layers).to.be.an('Array').length(5)
+                expect(layers[0].getID()).to.eq('test-1.wms.layer')
+                expect(layers[1].getID()).to.eq('test-2.wms.layer')
+                expect(layers[2].getID()).to.eq('test-3.wms.layer')
+                expect(layers[3].getID()).to.eq('test-4.wms.layer')
+                expect(layers[3].opacity).to.eq(0.4)
+                expect(layers[4].getID()).to.eq('test.wmts.layer')
+                expect(layers[4].opacity).to.eq(0.5)
             })
         })
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
             const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 layers: timeEnabledLayerId,
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
@@ -109,19 +65,22 @@ describe('Test of layer handling', () => {
             const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
             cy.fixture('layers.fixture.json').then((layersMetadata) => {
                 const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
-                const randomTimestampFromLayer = getRandomTimestampFromSeries(timedLayerMetadata)
-                cy.goToMapView('en', {
-                    layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
-                        0,
-                        4
-                    )}`,
-                })
-                cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                    const [timeEnabledLayer] = layers
-                    expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
-                        randomTimestampFromLayer
-                    )
-                })
+                cy.getRandomTimestampFromSeries(timedLayerMetadata).then(
+                    (randomTimestampFromLayer) => {
+                        cy.goToMapView({
+                            layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
+                                0,
+                                4
+                            )}`,
+                        })
+                        cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                            const [timeEnabledLayer] = layers
+                            expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
+                                randomTimestampFromLayer
+                            )
+                        })
+                    }
+                )
             })
         })
         context('External layers', () => {
@@ -139,7 +98,6 @@ describe('Test of layer handling', () => {
                 }).as('externalWMS')
 
                 cy.goToMapView(
-                    'en',
                     {
                         layers: fakeLayerUrlId,
                     },
@@ -172,7 +130,6 @@ describe('Test of layer handling', () => {
                 }).as('externalGetCap')
 
                 cy.goToMapView(
-                    'en',
                     {
                         layers: fakeLayerUrlId,
                     },
@@ -204,7 +161,6 @@ describe('Test of layer handling', () => {
                 }).as('externalGetCap')
 
                 cy.goToMapView(
-                    'en',
                     {
                         layers: `${fakeLayerUrlId},f,0.5`,
                     },
@@ -227,22 +183,22 @@ describe('Test of layer handling', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
                 cy.goToMapView()
-                cy.readStoreValue('state.layers.backgroundLayerId').should(
-                    'eq',
-                    defaultTopic.defaultBackground
-                )
+                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                    expect(bgLayer).to.not.be.null
+                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                })
             })
         })
         it('sets the background to the topic default if none is defined in the URL, even if a layer (out of topic scope) is defined in it', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     layers: 'test.timeenabled.wmts.layer',
                 })
-                cy.readStoreValue('state.layers.backgroundLayerId').should(
-                    'eq',
-                    defaultTopic.defaultBackground
-                )
+                cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                    expect(bgLayer).to.not.be.null
+                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')
                     expect(layers.length).to.eq(1)
@@ -252,33 +208,25 @@ describe('Test of layer handling', () => {
             })
         })
         it('sets the background according to the URL param if present at startup', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 bgLayer: 'test.background.layer2',
             })
-            cy.readStoreValue('state.layers.backgroundLayerId').should(
-                'eq',
-                'test.background.layer2'
-            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                expect(bgLayer).to.not.be.null
+                expect(bgLayer.getID()).to.eq('test.background.layer2')
+            })
         })
     })
     context('Layer settings in menu', () => {
         const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
         const goToMenuWithLayers = (layerIds = visibleLayerIds) => {
             cy.goToMapView(
-                'en',
                 {
                     layers: layerIds.join(';'),
                 },
                 true
             ) // with hash, so that we can have external layer support
-            clickOnMenuButtonIfMobile()
-        }
-        const openLayerSettings = (layerId) => {
-            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.hidden')
-            cy.get(`[data-cy="button-open-visible-layer-settings-${layerId}"]`)
-                .should('be.visible')
-                .click()
-            cy.get(`[data-cy="div-layer-settings-${layerId}"]`).should('be.visible')
+            cy.clickOnMenuButtonIfMobile()
         }
         context('Adding/removing layers', () => {
             it('shows active layers in the menu', () => {
@@ -308,7 +256,7 @@ describe('Test of layer handling', () => {
             })
             it('shows a hyphen when no layer is selected', () => {
                 cy.goToMapView()
-                clickOnMenuButtonIfMobile()
+                cy.clickOnMenuButtonIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
@@ -318,16 +266,16 @@ describe('Test of layer handling', () => {
                     'test.wmts.layer',
                     'test.timeenabled.wmts.layer',
                 ]
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     layers: visibleLayerIds.join(';'),
                 })
-                clickOnMenuButtonIfMobile()
+                cy.clickOnMenuButtonIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
             })
             it('add layer from topic (should be visible)', () => {
                 cy.goToMapView()
-                clickOnMenuButtonIfMobile()
+                cy.clickOnMenuButtonIfMobile()
                 const testLayerId = 'test.wmts.layer'
                 const testLayerSelector = `[data-cy="topic-tree-item-${testLayerId}"]`
                 cy.get('[data-cy="menu-topic-section"]').click()
@@ -348,7 +296,8 @@ describe('Test of layer handling', () => {
                             .forEach((menuItem) => cy.wrap(menuItem).click())
                     })
                 // Add the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
                     expect(visibleLayers[0].getID(), testLayerId)
@@ -381,7 +330,7 @@ describe('Test of layer handling', () => {
                     'search-locations'
                 )
                 cy.goToMapView()
-                clickOnMenuButtonIfMobile()
+                cy.clickOnMenuButtonIfMobile()
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.get('[data-cy="searchbar"]').paste('test')
                 cy.wait(['@search-locations', '@search-layers'])
@@ -418,13 +367,15 @@ describe('Test of layer handling', () => {
                             .forEach((menuItem) => cy.wrap(menuItem).click())
                     })
                 // Toggle (hide) the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     const visibleIds = visibleLayers.map((layer) => layer.getID())
                     expect(visibleIds).to.not.contain(testLayerId)
                 })
                 // Toggle (show) the test layer.
-                cy.get(testLayerSelector).click().trigger('mouseleave')
+                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     const visibleIds = visibleLayers.map((layer) => layer.getID())
                     expect(visibleIds).to.contain(testLayerId)
@@ -438,7 +389,7 @@ describe('Test of layer handling', () => {
             it('changes the opacity of the layer when the slider for this property is used', () => {
                 // using the second layer for this test
                 const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 // getting current layer opacity
                 let initialOpacity = 1.0
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
@@ -462,7 +413,7 @@ describe('Test of layer handling', () => {
             it('reorders visible layers when corresponding buttons are pressed', () => {
                 const [firstLayerId, secondLayerId] = visibleLayerIds
                 // lower the order of the first layer
-                openLayerSettings(firstLayerId)
+                cy.openLayerSettings(firstLayerId)
                 cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`)
                     .should('be.visible')
                     .click()
@@ -491,7 +442,7 @@ describe('Test of layer handling', () => {
                     fakeHtmlResponse
                 ).as('legend')
                 // opening layer settings
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 // clicking on the layer info button
                 cy.get(`[data-cy="button-show-legend-layer-${layerId}"]`)
                     .should('be.visible')
@@ -527,15 +478,16 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="time-selector-${timedLayerId}"]`).should('be.visible').click()
                 cy.fixture('layers.fixture.json').then((layersMetadata) => {
                     const timedLayerMetadata = layersMetadata[timedLayerId]
-                    const randomTimestamp = getRandomTimestampFromSeries(timedLayerMetadata)
-                    // "force" is needed, as else there is a false positive "button hidden"
-                    cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click({ force: true })
-                    cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                        expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
-                        activeLayers.forEach((layer) => {
-                            if (layer.getID() === timedLayerId) {
-                                expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
-                            }
+                    cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestamp) => {
+                        // "force" is needed, as else there is a false positive "button hidden"
+                        cy.get(`[data-cy="time-select-${randomTimestamp}"]`).click({ force: true })
+                        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                            expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
+                            activeLayers.forEach((layer) => {
+                                if (layer.getID() === timedLayerId) {
+                                    expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
+                                }
+                            })
                         })
                     })
                 })
@@ -555,43 +507,43 @@ describe('Test of layer handling', () => {
             }
             it('Disable the "move front" arrow on the top layer', () => {
                 const layerId = visibleLayerIds[0]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, true, false)
             })
             it('Disable the "move back" arrow on the bottom layer', () => {
                 const layerId = visibleLayerIds[2]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, false, true)
             })
             it('enables both button for any other layer', () => {
                 const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, false, false)
             })
             it('disable the "move front" arrow on a layer which gets to the top layer', () => {
                 const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, false, false)
                 cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
                 checkOrderButtons(layerId, true, false)
             })
             it('disable the "move back" arrow on a layer which gets to the bottom layer', () => {
                 const layerId = visibleLayerIds[1]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, false, false)
                 cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
                 checkOrderButtons(layerId, false, true)
             })
             it('enable the "move back" arrow on a layer which is raised from the bottom', () => {
                 const layerId = visibleLayerIds[2]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, false, true)
                 cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
                 checkOrderButtons(layerId, false, false)
             })
             it('enable the "move front" arrow on a layer which is lowered from the top', () => {
                 const layerId = visibleLayerIds[0]
-                openLayerSettings(layerId)
+                cy.openLayerSettings(layerId)
                 checkOrderButtons(layerId, true, false)
                 cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
                 checkOrderButtons(layerId, false, false)
@@ -620,7 +572,7 @@ describe('Test of layer handling', () => {
         })
     })
     context('Language settings in menu', () => {
-        it.only('keeps the layer settings when changing language', () => {
+        it('keeps the layer settings when changing language', () => {
             const langBefore = 'en'
             const langAfter = 'de'
             const visibleLayerIds = [
@@ -630,7 +582,8 @@ describe('Test of layer handling', () => {
             ]
             let activeLayersConfigBefore
 
-            cy.goToMapView(langBefore, {
+            cy.goToMapView({
+                lang: langBefore,
                 layers: visibleLayerIds.map((layer) => `${layer},f,0.1`).join(';'),
             })
 
@@ -654,7 +607,7 @@ describe('Test of layer handling', () => {
             })
 
             // Open the menu and change the language.
-            clickOnMenuButtonIfMobile()
+            cy.clickOnMenuButtonIfMobile()
             cy.clickOnLanguage(langAfter)
 
             // Wait until the active layers are updated.
@@ -680,7 +633,7 @@ describe('Test of layer handling', () => {
     })
     context('Copyrights/attributions of layers', () => {
         it('hides the copyrights zone when no layer is visible', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 bgLayer: 'void',
             })
             cy.get('[data-cy="layers-copyrights"] a').should('not.exist')
@@ -688,7 +641,7 @@ describe('Test of layer handling', () => {
         it('shows the copyright as a link when an attribution URL is available', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithAttributionUrl = fakeLayers['test.wmts.layer']
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     layers: layerWithAttributionUrl.serverLayerName,
                 })
                 cy.get(`a[data-cy="layer-copyright-${layerWithAttributionUrl.attribution}"]`)
@@ -700,7 +653,7 @@ describe('Test of layer handling', () => {
         it('shows a simple text with data owner name when no attribution URL is available', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithoutAttributionUrl = fakeLayers['test.wms.layer']
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     layers: layerWithoutAttributionUrl.serverLayerName,
                 })
                 cy.get(`span[data-cy="layer-copyright-${layerWithoutAttributionUrl.attribution}"]`)
@@ -711,7 +664,7 @@ describe('Test of layer handling', () => {
         it('renders a simple text when the attribution URL is a malformed', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithMalformedAttributionUrl = fakeLayers['test.timeenabled.wmts.layer']
-                cy.goToMapView('en', {
+                cy.goToMapView({
                     layers: layerWithMalformedAttributionUrl.serverLayerName,
                 })
                 cy.get(
@@ -722,7 +675,7 @@ describe('Test of layer handling', () => {
             })
         })
         it('only show once each data owner (attribution) even when multiple layers with the same are shown', () => {
-            cy.goToMapView('en', {
+            cy.goToMapView({
                 bgLayer: 'test.background.layer2',
                 layers: 'test.wmts.layer',
             })

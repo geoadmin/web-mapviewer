@@ -31,4 +31,3 @@ Portions of web-mapviewer are based on works by others. A non-extensive list:
 [Font Awesome Fonts](https://scripts.sil.org/OFL)
 
 [Font Awesome Code](https://opensource.org/licenses/MIT)
-

@@ -46,7 +46,6 @@ import HeaderSwissConfederationText from '@/modules/menu/components/header/Heade
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-
 import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapGetters, mapState } from 'vuex'
 

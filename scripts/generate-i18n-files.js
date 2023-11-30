@@ -55,7 +55,7 @@ sheets.spreadsheets.values.get(
                 if (index > 0) {
                     fs.writeFileSync(
                         `src/modules/i18n/locales/${lang}.json`,
-                        JSON.stringify(translations[lang], null, '\t')
+                        JSON.stringify(translations[lang], null, '    ') + '\n'
                     )
                 }
             })

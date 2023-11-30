@@ -1,4 +1,5 @@
 import { HALFSIZE_WEBMERCATOR, GeodesicGeometries } from '@/utils/geodesicManager'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { Feature } from 'ol'
 import { expect } from 'chai'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
@@ -8,7 +9,7 @@ import { Style } from 'ol/style'
 function constructGeodLineString(...coords) {
     const feature = new Feature(new LineString(coords))
     feature.set('isDrawing', true)
-    return new GeodesicGeometries(feature)
+    return new GeodesicGeometries(feature, WEBMERCATOR)
 }
 
 function checkCoordsEqual(coords1, coords2, precision) {
@@ -160,7 +161,10 @@ describe('Unit tests for Geodesic geometries', () => {
     it('2 coordinates crossing the dateline', () => {
         /* We are at the equator to easily check the algorithms, as at the
         equator one coordinate unit = one meter */
-        const geodesic = constructGeodLineString([HALFSIZE_WEBMERCATOR - 1500, 0], [-HALFSIZE_WEBMERCATOR + 2000, 0])
+        const geodesic = constructGeodLineString(
+            [HALFSIZE_WEBMERCATOR - 1500, 0],
+            [-HALFSIZE_WEBMERCATOR + 2000, 0]
+        )
         validateResults(geodesic, {
             geodesicGeom: [
                 [
@@ -181,7 +185,12 @@ describe('Unit tests for Geodesic geometries', () => {
         })
 
         // Validate getSubsegments
-        const subsegments = geodesic.getSubsegments(0, [HALFSIZE_WEBMERCATOR, -0.0001, HALFSIZE_WEBMERCATOR, +0.0001])
+        const subsegments = geodesic.getSubsegments(0, [
+            HALFSIZE_WEBMERCATOR,
+            -0.0001,
+            HALFSIZE_WEBMERCATOR,
+            +0.0001,
+        ])
         expect(subsegments).to.have.length(1) // [0-1000], [1000-2000], [2000-3000]
         checkCoordsEqual(subsegments[0], [
             [HALFSIZE_WEBMERCATOR - 500, 0],

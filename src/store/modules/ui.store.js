@@ -91,6 +91,12 @@ export default {
          * @type String
          */
         hostname: window.location.hostname,
+        /**
+         * Flag telling if import overlay shown
+         *
+         * @type Boolean
+         */
+        importOverlay: false,
     },
     getters: {
         screenDensity(state) {
@@ -201,6 +207,9 @@ export default {
                 }
             }
         },
+        toggleImportOverlay({ commit, state }) {
+            commit('setImportOverlay', !state.importOverlay)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -227,6 +236,9 @@ export default {
         },
         setUiMode(state, mode) {
             state.mode = mode
+        },
+        setImportOverlay(state, flagValue) {
+            state.importOverlay = flagValue
         },
     },
 }

@@ -39,7 +39,8 @@ describe('Drawing toolbox actions', () => {
             }
 
             // Check that the copied URL is the shorten one
-            cy.get('[data-cy="drawing-share-normal-link"]').click()
+            cy.get('[data-cy="drawing-share-normal-link"]').focus()
+            cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.be.equal(
                     publicShortlink,
@@ -53,7 +54,8 @@ describe('Drawing toolbox actions', () => {
                 cy.wait('@shortLink')
             }
             // Check that the copied URL is the shorten one
-            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-link"]').focus()
+            cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.be.equal(
                     adminshortlink,
@@ -71,7 +73,8 @@ describe('Drawing toolbox actions', () => {
             cy.get(shareButton).click()
         })
         it('Generates a URL with the public file ID for a standard share link', () => {
-            cy.get('[data-cy="drawing-share-normal-link"]').click()
+            cy.get('[data-cy="drawing-share-normal-link"]').focus()
+            cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             // checking that the ID present in the "normal" link matches the
             // public file ID (and not the admin ID)
             cy.readClipboardValue().then((clipboardText) => {
@@ -80,7 +83,8 @@ describe('Drawing toolbox actions', () => {
             })
         })
         it('Generates a URL with the adminId when sharing a "draw later" link', () => {
-            cy.get('[data-cy="drawing-share-admin-link"]').click()
+            cy.get('[data-cy="drawing-share-admin-link"]').focus()
+            cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.contain(`/${kmlId}`)
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)

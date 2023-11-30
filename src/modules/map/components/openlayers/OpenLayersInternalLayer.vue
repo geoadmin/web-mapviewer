@@ -1,9 +1,15 @@
 <template>
     <div>
-        <!-- no source exclusion when adding VT layer through here, this is only required in the case the layer is under
-             another (see OpenLayersMap main component)-->
+        <!--
+            Vector layers are only allowed whenever we use the WebMercator projection
+            (won't work on LV95 yet, as MapLibre doesn't support other projection systems yet)
+
+            no source exclusion when adding VT layer through here,
+            this is only required in the case the layer is under another
+            (see OpenLayersMap main component)
+        -->
         <OpenLayersVectorLayer
-            v-if="layerConfig.type === LayerTypes.VECTOR"
+            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
             :z-index="zIndex"
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
@@ -13,12 +19,13 @@
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
             :preview-year="previewYear"
-            :projection="LV95"
+            :projection="projection"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
             :external-wmts-layer-config="layerConfig"
+            :projection="projection"
             :z-index="zIndex"
         />
         <!-- we have to pass the geoAdminID as ID here in order to support external WMS layers -->
@@ -28,7 +35,7 @@
             v-if="layerConfig.type === LayerTypes.WMS"
             :wms-layer-config="layerConfig"
             :preview-year="previewYear"
-            :projection="layerConfig.isExternal ? WEBMERCATOR.epsg : LV95"
+            :projection="projection"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
@@ -37,8 +44,17 @@
             :opacity="layerConfig.opacity"
             :geojson-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"
+            :projection="projection"
             :z-index="zIndex"
         />
+        <div v-if="layerConfig.type === LayerTypes.GROUP">
+            <OpenLayersInternalLayer
+                v-for="(layer, index) in layerConfig.layers"
+                :key="`${layer.getID()}-${index}`"
+                :layer-config="layer"
+                :z-index="zIndex + index"
+            />
+        </div>
         <!--
         Aggregate layers are some kind of a edge case where two or more layers are joint together but only one of them
         is visible depending on the map resolution.
@@ -52,9 +68,10 @@
                 v-for="aggregateSubLayer in layerConfig.subLayers"
                 :key="aggregateSubLayer.subLayerId"
             >
-                <open-layers-internal-layer
+                <OpenLayersInternalLayer
                     v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                     :layer-config="aggregateSubLayer.layer"
+                    :projection="projection"
                     :z-index="zIndex"
                 />
             </div>
@@ -64,6 +81,7 @@
             :layer-id="layerConfig.getID()"
             :opacity="layerConfig.opacity"
             :url="layerConfig.getURL()"
+            :projection="projection"
             :z-index="zIndex"
         />
         <slot />
@@ -75,11 +93,12 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
-import { LV95, WEBMERCATOR } from '@/utils/coordinateSystems'
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
+import { mapState } from 'vuex'
 
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
@@ -101,10 +120,6 @@ export default {
             type: AbstractLayer,
             default: null,
         },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
         // In order to be able to manage aggregate layers we need to know the current map resolution
         currentMapResolution: {
             type: Number,
@@ -114,6 +129,10 @@ export default {
             type: Number,
             default: null,
         },
+        zIndex: {
+            type: Number,
+            default: -1,
+        },
     },
     data() {
         return {
@@ -121,6 +140,11 @@ export default {
             LV95,
             WEBMERCATOR,
         }
+    },
+    computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
     },
     methods: {
         shouldAggregateSubLayerBeVisible(subLayer) {

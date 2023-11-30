@@ -10,7 +10,7 @@ Currently, a short click will switch the app in fullscreen mode. A long click (w
 
 The issue is that there is no location popup possibilities with that (or at least it's unwanted if it pops up after a long click). We need to rework that.
 
-# Decision
+## Decision
 
 - Mobile layout (menu must be opened through header button)
   - Single touch (click) : identify, if no feature found, fullscreen toggle
@@ -26,5 +26,5 @@ This would allow mobile users to use all the features we provide (identify, loca
 
 ## Links
 
-* [JIRA ticket this ADR is based on](https://jira.swisstopo.ch/browse/BGDIINF_SB-2235)
-* [JIRA ticket where this became a problem](https://jira.swisstopo.ch/browse/BGDIINF_SB-2323)
+- [JIRA ticket this ADR is based on](https://jira.swisstopo.ch/browse/BGDIINF_SB-2235)
+- [JIRA ticket where this became a problem](https://jira.swisstopo.ch/browse/BGDIINF_SB-2323)

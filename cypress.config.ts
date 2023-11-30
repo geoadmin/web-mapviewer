@@ -1,16 +1,16 @@
 import { defineConfig } from 'cypress'
 import vitePreprocessor from 'cypress-vite'
-import { readdirSync, existsSync, unlinkSync } from 'node:fs'
+import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 
 module.exports = defineConfig({
     video: false,
-    defaultCommandTimeout: 10000,
-    requestTimeout: 15000,
-    numTestsKeptInMemory: 5,
+    defaultCommandTimeout: 5000,
+    requestTimeout: 5000,
+    numTestsKeptInMemory: 2,
     retries: {
-        runMode: 5,
+        runMode: 1,
         openMode: 0,
     },
     reporter: 'cypress-multi-reporters',
@@ -74,6 +74,6 @@ module.exports = defineConfig({
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/e2e-cypress/integration/**/*.*',
-        supportFile: 'tests/e2e-cypress/support/index.js'
+        supportFile: 'tests/e2e-cypress/support/index.js',
     },
 })

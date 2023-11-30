@@ -3,14 +3,12 @@
         <OpenFullAppLink v-if="embedded" />
         <MapModule>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
-            <DrawingModule v-show="!embedded" />
-            <!-- The footer also need to receive the map (for mouse position) -->
-            <MapFooter v-show="!embedded" />
+            <DrawingModule v-show="!embedded" v-if="!is3DActive" />
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
             <InfoboxModule />
-            <!-- needed to e.g. set register an event to set the compass position -->
-            <MenuModule v-show="!embedded" />
         </MapModule>
+        <MapFooter v-show="!embedded" />
+        <MenuModule v-show="!embedded" />
         <I18nModule />
     </div>
 </template>
@@ -38,6 +36,7 @@ export default {
     computed: {
         ...mapState({
             embedded: (state) => state.ui.embeddedMode,
+            is3DActive: (state) => state.cesium.active,
         }),
     },
 }
@@ -49,5 +48,6 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 </style>

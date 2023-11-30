@@ -24,10 +24,21 @@
             </button>
             <span
                 class="menu-layer-item-name"
+                :class="{ 'text-body-tertiary fst-italic': layer.isLoading }"
                 :data-cy="`active-layer-name${id}`"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</span
             >
+            <button
+                v-if="layer.isLoading"
+                class="loading-button btn"
+                :class="{
+                    'btn-lg': !compact,
+                }"
+                :data-cy="`button-loading-metadata-spinner-${id}`"
+            >
+                <FontAwesomeIcon icon="spinner" pulse />
+            </button>
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"
                 :layer-id="id"
@@ -114,6 +125,7 @@ import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/acti
 import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapGetters, mapState } from 'vuex'
+import tippy from 'tippy.js'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -183,6 +195,27 @@ export default {
             }
             return false
         },
+        tooltipContent() {
+            return this.$t('loading_external_layer')
+        },
+    },
+    watch: {
+        currentLang() {
+            this.tippyInstance.setContent(this.tooltipContent)
+        },
+    },
+    mounted() {
+        this.tippyInstances = tippy('.loading-button', {
+            content: this.tooltipContent,
+            arrow: true,
+            placement: 'top',
+            touch: false,
+        })
+    },
+    beforeUnmount() {
+        this.tippyInstances?.forEach((instance) => {
+            instance.destroy()
+        })
     },
     methods: {
         onToggleLayerDetails() {
@@ -239,9 +272,15 @@ export default {
 }
 
 svg {
-    transition: transform 0.2s, color 0.2s;
+    transition:
+        transform 0.2s,
+        color 0.2s;
     .flip & {
         transform: rotate(180deg);
     }
+}
+
+.loading-button {
+    cursor: default;
 }
 </style>

@@ -15,6 +15,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             new GeoAdminWMSLayer(
                 'Test layer WMS',
                 'test.wms.layer',
+                'test.wms.layer',
                 0.8,
                 true,
                 [new LayerAttribution('attribution.test.wms.layer')],
@@ -25,6 +26,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             new GeoAdminWMTSLayer('Test layer WMTS', 'test.wmts.layer'),
             new GeoAdminWMTSLayer(
                 'Test timed layer WMTS',
+                'test.timed.wmts.layer',
                 'test.timed.wmts.layer',
                 0.8,
                 true,
@@ -169,9 +171,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmsLayer.baseURL).to.eq(wmsBaseUrl)
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // base URL must be encoded so that no & sign is present, otherwise it would break the URL param parsing
-                expect(externalWmsLayer.getID()).to.eq(
-                    `WMS|${wmsBaseUrl}|${wmsLayerId}|${wmsVersion}|${wmsLayerName}`
-                )
+                expect(externalWmsLayer.getID()).to.eq(`WMS|${wmsBaseUrl}|${wmsLayerId}`)
             })
             it('parses a legacy external WMTS layer correctly', () => {
                 const wmtsLayerId = 'fake.wmts.id'
@@ -193,7 +193,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // as there was no definition of the layer name in the URL with the old external layer URL structure, we end up with the layer ID as name too
                 expect(externalWmtsLayer.getID()).to.eq(
-                    `WMTS|${wmtsGetCapabilitesUrl}|${wmtsLayerId}|${wmtsLayerId}`
+                    `WMTS|${wmtsGetCapabilitesUrl}|${wmtsLayerId}`
                 )
             })
             it('does not parse an external layer if it is in the current format', () => {

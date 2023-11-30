@@ -4,7 +4,7 @@
             <LangSwitchToolbar />
         </div>
         <div id="menu-feedback">
-             <FeedbackToolbar />
+            <FeedbackToolbar />
         </div>
     </div>
 </template>

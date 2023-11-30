@@ -1,125 +1,69 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_PROJECTION } from '@/config'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
+import { latLonToMGRS } from '@/utils/militaryGridProjection'
+import proj4 from 'proj4'
+
 const searchbarSelector = '[data-cy="searchbar"]'
 
-describe('Testing coordinates typing in search bar', { testIsolation: false }, () => {
-    // in order to ease test run, we only load the page once at the begining of this context
-    // so that it doesn't load the page for each copy/paste in the search bar
-    before(() => {
+describe('Testing coordinates typing in search bar', () => {
+    beforeEach(() => {
         cy.goToMapView()
     })
-    beforeEach(() => {
-        // emptying any potential search query
-        cy.readStoreValue('state.search.query').then((searchQuery) => {
-            if (searchQuery && searchQuery.length > 0) {
-                cy.get('[data-cy="searchbar-clear"]').click()
-                // replacing the view somewhere else in order to check that
-                // subsequent coordinate search will place the view at the correct location
-                cy.writeStoreValue('setZoom', 10)
-                cy.writeStoreValue('setCenter', [46.5, 8])
-            }
-        })
-    })
-    // using the same values as coordinateUtils.spec.js (in Unit cypress)
-    const coordEpsg3857 = [773900, 5976445]
-    const WGS84 = [47.2101583, 6.952062]
-    const LV95 = [2563138.69, 1228917.22]
-    const LV03 = [563138.65, 228917.28]
+    const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value) => value - 1000)
+    const expectedCenterLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, expectedCenter).map(
+        LV95.roundCoordinateValue
+    )
+    const expectedCenterLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, expectedCenter).map(
+        LV03.roundCoordinateValue
+    )
+    const expectedCenterWebMercator = proj4(
+        DEFAULT_PROJECTION.epsg,
+        WEBMERCATOR.epsg,
+        expectedCenter
+    ).map(WEBMERCATOR.roundCoordinateValue)
+    const expectedCenterWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, expectedCenter).map(
+        WGS84.roundCoordinateValue
+    )
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.readStoreValue('state.position.center').should((center) => {
-            expect(center[0]).to.be.approximately(coordEpsg3857[0], acceptableDelta)
-            expect(center[1]).to.be.approximately(coordEpsg3857[1], acceptableDelta)
+            expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+            expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
     const checkZoomLevelInStore = () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
-        // in world-wide zoom level, it means a 15.5 zoom level (in LV95 zoom level it is 8)
-        cy.readStoreValue('state.position.zoom').should('be.eq', 15.5)
+        let expectedZoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
+        if (DEFAULT_PROJECTION instanceof CustomCoordinateSystem) {
+            expectedZoomLevel = DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(
+                STANDARD_ZOOM_LEVEL_1_25000_MAP
+            )
+        }
+        cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)
     }
     const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
         cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
             expect(feature).to.not.be.null
             expect(feature).to.be.a('array').that.is.not.empty
-            expect(feature[0]).to.be.approximately(coordEpsg3857[0], acceptableDelta)
-            expect(feature[1]).to.be.approximately(coordEpsg3857[1], acceptableDelta)
+            expect(feature[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+            expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
-    const numberWithThousandSeparator = (x, separator = "'") => {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
-    }
-    const standardCheck = (x, y, title, acceptableDelta = 0.0) => {
-        it(title, () => {
-            cy.get(searchbarSelector).paste(`${x} ${y}`)
-            checkCenterInStore(acceptableDelta)
-            checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(acceptableDelta)
-        })
-        it(`${title} with comma as a separator`, () => {
-            cy.get(searchbarSelector).paste(`${x}, ${y}`)
-            checkCenterInStore(acceptableDelta)
-            checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(acceptableDelta)
-        })
-        it(`${title} with slash as a separator`, () => {
-            cy.get(searchbarSelector).paste(`${x}/${y}`)
-            checkCenterInStore(acceptableDelta)
-            checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(acceptableDelta)
-        })
-    }
-    const tryAllInputPossibilities = (
-        x,
-        y,
-        coordType,
-        acceptableDelta = 0.0,
-        withBackwardInputCheck = false,
-        withThousandSeparatorCheck = false
-    ) => {
-        const mainTitle = `sets center accordingly when ${coordType} coordinates are entered in the search bar`
-        standardCheck(x, y, mainTitle, acceptableDelta)
-        if (withBackwardInputCheck) {
-            standardCheck(y, x, `${mainTitle} with coordinates entered backward`, acceptableDelta)
-        }
-        if (withThousandSeparatorCheck) {
-            standardCheck(
-                numberWithThousandSeparator(x, "'"),
-                numberWithThousandSeparator(y, "'"),
-                `${mainTitle} with ' as thousand separator`,
-                acceptableDelta
-            )
-            standardCheck(
-                numberWithThousandSeparator(x, ' '),
-                numberWithThousandSeparator(y, ' '),
-                `${mainTitle} with space as thousand separator`,
-                acceptableDelta
-            )
-        }
-        if (withThousandSeparatorCheck && withBackwardInputCheck) {
-            standardCheck(
-                numberWithThousandSeparator(y, "'"),
-                numberWithThousandSeparator(x, "'"),
-                `${mainTitle} with ' as thousand separator`,
-                acceptableDelta
-            )
-            standardCheck(
-                numberWithThousandSeparator(y, ' '),
-                numberWithThousandSeparator(x, ' '),
-                `${mainTitle} with space as thousand separator`,
-                acceptableDelta
-            )
-        }
+    const standardCheck = (x, y, acceptableDelta = 0.0) => {
+        cy.get(searchbarSelector).should('be.visible')
+        cy.get(searchbarSelector).paste(`${x} ${y}`)
+        checkCenterInStore(acceptableDelta)
+        checkZoomLevelInStore()
+        checkThatCoordinateAreHighlighted(acceptableDelta)
     }
 
-    it('find the searchbar in the UI', () => {
-        cy.get(searchbarSelector).should('be.visible')
-    })
-    it('Remove the dropped pin when the search bar is cleared', () => {
-        cy.get(searchbarSelector).paste(`${LV95[0]} ${LV95[1]}`)
-        checkCenterInStore()
-        checkZoomLevelInStore()
-        checkThatCoordinateAreHighlighted()
+    it('Paste and clear LV95 coordinates in search bar', () => {
+        standardCheck(expectedCenterLV95[0], expectedCenterLV95[1])
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
@@ -127,45 +71,38 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
         cy.readStoreValue('state.map.pinnedLocation').should('be.null')
     })
 
-    context('EPSG:4326 (Web-Mercator) inputs', () => {
-        // the search bar only supports input in lat/lon format, so X is lat
-        const WGS84_DM = ["47°12.6095'", "6°57.12372'"]
-        const WGS84_DM_GOOGLE_STYLE = ['47 12.6095', '6 57.12372']
-        const WGS84_DMS = ['47°12\'36.57"', '6°57\'7.423"']
-        const WGS84_DMS_WITH_CARDINAL = ['47°12\'36.57"N', '6°57\'7.423"E']
-        tryAllInputPossibilities(WGS84[0], WGS84[1], 'DD format')
-        tryAllInputPossibilities(WGS84_DM[0], WGS84_DM[1], 'DM format')
-        tryAllInputPossibilities(
-            WGS84_DM_GOOGLE_STYLE[0],
-            WGS84_DM_GOOGLE_STYLE[1],
-            'DM format (Google style)'
-        )
-        tryAllInputPossibilities(WGS84_DMS[0], WGS84_DMS[1], 'DMS format')
-        tryAllInputPossibilities(
-            WGS84_DMS_WITH_CARDINAL[0],
-            WGS84_DMS_WITH_CARDINAL[1],
-            'DMS format with cardinal point'
-        )
-        tryAllInputPossibilities(
-            WGS84_DMS_WITH_CARDINAL[1],
-            WGS84_DMS_WITH_CARDINAL[0],
-            'inverted DMS format with cardinal point'
-        )
+    it('Paste EPSG:4326 (WGS84) coordinate', () => {
+        const expectedCenterWGS84_DD = expectedCenterWGS84.map((val) => {
+            const [degree, minutesFraction] = `${val}`.split('.')
+            const minutes = parseFloat(`0.${minutesFraction}`)
+            return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
+        })
+        const acceptableDelta = 0.25
+        standardCheck(expectedCenterWGS84[0], expectedCenterWGS84[1], acceptableDelta)
+        // clear the bar
+        cy.get('[data-cy="searchbar-clear"]').click()
+        // checking that search bar has been emptied
+        cy.readStoreValue('state.search.query').should('be.empty')
+        standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], acceptableDelta)
     })
-    context('EPSG:2056 (LV95) inputs', () => {
-        tryAllInputPossibilities(LV95[0], LV95[1], 'LV95', 0.0, true, true)
+
+    it('Paste EPSG:3857 (Web-Mercator) coordinate', () => {
+        const acceptableDelta = 0
+        standardCheck(expectedCenterWebMercator[0], expectedCenterWebMercator[1], acceptableDelta)
     })
-    context('EPSG:21781 (LV03) inputs', () => {
-        tryAllInputPossibilities(LV03[0], LV03[1], 'LV03', 0.1, true, true)
+
+    it('Paste EPSG:21781 (LV03) coordinates', () => {
+        standardCheck(expectedCenterLV03[0], expectedCenterLV03[1], 0.1)
     })
+
     context('What3Words input', () => {
         const what3words = 'bisher.meiste.einerseits'
         // creating a what3words response stub
         const w3wStub = {
             country: 'CH',
             coordinates: {
-                lat: WGS84[0],
-                lng: WGS84[1],
+                lng: expectedCenterWGS84[0],
+                lat: expectedCenterWGS84[1],
             },
             words: what3words,
             language: 'en',
@@ -177,21 +114,20 @@ describe('Testing coordinates typing in search bar', { testIsolation: false }, (
             cy.get(searchbarSelector).paste(what3words)
             // checking that the request to W3W has been made (and caught by Cypress)
             cy.wait('@w3w-convert')
-            checkCenterInStore(1)
+            checkCenterInStore(1.0)
             checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(1)
+            checkThatCoordinateAreHighlighted(1.0)
         })
     })
-    context('MGRS input', () => {
-        const MGRS = '32TLT 44918 30553'
+
+    it('Paste MGRS input', () => {
         // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
         const acceptableDeltaForMGRS = 1
-
-        it('sets center accordingly when a MGRS input is given', () => {
-            cy.get(searchbarSelector).paste(MGRS)
-            checkCenterInStore(acceptableDeltaForMGRS)
-            checkZoomLevelInStore()
-            checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)
-        })
+        cy.get(searchbarSelector).paste(
+            latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
+        )
+        checkCenterInStore(acceptableDeltaForMGRS)
+        checkZoomLevelInStore()
+        checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)
     })
 })

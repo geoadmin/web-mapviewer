@@ -5,13 +5,14 @@
 </template>
 
 <script>
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
+import reprojectGeoJsonData from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 import axios from 'axios'
 import GeoJSON from 'ol/format/GeoJSON'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { reproject } from 'reproject'
 import addLayerToMapMixin from './utils/addLayerToMap-mixins'
 import OlStyleForPropertyValue from './utils/styleFromLiterals'
 
@@ -35,6 +36,10 @@ export default {
             type: Number,
             default: 0.9,
         },
+        projection: {
+            type: CoordinateSystem,
+            required: true,
+        },
         zIndex: {
             type: Number,
             default: -1,
@@ -46,62 +51,99 @@ export default {
                 this.layer.setOpacity(newOpacity)
             }
         },
+        projection() {
+            this.createSourceForProjection()
+        },
     },
     created() {
-        // The layers needs to be set immediately. Otherwise, addLayerToMapMixin will fail.
+        // The layers need to be set immediately. Otherwise, addLayerToMapMixin will fail.
         this.layer = new VectorLayer({ id: this.layerId, opacity: this.opacity })
 
         // loading the GeoJSON data and style with and wait for both the be loaded
         // WARNING: axios.get(this.styleUrl) will not work on localhost and will fire a CORS error !!
-        // this is due to the fact that the backend send the styleUrl agnostic whitout HTTP scheme !
-        Promise.all([axios.get(this.geojsonUrl), axios.get(this.styleUrl)])
-            .then((responses) => {
+        // this is due to the fact that the backend send the styleUrl agnostic without HTTP scheme !
+        Promise.all([this.loadStyle(), this.loadData()])
+            .then(() => {
                 if (!this.layer) {
                     // It could be that the layer has been removed meanwhile therefore check for
                     // its existence
                     return
                 }
-                const geojsonData = responses[0].data
-                const geojsonStyleLiterals = responses[1].data
-                const style = new OlStyleForPropertyValue(geojsonStyleLiterals)
-
-                // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
-                const dataProjection = geojsonData.crs ? geojsonData.crs.properties.name : null
-
-                // reprojecting the GeoJSON if not in EPSG:3857, the default projection for GeoJSON is WGS84
-                // as stated in the reference https://tools.ietf.org/html/rfc7946#section-4
-                // if another projection was set in the GeoJSON (through the "crs" property) we use it instead
-                let reprojectedGeoJSON
-                if (dataProjection) {
-                    if (dataProjection !== WEBMERCATOR.epsg) {
-                        reprojectedGeoJSON = reproject(
-                            geojsonData,
-                            dataProjection,
-                            WEBMERCATOR.epsg
-                        )
-                    } else {
-                        // it's already in the correct projection, we don't reproject
-                        reprojectedGeoJSON = geojsonData
-                    }
-                } else {
-                    // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
-                    reprojectedGeoJSON = reproject(geojsonData, WGS84.epsg, WEBMERCATOR.epsg)
-                }
-                this.layer.setSource(
-                    new VectorSource({
-                        features: new GeoJSON().readFeatures(reprojectedGeoJSON),
-                    })
-                )
-                this.layer.setStyle(function (feature, res) {
-                    return style.getFeatureStyle(feature, res)
+                this.layer.setStyle((feature, res) => {
+                    return this.geojsonStyle.getFeatureStyle(feature, res)
                 })
+                this.createSourceForProjection()
             })
             .catch((error) => {
                 log.error(
-                    'Error while fetching GeoJSON data/style for layer ' + this.layerId,
+                    `Error while fetching GeoJSON data/style for layer ${this.layerId}`,
                     error
                 )
             })
+    },
+    methods: {
+        loadStyle() {
+            return new Promise((resolve, reject) => {
+                axios
+                    .get(this.styleUrl)
+                    .then((response) => response.data)
+                    .then((style) => {
+                        this.geojsonStyle = new OlStyleForPropertyValue(style)
+                        resolve(this.geojsonStyle)
+                    })
+                    .catch((error) => {
+                        log.error(
+                            `Error while loading GeoJSON style for layer ${this.layerId}`,
+                            error
+                        )
+                        reject()
+                    })
+            })
+        },
+        loadData() {
+            return new Promise((resolve, reject) => {
+                axios
+                    .get(this.geojsonUrl)
+                    .then((response) => response.data)
+                    .then((data) => {
+                        this.geojsonData = data
+                        resolve(this.geojsonData)
+                    })
+                    .catch((error) => {
+                        log.error(
+                            `Error while fetching GeoJSON data for layer ${this.layerId}`,
+                            error
+                        )
+                        reject()
+                    })
+            })
+        },
+        createSourceForProjection() {
+            if (!this.geojsonData) {
+                log.error('no GeoJSON data loaded yet, could not create source')
+                return
+            }
+            if (!this.geojsonStyle) {
+                log.error('style was not loaded, could not create source')
+                return
+            }
+            // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
+            const matchingDataProjection = allCoordinateSystems.find(
+                (coordinateSystem) =>
+                    coordinateSystem.epsg === this.geojsonData?.crs?.properties?.name
+            )
+            this.layer.setSource(
+                new VectorSource({
+                    features: new GeoJSON().readFeatures(
+                        reprojectGeoJsonData(
+                            this.geojsonData,
+                            this.projection,
+                            matchingDataProjection
+                        )
+                    ),
+                })
+            )
+        },
     },
 }
 </script>

@@ -36,7 +36,9 @@ const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyM
         async (req) => {
             try {
                 kmlBody = await getKmlFromRequest(req)
-            } catch (error) {}
+            } catch (error) {
+                console.error(`failed to get KML from request`, error)
+            }
             req.reply(201, kmlMetadataTemplate({ id: '1234_fileId', adminId: '1234_adminId' }))
         }
     ).as('post-kml')
@@ -93,7 +95,10 @@ Cypress.Commands.add('drawGeoms', () => {
     cy.get('[data-cy="infobox-close"]').click()
 
     cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-    cy.get(olSelector).click(100, 200).click(150, 200).click(150, 230).click(100, 200)
+    cy.get(olSelector).click(100, 200)
+    cy.get(olSelector).click(150, 200)
+    cy.get(olSelector).click(150, 230)
+    cy.get(olSelector).click(100, 200)
     cy.get('[data-cy="infobox-close"]').click()
 
     cy.drawMeasure()
@@ -101,7 +106,9 @@ Cypress.Commands.add('drawGeoms', () => {
 
 Cypress.Commands.add('drawMeasure', () => {
     cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
-    cy.get(olSelector).click(210, 200).click(220, 200).dblclick(230, 230)
+    cy.get(olSelector).click(210, 200)
+    cy.get(olSelector).click(220, 200)
+    cy.get(olSelector).dblclick(230, 230)
 })
 
 // https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
@@ -112,29 +119,17 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-Cypress.Commands.add('goToDrawing', (...args) => {
-    let kmlFileFixtureFile = null
-    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
-        kmlFileFixtureFile = args[0].kmlFileFixtureFile
-        delete args[0].kmlFileFixtureFile
-    }
-    addIconFixtureAndIntercept()
-    addProfileFixtureAndIntercept()
-    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
-    cy.goToMapView(...args)
+Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = false) => {
+    cy.goToMapViewWithDrawingIntercept(queryParams, withHash)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
-    const viewportWidth = Cypress.config('viewportWidth')
-    if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
-        cy.get('[data-cy="menu-button"]').click()
-    }
-    cy.get('[data-cy="menu-tray-drawing-section"]').click()
+    cy.openDrawingMode()
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
-Cypress.Commands.add('openDrawingMode', (...args) => {
+Cypress.Commands.add('openDrawingMode', () => {
     const viewportWidth = Cypress.config('viewportWidth')
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
@@ -142,16 +137,11 @@ Cypress.Commands.add('openDrawingMode', (...args) => {
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
 })
 
-Cypress.Commands.add('goToMapViewWithDrawingIntercept', (...args) => {
-    let kmlFileFixtureFile = null
-    if (typeof args[0] === 'object' && !(args[0] instanceof String)) {
-        kmlFileFixtureFile = args[0].kmlFileFixtureFile
-        delete args[0].kmlFileFixtureFile
-    }
+Cypress.Commands.add('goToMapViewWithDrawingIntercept', (queryParams = {}, withHash = false) => {
     addIconFixtureAndIntercept()
     addProfileFixtureAndIntercept()
-    addFileAPIFixtureAndIntercept(kmlFileFixtureFile)
-    cy.goToMapView(...args)
+    addFileAPIFixtureAndIntercept()
+    cy.goToMapView(queryParams, withHash)
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {

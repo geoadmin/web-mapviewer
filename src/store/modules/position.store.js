@@ -1,14 +1,11 @@
-import { LV95_EXTENT, MAP_CENTER } from '@/config'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinateSystems'
+import { DEFAULT_PROJECTION } from '@/config'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 import proj4 from 'proj4'
-
-// for constants' values
-// see https://en.wikipedia.org/wiki/Equator#Exact_length and https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84
-const WGS84_SEMI_MAJOR_AXIS_A = 6378137.0
-const WGS84_EQUATOR_LENGTH_IN_METERS = 2 * Math.PI * WGS84_SEMI_MAJOR_AXIS_A
-const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES = WGS84_EQUATOR_LENGTH_IN_METERS / 256
 
 /** @enum */
 export const CrossHairs = {
@@ -39,44 +36,70 @@ export function normalizeAngle(rotation) {
     return rotation
 }
 
+/**
+ * Structure of the camera position
+ *
+ * @typedef CameraPosition
+ * @property {Number} x X position of the camera in the 3D reference system (metric mercator)
+ * @property {Number} y Y position of the camera in the 3D reference system (metric mercator)
+ * @property {Number} z Z altitude of the camera in the 3D reference system (meters)
+ * @property {Number} heading Degrees of camera rotation on the heading axis ("compass" axis)
+ * @property {Number} pitch Degrees of camera rotation on the pitch axis ("nose up and down" axis)
+ * @property {Number} roll Degrees of camera rotation on the roll axis ("barrel roll" axis, like if
+ *   the camera was a plane)
+ */
+
 const state = {
     /**
      * The map zoom level, which define the resolution of the view
      *
      * @type Number
      */
-    zoom: 7,
+    // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
+    // hence the `?.` operator
+    zoom: DEFAULT_PROJECTION?.getDefaultZoom(),
+
     /**
      * The map rotation expressed so that -Pi < rotation <= Pi
      *
      * @type Number
      */
     rotation: 0,
+
     /**
-     * Center of the view of the map expressed in EPSG:3857
+     * Center of the view expressed with the current projection
      *
      * @type Array<Number>
      */
-    center: MAP_CENTER,
+    // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
+    // hence the `?.` operator
+    center: DEFAULT_PROJECTION?.bounds.center,
+
+    /**
+     * Projection used to express the position (and subsequently used to define how the mapping
+     * framework will have to work under the hood)
+     *
+     * If LV95 is chosen, the map will use custom resolution to fit Swisstopo's Landeskarte specific
+     * zooms (or scales) so that zoom levels will fit the different maps we have (1:500'000,
+     * 1:100'000, etc...)
+     *
+     * @type {CoordinateSystem}
+     */
+    projection: DEFAULT_PROJECTION,
+
     /** @type CrossHairs */
     crossHair: null,
-}
-
-/**
- * @param zoom
- * @param latitudeInRad
- * @returns {Number}
- */
-const calculateResolution = (zoom, latitudeInRad) => {
-    // from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-    // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-    return round(
-        Math.abs(
-            (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES * Math.cos(latitudeInRad)) /
-                Math.pow(2, zoom)
-        ),
-        2
-    )
+    /** @type Number[] */
+    crossHairPosition: null,
+    /**
+     * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
+     * that works with Cesium)
+     *
+     * Will be set to null when the 3D map is not active
+     *
+     * @type {CameraPosition | null}
+     */
+    camera: null,
 }
 
 const getters = {
@@ -87,32 +110,21 @@ const getters = {
      * @returns {Number[]}
      */
     centerEpsg4326: (state) => {
-        const centerEpsg4326Unrounded = proj4(WEBMERCATOR.epsg, WGS84.epsg, state.center)
+        const centerEpsg4326Unrounded = proj4(state.projection.epsg, WGS84.epsg, state.center)
         return [
-            // a precision of 6 digits means we can track position with 0.111m accuracy
-            // see http://wiki.gis.com/wiki/index.php/Decimal_degrees
-            round(centerEpsg4326Unrounded[0], 6),
-            round(centerEpsg4326Unrounded[1], 6),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[0]),
+            WGS84.roundCoordinateValue(centerEpsg4326Unrounded[1]),
         ]
-    },
-    /**
-     * The center of the map reprojected in EPSG:4326 expressed in radian
-     *
-     * @param _
-     * @param getters
-     * @returns {Number[]}
-     */
-    centerEpsg4326InRadian: (_, getters) => {
-        const centerEpsg4326 = getters.centerEpsg4326
-        return [(centerEpsg4326[0] * Math.PI) / 180.0, (centerEpsg4326[1] * Math.PI) / 180.0]
     },
     /**
      * Resolution of the view expressed in meter per pixel
      *
      * @type Number
      */
-    resolution: (state, getters) =>
-        calculateResolution(state.zoom, getters.centerEpsg4326InRadian[1]),
+    resolution: (state) => {
+        return state.projection.getResolutionForZoomAndCenter(state.zoom, state.center)
+    },
+
     /**
      * The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight ]`)
      *
@@ -128,12 +140,12 @@ const getters = {
         }
         // calculating extent with resolution
         const bottomLeft = [
-            round(state.center[0] - halfScreenInMeter.width, 2),
-            round(state.center[1] - halfScreenInMeter.height, 2),
+            state.projection.roundCoordinateValue(state.center[0] - halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] - halfScreenInMeter.height),
         ]
         const topRight = [
-            round(state.center[0] + halfScreenInMeter.width, 2),
-            round(state.center[1] + halfScreenInMeter.height, 2),
+            state.projection.roundCoordinateValue(state.center[0] + halfScreenInMeter.width),
+            state.projection.roundCoordinateValue(state.center[1] + halfScreenInMeter.height),
         ]
         return [bottomLeft, topRight]
     },
@@ -146,12 +158,11 @@ const getters = {
      * @returns {Boolean}
      */
     isExtentOnlyWithinLV95Bounds(state, getters) {
-        const [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
+        let [currentExtentBottomLeft, currentExtentTopRight] = getters.extent
+        const lv95boundsInCurrentProjection = LV95.getBoundsAs(state.projection)
         return (
-            currentExtentBottomLeft[0] >= LV95_EXTENT[0] &&
-            currentExtentBottomLeft[1] >= LV95_EXTENT[1] &&
-            currentExtentTopRight[0] <= LV95_EXTENT[2] &&
-            currentExtentTopRight[1] <= LV95_EXTENT[3]
+            lv95boundsInCurrentProjection.isInBounds(currentExtentBottomLeft) &&
+            lv95boundsInCurrentProjection.isInBounds(currentExtentTopRight)
         )
     },
 }
@@ -176,7 +187,7 @@ const actions = {
             (Array.isArray(center) && center.length !== 2) ||
             (!Array.isArray(center) && (!center.x || !center.y))
         ) {
-            log('warning', 'bad center received, ignoring', center)
+            log.error('bad center received, ignoring', center)
             return
         }
         if (Array.isArray(center)) {
@@ -189,18 +200,18 @@ const actions = {
             commit('setCenter', { x, y })
         }
     },
-    zoomToExtent: ({ commit, getters, rootState }, extent) => {
+    zoomToExtent: ({ commit, state, rootState }, extent) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
-            // Convert extent points to WGS84 as adding the coordinates in EPSG:3857 gives incorrect results.
+            // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
-                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[0]),
-                proj4(WEBMERCATOR.epsg, WGS84.epsg, extent[1]),
+                proj4(state.projection.epsg, WGS84.epsg, extent[0]),
+                proj4(state.projection.epsg, WGS84.epsg, extent[1]),
             ]
-            // Calculate center of extent and convert position back to EPSG:3857.
+            // Calculate center of extent and convert position back to the wanted projection
             // Based on: https://github.com/Turfjs/turf/blob/v6.5.0/packages/turf-center/index.ts
-            const centerOfExtent = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
-                (points[0][0] + points[1][0]) / 2, // minX + maxX / 2
-                (points[0][1] + points[1][1]) / 2, // minY + maxY / 2
+            const centerOfExtent = proj4(WGS84.epsg, state.projection.epsg, [
+                (points[0][0] + points[1][0]) / 2.0, // minX + maxX / 2
+                (points[0][1] + points[1][1]) / 2.0, // minY + maxY / 2
             ])
 
             if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
@@ -210,52 +221,104 @@ const actions = {
                 })
             }
             const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width
-            // calculating new zoom level by reversing
-            // resolution = 156543.03 meters/pixel * cos(latitude) / (2 ^ zoomlevel)
-            const zoom = Math.abs(
-                Math.log2(
-                    newResolution /
-                        PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES /
-                        Math.cos(getters.centerEpsg4326InRadian[1])
-                )
+            commit(
+                'setZoom',
+                state.projection.getZoomForResolutionAndCenter(newResolution, centerOfExtent)
             )
-            // for now, as there's no client zoom implemented, it's pointless to zoom further than 18
-            // TODO: as soon as client zoom is implemented, remove this fixed value
-            if (zoom > 18) {
-                commit('setZoom', 18)
-            } else {
-                commit('setZoom', zoom)
-            }
-        }
-    },
-    setLatitude: ({ dispatch, getters }, latInDeg) => {
-        if (typeof latInDeg === 'number') {
-            const newCenter = [getters.centerEpsg4326[0], latInDeg]
-            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
-            dispatch('setCenter', {
-                x: newCenterEpsg3857[0],
-                y: newCenterEpsg3857[1],
-            })
-        }
-    },
-    setLongitude: ({ dispatch, getters }, lonInDeg) => {
-        if (typeof lonInDeg === 'number') {
-            const newCenter = [lonInDeg, getters.centerEpsg4326[1]]
-            const newCenterEpsg3857 = proj4(WGS84.epsg, WEBMERCATOR.epsg, newCenter)
-            dispatch('setCenter', {
-                x: newCenterEpsg3857[0],
-                y: newCenterEpsg3857[1],
-            })
         }
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
     decreaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) - 1),
-    /** @param {CrossHairs | String | null} crossHair */
-    setCrossHair: ({ commit }, crossHair) => {
+    /**
+     * @param {CrossHairs | String | null} crossHair
+     * @param {Number[] | null} crossHairPosition
+     */
+    setCrossHair: ({ commit, state }, { crossHair, crossHairPosition }) => {
         if (crossHair === null) {
-            commit('setCrossHair', crossHair)
+            commit('setCrossHair', null)
+            commit('setCrossHairPosition', null)
         } else if (crossHair in CrossHairs) {
             commit('setCrossHair', CrossHairs[crossHair])
+
+            // if a position is defined as param we use it
+            if (crossHairPosition) {
+                commit('setCrossHairPosition', crossHairPosition)
+            } else {
+                // if no position was given, we use the current center of the map as crosshair position
+                commit('setCrossHairPosition', state.center)
+            }
+        }
+    },
+    /**
+     * @param commit
+     * @param {CameraPosition} cameraPosition
+     */
+    setCameraPosition({ commit }, cameraPosition) {
+        commit('setCameraPosition', cameraPosition)
+    },
+    setProjection({ commit, state }, projection) {
+        let matchingProjection
+        if (projection instanceof CoordinateSystem) {
+            matchingProjection = projection
+        } else if (typeof projection === 'number' || projection instanceof Number) {
+            matchingProjection = allCoordinateSystems.find(
+                (coordinateSystem) => coordinateSystem.epsgNumber === projection
+            )
+        } else if (typeof projection === 'string' || projection instanceof String) {
+            matchingProjection = allCoordinateSystems.find(
+                (coordinateSystem) =>
+                    coordinateSystem.epsg === projection ||
+                    coordinateSystem.epsgNumber === parseInt(projection)
+            )
+        }
+        if (matchingProjection.epsg === state.projection.epsg) {
+            log.debug(
+                'Attempt at setting the same projection than the one already set in the store, ignoring'
+            )
+            return
+        }
+        if (matchingProjection) {
+            const oldProjection = state.projection
+            // reprojecting the center of the map
+            const [x, y] = proj4(oldProjection.epsg, matchingProjection.epsg, state.center)
+            commit('setCenter', { x, y })
+            // adapting the zoom level (if needed)
+            if (
+                oldProjection instanceof StandardCoordinateSystem &&
+                matchingProjection instanceof CustomCoordinateSystem
+            ) {
+                commit('setZoom', matchingProjection.transformStandardZoomLevelToCustom(state.zoom))
+            }
+            if (
+                oldProjection instanceof CustomCoordinateSystem &&
+                matchingProjection instanceof StandardCoordinateSystem
+            ) {
+                commit('setZoom', oldProjection.transformCustomZoomLevelToStandard(state.zoom))
+            }
+            if (
+                oldProjection instanceof CustomCoordinateSystem &&
+                matchingProjection instanceof CustomCoordinateSystem &&
+                oldProjection.epsg !== matchingProjection.epsg
+            ) {
+                // we have to revert the old projection zoom level to standard, and then transform it to the new projection custom zoom level
+                commit(
+                    'setZoom',
+                    oldProjection.transformCustomZoomLevelToStandard(
+                        matchingProjection.transformStandardZoomLevelToCustom(state.zoom)
+                    )
+                )
+            }
+
+            if (state.crossHairPosition) {
+                commit(
+                    'setCrossHairPosition',
+                    proj4(oldProjection.epsg, matchingProjection.epsg, state.crossHairPosition)
+                )
+            }
+
+            commit('setProjection', matchingProjection)
+        } else {
+            log.error('Unsupported projection', projection)
         }
     },
 }
@@ -265,6 +328,10 @@ const mutations = {
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
     setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
+    setCrossHairPosition: (state, crossHairPosition) =>
+        (state.crossHairPosition = crossHairPosition),
+    setCameraPosition: (state, cameraPosition) => (state.camera = cameraPosition),
+    setProjection: (state, projection) => (state.projection = projection),
 }
 
 export default {

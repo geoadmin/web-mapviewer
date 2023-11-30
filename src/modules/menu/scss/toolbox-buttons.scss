@@ -15,15 +15,26 @@
     margin-bottom: 0.25rem;
     &:hover {
         background-color: $map-button-hover-border-color;
+        border-color: $map-button-hover-border-color;
     }
+    &-icon {
+        height: $map-button-diameter - 5px;
+    }
+    &-inner-circle,
     .svg-inline--fa {
         height: $map-button-inner-icon-diameter;
         color: $white;
     }
     &.active {
         background-color: $primary;
+        border-color: $primary;
         .toolbox-button-inner-circle {
             fill: $primary;
         }
+    }
+    &.disabled {
+        background-color: $light-grey;
+        border: $light-grey;
+        cursor: not-allowed;
     }
 }

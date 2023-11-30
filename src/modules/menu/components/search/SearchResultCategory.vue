@@ -1,63 +1,24 @@
 <template>
-    <div v-show="entries.length > 0" class="search-category">
-        <div class="search-category-header p-2">
+    <div class="search-category">
+        <div class="search-category-header p-2 text-bg-secondary">
             {{ title }}
         </div>
         <ul class="search-category-body">
-            <SearchResultListEntry
-                v-for="(entry, index) in entries"
-                :key="index"
-                :index="index"
-                :entry="entry"
-                @show-layer-legend-popup="showLayerLegendPopup"
-                @preview-start="bubbleEvent('previewStart', $event)"
-                @preview-stop="bubbleEvent('previewStop', $event)"
-            />
+            <slot />
         </ul>
-
-        <LayerLegendPopup
-            v-if="showLayerLegendForId"
-            :layer-id="showLayerLegendForId"
-            @close="closeLayerLegendPopup"
-        />
     </div>
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-import SearchResultListEntry from './SearchResultListEntry.vue'
-
 /**
  * Search results from the backend are sorted in two categories : layers and locations, this
  * component is there to show one of those category at a time
  */
 export default {
-    components: { SearchResultListEntry, LayerLegendPopup },
     props: {
-        entries: {
-            type: Array,
-            required: true,
-        },
         title: {
             type: String,
             required: true,
-        },
-    },
-    emits: ['preview', 'previewStart', 'previewStop'],
-    data() {
-        return {
-            showLayerLegendForId: null,
-        }
-    },
-    methods: {
-        showLayerLegendPopup(id) {
-            this.showLayerLegendForId = id
-        },
-        closeLayerLegendPopup() {
-            this.showLayerLegendForId = null
-        },
-        bubbleEvent(type, payload) {
-            this.$emit(type, payload)
         },
     },
 }
@@ -74,7 +35,6 @@ export default {
         overflow: visible;
         font-size: 0.825rem;
         font-weight: bold;
-        background-color: $input-group-addon-bg;
     }
     &-body {
         flex: initial;

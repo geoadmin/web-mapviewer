@@ -8,7 +8,7 @@
         @keydown.down.prevent="goToNext"
         @keydown.home.prevent="goToFirst"
         @keydown.end.prevent="goToLast"
-        @keypress.enter.prevent="selectItem"
+        @keyup.enter="selectItem"
         @mouseenter="startResultPreview"
         @mouseleave="stopResultPreview"
     >
@@ -48,19 +48,26 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup', 'previewStart', 'previewStop'],
+    emits: ['showLayerLegendPopup'],
     computed: {
         resultType() {
             return this.entry.resultType.toLowerCase()
         },
     },
     methods: {
-        ...mapActions(['selectResultEntry']),
+        ...mapActions([
+            'selectResultEntry',
+            'setPinnedLocation',
+            'setPreviewedPinnedLocation',
+            'clearPinnedLocation',
+            'setPreviewLayer',
+            'clearPreviewLayer',
+        ]),
         selectItem() {
             this.selectResultEntry(this.entry)
         },
         showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup', this.entry.layerId)
+            this.$emit('showLayerLegendPopup')
         },
         goToPrevious() {
             this.changeFocus(this.$refs.item.previousElementSibling)
@@ -83,13 +90,17 @@ export default {
         },
         startResultPreview() {
             if (this.resultType === 'layer') {
-                this.$emit('previewStart', this.entry.layerId)
+                this.setPreviewLayer(this.entry.layerId)
             } else {
-                this.$emit('previewStart', this.entry.coordinates)
+                this.setPreviewedPinnedLocation(this.entry.coordinates)
             }
         },
         stopResultPreview() {
-            this.$emit('previewStop')
+            if (this.resultType === 'layer') {
+                this.clearPreviewLayer()
+            } else {
+                this.setPreviewedPinnedLocation(null)
+            }
         },
     },
 }
@@ -104,11 +115,7 @@ export default {
     }
     @include respond-above(phone) {
         &:hover {
-            background-color: $secondary;
-            color: $light;
-            .btn {
-                color: $light;
-            }
+            background-color: $list-item-hover-color;
         }
         .btn {
             // Same (no) transition on button and list-item.

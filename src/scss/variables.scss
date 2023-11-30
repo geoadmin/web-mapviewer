@@ -19,8 +19,8 @@ $zindex-modal: 100;
 $zindex-loading-screen: 101;
 
 // Menu stacking context
-$zindex-menu-tray: 1; // one step behind the header so that it can slip behind when closed, but above the toolbox buttons
-$zindex-menu-header: 2;
+$zindex-menu-tray: $zindex-menu; // one step behind the header so that it can slip behind when closed, but above the toolbox buttons
+$zindex-menu-header: $zindex-menu + 1;
 /* in order to have the header slip behind the drawing toolbox when the hiding animation
 occurs (teleported in the menu context)*/
 $zindex-drawing-toolbox: 3;

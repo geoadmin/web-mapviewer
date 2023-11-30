@@ -1,6 +1,7 @@
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { VECTOR_TILE_BASE_URL } from '@/config'
 
 /** Metadata for a vector tile layer (MapLibre layer) served by our backend */
 export default class GeoAdminVectorLayer extends GeoAdminLayer {
@@ -8,12 +9,8 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
      * @param {string} layerId The ID of this layer
      * @param {LayerAttribution[]} extraAttributions Extra attribution in case this vector layer is
      *   a mix of many sources
-     * @param {String} excludeSource Tells the app to filter out Maplibre layers that have this
-     *   source (so no tiles will be loaded from this source). Is used to hack the LightBaseMap
-     *   style and remove Swisstopo data, so that we only keep what's outside Switzerland (the
-     *   rastered national map covers our territory)
      */
-    constructor(layerId, extraAttributions = [], excludeSource = null) {
+    constructor(layerId, extraAttributions = []) {
         super(
             layerId,
             LayerTypes.VECTOR,
@@ -26,10 +23,9 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
             ],
             true
         )
-        this.excludeSource = excludeSource
     }
 
     getURL() {
-        return `https://vectortiles.geo.admin.ch/styles/${this.geoAdminID}/style.json`
+        return `${VECTOR_TILE_BASE_URL}styles/${this.geoAdminID}/style.json`
     }
 }

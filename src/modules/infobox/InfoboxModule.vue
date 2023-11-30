@@ -20,6 +20,7 @@
                     <FontAwesomeIcon icon="caret-up" />
                 </button>
                 <button
+                    v-if="showPrintBtn"
                     class="btn btn-light btn-sm d-flex align-items-center"
                     @click.stop="onPrint"
                 >
@@ -45,6 +46,7 @@
                     class="card-body"
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
+                    :projection="projection"
                     @update-elevation-profile-plot="setMaxHeight"
                 />
 
@@ -62,6 +64,12 @@
                     :read-only="!showDrawingOverlay"
                 />
 
+                <ImportContent
+                    v-else-if="importOverlay"
+                    class="card-body"
+                    @connected="setMaxHeight"
+                />
+
                 <FeatureList v-else-if="isList" />
             </div>
         </div>
@@ -77,9 +85,11 @@ import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
+import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 
 export default {
     components: {
+        ImportContent,
         FontAwesomeIcon,
         FeatureCombo,
         FeatureEdit,
@@ -99,8 +109,9 @@ export default {
             selectedFeatures: (state) => state.features.selectedFeatures,
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
+            projection: (state) => state.position.projection,
+            importOverlay: (state) => state.ui.importOverlay,
         }),
-
         selectedFeature() {
             return this.selectedFeatures[0]
         },
@@ -123,9 +134,14 @@ export default {
                 this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
             )
         },
-
         showContainer() {
-            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
+            return (
+                this.isList ||
+                this.isEdit ||
+                this.showElevationProfile ||
+                this.isCombo ||
+                this.importOverlay
+            )
         },
         showFloatingToggle() {
             return (
@@ -134,11 +150,14 @@ export default {
                 (this.isCombo && !this.floatingTooltip)
             )
         },
+        showPrintBtn() {
+            return !this.importOverlay
+        },
     },
     watch: {
         showContainer(visible) {
             if (visible) {
-                this.$nextTick(this.setMaxHeight)
+                this.computeHeightNextTick()
             }
         },
         selectedFeatures(features) {
@@ -159,17 +178,20 @@ export default {
         // We can enable the teleport after the view has been rendered.
         this.$nextTick(() => {
             this.readyForTeleport = true
-            this.setMaxHeight()
+            this.computeHeightNextTick()
         })
     },
     methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
-
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip', 'toggleImportOverlay']),
+        computeHeightNextTick() {
+            this.$nextTick(() => {
+                this.setMaxHeight()
+            })
+        },
         onToggleContent() {
             this.showContent = !this.showContent
-
             if (this.showContent) {
-                this.$nextTick(this.setMaxHeight)
+                this.computeHeightNextTick()
             }
         },
         onToggleFloating() {
@@ -179,14 +201,16 @@ export default {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            this.clearAllSelectedFeatures()
+            if (this.importOverlay) {
+                this.toggleImportOverlay()
+            } else {
+                this.clearAllSelectedFeatures()
+            }
         },
-
         setMaxHeight() {
-            if (!this.showContainer) {
+            if (!this.showContainer || !this.$refs.content) {
                 return
             }
-
             const container = this.$refs.content
             const { paddingTop, paddingBottom } = getComputedStyle(container)
             const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)

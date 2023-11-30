@@ -1,49 +1,28 @@
 <template>
-    <div ref="mapPopover" class="map-popover" data-cy="popover" @contextmenu.stop>
-        <div class="card">
-            <div class="card-header d-flex">
-                <span class="flex-grow-1 align-self-center">
-                    {{ title }}
-                </span>
-                <slot name="extra-buttons"></slot>
-                <button
-                    v-if="authorizePrint"
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    @click="printContent"
-                >
-                    <FontAwesomeIcon icon="print" />
-                </button>
-                <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    data-cy="map-popover-close-button"
-                    @click="onClose"
-                >
-                    <FontAwesomeIcon icon="times" />
-                </button>
-            </div>
-            <div
-                id="mapPopoverContent"
-                ref="mapPopoverContent"
-                class="map-popover-content"
-                :class="{ 'card-body': useContentPadding }"
-            >
-                <slot />
-            </div>
-        </div>
-    </div>
+    <MapPopover
+        ref="popoverAnchor"
+        :authorize-print="authorizePrint"
+        :title="title"
+        :use-content-padding="useContentPadding"
+        :top-position="anchorPosition.top"
+        :left-position="anchorPosition.left"
+    >
+        <template #extra-buttons>
+            <slot name="extra-buttons" />
+        </template>
+        <slot />
+    </MapPopover>
 </template>
 
 <script>
-import promptUserToPrintHtmlContent from '@/utils/print'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import Overlay from 'ol/Overlay'
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
  * of the popover
  */
 export default {
-    components: { FontAwesomeIcon },
+    components: { MapPopover },
     inject: ['getMap'],
     props: {
         coordinates: {
@@ -63,84 +42,39 @@ export default {
             default: false,
         },
     },
-    emits: ['close'],
-    watch: {
-        coordinates(newCoordinates) {
-            this.overlay.setPosition(newCoordinates)
-        },
+    data() {
+        return {
+            anchorPosition: {
+                top: 0,
+                left: 0,
+            },
+        }
     },
-    beforeCreate() {
-        this.overlay = new Overlay({
-            // NOTE: the 12 offset is due to the arrow size $arrow-height in css and must always
-            // equal this variable in order to have the arrow point to the center of the selected
-            // element.
-            offset: [0, 12],
-            positioning: 'top-center',
-            autoPan: { margin: 0 },
-        })
+    watch: {
+        coordinates() {
+            this.getPixelForCoordinateFromMap()
+        },
     },
     mounted() {
-        this.overlay.setElement(this.$refs.mapPopover)
-        this.getMap().addOverlay(this.overlay)
-        this.overlay.setPosition(this.coordinates)
+        this.getPixelForCoordinateFromMap()
+        this.getMap().on('postrender', this.getPixelForCoordinateFromMap)
     },
-    beforeUnmount() {
-        this.getMap().removeOverlay(this.overlay)
+    unmounted() {
+        this.getMap().un('postrender', this.getPixelForCoordinateFromMap)
     },
     methods: {
-        onClose() {
-            this.$emit('close')
-        },
-        printContent() {
-            promptUserToPrintHtmlContent('mapPopoverContent')
+        getPixelForCoordinateFromMap() {
+            const computedPixel = this.getMap().getPixelFromCoordinate(this.coordinates)
+            // when switching back from Cesium (or any other map framework), there can be a very small
+            // period where the map isn't yet able to process a pixel, this if is there to defend against that
+            if (computedPixel) {
+                const [left, top] = computedPixel
+                this.anchorPosition.left = left - this.$refs.popoverAnchor.$el.clientWidth / 2
+                // adding 15px to the top so that the tip of the arrow of the tooltip is on the edge
+                // of the highlighting circle of the selected feature
+                this.anchorPosition.top = top + 15
+            }
         },
     },
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-
-.map-popover {
-    pointer-events: none;
-    .card {
-        max-width: $overlay-width;
-        pointer-events: auto;
-    }
-    .map-popover-content {
-        max-height: 350px;
-        overflow-y: auto;
-    }
-    .card-body {
-        display: flex;
-        flex-direction: column;
-    }
-    // Triangle border
-    $arrow-height: 12px;
-    &::before {
-        position: absolute;
-        top: -($arrow-height * 2);
-        left: 50%;
-        margin-left: -$arrow-height;
-        border: $arrow-height solid transparent;
-        border-bottom-color: $border-color-translucent;
-        content: '';
-    }
-    // Triangle background
-    &::after {
-        $arrow-border-height: $arrow-height - 1;
-        content: '';
-        border: $arrow-border-height solid transparent;
-        border-bottom-color: $light;
-        position: absolute;
-        top: -($arrow-border-height * 2);
-        left: 50%;
-        margin-left: -$arrow-border-height;
-    }
-}
-@media (min-height: 600px) {
-    .map-popover .card-body {
-        max-height: 510px;
-    }
-}
-</style>

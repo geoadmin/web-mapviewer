@@ -1,6 +1,7 @@
 <template>
     <MenuSection
         v-if="currentTopic"
+        id="menu-topic-section"
         ref="menuTopicSection"
         :title="$t(currentTopic?.id)"
         :show-content="showTopicTree"
@@ -23,41 +24,21 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <ul class="menu-topic-list" data-cy="menu-topic-tree">
-            <MenuTopicTreeItem
-                v-for="item in currentTopicTree"
-                :key="item.name"
-                :item="item"
-                :active-layers="activeLayers"
-                :compact="compact"
-                @click-on-topic-item="onClickTopicItem"
-                @click-on-layer-info="onClickLayerInfo"
-                @preview-start="setPreviewLayer"
-                @preview-stop="clearPreviewLayer"
-            />
-        </ul>
-        <LayerLegendPopup
-            v-if="showLayerInfoFor"
-            :layer-id="showLayerInfoFor"
-            @close="showLayerInfoFor = null"
-        />
+        <LayerCatalogue :layer-catalogue="currentTopicTree" :compact="compact" />
     </MenuSection>
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import LayerCatalogue from '@/modules/menu/components/topics/LayerCatalogue.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
-import MenuTopicTreeItem from '@/modules/menu/components/topics/MenuTopicTreeItem.vue'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
     components: {
-        LayerLegendPopup,
         MenuTopicSelectionPopup,
-        MenuTopicTreeItem,
+        LayerCatalogue,
         MenuSection,
     },
     props: {
@@ -79,41 +60,24 @@ export default {
             currentTopic: (state) => state.topics.current,
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
-            activeLayers: (state) => state.layers.activeLayers,
+            openThemesIds: (state) => state.topics.openedTreeThemesIds,
         }),
         ...mapGetters(['getActiveLayerById', 'isDefaultTopic']),
         showTopicTree() {
             // We only want the topic tree open whenever the user has chosen a different topic
             // than the default one (it can be opened by the user by a click on it, but by default it's closed)
-            return !this.isDefaultTopic
+            // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
+            return !this.isDefaultTopic || this.openThemesIds.length > 0
         },
     },
     methods: {
-        ...mapActions([
-            'addLayer',
-            'toggleLayerVisibility',
-            'setLayerVisibility',
-            'changeTopic',
-            'setPreviewLayer',
-            'clearPreviewLayer',
-        ]),
+        ...mapActions(['changeTopic']),
         setShowTopicSelectionPopup() {
             this.showTopicSelectionPopup = true
         },
         selectTopic(topic) {
             this.changeTopic(topic)
             this.showTopicSelectionPopup = false
-        },
-        onClickTopicItem(layerId) {
-            const layer = this.getActiveLayerById(layerId)
-            if (layer) {
-                this.toggleLayerVisibility(layerId)
-            } else {
-                this.addLayer(new ActiveLayerConfig(layerId, true))
-            }
-        },
-        onClickLayerInfo(layerId) {
-            this.showLayerInfoFor = layerId
         },
         close() {
             this.$refs.menuTopicSection.close()

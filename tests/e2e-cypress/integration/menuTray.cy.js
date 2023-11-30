@@ -126,7 +126,7 @@ function measureMenu(shouldHaveMaxSize) {
  * @param {any} nbSelectedLayers Number of menu items in the active layers list
  */
 function init(nbLayers, nbSelectedLayers) {
-    cy.goToMapView({ fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers) })
+    cy.goToMapView({}, false, {}, getFixturesAndIntercepts(nbLayers, nbSelectedLayers))
     cy.readStoreValue('getters')
         .as('storeGetters')
         .then((getters) => {
@@ -141,7 +141,7 @@ function init(nbLayers, nbSelectedLayers) {
             }
             cy.get(menuTopicHeaderSelector).click()
             /*Wait for all animations to finish (animations last 0.2s) */
-            cy.wait(200)
+            cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         })
 }
 
@@ -217,32 +217,32 @@ describe('Test menu tray ui', () => {
         checkScrollbarVisibility(true, true)
 
         cy.get(menuActiveLayersHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections(['topics'])
         measureMenu(true)
 
         cy.get(menuTopicHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections([])
         measureMenu(false)
 
         cy.get(menuActiveLayersHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections(['activeLayers'])
         measureMenu(true)
 
         cy.get(menuSettingsHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections(['settings'])
         measureMenu(false)
 
         cy.get(menuShareHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections(['share'])
         measureMenu(false)
 
         cy.get(menuTopicHeaderSelector).click()
-        cy.wait(200)
+        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
         checkOpenSections(['topics'])
         measureMenu(true)
     })

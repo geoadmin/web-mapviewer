@@ -39,8 +39,8 @@ This tag will be a bump in :
 
 CI is managed by AWS CodeBuild.
 
-- Every merge (commit) on `develop` will trigger a deploy on https://sys-map.dev.bgdi.ch/ by the CI
-- Every merge (commit) on `master` will trigger a deploy on https://sys-map.int.bgdi.ch/ by the CI
+- Every merge (commit) on `develop` will trigger a deploy on <https://sys-map.dev.bgdi.ch/> by the CI
+- Every merge (commit) on `master` will trigger a deploy on <https://sys-map.int.bgdi.ch/> by the CI
 
 ### structure/architecture of the app
 

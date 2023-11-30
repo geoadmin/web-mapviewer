@@ -12,13 +12,11 @@
         >
             <MenuSettings />
         </MenuSection>
-        <MenuShareSection
-            ref="shareSection"
-            @open-menu-section="onOpenMenuSection"
-        />
+        <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection
+                v-if="!is3dMode"
                 id="drawSection"
                 :title="$t('draw_panel_title')"
                 :always-keep-closed="true"
@@ -28,6 +26,17 @@
                 @click:header="toggleDrawingOverlay"
             />
         </div>
+        <MenuSection
+            v-if="hasDevSiteWarning"
+            id="toolsSection"
+            ref="toolsSection"
+            data-cy="menu-tray-tool-section"
+            :title="$t('map_tools')"
+            secondary
+            @open-menu-section="onOpenMenuSection"
+        >
+            <MenuAdvancedToolsList />
+        </MenuSection>
         <MenuTopicSection
             id="topicsSection"
             ref="topicsSection"
@@ -48,14 +57,15 @@
 </template>
 
 <script>
+import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
+import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import { mapActions, mapState, mapGetters } from 'vuex'
-import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import tippy, { followCursor } from 'tippy.js'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {
@@ -64,6 +74,7 @@ export default {
         MenuSection,
         MenuActiveLayersList,
         MenuSettings,
+        MenuAdvancedToolsList,
     },
     props: {
         compact: {
@@ -76,7 +87,7 @@ export default {
             /* Please note that if the following 2 arrays are updated, "grid-template-rows" in
             the css section must also be updated. */
             scrollableMenuSections: ['topicsSection', 'activeLayersSection'],
-            nonScrollableMenuSections: ['settingsSection', 'shareSection'],
+            nonScrollableMenuSections: ['settingsSection', 'shareSection', 'toolsSection'],
         }
     },
     computed: {
@@ -85,12 +96,14 @@ export default {
             activeLayers: (state) => state.layers.activeLayers,
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
+            is3dMode: (state) => state.cesium.active,
         }),
-        ...mapGetters(['isPhoneMode']),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
         showLayerList() {
             return this.activeLayers.length > 0
         },
         disableDrawing() {
+            // TODO BGDIINF_SB-2685: remove this protection once on prod
             if (
                 DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
                     (hostname) => hostname === this.hostname

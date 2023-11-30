@@ -39,14 +39,11 @@
             fluid
             @close="togglePreviewModal"
         >
-            <div class="embed-preview-modal">
-                <div
-                    class="d-flex embed-preview-modal-tools mb-1"
-                    :class="{ 'custom-size': isPreviewSizeCustom }"
-                >
+            <div class="embed-preview-modal" :style="embedPreviewModalWidth">
+                <div class="d-flex flex-row mb-2">
                     <select
                         v-model="currentPreviewSize"
-                        class="embed-preview-modal-size-selector form-select w-auto"
+                        class="embed-preview-modal-size-selector form-select"
                         data-cy="menu-share-embed-iframe-size-selector"
                     >
                         <option
@@ -59,39 +56,70 @@
                             {{ $t(size.i18nKey) }}
                         </option>
                     </select>
-                    <MenuShareShortLinkInput
-                        class="flex-grow-1 ms-1"
-                        :with-text="false"
+                    <div v-if="isPreviewSizeCustom" class="d-flex flex-row ms-2">
+                        <input
+                            v-if="!customSize.fullWidth"
+                            v-model="customSize.width"
+                            type="number"
+                            class="form-control text-center custom-preview-input"
+                            data-cy="menu-share-embed-iframe-custom-width"
+                        />
+                        <input
+                            v-else
+                            class="form-control form-control-plaintext custom-preview-input text-center"
+                            type="text"
+                            value="100 %"
+                            readonly
+                            data-cy="menu-share-embed-iframe-custom-width"
+                        />
+                        <span class="p-2">
+                            <font-awesome-icon :icon="['fas', 'xmark']" />
+                        </span>
+                        <input
+                            v-model="customSize.height"
+                            type="number"
+                            class="form-control custom-preview-input text-center"
+                            data-cy="menu-share-embed-iframe-custom-height"
+                        />
+                        <div class="align-self-center ps-2">
+                            <div class="form-check">
+                                <input
+                                    id="fullWidthCheckbox"
+                                    v-model="customSize.fullWidth"
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value=""
+                                    data-cy="menu-share-embed-iframe-full-width"
+                                />
+                                <label class="form-check-label" for="fullWidthCheckbox">
+                                    {{ $t('full_width') }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-row mb-2">
+                    <MenuShareInputCopyButton
+                        class="flex-grow-1"
                         :small="false"
-                        :short-link="iFrameLink"
-                        :copy-text="'copy_cta'"
-                        :copied-text="'copy_done'"
+                        :input-text="iFrameLink"
                         data-cy="menu-share-embed-iframe-snippet"
                     />
                 </div>
-                <div v-if="isPreviewSizeCustom" class="input-group mb-1">
-                    <input
-                        v-model="customWidth"
-                        type="number"
-                        class="form-control"
-                        data-cy="menu-share-embed-iframe-custom-width"
-                    />
-                    <span class="input-group-text">x</span>
-                    <input
-                        v-model="customHeight"
-                        type="number"
-                        class="form-control"
-                        data-cy="menu-share-embed-iframe-custom-height"
-                    />
+                <!-- we could use a v-html here to have the exact same code as iFrameLink(), but then each time -->
+                <!-- we switch sizes the iframe is regenerated from scratch, making it reload the shortLink -->
+                <!-- so I've opted to keep this piece of code for a better user experience -->
+                <div class="d-flex justify-content-center mb-2">
+                    <iframe
+                        ref="iFramePreview"
+                        :title="$t('embed_map')"
+                        :src="shortLink"
+                        :style="iFrameStyle"
+                        allow="geolocation"
+                    ></iframe>
                 </div>
-                <iframe
-                    :title="$t('embed_map')"
-                    :src="shortLink"
-                    :style="`border: 0;width: ${iFrameWidth}px;height: ${iFrameHeight}px;max-width: 100%;max-height: 100%;`"
-                    allow="geolocation"
-                ></iframe>
                 <!-- eslint-disable vue/no-v-html-->
-                <div class="small" v-html="$t('share_disclaimer')"></div>
+                <div class="small text-wrap text-center" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </ModalWithBackdrop>
@@ -99,7 +127,7 @@
 </template>
 
 <script>
-import MenuShareShortLinkInput from '@/modules/menu/components/share/MenuShareShortLinkInput.vue'
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
@@ -141,7 +169,7 @@ const EmbedSizes = {
 export default {
     components: {
         FontAwesomeIcon,
-        MenuShareShortLinkInput,
+        MenuShareInputCopyButton,
         ModalWithBackdrop,
         CollapseTransition,
     },
@@ -157,19 +185,42 @@ export default {
             showPreviewModal: false,
             EmbedSizes,
             currentPreviewSize: EmbedSizes.SMALL,
-            customWidth: EmbedSizes.SMALL.width,
-            customHeight: EmbedSizes.SMALL.height,
+            customSize: {
+                width: EmbedSizes.SMALL.width,
+                height: EmbedSizes.SMALL.height,
+                fullWidth: false,
+            },
         }
     },
     computed: {
+        embedPreviewModalWidth() {
+            // Uses the iframe's width as maximal width for the entire modal window
+            let style = { 'max-width': this.iFrameWidth }
+            if (this.isPreviewSizeCustom) {
+                style['min-width'] = '630px'
+            }
+            return style
+        },
         isPreviewSizeCustom() {
             return this.currentPreviewSize.i18nKey === EmbedSizes.CUSTOM.i18nKey
         },
         iFrameWidth() {
-            return this.isPreviewSizeCustom ? this.customWidth : this.currentPreviewSize.width
+            if (this.isPreviewSizeCustom) {
+                if (this.customSize.fullWidth) {
+                    return '100%'
+                }
+                return `${this.customSize.width}px`
+            }
+            return `${this.currentPreviewSize.width}px`
         },
         iFrameHeight() {
-            return this.isPreviewSizeCustom ? this.customHeight : this.currentPreviewSize.height
+            if (this.isPreviewSizeCustom) {
+                return `${this.customSize.height}px`
+            }
+            return `${this.currentPreviewSize.height}px`
+        },
+        iFrameStyle() {
+            return `border: 0;width: ${this.iFrameWidth};height: ${this.iFrameHeight};max-width: 100%;max-height: 100%;`
         },
         /**
          * Iframe HTML code snippet pointing to the short link
@@ -177,7 +228,7 @@ export default {
          * @returns {String} HTML iframe code snippet
          */
         iFrameLink() {
-            return `<iframe src="${this.shortLink}" width="${this.iFrameWidth}" height="${this.iFrameHeight}" style="border:0" allow="geolocation"></iframe>`
+            return `<iframe src="${this.shortLink}" style="${this.iFrameStyle}" allow="geolocation"></iframe>`
         },
     },
     methods: {
@@ -208,7 +259,13 @@ export default {
         display: block;
     }
 }
+
 .embed-preview-modal-size-selector {
     cursor: pointer;
+    max-width: 15rem;
+}
+
+.custom-preview-input {
+    max-width: 6rem;
 }
 </style>

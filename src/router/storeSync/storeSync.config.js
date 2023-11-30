@@ -1,5 +1,10 @@
+import { DEFAULT_PROJECTION } from '@/config'
+import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
+import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
 import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
+import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
+import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
 /**
@@ -18,21 +23,18 @@ const storeSyncConfig = [
         String
     ),
     new SimpleUrlParamConfig(
-        'lat',
-        'setCenter',
-        'setLatitude',
-        (store) => store.getters.centerEpsg4326[1],
-        true,
-        Number
+        'sr',
+        'setProjection',
+        'setProjection',
+        (store) => store.state.position.projection.epsgNumber,
+        false,
+        Number,
+        DEFAULT_PROJECTION.epsgNumber
     ),
-    new SimpleUrlParamConfig(
-        'lon',
-        'setCenter',
-        'setLongitude',
-        (store) => store.getters.centerEpsg4326[0],
-        true,
-        Number
-    ),
+    // Position must be processed after the projection param,
+    // otherwise the position might be wrongly reprojected at app startup when SR is not equal
+    // to the default projection EPSG number
+    new PositionParamConfig(),
     new SimpleUrlParamConfig(
         'z',
         'setZoom',
@@ -41,6 +43,19 @@ const storeSyncConfig = [
         true,
         Number
     ),
+    new SimpleUrlParamConfig(
+        '3d',
+        'set3dActive',
+        'set3dActive',
+        (store) => store.state.cesium.active,
+        false,
+        Boolean,
+        false
+    ),
+    // very important that this is added/defined AFTER the 3D flag param,
+    // so that when it is called the 3D param has already been processed (and is correctly set in the query)
+    // this will manage lon,lat,z and camera URL params
+    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
@@ -55,12 +70,12 @@ const storeSyncConfig = [
         'setBackground',
         'setBackground',
         (store) => {
-            const backgroundLayerId = store.state.layers.backgroundLayerId
-            // if background layer ID is null (no background) we write 'void' in the URL
-            if (backgroundLayerId === null) {
+            const backgroundLayer = store.state.layers.currentBackgroundLayer
+            // if background layer is null (no background) we write 'void' in the URL
+            if (backgroundLayer === null) {
                 return 'void'
             }
-            return backgroundLayerId
+            return backgroundLayer.getID()
         },
         true,
         String
@@ -84,16 +99,10 @@ const storeSyncConfig = [
             }),
         (store) => store.state.search.query,
         false,
-        String
+        String,
+        ''
     ),
-    new SimpleUrlParamConfig(
-        'crosshair',
-        'setCrossHair',
-        'setCrossHair',
-        (store) => store.state.position.crossHair,
-        false,
-        String
-    ),
+    new CrossHairParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
         'embed',
@@ -103,6 +112,13 @@ const storeSyncConfig = [
         false,
         Boolean,
         false
+    ),
+    new QueryToStoreOnlyParamConfig(
+        'catalogNodes',
+        'catalogNodes',
+        'setTopicTreeOpenedThemesIds',
+        false,
+        String
     ),
 ]
 

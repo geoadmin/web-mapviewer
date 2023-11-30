@@ -1,6 +1,3 @@
-import allCoordinateSystems, { LV95 } from '@/utils/coordinateSystems'
-import log from '@/utils/logging'
-
 /** @enum */
 export const ClickType = {
     /* Any action that triggers the context menu, so for example right click with a mouse or
@@ -12,7 +9,7 @@ export const ClickType = {
 
 export class ClickInfo {
     /**
-     * @param {Number[]} coordinate Of the last click expressed in EPSG:3857
+     * @param {Number[]} coordinate Of the last click expressed in the current mapping projection
      * @param {Number[]} pixelCoordinate Position of the last click on the screen [x, y] in pixels
      *   (counted from top left corner)
      * @param {Object[]} features List of potential features (geoJSON or KML) that where under the
@@ -52,12 +49,12 @@ export default {
          */
         pinnedLocation: null,
         /**
-         * The current applied map projection for anything displayed to the user (footer mouse
-         * position for instance)
-         *
-         * @type {CoordinateSystem}
+         * @type Array<Number> Same thing as pinnedLocation, will be used to show location of search
+         *   entries when they are hovered. If we use the same pinned location as the one above, the
+         *   pinned location is lost as soon as another one is hovered (meaning that the search bar
+         *   is still filled with a search query, but no pinned location is present anymore)
          */
-        displayedProjection: LV95,
+        previewedPinnedLocation: null,
 
         displayLocationPopup: false,
     },
@@ -85,22 +82,20 @@ export default {
                 commit('setPinnedLocation', null)
             }
         },
+        /**
+         * @param commit
+         * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
+         */
+        setPreviewedPinnedLocation({ commit }, coordinates) {
+            if (Array.isArray(coordinates) && coordinates.length === 2) {
+                commit('setPreviewedPinnedLocation', coordinates)
+            } else {
+                commit('setPreviewedPinnedLocation', null)
+            }
+        },
         clearPinnedLocation({ commit }) {
             commit('setPinnedLocation', null)
         },
-        setDisplayedProjectionWithId({ commit }, projectionId) {
-            if (projectionId) {
-                const matchingCoordinateSystem = allCoordinateSystems.find(
-                    (coordinateSystem) => coordinateSystem.id === projectionId
-                )
-                if (matchingCoordinateSystem) {
-                    commit('setDisplayedProjection', matchingCoordinateSystem)
-                } else {
-                    log.error('No coordinate system found matching ID', projectionId)
-                }
-            }
-        },
-
         displayLocationPopup({ commit }) {
             commit('setDisplayLocationPopup', true)
         },
@@ -113,7 +108,8 @@ export default {
         mapStartBeingDragged: (state) => (state.isBeingDragged = true),
         mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
-        setDisplayedProjection: (state, projection) => (state.displayedProjection = projection),
+        setPreviewedPinnedLocation: (state, coordinate) =>
+            (state.previewedPinnedLocation = coordinate),
         setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
     },
 }

@@ -19,9 +19,15 @@ const state = {
     /**
      * Current topic's layers tree (that will help the user select layers belonging to this topic)
      *
-     * @type {TopicTreeItem[]}
+     * @type {GeoAdminLayer[]}
      */
     tree: [],
+    /**
+     * The ids of the catalog nodes that should be open.
+     *
+     * @type {String[]}
+     */
+    openedTreeThemesIds: [],
 }
 
 const getters = {
@@ -59,10 +65,21 @@ const actions = {
             log.error('No topic found with ID', topicId)
         }
     },
+    setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
+        if (typeof themes === 'string') {
+            commit(
+                'setTopicTreeOpenedThemesIds',
+                themes.indexOf(',') !== -1 ? themes.split(',') : [themes]
+            )
+        } else if (Array.isArray(themes)) {
+            commit('setTopicTreeOpenedThemesIds', themes)
+        }
+    },
 }
 const mutations = {
     setTopicConfig: (state, topics) => (state.config = [...topics]),
     setTopicTree: (state, tree) => (state.tree = [...tree]),
+    setTopicTreeOpenedThemesIds: (state, themesIds) => (state.openedTreeThemesIds = [...themesIds]),
 }
 mutations[CHANGE_TOPIC_MUTATION] = (state, topic) => (state.current = topic)
 

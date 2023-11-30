@@ -41,7 +41,11 @@
                             <FontAwesomeIcon icon="times" />
                         </button>
                     </div>
-                    <div ref="modalContent" class="card-body pt-3 ps-4 pe-4">
+                    <div
+                        ref="modalContent"
+                        class="card-body pt-3 ps-4 pe-4"
+                        data-cy="modal-content"
+                    >
                         <slot />
                         <div v-if="showConfirmationButtons" class="mt-1 d-flex justify-content-end">
                             <button

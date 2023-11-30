@@ -1,8 +1,10 @@
 import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
-import { WEBMERCATOR } from '@/utils/coordinateSystems'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
 import log from '@/utils/logging'
-import { translateSwisstopoPyramidZoomToMercatorZoom } from '@/utils/zoomLevelUtils'
 import axios from 'axios'
+import proj4 from 'proj4'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 
@@ -17,8 +19,8 @@ export const RESULT_TYPE = {
     LOCATION: 'LOCATION',
 }
 
-// used to parse backend results and extract the title from sub-titles and other stuff
-const REGEX_RESULT_TITLE = /<b>(.*?)<\/b>/i
+// comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
+const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
 
 /** @abstract */
 export class SearchResult {
@@ -37,12 +39,12 @@ export class SearchResult {
         return this.getSimpleTitle()
     }
 
-    /** @returns The title without any HTML tags (will only keep what's inside <b> tag if there are) */
+    /**
+     * @returns String The title without any HTML tags (will keep what's inside <b> or <i> tags if
+     *   there are)
+     */
     getSimpleTitle() {
-        if (REGEX_RESULT_TITLE.test(this.title)) {
-            return REGEX_RESULT_TITLE.exec(this.title)[1]
-        }
-        return this.title
+        return this.title.replace(REGEX_DETECT_HTML_TAGS, '')
     }
 }
 
@@ -114,7 +116,7 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
     return axios.get(`${API_SERVICE_SEARCH_BASE_URL}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
-            sr: WEBMERCATOR.epsgNumber,
+            sr: LV95.epsgNumber,
             searchText: query.trim(),
             lang: lang || 'en',
             type: type || 'locations',
@@ -124,11 +126,13 @@ const generateAxiosSearchRequest = (query, lang, type, cancelToken) => {
 
 let cancelToken = null
 /**
+ * @param {CoordinateSystem} outputProjection The projection in which the search results must be
+ *   returned
  * @param {String} queryString The query string that describe what is wanted from the search
  * @param {String} lang The lang ISO code in which the search must be conducted
  * @returns {Promise<CombinedSearchResults>}
  */
-async function search(queryString = '', lang = '') {
+async function search(outputProjection, queryString = '', lang = '') {
     if (!lang || lang.length !== 2) {
         const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
         log.error(errorMessage)
@@ -183,23 +187,36 @@ async function search(queryString = '', lang = '') {
             }
             // reading the main values from the attrs
             const { label: title, detail: description, featureId } = location.attrs
-            // reading coordinates (if defined)
-            const coordinate = []
-            if (location.attrs.x && location.attrs.y) {
-                coordinate.push(location.attrs.x)
-                coordinate.push(location.attrs.y)
+
+            let coordinate = []
+            let zoom = location.attrs.zoomlevel
+            if (location.attrs.lon && location.attrs.lat) {
+                coordinate = [location.attrs.lon, location.attrs.lat]
+                if (outputProjection.epsg !== WGS84.epsg) {
+                    coordinate = proj4(WGS84.epsg, outputProjection.epsg, coordinate)
+                }
+            }
+            if (!(outputProjection instanceof LV95CoordinateSystem)) {
+                // re-projecting result coordinate and zoom to wanted projection
+                zoom = LV95.transformCustomZoomLevelToStandard(zoom)
+                if (outputProjection instanceof CustomCoordinateSystem) {
+                    zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
+                }
             }
             // reading the extent from the LineString (if defined)
             const extent = []
-            const zoom = translateSwisstopoPyramidZoomToMercatorZoom(location.attrs.zoomlevel)
             if (location.attrs.geom_st_box2d) {
                 const extentMatches = Array.from(
                     location.attrs.geom_st_box2d.matchAll(
                         /BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g
                     )
                 )[0]
-                const bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
-                const topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
+                let bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
+                let topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
+                if (outputProjection.epsg !== LV95.epsg) {
+                    bottomLeft = proj4(LV95.epsg, outputProjection.epsg, bottomLeft)
+                    topRight = proj4(LV95.epsg, outputProjection.epsg, topRight)
+                }
                 // checking if both point are the same (can happen if what is shown is a point of interest)
                 if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
                     extent.push(bottomLeft, topRight)

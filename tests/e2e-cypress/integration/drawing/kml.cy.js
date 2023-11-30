@@ -1,12 +1,27 @@
 /// <reference types="cypress" />
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { DEFAULT_PROJECTION } from '@/config'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import proj4 from 'proj4'
 
 const olSelector = '.ol-viewport'
 
 // Position of the marker defined in service-kml/lonelyMarker.kml
 const markerLatitude = 46.883715999352546
 const markerLongitude = 7.656108679791837
+
+function goToDrawingWithKmlLayer(layers, withHash = true) {
+    const params = {
+        center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [markerLongitude, markerLatitude]).join(
+            ','
+        ),
+    }
+    if (layers) {
+        params.layers = layers
+    }
+    cy.goToDrawing(params, withHash)
+}
 
 describe('Drawing new KML', () => {
     it("Don't save new empty drawing", () => {
@@ -67,7 +82,6 @@ describe('Drawing new KML', () => {
             ])
         )
     })
-
     it('Update the previously saved KML if anything is added to the drawing', () => {
         let kmlId = null
         cy.goToDrawing()
@@ -98,11 +112,10 @@ describe('Drawing new KML', () => {
         cy.get('[data-cy="infobox-close"]').click()
         // adding a line and checking that the KML is updated again
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-        cy.get(olSelector)
-            .should('be.visible')
-            .click(210, 200)
-            .click(220, 200)
-            .dblclick(230, 230, { force: true })
+        cy.get(olSelector).should('be.visible')
+        cy.get(olSelector).click(210, 200)
+        cy.get(olSelector).click(220, 200)
+        cy.get(olSelector).dblclick(230, 230, { force: true })
         cy.wait('@update-kml').then(
             (interception) =>
                 cy.checkKMLRequest(interception, [
@@ -120,12 +133,7 @@ describe('Drawing existing KML - without adminId (copy)', () => {
     const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
     const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
     beforeEach(() => {
-        //open drawing mode
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        goToDrawingWithKmlLayer(kmlUrlParam)
     })
     it("Don't save non modified drawing", () => {
         cy.intercept('**/api/kml/admin**', (req) => {
@@ -181,12 +189,8 @@ describe('Drawing existing KML - with adminId', () => {
         }).as('put-kml-not-allowed')
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
 
-        //open drawing mode
-        cy.goToMapViewWithDrawingIntercept({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        goToDrawingWithKmlLayer(kmlUrlParam, true)
+
         // delete the drawing
         cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
         cy.get('[data-cy="modal-confirm-button"]').click()
@@ -216,12 +220,8 @@ describe('Drawing loading KML', () => {
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin`
 
-        //open drawing mode
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+        goToDrawingWithKmlLayer(kmlUrlParam)
+
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
         cy.readWindowValue('drawingLayer')
@@ -235,20 +235,17 @@ describe('Drawing loading KML', () => {
             .then((layer) => layer.getSource().getFeatures())
             .should('have.length', 1)
     })
-
     it('Load kml file with adminId and open drawing mode', () => {
         //load map with an injected kml layer containing a text
         const kmlFileId = 'test-fileID12345678900'
         const kmlFileAdminId = 'test-fileAdminID12345678900'
         const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
         const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
-        //open drawing mode
-        cy.goToMapViewWithDrawingIntercept({
-            lang: 'fr',
-            otherParams: { lat: markerLatitude, lon: markerLongitude, layers: kmlUrlParam },
-            withHash: true,
-        })
+
+        goToDrawingWithKmlLayer(kmlUrlParam)
+
         cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+        cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
         cy.readStoreValue('state.drawing.featureIds').should('have.length', 1)
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
@@ -257,20 +254,12 @@ describe('Drawing loading KML', () => {
 })
 
 describe('Switching from drawing mode to normal mode', () => {
-    beforeEach(() => {
-        cy.goToDrawing({
-            lang: 'fr',
-            otherParams: { lat: 47.097, lon: 7.743, z: 9.5 },
-            withHash: true,
-        })
-    })
-
     /**
      * This test verifies multiple things that the kml layer is saved before it is loaded when
      * closing the drawing immediately after drawing
      */
     it('Check correct passover from drawingLayer to kmlLayer when closing drawing', () => {
-        //Open drawing mode
+        goToDrawingWithKmlLayer()
         cy.readWindowValue('drawingLayer')
             .then((layer) => layer.getSource().getFeatures())
             .should('have.length', 0)

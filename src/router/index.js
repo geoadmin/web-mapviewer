@@ -1,12 +1,14 @@
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
 import store from '@/store'
+import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import LoadingView from '@/views/LoadingView.vue'
-import { parseQuery, stringifyQuery } from '@/utils/url'
-
 import MapView from '@/views/MapView.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+
+const history = createWebHashHistory()
 
 /**
  * The Vue Router for this app, see [Vue Router's doc on how to use
@@ -15,7 +17,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
  * @type {Router}
  */
 const router = createRouter({
-    history: createWebHashHistory(),
+    history,
     routes: [
         {
             path: '/',
@@ -43,4 +45,10 @@ appLoadingManagementRouterPlugin(router, store)
 legacyPermalinkManagementRouterPlugin(router, store)
 storeSyncRouterPlugin(router, store)
 
+// exposing the router to Cypress, so that we may change URL param on the fly (without app reload),
+// and this way test app reaction to URL changes
+if (IS_TESTING_WITH_CYPRESS) {
+    window.vueRouterHistory = history
+    window.vueRouter = router
+}
 export default router
