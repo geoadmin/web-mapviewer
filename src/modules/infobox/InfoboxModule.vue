@@ -42,7 +42,7 @@
                 data-cy="infobox-content"
             >
                 <FeatureElevationProfile
-                    v-if="showElevationProfile"
+                    v-if="showElevationProfile && !isCombo"
                     class="card-body"
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
@@ -78,6 +78,7 @@
 
 <script>
 import { EditableFeatureTypes } from '@/api/features.api'
+import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
@@ -85,7 +86,6 @@ import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
-import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 
 export default {
     components: {
@@ -131,7 +131,10 @@ export default {
         },
         isCombo() {
             return (
-                this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+                this.isEdit &&
+                [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+                    this.selectedFeature.featureType
+                )
             )
         },
         showContainer() {

@@ -1,36 +1,23 @@
-<template>
-    <div class="feature-edit" data-infobox="height-reference">
-        <FeatureStyleEdit
-            :feature="feature"
-            :available-icon-sets="availableIconSets"
-            :read-only="readOnly"
-        />
-    </div>
-</template>
-
-<script>
+<script setup>
 import { EditableFeature } from '@/api/features.api'
-import { mapState } from 'vuex'
+import { toRef } from 'vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
-export default {
-    components: {
-        FeatureStyleEdit,
+const props = defineProps({
+    feature: {
+        type: EditableFeature,
+        required: true,
     },
-    props: {
-        feature: {
-            type: EditableFeature,
-            required: true,
-        },
-        readOnly: {
-            type: Boolean,
-            default: false,
-        },
+    readOnly: {
+        type: Boolean,
+        default: false,
     },
-    computed: {
-        ...mapState({
-            availableIconSets: (state) => state.drawing.iconSets,
-        }),
-    },
-}
+})
+const { feature, readOnly } = toRef(props)
 </script>
+
+<template>
+    <div class="feature-edit" data-infobox="height-reference">
+        <FeatureStyleEdit :feature="feature" :read-only="readOnly" />
+    </div>
+</template>
