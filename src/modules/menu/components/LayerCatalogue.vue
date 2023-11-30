@@ -1,5 +1,5 @@
 <script setup>
-import LayerCatalogueItem from '@/modules/menu/components/topics/LayerCatalogueItem.vue'
+import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
 import { defineProps } from 'vue'
 import { useStore } from 'vuex'
 
