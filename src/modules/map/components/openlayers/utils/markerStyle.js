@@ -104,7 +104,7 @@ export function getOlStyle(markerStyle) {
     }
 }
 
-export function geoJsonStyleFunction(olFeature) {
+export function highlightFeatureStyle(olFeature) {
     const geoJsonType = olFeature.get('geometry').getType()
     switch (geoJsonType) {
         case 'LineString':

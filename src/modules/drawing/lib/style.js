@@ -1,5 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { LineString, MultiPoint, Polygon, Point } from 'ol/geom'
+import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
 
 /* Z-INDICES
@@ -229,7 +229,7 @@ export function drawLineOrMeasureStyle(sketch, resolution, displayMeasures) {
             const styles = [
                 new Style({
                     stroke: displayMeasures ? dashedRedStroke : redStroke,
-                    geometry: sketch.geodesic.getGeodesicGeom(),
+                    geometry: sketch.geodesic?.getGeodesicGeom(),
                     zIndex: 20,
                 }),
             ]

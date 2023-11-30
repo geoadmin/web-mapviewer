@@ -1,21 +1,22 @@
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { defineEmits } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const emits = defineEmits(['close'])
+
+const i18n = useI18n()
+</script>
+
 <template>
     <div class="drawing-header">
-        <button class="drawing-header-close-button btn btn-dark" @click="$emit('close')">
+        <button class="drawing-header-close-button btn btn-dark" @click="emits('close')">
             <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
-            {{ $t('draw_back') }}
+            {{ i18n.t('draw_back') }}
         </button>
-        <h1 class="drawing-header-title">{{ $t('draw_mode_title') }}</h1>
+        <h1 class="drawing-header-title">{{ i18n.t('draw_mode_title') }}</h1>
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-export default {
-    components: { FontAwesomeIcon },
-    emits: ['close'],
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';

@@ -3,8 +3,8 @@
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import {
-    geoJsonStyleFunction,
     getOlStyle,
+    highlightFeatureStyle,
     OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import { randomIntBetween } from '@/utils/numberUtils'
@@ -71,7 +71,7 @@ const layer = new VectorLayer({
     source: new VectorSource({
         features: features.value,
     }),
-    style: geoJsonStyleFunction,
+    style: highlightFeatureStyle,
 })
 const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)

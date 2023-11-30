@@ -1,35 +1,36 @@
+<script setup>
+import { EditableFeatureTypes } from '@/api/features.api'
+import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
+import Feature from 'ol/Feature'
+import { computed, defineEmits, watch } from 'vue'
+import { useStore } from 'vuex'
+
+const emits = defineEmits({
+    drawEnd(payload) {
+        return payload instanceof Feature
+    },
+})
+
+const store = useStore()
+
+const availableIconSets = computed(() => store.state.drawing.iconSets)
+
+const { lastFinishedFeature } = useDrawingModeInteraction({
+    editableFeatureArgs: {
+        icon: availableIconSets.value.find((set) => set.name === 'default')?.icons[0],
+        featureType: EditableFeatureTypes.MARKER,
+    },
+})
+
+watch(lastFinishedFeature, (newFinishedFeature) => {
+    emits('drawEnd', newFinishedFeature)
+})
+
+defineExpose({
+    lastFinishedFeature,
+})
+</script>
+
 <template>
     <slot />
 </template>
-
-<script>
-import { EditableFeatureTypes } from '@/api/features.api'
-import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
-
-export default {
-    mixins: [drawingInteractionMixin],
-    props: {
-        availableIconSets: {
-            type: Array,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            geometryType: 'Point',
-        }
-    },
-    methods: {
-        editableFeatureArgs() {
-            const defaultIconSet = this.availableIconSets.find((set) => set.name === 'default')
-            const defaultIcon = defaultIconSet?.icons[0]
-            return {
-                icon: defaultIcon,
-                featureType: EditableFeatureTypes.MARKER,
-            }
-        },
-    },
-}
-</script>
-
-<style lang="scss"></style>
