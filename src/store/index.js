@@ -1,4 +1,5 @@
 import from2Dto3Dplugin from '@/store/plugins/2d-to-3d-management.plugin'
+import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
 import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import { createStore } from 'vuex'
 import app from './modules/app.store'
@@ -16,6 +17,7 @@ import topics from './modules/topics.store'
 import ui from './modules/ui.store'
 import appReadinessPlugin from './plugins/app-readiness.plugin'
 import clickOnMapManagementPlugin from './plugins/click-on-map-management.plugin'
+import loadExternalLayerAttributes from './plugins/external-layers.plugin'
 import geolocationManagementPlugin from './plugins/geolocation-management.plugin'
 import loadLayersConfigOnLangChange from './plugins/load-layersconfig-on-lang-change'
 import loadingBarManagementPlugin from './plugins/loading-bar-management.plugin'
@@ -24,7 +26,6 @@ import redoSearchOnLangChange from './plugins/redo-search-on-lang-change.plugin'
 import screenSizeManagementPlugin from './plugins/screen-size-management.plugin'
 import syncCameraLonLatZoom from './plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from './plugins/topic-change-management.plugin'
-import loadExternalLayerAttributes from './plugins/external-layers.plugin'
 
 export default createStore({
     strict: true,
@@ -43,6 +44,7 @@ export default createStore({
         reprojectSelectedFeaturesOnProjectionChangePlugin,
         from2Dto3Dplugin,
         loadExternalLayerAttributes,
+        loadGeojsonStyleAndData,
     ],
     modules: {
         app,
