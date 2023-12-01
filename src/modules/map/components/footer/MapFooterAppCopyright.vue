@@ -5,13 +5,18 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
     computed: {
+        ...mapState({
+            currentLang: (state) => state.i18n.lang,
+        }),
         links() {
             return [
                 {
                     label: 'ech_service_link_label',
-                    url: `https://www.geo.admin.ch/${this.$i18n.locale}/home.html`,
+                    url: `https://www.geo.admin.ch/${this.currentLang}/home.html`,
                 },
                 {
                     label: 'copyright_label',

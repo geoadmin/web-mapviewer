@@ -8,9 +8,16 @@
 </template>
 <script>
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
+import { useI18n } from 'vue-i18n'
 
 export default {
     components: { SwissFlag },
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
+    },
     data() {
         return {
             currentHost: window.location.host,
@@ -18,7 +25,7 @@ export default {
     },
     computed: {
         linkMessage() {
-            return this.$i18n.t('view_on_mapgeoadminch_webmapviewer', { url: this.currentHost })
+            return this.i18n.t('view_on_mapgeoadminch_webmapviewer', { url: this.currentHost })
         },
         urlWithoutEmbed() {
             return window.location.href.replace('&embed=true', '').replace('?embed=true&', '?')

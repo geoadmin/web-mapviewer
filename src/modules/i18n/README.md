@@ -1,24 +1,43 @@
 # Internationalization (i18n) module
 
-Responsible for loading and serving `vue-i18n` through the `$t` function in templates.
+Responsible for loading and serving `vue-i18n`. This utils can be accessed by linking the result of `useI18n()`
+to a local ref (in Composition API) or in-place with the Option API. As we've deactivated the legacy support,
+it's not possible to use `this.$i18n` anymore, we must now go through the `useI18n()` function to
+get a reference to the utils.
 
-Here's an example how to use this translation :
-
-```html
-<label for="...">{{ $t('a_translation_key') }}</label>
-```
-
-Current locale can be accessed through
-
-```html
-<span>Current locale is {{ $i18n.locale }}</span>
-```
-
-Within your Vue Component javascript code you can access translation like this
+Here's an example of how to use this translation :
 
 ```javascript
-this.$i18n.t('a_translation_key')
+import { useI18n } from 'vue-i18n'
+
+const i18n = useI18n()
 ```
+
+```html
+<label for="...">{{ i18n.t('a_translation_key') }}</label>
+```
+
+Current locale can be accessed through the store
+
+```javascript
+import { useStore } from 'vuex'
+import { computed } from 'vue'
+
+const store = useStore()
+const currentLocal = computed(() => store.state.i18n.lang)
+```
+
+```html
+<span>Current locale is {{ currentLocal }}</span>
+```
+
+Within your Option API Vue Component javascript code, you can access translation like this
+
+```javascript
+useI18n().t('a_translation_key')
+```
+
+Or if you have multiple call to `t(...)`, you can store the reference given by `useI18n()` at some point (do not store it in `data()`)
 
 ## update translations
 

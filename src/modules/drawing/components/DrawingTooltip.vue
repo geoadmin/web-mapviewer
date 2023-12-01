@@ -9,6 +9,7 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
 import Overlay from 'ol/Overlay'
+import { useI18n } from 'vue-i18n'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
@@ -29,6 +30,12 @@ export default {
             type: Object,
             default: null,
         },
+    },
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
     },
     data() {
         return {
@@ -66,7 +73,7 @@ export default {
 
             this.tooltipText = translationKeys
                 .map((key) => key.toLowerCase())
-                .map((key) => this.$i18n.t(key))
+                .map((key) => this.i18n.t(key))
                 .join('<br>')
         },
         onPointerMove(event) {

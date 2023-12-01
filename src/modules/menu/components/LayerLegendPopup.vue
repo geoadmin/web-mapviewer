@@ -14,6 +14,7 @@
 <script>
 import { getLayerLegend } from '@/api/layers/layers.api'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import { mapState } from 'vuex'
 
 export default {
     components: { ModalWithBackdrop },
@@ -29,8 +30,13 @@ export default {
             content: null,
         }
     },
+    computed: {
+        ...mapState({
+            currentLang: (state) => state.i18n.lang,
+        }),
+    },
     async mounted() {
-        this.content = await getLayerLegend(this.$i18n.lang, this.layerId)
+        this.content = await getLayerLegend(this.currentLang, this.layerId)
     },
     methods: {
         onClose() {
