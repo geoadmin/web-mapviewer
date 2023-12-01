@@ -117,26 +117,28 @@ describe('Drawing marker/points', () => {
                     window.innerWidth / 2.0 + moveInPixel.x,
                     window.innerHeight / 2.0 + moveInPixel.y,
                 ]
-                cy.log('ending pixel is', endingPixel)
-                const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
 
                 // Move it, the geojson geometry should move
                 cy.readWindowValue('map').then((map) => {
+                    cy.log('ending pixel is', endingPixel)
+                    const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
+
                     cy.simulateEvent(map, 'pointerdown', 0, 0)
                     cy.simulateEvent(map, 'pointerdrag', moveInPixel.x, moveInPixel.y)
                     cy.simulateEvent(map, 'pointerup')
-                })
-                cy.wait('@update-kml')
-                cy.readStoreValue('getters.resolution').then(() => {
-                    cy.readDrawingFeatures('Point', (features) => {
-                        expect(features).to.be.an('Array').lengthOf(1)
-                        const coos = features[0].getGeometry().getCoordinates()
-                        expect(coos).to.be.eql(
-                            expectedCoordinates,
-                            `wrong coordinates after drag&drop, expected ${JSON.stringify(
-                                expectedCoordinates
-                            )}, received: ${JSON.stringify(coos)}`
-                        )
+
+                    cy.wait('@update-kml')
+                    cy.readStoreValue('getters.resolution').then(() => {
+                        cy.readDrawingFeatures('Point', (features) => {
+                            expect(features).to.be.an('Array').lengthOf(1)
+                            const coos = features[0].getGeometry().getCoordinates()
+                            expect(coos).to.be.eql(
+                                expectedCoordinates,
+                                `wrong coordinates after drag&drop, expected ${JSON.stringify(
+                                    expectedCoordinates
+                                )}, received: ${JSON.stringify(coos)}`
+                            )
+                        })
                     })
                 })
             })
@@ -274,14 +276,17 @@ describe('Drawing marker/points', () => {
             cy.window().then((window) => {
                 const deltaY = -200
                 const endingPixel = [window.innerWidth / 2.0, window.innerHeight / 2.0 + deltaY]
-                const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
-                createAPoint(
-                    EditableFeatureTypes.ANNOTATION,
-                    0,
-                    deltaY,
-                    expectedCoordinates[0],
-                    expectedCoordinates[1]
-                )
+
+                cy.readWindowValue('map').then((map) => {
+                    const expectedCoordinates = map.getCoordinateFromPixel(endingPixel)
+                    createAPoint(
+                        EditableFeatureTypes.ANNOTATION,
+                        0,
+                        deltaY,
+                        expectedCoordinates[0],
+                        expectedCoordinates[1]
+                    )
+                })
             })
         })
         ;[EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION].forEach((drawingMode) => {
@@ -289,7 +294,7 @@ describe('Drawing marker/points', () => {
                 cy.window().then((window) => {
                     const deltaY = -200
                     const endingPixel = [window.innerWidth / 2.0, window.innerHeight / 2.0 + deltaY]
-                    const expectedCoordinates = window.olMap.getCoordinateFromPixel(endingPixel)
+                    const expectedCoordinates = window.map.getCoordinateFromPixel(endingPixel)
                     createAPoint(
                         EditableFeatureTypes.ANNOTATION,
                         0,

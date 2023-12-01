@@ -88,13 +88,8 @@ describe('Testing the share menu', () => {
                 it('does not generate a link with a balloon if the app stops tracking the GPS position', () => {
                     // closing the menu
                     cy.get('[data-cy="menu-button"]').click()
-                    // moving the app, so that the GPS is still active, but the tracking is off
-                    cy.readWindowValue('map').then((map) => {
-                        cy.simulateEvent(map, 'pointerdown', 0, 0)
-                        cy.simulateEvent(map, 'pointermove', 200, 140)
-                        cy.simulateEvent(map, 'pointerdrag', 200, 140)
-                        cy.simulateEvent(map, 'pointerup', 200, 140)
-                    })
+                    // faking a move of the app, so that the GPS is still active, but the tracking is off
+                    cy.writeStoreValue('setGeolocationTracking', false)
                     // opening the menu once again
                     cy.get('[data-cy="menu-button"]').click()
                     // opening the share menu, and checking that the link generated does not have a crosshair URL param
