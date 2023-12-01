@@ -80,6 +80,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
 </template>
 
 <style lang="scss" scoped>
+@use 'sass:math';
 @import './bg-selector';
 
 $main-element: '.bg-selector-squared';
@@ -87,7 +88,7 @@ $square-button-width: 98px;
 $square-button-radius: 8px;
 
 // assets have been sized to have a 4:3 ratio, so we can adapt "squared" button to have this exact ratio
-@include setup-background-buttons($main-element, $square-button-width, 3 / 4);
+@include setup-background-buttons($main-element, $square-button-width, math.div(3, 4));
 @include spread-wheel-buttons($main-element, $square-button-width, right);
 
 #{$main-element} {
