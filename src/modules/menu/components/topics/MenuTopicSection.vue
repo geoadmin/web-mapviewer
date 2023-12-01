@@ -30,7 +30,7 @@
 
 <script>
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import LayerCatalogue from '@/modules/menu/components/topics/LayerCatalogue.vue'
+import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
