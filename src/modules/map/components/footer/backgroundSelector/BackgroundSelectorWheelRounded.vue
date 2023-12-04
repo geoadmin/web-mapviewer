@@ -2,7 +2,6 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
-import { defineEmits } from 'vue'
 
 const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
 

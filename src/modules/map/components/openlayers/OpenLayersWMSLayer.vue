@@ -1,148 +1,124 @@
-<template>
-    <div>
-        <slot />
-    </div>
-</template>
+<script setup>
+/** Renders a WMS layer on the map */
 
-<script>
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { WMS_TILE_SIZE } from '@/config'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
-import ImageWMS from 'ol/source/ImageWMS'
-import TileWMS from 'ol/source/TileWMS'
+import { ImageWMS, TileWMS } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { mapState } from 'vuex'
-import addLayerToMapMixin from './utils/addLayerToMap-mixins'
+import { computed, inject, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
-/** Renders a WMS layer on the map */
-export default {
-    mixins: [addLayerToMapMixin],
-    props: {
-        wmsLayerConfig: {
-            type: [GeoAdminWMSLayer, ExternalWMSLayer],
-            required: true,
-        },
-        previewYear: {
-            type: Number,
-            default: null,
-        },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
-        zIndex: {
-            type: Number,
-            default: -1,
-        },
+const props = defineProps({
+    wmsLayerConfig: {
+        type: [GeoAdminWMSLayer, ExternalWMSLayer],
+        required: true,
     },
-    computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-        }),
-        layerId() {
-            return this.wmsLayerConfig.serverLayerId || this.wmsLayerConfig.externalLayerId
-        },
-        opacity() {
-            return this.wmsLayerConfig.opacity || 1.0
-        },
-        wmsVersion() {
-            return this.wmsLayerConfig.wmsVersion || '1.3.0'
-        },
-        format() {
-            return this.wmsLayerConfig.format || 'png'
-        },
-        gutter() {
-            return this.wmsLayerConfig.gutter || -1
-        },
-        url() {
-            return this.wmsLayerConfig.getURL()
-        },
-        timestamp() {
-            return getTimestampFromConfig(this.wmsLayerConfig, this.previewYear)
-        },
-        /**
-         * Definition of all relevant URL param for our WMS backends. This is because both
-         * https://openlayers.org/en/latest/apidoc/module-ol_source_TileWMS-TileWMS.html and
-         * https://openlayers.org/en/latest/apidoc/module-ol_source_ImageWMS-ImageWMS.html have this
-         * option.
-         *
-         * If we let the URL have all the param beforehand (sending all URL param through the url
-         * option), most of our wanted params will be doubled, resulting in longer and more
-         * difficult to read URLs
-         *
-         * @returns Object
-         */
-        wmsUrlParams() {
-            return {
-                SERVICE: 'WMS',
-                REQUEST: 'GetMap',
-                TRANSPARENT: true,
-                LAYERS: this.layerId,
-                FORMAT: `image/${this.format}`,
-                LANG: this.currentLang,
-                VERSION: this.wmsVersion,
-                TIME: this.timestamp,
-                CRS: this.projection.epsg,
-            }
-        },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
     },
-    watch: {
-        url(newUrl) {
-            this.layer.getSource().setUrl(newUrl)
-        },
-        opacity(newOpacity) {
-            this.layer.setOpacity(newOpacity)
-        },
-        projection() {
-            this.layer.setSource(this.createSourceForProjection())
-        },
+    zIndex: {
+        type: Number,
+        default: -1,
     },
-    created() {
-        if (this.gutter !== -1) {
-            this.layer = new TileLayer({
-                id: this.layerId,
-                opacity: this.opacity,
-                source: this.createSourceForProjection(),
-            })
-        } else {
-            this.layer = new ImageLayer({
-                id: this.layerId,
-                opacity: this.opacity,
-                source: this.createSourceForProjection(),
-            })
-        }
-    },
-    methods: {
-        createSourceForProjection() {
-            let source = null
-            if (this.gutter !== -1) {
-                source = new TileWMS({
-                    projection: this.projection.epsg,
-                    url: this.url,
-                    gutter: this.gutter,
-                    params: this.wmsUrlParams,
-                })
-            } else {
-                source = new ImageWMS({
-                    url: this.url,
-                    projection: this.projection.epsg,
-                    params: this.wmsUrlParams,
-                })
-            }
-            if (this.projection instanceof CustomCoordinateSystem) {
-                source.tileGrid = new TileGrid({
-                    resolutions: this.projection.getResolutions(),
-                    extent: this.projection.bounds.flatten,
-                    origin: this.projection.getTileOrigin(),
-                    tileSize: WMS_TILE_SIZE,
-                })
-            }
-            return source
-        },
-    },
+})
+const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
+
+// mapping relevant store values
+const store = useStore()
+const previewYear = computed(() => store.state.layers.previewYear)
+const projection = computed(() => store.state.position.projection)
+const currentLang = computed(() => store.state.i18n.lang)
+
+// extracting useful info from what we've linked so far
+const layerId = computed(
+    () => wmsLayerConfig.value.serverLayerId || wmsLayerConfig.value.externalLayerId
+)
+const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
+const format = computed(() => wmsLayerConfig.value.format || 'png')
+const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
+const opacity = computed(() => parentLayerOpacity.value || wmsLayerConfig.value.opacity)
+const url = computed(() => wmsLayerConfig.value.getURL())
+const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value, previewYear.value))
+
+/**
+ * Definition of all relevant URL param for our WMS backends. This is because both
+ * https://openlayers.org/en/latest/apidoc/module-ol_source_TileWMS-TileWMS.html and
+ * https://openlayers.org/en/latest/apidoc/module-ol_source_ImageWMS-ImageWMS.html have this
+ * option.
+ *
+ * If we let the URL have all the param beforehand (sending all URL param through the url option),
+ * most of our wanted params will be doubled, resulting in longer and more difficult to read URLs
+ */
+const wmsUrlParams = computed(() => ({
+    SERVICE: 'WMS',
+    REQUEST: 'GetMap',
+    TRANSPARENT: true,
+    LAYERS: layerId.value,
+    FORMAT: `image/${format.value}`,
+    LANG: currentLang.value,
+    VERSION: wmsVersion.value,
+    TIME: timestamp.value,
+    CRS: projection.value.epsg,
+}))
+
+let layer
+if (gutter.value !== -1) {
+    layer = new TileLayer({
+        id: layerId.value,
+        opacity: opacity.value,
+        source: createSourceForProjection(),
+    })
+} else {
+    layer = new ImageLayer({
+        id: layerId.value,
+        opacity: opacity.value,
+        source: createSourceForProjection(),
+    })
+}
+
+// grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
+const olMap = inject('olMap', null)
+useAddLayerToMap(layer, olMap, zIndex)
+
+// reacting to changes accordingly
+watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
+watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(projection, () => layer.setSource(createSourceForProjection()))
+
+function createSourceForProjection() {
+    let source = null
+    if (gutter.value !== -1) {
+        source = new TileWMS({
+            projection: projection.value.epsg,
+            url: url.value,
+            gutter: gutter.value,
+            params: wmsUrlParams.value,
+        })
+    } else {
+        source = new ImageWMS({
+            url: url.value,
+            projection: projection.value.epsg,
+            params: wmsUrlParams.value,
+        })
+    }
+    if (projection.value instanceof CustomCoordinateSystem) {
+        source.tileGrid = new TileGrid({
+            resolutions: projection.value.getResolutions(),
+            extent: projection.value.bounds.flatten,
+            origin: projection.value.getTileOrigin(),
+            tileSize: WMS_TILE_SIZE,
+        })
+    }
+    return source
 }
 </script>
+
+<template>
+    <slot />
+</template>
