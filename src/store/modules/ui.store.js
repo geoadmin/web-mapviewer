@@ -97,6 +97,12 @@ export default {
          * @type Boolean
          */
         importOverlay: false,
+        /**
+         * Flag telling if import file (map tooltip overlay or infobox) is shown
+         *
+         * @type Boolean
+         */
+        importFile: false,
     },
     getters: {
         screenDensity(state) {
@@ -210,6 +216,9 @@ export default {
         toggleImportOverlay({ commit, state }) {
             commit('setImportOverlay', !state.importOverlay)
         },
+        toggleImportFile({ commit, state }) {
+            commit('setImportFile', !state.importFile)
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -239,6 +248,9 @@ export default {
         },
         setImportOverlay(state, flagValue) {
             state.importOverlay = flagValue
+        },
+        setImportFile(state, flagValue) {
+            state.importFile = flagValue
         },
     },
 }
