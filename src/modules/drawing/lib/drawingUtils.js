@@ -1,11 +1,12 @@
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { format } from '@/utils/numberUtils'
 import { wrapX } from 'ol/coordinate'
+import KML from 'ol/format/KML'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
-import KML from 'ol/format/KML'
+
 import { EditableFeature } from '@/api/features.api'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { format } from '@/utils/numberUtils'
 
 export function toLv95(input, epsg) {
     if (Array.isArray(input[0])) {

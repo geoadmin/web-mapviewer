@@ -1,3 +1,5 @@
+import proj4 from 'proj4'
+
 import { DEFAULT_PROJECTION } from '@/config'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -5,7 +7,6 @@ import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.c
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import proj4 from 'proj4'
 
 /** @enum */
 export const CrossHairs = {

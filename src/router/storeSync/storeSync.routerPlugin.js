@@ -1,7 +1,8 @@
+import axios from 'axios'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 

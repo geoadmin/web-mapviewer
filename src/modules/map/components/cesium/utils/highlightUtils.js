@@ -1,6 +1,7 @@
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Cartesian3, Color, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
+
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 let highlightedEntities = []
 const highlightFill = Color.fromCssColorString('rgba(255, 255, 0, 0.75)')

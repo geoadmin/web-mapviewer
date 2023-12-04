@@ -1,4 +1,3 @@
-import log from '@/utils/logging'
 import {
     Billboard,
     BillboardCollection,
@@ -17,6 +16,8 @@ import {
     PrimitiveCollection,
     VerticalOrigin,
 } from 'cesium'
+
+import log from '@/utils/logging'
 
 /**
  * Style to apply to our labels in 3D. It is a complete rip-off of

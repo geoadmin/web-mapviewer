@@ -1,8 +1,9 @@
-import WMTSCapabilitiesParser from '../WMTSCapabilitiesParser.class'
+import { readFile } from 'fs/promises'
+import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
+
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
-import { readFile } from 'fs/promises'
-import { describe, it, expect, beforeAll, expectTypeOf } from 'vitest'
+import WMTSCapabilitiesParser from '../WMTSCapabilitiesParser.class'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     let capabilities

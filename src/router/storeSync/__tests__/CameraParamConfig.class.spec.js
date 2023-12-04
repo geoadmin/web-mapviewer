@@ -1,7 +1,8 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import PositionUrlParamConfig, {
     readCameraFromUrlParam,
 } from '@/router/storeSync/CameraParamConfig.class'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('CameraParamConfig class test', () => {
     const testInstance = new PositionUrlParamConfig()

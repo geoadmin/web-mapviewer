@@ -1,9 +1,10 @@
+import { format as formatCoordinate, toStringHDMS } from 'ol/coordinate'
+import proj4 from 'proj4'
+
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { toRoundedString } from '@/utils/coordinates/coordinateUtils'
 import { latLonToMGRS, latLonToUTM } from '@/utils/militaryGridProjection'
 import { formatThousand } from '@/utils/numberUtils'
-import { format as formatCoordinate, toStringHDMS } from 'ol/coordinate'
-import proj4 from 'proj4'
 
 /** Representation of coordinates in a human-readable format */
 export class CoordinateFormat {

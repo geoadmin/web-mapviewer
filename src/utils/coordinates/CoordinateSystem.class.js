@@ -1,5 +1,6 @@
-import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import proj4 from 'proj4'
+
+import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 
 /**
  * Representation of a coordinate system (or also called projection system) in the context of this

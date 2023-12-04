@@ -1,7 +1,8 @@
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import log from '@/utils/logging'
 import axios from 'axios'
 import proj4 from 'proj4'
+
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 // copied from https://developer.what3words.com/tutorial/detecting-if-text-is-in-the-format-of-a-3-word-address
 const REGEX_WHAT_3_WORDS =

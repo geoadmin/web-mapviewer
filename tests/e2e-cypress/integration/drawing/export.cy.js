@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import { recurse } from 'cypress-recurse'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 
 const downloadsFolder = Cypress.config('downloadsFolder')
 

@@ -1,11 +1,12 @@
+import { Fill, Stroke, Style } from 'ol/style'
+import CircleStyle from 'ol/style/Circle'
+import IconStyle from 'ol/style/Icon'
+
 import bowlImage from '@/modules/map/assets/bowl.png'
 import circleImage from '@/modules/map/assets/circle.png'
 import crossImage from '@/modules/map/assets/cross.png'
 import markerImage from '@/modules/map/assets/marker.png'
 import pointImage from '@/modules/map/assets/point.png'
-import { Fill, Stroke, Style } from 'ol/style'
-import CircleStyle from 'ol/style/Circle'
-import IconStyle from 'ol/style/Icon'
 
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
 export const highlightedFill = new Fill({

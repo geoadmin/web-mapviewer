@@ -1,6 +1,7 @@
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /** Composable that gives utility function to calculate/get layers' and features' z-index */
 export function useLayerZIndexCalculation() {

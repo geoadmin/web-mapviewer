@@ -1,10 +1,11 @@
+import axios from 'axios'
+import proj4 from 'proj4'
+
 import { API_SERVICE_SEARCH_BASE_URL } from '@/config'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import LV95CoordinateSystem from '@/utils/coordinates/LV95CoordinateSystem.class'
 import log from '@/utils/logging'
-import axios from 'axios'
-import proj4 from 'proj4'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/services/sdiservices.html#search
 

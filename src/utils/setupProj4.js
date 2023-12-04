@@ -1,6 +1,7 @@
+import proj4 from 'proj4'
+
 import { LV03, LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import proj4 from 'proj4'
 
 /**
  * Proj4 comes with [EPSG:4326]{@link https://epsg.io/4326} as default projection.

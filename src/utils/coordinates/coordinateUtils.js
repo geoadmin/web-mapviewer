@@ -1,4 +1,5 @@
 import proj4 from 'proj4'
+
 import log from '../logging'
 import { formatThousand } from '../numberUtils'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'

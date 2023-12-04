@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminAggregateLayer, {
     AggregateSubLayer,
@@ -9,7 +11,6 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 // TODO : implement loading of a cached CloudFront version for MVP

@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
+import proj4 from 'proj4'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import proj4 from 'proj4'
 
 const olSelector = '.ol-viewport'
 

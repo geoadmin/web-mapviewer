@@ -1,6 +1,7 @@
-import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
+
+import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 
 describe('CoordinateSystemBounds', () => {
     describe('splitIfOutOfBounds(coordinates, bounds)', () => {

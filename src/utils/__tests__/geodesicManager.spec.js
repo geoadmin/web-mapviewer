@@ -1,10 +1,11 @@
-import { HALFSIZE_WEBMERCATOR, GeodesicGeometries } from '@/utils/geodesicManager'
-import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import { Feature } from 'ol'
 import { expect } from 'chai'
+import { Feature } from 'ol'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
-import { describe, it } from 'vitest'
 import { Style } from 'ol/style'
+import { describe, it } from 'vitest'
+
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { GeodesicGeometries, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
 function constructGeodLineString(...coords) {
     const feature = new Feature(new LineString(coords))

@@ -1,8 +1,9 @@
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { identifyGeoJSONFeatureAt, identifyKMLFeatureAt } from '@/utils/identifyOnVectorLayer'
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 const msBeforeTriggeringLocationPopup = 700
 

@@ -28,24 +28,9 @@
  *
  * @module ol/interaction/Modify
  * */
+import { equals } from "ol/array";
 import Collection from "ol/Collection";
 import CollectionEventType from "ol/CollectionEventType";
-import Event from "ol/events/Event";
-import EventType from "ol/events/EventType";
-import Feature from "ol/Feature";
-import MapBrowserEventType from "ol/MapBrowserEventType";
-import Point from "ol/geom/Point";
-import PointerInteraction from "ol/interaction/Pointer";
-import RBush from "ol/structs/RBush";
-import VectorEventType from "ol/source/VectorEventType";
-import VectorLayer from "ol/layer/Vector";
-import VectorSource from "ol/source/Vector";
-import { altKeyOnly, always, primaryAction, singleClick } from "ol/events/condition";
-import {
-  boundingExtent,
-  buffer as bufferExtent,
-  createOrUpdateFromCoordinate as createExtent,
-} from "ol/extent";
 import { wrapX as wrapXCoordinate } from "ol/coordinate";
 import {
   closestOnSegment,
@@ -54,9 +39,20 @@ import {
   squaredDistance as squaredCoordinateDistance,
   squaredDistanceToSegment,
 } from "ol/coordinate";
-import { createEditingStyle } from "ol/style/Style";
-import { equals } from "ol/array";
+import { altKeyOnly, always, primaryAction, singleClick } from "ol/events/condition";
+import Event from "ol/events/Event";
+import EventType from "ol/events/EventType";
+import {
+  boundingExtent,
+  buffer as bufferExtent,
+  createOrUpdateFromCoordinate as createExtent,
+} from "ol/extent";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
 import { fromCircle } from "ol/geom/Polygon";
+import PointerInteraction from "ol/interaction/Pointer";
+import VectorLayer from "ol/layer/Vector";
+import MapBrowserEventType from "ol/MapBrowserEventType";
 import {
   fromUserCoordinate,
   fromUserExtent,
@@ -64,6 +60,10 @@ import {
   toUserCoordinate,
   toUserExtent,
 } from "ol/proj";
+import VectorSource from "ol/source/Vector";
+import VectorEventType from "ol/source/VectorEventType";
+import RBush from "ol/structs/RBush";
+import { createEditingStyle } from "ol/style/Style";
 import { getUid } from "ol/util";
 
 /**

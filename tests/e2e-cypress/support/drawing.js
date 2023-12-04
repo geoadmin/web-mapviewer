@@ -1,7 +1,8 @@
+import pako from 'pako'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
-import pako from 'pako'
 
 const olSelector = '.ol-viewport'
 

@@ -1,13 +1,13 @@
 import {
     Cartesian2,
     Cartesian3,
-    Matrix4,
     Cartographic,
+    HeadingPitchRange,
+    Math as CesiumMath,
+    Matrix4,
     Ray,
     Rectangle,
     Transforms,
-    HeadingPitchRange,
-    Math as CesiumMath,
 } from 'cesium'
 
 /**

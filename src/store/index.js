@@ -1,7 +1,9 @@
+import { createStore } from 'vuex'
+
 import from2Dto3Dplugin from '@/store/plugins/2d-to-3d-management.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
 import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
-import { createStore } from 'vuex'
+
 import app from './modules/app.store'
 import cesium from './modules/cesium.store'
 import drawing from './modules/drawing.store'

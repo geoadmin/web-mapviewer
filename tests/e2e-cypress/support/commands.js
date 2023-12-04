@@ -1,8 +1,11 @@
-import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
-import { randomIntBetween } from '@/utils/numberUtils'
 import 'cypress-real-events'
 import 'cypress-wait-until'
+
 import { MapBrowserEvent } from 'ol'
+
+import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
+import { randomIntBetween } from '@/utils/numberUtils'
+
 import { isMobile } from './utils'
 
 // ***********************************************

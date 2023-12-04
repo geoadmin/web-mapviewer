@@ -1,3 +1,5 @@
+import proj4 from 'proj4'
+
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -8,7 +10,6 @@ import {
     isLayersUrlParamLegacy,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import proj4 from 'proj4'
 
 /**
  * @param {String} search

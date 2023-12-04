@@ -1,5 +1,3 @@
-import dataModel from '@/utils/chartjs-datamodel.plugin'
-import noDataPlugin from '@/utils/chartjs-nodata.plugin'
 import {
     CategoryScale,
     Chart as ChartJS,
@@ -11,6 +9,9 @@ import {
     Tooltip,
 } from 'chart.js'
 import zoomPlugin from 'chartjs-plugin-zoom'
+
+import dataModel from '@/utils/chartjs-datamodel.plugin'
+import noDataPlugin from '@/utils/chartjs-nodata.plugin'
 
 export default function setupChartJS() {
     ChartJS.register(CategoryScale, Filler, Legend, LinearScale, LineElement, PointElement, Tooltip)

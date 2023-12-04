@@ -3,9 +3,10 @@
  * it here
  */
 
+import axios from 'axios'
+
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 async function load(url) {
     try {

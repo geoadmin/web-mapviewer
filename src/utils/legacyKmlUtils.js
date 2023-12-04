@@ -1,11 +1,12 @@
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { DrawingIcon } from '@/api/icon.api'
-import { allStylingColors, allStylingSizes, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
-import log from '@/utils/logging'
 import Feature from 'ol/Feature'
 import { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
+
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { DrawingIcon } from '@/api/icon.api'
+import { allStylingColors, allStylingSizes, MEDIUM, RED, SMALL } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
 
 /**
  * This is a helper function for {@link deserialize} that generates an editable feature based on the
