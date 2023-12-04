@@ -42,16 +42,12 @@ export function useMouseOnMap() {
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
             const features = []
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-            visibleGeoJsonLayers.value.forEach((geoJSonLayer) => {
-                console.log(
-                    'GeoJSON features',
-                    geoJSonLayer
-                    // booleanIntersects(geoJSonLayer, coordinate)
-                )
-                // features.push(...this.handleClickOnGeoJsonLayer(event, geoJSonLayer))
+            visibleGeoJsonLayers.value.forEach((_geoJSonLayer) => {
+                // TODO: implements OpenLayers-free feature identification
             })
-            visibleKMLLayers.value.forEach(() => {
-                // features.push(...this.handleClickOnKMLLayer(event, KMLLayer))
+            // same for KML layers
+            visibleKMLLayers.value.forEach((_kmlLayer) => {
+                // TODO: implements OpenLayers-free feature identification
             })
             store.dispatch(
                 'click',
