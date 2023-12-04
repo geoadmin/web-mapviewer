@@ -6,12 +6,12 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import log from '@/utils/logging'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
+import log from '@/utils/logging'
 
 /**
  * Load External layers attributes (title, abstract, extent, attributions, ...) on layer added
@@ -50,7 +50,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
         }
 
         updatedExternalLayer.isLoading = false
-        store.commit('updateLayer', { layer: updatedExternalLayer })
+        store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
         log.error(`Failed to update external layer: ${error}`)
     }

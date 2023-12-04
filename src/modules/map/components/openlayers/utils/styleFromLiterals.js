@@ -39,7 +39,7 @@ function getOlStyleForPoint(options, shape) {
             },
         }
         // deep copy to preserve the original object
-        const style = Object.assign({}, shapes[shape], options)
+        const style = { ...shapes[shape], ...options }
         return new RegularShape(style)
     }
 }
@@ -53,15 +53,22 @@ function getOlBasicStyles(options) {
         } else if (type === 'fill') {
             olStyles[type] = new Fill(style)
         } else if (type === 'text') {
-            style.stroke = new Stroke(style.stroke)
-            style.fill = new Fill(style.fill)
+            let backgroundFill
             if (style.backgroundFill) {
-                style.backgroundFill = new Fill(style.backgroundFill)
+                backgroundFill = new Fill(style.backgroundFill)
             }
+            let backgroundStroke
             if (style.backgroundStroke) {
-                style.backgroundStroke = new Stroke(style.backgroundStroke)
+                backgroundStroke = new Stroke(style.backgroundStroke)
             }
-            olStyles[type] = new Text(style)
+            olStyles[type] = new Text({
+                ...style,
+                // replacing/overwriting literals (strings) that must be converted to objects
+                stroke: new Stroke(style.stroke),
+                fill: new Fill(style.fill),
+                backgroundFill,
+                backgroundStroke,
+            })
         }
     })
     return olStyles
@@ -173,13 +180,11 @@ OlStyleForPropertyValue.prototype.initialize_ = function (properties) {
             imageRotationProperty: properties.rotation,
         }
     } else if (this.type === 'unique') {
-        for (let i = 0; i < properties.values.length; i++) {
-            const value = properties.values[i]
+        for (const value of properties.values) {
             this.pushOrInitialize_(value.geomType, value.value, getStyleSpec(value))
         }
     } else if (this.type === 'range') {
-        for (let i = 0; i < properties.ranges.length; i++) {
-            const range = properties.ranges[i]
+        for (const range of properties.ranges) {
             const key = range.range.toString()
             this.pushOrInitialize_(range.geomType, key, getStyleSpec(range))
         }
@@ -212,12 +217,9 @@ OlStyleForPropertyValue.prototype.findOlStyleInRange_ = function (value, geomTyp
 }
 
 OlStyleForPropertyValue.prototype.getOlStyleForResolution_ = function (olStyles, resolution) {
-    for (let i = 0; i < olStyles.length; i++) {
-        const style = olStyles[i]
-        if (style.minResolution <= resolution && style.maxResolution > resolution) {
-            return olStyles[i]
-        }
-    }
+    return olStyles.find(
+        (style) => style.minResolution <= resolution && style.maxResolution > resolution
+    )
 }
 
 OlStyleForPropertyValue.prototype.log_ = function (value, id) {
