@@ -18,12 +18,16 @@ const props = defineProps({
         type: [GeoAdminWMSLayer, ExternalWMSLayer],
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { wmsLayerConfig, zIndex } = toRefs(props)
+const { wmsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -38,7 +42,7 @@ const layerId = computed(
 const wmsVersion = computed(() => wmsLayerConfig.value.wmsVersion || '1.3.0')
 const format = computed(() => wmsLayerConfig.value.format || 'png')
 const gutter = computed(() => wmsLayerConfig.value.gutter || -1)
-const opacity = computed(() => wmsLayerConfig.value.opacity || 1.0)
+const opacity = computed(() => parentLayerOpacity.value || wmsLayerConfig.value.opacity)
 const url = computed(() => wmsLayerConfig.value.getURL())
 const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig.value, previewYear.value))
 

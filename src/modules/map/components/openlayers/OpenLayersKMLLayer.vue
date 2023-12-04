@@ -17,12 +17,16 @@ const props = defineProps({
         type: KMLLayer,
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { kmlLayerConfig, zIndex } = toRefs(props)
+const { kmlLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -31,7 +35,7 @@ const availableIconSets = computed(() => store.state.drawing.iconSets)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => kmlLayerConfig.value.getID())
-const opacity = computed(() => kmlLayerConfig.value.opacity || 1.0)
+const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.opacity)
 const url = computed(() => kmlLayerConfig.value.getURL())
 
 const kmlData = ref(null)

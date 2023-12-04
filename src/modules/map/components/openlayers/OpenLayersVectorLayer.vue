@@ -22,16 +22,20 @@ const props = defineProps({
         type: GeoAdminVectorLayer,
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { vectorLayerConfig, zIndex } = toRefs(props)
+const { vectorLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => vectorLayerConfig.value.getID())
-const opacity = computed(() => vectorLayerConfig.value.opacity || 1.0)
+const opacity = computed(() => parentLayerOpacity.value, vectorLayerConfig.value.opacity)
 const styleUrl = computed(() => vectorLayerConfig.value.getURL())
 
 const layer = new MapLibreLayer({

@@ -15,12 +15,16 @@ const props = defineProps({
         type: ExternalWMTSLayer,
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { externalWmtsLayerConfig, zIndex } = toRefs(props)
+const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -28,7 +32,7 @@ const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => externalWmtsLayerConfig.value.serverLayerId)
-const opacity = computed(() => externalWmtsLayerConfig.value.opacity)
+const opacity = computed(() => parentLayerOpacity.value || externalWmtsLayerConfig.value.opacity)
 const getCapabilitiesUrl = computed(() => externalWmtsLayerConfig.value.getURL())
 
 const wmtsGetCapParser = new WMTSCapabilities()

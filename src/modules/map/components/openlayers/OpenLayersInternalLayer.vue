@@ -21,12 +21,16 @@ const props = defineProps({
         type: AbstractLayer,
         default: null,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { layerConfig, zIndex } = toRefs(props)
+const { layerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
@@ -52,16 +56,19 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <OpenLayersVectorLayer
             v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
             :vector-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
             :wmts-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
             v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
             :external-wmts-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
@@ -69,11 +76,13 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <OpenLayersWMSLayer
             v-if="layerConfig.type === LayerTypes.WMS"
             :wms-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
             :geo-json-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <div v-if="layerConfig.type === LayerTypes.GROUP">
@@ -81,6 +90,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
                 v-for="(layer, index) in layerConfig.layers"
                 :key="`${layer.getID()}-${index}`"
                 :layer-config="layer"
+                :parent-layer-opacity="layerConfig.opacity"
                 :z-index="zIndex + index"
             />
         </div>
@@ -100,6 +110,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
                 <OpenLayersInternalLayer
                     v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
                     :layer-config="aggregateSubLayer.layer"
+                    :parent-layer-opacity="layerConfig.opacity"
                     :z-index="zIndex"
                 />
             </div>
@@ -107,6 +118,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <OpenLayersKMLLayer
             v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
             :kml-layer-config="layerConfig"
+            :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <slot />

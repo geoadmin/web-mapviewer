@@ -14,12 +14,16 @@ const props = defineProps({
         type: GeoAdminWMTSLayer,
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { wmtsLayerConfig, zIndex } = toRefs(props)
+const { wmtsLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -28,7 +32,7 @@ const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => wmtsLayerConfig.value.serverLayerId)
-const opacity = computed(() => wmtsLayerConfig.value.opacity)
+const opacity = computed(() => parentLayerOpacity.value || wmtsLayerConfig.value.opacity)
 const url = computed(() => {
     return wmtsLayerConfig.value.getURL(
         projection.value.epsgNumber,

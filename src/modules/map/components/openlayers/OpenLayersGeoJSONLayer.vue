@@ -18,12 +18,16 @@ const props = defineProps({
         type: GeoAdminGeoJsonLayer,
         required: true,
     },
+    parentLayerOpacity: {
+        type: Number,
+        default: null,
+    },
     zIndex: {
         type: Number,
         default: -1,
     },
 })
-const { geoJsonConfig, zIndex } = toRefs(props)
+const { geoJsonConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -31,7 +35,7 @@ const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => geoJsonConfig.value.serverLayerId)
-const opacity = computed(() => geoJsonConfig.value.opacity || 1.0)
+const opacity = computed(() => parentLayerOpacity.value || geoJsonConfig.value.opacity)
 const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
 const isLoading = computed(() => geoJsonConfig.value.isLoading)
