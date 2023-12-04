@@ -2,8 +2,12 @@
 require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
+    parserOptions: {
+        sourceType: 'module',
+    },
     root: true,
     ignorePatterns: ['node_modules', '.github', 'dist'],
+    plugins: ['simple-import-sort'],
     extends: [
         'eslint:recommended',
         'plugin:vue/vue3-recommended',
@@ -22,6 +26,8 @@ module.exports = {
                 destructuredArrayIgnorePattern: '^_',
             },
         ],
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
     },
     globals: {
         VITE_ENVIRONMENT: true,
