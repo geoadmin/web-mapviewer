@@ -125,7 +125,11 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = false) => {
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
-    cy.openDrawingMode()
+    // opening the drawing mode if no KML with adminId defined in the URL
+    // (otherwise, the drawing mode will be opened by default, no need to open it)
+    if (!queryParams.layers || queryParams.layers.indexOf('@adminId=') === -1) {
+        cy.openDrawingMode()
+    }
     cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
