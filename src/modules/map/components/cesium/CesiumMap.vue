@@ -91,7 +91,7 @@ import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { UIModes } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { createGeoJSONFeature } from '@/utils/layerUtils'
+import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import '@geoblocks/cesium-compass'
@@ -461,25 +461,19 @@ export default {
             )
 
             let objects = this.viewer.scene.drillPick(event.position)
-            const geoJsonFeatures = {}
             const kmlFeatures = {}
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
             this.visiblePrimitiveLayers
                 .filter((l) => l instanceof GeoAdminGeoJsonLayer)
                 .forEach((geoJSonLayer) => {
-                    objects
-                        .filter((obj) => obj.primitive?.olLayer?.get('id') === geoJSonLayer.getID())
-                        .forEach((obj) => {
-                            const feature = obj.primitive.olFeature
-                            if (!geoJsonFeatures[feature.getId()]) {
-                                geoJsonFeatures[feature.getId()] = createGeoJSONFeature(
-                                    obj.primitive.olFeature,
-                                    geoJSonLayer,
-                                    feature.getGeometry()
-                                )
-                            }
-                        })
-                    features.push(...Object.values(geoJsonFeatures))
+                    features.push(
+                        ...identifyGeoJSONFeatureAt(
+                            geoJSonLayer,
+                            event.position,
+                            this.projection,
+                            this.resolution
+                        )
+                    )
                 })
             this.visiblePrimitiveLayers
                 .filter((l) => l instanceof KMLLayer)
