@@ -45,7 +45,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 
 .feature-list {
@@ -82,18 +82,18 @@ export default {
 }
 
 // Styling for external HTML content
-.htmlpopup-container {
+:global(.htmlpopup-container) {
     width: 100%;
     font-size: 11px;
     text-align: start;
 }
-.htmlpopup-header {
+:global(.htmlpopup-header) {
     background-color: #e9e9e9;
     padding: 7px;
     margin-bottom: 7px;
     font-weight: 700;
 }
-.htmlpopup-content {
+:global(.htmlpopup-content) {
     padding: 7px;
 }
 </style>

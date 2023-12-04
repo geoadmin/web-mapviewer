@@ -1,5 +1,6 @@
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { identifyGeoJSONFeatureAt, identifyKMLFeatureAt } from '@/utils/identifyOnVectorLayer'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
@@ -18,6 +19,8 @@ export function useMouseOnMap() {
     const visibleKMLLayers = computed(() =>
         store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
     )
+    const currentMapResolution = computed(() => store.getters.resolution)
+    const currentProjection = computed(() => store.state.position.projection)
 
     /**
      * @param {[Number, Number]} screenPosition
@@ -42,12 +45,26 @@ export function useMouseOnMap() {
         if (!hasPointerDownTriggeredLocationPopup && isStillOnStartingPosition) {
             const features = []
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-            visibleGeoJsonLayers.value.forEach((_geoJSonLayer) => {
-                // TODO: implements OpenLayers-free feature identification
+            visibleGeoJsonLayers.value.forEach((geoJSonLayer) => {
+                features.push(
+                    ...identifyGeoJSONFeatureAt(
+                        geoJSonLayer,
+                        coordinate,
+                        currentProjection.value,
+                        currentMapResolution.value
+                    )
+                )
             })
             // same for KML layers
-            visibleKMLLayers.value.forEach((_kmlLayer) => {
-                // TODO: implements OpenLayers-free feature identification
+            visibleKMLLayers.value.forEach((kmlLayer) => {
+                features.push(
+                    ...identifyKMLFeatureAt(
+                        kmlLayer.kmlData,
+                        coordinate,
+                        currentProjection.value,
+                        currentMapResolution.value
+                    )
+                )
             })
             store.dispatch(
                 'click',

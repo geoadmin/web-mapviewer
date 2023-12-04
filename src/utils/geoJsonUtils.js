@@ -27,7 +27,7 @@ export default function reprojectGeoJsonData(geoJsonData, toProjection, fromProj
         }
     } else if (toProjection instanceof CoordinateSystem) {
         // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
-        reprojectedGeoJSON = reproject(this.geojsonData, WGS84.epsg, toProjection.epsg)
+        reprojectedGeoJSON = reproject(geoJsonData, WGS84.epsg, toProjection.epsg)
     }
     return reprojectedGeoJSON
 }
