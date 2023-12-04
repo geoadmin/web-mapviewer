@@ -9,7 +9,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-laye
 import log from '@/utils/logging'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, defineProps, inject, onUnmounted, ref, toRef, watch } from 'vue'
+import { computed, inject, onUnmounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -22,9 +22,7 @@ const props = defineProps({
         default: -1,
     },
 })
-// if we do not wrap props around refs, we lose reactivity
-const layerConfig = toRef(props, 'kmlLayerConfig')
-const zIndex = toRef(props, 'zIndex')
+const { kmlLayerConfig, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
@@ -32,9 +30,9 @@ const projection = computed(() => store.state.position.projection)
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => layerConfig.value.getID())
-const opacity = computed(() => layerConfig.value.opacity || 1.0)
-const url = computed(() => layerConfig.value.getURL())
+const layerId = computed(() => kmlLayerConfig.value.getID())
+const opacity = computed(() => kmlLayerConfig.value.opacity || 1.0)
+const url = computed(() => kmlLayerConfig.value.getURL())
 
 const kmlData = ref(null)
 

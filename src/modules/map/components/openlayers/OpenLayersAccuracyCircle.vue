@@ -10,7 +10,7 @@ import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { Fill, Stroke, Style } from 'ol/style'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -19,8 +19,7 @@ const props = defineProps({
         default: -1,
     },
 })
-// if we do not wrap props around refs, we lose reactivity
-const zIndex = toRef(props, 'zIndex')
+const { zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()

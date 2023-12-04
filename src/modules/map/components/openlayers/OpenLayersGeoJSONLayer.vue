@@ -10,7 +10,7 @@ import log from '@/utils/logging'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -23,20 +23,18 @@ const props = defineProps({
         default: -1,
     },
 })
-// if we do not wrap props around refs, we lose reactivity
-const layerConfig = toRef(props, 'geoJsonConfig')
-const zIndex = toRef(props, 'zIndex')
+const { geoJsonConfig, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => layerConfig.value.serverLayerId)
-const opacity = computed(() => layerConfig.value.opacity || 1.0)
-const geoJsonData = computed(() => layerConfig.value.geoJsonData)
-const geoJsonStyle = computed(() => layerConfig.value.geoJsonStyle)
-const isLoading = computed(() => layerConfig.value.isLoading)
+const layerId = computed(() => geoJsonConfig.value.serverLayerId)
+const opacity = computed(() => geoJsonConfig.value.opacity || 1.0)
+const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)
+const isLoading = computed(() => geoJsonConfig.value.isLoading)
 
 const layer = new VectorLayer({ id: layerId.value, opacity: opacity.value })
 

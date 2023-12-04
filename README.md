@@ -102,16 +102,17 @@ The structure of the file should be :
 ```vue
 <script setup>
 // 1. First put the imports
-import { computed, defineProps, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 // 2. Put all the props (input)
-const {myProp} = defineProps({
+const props = defineProps({
   myProp: {
-    type: Boolean
+    type: Boolean,
     default: false
   }
 })
+const { myProp } = toRefs(props)
 
 // 3. reactive data
 const myData = ref('My reactive value')

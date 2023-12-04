@@ -23,7 +23,6 @@ const props = defineProps({
         default: -1,
     },
 })
-// if we do not wrap props around refs, we lose reactivity
 const { wmsLayerConfig, zIndex } = toRefs(props)
 
 // mapping relevant store values

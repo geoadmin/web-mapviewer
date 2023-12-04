@@ -7,7 +7,7 @@ import log from '@/utils/logging'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -20,18 +20,16 @@ const props = defineProps({
         default: -1,
     },
 })
-// if we do not wrap props around refs, we lose reactivity
-const layerConfig = toRef(props, 'externalWmtsLayerConfig')
-const zIndex = toRef(props, 'zIndex')
+const { externalWmtsLayerConfig, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => layerConfig.value.serverLayerId)
-const opacity = computed(() => layerConfig.value.opacity)
-const getCapabilitiesUrl = computed(() => layerConfig.value.getURL())
+const layerId = computed(() => externalWmtsLayerConfig.value.serverLayerId)
+const opacity = computed(() => externalWmtsLayerConfig.value.opacity)
+const getCapabilitiesUrl = computed(() => externalWmtsLayerConfig.value.getURL())
 
 const wmtsGetCapParser = new WMTSCapabilities()
 const layer = new TileLayer({

@@ -3,7 +3,6 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { defineEmits } from 'vue'
 
 const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
 

@@ -9,7 +9,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import { computed, toRef } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
 import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
@@ -26,8 +26,7 @@ const props = defineProps({
         default: -1,
     },
 })
-const layerConfig = toRef(props, 'layerConfig')
-const zIndex = toRef(props, 'zIndex')
+const { layerConfig, zIndex } = toRefs(props)
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
