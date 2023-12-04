@@ -276,8 +276,7 @@ describe('Switching from drawing mode to normal mode', () => {
         //Close drawing mode and check that the same number of the features and are displayed
         cy.log('Close drawing mode')
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-        // the KML should now be requested from the backend to create the drawing layer
-        cy.wait('@get-kml')
+
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         cy.readWindowValue('kmlLayer').should((layer) => {
             const features = layer.getSource().getFeatures()
