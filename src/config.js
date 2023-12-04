@@ -106,18 +106,6 @@ export const API_SERVICE_KML_BASE_URL = enforceEndingSlashInUrl(
 )
 
 /**
- * Base part of the URL to use for getting kml files.
- *
- * This URL always end with a slash, so there's no need at add another one after it to create REST
- * endpoints
- *
- * @type String
- */
-export const API_SERVICE_KML_STORAGE_BASE_URL = enforceEndingSlashInUrl(
-    import.meta.env.VITE_API_SERVICE_KML_STORAGE_BASE_URL
-)
-
-/**
  * Base part of the URL to communicate with service-shortlink backend
  *
  * This URL always end with a slash, so there's no need at add another one after it to create REST
