@@ -77,11 +77,7 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) => {
-        const kmlLayers = state.activeLayers.filter((layer) => layer.type === LayerTypes.KML)
-        if (kmlLayers.length > 0) {
-            return kmlLayers[kmlLayers.length - 1]
-        }
-        return null
+        return state.activeLayers.find((layer) => layer.type === LayerTypes.KML && layer.fileId)
     },
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -213,7 +209,7 @@ const actions = {
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
-                commit('addLayer', { layer: clone })
+                commit('addLayer', clone)
                 if (layer.timeConfig) {
                     commit('setLayerYear', {
                         layerId: clone.getID(),
@@ -223,7 +219,7 @@ const actions = {
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', { layer: layer.clone() })
+                commit('addLayer', layer.clone())
             }
         })
     },
@@ -261,13 +257,7 @@ const actions = {
             layer = getters.getLayerConfigById(layerIdOrObject)?.clone()
         }
         if (layer) {
-            try {
-                const metadata = await layer.getMetadata()
-                commit('addLayer', { layer: layer, metadata: metadata })
-            } catch (error) {
-                log.error(`Failed to retrieve layer ${layer.getID()} metadata`, error)
-                commit('addLayer', { layer: layer, metadata: null })
-            }
+            commit('addLayer', layer)
         } else {
             log.error('no layer found for payload:', layerIdOrObject)
         }
@@ -426,12 +416,9 @@ const mutations = {
     setLayerConfig(state, config) {
         state.config = config
     },
-    addLayer(state, { layer: layer, metadata: metadata }) {
-        // first remove it if already present in order to avoid duplicate layers
+    addLayer(state, layer) {
+        // first, remove it if already present to avoid duplicate layers
         state.activeLayers = removeActiveLayerById(state, layer.getID())
-        if (metadata) {
-            layer.metadata = metadata
-        }
         state.activeLayers.push(layer)
     },
     updateLayer(state, layer) {

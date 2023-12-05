@@ -3,6 +3,7 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
@@ -43,16 +44,21 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  */
 export function createLayerObject(parsedLayer) {
     let layer = parsedLayer
-    // format is :  KML|FILE_URL|LAYER_NAME
+    // format is KML|FILE_URL|LAYER_NAME
     if (parsedLayer.id.startsWith('KML|') && parsedLayer.id.split('|').length === 3) {
         const splitLayerId = parsedLayer.id.split('|')
+        const kmlUrl = splitLayerId[1]
         layer = new KMLLayer(
-            splitLayerId[1], // kml url
+            kmlUrl,
             parsedLayer.visible,
             parsedLayer.opacity,
             null, // fileId, null := parsed from url
             parsedLayer.customAttributes.adminId,
-            splitLayerId[2] // name
+            splitLayerId[2], // name
+            null, // kmlMetadata will be loaded whenever the layer is added to the map
+            false, // no tooltip
+            kmlUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1,
+            true // isLoading, as we need to load this layer's metadata dans file data before adding it
         )
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID

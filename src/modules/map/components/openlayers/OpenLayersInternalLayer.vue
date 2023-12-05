@@ -4,17 +4,18 @@
  * correct OpenLayers counterpart depending on the layer type.
  */
 
+import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
+import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'
 import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKMLLayer.vue'
+import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
+import OpenLayersWMSLayer from '@/modules/map/components/openlayers/OpenLayersWMSLayer.vue'
+import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersWMTSLayer.vue'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import { computed, toRefs } from 'vue'
-import { useStore } from 'vuex'
-import OpenLayersGeoJSONLayer from './OpenLayersGeoJSONLayer.vue'
-import OpenLayersVectorLayer from './OpenLayersVectorLayer.vue'
-import OpenLayersWMSLayer from './OpenLayersWMSLayer.vue'
-import OpenLayersWMTSLayer from './OpenLayersWMTSLayer.vue'
 
 const props = defineProps({
     layerConfig: {
@@ -116,7 +117,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             </div>
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
+            v-if="layerConfig.type === LayerTypes.KML && !layerConfig.isLoading"
             :kml-layer-config="layerConfig"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

@@ -1,4 +1,3 @@
-import { getKmlMetadata } from '@/api/files.api'
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import i18n from '@/modules/i18n'
@@ -16,13 +15,14 @@ export default class KMLLayer extends AbstractLayer {
      *   not allowed to edit the file. Default is `null`
      * @param {string | null} [name=null] Name of this layer, if nothing is given a default name
      *   "Drawing" (or equivalent in the current UI lang) will be defined. Default is `null`
-     * @param {object | null} [metadata=null] Metadata of the KML drawing. This object contains all
-     *   the metadata returned by the backend. Default is `null`
+     * @param {string | null} [kmlData=null] Data/content of the KML file, as a string. Default is
+     *   `null`
+     * @param {object | null} [kmlMetadata=null] Metadata of the KML drawing. This object contains
+     *   all the metadata returned by the backend. Default is `null`
      * @param {boolean} [isExternal=false] Flag telling if this KML comes from our backend (false)
      *   or is loaded from a different source (true). Default is `false`
-     * @param {boolean} [addToMap=true] Flag telling if the KML should be added to map by the layer
-     *   management. When in drawing mode this flag is set to false to prevent layer map overlay to
-     *   interfere with the drawing overlay. Default is `true`
+     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
+     *   loading
      */
     constructor(
         kmlFileUrl,
@@ -31,9 +31,10 @@ export default class KMLLayer extends AbstractLayer {
         fileId = null,
         adminId = null,
         name = null,
-        metadata = null,
+        kmlData = null,
+        kmlMetadata = null,
         isExternal = false,
-        addToMap = true
+        isLoading = false
     ) {
         super(
             name ?? i18n.global.t('draw_layer_label'),
@@ -42,20 +43,22 @@ export default class KMLLayer extends AbstractLayer {
             visible,
             [new LayerAttribution(new URL(kmlFileUrl).hostname)],
             false,
-            isExternal
+            isExternal,
+            isLoading
         )
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
         if (fileId) {
             this.fileId = fileId
         } else {
-            // Based on the service-kml API reference the KML file URL has the following structure
-            // <base-url>/kml/files/{kml_id}
-            // or <base-url>/{kml_id} for legacy files, those one are redirected to <base-url>/kml/files/{kml_id}
+            // Based on the service-kml API reference, the KML file URL has the following structure
+            // <base-url>/kml/files/{kml_id} or <base-url>/{kml_id} for legacy files. Those one are
+            // redirected to <base-url>/kml/files/{kml_id}
             this.fileId = this.kmlFileUrl.split('/').pop()
         }
-        this.metadata = metadata
-        this.addToMap = addToMap
+
+        this.kmlData = kmlData
+        this.kmlMetadata = kmlMetadata
     }
 
     getID() {
@@ -63,7 +66,7 @@ export default class KMLLayer extends AbstractLayer {
         return `KML|${this.kmlFileUrl}|${this.name}`
     }
 
-    getURL() {
+    getURL(_epsgNumber, _timestamp) {
         return this.kmlFileUrl
     }
 
@@ -73,27 +76,15 @@ export default class KMLLayer extends AbstractLayer {
      * @returns {boolean}
      */
     isLegacy() {
-        return !!(this.metadata?.author !== 'web-mapviewer')
-    }
-
-    /**
-     * Get the KML layer metadata from backend or from cache
-     *
-     * @returns {Promise<Object>}
-     */
-    async getMetadata() {
-        if (this.metadata) {
-            return this.metadata
-        }
-        return await getKmlMetadata(this.fileId, this.adminId)
+        return this.kmlMetadata?.author !== 'web-mapviewer'
     }
 
     clone() {
         let clone = super.clone()
-        if (this.metadata) {
-            clone.metadata = Object.assign(
-                Object.create(Object.getPrototypeOf(this.metadata)),
-                this.metadata
+        if (this.kmlMetadata) {
+            clone.kmlMetadata = Object.assign(
+                Object.create(Object.getPrototypeOf(this.kmlMetadata)),
+                this.kmlMetadata
             )
         }
         return clone

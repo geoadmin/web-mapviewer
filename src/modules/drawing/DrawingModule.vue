@@ -54,6 +54,10 @@
 </template>
 
 <script>
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -66,14 +70,11 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
+import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import LoadingScreen from '@/utils/LoadingScreen.vue'
 import log from '@/utils/logging'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { mapActions, mapGetters, mapState } from 'vuex'
-import { DrawingState } from './lib/export-utils'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 
 export default {
     components: {
@@ -118,10 +119,10 @@ export default {
             projection: (state) => state.position.projection,
         }),
         kmlLayerId() {
-            return this.kmlLayer?.getID()
+            return this.activeKmlLayer?.getID()
         },
         kmlAdminId() {
-            return this.kmlLayer?.adminId
+            return this.activeKmlLayer?.adminId
         },
         isDrawingModeMarker() {
             return this.currentDrawingMode === EditableFeatureTypes.MARKER
@@ -241,7 +242,7 @@ export default {
             'addDrawingFeature',
             'clearDrawingFeatures',
             'setDrawingFeatures',
-            'setKmlLayerAddToMap',
+            'updateLayer',
         ]),
         async showDrawingOverlay() {
             // We need to make sure that no drawing features are selected when entering the drawing
@@ -256,18 +257,6 @@ export default {
                 log.debug(`Add current active kml layer to drawing`, this.activeKmlLayer)
                 this.isNewDrawing = !this.activeKmlLayer.adminId
                 await this.addKmlLayerToDrawing(this.activeKmlLayer)
-                // Here we clone the active KML layer in order to be able to change it here
-                // (update metadata) without interfering with the store.
-                this.kmlLayer = this.activeKmlLayer.clone()
-                // To avoid layer superposition of the kml drawing layer and the kml map overlay,
-                // the kml layer is not added to the map `addToMap=false`. It is important to keep
-                // the kml layer in the active layer in order to keep it in the URL, otherwise if
-                // the user reload the page he loose his drawing. We also keep the visible flag so
-                // that after a reload the drawing layer is still visible.
-                this.setKmlLayerAddToMap({
-                    layerId: this.activeKmlLayer.getID(),
-                    addToMap: false,
-                })
             }
             this.isDrawingEmpty = this.drawingLayer.getSource().getFeatures().length === 0
             this.getMap().addLayer(this.drawingLayer)
@@ -288,14 +277,6 @@ export default {
             // drawing.
             if (this.isDrawingModified && (!this.isNewDrawing || !this.isDrawingEmpty)) {
                 await this.saveDrawing(false) // do not retry on error
-            }
-
-            // Only add existing/saved kml to the layer menu. If someone cleared an
-            // existing kml, we want to allow him to re-edit it.
-            if (this.kmlLayer) {
-                this.kmlLayer.addToMap = true
-                this.addLayer(this.kmlLayer)
-                this.kmlLayer = null
             }
 
             // Next tick is needed to wait that all overlays are correctly updated so that
@@ -328,7 +309,7 @@ export default {
             log.debug(`Save drawing retryOnError ${retryOnError}`)
             this.drawingState = DrawingState.SAVING
             clearTimeout(this.differSaveDrawingTimeout)
-            const kml = generateKmlString(
+            const kmlData = generateKmlString(
                 this.projection,
                 this.drawingLayer.getSource().getFeatures()
             )
@@ -336,25 +317,20 @@ export default {
                 if (!this.kmlAdminId) {
                     const oldKmlId = this.kmlLayerId
                     // if we don't have an adminId then create a new KML File
-                    const metadata = await createKml(kml)
-                    this.kmlLayer = new KMLLayer(
-                        getKmlUrl(metadata.id),
+                    const kmlMetadata = await createKml(kmlData)
+                    const kmlLayer = new KMLLayer(
+                        getKmlUrl(kmlMetadata.id),
                         true, // visible
                         null, // opacity, null means use default
-                        metadata.id,
-                        metadata.adminId,
+                        kmlMetadata.id,
+                        kmlMetadata.adminId,
                         this.$t('draw_layer_label'),
-                        metadata,
-                        false, // external
-                        // do not add the drawing to the openlayer map overlay yet
-                        // to not interfer with the drawing overlay.
-                        false // addToMap
+                        kmlData,
+                        kmlMetadata,
+                        false, // isExternal
+                        false // isLoading, we already have kml data available, so no need to load it once more
                     )
-                    // Add the new layer to the active layer, this way the layer is present in the
-                    // URL and if the user reload the page it doesn't loose its drawing. We need to
-                    // add a clone to avoid interference with the store.
-                    const layerCloned = this.kmlLayer.clone()
-                    this.addLayer(layerCloned)
+                    await this.addLayer(kmlLayer)
                     // We also need to remove the old layer to avoid to have multiple drawing in
                     // the active layers. NOTE this is done to keep the same behavior as on the old
                     // viewer.
@@ -362,12 +338,14 @@ export default {
                         this.removeLayer(oldKmlId)
                     }
                 } else {
-                    const metadata = await updateKml(
-                        this.kmlLayer.fileId,
-                        this.kmlLayer.adminId,
-                        kml
+                    const kmlLayerClone = this.activeKmlLayer.clone()
+                    kmlLayerClone.kmlMetadata = await updateKml(
+                        this.activeKmlLayer.fileId,
+                        this.activeKmlLayer.adminId,
+                        kmlData
                     )
-                    this.kmlLayer.metadata = metadata
+                    kmlLayerClone.kmlData = kmlData
+                    this.updateLayer(kmlLayerClone)
                 }
 
                 // New pending changes might have occurred during the saving, therefore do not
