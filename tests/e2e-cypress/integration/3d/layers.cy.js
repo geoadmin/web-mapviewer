@@ -184,7 +184,6 @@ describe('Test of layer handling in 3D', () => {
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.wait('@get-kml')
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const mainCollection = viewer.scene.primitives.get(0)
             expect(mainCollection.length).to.eq(1)

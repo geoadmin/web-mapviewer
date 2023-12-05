@@ -4,9 +4,9 @@ import FeatureConverter from 'ol-cesium/src/olcs/FeatureConverter'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/modules/map/components/cesium/constants'
+import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToViewer-mixins'
 import { updateCollectionProperties } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
-
-import addLayerToViewer from './addLayerToViewer-mixins'
+import log from '@/utils/logging'
 
 const STYLE_RESOLUTION = 20
 
@@ -50,9 +50,13 @@ const addPrimitiveFromOLLayerMixins = {
             properties: { altitudeMode: 'clampToGround' },
             projection: this.projection.epsg,
         })
-        this.loadDataInOLLayer().then(() => {
-            this.addPrimitive()
-        })
+        this.loadDataInOLLayer()
+            .then(() => {
+                this.addPrimitive()
+            })
+            .catch((error) => {
+                log.error('Error while loading primivites for layer', this.layerId, error)
+            })
     },
     methods: {
         addLayer(layer) {

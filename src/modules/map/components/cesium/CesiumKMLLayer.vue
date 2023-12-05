@@ -1,64 +1,73 @@
 <template>
-    <div>
-        <slot />
-    </div>
+    <slot />
 </template>
 
 <script>
-import { getKmlFromUrl } from '@/api/files.api'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import log from '@/utils/logging'
 import VectorSource from 'ol/source/Vector'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import { parseKml } from '@/modules/drawing/lib/drawingUtils'
+
 import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
 
 /** Renders a KML file to the Cesium viewer */
 export default {
     mixins: [addPrimitiveFromOLLayerMixins],
     props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-        url: {
-            type: String,
-            required: true,
-        },
-        opacity: {
-            type: Number,
-            default: 1.0,
-        },
-        projection: {
-            type: CoordinateSystem,
+        kmlLayerConfig: {
+            type: KMLLayer,
             required: true,
         },
     },
     computed: {
         ...mapState({
             availableIconSets: (state) => state.drawing.iconSets,
+            projection: (state) => state.position.projection,
         }),
+        opacity() {
+            return this.kmlLayerConfig.opacity
+        },
+        kmlData() {
+            return this.kmlLayerConfig.kmlData
+        },
+        iconsArePresent() {
+            return this.availableIconSets.length > 0
+        },
+    },
+    watch: {
+        iconsArePresent() {
+            this.loadDataInOLLayer().then(this.addPrimitive)
+        },
+        kmlData() {
+            this.loadDataInOLLayer().then(this.addPrimitive)
+        },
+    },
+    mounted() {
+        if (!this.iconsArePresent) {
+            this.loadAvailableIconSets()
+        }
     },
     methods: {
-        async loadDataInOLLayer() {
-            try {
-                const kml = await getKmlFromUrl(this.url)
-                const features = parseKml(kml, this.projection, this.availableIconSets)
-                if (features) {
-                    this.olLayer.setSource(
-                        new VectorSource({ wrapX: true, projection: this.projection.epsg })
-                    )
-                    // remove all old features first
-                    this.olLayer.getSource().clear()
-                    // add the deserialized features
-                    this.olLayer.getSource().addFeatures(features)
-                } else {
-                    log.error(`No KML features available to add`, features)
+        ...mapActions(['loadAvailableIconSets']),
+        loadDataInOLLayer() {
+            return new Promise((resolve, reject) => {
+                if (!this.kmlData) {
+                    reject(new Error('no KML data loaded yet, could not create source'))
                 }
-            } catch (error) {
-                log.error(`Failed to load kml from ${this.url}`, error)
-                throw error
-            }
+                if (!this.iconsArePresent) {
+                    reject(new Error('no icons loaded yet, could not create source'))
+                }
+                console.log('woot')
+                this.olLayer.setSource(
+                    new VectorSource({
+                        wrapX: true,
+                        projection: this.projection.epsg,
+                        features: parseKml(this.kmlData, this.projection, this.availableIconSets),
+                    })
+                )
+                resolve()
+            })
         },
     },
 }

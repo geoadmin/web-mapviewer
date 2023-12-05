@@ -29,11 +29,8 @@
             :projection="projection"
         />
         <CesiumKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML && layerConfig.addToMap"
-            :layer-id="layerConfig.getID()"
-            :opacity="layerConfig.opacity"
-            :url="layerConfig.getURL()"
-            :projection="projection"
+            v-if="layerConfig.type === LayerTypes.KML"
+            :kml-layer-config="layerConfig"
         />
         <slot />
     </div>
@@ -44,6 +41,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+
 import CesiumGeoJSONLayer from './CesiumGeoJSONLayer.vue'
 import CesiumKMLLayer from './CesiumKMLLayer.vue'
 import CesiumWMSLayer from './CesiumWMSLayer.vue'
