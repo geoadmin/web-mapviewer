@@ -251,25 +251,16 @@ export class EditableFeature extends SelectableFeature {
      * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
      *   otherwise
      */
-    static deserialize(olFeature, availableIconSets, projection) {
+    static fromOlFeature(olFeature, availableIconSets, projection) {
         let editableFeature = olFeature.get('editableFeature')
         // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
         // will not be present, and we will have to rebuild one from the styles tags in the KML
         if (!editableFeature) {
             editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
         } else {
-            const o = JSON.parse(editableFeature)
-            editableFeature = new EditableFeature(
-                o.id,
-                null,
-                o.title,
-                o.description,
-                o.featureType,
-                FeatureStyleColor.deserialize(o.textColor),
-                FeatureStyleSize.deserialize(o.textSize),
-                FeatureStyleColor.deserialize(o.fillColor),
-                o.icon ? DrawingIcon.deserialize(o.icon) : null,
-                FeatureStyleSize.deserialize(o.iconSize)
+            editableFeature = EditableFeature.deserialize(
+                editableFeature,
+                extractOlFeatureCoordinates(olFeature)
             )
         }
         if (editableFeature) {
@@ -287,6 +278,22 @@ export class EditableFeature extends SelectableFeature {
             }
         }
         return editableFeature
+    }
+
+    static deserialize(editableFeatureJson, coordinates) {
+        const o = JSON.parse(editableFeatureJson)
+        return new EditableFeature(
+            o.id,
+            coordinates,
+            o.title,
+            o.description,
+            o.featureType,
+            FeatureStyleColor.deserialize(o.textColor),
+            FeatureStyleSize.deserialize(o.textSize),
+            FeatureStyleColor.deserialize(o.fillColor),
+            o.icon ? DrawingIcon.deserialize(o.icon) : null,
+            FeatureStyleSize.deserialize(o.iconSize)
+        )
     }
 
     /**

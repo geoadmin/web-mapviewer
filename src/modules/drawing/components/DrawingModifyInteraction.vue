@@ -3,15 +3,16 @@
 </template>
 
 <script>
+import { noModifierKeys, singleClick } from 'ol/events/condition'
+import ModifyInteraction from 'ol/interaction/Modify'
+import { mapActions } from 'vuex'
+
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
-import { noModifierKeys, singleClick } from 'ol/events/condition'
-import ModifyInteraction from '@/modules/drawing/lib/modifyInteraction'
-import { mapActions } from 'vuex'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 
 const cursorGrabbingClass = 'cursor-grabbing'

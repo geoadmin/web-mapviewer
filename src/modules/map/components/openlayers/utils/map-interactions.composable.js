@@ -38,6 +38,15 @@ export default function useMapInteractions(map) {
                 interaction.setActive(!newValue)
             }
         })
+        // activating/deactivating identification of feature on click, depending on if we are drawing
+        // (we do not want identification while drawing)
+        if (newValue) {
+            map.un('pointerdown', onPointerDown)
+            map.un('pointerup', onPointerUp)
+        } else {
+            map.on('pointerdown', onPointerDown)
+            map.on('pointerup', onPointerUp)
+        }
     })
     watch(projection, setInteractionAccordingToProjection)
 

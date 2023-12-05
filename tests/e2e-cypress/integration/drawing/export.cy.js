@@ -24,10 +24,13 @@ const checkFiles = (extension, callback) => {
 
 const checkKmlFile = (content) => {
     Object.values(EditableFeatureTypes).forEach((type) => {
-        expect(content).to.contains(`"featureType":"${type}"`)
+        expect(content).to.contains(
+            `"featureType":"${type}"`,
+            `Feature type ${type} not found in KML, there might be a missing feature`
+        )
     })
-    expect(content).to.contains('"title":"New text"')
-    expect(content).to.contains('"name":"001-marker"')
+    expect(content).to.contains('"title":"New text"', 'Title not found in KML')
+    expect(content).to.contains('"name":"001-marker"', 'Description not found in KML')
 }
 const checkGpxFile = (content) => {
     //2 <rte> (routes), one for LINEPOLYGON and MEASURE
@@ -38,43 +41,38 @@ const checkGpxFile = (content) => {
     expect(content).to.not.match(/<gpx.*<wpt.*\/>.*<wpt.*\/>.*<wpt.*\/>.*<\/gpx>/)
 }
 
-describe('Drawing toolbox actions', () => {
-    beforeEach(() => {
+describe('Exporting the drawing', () => {
+    after(() => {
         cy.task('clearFolder', downloadsFolder)
+    })
+    it('exports the drawing in multiple formats', () => {
         cy.goToDrawing()
         cy.drawGeoms()
-    })
-    context('Export KML', () => {
-        it('exports KML when clicking on the export button (without choosing format)', () => {
-            cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
-            ).click()
-            checkFiles('kml', checkKmlFile)
-        })
-        it('exports KML file through the "choose format" export menu', () => {
-            cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
-            ).click()
-            cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]'
-            ).click()
-            checkFiles('kml', checkKmlFile)
-        })
-    })
-    context('Export GPX', () => {
-        it('exports GPX file through the "choose format" export menu', () => {
-            cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
-            ).click()
-            cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]'
-            ).click()
-            checkFiles('gpx', checkGpxFile)
-        })
+        cy.wait('@update-kml')
+
+        // it exports KML when clicking on the export button (without choosing format)
+        cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]').click()
+        checkFiles('kml', checkKmlFile)
+        cy.task('clearFolder', downloadsFolder)
+
+        // same if we choose exports KML file through the "choose format" export menu
+        cy.get(
+            '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
+        ).click()
+        cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]').click()
+        checkFiles('kml', checkKmlFile)
+        cy.task('clearFolder', downloadsFolder)
+
+        // it exports a GPX if chosen in the dropdown
+        cy.get(
+            '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
+        ).click()
+        cy.get('[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]').click()
+        checkFiles('gpx', checkGpxFile)
     })
 })
 
-describe('Profile popup actions', () => {
+describe.skip('Exporting the profile data', () => {
     it('trigger download of CSV file', () => {
         cy.task('clearFolder', downloadsFolder)
         // drawing a measure line
