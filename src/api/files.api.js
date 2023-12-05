@@ -253,6 +253,11 @@ export const getKmlMetadataByAdminId = (adminId) => {
 }
 
 /**
+ * Get KML metadata by for a KML layer (using its fileId to request the backend)
+ *
+ * If this KML file is not managed by our infrastructure (external KML) this will reject the request
+ * (the promise will be rejected)
+ *
  * @param {KMLLayer} kmlLayer
  * @returns {Promise<KmlMetadata>}
  */

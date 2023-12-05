@@ -327,10 +327,8 @@ export default {
                         this.$t('draw_layer_label'),
                         kmlData,
                         kmlMetadata,
-                        false, // external
-                        // do not add the drawing to the openlayer map overlay yet
-                        // to not interfer with the drawing overlay.
-                        false // addToMap
+                        false, // isExternal
+                        false // isLoading, we already have kml data available, so no need to load it once more
                     )
                     await this.addLayer(kmlLayer)
                     // We also need to remove the old layer to avoid to have multiple drawing in
