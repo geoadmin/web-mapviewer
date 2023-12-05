@@ -47,8 +47,8 @@ describe('The Import Tool', () => {
         cy.get('[data-cy="import-add-layer-button"]').should('be.visible')
         cy.get('[data-cy="import-result-list"]').children().should('have.length', 3).first().click()
         cy.wait('@wms-get-map')
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="import-add-layer-button"]').click()
-        cy.wait('@wms-get-map')
         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
             expect(activeLayers).to.be.an('Array').length(1)
             const externalLayer = activeLayers[0]

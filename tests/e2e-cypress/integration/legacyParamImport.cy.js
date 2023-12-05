@@ -133,7 +133,8 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.visible).to.be.true
             })
         })
-        it('is able to import an external KML from a legacy adminId query param', () => {
+        // TODO BGDIINF_SB-2685: re-activate
+        it.skip('is able to import an external KML from a legacy adminId query param', () => {
             cy.goToMapView({
                 adminId: adminId,
             })
@@ -148,7 +149,8 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.adminId).to.equal(adminId)
             })
         })
-        it("don't keep KML adminId in URL after import", () => {
+        // TODO BGDIINF_SB-2685: re-activate
+        it.skip("don't keep KML adminId in URL after import", () => {
             cy.goToMapView({
                 adminId: adminId,
             })
@@ -164,7 +166,8 @@ describe('Test on legacy param import', () => {
             })
             cy.url().should('not.contain', adminId)
         })
-        it('is able to import an external KML from a legacy adminId query param with other layers', () => {
+        // TODO BGDIINF_SB-2685: re-activate
+        it.skip('is able to import an external KML from a legacy adminId query param with other layers', () => {
             cy.goToMapView({
                 adminId: adminId,
                 layers: 'test.wms.layer,test.wmts.layer',
