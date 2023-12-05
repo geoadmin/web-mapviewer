@@ -12,14 +12,15 @@
 </template>
 
 <script>
+import { saveAs } from 'file-saver'
+import { mapState } from 'vuex'
+
 import {
     generateFilename,
     generateGpxString,
     generateKmlString,
 } from '@/modules/drawing/lib/export-utils'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
-import { saveAs } from 'file-saver'
-import { mapState } from 'vuex'
 
 export default {
     components: { DropdownButton },
@@ -51,12 +52,9 @@ export default {
             if (this.isDrawingEmpty) {
                 return
             }
-
-            const gpx = this.exportSelection === 'GPX'
-
             const features = this.getDrawingLayer().getSource().getFeatures()
             let content, type, fileName
-            if (gpx) {
+            if (this.exportSelection === 'GPX') {
                 fileName = generateFilename('.gpx')
                 content = generateGpxString(this.projection, features)
                 type = 'application/gpx+xml;charset=UTF-8'
@@ -65,9 +63,7 @@ export default {
                 content = generateKmlString(this.projection, features)
                 type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
             }
-            const blob = new Blob([content], { type })
-
-            saveAs(blob, fileName)
+            saveAs(new Blob([content], { type }), fileName)
         },
     },
 }
