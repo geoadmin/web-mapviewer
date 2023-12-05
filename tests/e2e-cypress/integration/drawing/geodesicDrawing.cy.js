@@ -105,7 +105,10 @@ const generateTestsInPacific = (testFunc) => {
     generateTest(0, 0, atDateTimeLimit - 250000, pacificDesc2575, testFunc)
 }
 
-describe('Correct handling of geodesic geometries', () => {
+// The modify interaction custom-made (from OL code) is not up-to-date with OL code anymore
+// we will de-activate the geodesic drawing for the time being (no need for it until we do
+// a worldwide coverage, and even then we have to assess if we want it or not)
+describe.skip('Correct handling of geodesic geometries', () => {
     beforeEach(() => {
         cy.goToDrawing({ z: 10, sr: 3857 }, true)
     })
