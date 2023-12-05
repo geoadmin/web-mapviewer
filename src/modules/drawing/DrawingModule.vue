@@ -54,6 +54,10 @@
 </template>
 
 <script>
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -68,12 +72,9 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
+import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import LoadingScreen from '@/utils/LoadingScreen.vue'
 import log from '@/utils/logging'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { mapActions, mapGetters, mapState } from 'vuex'
-import { DrawingState } from './lib/export-utils'
 
 export default {
     components: {

@@ -71,30 +71,10 @@
     </div>
 </template>
 <script>
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
-import {
-    BASE_URL_3D_TILES,
-    DEFAULT_PROJECTION,
-    IS_TESTING_WITH_CYPRESS,
-    WMS_BASE_URL,
-    WMTS_BASE_URL,
-} from '@/config'
-import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
-import FeatureList from '@/modules/infobox/components/FeatureList.vue'
-import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { UIModes } from '@/store/modules/ui.store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
-import log from '@/utils/logging'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import '@geoblocks/cesium-compass'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import * as cesium from 'cesium'
 import {
     Cartesian2,
@@ -110,20 +90,49 @@ import {
     SkyBox,
     Viewer,
 } from 'cesium'
-import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import CesiumInternalLayer from './CesiumInternalLayer.vue'
+
+import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
+import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import KMLLayer from '@/api/layers/KMLLayer.class'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
+import {
+    BASE_URL_3D_TILES,
+    DEFAULT_PROJECTION,
+    IS_TESTING_WITH_CYPRESS,
+    WMS_BASE_URL,
+    WMTS_BASE_URL,
+} from '@/config'
+import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
+import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_PITCH,
     CAMERA_MIN_ZOOM_DISTANCE,
     TERRAIN_URL,
-} from './constants'
-import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
-import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
+} from '@/modules/map/components/cesium/constants'
+import {
+    calculateHeight,
+    limitCameraCenter,
+    limitCameraPitchRoll,
+} from '@/modules/map/components/cesium/utils/cameraUtils'
+import {
+    highlightGroup,
+    unhighlightGroup,
+} from '@/modules/map/components/cesium/utils/highlightUtils'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { UIModes } from '@/store/modules/ui.store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import log from '@/utils/logging'
 
 export default {
     components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },

@@ -1,15 +1,16 @@
 <script setup>
 /** Renders a KML file on the map */
 
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
+
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import log from '@/utils/logging'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
-import { useStore } from 'vuex'
 
 const props = defineProps({
     kmlLayerConfig: {
