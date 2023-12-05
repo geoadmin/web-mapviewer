@@ -60,7 +60,7 @@ describe('Validate features api', () => {
             expect(editableFeature).to.be.not.null
             expect(editableFeature).to.be.equal(stringifiedTestObject)
 
-            const reconstructed = EditableFeature.deserialize(testFeature)
+            const reconstructed = EditableFeature.fromOlFeature(testFeature)
             expect(reconstructed).to.be.instanceOf(EditableFeature)
             expect(reconstructed.id).to.be.equal(testObject.id)
             expect(reconstructed.coordinates).to.deep.equal(testObject.coordinates)
