@@ -7,26 +7,27 @@ const dom = new JSDOM()
 global.DOMParser = dom.window.DOMParser
 global.Node = dom.window.Node
 
-import { promises as fs } from 'fs'
 import axios, { AxiosError } from 'axios'
-import writeYamlFile from 'write-yaml-file'
 import axiosRetry from 'axios-retry'
+import { promises as fs } from 'fs'
+import { exit } from 'process'
+import writeYamlFile from 'write-yaml-file'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { exit } from 'process'
+
 import {
-    isWmsGetCap,
-    isWmtsGetCap,
-    isKml,
-    isGpx,
-    guessExternalLayerUrl,
-} from '@/modules/infobox/utils/external-provider'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
-import {
+    EXTERNAL_SERVER_TIMEOUT,
     parseWmsCapabilities,
     parseWmtsCapabilities,
-    EXTERNAL_SERVER_TIMEOUT,
 } from '@/api/layers/layers-external.api'
+import {
+    guessExternalLayerUrl,
+    isGpx,
+    isKml,
+    isWmsGetCap,
+    isWmtsGetCap,
+} from '@/modules/infobox/utils/external-provider'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 const SIZE_OF_CONTENT_DISPLAY = 150
 

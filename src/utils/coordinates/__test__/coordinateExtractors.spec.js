@@ -1,9 +1,10 @@
-import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
-import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { expect } from 'chai'
 import { toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
 import { describe, it } from 'vitest'
+
+import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 /**
  * Place a separator after each group of 3 digit

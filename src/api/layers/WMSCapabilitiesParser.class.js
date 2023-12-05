@@ -1,11 +1,12 @@
-import { WMS_SUPPORTED_VERSIONS } from '@/config'
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import log from '@/utils/logging'
 import { WMSCapabilities } from 'ol/format'
 import proj4 from 'proj4'
+
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
+import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import { WMS_SUPPORTED_VERSIONS } from '@/config'
+import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 function findLayer(layerId, startFrom, parents) {
     let found = {}

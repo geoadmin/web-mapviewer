@@ -1,11 +1,12 @@
-import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 export default function useMapInteractions(map) {
     const { onLeftClickDown, onLeftClickUp, onRightClick, onMouseMove } = useMouseOnMap()

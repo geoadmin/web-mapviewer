@@ -1,7 +1,8 @@
+import proj4 from 'proj4'
+
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { normalizeAngle } from '@/store/modules/position.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import proj4 from 'proj4'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.

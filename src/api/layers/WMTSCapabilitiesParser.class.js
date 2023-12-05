@@ -1,9 +1,10 @@
+import WMTSCapabilities from 'ol/format/WMTSCapabilities'
+import proj4 from 'proj4'
+
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import log from '@/utils/logging'
-import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import proj4 from 'proj4'
+import log from '@/utils/logging'
 
 function parseCrs(crs) {
     let epsgNumber = crs?.split(':').pop()

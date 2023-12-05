@@ -1,3 +1,6 @@
+import { expect } from 'chai'
+import { beforeEach, describe, it } from 'vitest'
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -5,8 +8,6 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import store from '@/store'
-import { expect } from 'chai'
-import { beforeEach, describe, it } from 'vitest'
 
 const bgLayer = new GeoAdminWMTSLayer(
     'background',

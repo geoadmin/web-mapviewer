@@ -1,11 +1,12 @@
 /// <reference types="cypress" />
 
+import proj4 from 'proj4'
+
 import { DEFAULT_PROJECTION } from '@/config'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
-import proj4 from 'proj4'
 
 const searchbarSelector = '[data-cy="searchbar"]'
 

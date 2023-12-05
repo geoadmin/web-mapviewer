@@ -1,9 +1,10 @@
-import { EditableFeature } from '@/api/features.api'
-import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 import DrawInteraction from 'ol/interaction/Draw'
 import { getUid } from 'ol/util'
-import { wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { mapState } from 'vuex'
+
+import { EditableFeature } from '@/api/features.api'
+import { wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
 
 /**
  * Vue mixin that will handle the addition or removal of a drawing interaction to the drawing

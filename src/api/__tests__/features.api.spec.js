@@ -1,9 +1,10 @@
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { MEDIUM, RED } from '@/utils/featureStyleUtils'
 import { expect } from 'chai'
-import { describe, it } from 'vitest'
 import Feature from 'ol/Feature.js'
 import Polygon from 'ol/geom/Polygon.js'
+import { describe, it } from 'vitest'
+
+import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { MEDIUM, RED } from '@/utils/featureStyleUtils'
 
 const stringifiedTestObject = `{"id":"drawing_feature_2",\
 "title":"This is a title",\

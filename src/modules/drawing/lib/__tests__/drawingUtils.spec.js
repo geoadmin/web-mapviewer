@@ -1,3 +1,6 @@
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
+
 import {
     formatMeters,
     formatPointCoordinates,
@@ -6,8 +9,6 @@ import {
     wrapXCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
 
 describe('Unit test functions from drawingUtils.js', () => {
     describe('toLv95(coordinate, "EPSG:4326")', () => {

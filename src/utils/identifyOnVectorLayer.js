@@ -1,10 +1,11 @@
+import distance from '@turf/distance'
+import { point } from '@turf/helpers'
+import proj4 from 'proj4'
+
 import { LayerFeature } from '@/api/features.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import reprojectGeoJsonData from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
-import distance from '@turf/distance'
-import { point } from '@turf/helpers'
-import proj4 from 'proj4'
 
 const pixelToleranceForIdentify = 10
 

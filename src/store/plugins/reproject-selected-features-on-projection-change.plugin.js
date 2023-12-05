@@ -1,7 +1,8 @@
+import proj4 from 'proj4'
+
 import { EditableFeature, LayerFeature } from '@/api/features.api'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
-import proj4 from 'proj4'
 
 let oldProjection = null
 /**

@@ -1,10 +1,11 @@
-import WMSCapabilitiesParser from '../WMSCapabilitiesParser.class'
+import { readFile } from 'fs/promises'
+import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
+
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
-import { readFile } from 'fs/promises'
-import { describe, it, expect, beforeAll, expectTypeOf } from 'vitest'
+import WMSCapabilitiesParser from '../WMSCapabilitiesParser.class'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {

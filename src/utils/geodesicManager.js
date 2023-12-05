@@ -1,6 +1,3 @@
-import log from '@/utils/logging'
-import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,
@@ -12,6 +9,10 @@ import { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/ge
 import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
+
+import { formatAngle, formatMeters } from '@/modules/drawing/lib/drawingUtils'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 const geod = Geodesic.WGS84
 

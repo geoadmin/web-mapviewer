@@ -1,8 +1,9 @@
-import store from '@/store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { expect } from 'chai'
 import proj4 from 'proj4'
 import { beforeEach, describe, it } from 'vitest'
+
+import store from '@/store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Zoom level is calculated correctly in the store when using WebMercator as the projection', () => {
     const screenSize = 100

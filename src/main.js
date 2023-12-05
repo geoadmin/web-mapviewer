@@ -1,4 +1,14 @@
 // exposing the config in the logs
+// Importing styling CSS libraries
+import 'animate.css'
+// setting up font awesome vue component
+import './setup-fontawesome'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
+import { createApp } from 'vue'
+import VueSocialSharing from 'vue-social-sharing'
+
 import {
     API_BASE_URL,
     API_SERVICE_ALTI_BASE_URL,
@@ -22,17 +32,7 @@ import store from '@/store'
 import log from '@/utils/logging'
 import setupChartJS from '@/utils/setupChartJS'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// Importing styling CSS libraries
-import 'animate.css'
-import tippy from 'tippy.js'
-
-import { createApp } from 'vue'
-import VueSocialSharing from 'vue-social-sharing'
-
 import App from './App.vue'
-// setting up font awesome vue component
-import './setup-fontawesome'
 
 log.debug('Config is', {
     ENVIRONMENT,

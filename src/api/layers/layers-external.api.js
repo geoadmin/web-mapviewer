@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
 import log from '@/utils/logging'

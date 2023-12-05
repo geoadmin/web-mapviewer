@@ -1,11 +1,12 @@
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import i18n from '@/modules/i18n/index'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
+
+import { featureStyleFunction } from '@/modules/drawing/lib/style'
+import i18n from '@/modules/i18n/index'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 const kmlFormat = new KML()

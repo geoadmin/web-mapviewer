@@ -1,9 +1,10 @@
+import { describe, expect, it } from 'vitest'
+
 import { LV03, LV95 } from '@/utils/coordinates/coordinateSystems'
 import {
     LV95_RESOLUTIONS,
     swissPyramidZoomToStandardZoomMatrix,
 } from '@/utils/coordinates/SwissCoordinateSystem.class'
-import { describe, expect, it } from 'vitest'
 
 describe('Unit test functions from SwissCoordinateSystem', () => {
     describe('transformCustomZoomLevelToStandard', () => {

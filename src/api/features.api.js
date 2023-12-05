@@ -1,3 +1,7 @@
+import axios from 'axios'
+import { Icon as openlayersIcon } from 'ol/style'
+import proj4 from 'proj4'
+
 import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import {
@@ -19,9 +23,6 @@ import {
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
 import log from '@/utils/logging'
-import axios from 'axios'
-import { Icon as openlayersIcon } from 'ol/style'
-import proj4 from 'proj4'
 
 /**
  * Representation of a feature that can be selected by the user on the map. This feature can be

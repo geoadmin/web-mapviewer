@@ -1,8 +1,9 @@
-import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { expect } from 'chai'
 import proj4 from 'proj4'
 import { describe, it } from 'vitest'
+
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 
 describe('Unit test functions from coordinateUtils.js', () => {
     describe('reprojectUnknownSrsCoordsToWGS84(x,y)', () => {

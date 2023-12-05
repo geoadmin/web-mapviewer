@@ -1,10 +1,11 @@
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
+
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { createLayerObject } from '@/router/storeSync/LayerParamConfig.class'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
 
 describe('External layer parsing with createLayerObject', () => {
     it('parses a KML layer correctly', () => {

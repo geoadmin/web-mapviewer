@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
+import proj4 from 'proj4'
+
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import proj4 from 'proj4'
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {

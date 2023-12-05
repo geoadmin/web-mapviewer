@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import proj4 from 'proj4'
+
 import { BREAKPOINT_TABLET, DEFAULT_PROJECTION } from '@/config'
 import {
     LV03Format,
@@ -9,7 +11,6 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
 import { LV03, LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import proj4 from 'proj4'
 
 /** @param {CoordinateFormat} format */
 function getMousePositionAndSelect(format) {

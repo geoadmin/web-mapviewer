@@ -1,6 +1,7 @@
+import { reproject } from 'reproject'
+
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reproject } from 'reproject'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection

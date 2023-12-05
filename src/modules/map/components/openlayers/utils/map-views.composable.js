@@ -1,11 +1,12 @@
+import { View } from 'ol'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
+
 import { IS_TESTING_WITH_CYPRESS, VIEW_MIN_RESOLUTION } from '@/config'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { LV95_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.class'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import { View } from 'ol'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
 let animationDuration = 200
 if (IS_TESTING_WITH_CYPRESS) {

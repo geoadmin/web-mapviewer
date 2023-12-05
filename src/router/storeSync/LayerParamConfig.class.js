@@ -1,6 +1,6 @@
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'

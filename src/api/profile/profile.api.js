@@ -1,11 +1,12 @@
+import axios from 'axios'
+import proj4 from 'proj4'
+
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import axios from 'axios'
-import proj4 from 'proj4'
 
 function parseProfileFromBackendResponse(backendResponse, startingDist, outputProjection) {
     const points = []

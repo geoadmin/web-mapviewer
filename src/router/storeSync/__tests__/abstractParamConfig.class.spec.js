@@ -1,6 +1,7 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
+
+import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 
 class DummyUrlParamConfig extends AbstractParamConfig {
     constructor(

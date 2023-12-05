@@ -1,7 +1,8 @@
+import axios from 'axios'
+
 import { API_SERVICES_BASE_URL } from '@/config'
 import { MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 /**
  * Collection of icons belonging to the same "category" (or set).

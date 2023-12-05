@@ -1,10 +1,11 @@
+import proj4 from 'proj4'
+
 import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import StandardCoordinateSystem, {
     PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES,
 } from '@/utils/coordinates/StandardCoordinateSystem.class'
 import { round } from '@/utils/numberUtils'
-import proj4 from 'proj4'
 
 export default class WebMercatorCoordinateSystem extends StandardCoordinateSystem {
     constructor() {

@@ -1,6 +1,7 @@
-import { EditableFeatureTypes } from '@/api/features.api'
-import { LineString, MultiPoint, Polygon, Point } from 'ol/geom'
+import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 
 /* Z-INDICES
 The z indices for the styles are given according to the following table:
