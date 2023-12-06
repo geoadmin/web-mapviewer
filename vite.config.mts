@@ -1,16 +1,17 @@
-import { fileURLToPath, URL } from 'url'
-import { gitDescribeSync } from 'git-describe'
-import { defineConfig, normalizePath } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+import gitDescribe from 'git-describe'
 import { dirname, resolve } from 'path'
+import { fileURLToPath, URL } from 'url'
+import { defineConfig, normalizePath } from 'vite'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+
+import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
 // We take the version from APP_VERSION but if not set, then take
 // it from git describe command
 let appVersion = process.env.APP_VERSION
 if (!appVersion) {
-    appVersion = 'v' + gitDescribeSync().semverString
+    appVersion = 'v' + gitDescribe.gitDescribeSync().semverString
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -18,7 +19,7 @@ const cesiumSource = `${__dirname}/node_modules/cesium/Source`
 const cesiumWorkers = '../Build/Cesium/Workers'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ _, mode }) => {
     return {
         base: './',
         build: {
@@ -74,6 +75,6 @@ export default defineConfig(({ command, mode }) => {
             reporter: ['default', 'junit'],
             outputFile: 'tests/results/unit/unit-test-report.xml',
             silent: true,
-        },
+        }
     }
 })

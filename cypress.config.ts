@@ -1,8 +1,9 @@
-import { defineConfig } from 'cypress'
-import vitePreprocessor from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
+
+import { defineConfig } from 'cypress'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
+import vitePreprocessor from 'cypress-vite'
 
 module.exports = defineConfig({
     video: false,
@@ -25,7 +26,7 @@ module.exports = defineConfig({
     videosFolder: 'tests/e2e-cypress/videos',
     e2e: {
         setupNodeEvents(on, config) {
-            // setup Vite as the preprocessor for Cypress (it will automatically read vite.config.ts from the root of the project)
+            // setup Vite as the preprocessor for Cypress (it will automatically read vite.config.mts from the root of the project)
             // this way we can import helper functions in Cypress tests through @/ notation
             on('file:preprocessor', vitePreprocessor())
 
