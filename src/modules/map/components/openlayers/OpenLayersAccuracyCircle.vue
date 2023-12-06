@@ -24,8 +24,8 @@ const { zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
-const position = computed(() => store.state.layers.previewYear)
-const accuracy = computed(() => store.state.position.projection)
+const position = computed(() => store.state.geolocation.position)
+const accuracy = computed(() => store.state.geolocation.accuracy)
 
 const accuracyCircle = new Circle(position.value, accuracy.value)
 const accuracyCircleFeature = new Feature({

@@ -3,6 +3,8 @@ import proj4 from 'proj4'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
 let geolocationWatcher = null
@@ -26,7 +28,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
 /**
  * Handles Geolocation API errors
  *
- * @param {PositionError} error
+ * @param {GeolocationPositionError} error
  * @param {Vuex.Store} store
  */
 const handlePositionError = (error, store) => {
@@ -74,8 +76,14 @@ const geolocationManagementPlugin = (store) => {
                         handlePositionAndDispatchToStore(position, store)
                         if (firstTimeActivatingGeolocation) {
                             firstTimeActivatingGeolocation = false
-                            // going to zoom level 15.5 corresponding to map 1:25'000 (or zoom level 8 in the old viewer)
-                            store.dispatch('setZoom', 15.5)
+                            let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
+                            if (state.position.projection instanceof CustomCoordinateSystem) {
+                                zoomLevel =
+                                    state.position.projection.transformStandardZoomLevelToCustom(
+                                        zoomLevel
+                                    )
+                            }
+                            store.dispatch('setZoom', zoomLevel)
                         }
                         geolocationWatcher = navigator.geolocation.watchPosition(
                             (position) => handlePositionAndDispatchToStore(position, store),
