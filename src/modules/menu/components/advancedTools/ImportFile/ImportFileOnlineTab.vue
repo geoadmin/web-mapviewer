@@ -103,7 +103,7 @@ async function loadFile() {
             </button>
             <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
         </form>
-        <ImportFileButtons :button-state="buttonState" @load-file="loadFile" />
+        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>
 

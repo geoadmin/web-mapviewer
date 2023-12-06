@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
-import ImportFileOnlineTab from '@/modules/menu/components/advancedTools/ImportFile/ImportFileOnlineTab.vue'
 import ImportFileLocalTab from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocalTab.vue'
+import ImportFileOnlineTab from '@/modules/menu/components/advancedTools/ImportFile/ImportFileOnlineTab.vue'
 
 const selectedTab = ref('online')
 </script>
@@ -16,14 +16,12 @@ const selectedTab = ref('online')
                     :class="{
                         active: selectedTab === 'online',
                     }"
-                    data-bs-toggle="tab"
-                    data-bs-target="#nav-online"
                     type="button"
                     role="tab"
                     aria-controls="nav-online"
                     :aria-selected="selectedTab === 'online'"
                     data-cy="online-import-btn"
-                    @click="() => (selectedTab = 'online')"
+                    @click="selectedTab = 'online'"
                 >
                     Online
                 </button>
@@ -34,14 +32,12 @@ const selectedTab = ref('online')
                     :class="{
                         active: selectedTab === 'local',
                     }"
-                    data-bs-toggle="tab"
-                    data-bs-target="#nav-local"
                     type="button"
                     role="tab"
                     aria-controls="nav-local"
                     :aria-selected="selectedTab === 'local'"
                     data-cy="local-import-btn"
-                    @click="() => (selectedTab = 'local')"
+                    @click="selectedTab = 'local'"
                 >
                     Local
                 </button>

@@ -9,7 +9,7 @@ import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFil
 const BTN_RESET_TIMEOUT = 3000 // milliseconds
 
 const LOCAL_UPLOAD_ACCEPT = '.kml,.KML,.gpx,.GPX'
-const LOCAL_UPLOAD_MAX_SIZE = 250 * 1000 * 1000 // 250mb
+const LOCAL_UPLOAD_MAX_SIZE = 250 * 1024 * 1024 // 250mb
 
 const i18n = useI18n()
 
@@ -94,11 +94,12 @@ async function loadFile() {
                 :value="filePathInfo"
                 readonly
                 required
-                @click="() => $refs.importFileLocalInput.click()"
+                @click="importFileLocalInput.click()"
             />
             <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
         </form>
         <ImportFileButtons
+            class="mt-2"
             :button-state="buttonState"
             :disabled="!!errorMessage"
             @load-file="loadFile"

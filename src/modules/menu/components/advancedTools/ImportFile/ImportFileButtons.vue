@@ -1,7 +1,7 @@
 <script setup>
 import { computed, toRef } from 'vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 const i18n = useI18n()
 const store = useStore()
@@ -41,7 +41,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
 </script>
 
 <template>
-    <div class="mt-2 d-grid gap-2 d-md-flex justify-content-md-center">
+    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
         <button
             type="button"
             class="btn btn-outline-secondary me-md-3 import-file-btn-connect"
