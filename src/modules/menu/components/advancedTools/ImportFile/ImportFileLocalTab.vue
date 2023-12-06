@@ -2,11 +2,10 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import log from '@/utils/logging'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import { useImportButton } from '@/modules/menu/components/advancedTools/importButton'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-
-const BTN_RESET_TIMEOUT = 3000 // milliseconds
+import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import log from '@/utils/logging'
 
 const LOCAL_UPLOAD_ACCEPT = '.kml,.KML,.gpx,.GPX'
 const LOCAL_UPLOAD_MAX_SIZE = 250 * 1024 * 1024 // 250mb
@@ -18,6 +17,8 @@ const buttonState = ref('default')
 const importFileLocalInput = ref(null)
 const selectedFile = ref(null)
 const errorMessage = ref(null)
+
+useImportButton(buttonState)
 
 // Computed properties
 const isValid = computed(() => !errorMessage.value && selectedFile.value)
@@ -61,7 +62,6 @@ async function loadFile() {
 
     if (!errorMessage.value) {
         buttonState.value = 'succeeded'
-        setTimeout(() => (buttonState.value = 'default'), BTN_RESET_TIMEOUT)
     } else {
         buttonState.value = 'default'
     }

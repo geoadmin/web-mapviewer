@@ -1,14 +1,13 @@
 <script setup>
+import axios, { AxiosError } from 'axios'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import axios, { AxiosError } from 'axios'
 
-import { isValidUrl } from '@/utils/utils'
-import log from '@/utils/logging'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
+import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import log from '@/utils/logging'
+import { isValidUrl } from '@/utils/utils'
 
-const BTN_RESET_TIMEOUT = 3000 // milliseconds
 const REQUEST_TIMEOUT = 5 * 60 * 1000 // milliseconds
 
 const i18n = useI18n()
@@ -59,7 +58,6 @@ async function loadFile() {
         handleFileContent(response.data, fileUrl.value)
         buttonState.value = 'succeeded'
         fileLoaded.value = true
-        setTimeout(() => (buttonState.value = 'default'), BTN_RESET_TIMEOUT)
     } catch (error) {
         buttonState.value = 'default'
         if (error instanceof AxiosError || /fetch/.test(error.message)) {
