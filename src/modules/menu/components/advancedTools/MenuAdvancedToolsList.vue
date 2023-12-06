@@ -25,10 +25,11 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapGetters } from 'vuex'
+import { mapActions, mapGetters,mapState } from 'vuex'
+
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 export default {
     components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem },

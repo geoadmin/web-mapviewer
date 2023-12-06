@@ -1,6 +1,6 @@
 <script setup>
-import { toRefs, onMounted, onUnmounted, ref, watch } from 'vue'
 import tippy from 'tippy.js'
+import { onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
 
 const props = defineProps({
     isSelected: {
