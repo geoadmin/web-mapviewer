@@ -1,10 +1,11 @@
 <script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersAccuracyCircle from '@/modules/map/components/openlayers/OpenLayersAccuracyCircle.vue'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 const store = useStore()
 const geolocationActive = computed(() => store.state.geolocation.active)

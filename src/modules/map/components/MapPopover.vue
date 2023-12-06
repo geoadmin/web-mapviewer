@@ -40,8 +40,9 @@
 </template>
 
 <script>
-import promptUserToPrintHtmlContent from '@/utils/print'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+import promptUserToPrintHtmlContent from '@/utils/print'
 
 /** Map popover content and styles. Position handling is done in corresponding library components */
 export default {

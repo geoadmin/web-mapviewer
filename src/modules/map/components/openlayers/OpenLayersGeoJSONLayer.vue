@@ -1,17 +1,18 @@
 <script setup>
 /** Adds a GeoJSON layer to the OpenLayers map */
 
+import GeoJSON from 'ol/format/GeoJSON'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { computed, inject, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
+
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
 import reprojectGeoJsonData from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
-import GeoJSON from 'ol/format/GeoJSON'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { computed, inject, toRefs, watch } from 'vue'
-import { useStore } from 'vuex'
 
 const props = defineProps({
     geoJsonConfig: {

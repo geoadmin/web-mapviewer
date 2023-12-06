@@ -4,8 +4,9 @@
  * of the popover
  */
 
-import MapPopover from '@/modules/map/components/MapPopover.vue'
 import { inject, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+
+import MapPopover from '@/modules/map/components/MapPopover.vue'
 
 const props = defineProps({
     coordinates: {

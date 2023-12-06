@@ -49,9 +49,11 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from 'vuex'
+
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
-import { mapGetters, mapState } from 'vuex'
+
 import SearchResultCategory from './SearchResultCategory.vue'
 
 /**

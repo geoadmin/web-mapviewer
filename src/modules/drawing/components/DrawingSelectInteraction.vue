@@ -3,11 +3,12 @@
 </template>
 
 <script>
-import { DRAWING_HIT_TOLERANCE } from '@/config'
-import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import SelectInteraction from 'ol/interaction/Select'
 import ObjectEventType from 'ol/ObjectEventType'
 import { mapActions, mapState } from 'vuex'
+
+import { DRAWING_HIT_TOLERANCE } from '@/config'
+import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected

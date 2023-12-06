@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from 'vuex'
+
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
 import HeaderSwissConfederationText from '@/modules/menu/components/header/HeaderSwissConfederationText.vue'
@@ -47,7 +49,6 @@ import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToolbar.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import LoadingBar from '@/utils/LoadingBar.vue'
-import { mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

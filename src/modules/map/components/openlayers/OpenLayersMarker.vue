@@ -1,6 +1,12 @@
 <script setup>
 /** Renders a marker on the map (different styling are available) */
 
+import Feature from 'ol/Feature'
+import { Point } from 'ol/geom'
+import { Vector as VectorLayer } from 'ol/layer'
+import { Vector as VectorSource } from 'ol/source'
+import { computed, inject, toRefs, watch } from 'vue'
+
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import {
     geoJsonStyleFunction,
@@ -8,11 +14,6 @@ import {
     OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import { randomIntBetween } from '@/utils/numberUtils'
-import Feature from 'ol/Feature'
-import { Point } from 'ol/geom'
-import { Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
-import { computed, inject, toRefs, watch } from 'vue'
 
 const props = defineProps({
     position: {

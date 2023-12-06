@@ -16,9 +16,10 @@
 </template>
 
 <script>
-import { EditableFeatureTypes } from '@/api/features.api'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapGetters } from 'vuex'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 
 export default {
     components: { FontAwesomeIcon },

@@ -5,14 +5,15 @@
 </template>
 
 <script>
+import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
+import { mapState } from 'vuex'
+
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { DEFAULT_PROJECTION } from '@/config'
 import addImageryLayerMixins from '@/modules/map/components/cesium/utils/addImageryLayer-mixins'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
-import { ImageryLayer, Rectangle, WebMapServiceImageryProvider } from 'cesium'
-import { mapState } from 'vuex'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 

@@ -30,11 +30,12 @@
 </template>
 
 <script setup>
-import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
-import ToggleProjectionButton from '@/modules/menu/components/debug/ToggleProjectionButton.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+
+import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
+import ToggleProjectionButton from '@/modules/menu/components/debug/ToggleProjectionButton.vue'
 
 const store = useStore()
 

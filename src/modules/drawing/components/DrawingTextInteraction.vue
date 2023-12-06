@@ -3,9 +3,10 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import drawingInteractionMixin from '@/modules/drawing/components/drawingInteraction.mixin'
-import { useI18n } from 'vue-i18n'
 
 export default {
     mixins: [drawingInteractionMixin],

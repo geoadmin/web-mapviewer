@@ -1,10 +1,11 @@
 <script setup>
-import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
-import log from '@/utils/logging'
 import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+
+import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import log from '@/utils/logging'
 
 const mousePosition = ref(null)
 const displayedFormatId = ref(LV95Format.id)

@@ -19,6 +19,7 @@
 <script>
 import { Tooltip } from 'bootstrap'
 import { mapGetters } from 'vuex'
+
 import log from '@/utils/logging'
 
 export default {

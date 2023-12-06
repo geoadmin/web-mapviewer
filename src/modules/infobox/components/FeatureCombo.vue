@@ -18,8 +18,10 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
 import { mapState } from 'vuex'
+
+import { EditableFeature } from '@/api/features.api'
+
 import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 

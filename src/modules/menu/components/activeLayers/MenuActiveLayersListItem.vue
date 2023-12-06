@@ -120,12 +120,13 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
+import { mapGetters, mapState } from 'vuex'
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapGetters, mapState } from 'vuex'
-import tippy from 'tippy.js'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like

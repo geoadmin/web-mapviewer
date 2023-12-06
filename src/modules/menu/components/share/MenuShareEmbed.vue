@@ -127,11 +127,12 @@
 </template>
 
 <script>
-import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 /**
  * Different pre-defined sizes that an iFrame can take

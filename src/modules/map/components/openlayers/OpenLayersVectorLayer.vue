@@ -9,13 +9,14 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
+import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
+import axios from 'axios'
+import { computed, inject, toRefs, watch } from 'vue'
+
 import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import log from '@/utils/logging'
-import MapLibreLayer from '@geoblocks/ol-maplibre-layer'
-import axios from 'axios'
-import { computed, inject, toRefs, watch } from 'vue'
 
 const props = defineProps({
     vectorLayerConfig: {

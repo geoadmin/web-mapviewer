@@ -24,12 +24,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
+import { mapState } from 'vuex'
+
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import { UIModes } from '@/store/modules/ui.store'
-import { defineAsyncComponent } from 'vue'
-import { mapState } from 'vuex'
+
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
 

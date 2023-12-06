@@ -17,9 +17,10 @@
 </template>
 
 <script>
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import tippy from 'tippy.js'
 import { mapState } from 'vuex'
+
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 export default {
     components: { ModalWithBackdrop },

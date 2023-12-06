@@ -1,14 +1,15 @@
 <script setup>
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import log from '@/utils/logging'
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import log from '@/utils/logging'
 
 const props = defineProps({
     externalWmtsLayerConfig: {

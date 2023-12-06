@@ -44,8 +44,9 @@
 </template>
 
 <script>
-import { randomIntBetween } from '@/utils/numberUtils'
 import { Dropdown } from 'bootstrap'
+
+import { randomIntBetween } from '@/utils/numberUtils'
 
 /**
  * Represents an option in the select made for a dropdown. If no value is given, the title of the

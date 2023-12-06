@@ -2,8 +2,9 @@
     <slot />
 </template>
 <script>
-import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 import Overlay from 'ol/Overlay'
+
+import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 
 export default {
     inject: ['getMap'],

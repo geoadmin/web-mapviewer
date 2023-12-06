@@ -71,9 +71,10 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the

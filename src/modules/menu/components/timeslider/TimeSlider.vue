@@ -73,10 +73,11 @@
     </div>
 </template>
 <script>
-import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
-import { round } from '@/utils/numberUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
+
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
+import { round } from '@/utils/numberUtils'
 
 /**
  * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)

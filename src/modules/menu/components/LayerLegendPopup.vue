@@ -12,9 +12,10 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import { getLayerLegend } from '@/api/layers/layers.api'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import { mapState } from 'vuex'
 
 export default {
     components: { ModalWithBackdrop },

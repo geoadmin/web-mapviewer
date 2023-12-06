@@ -24,11 +24,12 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
+
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import { mapActions, mapState } from 'vuex'
 
 /** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 export default {

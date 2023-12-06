@@ -33,8 +33,10 @@
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import { mapActions, mapState } from 'vuex'
+
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+
 import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
 
 /**

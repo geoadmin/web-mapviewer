@@ -62,14 +62,15 @@
 </template>
 
 <script>
+import { resetZoom } from 'chartjs-plugin-zoom'
+import { Line as LineChart } from 'vue-chartjs'
+import { mapState } from 'vuex'
+
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import FeatureElevationProfilePlotCesiumBridge from '@/modules/infobox/FeatureElevationProfilePlotCesiumBridge.vue'
 import FeatureElevationProfilePlotOpenLayersBridge from '@/modules/infobox/FeatureElevationProfilePlotOpenLayersBridge.vue'
 import { FeatureStyleColor } from '@/utils/featureStyleUtils'
 import { round } from '@/utils/numberUtils'
-import { resetZoom } from 'chartjs-plugin-zoom'
-import { Line as LineChart } from 'vue-chartjs'
-import { mapState } from 'vuex'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 //px
 

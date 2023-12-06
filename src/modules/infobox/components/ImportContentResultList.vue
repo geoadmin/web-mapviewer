@@ -61,9 +61,10 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import ImportContentResultItem from './ImportContentResultItem.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { mapActions } from 'vuex'
+
+import ImportContentResultItem from './ImportContentResultItem.vue'
 
 export default {
     components: { ImportContentResultItem, FontAwesomeIcon },
