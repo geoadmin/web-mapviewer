@@ -13,7 +13,7 @@
         "test:e2e:tablet": "start-server-and-test preview 8080 'cypress open --config viewportWidth=768,viewportHeight=1024'",
         "test:e2e:desktop": "start-server-and-test preview 8080 'cypress open --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:ci": "npm run delete:reports:e2e && start-server-and-test preview 8080 'cypress run'",
-        "lint": "eslint . --fix --ignore-path .gitignore",
+        "lint": "eslint . --fix --ignore-path .gitignore --ext .js,.vue",
         "format": "prettier --write src --list-different && prettier --write tests --list-different",
         "ci-format-check": "prettier --check --log-level warn src && prettier --check --log-level warn tests",
         "format-lint": "npm run format && npm run lint",

@@ -7,8 +7,9 @@
     </div>
 </template>
 <script>
-import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 import { useI18n } from 'vue-i18n'
+
+import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
 
 export default {
     components: { SwissFlag },

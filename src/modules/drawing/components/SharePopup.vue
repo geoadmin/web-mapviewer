@@ -47,8 +47,8 @@
 
 <script>
 import { createShortLink } from '@/api/shortlink.api'
-import { stringifyQuery } from '@/utils/url-router'
 import log from '@/utils/logging'
+import { stringifyQuery } from '@/utils/url-router'
 
 export default {
     props: {

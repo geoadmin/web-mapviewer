@@ -4,7 +4,6 @@
  * the geolocation
  */
 
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
@@ -12,6 +11,8 @@ import { Vector as VectorSource } from 'ol/source'
 import { Fill, Stroke, Style } from 'ol/style'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 
 const props = defineProps({
     zIndex: {

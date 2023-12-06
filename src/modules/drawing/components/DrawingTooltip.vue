@@ -5,11 +5,12 @@
 </template>
 
 <script>
+import Overlay from 'ol/Overlay'
+import { useI18n } from 'vue-i18n'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
-import Overlay from 'ol/Overlay'
-import { useI18n } from 'vue-i18n'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'

@@ -101,12 +101,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 import sendFeedback from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import FeedbackRating from '@/modules/menu/components/menu/feedback/FeedbackRating.vue'
 import log from '@/utils/logging'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import { mapGetters } from 'vuex'
 
 // comes from https://v2.vuejs.org/v2/cookbook/form-validation.html#Using-Custom-Validation
 const EMAIL_REGEX =

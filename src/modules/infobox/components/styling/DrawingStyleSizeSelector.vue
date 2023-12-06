@@ -15,9 +15,10 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
-import { useI18n } from 'vue-i18n'
 
 export default {
     components: { DropdownButton },

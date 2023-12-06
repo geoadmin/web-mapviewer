@@ -13,8 +13,9 @@
 </template>
 
 <script>
-import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import { mapGetters } from 'vuex'
+
+import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
 export default {
     components: { HeaderLink },

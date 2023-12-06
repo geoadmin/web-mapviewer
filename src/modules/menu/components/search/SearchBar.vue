@@ -37,8 +37,9 @@
 </template>
 
 <script>
-import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
 import { mapActions, mapState } from 'vuex'
+
+import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
 
 export default {
     components: {

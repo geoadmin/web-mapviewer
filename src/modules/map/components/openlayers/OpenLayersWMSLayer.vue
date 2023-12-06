@@ -1,17 +1,18 @@
 <script setup>
 /** Renders a WMS layer on the map */
 
+import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
+import { ImageWMS, TileWMS } from 'ol/source'
+import TileGrid from 'ol/tilegrid/TileGrid'
+import { computed, inject, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
+
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import { WMS_TILE_SIZE } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
-import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
-import { ImageWMS, TileWMS } from 'ol/source'
-import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, toRefs, watch } from 'vue'
-import { useStore } from 'vuex'
 
 const props = defineProps({
     wmsLayerConfig: {

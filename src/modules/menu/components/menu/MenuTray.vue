@@ -57,6 +57,10 @@
 </template>
 
 <script>
+import tippy, { followCursor } from 'tippy.js'
+import { useI18n } from 'vue-i18n'
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
@@ -64,9 +68,6 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import tippy, { followCursor } from 'tippy.js'
-import { useI18n } from 'vue-i18n'
-import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

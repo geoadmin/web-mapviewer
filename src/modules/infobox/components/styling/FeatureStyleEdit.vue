@@ -98,6 +98,11 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { Polygon } from 'ol/geom'
+import { getArea, getLength } from 'ol/sphere.js'
+import { mapActions } from 'vuex'
+
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
@@ -106,10 +111,6 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions } from 'vuex'
-import { getArea, getLength } from 'ol/sphere.js'
-import { Polygon } from 'ol/geom'
 import { round } from '@/utils/numberUtils'
 
 /**
@@ -211,7 +212,7 @@ export default {
             if (this.area > 10000) {
                 return `${round(this.area / 1000000, 2)}`
             }
-            return `${round(area, 2)}`
+            return `${round(this.area, 2)}`
         },
         isFeatureMarker() {
             return this.feature.featureType === EditableFeatureTypes.MARKER

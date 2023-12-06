@@ -5,10 +5,11 @@
  * Will listen for screen size changes and commit this changes to the store
  */
 
-import debounce from '@/utils/debounce'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+
+import debounce from '@/utils/debounce'
 
 const withOutline = ref(false)
 

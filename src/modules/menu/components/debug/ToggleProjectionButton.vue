@@ -9,9 +9,10 @@
     </button>
 </template>
 <script>
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
+
+import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 export default {
     components: { FontAwesomeIcon },

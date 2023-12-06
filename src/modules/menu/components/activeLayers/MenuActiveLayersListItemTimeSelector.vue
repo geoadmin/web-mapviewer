@@ -41,13 +41,14 @@
 </template>
 
 <script>
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import {
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
-    CURRENT_YEAR_WMTS_TIMESTAMP,
-} from '@/api/layers/LayerTimeConfigEntry.class'
 import tippy from 'tippy.js'
 import { mapActions, mapState } from 'vuex'
+
+import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
+import {
+    CURRENT_YEAR_WMTS_TIMESTAMP,
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+} from '@/api/layers/LayerTimeConfigEntry.class'
 
 export default {
     props: {

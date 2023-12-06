@@ -11,10 +11,11 @@
 </template>
 
 <script>
-import log from '@/utils/logging'
 import tippy from 'tippy.js'
 import { useI18n } from 'vue-i18n'
 import { mapState } from 'vuex'
+
+import log from '@/utils/logging'
 
 export default {
     props: {

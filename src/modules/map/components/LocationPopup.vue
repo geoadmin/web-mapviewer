@@ -102,6 +102,9 @@
 </template>
 
 <script>
+import proj4 from 'proj4'
+import { mapActions, mapState } from 'vuex'
+
 import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
@@ -121,8 +124,6 @@ import {
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
-import proj4 from 'proj4'
-import { mapActions, mapState } from 'vuex'
 
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 export default {

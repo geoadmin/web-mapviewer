@@ -1,8 +1,9 @@
 <script setup>
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
+
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 const scaleLineElement = ref(null)
 

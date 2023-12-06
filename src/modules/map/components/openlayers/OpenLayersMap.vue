@@ -1,4 +1,10 @@
 <script setup>
+import Map from 'ol/Map'
+import { get as getProjection } from 'ol/proj'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+import { onMounted, provide, ref } from 'vue'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import OpenLayersBackgroundLayer from '@/modules/map/components/openlayers/OpenLayersBackgroundLayer.vue'
 import OpenLayersCrossHair from '@/modules/map/components/openlayers/OpenLayersCrossHair.vue'
@@ -9,11 +15,6 @@ import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLay
 import useMapInteractions from '@/modules/map/components/openlayers/utils/map-interactions.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import Map from 'ol/Map'
-import { get as getProjection } from 'ol/proj'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
-import { onMounted, provide, ref } from 'vue'
 
 // register any custom projection in OpenLayers
 register(proj4)

@@ -1,13 +1,14 @@
 <script setup>
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
 import { Tile as TileLayer } from 'ol/layer'
 import { XYZ as XYZSource } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const props = defineProps({
     wmtsLayerConfig: {

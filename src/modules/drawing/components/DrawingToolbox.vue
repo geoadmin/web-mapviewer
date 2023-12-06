@@ -116,14 +116,16 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useI18n } from 'vue-i18n'
+import { mapGetters } from 'vuex'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useI18n } from 'vue-i18n'
-import { mapGetters } from 'vuex'
+
 import { DrawingState } from '../lib/export-utils'
 import DrawingHeader from './DrawingHeader.vue'
 

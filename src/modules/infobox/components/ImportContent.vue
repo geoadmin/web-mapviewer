@@ -182,6 +182,10 @@
     </div>
 </template>
 <script>
+import axios from 'axios'
+import { useI18n } from 'vue-i18n'
+import { mapState } from 'vuex'
+
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { parseWmsCapabilities, parseWmtsCapabilities } from '@/api/layers/layers-external.api'
 import externalLayerProviders from '@/modules/infobox/utils/external-layer-providers.json'
@@ -194,9 +198,7 @@ import {
     isWmtsGetCap,
 } from '@/modules/infobox/utils/external-provider'
 import log from '@/utils/logging'
-import axios from 'axios'
-import { useI18n } from 'vue-i18n'
-import { mapState } from 'vuex'
+
 import ImportContentResultList from './ImportContentResultList.vue'
 
 const BTN_RESET_TIMEOUT = 3000

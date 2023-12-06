@@ -29,10 +29,11 @@
 </template>
 
 <script>
-import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
-import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
+
+import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
+import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {

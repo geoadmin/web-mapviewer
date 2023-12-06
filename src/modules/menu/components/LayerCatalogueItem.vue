@@ -4,15 +4,16 @@
  * layers or a single layer.
  */
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 
 const { item, compact, depth } = defineProps({
     item: {

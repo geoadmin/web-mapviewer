@@ -80,6 +80,9 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
@@ -89,8 +92,6 @@ import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vu
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: {

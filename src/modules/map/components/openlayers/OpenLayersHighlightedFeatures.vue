@@ -4,13 +4,14 @@
  * popup with the features' information
  */
 
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 // mapping relevant store values
 const store = useStore()
