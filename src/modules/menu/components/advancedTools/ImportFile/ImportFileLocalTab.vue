@@ -74,7 +74,7 @@ async function loadFile() {
             <button
                 class="btn btn-outline-secondary"
                 type="button"
-                @click="() => $refs.importFileLocalInput.click()"
+                @click="importFileLocalInput.click()"
             >
                 {{ i18n.t('browse') }}
             </button>

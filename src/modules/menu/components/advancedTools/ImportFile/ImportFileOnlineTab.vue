@@ -83,7 +83,7 @@ async function loadFile() {
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
                 }"
-                :placeholder="$t('import_online_placeholder')"
+                :placeholder="i18n.t('import_online_placeholder')"
                 :value="fileUrl"
                 data-cy="import"
                 @input="onFileUrlChange"
