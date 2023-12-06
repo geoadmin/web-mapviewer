@@ -58,10 +58,4 @@ const selectedTab = ref('online')
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.nav-tabs {
-    .nav-link.active {
-        background-color: $primary;
-        color: white;
-    }
-}
 </style>
