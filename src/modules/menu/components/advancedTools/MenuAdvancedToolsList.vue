@@ -2,8 +2,8 @@
     <ul class="advanced-tools-list px-2 py-1">
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
-            :title="$t('import_file')"
-            :tooltip="$t('import_file_tooltip')"
+            title="import_file"
+            tooltip="import_file_tooltip"
             @click.stop="onToggleImportFile"
         >
             <ModalWithBackdrop
@@ -17,15 +17,15 @@
         <!-- TODO replace this one by Import Catalog -->
         <MenuAdvancedToolsListItem
             :is-selected="importOverlay"
-            :title="$t('import')"
-            :tooltip="$t('import_tooltip')"
+            title="import"
+            tooltip="import_tooltip"
             @click.stop="onToggleImportOverlay"
         />
     </ul>
 </template>
 
 <script>
-import { mapActions, mapGetters,mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'

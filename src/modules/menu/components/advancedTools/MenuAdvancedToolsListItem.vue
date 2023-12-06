@@ -1,6 +1,8 @@
 <script setup>
 import tippy from 'tippy.js'
-import { onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 const props = defineProps({
     isSelected: {
@@ -20,13 +22,18 @@ const { isSelected, title, tooltip } = toRefs(props)
 const tippyTooltip = ref(null)
 let tippyInstance = null
 
-watch(tooltip, () => {
-    tippyInstance.setContent(tooltip.value)
+const i18n = useI18n()
+const store = useStore()
+
+const currentLocal = computed(() => store.state.i18n.lang)
+
+watch(currentLocal, () => {
+    tippyInstance.setContent(i18n.t(tooltip.value))
 })
 
 onMounted(() => {
     tippyInstance = tippy(tippyTooltip.value, {
-        content: tooltip.value,
+        content: i18n.t(tooltip.value),
         arrow: true,
         placement: 'auto',
         touch: false,
@@ -46,7 +53,7 @@ onUnmounted(() => {
             :class="{ 'text-primary': isSelected }"
             :data-cy="`menu-advanced-tools-${title}`"
         >
-            <span ref="tippyTooltip" class="pe-1">{{ title }} </span>
+            <span ref="tippyTooltip" class="pe-1">{{ i18n.t(title) }} </span>
         </a>
         <slot />
     </li>

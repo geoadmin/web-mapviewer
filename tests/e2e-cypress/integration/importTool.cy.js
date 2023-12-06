@@ -9,7 +9,7 @@ describe('The Import Tool', () => {
     })
     it('Open and close the infobox import tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]').click()
-        cy.get('[data-cy="menu-import-tool"]').click()
+        cy.get('[data-cy="menu-advanced-tools-import"]').click()
         // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-tool-content"]').should('be.visible')
@@ -34,7 +34,7 @@ describe('The Import Tool', () => {
             { statusCode: 200 }
         ).as('wms-get-map')
         cy.get('[data-cy="menu-tray-tool-section"]').click()
-        cy.get('[data-cy="menu-import-tool"]').click()
+        cy.get('[data-cy="menu-advanced-tools-import"]').click()
         cy.get('[data-cy="import"]').type('wms.geo.admin')
         cy.get('[data-cy="import-provider-list"]')
             .children()
@@ -74,7 +74,7 @@ describe('The Import Tool', () => {
     })
     it('Import type switch', () => {
         cy.get('[data-cy="menu-tray-tool-section"]').click()
-        cy.get('[data-cy="menu-import-tool"]').click()
+        cy.get('[data-cy="menu-advanced-tools-import"]').click()
         cy.get('[data-cy="online-import-btn"]').should('have.class', 'active')
         cy.get('[data-cy="local-import-btn"]').click()
         cy.get('[data-cy="local-import-btn"]').should('have.class', 'active')
