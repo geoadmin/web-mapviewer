@@ -23,6 +23,23 @@ export function round(value, decimals = 0, enforcedigit = false) {
 }
 
 /**
+ * @param {Number} value A floating number
+ * @param {Number[]} fromList A list of integer
+ * @returns {Number} The closest value, from the list of integer, matching the floating number (will
+ *   floor or ceil accordingly)
+ */
+export function closest(value, fromList) {
+    if (Array.isArray(fromList) && fromList.length > 2) {
+        const difference = fromList.map((listValue) => Math.abs(value - listValue))
+        const smallestDifference = difference.reduce((diff1, diff2) =>
+            diff1 > diff2 ? diff2 : diff1
+        )
+        return fromList[difference.indexOf(smallestDifference)]
+    }
+    return value
+}
+
+/**
  * Returns true if value represents or is a number (a string containing a valid number will return
  * true)
  *

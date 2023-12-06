@@ -6,7 +6,6 @@ import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinat
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
-import { round } from '@/utils/numberUtils'
 
 /** @enum */
 export const CrossHairs = {
@@ -169,11 +168,11 @@ const getters = {
 }
 
 const actions = {
-    setZoom({ commit }, zoom) {
+    setZoom({ commit, state }, zoom) {
         if (typeof zoom !== 'number' || zoom < 0) {
             return
         }
-        commit('setZoom', round(zoom, 3))
+        commit('setZoom', state.projection.roundZoomLevel(zoom))
     },
     setRotation({ commit }, rotation) {
         if (typeof rotation !== 'number') {

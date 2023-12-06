@@ -18,7 +18,7 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the position has not changed from what was in the URL
-            cy.readStoreValue('state.position.zoom').should('eq', zoom)
+            cy.readStoreValue('state.position.zoom').should('eq', 10) // zoom should be rounded to the closest Swisstopo zoom level
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                 expect(center[0]).to.eq(lon)
                 expect(center[1]).to.eq(lat)

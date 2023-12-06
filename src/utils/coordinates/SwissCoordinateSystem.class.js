@@ -1,5 +1,5 @@
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { round } from '@/utils/numberUtils'
+import { closest, round } from '@/utils/numberUtils'
 
 /**
  * WebMercator zoom level corresponding to the resolution of the 1:25'000 map we provide
@@ -73,6 +73,8 @@ export const swissPyramidZoomToStandardZoomMatrix = [
     20, // 13
     21, // max: 14
 ]
+
+const swisstopoZoomLevels = swissPyramidZoomToStandardZoomMatrix.map((_, index) => index)
 
 /**
  * This specialization will be used to represent LV95 and LV03, that use a custom zoom/resolution
@@ -156,5 +158,15 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
 
     roundCoordinateValue(value) {
         return round(value, 2)
+    }
+
+    /**
+     * Rounding to the closest Swisstopo zoom level
+     *
+     * @param {Number} customZoomLevel A zoom level, that could be a floating number
+     * @returns {Number} A zoom level matching one of our national maps
+     */
+    roundZoomLevel(customZoomLevel) {
+        return closest(customZoomLevel, swisstopoZoomLevels)
     }
 }

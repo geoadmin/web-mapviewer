@@ -1,7 +1,14 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { format, formatThousand, isNumber, randomIntBetween, round } from '@/utils/numberUtils'
+import {
+    closest,
+    format,
+    formatThousand,
+    isNumber,
+    randomIntBetween,
+    round,
+} from '@/utils/numberUtils'
 
 describe('Unit test functions from numberUtils.js', () => {
     describe('round(value, decimals)', () => {
@@ -37,6 +44,25 @@ describe('Unit test functions from numberUtils.js', () => {
 
         it('rounds a stringified number correctly', () => {
             expect(round('' + numberToRound)).to.eq(123)
+        })
+    })
+
+    describe('closest(value, fromList)', () => {
+        it('returns the given value if the list of value is invalid or empty', () => {
+            const value = 1234.56
+            expect(closest(value)).to.eq(value)
+            expect(closest(value, null)).to.eq(value)
+            expect(closest(value, undefined)).to.eq(value)
+            expect(closest(value, [])).to.eq(value)
+        })
+        it('returns a match', () => {
+            const list = [0, 1, 2]
+            expect(closest(0.5, list)).to.eq(0)
+            // testing numbers between 0.51 and 1.50
+            for (let value = 0.51; value <= 1.5; value += 0.01) {
+                expect(closest(value, list)).to.eq(1)
+            }
+            expect(closest(1.51, list)).to.eq(2)
         })
     })
 
@@ -103,6 +129,7 @@ describe('Unit test functions from numberUtils.js', () => {
             expect(format(123456789.12)).to.eq("123'456'789.12")
         })
     })
+
     describe('formatThousand(num, separator)', () => {
         it('returns a string with the thousands separator', () => {
             expect(formatThousand(1000, "'")).to.eq("1'000")
