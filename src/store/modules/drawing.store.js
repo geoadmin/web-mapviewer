@@ -35,6 +35,9 @@ export default {
         isCurrentlyDrawing(state) {
             return state.mode !== null
         },
+        isDrawingEmpty(state) {
+            return state.featureIds.length === 0
+        },
     },
     actions: {
         setDrawingMode({ commit }, mode) {

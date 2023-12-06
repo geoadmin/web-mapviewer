@@ -55,7 +55,7 @@ const addPrimitiveFromOLLayerMixins = {
                 this.addPrimitive()
             })
             .catch((error) => {
-                log.error('Error while loading primivites for layer', this.layerId, error)
+                log.error('Error while loading primitives for layer', this.layerId, error)
             })
     },
     methods: {

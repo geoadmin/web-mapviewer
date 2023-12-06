@@ -1,6 +1,86 @@
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, inject, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import { EditableFeatureTypes } from '@/api/features.api'
+import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
+import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
+import SharePopup from '@/modules/drawing/components/SharePopup.vue'
+import { DrawingState } from '@/modules/drawing/lib/export-utils'
+import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
+import DrawingHeader from './DrawingHeader.vue'
+
+const drawingLayer = inject('drawingLayer')
+
+const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
+const i18n = useI18n()
+const store = useStore()
+
+const emits = defineEmits(['removeLastPoint'])
+
+const drawMenuOpen = ref(true)
+const showClearConfirmationModal = ref(false)
+const showShareModal = ref(false)
+
+const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
+const currentDrawingMode = computed(() => store.state.drawing.mode)
+const isDrawingLineOrMeasure = computed(() =>
+    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+        currentDrawingMode.value
+    )
+)
+const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const kmlLayerId = computed(() => activeKmlLayer.value?.getID())
+const kmlLayerAdminId = computed(() => activeKmlLayer.value?.adminId)
+
+const isDrawingStateError = computed(() => saveState.value < 0)
+/** Return a different translation key depending on the saving status */
+const drawingStateMessage = computed(() => {
+    switch (saveState.value) {
+        case DrawingState.SAVING:
+            return i18n.t('draw_file_saving')
+        case DrawingState.SAVED:
+            return i18n.t('draw_file_saved')
+        case DrawingState.SAVE_ERROR:
+            return i18n.t('draw_file_load_error')
+        case DrawingState.LOAD_ERROR:
+            return i18n.t('draw_file_save_error')
+        default:
+            return null
+    }
+})
+
+function onCloseClearConfirmation(confirmed) {
+    showClearConfirmationModal.value = false
+    if (confirmed) {
+        store.dispatch('clearDrawingFeatures')
+        store.dispatch('clearAllSelectedFeatures')
+        drawingLayer.getSource().clear()
+        debounceSaveDrawing()
+        store.dispatch('setDrawingMode', null)
+    }
+}
+function closeDrawing() {
+    store.dispatch('toggleDrawingOverlay')
+}
+function selectDrawingMode(drawingMode) {
+    store.dispatch('setDrawingMode', drawingMode)
+}
+
+function onDeleteLastPoint() {
+    emits('removeLastPoint')
+}
+</script>
+
 <template>
-    <teleport v-if="readyForTeleport" to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="isDesktopMode" @close="emitCloseEvent" />
+    <teleport to=".drawing-toolbox-in-menu">
+        <DrawingHeader v-if="isDesktopMode" @close="closeDrawing" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div class="card text-center drawing-toolbox-content rounded-0">
                 <div class="card-body position-relative container">
@@ -9,7 +89,7 @@
                         :class="{ 'row-cols-2': isDesktopMode }"
                     >
                         <div
-                            v-for="drawingMode in drawingModes"
+                            v-for="drawingMode in Object.values(EditableFeatureTypes)"
                             :key="drawingMode"
                             class="col"
                             :class="{
@@ -21,14 +101,14 @@
                                 :drawing-mode="drawingMode"
                                 :is-active="currentDrawingMode === drawingMode"
                                 :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
-                                @set-drawing-mode="bubbleSetDrawingEventToParent"
+                                @set-drawing-mode="selectDrawingMode"
                             />
                         </div>
                         <button
                             v-if="isPhoneMode"
                             class="btn col-2 d-flex align-items-center justify-content-center"
                             data-cy="drawing-toolbox-close-button"
-                            @click="emitCloseEvent"
+                            @click="closeDrawing"
                         >
                             <FontAwesomeIcon icon="times" />
                         </button>
@@ -50,7 +130,7 @@
                                 :disabled="isDrawingEmpty"
                                 class="btn-light btn"
                                 data-cy="drawing-toolbox-delete-button"
-                                @click="showClearConfirmation"
+                                @click="showClearConfirmationModal = true"
                             >
                                 {{ $t('delete') }}
                             </button>
@@ -64,7 +144,7 @@
                                 class="btn btn-light"
                                 :disabled="isDrawingEmpty || !kmlLayerId"
                                 data-cy="drawing-toolbox-share-button"
-                                @click="openShare"
+                                @click="showShareModal = true"
                             >
                                 {{ $t('share') }}
                             </button>
@@ -75,16 +155,16 @@
                             <button
                                 data-cy="drawing-delete-last-point-button"
                                 class="btn btn-outline-danger"
-                                @click="$emit('deleteLastPoint')"
+                                @click="onDeleteLastPoint"
                             >
-                                {{ $t('draw_button_delete_last_point') }}
+                                {{ i18n.t('draw_button_delete_last_point') }}
                             </button>
                         </div>
                     </div>
                     <div v-if="isDesktopMode" class="row mt-2">
                         <div class="col text-center text-muted">
                             <!-- eslint-disable vue/no-v-html-->
-                            <small v-html="$t('share_file_disclaimer')" />
+                            <small v-html="i18n.t('share_file_disclaimer')" />
                             <!-- eslint-enable vue/no-v-html-->
                         </div>
                     </div>
@@ -109,132 +189,16 @@
         >
             {{ $t('confirm_remove_all_features') }}
         </ModalWithBackdrop>
-        <ModalWithBackdrop v-if="showShareModal" fluid :title="$t('share')" @close="onCloseShare">
-            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlAdminId" />
+        <ModalWithBackdrop
+            v-if="showShareModal"
+            fluid
+            :title="$t('share')"
+            @close="showShareModal = false"
+        >
+            <SharePopup :kml-layer-id="kmlLayerId" :kml-admin-id="kmlLayerAdminId" />
         </ModalWithBackdrop>
     </teleport>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useI18n } from 'vue-i18n'
-import { mapGetters } from 'vuex'
-
-import { EditableFeatureTypes } from '@/api/features.api'
-import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
-import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
-import SharePopup from '@/modules/drawing/components/SharePopup.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-
-import { DrawingState } from '../lib/export-utils'
-import DrawingHeader from './DrawingHeader.vue'
-
-export default {
-    components: {
-        FontAwesomeIcon,
-        DrawingExporter,
-        ModalWithBackdrop,
-        DrawingToolboxButton,
-        SharePopup,
-        DrawingHeader,
-    },
-    props: {
-        kmlLayerId: {
-            type: String,
-            default: null,
-        },
-        kmlAdminId: {
-            type: String,
-            default: null,
-        },
-        currentDrawingMode: {
-            type: String,
-            default: null,
-        },
-        isDrawingEmpty: {
-            type: Boolean,
-            default: false,
-        },
-        drawingState: {
-            type: Number,
-            default: DrawingState.INITIAL,
-        },
-    },
-    emits: ['close', 'setDrawingMode', 'export', 'clearDrawing', 'deleteLastPoint'],
-    setup() {
-        const i18n = useI18n()
-        return {
-            i18n,
-        }
-    },
-    data() {
-        return {
-            drawingModes: Object.values(EditableFeatureTypes),
-            showShareModal: false,
-            showClearConfirmationModal: false,
-            readyForTeleport: false,
-            drawMenuOpen: true,
-        }
-    },
-    computed: {
-        ...mapGetters(['isDesktopMode', 'isPhoneMode']),
-        isDrawingLineOrMeasure() {
-            return (
-                this.currentDrawingMode === EditableFeatureTypes.LINEPOLYGON ||
-                this.currentDrawingMode === EditableFeatureTypes.MEASURE
-            )
-        },
-
-        /** Return a different translation key depending on the saving status */
-        drawingStateMessage() {
-            switch (this.drawingState) {
-                case DrawingState.SAVING:
-                    return this.i18n.t('draw_file_saving')
-                case DrawingState.SAVED:
-                    return this.i18n.t('draw_file_saved')
-                case DrawingState.SAVE_ERROR:
-                    return this.i18n.t('draw_file_load_error')
-                case DrawingState.LOAD_ERROR:
-                    return this.i18n.t('draw_file_save_error')
-                default:
-                    return null
-            }
-        },
-        isDrawingStateError() {
-            return this.drawingState < 0
-        },
-    },
-    mounted() {
-        this.$nextTick(() => {
-            this.readyForTeleport = true
-        })
-    },
-    methods: {
-        emitCloseEvent() {
-            this.$emit('close')
-        },
-        bubbleSetDrawingEventToParent(drawingMode) {
-            this.$emit('setDrawingMode', drawingMode)
-        },
-        onCloseClearConfirmation(confirmed) {
-            this.showClearConfirmationModal = false
-            if (confirmed) {
-                this.$emit('clearDrawing')
-                this.$emit('setDrawingMode', null)
-            }
-        },
-        onCloseShare() {
-            this.showShareModal = false
-        },
-        openShare() {
-            this.showShareModal = true
-        },
-        showClearConfirmation() {
-            this.showClearConfirmationModal = true
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';

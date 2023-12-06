@@ -58,7 +58,6 @@ export default {
                 if (!this.iconsArePresent) {
                     reject(new Error('no icons loaded yet, could not create source'))
                 }
-                console.log('woot')
                 this.olLayer.setSource(
                     new VectorSource({
                         wrapX: true,

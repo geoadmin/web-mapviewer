@@ -22,9 +22,7 @@ describe('Drawing layer management', () => {
         cy.readStoreValue('state.layers.activeLayers').then((layers) => {
             expect(layers).to.be.an('Array').lengthOf(0)
         })
-        cy.readWindowValue('drawingLayer')
-            .then((layer) => layer.getSource().getFeatures())
-            .then((features) => expect(features).to.have.length(0))
+        cy.readWindowValue('drawingLayer').should('not.exist')
     })
     it("don't add layer adminId to the url", () => {
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
