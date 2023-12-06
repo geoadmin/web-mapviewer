@@ -1,28 +1,47 @@
 <template>
     <ul class="advanced-tools-list px-2 py-1">
-        <li class="advanced-tools-item">
-            <a
-                class="advanced-tools-title"
-                :class="{ 'text-primary': importOverlay }"
-                :title="$t('import_tooltip')"
-                data-cy="menu-import-tool"
-                @click.stop="onToggleImportOverlay"
-                >{{ $t('import') }}</a
+        <MenuAdvancedToolsListItem
+            :is-selected="showImportFile"
+            title="import_file"
+            tooltip="import_file_tooltip"
+            @click.stop="onToggleImportFile"
+        >
+            <ModalWithBackdrop
+                v-if="showImportFile"
+                :title="$t('import_file')"
+                @close="onToggleImportFile"
             >
-        </li>
+                <ImportFile />
+            </ModalWithBackdrop>
+        </MenuAdvancedToolsListItem>
+        <!-- TODO replace this one by Import Catalog -->
+        <MenuAdvancedToolsListItem
+            :is-selected="importOverlay"
+            title="import"
+            tooltip="import_tooltip"
+            @click.stop="onToggleImportOverlay"
+        />
     </ul>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 
+import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
+import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
 export default {
+    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem },
     computed: {
-        ...mapState({ importOverlay: (state) => state.ui.importOverlay }),
+        ...mapState({
+            importOverlay: (state) => state.ui.importOverlay,
+            showImportFile: (state) => state.ui.importFile,
+        }),
         ...mapGetters(['isPhoneMode']),
     },
     methods: {
-        ...mapActions(['toggleImportOverlay', 'toggleMenu']),
+        ...mapActions(['toggleImportOverlay', 'toggleImportFile', 'toggleMenu']),
         onToggleImportOverlay() {
             if (!this.importOverlay && this.isPhoneMode) {
                 // To avoid the menu overlapping the import overlay after open we automatically
@@ -30,6 +49,14 @@ export default {
                 this.toggleMenu()
             }
             this.toggleImportOverlay()
+        },
+        onToggleImportFile() {
+            if (!this.importFile && this.isPhoneMode) {
+                // To avoid the menu overlapping the import overlay after open we automatically
+                // close the menu
+                this.toggleMenu()
+            }
+            this.toggleImportFile()
         },
     },
 }
@@ -39,23 +66,5 @@ export default {
 .advanced-tools-list {
     list-style-type: none;
     margin-bottom: 0;
-
-    .advanced-tools-item {
-        .advanced-tools-title {
-            display: block;
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-            border-bottom-width: 1px;
-            border-bottom-style: solid;
-            border-bottom-color: #e9e9e9;
-            height: 2.75em;
-            line-height: 2.75em;
-        }
-        .advanced-tools-title:hover,
-        .advanced-tools-title:focus {
-            color: #666;
-        }
-    }
 }
 </style>

@@ -627,5 +627,13 @@
     "ch.swisstopo.swissimage_3d": "Aerial imagery",
     "ch.swisstopo.swisstlm3d-karte-grau_3d": "Grey map",
     "ch.swisstopo.swisstlm3d-karte-farbe_3d": "Color map",
-    "loading_external_layer": "Loading external layer"
+    "loading_external_layer": "Loading external layer",
+    "import_file": "Import file",
+    "import_file_tooltip": "Import an external KML or GPX file",
+    "import_file_succeeded": "Success",
+    "invalid_file": "Invalid file",
+    "no_url": "No URL",
+    "loading_error_network_failure": "Failed to load, file not accessible",
+    "loading_file": "Loading file...",
+    "invalid_kml_gpx_file_error": "Invalid file, only KML or GPX file are supported"
 }
