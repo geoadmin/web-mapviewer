@@ -24,6 +24,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     const i18n = useI18n()
 
     let addKmlLayerTimeout = null
+    const savesInProgress = ref([])
     async function addKmlLayerToDrawing(layer, retryOnError = true) {
         clearTimeout(addKmlLayerTimeout)
         try {
@@ -56,12 +57,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 drawingLayer.getSource().getFeatures()
             )
             if (!activeKmlLayer.value?.adminId) {
-                // if we don't have an adminId then create a new KML File
+                // creation of the new KML (copy or new)
                 const kmlMetadata = await createKml(kmlData)
                 const kmlLayer = new KMLLayer(
                     getKmlUrl(kmlMetadata.id),
                     true, // visible
-                    null, // opacity, null means use default
+                    activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
                     kmlMetadata.id,
                     kmlMetadata.adminId,
                     i18n.t('draw_layer_label'),
@@ -70,6 +71,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     false, // isExternal
                     false // isLoading, we already have kml data available, so no need to load it once more
                 )
+                // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
+                // Meaning we must remove the old one from the layers; it will otherwise be there twice
+                // (once the pristine "old" KML, and once the new copy)
+                if (activeKmlLayer.value) {
+                    await store.dispatch('removeLayer', activeKmlLayer.value)
+                }
                 await store.dispatch('addLayer', kmlLayer)
                 saveState.value = DrawingState.SAVED
             } else {
@@ -108,7 +115,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 IS_TESTING_WITH_CYPRESS ? 100 : debounceTime
             )
         }).then(() => {
-            saveDrawing(retryOnError)
+            const savePromise = saveDrawing(retryOnError)
+            savesInProgress.value.push(savePromise)
+            // removing this promise from the "in-progress" list when it's done
+            savePromise.then(() =>
+                savesInProgress.value.splice(savesInProgress.value.indexOf(savePromise), 1)
+            )
         })
     }
 
@@ -128,5 +140,6 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         debounceSaveDrawing,
         willModify,
         saveState,
+        savesInProgress,
     }
 }

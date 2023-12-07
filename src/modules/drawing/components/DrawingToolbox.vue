@@ -20,7 +20,7 @@ const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
 const i18n = useI18n()
 const store = useStore()
 
-const emits = defineEmits(['removeLastPoint'])
+const emits = defineEmits(['removeLastPoint', 'closeDrawing'])
 
 const drawMenuOpen = ref(true)
 const showClearConfirmationModal = ref(false)
@@ -67,7 +67,7 @@ function onCloseClearConfirmation(confirmed) {
     }
 }
 function closeDrawing() {
-    store.dispatch('toggleDrawingOverlay')
+    emits('closeDrawing')
 }
 function selectDrawingMode(drawingMode) {
     store.dispatch('setDrawingMode', drawingMode)

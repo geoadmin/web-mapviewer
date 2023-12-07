@@ -3,6 +3,7 @@ import pako from 'pako'
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
+import { randomIntBetween } from '@/utils/numberUtils'
 
 const olSelector = '.ol-viewport'
 
@@ -40,7 +41,13 @@ const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyM
             } catch (error) {
                 console.error(`failed to get KML from request`, error)
             }
-            req.reply(201, kmlMetadataTemplate({ id: '1234_fileId', adminId: '1234_adminId' }))
+            req.reply(
+                201,
+                kmlMetadataTemplate({
+                    id: `${randomIntBetween(1000, 9999)}_fileId`,
+                    adminId: `1234_adminId`,
+                })
+            )
         }
     ).as('post-kml')
     cy.intercept(

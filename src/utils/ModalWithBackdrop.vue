@@ -3,7 +3,7 @@
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
         <div>
-            <BlackBackdrop class="modal-view" @click.stop="onClose(false)" />
+            <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div class="modal-popup position-fixed top-50 start-50 translate-middle">
                 <div
                     class="card"

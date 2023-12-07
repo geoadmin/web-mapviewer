@@ -1,22 +1,40 @@
-<template>
-    <div class="app-backdrop" data-cy="black-backdrop"></div>
-</template>
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-<script></script>
+const { withSpinner, placeForModal } = defineProps({
+    withSpinner: {
+        type: Boolean,
+        default: false,
+    },
+    placeForModal: {
+        type: Boolean,
+        default: false,
+    },
+})
+</script>
+
+<template>
+    <div
+        class="black-backdrop position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-50"
+        :class="{ 'modal-z-index': placeForModal }"
+        data-cy="black-backdrop"
+    >
+        <div
+            v-if="withSpinner"
+            class="position-absolute start-50 top-50 translate-middle text-light"
+        >
+            <FontAwesomeIcon icon="spinner" spin size="4x" />
+        </div>
+    </div>
+</template>
 
 <style lang="scss" scoped>
 @import 'src/scss/variables';
 
-.app-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
-}
-.modal-view {
-    z-index: $zindex-modal - 1;
+.black-backdrop {
+    z-index: $zindex-map + 1;
+    &.modal-z-index {
+        z-index: $zindex-modal - 1;
+    }
 }
 </style>

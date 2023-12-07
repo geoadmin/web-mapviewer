@@ -60,13 +60,17 @@ describe('Drawing new KML', () => {
         cy.goToDrawing()
         cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
         cy.get(olSelector).click('center')
-        cy.wait('@post-kml').then((interception) =>
+        let kmlId
+        cy.wait('@post-kml').then((interception) => {
             cy.checkKMLRequest(interception, [EditableFeatureTypes.ANNOTATION])
-        )
+            kmlId = interception.response.body.id
+        })
         cy.reload(true)
         cy.wait('@get-kml')
         cy.waitUntilState((state) => {
-            return state.layers.activeLayers.length > 0
+            return state.layers.activeLayers.find(
+                (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+            )
         })
         cy.openDrawingMode()
         cy.wait('@get-kml')
@@ -76,12 +80,24 @@ describe('Drawing new KML', () => {
         // Add another feature
         cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
         cy.get(olSelector).click('center')
-        cy.wait('@post-kml').then((interception) =>
+        let newKmlId
+        cy.wait('@post-kml').then((interception) => {
             cy.checkKMLRequest(interception, [
                 EditableFeatureTypes.ANNOTATION,
                 EditableFeatureTypes.ANNOTATION,
             ])
-        )
+            newKmlId = interception.response.body.id
+            expect(newKmlId).to.not.eq(kmlId)
+        })
+        // there should be only one KML layer left in the layers, and it's the one just saved
+        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+            expect(activeLayers.filter((layer) => layer.type === LayerTypes.KML).length).to.eq(
+                1,
+                'There should only be one KMl layer left in the layers'
+            )
+            const kmlLayer = activeLayers.find((layer) => layer.type === LayerTypes.KML)
+            expect(kmlLayer.fileId).to.eq(newKmlId)
+        })
     })
     it('Update the previously saved KML if anything is added to the drawing', () => {
         let kmlId = null

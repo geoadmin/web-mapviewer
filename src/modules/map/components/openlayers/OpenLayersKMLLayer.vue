@@ -42,23 +42,12 @@ const url = computed(() => kmlLayerConfig.value.getURL())
 const isLoading = computed(() => kmlLayerConfig.value.isLoading)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
 
-function createSourceForProjection() {
-    if (!kmlData.value) {
-        log.debug('no KML data loaded yet, could not create source')
-        return
-    }
-    if (!availableIconSets.value || availableIconSets.value.length === 0) {
-        log.debug('no icons loaded yet, could not create source')
-        return
-    }
-    layer.setSource(
-        new VectorSource({
-            wrapX: true,
-            projection: projection.value.epsg,
-            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
-        })
-    )
-}
+watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(projection, createSourceForProjection)
+watch(iconsArePresent, createSourceForProjection)
+watch(isLoading, createSourceForProjection)
+watch(availableIconSets, createSourceForProjection)
+watch(kmlData, createSourceForProjection)
 
 /* We cannot directly let the vectorSource load the URL. We need to run the deserialize
 function on each feature before it is added to the vectorsource, as it may overwrite
@@ -82,6 +71,8 @@ onMounted(() => {
         window.kmlLayer = layer
         window.kmlLayerUrl = url.value
     }
+
+    createSourceForProjection()
 })
 onUnmounted(() => {
     if (IS_TESTING_WITH_CYPRESS) {
@@ -90,13 +81,23 @@ onUnmounted(() => {
     }
 })
 
-createSourceForProjection()
-
-watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, createSourceForProjection)
-watch(iconsArePresent, createSourceForProjection)
-watch(isLoading, createSourceForProjection)
-watch(availableIconSets, createSourceForProjection)
+function createSourceForProjection() {
+    if (!kmlData.value) {
+        log.debug('no KML data loaded yet, could not create source')
+        return
+    }
+    if (!availableIconSets.value || availableIconSets.value.length === 0) {
+        log.debug('no icons loaded yet, could not create source')
+        return
+    }
+    layer.setSource(
+        new VectorSource({
+            wrapX: true,
+            projection: projection.value.epsg,
+            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
+        })
+    )
+}
 </script>
 
 <template>
