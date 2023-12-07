@@ -3,7 +3,7 @@
         <OpenFullAppLink v-if="embedded" />
         <MapModule>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
-            <DrawingModule v-show="!embedded" v-if="!is3DActive" />
+            <DrawingModule v-if="isDrawing && !is3DActive" v-show="!embedded" />
             <!-- Needed to be able to set an overlay when hovering over the profile with the mouse -->
             <InfoboxModule />
         </MapModule>
@@ -38,6 +38,7 @@ export default {
         ...mapState({
             embedded: (state) => state.ui.embeddedMode,
             is3DActive: (state) => state.cesium.active,
+            isDrawing: (state) => state.ui.showDrawingOverlay,
         }),
     },
 }
