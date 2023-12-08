@@ -1,11 +1,8 @@
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import { randomIntBetween } from '@/utils/numberUtils'
-
-const olSelector = '.ol-viewport'
 
 const addIconFixtureAndIntercept = () => {
     cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
@@ -28,7 +25,7 @@ const addProfileFixtureAndIntercept = () => {
     ).as('profile')
 }
 
-const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyMarker.kml') => {
+const addFileAPIFixtureAndIntercept = () => {
     let kmlBody = null
     cy.intercept(
         {
@@ -85,50 +82,20 @@ const addFileAPIFixtureAndIntercept = (kmlFileFixtureFile = 'service-kml/lonelyM
         const headers = { 'Cache-Control': 'no-cache' }
         if (kmlBody) {
             req.reply(kmlBody, headers)
-        } else if (kmlFileFixtureFile) {
-            req.reply({ fixture: kmlFileFixtureFile }, headers)
         } else {
-            req.reply('<kml></kml>', headers)
+            req.reply({
+                fixture: 'service-kml/lonelyMarker.kml',
+                headers: headers,
+            })
         }
     }).as('get-kml')
 }
 
-Cypress.Commands.add('drawGeoms', () => {
-    cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-    cy.get(olSelector).click(170, 190)
-    cy.get('[data-cy="infobox-close"]').click()
-
-    cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
-    cy.get(olSelector).click(200, 190)
-    cy.get('[data-cy="infobox-close"]').click()
-
-    cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
-    cy.get(olSelector).click(100, 200)
-    cy.get(olSelector).click(150, 200)
-    cy.get(olSelector).click(150, 230)
-    cy.get(olSelector).click(100, 200)
-    cy.get('[data-cy="infobox-close"]').click()
-
-    cy.drawMeasure()
-})
-
-Cypress.Commands.add('drawMeasure', () => {
-    cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
-    cy.get(olSelector).click(210, 200)
-    cy.get(olSelector).click(220, 200)
-    cy.get(olSelector).dblclick(230, 230)
-})
-
-// https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
-// As we have some issue with uncaught exception when testing with drawing, we disable the "fail on uncaught" approach
-// This exception is typically raised by a call to api3.geo.admin.ch/files/... with a HTTP 200 ERR_INCOMPLETE_CHUNKED_ENCODING error
-Cypress.on('uncaught:exception', () => {
-    // returning false here prevents Cypress from failing the test
-    return false
-})
-
 Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = false) => {
-    cy.goToMapViewWithDrawingIntercept(queryParams, withHash)
+    addIconFixtureAndIntercept()
+    addProfileFixtureAndIntercept()
+    addFileAPIFixtureAndIntercept()
+    cy.goToMapView(queryParams, withHash)
     cy.readWindowValue('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
@@ -149,13 +116,6 @@ Cypress.Commands.add('openDrawingMode', () => {
     cy.get('[data-cy="menu-tray-drawing-section"]').click()
 })
 
-Cypress.Commands.add('goToMapViewWithDrawingIntercept', (queryParams = {}, withHash = false) => {
-    addIconFixtureAndIntercept()
-    addProfileFixtureAndIntercept()
-    addFileAPIFixtureAndIntercept()
-    cy.goToMapView(queryParams, withHash)
-})
-
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).click()
@@ -164,36 +124,6 @@ Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     } else {
         cy.readStoreValue('state.drawing.mode').should('eq', name)
     }
-})
-
-Cypress.Commands.add('readDrawingFeatures', (type, callback) => {
-    cy.readWindowValue('drawingLayer').then((drawingLayer) => {
-        const features = drawingLayer.getSource().getFeatures()
-        expect(features).to.have.lengthOf(1, 'no feature found in the drawing layer')
-        const foundType = features[0].getGeometry().getType()
-        expect(foundType).to.equal(type)
-        if (callback) {
-            callback(features)
-        }
-    })
-})
-
-Cypress.Commands.add('checkDrawnGeoJsonProperty', (key, expected, checkIfContains = false) => {
-    cy.readWindowValue('drawingLayer').then((drawingLayer) => {
-        const features = drawingLayer.getSource().getFeatures()
-        expect(features).to.have.lengthOf(1, 'no feature found in the drawing layer')
-        const firstFeature = features[0]
-        const keys = key.split('.')
-        let value = firstFeature.get('editableFeature')
-        for (const k of keys) {
-            value = value[k]
-        }
-        if (checkIfContains) {
-            expect(value).to.contain(expected, `${firstFeature} != ${expected}`)
-        } else {
-            expect(value).to.equal(expected, `${firstFeature} != ${expected}`)
-        }
-    })
 })
 
 export async function getKmlAdminIdFromRequest(req) {
@@ -267,12 +197,3 @@ export function kmlMetadataTemplate(data) {
     }
     return metadata
 }
-
-Cypress.Commands.add('waitUntilDrawingIsAdded', () => {
-    cy.waitUntilState(
-        (state) =>
-            state.layers.activeLayers.filter(
-                (layer) => layer.visible && layer.type === LayerTypes.KML
-            ).length > 0
-    )
-})

@@ -3,7 +3,7 @@
         <button ref="popoverButton" class="btn btn-sm btn-light d-flex align-items-center">
             <FontAwesomeIcon :icon="icon" />
         </button>
-        <div ref="popoverContent" class="card border-0">
+        <div ref="popoverContent" class="card border-0" data-cy="drawing-style-popover">
             <div
                 class="card-header d-flex align-items-center"
                 :class="{
@@ -14,7 +14,11 @@
                 <span v-if="popoverTitle">
                     {{ popoverTitle }}
                 </span>
-                <button class="btn btn-sm btn-light d-flex align-items-center" @click="hidePopover">
+                <button
+                    class="btn btn-sm btn-light d-flex align-items-center"
+                    data-cy="close-popover-button"
+                    @click="hidePopover"
+                >
                     <FontAwesomeIcon icon="times" />
                 </button>
             </div>

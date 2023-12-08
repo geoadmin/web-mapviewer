@@ -11,7 +11,7 @@ import {
 } from '@/modules/drawing/lib/export-utils'
 import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
 
-const exportOptions = [new DropdownItem('KML'), new DropdownItem('GPX')]
+const exportOptions = [new DropdownItem('kml', 'KML'), new DropdownItem('gpx', 'GPX')]
 
 const drawingLayer = inject('drawingLayer')
 
