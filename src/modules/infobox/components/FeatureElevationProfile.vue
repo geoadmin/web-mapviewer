@@ -35,14 +35,13 @@
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import getProfile from '@/api/profile/profile.api'
 import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import LoadingBar from '@/utils/LoadingBar.vue'
 import log from '@/utils/logging'
@@ -63,10 +62,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
     },
     emits: ['updateElevationProfilePlot'],
     data() {
@@ -79,6 +74,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
         elevationProfileHasData() {
             return this.elevationProfile?.hasElevationData
         },

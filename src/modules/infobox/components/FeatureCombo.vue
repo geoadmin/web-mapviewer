@@ -1,55 +1,31 @@
-<template>
-    <div class="edit-feature" data-infobox="height-reference">
-        <div class="edit-feature-form">
-            <FeatureStyleEdit
-                :feature="feature"
-                :available-icon-sets="availableIconSets"
-                :read-only="readOnly"
-            />
-        </div>
-
-        <FeatureProfile
-            class="edit-feature-plot"
-            :feature="feature"
-            :read-only="readOnly"
-            :projection="projection"
-        />
-    </div>
-</template>
-
-<script>
-import { mapState } from 'vuex'
-
+<script setup>
 import { EditableFeature } from '@/api/features.api'
 
 import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
-export default {
-    components: {
-        FeatureStyleEdit,
-        FeatureProfile,
+const { feature, readOnly } = defineProps({
+    feature: {
+        type: EditableFeature,
+        required: true,
     },
-    props: {
-        feature: {
-            type: EditableFeature,
-            required: true,
-        },
-        readOnly: {
-            type: Boolean,
-            default: false,
-        },
+    readOnly: {
+        type: Boolean,
+        default: false,
     },
-    computed: {
-        ...mapState({
-            availableIconSets: (state) => state.drawing.iconSets,
-            projection: (state) => state.position.projection,
-        }),
-    },
-}
+})
 </script>
 
-<style lang="scss">
+<template>
+    <div class="edit-feature" data-infobox="height-reference">
+        <div class="edit-feature-form">
+            <FeatureStyleEdit :feature="feature" :read-only="readOnly" />
+        </div>
+        <FeatureProfile class="edit-feature-plot" :feature="feature" :read-only="readOnly" />
+    </div>
+</template>
+
+<style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 
 // minmax(0, 1fr) is needed as 1fr is equivalent to minmax(auto, 1fr) where auto

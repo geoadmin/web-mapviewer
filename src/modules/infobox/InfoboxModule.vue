@@ -42,7 +42,7 @@
                 data-cy="infobox-content"
             >
                 <FeatureElevationProfile
-                    v-if="showElevationProfile"
+                    v-if="showElevationProfile && !isCombo"
                     class="card-body"
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
@@ -125,7 +125,10 @@ export default {
         },
         isCombo() {
             return (
-                this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+                this.isEdit &&
+                [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+                    this.selectedFeature.featureType
+                )
             )
         },
         showContainer() {
