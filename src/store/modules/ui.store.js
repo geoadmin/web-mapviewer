@@ -92,11 +92,11 @@ export default {
          */
         hostname: window.location.hostname,
         /**
-         * Flag telling if import overlay shown
+         * Flag telling if import catalogue shown
          *
          * @type Boolean
          */
-        importOverlay: false,
+        importCatalogue: false,
         /**
          * Flag telling if import file (map tooltip overlay or infobox) is shown
          *
@@ -213,8 +213,8 @@ export default {
                 }
             }
         },
-        toggleImportOverlay({ commit, state }) {
-            commit('setImportOverlay', !state.importOverlay)
+        toggleImportCatalogue({ commit, state }) {
+            commit('setImportCatalogue', !state.importCatalogue)
         },
         toggleImportFile({ commit, state }) {
             commit('setImportFile', !state.importFile)
@@ -246,8 +246,8 @@ export default {
         setUiMode(state, mode) {
             state.mode = mode
         },
-        setImportOverlay(state, flagValue) {
-            state.importOverlay = flagValue
+        setImportCatalogue(state, flagValue) {
+            state.importCatalogue = flagValue
         },
         setImportFile(state, flagValue) {
             state.importFile = flagValue

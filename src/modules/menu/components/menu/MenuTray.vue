@@ -35,7 +35,7 @@
             secondary
             @open-menu-section="onOpenMenuSection"
         >
-            <MenuAdvancedToolsList />
+            <MenuAdvancedToolsList :compact="compact" />
         </MenuSection>
         <MenuTopicSection
             id="topicsSection"
