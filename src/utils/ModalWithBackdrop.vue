@@ -16,7 +16,9 @@
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                     >
-                        <span v-if="title" class="flex-grow-1 text-start">{{ title }}</span>
+                        <span v-if="title" class="flex-grow-1 text-start text-truncate">{{
+                            title
+                        }}</span>
                         <button
                             v-if="allowPrint"
                             class="btn btn-sm"
