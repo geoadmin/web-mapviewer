@@ -92,9 +92,9 @@ describe('Test functions for the header / search bar', () => {
             }
             cy.get('[data-cy="change-topic-button"]').click()
             cy.get('[data-cy="change-to-topic-test-topic-standard"]').click()
-            cy.get('[data-cy="topic-tree-item-2"]').click()
-            cy.get('[data-cy="topic-tree-item-5"]').click()
-            cy.get('[data-cy="topic-tree-item-test.wms.layer"]').click()
+            cy.get('[data-cy="catalogue-tree-item-2"]').click()
+            cy.get('[data-cy="catalogue-tree-item-5"]').click()
+            cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').click()
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         }
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {

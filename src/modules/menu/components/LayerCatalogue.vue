@@ -24,7 +24,7 @@ function clearPreviewLayer() {
 </script>
 
 <template>
-    <div class="menu-topic-list" data-cy="menu-topic-tree" @mouseleave="clearPreviewLayer">
+    <div class="menu-catalogue-list" @mouseleave="clearPreviewLayer">
         <LayerCatalogueItem
             v-for="item in layerCatalogue"
             :key="item.getID()"
