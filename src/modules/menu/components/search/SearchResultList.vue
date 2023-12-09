@@ -35,15 +35,16 @@
                         :key="index"
                         :index="index"
                         :entry="layer"
-                        @show-layer-legend-popup="showLayerLegendForId = layer.layerId"
+                        @show-layer-legend-popup="showLayerLegend(layer)"
                     />
                 </SearchResultCategory>
             </div>
         </div>
         <LayerLegendPopup
-            v-if="showLayerLegendForId"
-            :layer-id="showLayerLegendForId"
-            @close="showLayerLegendForId = null"
+            v-if="layerLegendId"
+            :layer-id="layerLegendId"
+            :layer-name="layerLegendName"
+            @close="hideLayerLegend()"
         />
     </div>
 </template>
@@ -65,7 +66,8 @@ export default {
     emits: ['close'],
     data() {
         return {
-            showLayerLegendForId: null,
+            layerLegendId: null,
+            layerLegendName: null,
         }
     },
     computed: {
@@ -73,6 +75,17 @@ export default {
             results: (state) => state.search.results,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
+    },
+    methods: {
+        showLayerLegend(layerResult) {
+            this.layerLegendId = layerResult.layerId
+            // NOTE: the service search wsgi is setting the title in <b></b> tags
+            this.layerLegendName = layerResult.title.replace(/<[^>]*>?/gm, '')
+        },
+        hideLayerLegend() {
+            this.layerLegendId = null
+            this.layerLegendName = null
+        },
     },
 }
 </script>

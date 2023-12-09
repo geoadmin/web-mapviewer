@@ -1,55 +1,82 @@
+<script setup>
+import { computed, ref, toRefs, watch } from 'vue'
+import { onMounted } from 'vue'
+import { useStore } from 'vuex'
+
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { getLayerLegend } from '@/api/layers/layers.api'
+import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+
+const props = defineProps({
+    layer: {
+        type: AbstractLayer || null,
+        default: null,
+    },
+    layerId: {
+        type: String || null,
+        default: null,
+    },
+    layerName: {
+        type: String || null,
+        default: null,
+    },
+})
+const emit = defineEmits(['close'])
+const store = useStore()
+
+const { layer, layerId, layerName } = toRefs(props)
+const htmlContent = ref('')
+
+const currentLang = computed(() => store.state.i18n.lang)
+const title = computed(() => layer.value?.name ?? layerName.value)
+const body = computed(() => layer.value?.abstract ?? '')
+
+const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
+const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
+const isExternal = computed(() => layer.value?.isExternal ?? false)
+
+watch(layer, async (newLayer) => {
+    htmlContent.value = await getLayerLegend(currentLang.value, newLayer.getID())
+})
+
+watch(layerId, async (newLayerId) => {
+    htmlContent.value = await getLayerLegend(currentLang.value, newLayerId)
+})
+
+onMounted(async () => {
+    if (!isExternal.value && layer.value) {
+        htmlContent.value = await getLayerLegend(currentLang.value, layer.value.getID())
+    } else if (!isExternal.value && layerId.value) {
+        htmlContent.value = await getLayerLegend(currentLang.value, layerId.value)
+    }
+})
+</script>
+
 <template>
-    <ModalWithBackdrop :title="$t('metadata_window_title')" :allow-print="true" @close="onClose">
+    <ModalWithBackdrop :title="title" :allow-print="true" @close="emit('close', layerId)">
         <div class="layer-legend" data-cy="layer-legend-popup">
-            <h4 v-if="!content" class="mb-0">
+            <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
+            <div v-else-if="isExternal">
+                <div>{{ body }}</div>
+                <div class="mt-2 text-primary text-end">
+                    <span class="me-1">{{ $t('copyright_data') }}</span>
+                    <a :href="attributionUrl" target="_blank">{{ attributionName }}</a>
+                </div>
+            </div>
             <!-- eslint-disable vue/no-v-html-->
-            <div v-else data-cy="layer-legend" v-html="content"></div>
+            <div v-else data-cy="layer-legend" v-html="htmlContent"></div>
             <!-- eslint-enable vue/no-v-html-->
         </div>
     </ModalWithBackdrop>
 </template>
 
-<script>
-import { mapState } from 'vuex'
-
-import { getLayerLegend } from '@/api/layers/layers.api'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
-
-export default {
-    components: { ModalWithBackdrop },
-    props: {
-        layerId: {
-            type: String,
-            required: true,
-        },
-    },
-    emits: ['close'],
-    data() {
-        return {
-            content: null,
-        }
-    },
-    computed: {
-        ...mapState({
-            currentLang: (state) => state.i18n.lang,
-        }),
-    },
-    async mounted() {
-        this.content = await getLayerLegend(this.currentLang, this.layerId)
-    },
-    methods: {
-        onClose() {
-            this.$emit('close', this.layerId)
-        },
-    },
-}
-</script>
-
 <style lang="scss">
 // No scoping here as we need to apply styles to the markup we included with v-html.
 @import 'src/scss/variables';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
 $spacing: 8px;
 
 .layer-legend {
@@ -72,7 +99,7 @@ $spacing: 8px;
     padding: $spacing;
     background-color: #eee;
     .bod-title {
-        color: red;
+        color: $primary;
         margin-bottom: $spacing;
     }
     .legend-abstract {

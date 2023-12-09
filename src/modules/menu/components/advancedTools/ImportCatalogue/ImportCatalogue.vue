@@ -38,7 +38,7 @@ function onClear() {
         <div v-if="wmsMaxSize">
             {{ i18n.t('wms_max_size_allowed') }} {{ wmsMaxSize.width }} * {{ wmsMaxSize.height }}
         </div>
-        <LayerCatalogue :layer-catalogue="capabilities" :compact="compact" />
+        <LayerCatalogue class="mb-2" :layer-catalogue="capabilities" :compact="compact" />
     </div>
 </template>
 
