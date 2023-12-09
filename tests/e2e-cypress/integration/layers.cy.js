@@ -277,15 +277,15 @@ describe('Test of layer handling', () => {
                 cy.goToMapView()
                 cy.clickOnMenuButtonIfMobile()
                 const testLayerId = 'test.wmts.layer'
-                const testLayerSelector = `[data-cy="topic-tree-item-${testLayerId}"]`
+                const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
                 cy.get('[data-cy="menu-topic-section"]').click()
                 // opening up layer parents in the topic tree
-                cy.get('[data-cy="topic-tree-item-2"]').click()
-                cy.get('[data-cy="topic-tree-item-3"]').click()
+                cy.get('[data-cy="catalogue-tree-item-2"]').click()
+                cy.get('[data-cy="catalogue-tree-item-3"]').click()
                 // Find the test layer and open the appropriate menu entries.
                 cy.get(testLayerSelector)
                     .parentsUntil('[data-cy="menu-topic-section"]')
-                    .filter('[data-cy="topic-tree-item"]')
+                    .filter('[data-cy="catalogue-tree-item"]')
                     .then((menuItems) => {
                         menuItems
                             .toArray()
@@ -348,15 +348,15 @@ describe('Test of layer handling', () => {
             })
             it('allows toggling layers visibility from the topic menu', () => {
                 const testLayerId = 'test.wmts.layer'
-                const testLayerSelector = `[data-cy="topic-tree-item-${testLayerId}"]`
+                const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
                 cy.get('[data-cy="menu-topic-section"]').click()
                 // opening up layer parents in the topic tree
-                cy.get('[data-cy="topic-tree-item-2"]').click()
-                cy.get('[data-cy="topic-tree-item-3"]').click()
+                cy.get('[data-cy="catalogue-tree-item-2"]').click()
+                cy.get('[data-cy="catalogue-tree-item-3"]').click()
                 // Find the test layer and open the appropriate menu entries.
                 cy.get(testLayerSelector)
                     .parentsUntil('[data-cy="menu-topic-section"]')
-                    .filter('[data-cy="topic-tree-item"]')
+                    .filter('[data-cy="catalogue-tree-item"]')
                     .then((menuItems) => {
                         menuItems
                             .toArray()
