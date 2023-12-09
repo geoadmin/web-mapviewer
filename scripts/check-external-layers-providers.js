@@ -22,11 +22,9 @@ import {
 } from '@/api/layers/layers-external.api'
 import {
     guessExternalLayerUrl,
-    isGpx,
-    isKml,
     isWmsGetCap,
     isWmtsGetCap,
-} from '@/modules/infobox/utils/external-provider'
+} from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 const SIZE_OF_CONTENT_DISPLAY = 150
@@ -36,7 +34,8 @@ const options = yargs(hideBin(process.argv))
     .version('1.0.0')
     .epilog('Check validity of all providers')
     .option('input', {
-        default: './src/modules/infobox/utils/external-layer-providers.json',
+        default:
+            './src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json',
         describe: 'Input JSON providers file to check',
         type: 'string',
     })
@@ -196,12 +195,6 @@ function checkProviderResponseContent(provider, url, response, result) {
                 content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
             })
         }
-    } else if (isKml(content)) {
-        // TODO check for KML validity
-        throw new Error('kml not supported yet')
-    } else if (isGpx(content)) {
-        // TODO check for GPX validity
-        throw new Error('gpx not supported yet')
     } else {
         isValid = false
         console.error(`Invalid provider ${url}; file type not recognized`)

@@ -17,8 +17,15 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    dropdownMenu: {
+        type: Boolean,
+        default: false,
+    },
 })
 const { isSelected, title, tooltip } = toRefs(props)
+
+const emit = defineEmits(['toggleMenu'])
+
 const tippyTooltip = ref(null)
 let tippyInstance = null
 
@@ -47,34 +54,35 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <li class="advanced-tools-item">
+    <div class="advanced-tools-item border-bottom">
         <a
-            class="advanced-tools-title"
-            :class="{ 'text-primary': isSelected }"
+            class="d-flex align-items-center advanced-tools-title text-decoration-none"
+            :class="{ 'text-primary': isSelected, 'text-black': !isSelected }"
             :data-cy="`menu-advanced-tools-${title}`"
+            @click="emit('toggleMenu')"
         >
+            <FontAwesomeIcon
+                class="me-2"
+                :class="{ invisible: !dropdownMenu }"
+                :icon="`caret-${isSelected ? 'down' : 'right'}`"
+            />
             <span ref="tippyTooltip" class="pe-1">{{ i18n.t(title) }} </span>
         </a>
         <slot />
-    </li>
+    </div>
 </template>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .advanced-tools-item {
     .advanced-tools-title {
-        display: block;
-        color: black;
-        text-decoration: none;
         cursor: pointer;
-        border-bottom-width: 1px;
-        border-bottom-style: solid;
-        border-bottom-color: #e9e9e9;
         height: 2.75em;
         line-height: 2.75em;
     }
     .advanced-tools-title:hover,
     .advanced-tools-title:focus {
-        color: #666;
+        color: $list-item-hover-text-color !important;
     }
 }
 </style>

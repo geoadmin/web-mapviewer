@@ -1,7 +1,7 @@
 # web-mapviewer
 
-| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version             |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version               |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
 | develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | <https://sys-map.dev.bgdi.ch/> |
 | master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | <https://sys-map.int.bgdi.ch/> |
 
@@ -109,8 +109,8 @@ import { useStore } from 'vuex'
 const props = defineProps({
   myProp: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 const { myProp } = toRefs(props)
 
@@ -134,9 +134,7 @@ onMounted(() => {
 })
 
 // 8. Methods
-function myMethod() {
-
-}
+function myMethod() {}
 </script>
 
 <template>
@@ -286,7 +284,7 @@ Depending on the target (`dev|int|prod`), you will have to build and bundle/mini
 
 ## Check External Layer Provider list
 
-In the `Import` tool we provide an hardcoded list of provider via the [src/modules/infobox/utils/external-layer-providers.json](./src/modules/infobox/utils/external-layer-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
+In the `Import` tool we provide an hardcoded list of provider via the [src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json](./src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
 check their validity. The tool can also be used with a single url as input parameter to see the url would be valid
 for our application.
 

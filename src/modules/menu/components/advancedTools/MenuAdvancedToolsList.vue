@@ -1,10 +1,21 @@
 <template>
-    <ul class="advanced-tools-list px-2 py-1">
+    <div class="advanced-tools-list px-2 py-1">
+        <MenuAdvancedToolsListItem
+            :is-selected="showImportCatalogue"
+            title="import_maps"
+            tooltip="import_maps_tooltip"
+            dropdown-menu
+            data-cy="menu-advanced-tools-import-catalogue"
+            @toggle-menu="onToggleImportCatalogue"
+        >
+            <ImportCatalogue v-if="showImportCatalogue" :compact="compact" />
+        </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
             title="import_file"
             tooltip="import_file_tooltip"
-            @click.stop="onToggleImportFile"
+            data-cy="menu-advanced-tools-import-file"
+            @toggle-menu="onToggleImportFile"
         >
             <ModalWithBackdrop
                 v-if="showImportFile"
@@ -14,41 +25,36 @@
                 <ImportFile />
             </ModalWithBackdrop>
         </MenuAdvancedToolsListItem>
-        <!-- TODO replace this one by Import Catalog -->
-        <MenuAdvancedToolsListItem
-            :is-selected="importOverlay"
-            title="import"
-            tooltip="import_tooltip"
-            @click.stop="onToggleImportOverlay"
-        />
-    </ul>
+    </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 
+import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 export default {
-    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem },
+    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem, ImportCatalogue },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false,
+        },
+    },
     computed: {
         ...mapState({
-            importOverlay: (state) => state.ui.importOverlay,
+            showImportCatalogue: (state) => state.ui.importCatalogue,
             showImportFile: (state) => state.ui.importFile,
         }),
         ...mapGetters(['isPhoneMode']),
     },
     methods: {
-        ...mapActions(['toggleImportOverlay', 'toggleImportFile', 'toggleMenu']),
-        onToggleImportOverlay() {
-            if (!this.importOverlay && this.isPhoneMode) {
-                // To avoid the menu overlapping the import overlay after open we automatically
-                // close the menu
-                this.toggleMenu()
-            }
-            this.toggleImportOverlay()
+        ...mapActions(['toggleImportCatalogue', 'toggleImportFile', 'toggleMenu']),
+        onToggleImportCatalogue() {
+            this.toggleImportCatalogue()
         },
         onToggleImportFile() {
             if (!this.importFile && this.isPhoneMode) {
@@ -63,8 +69,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/modules/menu/scss/menu-items';
+
 .advanced-tools-list {
-    list-style-type: none;
-    margin-bottom: 0;
+    @extend .menu-list;
+    overflow-y: auto;
 }
 </style>

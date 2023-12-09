@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useImportButton } from '@/modules/menu/components/advancedTools/importButton'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import { useImportButton } from '@/modules/menu/components/advancedTools/useImportButton'
 import log from '@/utils/logging'
 
 const LOCAL_UPLOAD_ACCEPT = '.kml,.KML,.gpx,.GPX'
@@ -69,7 +69,13 @@ async function loadFile() {
 </script>
 
 <template>
-    <div id="nav-local" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
+    <div
+        id="nav-local"
+        class="tab-pane fade"
+        role="tabpanel"
+        aria-labelledby="nav-local-tab"
+        data-cy="import-file-local-content"
+    >
         <form class="input-group rounded needs-validation">
             <button
                 class="btn btn-outline-secondary"

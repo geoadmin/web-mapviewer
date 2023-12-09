@@ -64,12 +64,6 @@
                     :read-only="!showDrawingOverlay"
                 />
 
-                <ImportContent
-                    v-else-if="importOverlay"
-                    class="card-body"
-                    @connected="setMaxHeight"
-                />
-
                 <FeatureList v-else-if="isList" />
             </div>
         </div>
@@ -81,7 +75,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
 import FeatureCombo from './components/FeatureCombo.vue'
@@ -91,7 +84,6 @@ import FeatureList from './components/FeatureList.vue'
 
 export default {
     components: {
-        ImportContent,
         FontAwesomeIcon,
         FeatureCombo,
         FeatureEdit,

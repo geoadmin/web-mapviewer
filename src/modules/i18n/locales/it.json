@@ -635,5 +635,16 @@
     "no_url": "Nessun URL",
     "loading_error_network_failure": "Impossibile caricare, file non accessibile",
     "loading_file": "Caricamento del file...",
-    "invalid_kml_gpx_file_error": "File non valido, sono supportati solo file KML o GPX"
+    "invalid_kml_gpx_file_error": "File non valido, sono supportati solo file KML o GPX",
+    "import_maps": "Importa mappe",
+    "import_maps_tooltip": "Importare  dati WMTS WMS esterni",
+    "unsupported_content_type": "Tipo di contenuto della risposta non supportato",
+    "invalid_wms_capabilities": "Dati WMS Capabilities non validi",
+    "invalid_wmts_capabilities": "Dati WMTS Capabilities non validi",
+    "network_error": "Errore di rete",
+    "no_layer_found": "Nessun layer trovato",
+    "import_maps_url_placeholder": "WMTS WMS URL",
+    "import_file_url_placeholder": "GPX KML URL",
+    "no_result": "Nessun risultato",
+    "loading": "Caricamento"
 }
