@@ -7,6 +7,8 @@ import {
     faCopy,
     faEye,
     faSquare,
+    faSquareMinus,
+    faSquarePlus,
     faTrashAlt,
 } from '@fortawesome/free-regular-svg-icons'
 import {
@@ -23,6 +25,8 @@ import {
     faChevronUp,
     faCircle,
     faCircleChevronRight,
+    faCircleMinus,
+    faCirclePlus,
     faClockRotateLeft,
     faCog,
     faCube,
@@ -116,6 +120,8 @@ library.add(
     faXmark,
     faSortAlphaUp,
     faSortAlphaDown,
+    faCirclePlus,
+    faCircleMinus,
     // Regular
     faCheckSquare,
     faClock,
@@ -123,6 +129,8 @@ library.add(
     faEye,
     faRegularCircle,
     faSquare,
+    faSquarePlus,
+    faSquareMinus,
     faTrashAlt,
     // Brands
     faFacebook,
