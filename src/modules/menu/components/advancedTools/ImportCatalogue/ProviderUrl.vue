@@ -21,6 +21,7 @@ const capabilitiesParsed = ref(false)
 const errorMessage = ref(null)
 const providerList = ref(null)
 const isLoading = ref(false)
+const providerIntput = ref(null)
 
 const { providers, showProviders, toggleProviders } = useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
@@ -85,12 +86,22 @@ async function connect() {
         }
     }
 }
+
+function onToggleProviders(event) {
+    toggleProviders()
+    if (showProviders.value && (event.screenX !== 0 || event.screenY !== 0)) {
+        // only focus on the provider input when the provider list has been opened
+        // and when it is a real click event (not a key stroke)
+        providerIntput.value.focus()
+    }
+}
 </script>
 
 <template>
     <div v-click-outside="() => (showProviders = false)" class="container mb-2 pe-0">
         <form class="input-group input-group-sm needs-validation">
             <input
+                ref="providerIntput"
                 v-model="url"
                 type="text"
                 class="form-control text-truncate"
@@ -124,7 +135,7 @@ async function connect() {
                     :disabled="isLoading"
                     type="button"
                     data-cy="import-catalogue-providers-toggle"
-                    @click="toggleProviders"
+                    @click="onToggleProviders"
                 >
                     <FontAwesomeIcon :icon="showProviders ? 'caret-up' : 'caret-down'" />
                 </button>
