@@ -98,7 +98,7 @@ function onToggleProviders(event) {
 </script>
 
 <template>
-    <div v-click-outside="() => (showProviders = false)" class="container mb-2 pe-0">
+    <div v-click-outside="() => (showProviders = false)" class="mb-2 pe-0">
         <form class="input-group input-group-sm needs-validation">
             <input
                 ref="providerIntput"

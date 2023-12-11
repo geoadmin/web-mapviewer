@@ -32,9 +32,8 @@ function onClear() {
 </script>
 
 <template>
-    <div data-cy="import-catalog-content">
+    <div class="ps-2" data-cy="import-catalog-content">
         <ProviderUrl @capabilities:parsed="onNewCapabilities" @capabilities:clear="onClear" />
-        <!-- TODO display of the result-->
         <div v-if="wmsMaxSize">
             {{ i18n.t('wms_max_size_allowed') }} {{ wmsMaxSize.width }} * {{ wmsMaxSize.height }}
         </div>
