@@ -4,7 +4,7 @@
  * layers or a single layer.
  */
 
-import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -117,19 +117,6 @@ function zoomToLayer() {
             @mouseenter="startLayerPreview"
         >
             <button
-                v-if="hasChildren"
-                class="btn btn-rounded"
-                :class="{
-                    'btn-lg': !compact,
-                }"
-                @click.stop="onCollapseClick"
-            >
-                <FontAwesomeLayers>
-                    <FontAwesomeIcon class="text-secondary" icon="fa-regular fa-circle" />
-                    <FontAwesomeIcon size="xs" :icon="showChildren ? 'minus' : 'plus'" />
-                </FontAwesomeLayers>
-            </button>
-            <button
                 v-if="canBeAddedToTheMap"
                 class="btn"
                 :class="{
@@ -146,6 +133,19 @@ function zoomToLayer() {
                     }`"
                 />
             </button>
+            <button
+                v-if="hasChildren"
+                class="btn btn-rounded"
+                :class="{
+                    'text-primary': isPresentInActiveLayers || isCurrentlyHidden,
+                    'btn-lg': !compact,
+                }"
+                @click.stop="onCollapseClick"
+            >
+                <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
+                <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
+            </button>
+
             <span
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers || isCurrentlyHidden }"
