@@ -22,15 +22,15 @@ export default function loadExternalLayerAttributes(store) {
     store.subscribe((mutation, state) => {
         if (
             mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof ExternalLayer &&
-            mutation.payload.layer.isLoading
+            mutation.payload instanceof ExternalLayer &&
+            mutation.payload.isLoading
         ) {
             log.debug(
                 `Loading state external layer added, trigger attribute updated`,
                 mutation,
                 state
             )
-            updateExternalLayer(store, mutation.payload.layer, state.position.projection)
+            updateExternalLayer(store, mutation.payload, state.position.projection)
         }
     })
 }
