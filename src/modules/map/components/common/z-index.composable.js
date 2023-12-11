@@ -87,16 +87,9 @@ export function useLayerZIndexCalculation() {
         if (!layer) {
             return -1
         }
-        // checking first of this is a BG layer
-        const matchingBackgroundLayer = backgroundLayers.value.find(
-            (bgLayer) => bgLayer.getID() === layer.getID()
-        )
-        if (matchingBackgroundLayer) {
-            return backgroundLayers.value.indexOf(matchingBackgroundLayer)
-        }
-        // if not found in the BG, we check the visible layers
+        // trying to find a match among the visible layers
         const matchingLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.find(
-            (visibleLayer) => visibleLayer.getID() === layer.getID()
+            (visibleLayer) => visibleLayer?.getID() === layer.getID()
         )
         if (!matchingLayerInVisibleLayers) {
             return -1
@@ -109,7 +102,7 @@ export function useLayerZIndexCalculation() {
             // only keeping previous layers (if layer is first, an empty array will be returned by slice(0, 0))
             .slice(0, Math.max(indexOfLayerInVisibleLayers - 1, 0))
             // only keeping groups of layers
-            .filter((previousLayer) => previousLayer.type === LayerTypes.GROUP)
+            .filter((previousLayer) => previousLayer?.type === LayerTypes.GROUP)
             // counting how many layers they have inside each group
             .map((previousGroup) => previousGroup.layers.length)
             // sum
