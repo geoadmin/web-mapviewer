@@ -21,7 +21,9 @@ const capabilities = ref([])
 
 function onNewCapabilities(newCapabilities, newWmsMaxSize) {
     log.debug(`New capabilities`, newCapabilities, newWmsMaxSize)
-    capabilities.value = newCapabilities
+    capabilities.value = newCapabilities.sort((layerA, layerB) =>
+        layerA.name.localeCompare(layerB.name, undefined, { sensitivity: 'base' })
+    )
     wmsMaxSize.value = newWmsMaxSize
 }
 
