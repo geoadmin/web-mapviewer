@@ -114,7 +114,7 @@ function zoomToLayer() {
 <template>
     <div class="menu-catalogue-item" data-cy="catalogue-tree-item">
         <div
-            class="menu-catalogue-item-title ps-1"
+            class="menu-catalogue-item-title ps-2"
             :class="{ group: hasChildren }"
             :data-cy="`catalogue-tree-item-${item.getID()}`"
             @click="onItemClick"
