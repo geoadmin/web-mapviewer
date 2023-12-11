@@ -7,7 +7,7 @@ const props = defineProps({
         default: false,
     },
     providers: {
-        type: Array,
+        type: Array /* Array of Provider */,
         default() {
             return []
         },
@@ -62,11 +62,11 @@ defineExpose({ goToFirst })
                 @keydown.home.prevent="goToFirst"
                 @keydown.end.prevent="goToLast"
                 @keydown.esc.prevent="showProviders = false"
-                @keydown.enter.prevent="emit('chooseProvider', provider.value)"
-                @click="emit('chooseProvider', provider.value)"
+                @keydown.enter.prevent="emit('chooseProvider', provider.url)"
+                @click="emit('chooseProvider', provider.url)"
             >
                 <!-- eslint-disable vue/no-v-html-->
-                <span v-html="provider.display"></span>
+                <span v-html="provider.htmlDisplay"></span>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
             <div v-show="providers.length === 0" class="providers-list-empty px-2 py-1">
