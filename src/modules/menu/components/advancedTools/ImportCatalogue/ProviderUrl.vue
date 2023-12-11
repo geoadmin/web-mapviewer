@@ -37,15 +37,13 @@ function onUrlChange(_event) {
 }
 
 function validateUrl() {
-    setTimeout(() => {
-        errorMessage.value = null
-        if (!url.value) {
-            errorMessage.value = 'no_url'
-        } else if (!isValidUrl(url.value)) {
-            errorMessage.value = 'invalid_url'
-        }
-        return !errorMessage.value
-    }, 100)
+    errorMessage.value = null
+    if (!url.value) {
+        errorMessage.value = 'no_url'
+    } else if (!isValidUrl(url.value)) {
+        errorMessage.value = 'invalid_url'
+    }
+    return !errorMessage.value
 }
 
 function clearUrl() {
