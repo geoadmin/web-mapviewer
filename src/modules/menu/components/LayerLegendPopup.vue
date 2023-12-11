@@ -62,7 +62,10 @@ onMounted(async () => {
                 <div>{{ body }}</div>
                 <div class="mt-2 text-primary text-end">
                     <span class="me-1">{{ $t('copyright_data') }}</span>
-                    <a :href="attributionUrl" target="_blank">{{ attributionName }}</a>
+                    <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{
+                        attributionName
+                    }}</a>
+                    <span v-else>{{ attributionName }}</span>
                 </div>
             </div>
             <!-- eslint-disable vue/no-v-html-->
