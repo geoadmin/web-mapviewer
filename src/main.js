@@ -29,6 +29,7 @@ import {
 import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'
+import clickOutside from '@/utils/click-outside'
 import log from '@/utils/logging'
 import setupChartJS from '@/utils/setupChartJS'
 
@@ -62,6 +63,7 @@ app.use(i18n)
 app.use(store)
 app.use(VueSocialSharing)
 
+app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 // if we are testing with Cypress, we expose the store
