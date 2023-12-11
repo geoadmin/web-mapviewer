@@ -47,11 +47,16 @@ function validateUrl() {
     return !errorMessage.value
 }
 
-function clearUrl() {
+function clearUrl(event) {
     capabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
     errorMessage.value = null
+    if (event.screenX !== 0 || event.screenY !== 0) {
+        // only focus on the provider input when the clear button has been clicked
+        // and when it is a real click event (not a key stroke)
+        providerIntput.value.focus()
+    }
     emit('capabilities:clear')
 }
 
