@@ -4,7 +4,7 @@
 import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS'
-import { computed, inject, toRefs, watch } from 'vue'
+import { computed, inject, onMounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
@@ -32,7 +32,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => externalWmtsLayerConfig.value.serverLayerId)
+const layerId = computed(() => externalWmtsLayerConfig.value.externalLayerId)
 const opacity = computed(() => parentLayerOpacity.value || externalWmtsLayerConfig.value.opacity)
 const getCapabilitiesUrl = computed(() => externalWmtsLayerConfig.value.getURL())
 
@@ -40,6 +40,16 @@ const wmtsGetCapParser = new WMTSCapabilities()
 const layer = new TileLayer({
     id: layerId.value,
     opacity: opacity.value,
+})
+
+const olMap = inject('olMap', null)
+useAddLayerToMap(layer, olMap, zIndex)
+
+watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
+watch(projection, setSourceForProjection)
+
+onMounted(() => {
+    setSourceForProjection()
 })
 
 /**
@@ -70,12 +80,8 @@ function setSourceForProjection() {
             }
         })
 }
-
-setSourceForProjection()
-
-const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, zIndex)
-
-watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, setSourceForProjection)
 </script>
+
+<template>
+    <slot />
+</template>
