@@ -101,10 +101,6 @@ function onCollapseClick() {
     showChildren.value = !showChildren.value
 }
 
-function onCheckboxClick() {
-    addLayer()
-}
-
 function zoomToLayer() {
     log.debug(`Zoom to layer ${item.name}`, item.extent)
     store.dispatch('zoomToExtent', item.extent)
@@ -140,7 +136,7 @@ function zoomToLayer() {
                     'text-primary': isPresentInActiveLayers || isCurrentlyHidden,
                     'btn-lg': !compact,
                 }"
-                @click.stop="onCheckboxClick"
+                @click.stop="addLayer()"
             >
                 <FontAwesomeIcon
                     :icon="`far ${
