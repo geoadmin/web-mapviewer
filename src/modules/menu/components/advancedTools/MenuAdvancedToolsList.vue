@@ -8,7 +8,7 @@
             data-cy="menu-advanced-tools-import-catalogue"
             @toggle-menu="onToggleImportCatalogue"
         >
-            <ImportCatalogue v-if="showImportCatalogue" :compact="compact" />
+            <ImportCatalogue v-show="showImportCatalogue" :compact="compact" />
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
