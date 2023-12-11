@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import {
@@ -14,6 +15,7 @@ import { isValidUrl } from '@/utils/utils'
 const emit = defineEmits(['capabilities:parsed', 'capabilities:clear'])
 
 const i18n = useI18n()
+const store = useStore()
 
 // Reactive data
 const url = ref('')
@@ -30,6 +32,12 @@ const { loadCapabilities } = useCapabilities(url)
 const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
 const isInvalid = computed(() => errorMessage.value)
 const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
+const lang = computed(() => store.state.i18n.lang)
+
+watch(lang, () => {
+    // When the language changes re-connect to reload the translated capabilities
+    connect()
+})
 
 // Methods
 function onUrlChange(_event) {
