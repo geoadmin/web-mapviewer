@@ -143,6 +143,7 @@ function onToggleProviders(event) {
                     v-if="url?.length > 0"
                     id="urlClearButton"
                     class="btn btn-outline-secondary"
+                    :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
                     data-cy="import-input-clear"
@@ -151,6 +152,11 @@ function onToggleProviders(event) {
                     <FontAwesomeIcon :icon="['fas', 'times-circle']" />
                 </button>
                 <button
+                    v-if="
+                        // We use v-if instead of v-show here in order to have bootstrap handling
+                        // the rounded corner correctly
+                        !capabilitiesParsed
+                    "
                     id="connectButton"
                     type="button"
                     class="btn btn-outline-secondary"
