@@ -103,16 +103,7 @@ export default class WMSCapabilitiesParser {
                 visible,
                 ignoreError
             )
-        )
-            .filter((layer) => !!layer)
-            .sort((layerA, layerB) => {
-                if (layerA.name.toLowerCase() > layerB.name.toLowerCase()) {
-                    return 1
-                } else if (layerA.name.toLowerCase() < layerB.name.toLowerCase()) {
-                    return -1
-                }
-                return 0
-            })
+        ).filter((layer) => !!layer)
     }
 
     _getExternalLayerObject(layer, parents, projection, opacity, visible, ignoreError) {
