@@ -1,5 +1,5 @@
 <template>
-    <teleport v-if="readyForTeleport" to="#map-footer-middle">
+    <teleport to="#map-footer-middle">
         <div
             v-show="showContainer"
             class="infobox card rounded-0"
@@ -47,7 +47,6 @@
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
                     :projection="projection"
-                    @update-elevation-profile-plot="setMaxHeight"
                 />
 
                 <FeatureCombo
@@ -94,8 +93,6 @@ export default {
         return {
             /** Allows infobox to be "minimized". */
             showContent: true,
-            /** Delay teleport until view is rendered. Updated in mounted-hook. */
-            readyForTeleport: false,
         }
     },
     computed: {
@@ -152,11 +149,6 @@ export default {
         },
     },
     watch: {
-        showContainer(visible) {
-            if (visible) {
-                this.computeHeightNextTick()
-            }
-        },
         selectedFeatures(features) {
             if (features.length === 0) {
                 return
@@ -164,32 +156,15 @@ export default {
             this.showContent = true
 
             this.$nextTick(() => {
-                // Update maxHeight when the features change while the box is open.
-                this.setMaxHeight()
                 // Reset the container's scroll when the content changes.
                 this.$refs.content.scrollTo(0, 0)
             })
         },
     },
-    mounted() {
-        // We can enable the teleport after the view has been rendered.
-        this.$nextTick(() => {
-            this.readyForTeleport = true
-            this.computeHeightNextTick()
-        })
-    },
     methods: {
         ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip', 'toggleImportOverlay']),
-        computeHeightNextTick() {
-            this.$nextTick(() => {
-                this.setMaxHeight()
-            })
-        },
         onToggleContent() {
             this.showContent = !this.showContent
-            if (this.showContent) {
-                this.computeHeightNextTick()
-            }
         },
         onToggleFloating() {
             this.toggleFloatingTooltip()
@@ -204,22 +179,6 @@ export default {
                 this.clearAllSelectedFeatures()
             }
         },
-        setMaxHeight() {
-            if (!this.showContainer || !this.$refs.content) {
-                return
-            }
-            const container = this.$refs.content
-            const { paddingTop, paddingBottom } = getComputedStyle(container)
-            const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
-            const childHeight = Array.from(
-                container.querySelectorAll('[data-infobox="height-reference"]')
-            )
-                .map((child) => parseInt(child.offsetHeight))
-                .reduce((max, height) => Math.max(max, height), 0)
-            // We set max-height because setting the height would influence the
-            // height of the children which in turn breaks this calculation.
-            container.style.maxHeight = `min(${verticalPadding + childHeight}px, 35vh)`
-        },
     },
 }
 </script>
@@ -232,12 +191,6 @@ export default {
 
     &-header {
         cursor: pointer;
-    }
-
-    &-content {
-        // The real max-height will be set dynamically. (setMaxHeight)
-        max-height: 0;
-        overflow-y: auto;
     }
 }
 </style>

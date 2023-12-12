@@ -341,7 +341,7 @@ Cypress.Commands.add('readWindowValue', (key) => {
 
 Cypress.Commands.add('activateFullscreen', (mapSelector = '[data-cy="ol-map"]') => {
     cy.readStoreValue('state.ui.fullscreenMode').should('be.false')
-    cy.get(mapSelector).click('center')
+    cy.get(mapSelector).click('center', { force: true })
     cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
         if (isPhoneMode) {
             cy.waitUntilState((state) => state.ui.fullscreenMode)

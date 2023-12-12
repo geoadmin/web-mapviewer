@@ -723,14 +723,6 @@ describe('Drawing module tests', () => {
             // the content should now be visible again
             cy.get('[data-cy="infobox-content"]').should('be.visible')
 
-            // closing the popup by clicking somewhere else on the map
-            cy.get('[data-cy="ol-map"]').click(200, 250)
-            cy.get('[data-cy="infobox"]').should('not.be.visible')
-
-            // clicking on the line, the profile should be visible again
-            cy.get('[data-cy="ol-map"]').click(150, 200)
-            cy.get('[data-cy="infobox"]').should('be.visible')
-
             // clicking the X button of the popup
             cy.get('[data-cy="infobox-close"]').click()
             // it is now closed

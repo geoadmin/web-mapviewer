@@ -9,7 +9,6 @@
             v-if="elevationProfile"
             :elevation-profile="elevationProfile"
             :tracking-point-color="feature.fillColor"
-            @update="onElevationProfilePlotUpdate"
         />
         <FeatureElevationProfileInformation :profile="elevationProfile">
             <button
@@ -63,7 +62,6 @@ export default {
             default: false,
         },
     },
-    emits: ['updateElevationProfilePlot'],
     data() {
         return {
             /** @type {ElevationProfile} */
@@ -150,10 +148,6 @@ export default {
                     generateFilename('.csv')
                 )
             }
-        },
-        onElevationProfilePlotUpdate() {
-            // bubbling up the event so that the infobox module can set its height accordingly
-            this.$emit('updateElevationProfilePlot')
         },
         updateElevationProfileData() {
             this.request.pending = true
