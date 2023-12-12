@@ -46,7 +46,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
             type="button"
             class="btn btn-outline-secondary me-md-3 import-file-btn-connect"
             :disabled="isLoading || disabled"
-            data-cy="import-load-button"
+            data-cy="import-file-load-button"
             @click="emit('loadFile')"
         >
             {{ i18n.t(buttonI18nKey) }}
@@ -55,7 +55,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
         <button
             type="button"
             class="btn btn-outline-secondary import-file-btn-close"
-            data-cy="import-close-button"
+            data-cy="import-file-close-button"
             @click="toggleImportFile()"
         >
             {{ i18n.t('close') }}

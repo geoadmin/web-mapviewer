@@ -467,7 +467,7 @@ export default {
         }
         .providers-list-item:focus,
         .providers-list-item:hover {
-            background-color: $list-item-hover-color;
+            background-color: $list-item-hover-bg-color;
         }
     }
 }

@@ -116,7 +116,7 @@ export default {
     }
     @include respond-above(phone) {
         &:hover {
-            background-color: $list-item-hover-color;
+            background-color: $list-item-hover-bg-color;
         }
         .btn {
             // Same (no) transition on button and list-item.

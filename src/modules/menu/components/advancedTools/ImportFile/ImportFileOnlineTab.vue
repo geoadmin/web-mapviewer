@@ -73,7 +73,13 @@ async function loadFile() {
 
 <template>
     <!-- Online Tab -->
-    <div id="nav-online" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-online-tab">
+    <div
+        id="nav-online"
+        class="tab-pane fade"
+        role="tabpanel"
+        aria-labelledby="nav-online-tab"
+        data-cy="import-file-online-content"
+    >
         <form class="input-group d-flex needs-validation">
             <input
                 type="text"
@@ -83,7 +89,7 @@ async function loadFile() {
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
                 }"
-                :placeholder="i18n.t('import_online_placeholder')"
+                :placeholder="i18n.t('import_file_url_placeholder')"
                 :value="fileUrl"
                 data-cy="import"
                 @input="onFileUrlChange"

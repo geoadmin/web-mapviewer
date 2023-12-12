@@ -20,7 +20,7 @@ const selectedTab = ref('online')
                     role="tab"
                     aria-controls="nav-online"
                     :aria-selected="selectedTab === 'online'"
-                    data-cy="online-import-btn"
+                    data-cy="import-file-online-btn"
                     @click="selectedTab = 'online'"
                 >
                     Online
@@ -36,7 +36,7 @@ const selectedTab = ref('online')
                     role="tab"
                     aria-controls="nav-local"
                     :aria-selected="selectedTab === 'local'"
-                    data-cy="local-import-btn"
+                    data-cy="import-file-local-btn"
                     @click="selectedTab = 'local'"
                 >
                     Local
