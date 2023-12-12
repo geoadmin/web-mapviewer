@@ -88,11 +88,11 @@ function onItemClick() {
 </script>
 
 <template>
-    <div class="menu-topic-item" data-cy="topic-tree-item">
+    <div class="menu-catalogue-item" data-cy="catalogue-tree-item">
         <div
-            class="menu-topic-item-title"
+            class="menu-catalogue-item-title"
             :class="{ group: hasChildren }"
-            :data-cy="`topic-tree-item-${item.getID()}`"
+            :data-cy="`catalogue-tree-item-${item.getID()}`"
             @click="onItemClick"
             @mouseenter="startLayerPreview"
         >
@@ -120,12 +120,12 @@ function onItemClick() {
                     }`"
                 />
             </button>
-            <span class="menu-topic-item-name">{{ item.name }}</span>
+            <span class="menu-catalogue-item-name">{{ item.name }}</span>
             <button
                 v-if="canBeAddedToTheMap"
                 class="btn"
                 :class="{ 'btn-lg': !compact }"
-                data-cy="topic-tree-item-info"
+                data-cy="catalogue-tree-item-info"
                 @click.stop="showLayerLegend = true"
             >
                 <FontAwesomeIcon icon="info-circle" />
@@ -134,7 +134,7 @@ function onItemClick() {
         <CollapseTransition :duration="200">
             <ul
                 v-show="showChildren"
-                class="menu-topic-item-children"
+                class="menu-catalogue-item-children"
                 :class="`ps-${2 + 2 * depth}`"
             >
                 <LayerCatalogueItem
@@ -158,7 +158,7 @@ function onItemClick() {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
 
-.menu-topic-item {
+.menu-catalogue-item {
     border-bottom: none;
 
     &-title {
@@ -177,10 +177,10 @@ function onItemClick() {
         }
     }
 }
-.menu-topic-item-name {
+.menu-catalogue-item-name {
     @extend .menu-name;
 }
-.menu-topic-item-children {
+.menu-catalogue-item-children {
     @extend .menu-list;
 }
 </style>

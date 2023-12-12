@@ -24,7 +24,11 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <LayerCatalogue :layer-catalogue="currentTopicTree" :compact="compact" />
+        <LayerCatalogue
+            data-cy="menu-topic-tree"
+            :layer-catalogue="currentTopicTree"
+            :compact="compact"
+        />
     </MenuSection>
 </template>
 
@@ -90,10 +94,6 @@ export default {
 <style lang="scss" scoped>
 @import 'src/modules/menu/scss/menu-items';
 
-.menu-topic-list {
-    @extend .menu-list;
-    overflow-y: auto;
-}
 .menu-topic-switch {
     border: 0;
     background: none;
