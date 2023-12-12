@@ -4,7 +4,7 @@
  * layers or a single layer.
  */
 
-import { FontAwesomeIcon /*FontAwesomeLayers*/ } from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -143,9 +143,9 @@ function zoomToLayer() {
                 @click.stop="onCollapseClick"
             >
                 <!-- TODO choose one of the solutions below -->
-                <FontAwesomeIcon :icon="['far', showChildren ? 'square-minus' : 'square-plus']" />
+                <!-- <FontAwesomeIcon :icon="['far', showChildren ? 'square-minus' : 'square-plus']" /> -->
                 <!-- <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" /> -->
-                <!-- <FontAwesomeLayers>
+                <FontAwesomeLayers>
                     <FontAwesomeIcon
                         :class="{
                             'text-primary': isPresentInActiveLayers || isCurrentlyHidden,
@@ -153,7 +153,7 @@ function zoomToLayer() {
                         icon="fa-regular fa-circle"
                     />
                     <FontAwesomeIcon size="xs" :icon="showChildren ? 'minus' : 'plus'" />
-                </FontAwesomeLayers> -->
+                </FontAwesomeLayers>
             </button>
 
             <span
