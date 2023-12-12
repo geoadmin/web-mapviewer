@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import {
@@ -8,12 +9,12 @@ import {
     useCapabilities,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
-import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
 
-const emit = defineEmits(['capabilities:parsed', 'capabilities:clear'])
+const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
 const i18n = useI18n()
+const store = useStore()
 
 // Reactive data
 const url = ref('')
@@ -21,6 +22,7 @@ const capabilitiesParsed = ref(false)
 const errorMessage = ref(null)
 const providerList = ref(null)
 const isLoading = ref(false)
+const providerIntput = ref(null)
 
 const { providers, showProviders, toggleProviders } = useProviders(url)
 const { loadCapabilities } = useCapabilities(url)
@@ -29,6 +31,12 @@ const { loadCapabilities } = useCapabilities(url)
 const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
 const isInvalid = computed(() => errorMessage.value)
 const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
+const lang = computed(() => store.state.i18n.lang)
+
+watch(lang, () => {
+    // When the language changes re-connect to reload the translated capabilities
+    connect()
+})
 
 // Methods
 function onUrlChange(_event) {
@@ -37,21 +45,23 @@ function onUrlChange(_event) {
 }
 
 function validateUrl() {
-    errorMessage.value = null
-    if (!url.value) {
-        errorMessage.value = 'no_url'
-    } else if (!isValidUrl(url.value)) {
+    if (url.value.length && !isValidUrl(url.value)) {
         errorMessage.value = 'invalid_url'
     }
     return !errorMessage.value
 }
 
-function clearUrl() {
+function clearUrl(event) {
     capabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
     errorMessage.value = null
-    emit('capabilities:clear')
+    if (event.screenX !== 0 || event.screenY !== 0) {
+        // only focus on the provider input when the clear button has been clicked
+        // and when it is a real click event (not a key stroke)
+        providerIntput.value.focus()
+    }
+    emit('capabilities:cleared')
 }
 
 function chooseProvider(providerUrl) {
@@ -73,7 +83,6 @@ async function connect() {
         const { layers, wmsMaxSize } = await loadCapabilities()
         isLoading.value = false
         capabilitiesParsed.value = true
-        log.debug(`load capabilities successful`, layers, wmsMaxSize)
         emit('capabilities:parsed', layers, wmsMaxSize)
     } catch (error) {
         isLoading.value = false
@@ -85,15 +94,25 @@ async function connect() {
         }
     }
 }
+
+function onToggleProviders(event) {
+    toggleProviders()
+    if (showProviders.value && (event.screenX !== 0 || event.screenY !== 0)) {
+        // only focus on the provider input when the provider list has been opened
+        // and when it is a real click event (not a key stroke)
+        providerIntput.value.focus()
+    }
+}
 </script>
 
 <template>
-    <div v-click-outside="() => (showProviders = false)" class="container mb-2 pe-0">
-        <form class="input-group input-group-sm needs-validation">
+    <div v-click-outside="() => (showProviders = false)" class="mb-2 pe-0">
+        <form class="input-group input-group-sm has-validation">
             <input
+                ref="providerIntput"
                 v-model="url"
                 type="text"
-                class="form-control text-truncate"
+                class="form-control text-truncate rounded-end-0"
                 :class="{
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
@@ -102,7 +121,7 @@ async function connect() {
                 :disabled="isLoading"
                 :aria-label="i18n.t('import_maps_url_placeholder')"
                 :placeholder="i18n.t('import_maps_url_placeholder')"
-                aria-describedby="urlInputControl urlInvalidMessageFeedback"
+                aria-describedby="urlInputControlBtnGrp urlToggleProviderButton urlClearButton urlConnectButton urlInvalidMessageFeedback"
                 data-cy="import-catalogue-input"
                 @input="onUrlChange"
                 @focusin="showProviders = true"
@@ -116,22 +135,26 @@ async function connect() {
                 class="input-group-append btn-group btn-group-sm"
                 role="group"
                 aria-label="Input control"
-                aria-describedby="urlInputControl urlClearButton connectButton"
+                aria-describedby="urlToggleProviderButton urlClearButton urlConnectButton"
             >
+                <!-- Toggle Provider button -->
                 <button
-                    id="urlInputControl"
-                    class="btn btn-outline-secondary rounded-0"
+                    id="urlToggleProviderButton"
+                    class="btn btn-outline-secondary rounded-start-0"
+                    :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
                     data-cy="import-catalogue-providers-toggle"
-                    @click="toggleProviders"
+                    @click="onToggleProviders"
                 >
                     <FontAwesomeIcon :icon="showProviders ? 'caret-up' : 'caret-down'" />
                 </button>
+                <!-- Clear button -->
                 <button
                     v-if="url?.length > 0"
                     id="urlClearButton"
                     class="btn btn-outline-secondary"
+                    :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
                     data-cy="import-input-clear"
@@ -139,8 +162,14 @@ async function connect() {
                 >
                     <FontAwesomeIcon :icon="['fas', 'times-circle']" />
                 </button>
+                <!-- Connect button -->
                 <button
-                    id="connectButton"
+                    v-if="
+                        // We use v-if instead of v-show here in order to have bootstrap handling
+                        // the rounded corner correctly
+                        !capabilitiesParsed && url.length && isValidUrl(url)
+                    "
+                    id="urlConnectButton"
                     type="button"
                     class="btn btn-outline-secondary"
                     :class="{ 'url-input-dropdown-open': showProviders }"
@@ -158,7 +187,7 @@ async function connect() {
                 </button>
             </div>
             <div
-                v-if="errorMessage && !showProviders"
+                v-if="isInvalid && !showProviders"
                 id="urlInvalidMessageFeedback"
                 class="invalid-feedback"
             >
@@ -166,6 +195,7 @@ async function connect() {
             </div>
         </form>
         <ProviderList
+            id="urlProvidersList"
             ref="providerList"
             :providers="providers"
             :show-providers="showProviders"

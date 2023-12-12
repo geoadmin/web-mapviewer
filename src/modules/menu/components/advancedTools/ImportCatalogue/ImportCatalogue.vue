@@ -21,7 +21,9 @@ const capabilities = ref([])
 
 function onNewCapabilities(newCapabilities, newWmsMaxSize) {
     log.debug(`New capabilities`, newCapabilities, newWmsMaxSize)
-    capabilities.value = newCapabilities
+    capabilities.value = newCapabilities.sort((layerA, layerB) =>
+        layerA.name.localeCompare(layerB.name, undefined, { sensitivity: 'base' })
+    )
     wmsMaxSize.value = newWmsMaxSize
 }
 
@@ -32,13 +34,12 @@ function onClear() {
 </script>
 
 <template>
-    <div data-cy="import-catalog-content">
-        <ProviderUrl @capabilities:parsed="onNewCapabilities" @capabilities:clear="onClear" />
-        <!-- TODO display of the result-->
+    <div class="ps-2" data-cy="import-catalog-content">
+        <ProviderUrl @capabilities:parsed="onNewCapabilities" @capabilities:cleared="onClear" />
         <div v-if="wmsMaxSize">
             {{ i18n.t('wms_max_size_allowed') }} {{ wmsMaxSize.width }} * {{ wmsMaxSize.height }}
         </div>
-        <LayerCatalogue :layer-catalogue="capabilities" :compact="compact" />
+        <LayerCatalogue class="mb-2" :layer-catalogue="capabilities" :compact="compact" />
     </div>
 </template>
 

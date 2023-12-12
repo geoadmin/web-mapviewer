@@ -23,6 +23,8 @@ import {
     faChevronUp,
     faCircle,
     faCircleChevronRight,
+    faCircleMinus,
+    faCirclePlus,
     faClockRotateLeft,
     faCog,
     faCube,
@@ -116,6 +118,8 @@ library.add(
     faXmark,
     faSortAlphaUp,
     faSortAlphaDown,
+    faCirclePlus,
+    faCircleMinus,
     // Regular
     faCheckSquare,
     faClock,

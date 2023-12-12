@@ -49,7 +49,7 @@ defineExpose({ goToFirst })
 <template>
     <div
         v-show="showProviders"
-        class="providers-list-container shadow border rounded-0 rounded-bottom overflow-auto"
+        class="providers-list-container shadow border rounded-bottom overflow-auto"
     >
         <div ref="providerList" class="providers-list" data-cy="import-provider-list">
             <div

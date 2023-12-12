@@ -69,7 +69,6 @@ describe('The Import Maps Tool', () => {
             .children()
             .contains('https://wms.geo.admin.ch')
             .click()
-        cy.get('[data-cy="import-connect-button"]').click()
         cy.wait('@wms-get-capabilities')
         // TODO test add layer
         // cy.get('[data-cy="import-add-layer-button"]').scrollIntoView()
