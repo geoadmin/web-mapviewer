@@ -18,7 +18,7 @@ describe('Test of layer handling', () => {
             cy.goToMapView()
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
         })
-        it.only('adds a layers with config to the map when opening the app layers URL param', () => {
+        it('adds a layers with config to the map when opening the app layers URL param', () => {
             cy.goToMapView({
                 layers: [
                     'test-1.wms.layer',
