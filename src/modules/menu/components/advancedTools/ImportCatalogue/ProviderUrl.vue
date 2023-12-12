@@ -45,10 +45,7 @@ function onUrlChange(_event) {
 }
 
 function validateUrl() {
-    errorMessage.value = null
-    if (!url.value) {
-        errorMessage.value = 'no_url'
-    } else if (!isValidUrl(url.value)) {
+    if (url.value.length && !isValidUrl(url.value)) {
         errorMessage.value = 'invalid_url'
     }
     return !errorMessage.value
@@ -110,12 +107,12 @@ function onToggleProviders(event) {
 
 <template>
     <div v-click-outside="() => (showProviders = false)" class="mb-2 pe-0">
-        <form class="input-group input-group-sm needs-validation">
+        <form class="input-group input-group-sm has-validation">
             <input
                 ref="providerIntput"
                 v-model="url"
                 type="text"
-                class="form-control text-truncate"
+                class="form-control text-truncate rounded-end-0"
                 :class="{
                     'is-valid': isValid,
                     'is-invalid': isInvalid,
@@ -124,7 +121,7 @@ function onToggleProviders(event) {
                 :disabled="isLoading"
                 :aria-label="i18n.t('import_maps_url_placeholder')"
                 :placeholder="i18n.t('import_maps_url_placeholder')"
-                aria-describedby="urlInputControl urlInvalidMessageFeedback"
+                aria-describedby="urlInputControlBtnGrp urlToggleProviderButton urlClearButton urlConnectButton urlInvalidMessageFeedback"
                 data-cy="import-catalogue-input"
                 @input="onUrlChange"
                 @focusin="showProviders = true"
@@ -138,11 +135,13 @@ function onToggleProviders(event) {
                 class="input-group-append btn-group btn-group-sm"
                 role="group"
                 aria-label="Input control"
-                aria-describedby="urlInputControl urlClearButton connectButton"
+                aria-describedby="urlToggleProviderButton urlClearButton urlConnectButton"
             >
+                <!-- Toggle Provider button -->
                 <button
-                    id="urlInputControl"
-                    class="btn btn-outline-secondary rounded-0"
+                    id="urlToggleProviderButton"
+                    class="btn btn-outline-secondary rounded-start-0"
+                    :class="{ 'url-input-dropdown-open': showProviders }"
                     :disabled="isLoading"
                     type="button"
                     data-cy="import-catalogue-providers-toggle"
@@ -150,6 +149,7 @@ function onToggleProviders(event) {
                 >
                     <FontAwesomeIcon :icon="showProviders ? 'caret-up' : 'caret-down'" />
                 </button>
+                <!-- Clear button -->
                 <button
                     v-if="url?.length > 0"
                     id="urlClearButton"
@@ -162,13 +162,14 @@ function onToggleProviders(event) {
                 >
                     <FontAwesomeIcon :icon="['fas', 'times-circle']" />
                 </button>
+                <!-- Connect button -->
                 <button
                     v-if="
                         // We use v-if instead of v-show here in order to have bootstrap handling
                         // the rounded corner correctly
-                        !capabilitiesParsed
+                        !capabilitiesParsed && url.length && isValidUrl(url)
                     "
-                    id="connectButton"
+                    id="urlConnectButton"
                     type="button"
                     class="btn btn-outline-secondary"
                     :class="{ 'url-input-dropdown-open': showProviders }"
@@ -186,7 +187,7 @@ function onToggleProviders(event) {
                 </button>
             </div>
             <div
-                v-if="errorMessage && !showProviders"
+                v-if="isInvalid && !showProviders"
                 id="urlInvalidMessageFeedback"
                 class="invalid-feedback"
             >
@@ -194,6 +195,7 @@ function onToggleProviders(event) {
             </div>
         </form>
         <ProviderList
+            id="urlProvidersList"
             ref="providerList"
             :providers="providers"
             :show-providers="showProviders"
