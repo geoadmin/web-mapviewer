@@ -9,10 +9,9 @@ import {
     useCapabilities,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
-import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
 
-const emit = defineEmits(['capabilities:parsed', 'capabilities:clear'])
+const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
 const i18n = useI18n()
 const store = useStore()
@@ -65,7 +64,7 @@ function clearUrl(event) {
         // and when it is a real click event (not a key stroke)
         providerIntput.value.focus()
     }
-    emit('capabilities:clear')
+    emit('capabilities:cleared')
 }
 
 function chooseProvider(providerUrl) {
@@ -87,7 +86,6 @@ async function connect() {
         const { layers, wmsMaxSize } = await loadCapabilities()
         isLoading.value = false
         capabilitiesParsed.value = true
-        log.debug(`load capabilities successful`, layers, wmsMaxSize)
         emit('capabilities:parsed', layers, wmsMaxSize)
     } catch (error) {
         isLoading.value = false
