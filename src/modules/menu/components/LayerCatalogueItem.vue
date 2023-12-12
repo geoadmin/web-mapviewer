@@ -143,8 +143,8 @@ function zoomToLayer() {
                 @click.stop="onCollapseClick"
             >
                 <!-- TODO choose one of the solutions below -->
-                <FontAwesomeIcon :icon="['far', showChildren ? 'square-minus' : 'square-plus']" />
-                <!-- <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" /> -->
+                <!-- <FontAwesomeIcon :icon="['far', showChildren ? 'square-minus' : 'square-plus']" /> -->
+                <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
                 <!-- <FontAwesomeLayers>
                     <FontAwesomeIcon
                         :class="{
