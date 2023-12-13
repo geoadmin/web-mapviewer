@@ -121,6 +121,6 @@
         "node": ">=18",
         "npm": "9.*.*"
     },
-    "type": "commonjs",
+    "type": "module",
     "engineStrict": true
 }
