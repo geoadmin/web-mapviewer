@@ -24,8 +24,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(capabilities.OperationsMetadata).toBeTypeOf('object')
         expect(capabilities.ServiceIdentification).toBeTypeOf('object')
         expect(capabilities.ServiceProvider).toBeTypeOf('object')
-        expect(capabilities.originUrl).toBeInstanceOf(URL)
-        expect(capabilities.originUrl.toString()).toBe('https://example.com/')
+        expect(capabilities.originUrl).toBe('https://example.com')
     })
     it('Parse layer attributes', () => {
         // General layer
@@ -33,14 +32,14 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
         expect(layer.name).toBe('Blue Marble Second Generation - AG')
         expect(layer.abstract).toBe('Blue Marble Second Generation Canton Aargau Product')
-        expect(layer.baseURL).toBe('http://maps.example.com/cgi-bin/map.cgi?')
+        expect(layer.baseURL).toBe('https://example.com')
 
         // Layer without .Identifier
         layer = capabilities.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
         expect(layer.externalLayerId).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.name).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.abstract).toBe('Blue Marble Third Generation Canton Zürich Product')
-        expect(layer.baseURL).toBe('http://maps.example.com/cgi-bin/map.cgi?')
+        expect(layer.baseURL).toBe('https://example.com')
     })
     it('Parse layer attribution', () => {
         // General layer
