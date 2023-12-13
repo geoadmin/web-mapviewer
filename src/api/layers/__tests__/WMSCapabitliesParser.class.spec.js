@@ -2,10 +2,10 @@ import { readFile } from 'fs/promises'
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
+import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-
-import WMSCapabilitiesParser from '../WMSCapabilitiesParser.class'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {
@@ -87,6 +87,24 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(externalLayers[1].extent[0][1]).toBeCloseTo(expected[0][1], 1)
         expect(externalLayers[1].extent[1][0]).toBeCloseTo(expected[1][0], 1)
         expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+    })
+    it('Parse layer legend', () => {
+        // General layer
+        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer.externalLayerId).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer.legends.length).toBe(0)
+
+        // Layer without .Name
+        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer.externalLayerId).toBe('Periodic-Tracking')
+        expect(layer.legends.length).toBe(1)
+        expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
+        expect(layer.legends[0].url).toBe(
+            'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default'
+        )
+        expect(layer.legends[0].format).toBe('image/png')
+        expect(layer.legends[0].width).toBe(168)
+        expect(layer.legends[0].height).toBe(22)
     })
 })
 

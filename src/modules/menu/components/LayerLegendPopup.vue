@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, toRefs, watch } from 'vue'
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -23,6 +24,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['close'])
 const store = useStore()
+const i18n = useI18n()
 
 const { layer, layerId, layerName } = toRefs(props)
 const htmlContent = ref('')
@@ -34,6 +36,7 @@ const body = computed(() => layer.value?.abstract ?? '')
 const attributionName = computed(() => layer.value?.attributions[0].name ?? '')
 const attributionUrl = computed(() => layer.value?.attributions[0].url ?? '')
 const isExternal = computed(() => layer.value?.isExternal ?? false)
+const legends = computed(() => layer.value?.legends ?? [])
 
 watch(layer, async (newLayer) => {
     htmlContent.value = await getLayerLegend(currentLang.value, newLayer.getID())
@@ -59,7 +62,17 @@ onMounted(async () => {
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
             <div v-else-if="isExternal">
+                <h6>{{ i18n.t('description') }}</h6>
                 <div>{{ body }}</div>
+                <div v-if="legends.length" class="mt-4">
+                    <h6>{{ i18n.t('legend') }}</h6>
+                    <div v-for="legend in legends" :key="legend.url">
+                        <img v-if="legend.format.startsWith('image/')" :src="legend.url" />
+                        <iframe v-else-if="legend.format === 'text/html'" :src="legend.url" />
+                        <a v-else :href="legend.url" target="_blank">{{ legend.url }}</a>
+                    </div>
+                </div>
+
                 <div class="mt-2 text-primary text-end">
                     <span class="me-1">{{ $t('copyright_data') }}</span>
                     <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{

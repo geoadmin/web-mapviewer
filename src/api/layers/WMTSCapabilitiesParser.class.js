@@ -2,6 +2,7 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities'
 import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -106,6 +107,7 @@ export default class WMTSCapabilitiesParser {
             attributes.attributions,
             attributes.abstract,
             attributes.extent,
+            attributes.legends,
             false
         )
     }
@@ -133,6 +135,7 @@ export default class WMTSCapabilitiesParser {
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId),
             extent: this._getLayerExtent(layerId, layer, projection, ignoreError),
+            legends: this._getLegends(layerId, layer),
         }
     }
 
@@ -233,5 +236,14 @@ export default class WMTSCapabilitiesParser {
             title = new URL(this.originUrl).hostname
         }
         return [new LayerAttribution(title, url)]
+    }
+
+    _getLegends(layerId, layer) {
+        const styles = layer.Style?.filter((s) => s.LegendURL?.length > 0) ?? []
+        return styles
+            .map((style) =>
+                style.LegendURL.map((legend) => new LayerLegend(legend.href, legend.format))
+            )
+            .flat()
     }
 }
