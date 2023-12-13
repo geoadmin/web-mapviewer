@@ -52,7 +52,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
         updatedExternalLayer.isLoading = false
         store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
-        log.error(`Failed to update external layer: ${error}`)
+        log.error(`Failed to update external layer: `, error)
     }
 }
 

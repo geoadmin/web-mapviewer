@@ -422,7 +422,14 @@ const mutations = {
         state.activeLayers.push(layer)
     },
     updateLayer(state, layer) {
-        Object.assign(getActiveLayerById(state, layer.getID()), layer)
+        const layer2Update = getActiveLayerById(state, layer.getID())
+        if (layer2Update) {
+            Object.assign(layer2Update, layer)
+        } else {
+            throw new Error(
+                `Failed to update layer ${layer.getID()}: layer not found in active layers`
+            )
+        }
     },
     removeLayerWithId(state, layerId) {
         state.activeLayers = removeActiveLayerById(state, layerId)
