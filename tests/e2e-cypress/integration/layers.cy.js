@@ -87,10 +87,8 @@ describe('Test of layer handling', () => {
             it('reads and adds an external WMS correctly', () => {
                 const fakeWmsBaseUrl = 'https://fake.wms.base.url'
                 const fakeLayerId = 'fake.layer_id'
-                const fakeWmsLayerVersion = '9.9.9'
-                const fakeLayerName = 'Fake layer name'
-                // format is WMS|BASE_URL|LAYER_IDS|WMS_VERSION|LAYER_NAME
-                const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}|${fakeWmsLayerVersion}|${fakeLayerName}`
+                // format is WMS|BASE_URL|LAYER_IDS
+                const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMS
                 cy.intercept(`${fakeWmsBaseUrl}/**`, {
@@ -107,8 +105,7 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmsLayer] = layers
-                    expect(externalWmsLayer.wmsVersion).to.eq(fakeWmsLayerVersion)
-                    expect(externalWmsLayer.name).to.eq(fakeLayerName)
+                    expect(externalWmsLayer.wmsVersion).to.eq('1.3.0')
                     expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
                     expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
                     expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
@@ -117,9 +114,8 @@ describe('Test of layer handling', () => {
             it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
                 const fakeLayerId = 'fakeLayerId'
-                const fakeLayerName = 'Fake layer name'
-                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
-                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}|${fakeLayerName}`
+                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMTS
                 cy.intercept(`${fakeGetCapUrl}**`, (req) => {
@@ -140,7 +136,6 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(externalWmtsLayer.name).to.eq(fakeLayerName)
                     expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
                     expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
                 })
@@ -148,9 +143,8 @@ describe('Test of layer handling', () => {
             it('reads and sets non default layer config; visible and opacity', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
                 const fakeLayerId = 'fakeLayerId'
-                const fakeLayerName = 'Fake layer name'
-                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID|LAYER_NAME
-                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}|${fakeLayerName}`
+                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMTS
                 cy.intercept(`${fakeGetCapUrl}**`, (req) => {
