@@ -86,14 +86,21 @@ describe('Test of layer handling', () => {
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
                 const fakeWmsBaseUrl = 'https://fake.wms.base.url'
-                const fakeLayerId = 'fake.layer_id'
+                const fakeLayerId = 'ch.swisstopo-vd.official-survey'
                 // format is WMS|BASE_URL|LAYER_IDS
                 const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMS
-                cy.intercept(`${fakeWmsBaseUrl}/**`, {
-                    fixture: '256.png',
-                }).as('externalWMS')
+                cy.intercept(
+                    { url: `${fakeWmsBaseUrl}/**`, query: { REQUEST: 'GetMap' } },
+                    {
+                        fixture: '256.png',
+                    }
+                ).as('externalWMSGetMap')
+                cy.intercept(
+                    { url: `${fakeWmsBaseUrl}/**`, query: { REQUEST: 'GetCapabilities' } },
+                    { fixture: 'external-wms-getcap.fixture.xml' }
+                ).as('externalWMSGetCap')
 
                 cy.goToMapView(
                     {
@@ -101,7 +108,8 @@ describe('Test of layer handling', () => {
                     },
                     true
                 ) // with hash, otherwise the legacy parser kicks in and ruins the day
-                cy.wait('@externalWMS')
+                cy.wait('@externalWMSGetMap')
+                cy.wait('@externalWMSGetCap')
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmsLayer] = layers
@@ -109,21 +117,32 @@ describe('Test of layer handling', () => {
                     expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
                     expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
                     expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
+                    expect(externalWmsLayer.name).to.eq('OpenData-AV')
+                    expect(externalWmsLayer.isLoading).to.be.false
                 })
+
+                // shows a red icon to signify a layer is from an external source
+                cy.clickOnMenuButtonIfMobile()
+                cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
             })
             it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
-                const fakeLayerId = 'fakeLayerId'
+                const fakeLayerId = 'TestExternalWMTS'
                 // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
                 const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMTS
-                cy.intercept(`${fakeGetCapUrl}**`, (req) => {
-                    // empty XML as response
-                    req.reply(
-                        '<Capabilities version="1.0.0" xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/1999/xlink"></Capabilities>'
-                    )
-                }).as('externalGetCap')
+                cy.intercept(`${fakeGetCapUrl}**`, {
+                    fixture: 'external-wmts-getcap.fixture.xml',
+                }).as('externalWMTSGetCap')
+                cy.intercept(
+                    'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                    {
+                        fixture: '256.png',
+                    }
+                ).as('externalWMTS')
 
                 cy.goToMapView(
                     {
@@ -131,29 +150,18 @@ describe('Test of layer handling', () => {
                     },
                     true
                 ) // with hash, otherwise the legacy parser kicks in and ruins the day
-                cy.wait('@externalGetCap')
+                cy.wait('@externalWMTSGetCap')
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
                     expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
                     expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
+                    expect(externalWmtsLayer.name).to.eq('Test External WMTS')
+                    expect(externalWmtsLayer.isLoading).to.be.false
                 })
-            })
-            it('reads and sets non default layer config; visible and opacity', () => {
-                const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
-                const fakeLayerId = 'fakeLayerId'
-                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
 
-                // intercepting call to our fake WMTS
-                cy.intercept(`${fakeGetCapUrl}**`, (req) => {
-                    // empty XML as response
-                    req.reply(
-                        '<Capabilities version="1.0.0" xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/1999/xlink"></Capabilities>'
-                    )
-                }).as('externalGetCap')
-
+                // reads and sets non default layer config; visible and opacity
                 cy.goToMapView(
                     {
                         layers: `${fakeLayerUrlId},f,0.5`,
@@ -163,12 +171,19 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                     expect(layers).to.be.an('Array').length(1)
-                    const [wmtsLayer] = layers
-                    expect(wmtsLayer).to.be.an('Object')
-                    expect(wmtsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(wmtsLayer.visible).to.eq(false)
-                    expect(wmtsLayer.opacity).to.eq(0.5)
+                    const [externalWmtsLayer] = layers
+                    expect(externalWmtsLayer).to.be.an('Object')
+                    expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
+                    expect(externalWmtsLayer.visible).to.eq(false)
+                    expect(externalWmtsLayer.opacity).to.eq(0.5)
+                    expect(externalWmtsLayer.isLoading).to.be.false
                 })
+
+                // shows a red icon to signify a layer is from an external source
+                cy.clickOnMenuButtonIfMobile()
+                cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
             })
         })
     })
@@ -551,17 +566,6 @@ describe('Test of layer handling', () => {
                         .get('[data-cy="menu-external-disclaimer-icon"]')
                         .should('not.exist')
                 })
-            })
-            it('shows a red icon to signify a layer is from an external source', () => {
-                const fakeExternalServerUrl = 'https://fake.wms.url'
-                const layerId = `WMS|${fakeExternalServerUrl}|fake.wms.layerid|1.3.0|${'Fake layer name'}`
-                cy.intercept(`${fakeExternalServerUrl}**`, {
-                    fixture: '256.png',
-                })
-                goToMenuWithLayers([...visibleLayerIds, layerId])
-                cy.get(`[data-cy="menu-active-layer-${layerId}"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
-                    .should('be.visible')
             })
         })
     })

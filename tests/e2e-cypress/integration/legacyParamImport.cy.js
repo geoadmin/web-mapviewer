@@ -201,18 +201,27 @@ describe('Test on legacy param import', () => {
             )
         })
         it('External WMS layer', () => {
-            cy.intercept('http://wms-test.url/**', {
-                fixture: '256.png',
-            })
-            const layerName = 'TestExternalWMS'
-            const layerId = 'test-external-wms'
+            const layerName = 'OpenData-AV'
+            const layerId = 'ch.swisstopo-vd.official-survey'
             const url = 'http://wms-test.url/'
+            cy.intercept(
+                { url: `${url}/**`, query: { REQUEST: 'GetMap' } },
+                {
+                    fixture: '256.png',
+                }
+            ).as('externalWMSGetMap')
+            cy.intercept(
+                { url: `${url}/**`, query: { REQUEST: 'GetCapabilities' } },
+                { fixture: 'external-wms-getcap.fixture.xml' }
+            ).as('externalWMSGetCap')
+
             cy.goToMapView({
                 layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
                 layers_opacity: '1,1',
                 layers_visibility: 'false,true',
                 layers_timestam: ',',
             })
+            cy.wait('@externalWMSGetCap')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const externalLayer = activeLayers[1]
@@ -220,6 +229,8 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.visible).to.be.true
                 expect(externalLayer.baseURL).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
+                expect(externalLayer.name).to.eq(layerName)
+                expect(externalLayer.isLoading).to.false
             })
             const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
@@ -229,32 +240,35 @@ describe('Test on legacy param import', () => {
         })
         it('External WMTS layer', () => {
             cy.intercept('http://wmts-test.url/**', {
-                fixture: 'external-wmts.fixture.xml',
-            })
+                fixture: 'external-wmts-getcap.fixture.xml',
+            }).as('externalWMTSGetCap')
             cy.intercept(
                 'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
                 {
                     fixture: '256.png',
                 }
             )
-            const layerName = 'TestExternalWMTS'
+            const layerId = 'TestExternalWMTS'
+            const layerName = 'Test External WMTS'
             const url = 'http://wmts-test.url/'
             cy.goToMapView({
-                layers: `test.wmts.layer,WMTS||${layerName}||${url}`,
+                layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
                 layers_opacity: '1,1',
                 layers_visibility: 'false,true',
                 layers_timestam: ',',
             })
+            cy.wait('@externalWMTSGetCap')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const externalLayer = activeLayers[1]
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.visible).to.be.true
                 expect(externalLayer.baseURL).to.eq(url)
-                expect(externalLayer.externalLayerId).to.eq(layerName)
+                expect(externalLayer.externalLayerId).to.eq(layerId)
                 expect(externalLayer.name).to.eq(layerName)
+                expect(externalLayer.isLoading).to.be.false
             })
-            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerName},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')

@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
-<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml" xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd" version="1.0.0">
+<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:gml="http://www.opengis.net/gml"
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
+    version="1.0.0">
     <ows:ServiceIdentification>
         <ows:Title>WMTS GIS Stadt Zuerich</ows:Title>
         <ows:Abstract>WMTS GIS Stadt Zuerich</ows:Abstract>
@@ -10,7 +14,7 @@
     </ows:ServiceIdentification>
     <ows:ServiceProvider>
         <ows:ProviderName>GIS-Zentrum Stadt Zuerich</ows:ProviderName>
-        <ows:ProviderSite xlink:href=""/>
+        <ows:ProviderSite xlink:href="" />
         <ows:ServiceContact>
             <ows:IndividualName>Georg Andersson</ows:IndividualName>
             <ows:PositionName></ows:PositionName>
@@ -31,7 +35,7 @@
     </ows:ServiceProvider>
     <Contents>
         <Layer>
-            <ows:Title>TestExternalWMTS</ows:Title>
+            <ows:Title>Test External WMTS</ows:Title>
             <ows:Abstract></ows:Abstract>
             <ows:WGS84BoundingBox>
                 <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
@@ -46,7 +50,7 @@
                 <TileMatrixSet>ktzh</TileMatrixSet>
             </TileMatrixSetLink>
             <ResourceURL format="image/png" resourceType="tile"
-                         template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png"/>
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
         </Layer>
         <TileMatrixSet>
             <ows:Identifier>ktzh</ows:Identifier>
@@ -62,5 +66,5 @@
             </TileMatrix>
         </TileMatrixSet>
     </Contents>
-    <ServiceMetadataURL xlink:href="http://test.wmts.url/mapproxy/wmts/1.0.0/WMTSCapabilities.xml"/>
+    <ServiceMetadataURL xlink:href="http://test.wmts.url/mapproxy/wmts/1.0.0/WMTSCapabilities.xml" />
 </Capabilities>
