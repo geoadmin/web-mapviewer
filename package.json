@@ -85,7 +85,6 @@
         "chai": "^4.3.10",
         "cypress": "^13.6.1",
         "cypress-browser-permissions": "^1.1.0",
-        "cypress-multi-reporters": "^1.6.4",
         "cypress-real-events": "^1.11.0",
         "cypress-recurse": "^1.35.2",
         "cypress-vite": "^1.5.0",

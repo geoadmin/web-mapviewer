@@ -15,10 +15,6 @@ export default defineConfig({
         runMode: 1,
         openMode: 0,
     },
-    reporter: 'cypress-multi-reporters',
-    reporterOptions: {
-        configFile: `./tests/reporter.config.js`,
-    },
     viewportWidth: 320,
     viewportHeight: 568,
     downloadsFolder: 'tests/e2e-cypress/downloads',
@@ -32,7 +28,7 @@ export default defineConfig({
             on('file:preprocessor', vitePreprocessor())
 
             // plugin that help tests define which browser permission is set or denied (e.g. location API)
-            config = cypressBrowserPermissionsPlugin(on, config)
+            cypressBrowserPermissionsPlugin(on, config)
 
             // adding task to help manage (local/downloaded) files
             on('task', {
