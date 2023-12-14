@@ -86,6 +86,9 @@ export default class AbstractLayer {
     }
 
     get hasLegend() {
-        return this.type !== LayerTypes.KML && !this.isExternal
+        if ([LayerTypes.KML, LayerTypes.GPX].includes(this.type)) {
+            return false
+        }
+        return true
     }
 }

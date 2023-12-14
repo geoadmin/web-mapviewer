@@ -8,6 +8,7 @@ const LayerTypes = {
     GEOJSON: 'geojson',
     AGGREGATE: 'aggregate',
     KML: 'kml',
+    GPX: 'gpx',
     VECTOR: 'vector',
     GROUP: 'group',
 }

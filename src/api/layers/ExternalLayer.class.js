@@ -11,6 +11,24 @@ export function getDefaultAttribution(baseUrl) {
     return [new LayerAttribution(new URL(baseUrl).hostname)]
 }
 
+/** External Layer Legend */
+export class LayerLegend {
+    /**
+     * @param {String} url Legend URL
+     * @param {String} format Legend MIME type
+     * @param {number | null} width Width of the legend image (in case the format is an image
+     *   format)
+     * @param {number | null} height Height of the legend image (in case the format is an image
+     *   format)
+     */
+    constructor(url, format, width = null, height = null) {
+        this.url = url
+        this.format = format
+        this.width = width
+        this.height = height
+    }
+}
+
 /**
  * Base for all external layers, defining a flag to differentiate them from GeoAdminLayers
  *
@@ -30,6 +48,7 @@ export default class ExternalLayer extends AbstractLayer {
      *   of the GetCapabilities server.
      * @param {String} abstract Abstract of this layer to be shown to the user
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -43,6 +62,7 @@ export default class ExternalLayer extends AbstractLayer {
         attributions = null,
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -58,10 +78,15 @@ export default class ExternalLayer extends AbstractLayer {
         this.baseURL = baseURL
         this.abstract = abstract
         this.extent = extent
+        this.legends = legends
         this.isLoading = isLoading
     }
 
     getURL() {
         return this.baseURL
+    }
+
+    get hasLegend() {
+        return this.abstract || this.legends.length > 0 || super.hasLegend
     }
 }

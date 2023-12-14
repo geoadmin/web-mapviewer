@@ -17,6 +17,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   of the GetCapabilities server.
      * @param {String} abstract Abstract of this layer to be shown to the user
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -29,6 +30,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
         attributions = null,
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -41,6 +43,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             attributions,
             abstract,
             extent,
+            legends,
             isLoading
         )
     }

@@ -42,7 +42,7 @@ const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && (!item.isExternal || item.abstract))
+const hasLegend = computed(() => canBeAddedToTheMap.value && item?.hasLegend)
 
 /**
  * Flag telling if this layer can be added to the map (so if the UI should include the necessary

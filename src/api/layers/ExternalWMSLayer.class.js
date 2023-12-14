@@ -16,6 +16,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {String} format Image format for this layer, default is PNG
      * @param {String} abstract Abstract of this layer to be shown to the user
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -30,6 +31,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
         format = 'png',
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -42,6 +44,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             attributions,
             abstract,
             extent,
+            legends,
             isLoading
         )
         this.wmsVersion = wmsVersion

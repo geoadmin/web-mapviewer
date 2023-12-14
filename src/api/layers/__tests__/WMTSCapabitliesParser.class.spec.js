@@ -1,9 +1,9 @@
 import { readFile } from 'fs/promises'
 import { beforeAll, describe, expect, expectTypeOf, it } from 'vitest'
 
+import { LayerLegend } from '@/api/layers/ExternalLayer.class'
+import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-
-import WMTSCapabilitiesParser from '../WMTSCapabilitiesParser.class'
 
 describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     let capabilities
@@ -219,5 +219,17 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
             [6.81, 47.12],
             [7.56, 47.55],
         ])
+    })
+    it('Parse layer legend', () => {
+        // General layer
+        let layer = capabilities.getExternalLayerObject('BlueMarbleSecondGenerationAG', WGS84)
+        expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
+        expectTypeOf(layer.legends).toBeArray()
+        expect(layer.legends.length).toBe(1)
+        expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
+        expect(layer.legends[0].url).toBe(
+            'http://www.miramon.uab.es/wmts/Coastlines/coastlines_darkBlue.png'
+        )
+        expect(layer.legends[0].format).toBe('image/png')
     })
 })

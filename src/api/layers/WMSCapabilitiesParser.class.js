@@ -3,6 +3,7 @@ import proj4 from 'proj4'
 
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
+import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -107,7 +108,7 @@ export default class WMSCapabilitiesParser {
     }
 
     _getExternalLayerObject(layer, parents, projection, opacity, visible, ignoreError) {
-        const { layerId, title, url, version, abstract, attributions, extent } =
+        const { layerId, title, url, version, abstract, attributions, extent, legends } =
             this._getLayerAttributes(layer, parents, projection, ignoreError)
 
         if (!layerId) {
@@ -137,6 +138,7 @@ export default class WMSCapabilitiesParser {
                 attributions,
                 abstract,
                 extent,
+                legends,
                 false
             )
         }
@@ -151,6 +153,7 @@ export default class WMSCapabilitiesParser {
             'png',
             abstract,
             extent,
+            legends,
             false
         )
     }
@@ -194,6 +197,7 @@ export default class WMSCapabilitiesParser {
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId, layer, ignoreError),
             extent: this._getLayerExtent(layerId, layer, parents, projection, ignoreError),
+            legends: this._getLayerLegends(layerId, layer),
         }
     }
 
@@ -278,5 +282,18 @@ export default class WMSCapabilitiesParser {
         }
 
         return [new LayerAttribution(title, url)]
+    }
+
+    _getLayerLegends(layerId, layer) {
+        const styles = layer.Style?.filter((s) => s.LegendURL?.length > 0) ?? []
+        return styles
+            .map((style) =>
+                style.LegendURL.map((legend) => {
+                    const width = legend.size?.length >= 2 ? legend.size[0] : null
+                    const height = legend.size?.length >= 2 ? legend.size[1] : null
+                    return new LayerLegend(legend.OnlineResource, legend.Format, width, height)
+                })
+            )
+            .flat()
     }
 }

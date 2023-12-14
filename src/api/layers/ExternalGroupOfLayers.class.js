@@ -23,6 +23,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      *   layer. When `null` is given it uses the default attribution which is based on the hostname
      *   of the GetCapabilities server.
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -36,6 +37,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
         attributions = null,
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -48,6 +50,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             attributions,
             abstract,
             extent,
+            legends,
             isLoading
         )
         this.layers = [...layers]
