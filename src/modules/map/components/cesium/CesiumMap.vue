@@ -66,7 +66,7 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <cesium-compass v-show="isDesktopMode" ref="compass" class="compass" />
+        <cesium-compass v-show="isDesktopMode && !isFullScreenMode" ref="compass" class="compass" />
         <slot />
     </div>
 </template>
@@ -158,6 +158,7 @@ export default {
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
+            isFullScreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
             'centerEpsg4326',

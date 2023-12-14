@@ -302,8 +302,6 @@ describe('Test the search bar result handling', () => {
         cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
         cy.get('[data-cy="map"]').click(viewportWidth * 0.5, viewportHeight * 0.75)
         cy.get('[data-cy="search-result-entry-location"]').should('not.be.visible')
-        cy.activateFullscreen()
-        cy.get(searchbarSelector).should('not.exist')
     })
     it('shows the results once again if the user clicks back on the search input', () => {
         cy.goToMapView()

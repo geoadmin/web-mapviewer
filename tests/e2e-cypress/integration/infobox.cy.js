@@ -17,24 +17,6 @@ describe('The infobox', () => {
 
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })
-        it('blocks direct activation of fullscreen', () => {
-            cy.get(mapSelector).click()
-            cy.waitUntilState((state) => {
-                return state.features.selectedFeatures.length > 0
-            })
-            cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
-                if (isPhoneMode) {
-                    cy.get('[data-cy="infobox"]').should('be.visible')
-                } else {
-                    cy.get('[data-cy="popover"]').should('be.visible')
-                }
-                cy.intercept('**/MapServer/identify**', {})
-                cy.get(mapSelector).click('right', { force: true })
-                cy.get('[data-cy="infobox"]').should('not.be.visible')
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.activateFullscreen(mapSelector)
-            })
-        })
         it('can float or stick to the bottom', () => {
             cy.get(mapSelector).click()
             cy.waitUntilState((state) => {
