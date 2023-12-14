@@ -34,7 +34,7 @@ export default class WMSCapabilitiesParser {
             throw new Error(`Failed to parse WMTS Capabilities: invalid content: ${error}`)
         }
 
-        this.originUrl = new URL(originUrl)
+        this.originUrl = originUrl
     }
 
     /**
@@ -65,7 +65,7 @@ export default class WMSCapabilitiesParser {
     getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
         const { layer, parents } = this.findLayer(layerId)
         if (!layer) {
-            const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
+            const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl}`
             log.error(msg)
             if (ignoreError) {
                 return null
@@ -164,7 +164,7 @@ export default class WMSCapabilitiesParser {
         }
         if (!layerId) {
             // Without layerID we cannot use the layer in our viewer
-            const msg = `No layerId found in WMS capabilities for layer in ${this.originUrl.toString()}`
+            const msg = `No layerId found in WMS capabilities for layer in ${this.originUrl}`
             log.error(msg, layer)
             if (ignoreError) {
                 return {}
@@ -175,9 +175,9 @@ export default class WMSCapabilitiesParser {
         if (!this.version || !WMS_SUPPORTED_VERSIONS.includes(this.version)) {
             let msg = ''
             if (!this.version) {
-                msg = `No WMS version found in Capabilities of ${this.originUrl.toString()}`
+                msg = `No WMS version found in Capabilities of ${this.originUrl}`
             } else {
-                msg = `WMS version ${this.version} of ${this.originUrl.toString()} not supported`
+                msg = `WMS version ${this.version} of ${this.originUrl} not supported`
             }
             log.error(msg, layer)
             if (ignoreError) {
@@ -189,9 +189,7 @@ export default class WMSCapabilitiesParser {
         return {
             layerId: layerId,
             title: layer.Title,
-            url:
-                this.Capability?.Request?.GetMap?.DCPType[0]?.HTTP?.Get?.OnlineResource ||
-                this.originUrl.toString(),
+            url: this.originUrl,
             version: this.version,
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId, layer, ignoreError),
@@ -248,7 +246,7 @@ export default class WMSCapabilitiesParser {
         }
 
         if (!layerExtent) {
-            const msg = `No layer extent found for ${layerId} in ${this.originUrl.toString()}`
+            const msg = `No layer extent found for ${layerId} in ${this.originUrl}`
             log.error(msg, layer, parents)
             if (!ignoreError) {
                 throw Error(msg)

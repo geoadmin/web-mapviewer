@@ -7,7 +7,7 @@ module.exports = {
     },
     root: true,
     ignorePatterns: ['node_modules', '.github', 'dist'],
-    plugins: ['simple-import-sort'],
+    plugins: ['simple-import-sort', 'mocha'],
     extends: [
         'eslint:recommended',
         'plugin:vue/vue3-recommended',
@@ -28,6 +28,7 @@ module.exports = {
         ],
         'simple-import-sort/imports': 'error',
         'simple-import-sort/exports': 'error',
+        'mocha/no-exclusive-tests': 'error', // Do not allow it.only() tests
     },
     globals: {
         VITE_ENVIRONMENT: true,
