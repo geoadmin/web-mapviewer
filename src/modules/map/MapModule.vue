@@ -3,12 +3,12 @@
         <CesiumMap v-if="is3DActive">
             <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />
-            <LocationPopup />
+            <LocationPopup v-if="displayLocationPopup" />
         </CesiumMap>
         <OpenLayersMap v-else>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
-            <LocationPopup />
+            <LocationPopup v-if="displayLocationPopup" />
             <teleport :to="`#map-footer-${isPhoneMode ? 'mobile-' : ''}scale-line`">
                 <OpenLayersScale />
             </teleport>
@@ -51,6 +51,7 @@ export default {
         ...mapState({
             is3DActive: (state) => state.cesium.active,
             uiMode: (state) => state.ui.mode,
+            displayLocationPopup: (state) => state.map.displayLocationPopup,
         }),
         isPhoneMode() {
             return this.uiMode === UIModes.PHONE

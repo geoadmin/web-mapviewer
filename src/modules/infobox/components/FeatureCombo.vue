@@ -17,7 +17,7 @@ const { feature, readOnly } = defineProps({
 </script>
 
 <template>
-    <div class="edit-feature" data-infobox="height-reference">
+    <div class="feature-combo" data-infobox="height-reference">
         <div class="edit-feature-form">
             <FeatureStyleEdit :feature="feature" :read-only="readOnly" />
         </div>
@@ -32,12 +32,14 @@ const { feature, readOnly } = defineProps({
 // is the size of the content. Which in turn leads to cells that are too wide.
 // https://stackoverflow.com/a/52861514
 
-.edit-feature {
+.feature-combo {
     display: grid;
     // on mobile (default size) only one column
     // see media query under for other screen sizes
     grid-template-columns: minmax(0, 1fr);
     grid-gap: 8px;
+
+    max-height: 50vh;
 }
 
 @include respond-above(md) {

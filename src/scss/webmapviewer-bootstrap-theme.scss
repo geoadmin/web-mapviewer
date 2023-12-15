@@ -46,3 +46,14 @@ $nav-tabs-link-active-bg: $primary;
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
 }
+
+.no-ios-long-press-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+.clear-no-ios-long-press {
+    user-select: text;
+    -webkit-user-select: text;
+    -webkit-touch-callout: default;
+}

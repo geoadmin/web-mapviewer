@@ -117,11 +117,6 @@ describe('Test mouse position and interactions', () => {
                 z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
             })
         })
-        it('activates fullscreen on mobile when nothing is under the cursor and a click/touch occurs', () => {
-            cy.get('[data-cy="ol-map"]').click()
-            cy.readStoreValue('state.ui.fullscreenMode').should('be.true')
-            cy.readStoreValue('state.features.selectedFeatures').should('be.empty')
-        })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
             const shortUrl = 'https://s.geo.admin.ch/0000000'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {

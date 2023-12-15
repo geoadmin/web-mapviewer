@@ -31,7 +31,6 @@ allCoordinateSystems
 const mapElement = ref(null)
 
 const map = new Map({ controls: [] })
-useMapInteractions(map)
 useViewBasedOnProjection(map)
 
 provide('olMap', map)
@@ -43,6 +42,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 onMounted(() => {
     map.setTarget(mapElement.value)
+    useMapInteractions(map)
 })
 </script>
 
