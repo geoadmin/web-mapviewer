@@ -127,6 +127,7 @@ export default {
 .modal-popup {
     z-index: $zindex-modal;
     .card {
+        width: max-content;
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;
