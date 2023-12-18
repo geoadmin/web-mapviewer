@@ -56,7 +56,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <ModalWithBackdrop :title="title" :allow-print="true" fluid @close="emit('close', layerId)">
+    <ModalWithBackdrop :title="title" :allow-print="true" @close="emit('close', layerId)">
         <div class="layer-legend" data-cy="layer-legend-popup">
             <h4 v-if="!isExternal && !htmlContent" class="mb-0">
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
