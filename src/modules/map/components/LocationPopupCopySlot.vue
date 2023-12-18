@@ -50,6 +50,8 @@ onMounted(() => {
         hideOnClick: false,
         // no tooltip on mobile/touch
         touch: false,
+        // The French translation of "copy_done" contains a &nbsp;
+        allowHTML: true,
     })
     setTooltipContent()
 })

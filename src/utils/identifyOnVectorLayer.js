@@ -1,6 +1,7 @@
 import { kml as toGeoJSON } from '@mapbox/togeojson'
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import distance from '@turf/distance'
-import { lineString, point } from '@turf/helpers'
+import { lineString, point, polygon } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 
@@ -16,15 +17,33 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
     const matchingFeatures = geoJson.features.filter((feature) => {
         let distanceWithClick
-        // we have a polygon here
+        // we have a polygon or a line here
         if (Array.isArray(feature.geometry.coordinates[0])) {
-            distanceWithClick = pointToLineDistance(
-                coordinateWGS84,
-                lineString(feature.geometry.coordinates),
-                {
-                    units: 'meters',
+            // if it is a polygon, we have to check its area against the coordinate
+            // polygons are expressed as a double-wrapped array of coordinates
+            if (Array.isArray(feature.geometry.coordinates[0][0])) {
+                if (booleanPointInPolygon(coordinateWGS84, polygon(feature.geometry.coordinates))) {
+                    distanceWithClick = 0
+                } else {
+                    // if not within the polygon area, we still need to check the distance with its border
+                    distanceWithClick = pointToLineDistance(
+                        coordinateWGS84,
+                        lineString(feature.geometry.coordinates[0]),
+                        {
+                            units: 'meters',
+                        }
+                    )
                 }
-            )
+            } else {
+                // we are dealing with line, no need to unpack the coordinates
+                distanceWithClick = pointToLineDistance(
+                    coordinateWGS84,
+                    lineString(feature.geometry.coordinates),
+                    {
+                        units: 'meters',
+                    }
+                )
+            }
         } else {
             distanceWithClick = distance(coordinateWGS84, point(feature.geometry.coordinates), {
                 units: 'meters',
@@ -120,9 +139,16 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
             (feature) => {
                 let reprojectedCoordinates
                 if (Array.isArray(feature.geometry.coordinates[0])) {
-                    reprojectedCoordinates = feature.geometry.coordinates.map((coord) =>
-                        proj4(WGS84.epsg, projection.epsg, coord)
-                    )
+                    // closed polygons are expressed as a double-wrapped array
+                    if (Array.isArray(feature.geometry.coordinates[0][0])) {
+                        reprojectedCoordinates = feature.geometry.coordinates[0].map((coord) =>
+                            proj4(WGS84.epsg, projection.epsg, coord)
+                        )
+                    } else {
+                        reprojectedCoordinates = feature.geometry.coordinates.map((coord) =>
+                            proj4(WGS84.epsg, projection.epsg, coord)
+                        )
+                    }
                 } else {
                     reprojectedCoordinates = proj4(
                         WGS84.epsg,

@@ -2,7 +2,6 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { getArea } from 'ol/extent'
 import { Polygon } from 'ol/geom'
 import { getLength } from 'ol/sphere'
 import { computed } from 'vue'
@@ -53,9 +52,30 @@ const text = computed({
  */
 const geometry = computed(() => new Polygon([feature.coordinates]))
 /** @type {ComputedRef<Number>} */
-const length = computed(() => getLength(geometry.value))
+const length = computed(() => {
+    const calculatedLength = getLength(geometry.value)
+    let result = `${roundValueIfGreaterThan(calculatedLength, 100, 1000)}`
+    if (calculatedLength > 100) {
+        result += 'km'
+    } else {
+        result += 'm'
+    }
+    return result
+})
 /** @type {ComputedRef<Number>} */
-const area = computed(() => getArea(geometry.value))
+const area = computed(() => {
+    const calculatedArea = geometry.value.getArea()
+    let result = ''
+    if (calculatedArea) {
+        result += roundValueIfGreaterThan(calculatedArea, 1000, 100000)
+        if (calculatedArea > 10000) {
+            result += 'km'
+        } else {
+            result += 'm'
+        }
+    }
+    return result
+})
 
 /**
  * The length parameter must be greater than 3, because the polygon has one point twice : the first
@@ -143,12 +163,12 @@ function onDelete() {
             ></textarea>
             <div v-if="isFeatureLine">
                 <font-awesome-icon :icon="['far', 'square']" />
-                {{ roundValueIfGreaterThan(length, 100, 1000) }} {{ length > 100 ? 'km' : 'm' }}
+                {{ length }}
             </div>
             <div v-if="isFeaturePolygon">
                 <font-awesome-icon :icon="['far', 'square']" class="bg-secondary text-secondary" />
-                {{ roundValueIfGreaterThan(area, 1000, 100000) }} {{ area > 10000 ? 'km' : 'm'
-                }}<sup>2</sup>
+                {{ area }}
+                <sup>2</sup>
             </div>
         </div>
         <div class="d-flex">
