@@ -11,7 +11,11 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
  */
 export default function syncCameraLonLatZoom(store) {
     store.subscribe((mutation, state) => {
-        if (mutation.type === 'setCameraPosition' && state.position.camera !== null) {
+        // only reacting to mutation when the camera is set (when 3D is active and loaded)
+        if (state.position.camera === null) {
+            return
+        }
+        if (mutation.type === 'setCameraPosition') {
             const lon = parseFloat(state.position.camera.x)
             const lat = parseFloat(state.position.camera.y)
             const height = parseFloat(state.position.camera.z)
