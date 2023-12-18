@@ -220,7 +220,12 @@ const actions = {
                     y: centerOfExtent[1],
                 })
             }
-            const newResolution = (extent[1][0] - extent[0][0]) / rootState.ui.width
+            // taking the biggest resolution calculated with either the width or height of the screen
+            // so that it fits to the screen
+            const newResolution = Math.max(
+                (extent[1][0] - extent[0][0]) / rootState.ui.width,
+                (extent[1][1] - extent[0][1]) / rootState.ui.height
+            )
             commit(
                 'setZoom',
                 state.projection.getZoomForResolutionAndCenter(newResolution, centerOfExtent)
