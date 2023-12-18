@@ -23,6 +23,9 @@ export function useMouseOnMap() {
     )
     const currentMapResolution = computed(() => store.getters.resolution)
     const currentProjection = computed(() => store.state.position.projection)
+    const isCurrentlyTrackingGeoLocation = computed(
+        () => store.state.geolocation.active && store.state.geolocation.tracking
+    )
 
     /**
      * @param {[Number, Number]} screenPosition
@@ -83,6 +86,10 @@ export function useMouseOnMap() {
     function onMouseMove() {
         if (isPointerDown) {
             isStillOnStartingPosition = false
+        }
+        if (isCurrentlyTrackingGeoLocation.value) {
+            // stop tracking the user geolocation to the center of the view as soon as the map is dragged
+            store.dispatch('setGeolocationTracking', false)
         }
     }
 

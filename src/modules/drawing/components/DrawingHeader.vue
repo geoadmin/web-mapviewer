@@ -1,17 +1,32 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['close'])
 
+const isClosing = ref(false)
+
 const i18n = useI18n()
+
+function onClose() {
+    isClosing.value = true
+    emits('close')
+}
 </script>
 
 <template>
     <div class="drawing-header">
-        <button class="drawing-header-close-button btn btn-dark" @click="emits('close')">
-            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
-            {{ i18n.t('draw_back') }}
+        <button
+            class="drawing-header-close-button btn btn-dark"
+            :disabled="isClosing"
+            @click="onClose"
+        >
+            <FontAwesomeIcon v-if="isClosing" icon="spinner" spin />
+            <span v-else>
+                <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
+                {{ i18n.t('draw_back') }}
+            </span>
         </button>
         <h1 class="drawing-header-title">{{ i18n.t('draw_mode_title') }}</h1>
     </div>

@@ -59,11 +59,6 @@ const handlePositionError = (error, store) => {
  */
 const geolocationManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
-        // we listen to the mutation that is triggered when the map is starting being dragged in order to stop
-        // tracking the user geolocation to the center of the view
-        if (state.geolocation.active && mutation.type === 'mapStartBeingDragged') {
-            store.dispatch('setGeolocationTracking', false)
-        }
         // listening to the start/stop of geolocation
         if (mutation.type === 'setGeolocationActive') {
             if (state.geolocation.active) {
