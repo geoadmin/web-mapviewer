@@ -1,117 +1,126 @@
+<script setup>
+import { computed, onMounted, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
+
+const store = useStore()
+
+const showResults = ref(false)
+const debounceSearch = ref(null)
+const searchInput = ref(null)
+const searchValue = ref('')
+const results = ref(null)
+
+const searchQuery = computed(() => store.state.search.query)
+const hasResults = computed(() => store.state.search.results.count())
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+watch(hasResults, (newValue) => {
+    showResults.value = newValue
+})
+
+watch(showResults, (newValue) => {
+    if (newValue && isPhoneMode.value && store.state.ui.showMenu) {
+        store.dispatch('toggleMenu')
+    }
+})
+
+onMounted(() => {
+    // NOTE: we only set the input to the search query parameter during the initial load of the
+    // view, but not after, this means if a user manually change the query parameter it will not be
+    // updated in the input field. This is to avoid the result query to update the input which
+    // can delete input character entered by the user.
+    searchValue.value = searchQuery.value
+    searchInput.value.focus()
+})
+
+const updateSearchQuery = (event) => {
+    searchValue.value = event.target.value
+    if (debounceSearch.value) {
+        clearTimeout(debounceSearch.value)
+    }
+    debounceSearch.value = setTimeout(() => {
+        store.dispatch('setSearchQuery', { query: event.target.value })
+    }, 200)
+}
+
+const onSearchInputFocus = () => {
+    if (hasResults.value) {
+        showResults.value = true
+    }
+}
+
+const clearSearchQuery = () => {
+    searchValue.value = ''
+    store.dispatch('setSearchQuery', { query: '' })
+    searchInput.value.focus()
+}
+
+const closeSearchResults = () => {
+    showResults.value = false
+}
+
+const goToFirstResult = () => {
+    if (!showResults.value) {
+        showResults.value = true
+    }
+    if (hasResults.value) {
+        results.value.$el.querySelector('[tabindex="0"]').focus()
+    }
+}
+
+const onClickOutside = (event) => {
+    if (!document.body.querySelector('.modal-popup')?.contains(event.target)) {
+        showResults.value = false
+    }
+}
+</script>
+
 <template>
-    <div class="search-bar input-group d-flex rounded">
-        <span class="input-group-text">
+    <div v-click-outside="onClickOutside" class="input-group">
+        <span
+            v-show="!isPhoneMode"
+            id="searchIconText"
+            class="input-group-text"
+            :class="{ 'rounded-bottom-0': showResults }"
+        >
             <FontAwesomeIcon :icon="['fas', 'search']" />
         </span>
         <input
-            ref="search"
+            ref="searchInput"
             type="text"
-            class="form-control search-bar-input"
-            :class="{ 'rounded-end': searchQuery?.length === 0 }"
+            class="form-control text-truncate"
+            :class="{
+                'rounded-bottom-0': showResults,
+                'rounded-start': isPhoneMode,
+                'rounded-end': !searchValue,
+            }"
             :placeholder="$t('search_placeholder')"
             aria-label="Search"
-            aria-describedby="button-addon1"
-            :value="searchQuery"
+            aria-describedby="searchIconText clearSearchButton"
+            :value="searchValue"
             data-cy="searchbar"
             @input="updateSearchQuery"
-            @focus="showSearchResultsIfExists"
+            @focus="onSearchInputFocus"
             @keydown.down.prevent="goToFirstResult"
             @keydown.esc.prevent="closeSearchResults"
         />
         <button
-            v-if="searchQuery?.length > 0"
-            id="button-addon1"
+            v-show="searchValue"
+            id="clearSearchButton"
             class="btn btn-outline-group rounded-end"
+            :class="{ 'rounded-bottom-0': showResults && !isPhoneMode }"
             type="button"
             data-cy="searchbar-clear"
             @click="clearSearchQuery"
         >
             <FontAwesomeIcon :icon="['fas', 'times-circle']" />
         </button>
-        <SearchResultList
-            v-show="resultsShown && hasResults"
-            ref="results"
-            @close="closeSearchResults"
-        />
+        <SearchResultList v-show="showResults" ref="results" @close="closeSearchResults" />
     </div>
 </template>
 
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
-
-export default {
-    components: {
-        SearchResultList,
-    },
-    computed: {
-        ...mapState({
-            searchQuery: (state) => state.search.query,
-            hasResults: (state) => state.search.results.count() > 0,
-            resultsShown: (state) => state.search.show,
-        }),
-    },
-    mounted() {
-        this.$refs.search.focus()
-    },
-    methods: {
-        ...mapActions(['setSearchQuery', 'showSearchResults', 'hideSearchResults']),
-        updateSearchQuery(event) {
-            if (this.debounceSearch) {
-                clearTimeout(this.debounceSearch)
-            }
-            this.debounceSearch = setTimeout(() => {
-                this.setSearchQuery({ query: event.target.value })
-            }, 50)
-        },
-        showSearchResultsIfExists() {
-            if (this.searchQuery && this.searchQuery.length >= 2) {
-                this.showSearchResults()
-            }
-        },
-        clearSearchQuery() {
-            this.setSearchQuery('')
-            // we then give back the focus to the search input so the user can seamlessly continue to type search queries
-            this.$refs.search.focus()
-        },
-        closeSearchResults() {
-            // Set the focus first as it would reopen the results.
-            this.$refs.search.focus()
-            this.hideSearchResults()
-        },
-        goToFirstResult() {
-            if (!this.resultsShown) {
-                this.showSearchResults()
-            }
-            if (this.hasResults) {
-                // Wait a tick in case the results weren't shown before.
-                this.$nextTick(() => {
-                    // Switch focus to the first search result that can get it.
-                    // Initially, this will be the first entry of the location list.
-                    this.$refs.results.$el.querySelector('[tabindex="0"]').focus()
-                })
-            }
-        },
-    },
-}
-</script>
-
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
-
-.search-bar-input {
-    font-size: 0.825rem;
-}
-
-.search-bar {
-    &:focus-within > span.input-group-text {
-        display: none;
-    }
-    @include respond-above(phone) {
-        &:focus-within > span.input-group-text {
-            display: flex;
-        }
-    }
-}
 </style>

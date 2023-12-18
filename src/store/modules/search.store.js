@@ -25,12 +25,6 @@ const state = {
      * @type CombinedSearchResults
      */
     results: new CombinedSearchResults(),
-    /**
-     * Flag telling if search results should visible
-     *
-     * @type Boolean
-     */
-    show: false,
 }
 
 const getters = {}
@@ -40,16 +34,12 @@ const actions = {
      * @param {vuex} vuex
      * @param {Object} payload
      * @param {String} payload.query
-     * @param {Boolean} payload.showResultsAfterRequest
      */
-    setSearchQuery: async (
-        { commit, rootState, dispatch },
-        { query = '', showResultsAfterRequest = true }
-    ) => {
+    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '' }) => {
         commit('setSearchQuery', query)
         let updatedSearchResults = false
-        // only firing search if query is longer than 2 chars
-        if (query.length > 2) {
+        // only firing search if query is longer than or equal to 2 chars
+        if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
             const coordinate = coordinateFromString(query, currentProjection)
@@ -91,9 +81,6 @@ const actions = {
                     if (searchResults) {
                         commit('setSearchResults', searchResults)
                         updatedSearchResults = true
-                        if (showResultsAfterRequest && searchResults.count() > 0) {
-                            commit('showSearchResults')
-                        }
                     }
                 } catch (error) {
                     log.error(`Search failed`, error)
@@ -107,8 +94,6 @@ const actions = {
         }
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
-    showSearchResults: ({ commit }) => commit('showSearchResults'),
-    hideSearchResults: ({ commit }) => commit('hideSearchResults'),
     /**
      * @param commit
      * @param dispatch
@@ -130,15 +115,12 @@ const actions = {
                 break
         }
         commit('setSearchQuery', entry.getSimpleTitle())
-        commit('hideSearchResults')
     },
 }
 
 const mutations = {
     setSearchQuery: (state, query) => (state.query = query),
     setSearchResults: (state, results) => (state.results = results ? results : []),
-    showSearchResults: (state) => (state.show = true),
-    hideSearchResults: (state) => (state.show = false),
 }
 
 export default {

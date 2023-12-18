@@ -101,10 +101,14 @@ function onToggleProviders(event) {
         providerIntput.value.focus()
     }
 }
+
+function hideProviders() {
+    showProviders.value = false
+}
 </script>
 
 <template>
-    <div v-click-outside="() => (showProviders = false)" class="mb-2 pe-0">
+    <div v-click-outside="hideProviders" class="mb-2 pe-0">
         <form class="input-group input-group-sm has-validation">
             <input
                 ref="providerIntput"

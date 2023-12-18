@@ -7,12 +7,12 @@
             class="search-results bg-light"
             :class="{
                 'border-top border-bottom': isPhoneMode,
-                'border rounded': !isPhoneMode,
+                'border rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
             @keydown.esc.prevent="$emit('close')"
         >
-            <div class="search-results-inner" :class="{ rounded: !isPhoneMode }">
+            <div class="search-results-inner">
                 <SearchResultCategory
                     :title="$t('locations_results_header')"
                     :entries="results.locationResults"

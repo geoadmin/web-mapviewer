@@ -11,7 +11,6 @@ const redoSearchOnLangChange = (store) => {
             // we redispatch the same query to the search store (the lang will be picked by the search store)
             store.dispatch('setSearchQuery', {
                 query: state.search.query,
-                showResultsAfterRequest: false,
             })
         }
     })
