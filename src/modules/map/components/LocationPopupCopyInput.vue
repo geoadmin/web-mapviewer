@@ -1,5 +1,5 @@
 <template>
-    <span class="input-group input-group-sm">
+    <div class="input-group input-group-sm">
         <input
             ref="input"
             v-bind="$attrs"
@@ -13,7 +13,7 @@
         <button ref="button" class="btn btn-secondary" type="button" @click="copyValue">
             {{ $t(buttonText) }}
         </button>
-    </span>
+    </div>
 </template>
 
 <script>

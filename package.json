@@ -38,6 +38,8 @@
         "@ivanv/vue-collapse-transition": "^1.0.2",
         "@mapbox/togeojson": "^0.16.2",
         "@popperjs/core": "^2.11.8",
+        "@turf/boolean-point-in-polygon": "^6.5.0",
+        "@turf/centroid": "^6.5.0",
         "@turf/distance": "^6.5.0",
         "@turf/helpers": "^6.5.0",
         "@turf/point-to-line-distance": "^6.5.0",

@@ -34,7 +34,7 @@
         >
             <div
                 class="rounded d-flex align-content-center p-2"
-                data-cy="drawing-style-show-all-icons-button"
+                data-cy="drawing-style-toggle-all-icons-button"
                 @click="showAllSymbols = !showAllSymbols"
             >
                 {{ $t('modify_icon_label') }}
@@ -123,6 +123,7 @@ export default {
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
                 return new DropdownItem(
+                    iconSet.name,
                     this.i18n.t(`modify_icon_category_${iconSet.name}_label`),
                     iconSet
                 )

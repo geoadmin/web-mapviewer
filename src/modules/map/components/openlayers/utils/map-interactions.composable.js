@@ -2,7 +2,7 @@ import { platformModifierKeyOnly } from 'ol/events/condition'
 import { defaults as getDefaultInteractions, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import DragRotateInteraction from 'ol/interaction/DragRotate'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
@@ -40,12 +40,13 @@ export default function useMapInteractions(map) {
         })
         // activating/deactivating identification of feature on click, depending on if we are drawing
         // (we do not want identification while drawing)
+        const mapElement = map.getTargetElement()
         if (newValue) {
-            map.un('pointerdown', onPointerDown)
-            map.un('pointerup', onPointerUp)
+            mapElement.removeEventListener('pointerdown', onPointerDown)
+            mapElement.removeEventListener('pointerup', onPointerUp)
         } else {
-            map.on('pointerdown', onPointerDown)
-            map.on('pointerup', onPointerUp)
+            mapElement.addEventListener('pointerdown', onPointerDown)
+            mapElement.addEventListener('pointerup', onPointerUp)
         }
     })
     watch(projection, setInteractionAccordingToProjection)
@@ -61,31 +62,43 @@ export default function useMapInteractions(map) {
         }
     }
 
-    onMounted(() => {
-        map.on('pointerdown', onPointerDown)
-        map.on('pointerup', onPointerUp)
-        map.on('movestart', onMouseMove)
-
-        setInteractionAccordingToProjection()
-    })
+    const mapElement = map.getTargetElement()
+    if (mapElement) {
+        mapElement.addEventListener('pointerdown', onPointerDown)
+        mapElement.addEventListener('pointerup', onPointerUp)
+        mapElement.addEventListener('pointermove', onMouseMove)
+    }
+    setInteractionAccordingToProjection()
 
     onBeforeUnmount(() => {
-        map.un('pointerdown', onPointerDown)
-        map.un('pointerup', onPointerUp)
-        map.un('movestart', onMouseMove)
+        const mapElement = map.getTargetElement()
+        if (mapElement) {
+            mapElement.removeEventListener('pointerdown', onPointerDown)
+            mapElement.removeEventListener('pointerup', onPointerUp)
+            mapElement.removeEventListener('pointermove', onMouseMove)
+        }
     })
 
     function onPointerDown(event) {
-        onLeftClickDown(event.pixel, event.coordinate)
+        // Checking that we are dealing with OL canvas here, and not another part of OL elements,
+        // such as the floating tooltip. Without this check, clicking on the floating tooltip button
+        // will trigger an identification of feature at the position of the button.
+        if (event.target?.nodeName?.toLowerCase() === 'canvas') {
+            onLeftClickDown(event.pixel, map.getCoordinateFromPixel([event.x, event.y]))
+        }
     }
     function onPointerUp(event) {
-        switch (event.originalEvent.button) {
-            case 0:
-                onLeftClickUp(event.pixel, event.coordinate)
-                break
-            case 2:
-                onRightClick(event.pixel, event.coordinate)
-                break
+        // see comment in onPointDown why we check that we deal with the canvas only
+        if (event.target?.nodeName?.toLowerCase() === 'canvas') {
+            const coordinate = map.getCoordinateFromPixel([event.x, event.y])
+            switch (event.button) {
+                case 0:
+                    onLeftClickUp(event.pixel, coordinate)
+                    break
+                case 2:
+                    onRightClick(event.pixel, coordinate)
+                    break
+            }
         }
     }
 }

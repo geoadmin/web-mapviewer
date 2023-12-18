@@ -117,11 +117,6 @@ describe('Test mouse position and interactions', () => {
                 z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
             })
         })
-        it('activates fullscreen on mobile when nothing is under the cursor and a click/touch occurs', () => {
-            cy.get('[data-cy="ol-map"]').click()
-            cy.readStoreValue('state.ui.fullscreenMode').should('be.true')
-            cy.readStoreValue('state.features.selectedFeatures').should('be.empty')
-        })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
             const shortUrl = 'https://s.geo.admin.ch/0000000'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
@@ -161,36 +156,36 @@ describe('Test mouse position and interactions', () => {
             cy.log('it uses the elevation API in the location popup')
 
             const [lon, lat] = centerWGS84
-            cy.get('[data-cy="location-popup-coordinates-lv95"]')
+            cy.get('[data-cy="location-popup-lv95"]')
                 .invoke('text')
                 .then(parseLV)
                 .then(checkXY(...centerLV95))
             cy.log('it shows coordinates, correctly re-projected into LV95, in the popup')
 
-            cy.get('[data-cy="location-popup-coordinates-lv03"]')
+            cy.get('[data-cy="location-popup-lv03"]')
                 .invoke('text')
                 .then(parseLV)
                 .then(checkXY(...centerLV03))
             cy.log('it shows coordinates, correctly re-projected into LV03, in the popup')
 
-            cy.get('[data-cy="location-popup-coordinates-plain-wgs84"]').contains(
+            cy.get('[data-cy="location-popup-wgs84"]').contains(
                 `${lat.toFixed(6)}, ${lon.toFixed(6)}`
             )
             cy.log('it shows correct plain WGS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-coordinates-wgs84"]').contains(
+            cy.get('[data-cy="location-popup-extra-value-wgs84"]').contains(
                 WGS84Format.format(center, DEFAULT_PROJECTION)
             )
             cy.log(
                 'it uses the correct format to show a second line with WGS84 coordinates in the popup'
             )
 
-            cy.get('[data-cy="location-popup-coordinates-utm"]').contains(
+            cy.get('[data-cy="location-popup-utm"]').contains(
                 UTMFormat.format(center, DEFAULT_PROJECTION)
             )
             cy.log('it shows correct UTM coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-coordinates-mgrs"]').contains(
+            cy.get('[data-cy="location-popup-mgrs"]').contains(
                 MGRSFormat.format(center, DEFAULT_PROJECTION)
             )
             cy.log('it shows correct MGRS coordinates in the popup')

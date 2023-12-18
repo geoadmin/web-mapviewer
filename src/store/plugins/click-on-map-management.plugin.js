@@ -66,16 +66,8 @@ const clickOnMapManagementPlugin = (store) => {
             const clickInfo = mutation.payload
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-            const isFullscreenMode = store.state.ui.fullscreenMode
 
             if (isLeftSingleClick) {
-                // Execute this before the then clause, as else the result could be wrong
-                const allowActivateFullscreen =
-                    !isFullscreenMode &&
-                    !state.features.selectedFeatures?.length &&
-                    !state.map.displayLocationPopup &&
-                    !state.search.show
-
                 // if there are some search result shown, we hide the search list
                 if (state.search.show) {
                     store.dispatch('hideSearchResults')
@@ -88,10 +80,6 @@ const clickOnMapManagementPlugin = (store) => {
                     store.state.i18n.lang,
                     state.position.projection
                 ).then((newSelectedFeatures) => {
-                    if (!newSelectedFeatures?.length && allowActivateFullscreen) {
-                        store.dispatch('toggleFullscreenMode')
-                    }
-
                     store.dispatch('setSelectedFeatures', newSelectedFeatures)
                 })
             }
@@ -100,9 +88,6 @@ const clickOnMapManagementPlugin = (store) => {
                 store.dispatch('displayLocationPopup')
             } else {
                 store.dispatch('hideLocationPopup')
-            }
-            if (isFullscreenMode) {
-                store.dispatch('toggleFullscreenMode')
             }
         }
     })

@@ -62,6 +62,20 @@ function refreshPageTitle() {
 // properly therefore it is imported here in the un-scoped app styling.
 @import 'src/scss/tippy-theme';
 
+body {
+    // preventing a long press to select the entire window/app, and all element of the UI in the process
+    @extend .no-ios-long-press-select;
+    // disabling double tap = zoom the UI on iOS
+    touch-action: manipulation;
+}
+input,
+p,
+li {
+    // whitelisting inputs, so that they may be selected by iOS (otherewise, link copy is a bit weird without
+    // having selected the text first)
+    @extend .clear-no-ios-long-press;
+}
+
 #main-component {
     font-family: $frutiger;
     -webkit-font-smoothing: antialiased;

@@ -29,11 +29,11 @@
             <span class="visually-hidden">Toggle Dropdown</span>
         </button>
         <ul ref="dropdownMenu" class="dropdown-menu" :aria-labelledby="uniqueHtmlId">
-            <li v-for="item in items" :key="item.value">
+            <li v-for="item in items" :key="item.id">
                 <a
                     class="dropdown-item"
                     :class="{ active: currentValue === item.value }"
-                    :data-cy="`dropdown-item-${item.title.toLowerCase()}`"
+                    :data-cy="`dropdown-item-${item.id}`"
                     @click="selectItem(item)"
                 >
                     {{ item.title }}
@@ -53,9 +53,14 @@ import { randomIntBetween } from '@/utils/numberUtils'
  * item will be considered the value.
  */
 export class DropdownItem {
-    constructor(title, value = null) {
+    constructor(id, title, value = null) {
+        this._id = id
         this._title = title
         this._value = value || title
+    }
+
+    get id() {
+        return this._id
     }
 
     get title() {

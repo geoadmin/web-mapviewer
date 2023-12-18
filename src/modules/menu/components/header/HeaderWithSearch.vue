@@ -1,5 +1,5 @@
 <template>
-    <div class="header">
+    <div class="header" data-cy="app-header">
         <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">

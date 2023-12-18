@@ -1,5 +1,9 @@
 <template>
-    <div class="map-footer" :class="{ 'map-footer-fullscreen': isFullscreenMode }">
+    <div
+        class="map-footer"
+        :class="{ 'map-footer-fullscreen': isFullscreenMode }"
+        data-cy="app-footer"
+    >
         <div class="map-footer-top">
             <MapFooterAttributionList />
             <div>

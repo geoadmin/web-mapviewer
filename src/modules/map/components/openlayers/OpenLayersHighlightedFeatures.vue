@@ -4,9 +4,12 @@
  * popup with the features' information
  */
 
+import centroid from '@turf/centroid'
+import { polygon } from '@turf/helpers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
+import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -31,6 +34,21 @@ const popoverCoordinate = computed(() => {
         let coordinates = [...firstFeature.coordinates]
         if (firstFeature.geometry) {
             coordinates = [...firstFeature.geometry.coordinates]
+        }
+        // If we have a closed polygon, we can't just select the last coordinate of the polygon as
+        // its coordinate. We have to take its centroid.
+        if (firstFeature.featureType === EditableFeatureTypes.LINEPOLYGON) {
+            const firstCoordinate = coordinates[0]
+            const lastCoordinate = coordinates.slice(-1)[0]
+            if (
+                firstCoordinate[0] === lastCoordinate[0] &&
+                firstCoordinate[1] === lastCoordinate[1]
+            ) {
+                const polygonCentroid = centroid(polygon([coordinates]))
+                return polygonCentroid.geometry.coordinates
+            } else {
+                return coordinates[coordinates.length - 1]
+            }
         }
         return Array.isArray(coordinates[0]) ? coordinates[coordinates.length - 1] : coordinates
     }

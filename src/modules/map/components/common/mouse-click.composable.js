@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { identifyGeoJSONFeatureAt, identifyKMLFeatureAt } from '@/utils/identifyOnVectorLayer'
+import log from '@/utils/logging'
 
 const msBeforeTriggeringLocationPopup = 700
 
@@ -36,6 +37,7 @@ export function useMouseOnMap() {
             if (isStillOnStartingPosition) {
                 onRightClick(screenPosition, coordinate)
                 hasPointerDownTriggeredLocationPopup = true
+                log.debug('Long touch at the same spot detected, showing the location popup')
             }
         }, msBeforeTriggeringLocationPopup)
     }

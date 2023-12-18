@@ -1,3 +1,29 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+const { direction } = defineProps({
+    direction: {
+        type: String,
+        default: 'row',
+        validator: (value) => ['row', 'column'].includes(value),
+    },
+})
+
+const store = useStore()
+const features = computed(() =>
+    store.state.features.selectedFeatures.filter((feature) => !feature.isEditable)
+)
+
+function generateFeatureIdForList(feature, indexInList) {
+    let featureId = feature.id || indexInList
+    if (feature.layer) {
+        featureId = `${feature.layer.id}-${featureId}`
+    }
+    return featureId
+}
+</script>
+
 <template>
     <ul
         class="feature-list"
@@ -16,35 +42,6 @@
     </ul>
 </template>
 
-<script>
-import { mapState } from 'vuex'
-
-export default {
-    props: {
-        direction: {
-            type: String,
-            default: 'row',
-            validator: (value) => ['row', 'column'].includes(value),
-        },
-    },
-    computed: {
-        ...mapState({
-            features: (state) =>
-                state.features.selectedFeatures.filter((feature) => !feature.isEditable),
-        }),
-    },
-    methods: {
-        generateFeatureIdForList(feature, indexInList) {
-            let featureId = feature.id || indexInList
-            if (feature.layer) {
-                featureId = `${feature.layer.id}-${featureId}`
-            }
-            return featureId
-        },
-    },
-}
-</script>
-
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 
@@ -58,6 +55,8 @@ export default {
         // on mobile (default size) only one column
         // see media query under for other screen sizes
         grid-template-columns: 1fr;
+        max-height: 50vh;
+        overflow-y: auto;
         grid-gap: 8px;
     }
 }
@@ -66,12 +65,14 @@ export default {
     .feature-list-row {
         // with screen larger than 768px we can afford to have two tooltip side by side
         grid-template-columns: 1fr 1fr;
+        max-height: 33vh;
     }
 }
 @include respond-above(lg) {
     .feature-list-row {
         // with screen larger than 992px we can place 3 tooltips
         grid-template-columns: 1fr 1fr 1fr;
+        max-height: 25vh;
     }
 }
 @include respond-above(xl) {

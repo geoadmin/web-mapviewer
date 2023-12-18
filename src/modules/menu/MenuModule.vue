@@ -20,8 +20,12 @@
             class="toolbox-right m-1 position-absolute end-0"
             :class="{
                 'dev-disclaimer-present': hasDevSiteWarning,
+                'drawing-mode': inDrawingMode,
+                'fullscreen-mode': isFullscreenMode,
             }"
+            data-cy="toolbox-right"
         >
+            <FullScreenButton v-if="!isEmbedded && !inDrawingMode" />
             <GeolocButton
                 v-if="!isFullscreenMode && !isEmbedded && !inDrawingMode"
                 :is-active="isGeolocationActive"
@@ -33,8 +37,8 @@
                 @zoom-in="increaseZoom"
                 @zoom-out="decreaseZoom"
             />
-            <Toggle3dButton v-if="!inDrawingMode" />
-            <div id="toolbox-compass-button" />
+            <Toggle3dButton v-if="!isFullscreenMode && !inDrawingMode" />
+            <div v-if="!isFullscreenMode" id="toolbox-compass-button" />
             <TimeSliderButton
                 v-if="visibleLayersWithTimeConfig.length && !inDrawingMode"
                 :active="showTimeSlider"
@@ -88,6 +92,7 @@ import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
+import FullScreenButton from '@/modules/menu/components/toolboxRight/FullScreenButton.vue'
 import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
@@ -95,6 +100,7 @@ import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 
 export default {
     components: {
+        FullScreenButton,
         DebugToolbar,
         Toggle3dButton,
         FontAwesomeIcon,
@@ -181,6 +187,14 @@ $openCloseButtonHeight: 2.5rem;
         &.dev-disclaimer-present {
             top: $header-height + $dev-disclaimer-height;
         }
+        &.fullscreen-mode,
+        &.dev-disclaimer-present.fullscreen-mode {
+            top: 0;
+        }
+        &.drawing-mode,
+        &.dev-disclaimer-present.drawing-mode {
+            top: $drawing-tools-height-mobile;
+        }
     }
     .debug-toolbar {
         top: 66%;
@@ -259,6 +273,10 @@ $openCloseButtonHeight: 2.5rem;
             top: 2 * $header-height;
             &.dev-disclaimer-present {
                 top: 2 * $header-height + $dev-disclaimer-height;
+            }
+            &.drawing-mode,
+            &.dev-disclaimer-present.drawing-mode {
+                top: $header-height;
             }
         }
         .menu-tray-container {

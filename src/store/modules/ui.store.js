@@ -184,10 +184,8 @@ export default {
         toggleMenu({ commit, state }) {
             commit('setShowMenu', !state.showMenu)
         },
-        toggleFullscreenMode({ commit, state, getters }) {
-            if (getters.isPhoneMode) {
-                commit('setFullscreenMode', !state.fullscreenMode)
-            }
+        toggleFullscreenMode({ commit, state }) {
+            commit('setFullscreenMode', !state.fullscreenMode)
         },
         setEmbeddedMode({ commit }, isEmbedded) {
             commit('setEmbeddedMode', !!isEmbedded)
