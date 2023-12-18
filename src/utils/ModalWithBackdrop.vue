@@ -38,7 +38,7 @@
                                 'btn-primary': headerPrimary,
                             }"
                             data-cy="modal-close-button"
-                            @click="onClose(false)"
+                            @click.stop="onClose(false)"
                         >
                             <FontAwesomeIcon icon="times" />
                         </button>
@@ -53,14 +53,14 @@
                             <button
                                 class="btn btn-light me-2"
                                 data-cy="modal-cancel-button"
-                                @click="onClose(false)"
+                                @click.stop="onClose(false)"
                             >
                                 {{ $t('cancel') }}
                             </button>
                             <button
                                 class="btn btn-primary"
                                 data-cy="modal-confirm-button"
-                                @click="onClose(true)"
+                                @click.stop="onClose(true)"
                             >
                                 {{ $t('success') }}
                             </button>
