@@ -86,9 +86,11 @@ async function copyValue() {
         <slot />
     </div>
     <div class="location-popup-data">
-        <div :data-cy="`location-popup-${identifier}`">
-            {{ value }}
-            <div v-if="extraValue">
+        <div>
+            <div :data-cy="`location-popup-${identifier}`">
+                {{ value }}
+            </div>
+            <div v-if="extraValue" :data-cy="`location-popup-extra-value-${identifier}`">
                 {{ extraValue }}
             </div>
         </div>
