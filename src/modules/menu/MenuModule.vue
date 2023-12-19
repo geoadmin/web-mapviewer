@@ -1,3 +1,63 @@
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
+import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
+import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
+import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
+import FullScreenButton from '@/modules/menu/components/toolboxRight/FullScreenButton.vue'
+import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
+import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
+import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
+import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
+
+const showTimeSlider = ref(false)
+
+const i18n = useI18n()
+const store = useStore()
+
+const isGeolocationActive = computed(() => store.state.geolocation.active)
+const isGeolocationDenied = computed(() => store.state.geolocation.denied)
+const showMenu = computed(() => store.state.ui.showMenu)
+const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
+const isEmbedded = computed(() => store.state.ui.embeddedMode)
+const previewYear = computed(() => store.state.layers.previewYear)
+const inDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
+const is3dActive = computed(() => store.state.cesium.active)
+
+const isHeaderShown = computed(() => store.getters.isHeaderShown)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const isMenuShown = computed(() => store.getters.isMenuShown)
+const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
+
+watch(previewYear, () => {
+    // hiding the time slider if the preview has been cleared
+    if (!previewYear.value) {
+        showTimeSlider.value = false
+    }
+})
+
+function toggleGeolocation() {
+    store.dispatch('toggleGeolocation')
+}
+function increaseZoom() {
+    store.dispatch('increaseZoom')
+}
+function decreaseZoom() {
+    store.dispatch('decreaseZoom')
+}
+function toggleMenu() {
+    store.dispatch('toggleMenu')
+}
+</script>
+
 <template>
     <div class="menu position-absolute w-100 h-100 start-0 top-0 pe-none">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
@@ -33,7 +93,7 @@
                 @click="toggleGeolocation"
             />
             <ZoomButtons
-                v-if="!isFullscreenMode"
+                v-if="!isFullscreenMode && !is3dActive"
                 @zoom-in="increaseZoom"
                 @zoom-out="decreaseZoom"
             />
@@ -75,82 +135,15 @@
                         @click="toggleMenu"
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-1">{{ $t(showMenu ? 'close_menu' : 'open_menu') }}</span>
+                        <span class="ms-1">{{
+                            i18n.t(showMenu ? 'close_menu' : 'open_menu')
+                        }}</span>
                     </button>
                 </div>
             </transition>
         </div>
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapGetters, mapState } from 'vuex'
-
-import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
-import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
-import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
-import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
-import FullScreenButton from '@/modules/menu/components/toolboxRight/FullScreenButton.vue'
-import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
-import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
-import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
-import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
-
-export default {
-    components: {
-        FullScreenButton,
-        DebugToolbar,
-        Toggle3dButton,
-        FontAwesomeIcon,
-        TimeSlider,
-        TimeSliderButton,
-        HeaderWithSearch,
-        BlackBackdrop,
-        ZoomButtons,
-        GeolocButton,
-        MenuTray,
-    },
-    data() {
-        return {
-            showTimeSlider: false,
-        }
-    },
-    computed: {
-        ...mapState({
-            isGeolocationActive: (state) => state.geolocation.active,
-            isGeolocationDenied: (state) => state.geolocation.denied,
-            showMenu: (state) => state.ui.showMenu,
-            isFullscreenMode: (state) => state.ui.fullscreenMode,
-            isEmbedded: (state) => state.ui.embeddedMode,
-            previewYear: (state) => state.layers.previewYear,
-            inDrawingMode: (state) => state.ui.showDrawingOverlay,
-        }),
-        ...mapGetters([
-            'isHeaderShown',
-            'isPhoneMode',
-            'isDesktopMode',
-            'isMenuShown',
-            'isMenuTrayShown',
-            'hasDevSiteWarning',
-            'visibleLayers',
-            'visibleLayersWithTimeConfig',
-        ]),
-    },
-    watch: {
-        previewYear() {
-            // hiding the time slider if the preview has been cleared
-            if (!this.previewYear) {
-                this.showTimeSlider = false
-            }
-        },
-    },
-    methods: {
-        ...mapActions(['toggleGeolocation', 'increaseZoom', 'decreaseZoom', 'toggleMenu']),
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';

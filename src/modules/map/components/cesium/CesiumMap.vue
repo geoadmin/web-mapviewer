@@ -66,12 +66,14 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <cesium-compass v-show="isDesktopMode && !isFullScreenMode" ref="compass" class="compass" />
+        <CesiumToolbox
+            v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
+            class="cesium-toolbox position-absolute start-50 translate-middle-x"
+        />
         <slot />
     </div>
 </template>
 <script>
-import '@geoblocks/cesium-compass'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -111,6 +113,7 @@ import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
+import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
@@ -135,7 +138,14 @@ import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 export default {
-    components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: {
+        CesiumToolbox,
+        FontAwesomeIcon,
+        CesiumPopover,
+        FeatureEdit,
+        FeatureList,
+        CesiumInternalLayer,
+    },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -326,10 +336,6 @@ export default {
                 terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
                 requestRenderMode: true,
             })
-
-            const compass = this.$refs.compass
-            compass.scene = this.viewer.scene
-            compass.clock = this.viewer.clock
 
             const scene = this.viewer.scene
             scene.useDepthPicking = true
@@ -564,15 +570,8 @@ export default {
     display: none !important;
 }
 
-$compass-size: 95px;
-cesium-compass {
-    position: absolute;
+.cesium-toolbox {
     bottom: $footer-height + $screen-padding-for-ui-elements;
-    right: 50%;
     z-index: $zindex-map + 1;
-    width: $compass-size;
-    height: $compass-size;
-    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
-    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>
