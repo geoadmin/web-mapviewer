@@ -38,7 +38,7 @@ export default class WMTSCapabilitiesParser {
             throw new Error(`Failed to parse WMTS Capabilities: invalid content`)
         }
         Object.assign(this, capabilities)
-        this.originUrl = originUrl
+        this.originUrl = new URL(originUrl)
     }
 
     /**
@@ -65,7 +65,7 @@ export default class WMTSCapabilitiesParser {
     getExternalLayerObject(layerId, projection, opacity = 1, visible = true, ignoreError = true) {
         const layer = this.findLayer(layerId)
         if (!layer) {
-            const msg = `No WMTS layer ${layerId} found in Capabilities ${this.originUrl}`
+            const msg = `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
             log.error(msg)
             if (!ignoreError) {
                 throw new Error(msg)
@@ -119,18 +119,23 @@ export default class WMTSCapabilitiesParser {
             layerId = layer.Title
         }
         if (!layerId) {
-            const msg = `No layer identifier found in Capabilities ${this.originUrl}`
+            const msg = `No layer identifier found in Capabilities ${this.originUrl.toString()}`
             log.error(msg, layer)
             if (ignoreError) {
                 return {}
             }
             throw new Error(msg)
         }
+        const title = layer.Title || layerId
+
+        const getCapUrl =
+            this.OperationsMetadata?.GetCapabilities?.DCP?.HTTP?.Get[0]?.href ||
+            this.originUrl.toString()
 
         return {
             layerId: layerId,
-            title: layer.Title || layerId,
-            url: this.originUrl,
+            title: title,
+            url: getCapUrl,
             version: this.version,
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId),
@@ -233,7 +238,7 @@ export default class WMTSCapabilitiesParser {
         if (!title) {
             const msg = `No attribution title for layer ${layerId}`
             log.error(msg)
-            title = new URL(this.originUrl).hostname
+            title = this.originUrl.hostname
         }
         return [new LayerAttribution(title, url)]
     }

@@ -203,15 +203,15 @@ describe('Test on legacy param import', () => {
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
             const layerId = 'ch.swisstopo-vd.official-survey'
-            const url = 'http://wms-test.url/'
+            const url = 'https://fake.wms.base.url/?'
             cy.intercept(
-                { url: `${url}/**`, query: { REQUEST: 'GetMap' } },
+                { url: `${url}**`, query: { REQUEST: 'GetMap' } },
                 {
                     fixture: '256.png',
                 }
             ).as('externalWMSGetMap')
             cy.intercept(
-                { url: `${url}/**`, query: { REQUEST: 'GetCapabilities' } },
+                { url: `${url}**`, query: { REQUEST: 'GetCapabilities' } },
                 { fixture: 'external-wms-getcap.fixture.xml' }
             ).as('externalWMSGetCap')
 

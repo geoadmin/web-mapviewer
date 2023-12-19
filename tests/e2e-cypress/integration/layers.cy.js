@@ -85,20 +85,20 @@ describe('Test of layer handling', () => {
         })
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
-                const fakeWmsBaseUrl = 'https://fake.wms.base.url'
+                const fakeWmsBaseUrl = 'https://fake.wms.base.url/?'
                 const fakeLayerId = 'ch.swisstopo-vd.official-survey'
                 // format is WMS|BASE_URL|LAYER_IDS
                 const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMS
                 cy.intercept(
-                    { url: `${fakeWmsBaseUrl}/**`, query: { REQUEST: 'GetMap' } },
+                    { url: `${fakeWmsBaseUrl}**`, query: { REQUEST: 'GetMap' } },
                     {
                         fixture: '256.png',
                     }
                 ).as('externalWMSGetMap')
                 cy.intercept(
-                    { url: `${fakeWmsBaseUrl}/**`, query: { REQUEST: 'GetCapabilities' } },
+                    { url: `${fakeWmsBaseUrl}**`, query: { REQUEST: 'GetCapabilities' } },
                     { fixture: 'external-wms-getcap.fixture.xml' }
                 ).as('externalWMSGetCap')
 
