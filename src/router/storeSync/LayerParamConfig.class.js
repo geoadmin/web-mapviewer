@@ -1,4 +1,3 @@
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -76,23 +75,14 @@ export function createLayerObject(parsedLayer) {
     // format is : WMS|BASE_URL|LAYER_ID
     else if (parsedLayer.id.startsWith('WMS|')) {
         const [_externalLayerType, wmsServerBaseURL, wmsLayerId] = parsedLayer.id.split('|')
+        // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
+        // the layer might be updated to an external group of layers if needed.
         layer = new ExternalWMSLayer(
             wmsLayerId,
             parsedLayer.opacity,
             parsedLayer.visible,
             wmsServerBaseURL,
             wmsLayerId
-        )
-    }
-    // format is : GRP|BASE_URL|LAYER_ID
-    else if (parsedLayer.id.startsWith('GRP|')) {
-        const [_externalLayerType, serverBaseURL, layerId] = parsedLayer.id.split('|')
-        layer = new ExternalGroupOfLayers(
-            layerId,
-            parsedLayer.opacity,
-            parsedLayer.visible,
-            serverBaseURL,
-            layerId
         )
     }
     return layer

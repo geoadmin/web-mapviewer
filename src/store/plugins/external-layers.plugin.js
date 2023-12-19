@@ -50,20 +50,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
         }
 
         updatedExternalLayer.isLoading = false
-        // Hack for legacy group of external layers, in this case the URL was with WMS|| and
-        // in the legacy parameters plugin we have no possibility to differentiate between
-        // group of layers and regular WMS layer, therefore if we don't find the layer in the
-        // active layers try to find it using the legacy group of layer type
-        const legacyGroupOfLayerId = updatedExternalLayer.getID().replace('GRP|', 'WMS|')
-        if (store.getters.getActiveLayerById(updatedExternalLayer.getID())) {
-            store.dispatch('updateLayer', updatedExternalLayer)
-        } else if (store.getters.getActiveLayerById(legacyGroupOfLayerId)) {
-            // This is a legacy group of wms layer
-            store.dispatch('removeLayer', legacyGroupOfLayerId)
-            store.dispatch('addLayer', updatedExternalLayer)
-        } else {
-            throw new Error(`Layer ${updatedExternalLayer.getID()} not found`)
-        }
+        store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
     }
