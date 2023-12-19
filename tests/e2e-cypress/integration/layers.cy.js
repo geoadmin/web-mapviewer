@@ -127,7 +127,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
             })
-            it.only('reads and adds an external WMTS correctly', () => {
+            it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
                 const fakeLayerId = 'TestExternalWMTS'
                 // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
