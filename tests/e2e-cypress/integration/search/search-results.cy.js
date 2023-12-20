@@ -96,9 +96,12 @@ describe('Test the search bar result handling', () => {
         // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
         // on the smaller value between width or height
         const resolution = 1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
-        return DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
-            resolution,
-            proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, expectedCenterEpsg4326)
+        // we now zoom out once after calculation (see BGDIINF_SB-3153)
+        return (
+            DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
+                resolution,
+                proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, expectedCenterEpsg4326)
+            ) - 1
         )
     }
     const checkLocation = (expected, result) => {
