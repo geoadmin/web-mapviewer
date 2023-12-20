@@ -1,6 +1,6 @@
 <template>
     <div class="search-category">
-        <div class="search-category-header p-2 text-bg-secondary">
+        <div class="search-category-header px-2 py-1 text-bg-secondary">
             {{ title }}
         </div>
         <ul class="search-category-body">

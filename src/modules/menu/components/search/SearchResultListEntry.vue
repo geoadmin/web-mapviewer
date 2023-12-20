@@ -14,7 +14,8 @@
     >
         <!-- eslint-disable vue/no-v-html-->
         <div
-            class="search-category-entry-main p-2 flex-grow-1"
+            class="search-category-entry-main px-2 flex-grow-1"
+            :class="{ 'py-1': compact, 'py-2': !compact }"
             @click="selectItem"
             v-html="entry.title"
         ></div>
@@ -22,6 +23,7 @@
         <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
             <button
                 class="btn btn-default"
+                :class="{ 'btn-xs': compact }"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"
                 tabindex="-1"
                 @click="showLayerLegendPopup"
@@ -33,7 +35,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 import { SearchResult } from '@/api/search.api'
 
@@ -51,6 +53,10 @@ export default {
     },
     emits: ['showLayerLegendPopup', 'entrySelected', 'goToPreviousCategory', 'goToNextCategory'],
     computed: {
+        ...mapGetters(['isDesktopMode']),
+        compact() {
+            return this.isDesktopMode
+        },
         resultType() {
             return this.entry.resultType.toLowerCase()
         },
