@@ -158,7 +158,7 @@ function checkProviderResponseContent(provider, url, response, result) {
                 LV95,
                 1 /* opacity */,
                 true /* visible */,
-                false /* ignoreError */
+                false /* throw Error in case of  error */
             )
             if (layers.length === 0) {
                 throw new Error(`No valid WMS layers found`)
@@ -180,7 +180,7 @@ function checkProviderResponseContent(provider, url, response, result) {
                 LV95,
                 1 /* opacity */,
                 true /* visible */,
-                false /* ignoreError */
+                false /* throw Error in case of  error */
             )
             if (layers.length === 0) {
                 throw new Error(`No valid WMTS layers found`)

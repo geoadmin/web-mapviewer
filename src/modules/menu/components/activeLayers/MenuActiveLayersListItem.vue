@@ -30,7 +30,7 @@
                 >{{ layer.name }}</span
             >
             <button
-                v-if="layer.isLoading"
+                v-if="layer.isLoading && !layer.hasError"
                 class="loading-button btn"
                 :class="{
                     'btn-lg': !compact,
@@ -39,6 +39,11 @@
             >
                 <FontAwesomeIcon icon="spinner" pulse />
             </button>
+            <ErrorButton
+                v-else-if="layer.hasError"
+                :compact="compact"
+                :error-message="layer.errorKey"
+            />
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"
                 :layer-id="id"
@@ -126,6 +131,7 @@ import { mapGetters, mapState } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import ErrorButton from '@/utils/ErrorButton.vue'
 import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
 
 /**
@@ -137,6 +143,7 @@ export default {
         FontAwesomeIcon,
         MenuActiveLayersListItemTimeSelector,
         ThirdPartDisclaimer,
+        ErrorButton,
     },
     props: {
         layer: {

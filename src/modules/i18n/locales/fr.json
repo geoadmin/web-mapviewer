@@ -642,7 +642,7 @@
     "invalid_wms_capabilities": "Données WMS Capabilities invalides",
     "invalid_wmts_capabilities": "Données WMTS Capabilities invalides",
     "network_error": "Erreur réseau",
-    "no_layer_found": "Pas de couche trouvé",
+    "no_layer_found": "Pas de couche trouvée",
     "import_maps_url_placeholder": "WMTS WMS URL",
     "import_file_url_placeholder": "GPX KML URL",
     "no_result": "Pas de résultat",

@@ -4,6 +4,7 @@ import proj4 from 'proj4'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
@@ -19,10 +20,10 @@ function findLayer(layerId, startFrom) {
     let layer = null
     const layers = startFrom
 
-    for (let i = 0; i < layers.length && !layer; i++) {
-        if (layers[i].Identifier === layerId) {
+    for (let i = 0; i < layers?.length && !layer; i++) {
+        if (layers[i]?.Identifier === layerId) {
             layer = layers[i]
-        } else if (!layers[i].Identifier && layers[i].Title === layerId) {
+        } else if (!layers[i].Identifier && layers[i]?.Title === layerId) {
             layer = layers[i]
         }
     }
@@ -35,7 +36,10 @@ export default class WMTSCapabilitiesParser {
         const parser = new WMTSCapabilities()
         const capabilities = parser.read(content)
         if (!capabilities.version) {
-            throw new Error(`Failed to parse WMTS Capabilities: invalid content`)
+            throw new CapabilitiesError(
+                `Failed to parse WMTS Capabilities: invalid content`,
+                'invalid_wmts_capabilities'
+            )
         }
         Object.assign(this, capabilities)
         this.originUrl = new URL(originUrl)
@@ -48,7 +52,7 @@ export default class WMTSCapabilitiesParser {
      * @returns {WMTSCapabilities.Contents.Layer} Capability layer node
      */
     findLayer(layerId) {
-        return findLayer(layerId, this.Contents.Layer)
+        return findLayer(layerId, this.Contents?.Layer)
     }
 
     /**
@@ -68,7 +72,7 @@ export default class WMTSCapabilitiesParser {
             const msg = `No WMTS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
             log.error(msg)
             if (!ignoreError) {
-                throw new Error(msg)
+                throw new CapabilitiesError(msg, 'no_layer_found')
             }
             return null
         }
@@ -124,7 +128,7 @@ export default class WMTSCapabilitiesParser {
             if (ignoreError) {
                 return {}
             }
-            throw new Error(msg)
+            throw new CapabilitiesError(msg, 'invalid_wmts_capabilities')
         }
         const title = layer.Title || layerId
 
@@ -139,7 +143,7 @@ export default class WMTSCapabilitiesParser {
             version: this.version,
             abstract: layer.Abstract,
             attributions: this._getLayerAttribution(layerId),
-            extent: this._getLayerExtent(layerId, layer, projection, ignoreError),
+            extent: this._getLayerExtent(layerId, layer, projection),
             legends: this._getLegends(layerId, layer),
         }
     }
@@ -157,7 +161,7 @@ export default class WMTSCapabilitiesParser {
         return tileMatrixSet
     }
 
-    _getLayerExtent(layerId, layer, projection, ignoreError) {
+    _getLayerExtent(layerId, layer, projection) {
         let layerExtent = null
         let extentEpsg = null
         // First try to get the extent from the default bounding box
@@ -224,9 +228,6 @@ export default class WMTSCapabilitiesParser {
         if (!layerExtent) {
             const msg = `No layer extent found for ${layerId}`
             log.error(msg, layer)
-            if (!ignoreError) {
-                throw new Error(msg)
-            }
         }
         return layerExtent
     }
