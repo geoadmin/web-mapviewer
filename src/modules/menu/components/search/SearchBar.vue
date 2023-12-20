@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
@@ -59,14 +59,22 @@ const clearSearchQuery = () => {
 
 const closeSearchResults = () => {
     showResults.value = false
+    searchInput.value.focus()
 }
 
 const goToFirstResult = () => {
-    if (!showResults.value) {
-        showResults.value = true
-    }
     if (hasResults.value) {
-        results.value.$el.querySelector('[tabindex="0"]').focus()
+        if (!showResults.value) {
+            showResults.value = true
+        }
+        // here we need to do the focus on nex tick if the result list was
+        // not displayed, otherwise the focus won't work (e.g result list
+        // is hidden and the user press the key down, it would then only show
+        // the list but not focus, to focus the user would need to press the key
+        // down again)
+        nextTick(() => {
+            results.value.$el.querySelector('[tabindex="0"]').focus()
+        })
     }
 }
 
