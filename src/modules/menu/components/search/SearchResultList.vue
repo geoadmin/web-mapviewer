@@ -14,6 +14,8 @@
         >
             <div class="search-results-inner">
                 <SearchResultCategory
+                    v-if="results?.locationResults?.length > 0"
+                    ref="locationCategory"
                     :title="$t('locations_results_header')"
                     :entries="results.locationResults"
                     data-cy="search-results-locations"
@@ -23,9 +25,14 @@
                         :key="index"
                         :index="index"
                         :entry="location"
+                        @entry-selected="onEntrySelected(location)"
+                        @go-to-previous-category="goToSearchInput()"
+                        @go-to-next-category="gotToLayerCategory()"
                     />
                 </SearchResultCategory>
                 <SearchResultCategory
+                    v-if="results?.layerResults?.length > 0"
+                    ref="layerCategory"
                     :title="$t('layers_results_header')"
                     :entries="results.layerResults"
                     data-cy="search-results-layers"
@@ -36,6 +43,8 @@
                         :index="index"
                         :entry="layer"
                         @show-layer-legend-popup="showLayerLegend(layer)"
+                        @entry-selected="onEntrySelected(layer)"
+                        @go-to-previous-category="gotToLocationCategory()"
                     />
                 </SearchResultCategory>
             </div>
@@ -63,7 +72,7 @@ import SearchResultCategory from './SearchResultCategory.vue'
  */
 export default {
     components: { LayerLegendPopup, SearchResultListEntry, SearchResultCategory },
-    emits: ['close'],
+    emits: ['close', 'entrySelected'],
     data() {
         return {
             layerLegendId: null,
@@ -85,6 +94,18 @@ export default {
         hideLayerLegend() {
             this.layerLegendId = null
             this.layerLegendName = null
+        },
+        onEntrySelected(entry) {
+            this.$emit('entrySelected', entry)
+        },
+        goToSearchInput() {
+            this.$el.parentElement.querySelector('input').focus()
+        },
+        gotToLocationCategory() {
+            this.$refs.locationCategory.$el.querySelector('ul').lastElementChild.focus()
+        },
+        gotToLayerCategory() {
+            this.$refs.layerCategory.$el.querySelector('[tabindex="0"]').focus()
         },
     },
 }

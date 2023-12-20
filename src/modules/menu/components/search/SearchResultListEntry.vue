@@ -49,7 +49,7 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup'],
+    emits: ['showLayerLegendPopup', 'entrySelected', 'goToPreviousCategory', 'goToNextCategory'],
     computed: {
         resultType() {
             return this.entry.resultType.toLowerCase()
@@ -58,23 +58,30 @@ export default {
     methods: {
         ...mapActions([
             'selectResultEntry',
-            'setPinnedLocation',
             'setPreviewedPinnedLocation',
-            'clearPinnedLocation',
             'setPreviewLayer',
             'clearPreviewLayer',
         ]),
         selectItem() {
+            this.$emit('entrySelected')
             this.selectResultEntry(this.entry)
         },
         showLayerLegendPopup() {
             this.$emit('showLayerLegendPopup')
         },
         goToPrevious() {
-            this.changeFocus(this.$refs.item.previousElementSibling)
+            if (this.$refs.item.previousElementSibling) {
+                this.changeFocus(this.$refs.item.previousElementSibling)
+            } else {
+                this.$emit('goToPreviousCategory')
+            }
         },
         goToNext() {
-            this.changeFocus(this.$refs.item.nextElementSibling)
+            if (this.$refs.item.nextElementSibling) {
+                this.changeFocus(this.$refs.item.nextElementSibling)
+            } else {
+                this.$emit('goToNextCategory')
+            }
         },
         goToFirst() {
             this.changeFocus(this.$refs.item.parentElement.firstElementChild)

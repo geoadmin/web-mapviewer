@@ -9,6 +9,7 @@ import { ENVIRONMENT } from '../config'
  */
 export const LogLevel = {
     ERROR: 'error',
+    WARNING: 'warn',
     INFO: 'info',
     DEBUG: 'debug',
 }
@@ -33,6 +34,9 @@ export default function log(level, ...message) {
         case LogLevel.ERROR:
             console.error(...message)
             break
+        case LogLevel.WARNING:
+            console.warn(...message)
+            break
         case LogLevel.INFO:
             console.info(...message)
             break
@@ -48,6 +52,8 @@ export default function log(level, ...message) {
 
 /** Shorthand for log('error', ...message) */
 log.error = (...message) => log(LogLevel.ERROR, ...message)
+/** Shorthand for log('info', ...message) */
+log.warn = (...message) => log(LogLevel.WARNING, ...message)
 /** Shorthand for log('info', ...message) */
 log.info = (...message) => log(LogLevel.INFO, ...message)
 /** Shorthand for log('debug', ...message) */

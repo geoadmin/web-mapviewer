@@ -7,17 +7,21 @@ import SearchResultList from '@/modules/menu/components/search/SearchResultList.
 const store = useStore()
 
 const showResults = ref(false)
-const debounceSearch = ref(null)
 const searchInput = ref(null)
 const searchValue = ref('')
 const results = ref(null)
+const selectedEntry = ref(null)
 
 const searchQuery = computed(() => store.state.search.query)
 const hasResults = computed(() => store.state.search.results.count())
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 watch(hasResults, (newValue) => {
-    showResults.value = newValue
+    // if an entry has been selected from the list, do not show the list again
+    // because the list has been hidden by onEntrySelected
+    if (!selectedEntry.value) {
+        showResults.value = newValue
+    }
 })
 
 watch(showResults, (newValue) => {
@@ -26,23 +30,24 @@ watch(showResults, (newValue) => {
     }
 })
 
+watch(searchQuery, (newQuery) => {
+    searchValue.value = newQuery
+})
+
 onMounted(() => {
-    // NOTE: we only set the input to the search query parameter during the initial load of the
-    // view, but not after, this means if a user manually change the query parameter it will not be
-    // updated in the input field. This is to avoid the result query to update the input which
-    // can delete input character entered by the user.
     searchValue.value = searchQuery.value
     searchInput.value.focus()
 })
 
+let debounceSearch = null
 const updateSearchQuery = (event) => {
+    selectedEntry.value = null
     searchValue.value = event.target.value
-    if (debounceSearch.value) {
-        clearTimeout(debounceSearch.value)
-    }
-    debounceSearch.value = setTimeout(() => {
+
+    clearTimeout(debounceSearch)
+    debounceSearch = setTimeout(() => {
         store.dispatch('setSearchQuery', { query: event.target.value })
-    }, 200)
+    }, 50)
 }
 
 const onSearchInputFocus = () => {
@@ -52,6 +57,8 @@ const onSearchInputFocus = () => {
 }
 
 const clearSearchQuery = () => {
+    showResults.value = false
+    selectedEntry.value = null
     searchValue.value = ''
     store.dispatch('setSearchQuery', { query: '' })
     searchInput.value.focus()
@@ -76,6 +83,11 @@ const goToFirstResult = () => {
             results.value.$el.querySelector('[tabindex="0"]').focus()
         })
     }
+}
+
+const onEntrySelected = (entry) => {
+    selectedEntry.value = entry
+    showResults.value = false
 }
 
 const onClickOutside = (event) => {
@@ -125,7 +137,12 @@ const onClickOutside = (event) => {
         >
             <FontAwesomeIcon :icon="['fas', 'times-circle']" />
         </button>
-        <SearchResultList v-show="showResults" ref="results" @close="closeSearchResults" />
+        <SearchResultList
+            v-show="showResults"
+            ref="results"
+            @close="closeSearchResults"
+            @entry-selected="onEntrySelected"
+        />
     </div>
 </template>
 
