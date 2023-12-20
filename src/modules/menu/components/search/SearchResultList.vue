@@ -4,7 +4,7 @@
         :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
     >
         <div
-            class="search-results bg-light"
+            class="shadow-lg search-results bg-light"
             :class="{
                 'border-top border-bottom': isPhoneMode,
                 'border rounded-bottom': !isPhoneMode,
@@ -116,7 +116,6 @@ export default {
     display: grid;
     grid-auto-rows: 1fr;
     max-height: 100%;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     pointer-events: all;
 }
 
