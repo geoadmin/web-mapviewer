@@ -220,16 +220,28 @@ const actions = {
                     y: centerOfExtent[1],
                 })
             }
-            // taking the biggest resolution calculated with either the width or height of the screen
-            // so that it fits to the screen
-            const newResolution = Math.max(
-                (extent[1][0] - extent[0][0]) / rootState.ui.width,
-                (extent[1][1] - extent[0][1]) / rootState.ui.height
+            const extentSize = {
+                width: extent[1][0] - extent[0][0],
+                height: extent[1][1] - extent[0][1],
+            }
+            let targetResolution
+            // if the extent's height is greater than width, we base our resolution calculation on that
+            if (extentSize.height > extentSize.width) {
+                targetResolution =
+                    extentSize.height / (rootState.ui.height - 96) /* header height */
+            } else {
+                targetResolution = extentSize.width / rootState.ui.width
+            }
+
+            const zoomForResolution = state.projection.getZoomForResolutionAndCenter(
+                targetResolution,
+                centerOfExtent
             )
-            commit(
-                'setZoom',
-                state.projection.getZoomForResolutionAndCenter(newResolution, centerOfExtent)
-            )
+            // Zoom levels are fixed value with LV95, the one calculated is the fixed zoom the closest to the floating
+            // zoom level required to show the full extent on the map (scale to fill).
+            // So the view will be too zoomed-in to have an overview of the extent.
+            // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
+            commit('setZoom', Math.max(zoomForResolution - 1, 0))
         }
     },
     increaseZoom: ({ dispatch, state }) => dispatch('setZoom', Number(state.zoom) + 1),
