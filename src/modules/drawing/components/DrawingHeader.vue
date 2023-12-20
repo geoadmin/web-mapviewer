@@ -22,9 +22,11 @@ function onClose() {
             :disabled="isClosing"
             @click="onClose"
         >
-            <FontAwesomeIcon v-if="isClosing" icon="spinner" spin />
+            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
+            <span v-if="isClosing">
+                {{ i18n.t('draw_file_saving') }}
+            </span>
             <span v-else>
-                <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
                 {{ i18n.t('draw_back') }}
             </span>
         </button>
