@@ -46,4 +46,5 @@ $admin-icons: 'Admin Icons';
 
 // MISC
 //=============================================================================
-$focus-outline: 3px solid $malibu;
+$focus-outline-size: 3px;
+$focus-outline: $focus-outline-size solid $malibu;

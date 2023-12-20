@@ -121,5 +121,8 @@ export default {
             transition: unset;
         }
     }
+    &:focus {
+        outline-offset: -$focus-outline-size;
+    }
 }
 </style>
