@@ -84,9 +84,7 @@ export default {
         },
         changeFocus(target) {
             if (target) {
-                target.tabIndex = '0'
                 target.focus()
-                this.$refs.item.tabIndex = '-1'
             }
         },
         startResultPreview() {
