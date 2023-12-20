@@ -190,6 +190,9 @@ export default {
         setEmbeddedMode({ commit }, isEmbedded) {
             commit('setEmbeddedMode', !!isEmbedded)
         },
+        setShowLoadingBar({ commit }, value) {
+            commit('setShowLoadingBar', !!value)
+        },
         toggleLoadingBar({ commit, state }) {
             commit('setShowLoadingBar', !state.showLoadingBar)
         },

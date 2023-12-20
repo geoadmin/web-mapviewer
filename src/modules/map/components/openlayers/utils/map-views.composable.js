@@ -69,6 +69,7 @@ export default function useViewBasedOnProjection(map) {
         const viewForProjection = viewsForProjection[projection.value.epsg]
         if (viewForProjection) {
             viewForProjection.setCenter(center.value)
+            viewForProjection.setZoom(zoom.value)
             map.setView(viewForProjection)
         } else {
             log.error('View for projection was not found', projection.value)

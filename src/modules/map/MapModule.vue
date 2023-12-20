@@ -1,3 +1,29 @@
+<script setup>
+import { computed, defineAsyncComponent } from 'vue'
+import { useStore } from 'vuex'
+
+import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
+import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
+import { UIModes } from '@/store/modules/ui.store'
+
+import LocationPopup from './components/LocationPopup.vue'
+import WarningRibbon from './components/WarningRibbon.vue'
+
+const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
+const OpenLayersMap = defineAsyncComponent(
+    () => import('./components/openlayers/OpenLayersMap.vue')
+)
+
+const store = useStore()
+
+const is3DActive = computed(() => store.state.cesium.active)
+const uiMode = computed(() => store.state.ui.mode)
+const displayLocationPopup = computed(() => store.state.map.displayLocationPopup)
+
+const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
+</script>
+
 <template>
     <div class="full-screen-map" data-cy="map">
         <CesiumMap v-if="is3DActive">
@@ -22,43 +48,6 @@
         <WarningRibbon />
     </div>
 </template>
-
-<script>
-import { defineAsyncComponent } from 'vue'
-import { mapState } from 'vuex'
-
-import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
-import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
-import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
-import { UIModes } from '@/store/modules/ui.store'
-
-import LocationPopup from './components/LocationPopup.vue'
-import WarningRibbon from './components/WarningRibbon.vue'
-
-export default {
-    components: {
-        OpenLayersCompassButton,
-        OpenLayersMouseTracker,
-        OpenLayersScale,
-        LocationPopup,
-        WarningRibbon,
-        OpenLayersMap: defineAsyncComponent(
-            () => import('./components/openlayers/OpenLayersMap.vue')
-        ),
-        CesiumMap: defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue')),
-    },
-    computed: {
-        ...mapState({
-            is3DActive: (state) => state.cesium.active,
-            uiMode: (state) => state.ui.mode,
-            displayLocationPopup: (state) => state.map.displayLocationPopup,
-        }),
-        isPhoneMode() {
-            return this.uiMode === UIModes.PHONE
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';

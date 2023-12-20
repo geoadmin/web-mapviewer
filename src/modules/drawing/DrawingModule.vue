@@ -10,13 +10,11 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
-import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import log from '@/utils/logging'
 
 const olMap = inject('olMap')
 
 const drawingInteractions = ref(null)
-const isClosing = ref(false)
 const isNewDrawing = ref(true)
 
 const store = useStore()
@@ -119,7 +117,7 @@ function removeLastPointOnDeleteKeyUp(event) {
 }
 
 async function closeDrawing() {
-    isClosing.value = true
+    await store.dispatch('setShowLoadingBar', true)
 
     log.debug(
         `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
@@ -135,13 +133,13 @@ async function closeDrawing() {
         await saveDrawing(false)
     }
 
-    store.dispatch('toggleDrawingOverlay')
+    await store.dispatch('toggleDrawingOverlay')
+    await store.dispatch('setShowLoadingBar', false)
 }
 </script>
 
 <template>
     <div>
-        <BlackBackdrop v-if="isClosing" with-spinner place-for-modal />
         <DrawingToolbox @remove-last-point="removeLastPoint" @close-drawing="closeDrawing" />
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
