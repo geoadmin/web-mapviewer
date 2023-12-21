@@ -1,5 +1,13 @@
 # Testing
 
+- [Unit testing](#unit-testing)
+- [E2E testing](#e2e-testing)
+  - [Cypress Cloud](#cypress-cloud)
+  - [Using cypress on a Windows machine](#using-cypress-on-a-windows-machine)
+    - [Source code in WSL2 file system](#source-code-in-wsl2-file-system)
+  - [Using cypress on a Unix machine](#using-cypress-on-a-unix-machine)
+- [CI](#ci)
+
 ## Unit testing
 
 This project uses [vitest](https://vitest.dev/) which is the default used by Vue3. Unit tests files are directly
@@ -13,6 +21,20 @@ To run unit tests, execute `npm run test:unit`.
 This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/e2e-cypress/`.
 
 There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:e2e:ci`.
+
+### Cypress Cloud
+
+On the CI the tests are run in parallel using Cypress Cloud, see [web-mapviewer cypress cloud project](https://cloud.cypress.io/projects/fj2ezv/runs).
+
+You can also record your local run of cypress to the cloud as follow
+
+```bash
+npm run start &
+
+summon npx cypress run --record --tag local [--spec tests/e2e-cypress/integration/SPECFILE]
+```
+
+:warning: The cypress cloud project is public !
 
 ### Using cypress on a Windows machine
 
