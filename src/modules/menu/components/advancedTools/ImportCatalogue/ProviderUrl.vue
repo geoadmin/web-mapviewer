@@ -3,11 +3,9 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
-import {
-    CapabilitiesError,
-    useCapabilities,
-} from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
+import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import { isValidUrl } from '@/utils/utils'
 

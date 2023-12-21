@@ -53,6 +53,9 @@ async function updateExternalLayer(store, externalLayer, projection) {
         store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
+        const erroredLayer = externalLayer.clone()
+        erroredLayer.setError(error.key ? error.key : 'error')
+        store.dispatch('updateLayer', erroredLayer)
     }
 }
 
@@ -62,13 +65,9 @@ async function updatedWMSLayerAttributes(externalLayer, projection) {
         externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
-        externalLayer.visible
+        externalLayer.visible,
+        false /* throw Error in case of  error */
     )
-    if (!newObject) {
-        throw new Error(
-            `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
-        )
-    }
     return newObject
 }
 
@@ -78,12 +77,8 @@ async function updatedWMTSLayerAttributes(externalLayer, projection) {
         externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
-        externalLayer.visible
+        externalLayer.visible,
+        false /* throw Error in case of  error */
     )
-    if (!newObject) {
-        throw new Error(
-            `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
-        )
-    }
     return newObject
 }

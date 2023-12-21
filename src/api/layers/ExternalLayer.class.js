@@ -80,6 +80,7 @@ export default class ExternalLayer extends AbstractLayer {
         this.extent = extent
         this.legends = legends
         this.isLoading = isLoading
+        this.errorKey = null
     }
 
     getURL() {
@@ -88,5 +89,22 @@ export default class ExternalLayer extends AbstractLayer {
 
     get hasLegend() {
         return this.abstract || this.legends.length > 0 || super.hasLegend
+    }
+
+    /**
+     * Is true when the layer has an error (e.g. failed to load layer metadata, invalid layer url,
+     * ...)
+     */
+    get hasError() {
+        return !!this.errorKey
+    }
+
+    /**
+     * Sets the error message i18n key
+     *
+     * @param {string} errorKey I18n error key to be used as translated error message
+     */
+    setError(errorKey) {
+        this.errorKey = errorKey
     }
 }

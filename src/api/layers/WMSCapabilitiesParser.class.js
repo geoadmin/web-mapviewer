@@ -5,6 +5,7 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import { LayerLegend } from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import { WMS_SUPPORTED_VERSIONS } from '@/config'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
@@ -13,12 +14,12 @@ function findLayer(layerId, startFrom, parents) {
     let found = {}
     const layers = startFrom
 
-    for (let i = 0; i < layers.length && !found.layer; i++) {
-        if (layers[i].Name === layerId || layers[i].Title === layerId) {
+    for (let i = 0; i < layers?.length && !found.layer; i++) {
+        if (layers[i]?.Name === layerId || layers[i]?.Title === layerId) {
             found.layer = layers[i]
             found.parents = parents
-        } else if (layers[i].Layer?.length > 0) {
-            found = findLayer(layerId, layers[i].Layer, [layers[i], ...parents])
+        } else if (layers[i]?.Layer?.length > 0) {
+            found = findLayer(layerId, layers[i]?.Layer, [layers[i], ...parents])
         }
     }
     return found
@@ -32,7 +33,10 @@ export default class WMSCapabilitiesParser {
             Object.assign(this, parser.read(content))
         } catch (error) {
             log.error(`Failed to parse capabilities of ${originUrl}`, error)
-            throw new Error(`Failed to parse WMTS Capabilities: invalid content: ${error}`)
+            throw new CapabilitiesError(
+                `Failed to parse WMTS Capabilities: invalid content: ${error}`,
+                'invalid_wms_capabilities'
+            )
         }
 
         this.originUrl = new URL(originUrl)
@@ -49,7 +53,7 @@ export default class WMSCapabilitiesParser {
      *   Capability layer node and its parents or an empty object if not found
      */
     findLayer(layerId) {
-        return findLayer(layerId, this.Capability.Layer.Layer, [this.Capability.Layer])
+        return findLayer(layerId, this.Capability?.Layer?.Layer, [this.Capability?.Layer])
     }
 
     /**
@@ -71,7 +75,7 @@ export default class WMSCapabilitiesParser {
             if (ignoreError) {
                 return null
             }
-            throw new Error(msg)
+            throw new CapabilitiesError(msg, 'no_layer_found')
         }
         return this._getExternalLayerObject(
             layer,
@@ -172,7 +176,7 @@ export default class WMSCapabilitiesParser {
             if (ignoreError) {
                 return {}
             }
-            throw new Error(msg)
+            throw new CapabilitiesError(msg, 'no_layer_found')
         }
 
         if (!this.version || !WMS_SUPPORTED_VERSIONS.includes(this.version)) {
@@ -186,7 +190,7 @@ export default class WMSCapabilitiesParser {
             if (ignoreError) {
                 return {}
             }
-            throw new Error(msg)
+            throw new CapabilitiesError(msg, 'no_wms_version_found')
         }
 
         return {
@@ -197,13 +201,13 @@ export default class WMSCapabilitiesParser {
                 this.originUrl.toString(),
             version: this.version,
             abstract: layer.Abstract,
-            attributions: this._getLayerAttribution(layerId, layer, ignoreError),
-            extent: this._getLayerExtent(layerId, layer, parents, projection, ignoreError),
+            attributions: this._getLayerAttribution(layerId, layer),
+            extent: this._getLayerExtent(layerId, layer, parents, projection),
             legends: this._getLayerLegends(layerId, layer),
         }
     }
 
-    _getLayerExtent(layerId, layer, parents, projection, ignoreError = true) {
+    _getLayerExtent(layerId, layer, parents, projection) {
         let layerExtent = null
         const matchedBbox = layer.BoundingBox?.find((bbox) => bbox.crs === projection.epsg)
         // First try to find a matching extent from the BoundingBox
@@ -242,27 +246,18 @@ export default class WMSCapabilitiesParser {
         }
         // Finally search the extent in the parents
         if (!layerExtent && parents.length > 0) {
-            return this._getLayerExtent(
-                layerId,
-                parents[0],
-                parents.slice(1),
-                projection,
-                ignoreError
-            )
+            return this._getLayerExtent(layerId, parents[0], parents.slice(1), projection)
         }
 
         if (!layerExtent) {
             const msg = `No layer extent found for ${layerId} in ${this.originUrl.toString()}`
             log.error(msg, layer, parents)
-            if (!ignoreError) {
-                throw Error(msg)
-            }
         }
 
         return layerExtent
     }
 
-    _getLayerAttribution(layerId, layer, ignoreError) {
+    _getLayerAttribution(layerId, layer) {
         let title = null
         let url = null
         try {
@@ -276,9 +271,6 @@ export default class WMSCapabilitiesParser {
         } catch (error) {
             const msg = `Failed to get an attribution title/url for ${layerId}: ${error}`
             log.error(msg, layer, error)
-            if (!ignoreError) {
-                throw new Error(msg)
-            }
             title = new URL(this.originUrl).hostname
             url = null
         }

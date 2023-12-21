@@ -2,21 +2,17 @@ import axios, { AxiosError } from 'axios'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { parseWmsCapabilities, parseWmtsCapabilities } from '@/api/layers/layers-external.api'
+import {
+    CapabilitiesError,
+    parseWmsCapabilities,
+    parseWmtsCapabilities,
+} from '@/api/layers/layers-external.api'
 import {
     guessExternalLayerUrl,
     isWmsGetCap,
     isWmtsGetCap,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
 import log from '@/utils/logging'
-
-export class CapabilitiesError extends Error {
-    constructor(message, key) {
-        super(message)
-        this.key = key
-        this.name = 'CapabilitiesError'
-    }
-}
 
 export function useCapabilities(newUrl) {
     const url = ref(newUrl)
@@ -39,35 +35,27 @@ export function useCapabilities(newUrl) {
     }
 
     function handleWms(content, fullUrl) {
-        try {
-            let wmsMaxSize = null
-            const capabilities = parseWmsCapabilities(content, fullUrl)
-            if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
-                wmsMaxSize = {
-                    width: capabilities.Service.MaxWidth,
-                    height: capabilities.Service.MaxHeight,
-                }
+        let wmsMaxSize = null
+        const capabilities = parseWmsCapabilities(content, fullUrl)
+        if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
+            wmsMaxSize = {
+                width: capabilities.Service.MaxWidth,
+                height: capabilities.Service.MaxHeight,
             }
-            return {
-                layers: capabilities.getAllExternalLayerObjects(projection.value, 1, true),
-                wmsMaxSize,
-            }
-        } catch (error) {
-            throw new CapabilitiesError(error?.message, 'invalid_wms_capabilities')
+        }
+        return {
+            layers: capabilities.getAllExternalLayerObjects(projection.value, 1, true),
+            wmsMaxSize,
         }
     }
 
     function handleWmts(content, fullUrl) {
-        try {
-            return {
-                layers: parseWmtsCapabilities(content, fullUrl).getAllExternalLayerObjects(
-                    projection.value,
-                    1,
-                    true
-                ),
-            }
-        } catch (error) {
-            throw new CapabilitiesError(error?.message, 'invalid_wmts_capabilities')
+        return {
+            layers: parseWmtsCapabilities(content, fullUrl).getAllExternalLayerObjects(
+                projection.value,
+                1,
+                true
+            ),
         }
     }
 
