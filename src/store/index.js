@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 
+import debug from '@/store/debug.store'
 import app from '@/store/modules/app.store'
 import cesium from '@/store/modules/cesium.store'
 import drawing from '@/store/modules/drawing.store'
@@ -29,7 +30,7 @@ import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.p
 import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
 
-export default createStore({
+const store = createStore({
     strict: true,
     state: {},
     plugins: [
@@ -65,3 +66,9 @@ export default createStore({
         cesium,
     },
 })
+
+if (store.getters.hasDevSiteWarning) {
+    store.registerModule('debug', debug)
+}
+
+export default store
