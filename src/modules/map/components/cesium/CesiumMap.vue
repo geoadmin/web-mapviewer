@@ -256,8 +256,9 @@ export default {
         if (this.isProjectionWebMercator) {
             this.createViewer()
         } else {
-            log.debug('Projection is not yet set to WebMercator, Cesium will not load yet')
+            log.warn('Projection is not yet set to WebMercator, Cesium will not load yet')
         }
+        log.info('CesiumMap component mounted and ready')
     },
     beforeUnmount() {
         if (this.viewer) {
@@ -294,6 +295,7 @@ export default {
             'click',
             'toggleFloatingTooltip',
             'setCenter',
+            'mapModuleReady',
         ]),
         async createViewer() {
             this.viewer = new Viewer(this.$refs.viewer, {
@@ -384,6 +386,7 @@ export default {
                 // reduce screen space error to downgrade visual quality but speed up tests
                 globe.maximumScreenSpaceError = 30
             }
+            this.mapModuleReady()
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures

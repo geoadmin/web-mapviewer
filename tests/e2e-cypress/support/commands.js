@@ -189,7 +189,7 @@ Cypress.Commands.add(
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
-        cy.waitUntilState((state) => state.app.isReady, { timeout: 10000 })
+        cy.waitUntilState((state) => state.app.isMapReady, { timeout: 10000 })
         cy.waitUntilState(
             (state) => {
                 const active = state.layers.activeLayers.length

@@ -7,6 +7,7 @@ import { useStore } from 'vuex'
 
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
     const { onLeftClickDown, onLeftClickUp, onRightClick, onMouseMove } = useMouseOnMap()
@@ -67,6 +68,9 @@ export default function useMapInteractions(map) {
         mapElement.addEventListener('pointerdown', onPointerDown)
         mapElement.addEventListener('pointerup', onPointerUp)
         mapElement.addEventListener('pointermove', onMouseMove)
+        log.info('setup map pointer events')
+    } else {
+        log.warn('failed to setup map pointer events')
     }
     setInteractionAccordingToProjection()
 

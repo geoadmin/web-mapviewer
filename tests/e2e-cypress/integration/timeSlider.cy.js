@@ -31,11 +31,9 @@ describe('Testing the time slider', () => {
         }
         const preSelectedYear = 2019
         beforeEach(() => {
-            cy.goToMapView(
-                {
-                    layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
-                }
-            )
+            cy.goToMapView({
+                layers: `test.timeenabled.wmts.layer@year=${preSelectedYear}`,
+            })
             cy.get('[data-cy="time-slider-button"]').click()
         })
         it('should have the preselected year correctly set', () => {
