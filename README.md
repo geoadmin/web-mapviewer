@@ -1,9 +1,10 @@
 # web-mapviewer
 
-| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version               |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | <https://sys-map.dev.bgdi.ch/> |
-| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | <https://sys-map.int.bgdi.ch/> |
+<!-- prettier-ignore -->
+| Branch  | CI Status  | E2E Tests | Deployed version |
+| ------- | ---------- | --------- | ---------------- |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/develop&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.dev.bgdi.ch/> |
+| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/master&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.int.bgdi.ch/> |
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
@@ -157,7 +158,7 @@ See [its README.md](src/store/README.md) for more details.
 
 Unit testing is done through the VueCLI unit test helper, and integration testing is done with Cypress.io.
 All things related to tests are in the `/tests` folder.
-See [TESTING.md](cypress/TESTING.md) for more documentation on testing in this project.
+See [README.md](./tests/README.md) for more documentation on testing in this project.
 
 ## Project setup
 
