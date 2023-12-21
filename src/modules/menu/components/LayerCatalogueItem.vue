@@ -7,12 +7,15 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+import booleanContains from '@turf/boolean-contains'
+import { polygon } from '@turf/helpers'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
@@ -101,9 +104,33 @@ function onCollapseClick() {
     showChildren.value = !showChildren.value
 }
 
+function transformExtentIntoPolygon(flattenExtent) {
+    return polygon([
+        [
+            [flattenExtent[0], flattenExtent[1]],
+            [flattenExtent[0], flattenExtent[3]],
+            [flattenExtent[2], flattenExtent[3]],
+            [flattenExtent[2], flattenExtent[1]],
+            [flattenExtent[0], flattenExtent[1]],
+        ],
+    ])
+}
+
+const lv95Extent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
 function zoomToLayer() {
     log.debug(`Zoom to layer ${item.name}`, item.extent)
-    store.dispatch('zoomToExtent', item.extent)
+    // Only zooming to layer's extent if its extent is entirely within LV95 extent.
+    // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.
+    if (
+        booleanContains(
+            transformExtentIntoPolygon(lv95Extent.flat()),
+            transformExtentIntoPolygon(item.extent.flat())
+        )
+    ) {
+        store.dispatch('zoomToExtent', item.extent)
+    } else {
+        store.dispatch('zoomToExtent', lv95Extent)
+    }
 }
 </script>
 

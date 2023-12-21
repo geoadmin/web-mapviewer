@@ -17,6 +17,8 @@ export function useLayerZIndexCalculation() {
     const pinnedLocation = computed(() => store.state.map.pinnedLocation)
     const previewLocation = computed(() => store.state.map.previewedPinnedLocation)
     const crossHair = computed(() => store.state.position.crossHair)
+    const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
+    const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
     const startingZIndexForVisibleLayers = computed(() => {
         if (backgroundLayers.value && backgroundLayers.value.length > 0) {
@@ -68,9 +70,23 @@ export function useLayerZIndexCalculation() {
         }
         return zIndex
     })
-    const nextAvailableZIndex = computed(() => {
+    const zIndexTileInfo = computed(() => {
         let zIndex = zIndexCrossHair.value
         if (crossHair.value) {
+            zIndex++
+        }
+        return zIndex
+    })
+    const zIndexLayerExtents = computed(() => {
+        let zIndex = zIndexTileInfo.value
+        if (showTileDebugInfo.value) {
+            zIndex++
+        }
+        return zIndex
+    })
+    const nextAvailableZIndex = computed(() => {
+        let zIndex = zIndexLayerExtents.value
+        if (showLayerExtents.value) {
             zIndex++
         }
         return zIndex
@@ -119,6 +135,8 @@ export function useLayerZIndexCalculation() {
         zIndexDroppedPin,
         zIndexPreviewPosition,
         zIndexCrossHair,
+        zIndexTileInfo,
+        zIndexLayerExtents,
         nextAvailableZIndex,
         getZIndexForLayer,
     }

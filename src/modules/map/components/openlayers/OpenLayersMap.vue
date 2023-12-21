@@ -3,10 +3,13 @@ import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-import { onMounted, provide, ref } from 'vue'
+import { computed, onMounted, provide, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
+import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
+import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
 import OpenLayersBackgroundLayer from '@/modules/map/components/openlayers/OpenLayersBackgroundLayer.vue'
 import OpenLayersCrossHair from '@/modules/map/components/openlayers/OpenLayersCrossHair.vue'
 import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/OpenLayersGeolocationFeedback.vue'
@@ -17,8 +20,6 @@ import useMapInteractions from '@/modules/map/components/openlayers/utils/map-in
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-
-const store = useStore()
 
 // register any custom projection in OpenLayers
 register(proj4)
@@ -33,6 +34,10 @@ allCoordinateSystems
     })
 
 const mapElement = ref(null)
+
+const store = useStore()
+const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
+const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
 const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
@@ -56,6 +61,8 @@ onMounted(() => {
     useMapInteractions(map)
     log.info('OpenLayersMap component mounted and ready')
 })
+
+const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
 </script>
 
 <template>
@@ -66,6 +73,9 @@ onMounted(() => {
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
         <OpenLayersGeolocationFeedback />
+        <!-- Debug tooling -->
+        <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />
+        <OpenLayersLayerExtents v-if="showLayerExtents" :z-index="zIndexLayerExtents" />
     </div>
     <!-- So that external modules can have access to the map instance through the provided 'olMap' -->
     <slot />
