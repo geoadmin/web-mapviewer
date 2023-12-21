@@ -5,7 +5,8 @@ import { defineConfig } from 'cypress'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 import vitePreprocessor from 'cypress-vite'
 
-module.exports = defineConfig({
+export default defineConfig({
+    projectId: 'fj2ezv',
     video: false,
     defaultCommandTimeout: 5000,
     requestTimeout: 5000,
@@ -13,10 +14,6 @@ module.exports = defineConfig({
     retries: {
         runMode: 1,
         openMode: 0,
-    },
-    reporter: 'cypress-multi-reporters',
-    reporterOptions: {
-        configFile: `./tests/reporter.config.js`,
     },
     viewportWidth: 320,
     viewportHeight: 568,
@@ -31,7 +28,7 @@ module.exports = defineConfig({
             on('file:preprocessor', vitePreprocessor())
 
             // plugin that help tests define which browser permission is set or denied (e.g. location API)
-            config = cypressBrowserPermissionsPlugin(on, config)
+            cypressBrowserPermissionsPlugin(on, config)
 
             // adding task to help manage (local/downloaded) files
             on('task', {

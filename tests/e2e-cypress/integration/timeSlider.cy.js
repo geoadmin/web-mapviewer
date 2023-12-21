@@ -22,9 +22,12 @@ describe('Testing the time slider', () => {
     })
     context('Time slider interactions', () => {
         function moveSlider(x) {
-            cy.get('[data-cy="times-slider-cursor"]').realSwipe(x > 0 ? 'toRight' : 'toLeft', {
-                length: Math.abs(x),
+            cy.get('[data-cy="times-slider-cursor"]').trigger('mousedown', { which: 1 })
+            cy.get('[data-cy="times-slider-cursor"]').trigger('mousemove', {
+                screenX: Math.abs(x),
+                screenY: 0,
             })
+            cy.get('[data-cy="times-slider-cursor"]').trigger('mouseup', { force: true })
         }
         const preSelectedYear = 2019
         beforeEach(() => {

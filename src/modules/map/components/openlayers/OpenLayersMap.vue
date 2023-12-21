@@ -4,6 +4,7 @@ import { get as getProjection } from 'ol/proj'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import { onMounted, provide, ref } from 'vue'
+import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import OpenLayersBackgroundLayer from '@/modules/map/components/openlayers/OpenLayersBackgroundLayer.vue'
@@ -15,6 +16,9 @@ import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLay
 import useMapInteractions from '@/modules/map/components/openlayers/utils/map-interactions.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
+
+const store = useStore()
 
 // register any custom projection in OpenLayers
 register(proj4)
@@ -40,9 +44,17 @@ if (IS_TESTING_WITH_CYPRESS) {
     window.map = map
 }
 
+map.once('rendercomplete', () => {
+    // This is needed for cypress in order to start the tests only
+    // when openlayer is rendered otherwise some tests will fail.
+    store.dispatch('mapModuleReady')
+    log.info('Openlayer map rendered')
+})
+
 onMounted(() => {
     map.setTarget(mapElement.value)
     useMapInteractions(map)
+    log.info('OpenLayersMap component mounted and ready')
 })
 </script>
 

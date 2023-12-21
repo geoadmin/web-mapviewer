@@ -22,6 +22,7 @@ import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
+import log from '@/utils/logging'
 import OpenFullAppLink from '@/utils/OpenFullAppLink.vue'
 
 export default {
@@ -40,6 +41,9 @@ export default {
             is3DActive: (state) => state.cesium.active,
             isDrawing: (state) => state.ui.showDrawingOverlay,
         }),
+    },
+    mounted() {
+        log.info(`Map view mounted`)
     },
 }
 </script>
