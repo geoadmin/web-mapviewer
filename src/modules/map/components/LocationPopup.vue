@@ -1,6 +1,8 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
+import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import proj4 from 'proj4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -31,6 +33,8 @@ const height = ref(null)
 const qrCodeImageSrc = ref(null)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
+const showEmbedSharing = ref(false)
+
 
 const i18n = useI18n()
 const route = useRoute()
@@ -89,7 +93,7 @@ watch(clickInfo, (newClickInfo) => {
     if (newClickInfo) {
         updateWhat3Word()
         updateHeight()
-        updateShareLink()
+        showEmbedSharing.value = false
     }
 })
 watch(currentLang, () => {
@@ -97,6 +101,13 @@ watch(currentLang, () => {
     updateShareLink()
 })
 watch(() => route.query, updateShareLink)
+
+watch(showEmbedSharing, () => {
+    if(showEmbedSharing.value)
+    {
+        updateShareLink()
+    }
+})
 
 function clearClick() {
     store.dispatch('clearClick')
@@ -147,6 +158,18 @@ async function updateQrCode(url) {
         qrCodeImageSrc.value = null
     }
 }
+function toggleEmbedSharing() {
+    showEmbedSharing.value = !showEmbedSharing.value
+    // because of the dropdown animation, we have to wait for the next render
+    // to select the embed HTML code
+    this.$nextTick(() => {
+        if (showEmbedSharing.value) {
+            this.$refs.embedInput.focus()
+            this.$refs.embedInput.select()
+        }
+    })
+}
+
 </script>
 
 <template>
@@ -215,26 +238,41 @@ async function updateQrCode(url) {
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </LocationPopupCopySlot>
 
-            <div class="location-popup-link location-popup-coordinates-label">
-                {{ $t('share_link') }}
-            </div>
-            <div class="location-popup-link location-popup-coordinates-data">
-                <LocationPopupCopyInput
-                    :value="shareLinkUrlDisplay"
-                    data-cy="location-popup-link-bowl-crosshair"
-                />
-            </div>
         </div>
-        <div class="location-popup-qrcode">
-            <img
-                v-if="qrCodeImageSrc"
-                :src="qrCodeImageSrc"
-                alt="qrcode"
-                data-cy="location-popup-qr-code"
-            />
+        <div class="menu-share-embed">
+            <button
+                class="btn btn-light btn-sm embedded-button"
+                data-cy="menu-share-embed-button"
+                @click="toggleEmbedSharing"
+            >
+                <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
+                <span class="ms-2">{{ $t('share_link') }}</span>
+            </button>
+            <CollapseTransition :duration="100">
+                <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
+                    <!-- eslint-disable vue/no-v-html-->
+                    <div class="location-popup-link location-popup-coordinates-data">
+                        <LocationPopupCopyInput
+                            :value="shareLinkUrlDisplay"
+                            data-cy="location-popup-link-bowl-crosshair"
+                        />
+                    </div>
+                    <div class="location-popup-qrcode">
+                        <img
+                            v-if="qrCodeImageSrc"
+                            :src="qrCodeImageSrc"
+                            alt="qrcode"
+                            data-cy="location-popup-qr-code"
+                        />
+                    </div>
+                    <!-- eslint-enable vue/no-v-html-->
+                </div>
+            </CollapseTransition>
         </div>
     </component>
 </template>
+
+
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
