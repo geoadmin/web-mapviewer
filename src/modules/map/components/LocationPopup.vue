@@ -33,6 +33,8 @@ const height = ref(null)
 const qrCodeImageSrc = ref(null)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
+const showEmbedSharing = ref(true)
+
 
 const i18n = useI18n()
 const route = useRoute()
@@ -149,7 +151,17 @@ async function updateQrCode(url) {
         qrCodeImageSrc.value = null
     }
 }
-
+function toggleEmbedSharing() {
+    showEmbedSharing.value = !showEmbedSharing.value
+    // because of the dropdown animation, we have to wait for the next render
+    // to select the embed HTML code
+    this.$nextTick(() => {
+        if (showEmbedSharing.value) {
+            this.$refs.embedInput.focus()
+            this.$refs.embedInput.select()
+        }
+    })
+}
 
 </script>
 
@@ -256,37 +268,7 @@ async function updateQrCode(url) {
     </component>
 </template>
 
-<script>
-/**
- * Component building iFrame code so that the user can share/incorporate a specific map to his/her
- * website.
- *
- * This iFrame generator comes with a modal that helps the user select the size he prefers.
- */
-export default {
-    components: {
-    },
-    data() {
-        return {
-            showEmbedSharing: true,
-        }
-    },
 
-    methods: {
-        toggleEmbedSharing() {
-            this.showEmbedSharing = !this.showEmbedSharing
-            // because of the dropdown animation, we have to wait for the next render
-            // to select the embed HTML code
-            this.$nextTick(() => {
-                if (this.showEmbedSharing) {
-                    this.$refs.embedInput.focus()
-                    this.$refs.embedInput.select()
-                }
-            })
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
