@@ -245,6 +245,7 @@ function toggleEmbedSharing() {
                 data-cy="menu-share-embed-button"
                 @click="toggleEmbedSharing"
             >
+                <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
                 <span class="ms-2">{{ $t('share_link') }}</span>
             </button>
             <CollapseTransition :duration="100">
