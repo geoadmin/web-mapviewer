@@ -33,7 +33,7 @@ const height = ref(null)
 const qrCodeImageSrc = ref(null)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
-const showEmbedSharing = ref(true)
+const showEmbedSharing = ref(false)
 
 
 const i18n = useI18n()
@@ -93,7 +93,7 @@ watch(clickInfo, (newClickInfo) => {
     if (newClickInfo) {
         updateWhat3Word()
         updateHeight()
-        updateShareLink()
+        showEmbedSharing.value = false
     }
 })
 watch(currentLang, () => {
@@ -101,6 +101,13 @@ watch(currentLang, () => {
     updateShareLink()
 })
 watch(() => route.query, updateShareLink)
+
+watch(showEmbedSharing, () => {
+    if(showEmbedSharing.value)
+    {
+        updateShareLink()
+    }
+})
 
 function clearClick() {
     store.dispatch('clearClick')
@@ -238,14 +245,11 @@ function toggleEmbedSharing() {
                 data-cy="menu-share-embed-button"
                 @click="toggleEmbedSharing"
             >
-                <span class="ms-2">{{ $t('share_more') }}</span>
+                <span class="ms-2">{{ $t('share_link') }}</span>
             </button>
-            <CollapseTransition :duration="200">
+            <CollapseTransition :duration="100">
                 <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
                     <!-- eslint-disable vue/no-v-html-->
-                    <div class="location-popup-link location-popup-coordinates-label">
-                        {{ $t('share_link') }}
-                    </div>
                     <div class="location-popup-link location-popup-coordinates-data">
                         <LocationPopupCopyInput
                             :value="shareLinkUrlDisplay"
@@ -260,7 +264,6 @@ function toggleEmbedSharing() {
                             data-cy="location-popup-qr-code"
                         />
                     </div>
-                    <div v-html="$t('share_disclaimer')"></div>
                     <!-- eslint-enable vue/no-v-html-->
                 </div>
             </CollapseTransition>
