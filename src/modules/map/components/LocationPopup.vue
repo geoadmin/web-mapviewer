@@ -1,6 +1,8 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
+// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
+import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import proj4 from 'proj4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -147,6 +149,8 @@ async function updateQrCode(url) {
         qrCodeImageSrc.value = null
     }
 }
+
+
 </script>
 
 <template>
@@ -215,26 +219,74 @@ async function updateQrCode(url) {
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </LocationPopupCopySlot>
 
-            <div class="location-popup-link location-popup-coordinates-label">
-                {{ $t('share_link') }}
-            </div>
-            <div class="location-popup-link location-popup-coordinates-data">
-                <LocationPopupCopyInput
-                    :value="shareLinkUrlDisplay"
-                    data-cy="location-popup-link-bowl-crosshair"
-                />
-            </div>
         </div>
-        <div class="location-popup-qrcode">
-            <img
-                v-if="qrCodeImageSrc"
-                :src="qrCodeImageSrc"
-                alt="qrcode"
-                data-cy="location-popup-qr-code"
-            />
+        <div class="menu-share-embed">
+            <button
+                class="btn btn-light btn-sm embedded-button"
+                data-cy="menu-share-embed-button"
+                @click="toggleEmbedSharing"
+            >
+                <span class="ms-2">{{ $t('share_more') }}</span>
+            </button>
+            <CollapseTransition :duration="200">
+                <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
+                    <!-- eslint-disable vue/no-v-html-->
+                    <div class="location-popup-link location-popup-coordinates-label">
+                        {{ $t('share_link') }}
+                    </div>
+                    <div class="location-popup-link location-popup-coordinates-data">
+                        <LocationPopupCopyInput
+                            :value="shareLinkUrlDisplay"
+                            data-cy="location-popup-link-bowl-crosshair"
+                        />
+                    </div>
+                    <div class="location-popup-qrcode">
+                        <img
+                            v-if="qrCodeImageSrc"
+                            :src="qrCodeImageSrc"
+                            alt="qrcode"
+                            data-cy="location-popup-qr-code"
+                        />
+                    </div>
+                    <div v-html="$t('share_disclaimer')"></div>
+                    <!-- eslint-enable vue/no-v-html-->
+                </div>
+            </CollapseTransition>
         </div>
     </component>
 </template>
+
+<script>
+/**
+ * Component building iFrame code so that the user can share/incorporate a specific map to his/her
+ * website.
+ *
+ * This iFrame generator comes with a modal that helps the user select the size he prefers.
+ */
+export default {
+    components: {
+    },
+    data() {
+        return {
+            showEmbedSharing: true,
+        }
+    },
+
+    methods: {
+        toggleEmbedSharing() {
+            this.showEmbedSharing = !this.showEmbedSharing
+            // because of the dropdown animation, we have to wait for the next render
+            // to select the embed HTML code
+            this.$nextTick(() => {
+                if (this.showEmbedSharing) {
+                    this.$refs.embedInput.focus()
+                    this.$refs.embedInput.select()
+                }
+            })
+        },
+    },
+}
+</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
