@@ -51,7 +51,7 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup', 'entrySelected', 'goToPreviousCategory', 'goToNextCategory'],
+    emits: ['showLayerLegendPopup', 'entrySelected', 'firstEntryReached', 'lastEntryReached'],
     computed: {
         ...mapGetters(['isDesktopMode']),
         compact() {
@@ -73,20 +73,20 @@ export default {
             this.selectResultEntry(this.entry)
         },
         showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup')
+            this.$emit('showLayerLegendPopup', this.entry)
         },
         goToPrevious() {
             if (this.$refs.item.previousElementSibling) {
                 this.changeFocus(this.$refs.item.previousElementSibling)
             } else {
-                this.$emit('goToPreviousCategory')
+                this.$emit('firstEntryReached')
             }
         },
         goToNext() {
             if (this.$refs.item.nextElementSibling) {
                 this.changeFocus(this.$refs.item.nextElementSibling)
             } else {
-                this.$emit('goToNextCategory')
+                this.$emit('lastEntryReached')
             }
         },
         goToFirst() {

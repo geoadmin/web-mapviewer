@@ -47,7 +47,7 @@ const updateSearchQuery = (event) => {
     clearTimeout(debounceSearch)
     debounceSearch = setTimeout(() => {
         store.dispatch('setSearchQuery', { query: event.target.value })
-    }, 50)
+    }, 100)
 }
 
 const onSearchInputFocus = () => {
@@ -80,7 +80,7 @@ const goToFirstResult = () => {
         // the list but not focus, to focus the user would need to press the key
         // down again)
         nextTick(() => {
-            results.value.$el.querySelector('[tabindex="0"]').focus()
+            results.value.focusFirstEntry()
         })
     }
 }
@@ -94,6 +94,10 @@ const onClickOutside = (event) => {
     if (!document.body.querySelector('.modal-popup')?.contains(event.target)) {
         showResults.value = false
     }
+}
+
+const focusSearchInput = () => {
+    searchInput.value.focus()
 }
 </script>
 
@@ -142,6 +146,7 @@ const onClickOutside = (event) => {
             ref="results"
             @close="closeSearchResults"
             @entry-selected="onEntrySelected"
+            @first-result-entry-reached="focusSearchInput()"
         />
     </div>
 </template>

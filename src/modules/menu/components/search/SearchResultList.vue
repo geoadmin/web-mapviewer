@@ -1,3 +1,54 @@
+<script setup>
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
+
+const emit = defineEmits(['close', 'firstResultEntryReached'])
+const store = useStore()
+const i18n = useI18n()
+
+const layerLegendId = ref(null)
+const layerLegendName = ref(null)
+const locationCategory = ref(null)
+const layerCategory = ref(null)
+
+const results = computed(() => store.state.search.results)
+const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+
+function showLayerLegend(layerResult) {
+    layerLegendId.value = layerResult.layerId
+    // NOTE: the service search wsgi is setting the title in <b></b> tags
+    layerLegendName.value = layerResult.title.replace(/<[^>]*>?/gm, '')
+}
+
+function hideLayerLegend() {
+    layerLegendId.value = null
+    layerLegendName.value = null
+}
+
+function gotToLocationCategory() {
+    locationCategory.value.focusLastEntry()
+}
+
+function gotToLayerCategory() {
+    layerCategory.value.focusFirstEntry()
+}
+
+function focusFirstEntry() {
+    if (results.value.locationResults?.length) {
+        locationCategory.value.focusFirstEntry()
+    } else if (results.value.layerResults?.length) {
+        layerCategory.value.focusFirstEntry()
+    }
+}
+
+defineExpose({ focusFirstEntry })
+</script>
+
 <template>
     <div
         class="search-results-container m-0"
@@ -10,43 +61,27 @@
                 'border rounded-bottom': !isPhoneMode,
             }"
             data-cy="search-results"
-            @keydown.esc.prevent="$emit('close')"
+            @keydown.esc.prevent="emit('close')"
         >
             <div class="search-results-inner">
                 <SearchResultCategory
-                    v-if="results?.locationResults?.length > 0"
+                    v-show="results?.locationResults?.length > 0"
                     ref="locationCategory"
-                    :title="$t('locations_results_header')"
-                    :entries="results.locationResults"
+                    :title="i18n.t('locations_results_header')"
+                    :results="results.locationResults"
                     data-cy="search-results-locations"
-                >
-                    <SearchResultListEntry
-                        v-for="(location, index) in results.locationResults"
-                        :key="index"
-                        :index="index"
-                        :entry="location"
-                        @entry-selected="onEntrySelected(location)"
-                        @go-to-previous-category="goToSearchInput()"
-                        @go-to-next-category="gotToLayerCategory()"
-                    />
-                </SearchResultCategory>
+                    @first-entry-reached="emit('firstResultEntryReached')"
+                    @last-entry-reached="gotToLayerCategory()"
+                />
                 <SearchResultCategory
-                    v-if="results?.layerResults?.length > 0"
+                    v-show="results?.layerResults?.length > 0"
                     ref="layerCategory"
-                    :title="$t('layers_results_header')"
-                    :entries="results.layerResults"
+                    :title="i18n.t('layers_results_header')"
+                    :results="results.layerResults"
                     data-cy="search-results-layers"
-                >
-                    <SearchResultListEntry
-                        v-for="(layer, index) in results.layerResults"
-                        :key="index"
-                        :index="index"
-                        :entry="layer"
-                        @show-layer-legend-popup="showLayerLegend(layer)"
-                        @entry-selected="onEntrySelected(layer)"
-                        @go-to-previous-category="gotToLocationCategory()"
-                    />
-                </SearchResultCategory>
+                    @show-layer-legend-popup="showLayerLegend"
+                    @first-entry-reached="gotToLocationCategory()"
+                />
             </div>
         </div>
         <LayerLegendPopup
@@ -57,59 +92,6 @@
         />
     </div>
 </template>
-
-<script>
-import { mapGetters, mapState } from 'vuex'
-
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
-
-import SearchResultCategory from './SearchResultCategory.vue'
-
-/**
- * Component showing all results from the search, divided in two groups (categories) : layers and
- * locations
- */
-export default {
-    components: { LayerLegendPopup, SearchResultListEntry, SearchResultCategory },
-    emits: ['close', 'entrySelected'],
-    data() {
-        return {
-            layerLegendId: null,
-            layerLegendName: null,
-        }
-    },
-    computed: {
-        ...mapState({
-            results: (state) => state.search.results,
-        }),
-        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
-    },
-    methods: {
-        showLayerLegend(layerResult) {
-            this.layerLegendId = layerResult.layerId
-            // NOTE: the service search wsgi is setting the title in <b></b> tags
-            this.layerLegendName = layerResult.title.replace(/<[^>]*>?/gm, '')
-        },
-        hideLayerLegend() {
-            this.layerLegendId = null
-            this.layerLegendName = null
-        },
-        onEntrySelected(entry) {
-            this.$emit('entrySelected', entry)
-        },
-        goToSearchInput() {
-            this.$el.parentElement.querySelector('input').focus()
-        },
-        gotToLocationCategory() {
-            this.$refs.locationCategory.$el.querySelector('ul').lastElementChild.focus()
-        },
-        gotToLayerCategory() {
-            this.$refs.layerCategory.$el.querySelector('[tabindex="0"]').focus()
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
