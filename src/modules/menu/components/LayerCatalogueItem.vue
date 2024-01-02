@@ -58,11 +58,6 @@ const canBeAddedToTheMap = computed(() => {
 const isPresentInActiveLayers = computed(() =>
     activeLayers.value.find((layer) => layer.getID() === item.getID())
 )
-const isCurrentlyHidden = computed(
-    () =>
-        isPresentInActiveLayers.value &&
-        activeLayers.value.find((layer) => layer.getID() === item.getID() && !layer.visible)
-)
 
 // reacting to topic changes (some categories might need some auto-opening)
 watch(openThemesIds, (newValue) => {
@@ -80,11 +75,11 @@ function startLayerPreview() {
     }
 }
 
-function addLayer() {
+function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
     const matchingActiveLayer = store.getters.getActiveLayerById(item.getID())
     if (matchingActiveLayer) {
-        store.dispatch('toggleLayerVisibility', matchingActiveLayer)
+        store.dispatch('removeLayer', matchingActiveLayer)
     } else if (item.isExternal) {
         store.dispatch('addLayer', item)
     } else {
@@ -94,7 +89,7 @@ function addLayer() {
 
 function onItemClick() {
     if (canBeAddedToTheMap.value) {
-        addLayer()
+        addRemoveLayer()
     } else if (hasChildren.value) {
         showChildren.value = !showChildren.value
     }
@@ -147,24 +142,20 @@ function zoomToLayer() {
                 v-if="canBeAddedToTheMap"
                 class="btn"
                 :class="{
-                    'text-primary': isPresentInActiveLayers || isCurrentlyHidden,
+                    'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
-                @click.stop="addLayer()"
+                @click.stop="addRemoveLayer()"
             >
                 <FontAwesomeIcon
-                    :icon="`far ${
-                        isPresentInActiveLayers && !isCurrentlyHidden
-                            ? 'fa-check-square'
-                            : 'fa-square'
-                    }`"
+                    :icon="`far ${isPresentInActiveLayers ? 'fa-check-square' : 'fa-square'}`"
                 />
             </button>
             <button
                 v-if="hasChildren"
                 class="btn btn-rounded"
                 :class="{
-                    'text-primary': isPresentInActiveLayers || isCurrentlyHidden,
+                    'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
                 @click.stop="onCollapseClick"
@@ -175,7 +166,7 @@ function zoomToLayer() {
 
             <span
                 class="menu-catalogue-item-name"
-                :class="{ 'text-primary': isPresentInActiveLayers || isCurrentlyHidden }"
+                :class="{ 'text-primary': isPresentInActiveLayers }"
                 >{{ item.name }}</span
             >
             <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
