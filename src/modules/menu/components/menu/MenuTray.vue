@@ -48,6 +48,7 @@
             ref="activeLayersSection"
             :title="$t('layers_displayed')"
             :show-content="showLayerList"
+            light
             data-cy="menu-active-layers"
             @open-menu-section="onOpenMenuSection"
         >
