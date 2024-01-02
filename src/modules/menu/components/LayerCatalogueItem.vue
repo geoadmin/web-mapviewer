@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import booleanContains from '@turf/boolean-contains'
 import { polygon } from '@turf/helpers'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -18,11 +18,16 @@ import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
+import TextSearchMarker from '@/utils/TextSearchMarker.vue'
 
-const { item, compact, depth } = defineProps({
+const props = defineProps({
     item: {
         type: AbstractLayer,
         required: true,
+    },
+    search: {
+        type: String,
+        default: '',
     },
     compact: {
         type: Boolean,
@@ -33,19 +38,47 @@ const { item, compact, depth } = defineProps({
         default: 0,
     },
 })
+const { item, search, compact, depth } = toRefs(props)
 
 // Declaring own properties (ex-data)
+
 const showChildren = ref(false)
 const showLayerLegend = ref(false)
 
 // Mapping the store to the component
 const store = useStore()
 
+const showItem = computed(() => {
+    if (!search.value) {
+        return true
+    }
+    if (item.value.name.toLowerCase().includes(search.value)) {
+        return true
+    }
+    if (hasChildren.value) {
+        return hasChildrenMatchSearch.value
+    }
+    return false
+})
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
-const hasChildren = computed(() => item?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && item?.hasLegend)
+const hasChildren = computed(() => item.value?.layers?.length > 0)
+const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+
+/**
+ * Flag telling if one of the children (deep search) match the search text When no search text is
+ * given it return true if the item has children
+ */
+const hasChildrenMatchSearch = computed(() => {
+    if (!search.value) {
+        return hasChildren.value
+    }
+    if (hasChildren.value) {
+        return containsLayer(item.value.layers, search.value)
+    }
+    return false
+})
 
 /**
  * Flag telling if this layer can be added to the map (so if the UI should include the necessary
@@ -53,37 +86,52 @@ const hasLegend = computed(() => canBeAddedToTheMap.value && item?.hasLegend)
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item && !(item instanceof GeoAdminGroupOfLayers)
+    return item.value && !(item.value instanceof GeoAdminGroupOfLayers)
 })
 const isPresentInActiveLayers = computed(() =>
-    activeLayers.value.find((layer) => layer.getID() === item.getID())
+    activeLayers.value.find((layer) => layer.getID() === item.value.getID())
 )
 
 // reacting to topic changes (some categories might need some auto-opening)
 watch(openThemesIds, (newValue) => {
-    showChildren.value = showChildren.value || newValue.indexOf(item.getID()) !== -1
+    showChildren.value = showChildren.value || newValue.indexOf(item.value.getID()) !== -1
+})
+// When search text is entered, update the children collapsing if needed.
+watch(search, (newValue) => {
+    if (!hasChildren.value) {
+        return
+    }
+    if (newValue) {
+        if (hasChildrenMatchSearch.value) {
+            showChildren.value = true
+        } else {
+            showChildren.value = false
+        }
+    } else {
+        showChildren.value = false
+    }
 })
 
 // reading the current topic at startup and opening any required category
 onMounted(() => {
-    showChildren.value = openThemesIds.value.indexOf(item.getID()) !== -1
+    showChildren.value = openThemesIds.value.indexOf(item.value.getID()) !== -1
 })
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
-        store.dispatch('setPreviewLayer', item)
+        store.dispatch('setPreviewLayer', item.value)
     }
 }
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const matchingActiveLayer = store.getters.getActiveLayerById(item.getID())
+    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.getID())
     if (matchingActiveLayer) {
         store.dispatch('removeLayer', matchingActiveLayer)
-    } else if (item.isExternal) {
-        store.dispatch('addLayer', item)
+    } else if (item.value.isExternal) {
+        store.dispatch('addLayer', item.value)
     } else {
-        store.dispatch('addLayer', new ActiveLayerConfig(item.getID(), true))
+        store.dispatch('addLayer', new ActiveLayerConfig(item.value.getID(), true))
     }
 }
 
@@ -113,24 +161,45 @@ function transformExtentIntoPolygon(flattenExtent) {
 
 const lv95Extent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
 function zoomToLayer() {
-    log.debug(`Zoom to layer ${item.name}`, item.extent)
+    log.debug(`Zoom to layer ${item.value.name}`, item.value.extent)
     // Only zooming to layer's extent if its extent is entirely within LV95 extent.
     // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.
     if (
         booleanContains(
             transformExtentIntoPolygon(lv95Extent.flat()),
-            transformExtentIntoPolygon(item.extent.flat())
+            transformExtentIntoPolygon(item.value.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', item.extent)
+        store.dispatch('zoomToExtent', item.value.extent)
     } else {
         store.dispatch('zoomToExtent', lv95Extent)
     }
 }
+
+/**
+ * Return true if at least one of the layers or sub-layers name match the given text
+ *
+ * @param {[AbstractLayer]} layers List of abstract layers
+ * @param {string} searchText Text to search
+ * @returns {bool} True if at least on name match, false otherwise
+ */
+function containsLayer(layers, searchText) {
+    let match = false
+    for (let i = 0; i < layers.length && !match; i++) {
+        const layer = layers[i]
+        if (layer.name.toLowerCase().includes(searchText)) {
+            match = true
+        }
+        if (layer.layers?.length) {
+            match = containsLayer(layer.layers, searchText)
+        }
+    }
+    return match
+}
 </script>
 
 <template>
-    <div class="menu-catalogue-item" data-cy="catalogue-tree-item">
+    <div v-show="showItem" class="menu-catalogue-item" data-cy="catalogue-tree-item">
         <div
             class="menu-catalogue-item-title ps-2"
             :class="{ group: hasChildren }"
@@ -164,11 +233,12 @@ function zoomToLayer() {
                 <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
             </button>
 
-            <span
+            <div
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
-                >{{ item.name }}</span
             >
+                <TextSearchMarker :text="item.name" :search="search" :markers="['fw-bolder']" />
+            </div>
             <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
@@ -192,6 +262,7 @@ function zoomToLayer() {
                     v-for="child in item.layers"
                     :key="`${child.getID()}`"
                     :item="child"
+                    :search="search"
                     :depth="depth + 1"
                     :compact="compact"
                 />

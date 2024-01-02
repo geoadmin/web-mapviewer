@@ -646,5 +646,6 @@
     "import_maps_url_placeholder": "WMTS WMS URL",
     "import_file_url_placeholder": "GPX KML URL",
     "no_result": "Nessun risultato",
-    "loading": "Caricamento"
+    "loading": "Caricamento",
+    "search_in_catalogue_placeholder": "Cerca nel catalogo"
 }
