@@ -76,8 +76,8 @@ describe('Test on legacy param import', () => {
         const kmlServiceFilePath = `${kmlServiceBasePath}/files/${kmlId}`
         beforeEach(() => {
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(`**/${kmlServiceFilePath}`, '<kml />').as('get-kml')
-            cy.intercept(`**/${kmlServiceAdminPath}?admin_id=${adminId}`, (request) => {
+            cy.intercept(`**${kmlServiceFilePath}`, '<kml />').as('get-kml')
+            cy.intercept(`**${kmlServiceAdminPath}?admin_id=${adminId}`, (request) => {
                 request.reply({
                     id: kmlId,
                     admin_id: adminId,
@@ -89,7 +89,7 @@ describe('Test on legacy param import', () => {
                     updated: '',
                 })
             }).as('get-kml-metada-by-admin-id')
-            cy.intercept(`**/${kmlServiceAdminPath}/${kmlId}`, (request) => {
+            cy.intercept(`**${kmlServiceAdminPath}/${kmlId}`, (request) => {
                 request.reply({
                     id: kmlId,
                     links: {
@@ -191,14 +191,27 @@ describe('Test on legacy param import', () => {
             })
         })
         it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
+            cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+                body: { results: [] },
+            }).as('search-layers')
+            cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
+                body: {
+                    results: [
+                        {
+                            attrs: {
+                                detail: '1530 payerne 5822 payerne ch vd',
+                                label: '  <b>1530 Payerne</b>',
+                            },
+                        },
+                    ],
+                },
+            }).as('search-locations')
             cy.goToMapView({
                 swisssearch: '1530 Payerne',
             })
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('include', 'swisssearch=1530+Payerne')
-            cy.get('[data-cy="search-result-entry-location"]', { timeout: 8000 }).should(
-                'be.visible'
-            )
+            cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
         })
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
