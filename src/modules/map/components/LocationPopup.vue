@@ -35,7 +35,6 @@ const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
 const showEmbedSharing = ref(false)
 
-
 const i18n = useI18n()
 const route = useRoute()
 const store = useStore()
@@ -160,14 +159,6 @@ async function updateQrCode(url) {
 }
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
-    // because of the dropdown animation, we have to wait for the next render
-    // to select the embed HTML code
-    this.$nextTick(() => {
-        if (showEmbedSharing.value) {
-            this.$refs.embedInput.focus()
-            this.$refs.embedInput.select()
-        }
-    })
 }
 
 </script>
@@ -272,8 +263,6 @@ function toggleEmbedSharing() {
     </component>
 </template>
 
-
-
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .location-popup {
@@ -285,6 +274,7 @@ function toggleEmbedSharing() {
         grid-column-gap: 8px;
         font-size: 0.75rem;
         grid-row-gap: 2px;
+        padding-bottom: 0.5rem;
         &-label {
             white-space: nowrap;
         }
@@ -293,10 +283,13 @@ function toggleEmbedSharing() {
         display: flex;
         align-items: center;
         padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
     }
     &-qrcode {
         display: none;
         text-align: center;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
     }
     &-coordinates-wgs84-plain {
         display: inline-block;
