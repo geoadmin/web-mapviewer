@@ -3,6 +3,7 @@
 - [Unit testing](#unit-testing)
 - [E2E testing](#e2e-testing)
   - [Cypress Cloud](#cypress-cloud)
+    - [Component Testing on Cloud](#component-testing-on-cloud)
   - [Using cypress on a Windows machine](#using-cypress-on-a-windows-machine)
     - [Source code in WSL2 file system](#source-code-in-wsl2-file-system)
   - [Using cypress on a Unix machine](#using-cypress-on-a-unix-machine)
@@ -33,6 +34,18 @@ npm run start &
 
 summon npx cypress run --record --tag local [--spec tests/e2e-cypress/integration/SPECFILE]
 ```
+
+:warning: The cypress cloud project is public !
+
+#### Component Testing on Cloud
+
+To run the cypress component tests on the cloud enter
+
+```bash
+summon npx cypress run --component --browser chrome --record --tag local
+```
+
+:memo: Only `chrome` browser supports proper replay on the cloud.
 
 :warning: The cypress cloud project is public !
 
