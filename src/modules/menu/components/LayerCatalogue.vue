@@ -18,6 +18,7 @@ const { layerCatalogue, compact } = defineProps({
 const store = useStore()
 
 const searchText = ref('')
+const searchInput = ref(null)
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
@@ -35,6 +36,7 @@ function onSearchInput(event) {
 
 function clearSearchText() {
     searchText.value = ''
+    searchInput.value.focus()
 }
 </script>
 
@@ -45,6 +47,7 @@ function clearSearchText() {
                 <FontAwesomeIcon :icon="['fas', 'search']" />
             </span>
             <input
+                ref="searchInput"
                 type="text"
                 class="form-control"
                 :class="{ 'rounded-end': !searchText.length }"
