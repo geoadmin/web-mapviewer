@@ -113,12 +113,12 @@ Cypress.Commands.add('openDrawingMode', () => {
     if (viewportWidth && viewportWidth < BREAKPOINT_PHONE_WIDTH) {
         cy.get('[data-cy="menu-button"]').click()
     }
-    cy.get('[data-cy="menu-tray-drawing-section"]').click()
+    cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
-    cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).click()
+    cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).should('be.visible').click()
     if (unselect) {
         cy.readStoreValue('state.drawing.mode').should('eq', null)
     } else {
