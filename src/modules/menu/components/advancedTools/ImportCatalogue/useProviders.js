@@ -5,9 +5,8 @@ import providersJson from '@/modules/menu/components/advancedTools/ImportCatalog
 class Provider {
     constructor(url, emphasize = '') {
         this.url = url
-        this.htmlDisplay = url
-            .replace(/access_key=.*/, '')
-            .replace(emphasize, `<strong>${emphasize}</strong>`)
+        this.htmlDisplay = url.replace(/access_key=.*/, '')
+        this.emphasize = emphasize
     }
 }
 

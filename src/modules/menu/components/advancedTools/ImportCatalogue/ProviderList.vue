@@ -1,6 +1,8 @@
 <script setup>
 import { ref, toRefs } from 'vue'
 
+import TextSearchMarker from '@/utils/TextSearchMarker.vue'
+
 const props = defineProps({
     showProviders: {
         type: Boolean,
@@ -65,9 +67,7 @@ defineExpose({ goToFirst })
                 @keydown.enter.prevent="emit('chooseProvider', provider.url)"
                 @click="emit('chooseProvider', provider.url)"
             >
-                <!-- eslint-disable vue/no-v-html-->
-                <span v-html="provider.htmlDisplay"></span>
-                <!-- eslint-enable vue/no-v-html-->
+                <TextSearchMarker :text="provider.htmlDisplay" :search="provider.emphasize" />
             </div>
             <div v-show="providers.length === 0" class="providers-list-empty px-2 py-1">
                 <span>-</span>
