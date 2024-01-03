@@ -29,9 +29,13 @@ function clearPreviewLayer() {
 let debounceTimeout = null
 function onSearchInput(event) {
     clearTimeout(debounceTimeout)
-    debounceTimeout = setTimeout(() => {
-        searchText.value = event.target.value
-    }, 50)
+    if (event.target.value?.length >= 2) {
+        debounceTimeout = setTimeout(() => {
+            searchText.value = event.target.value
+        }, 100)
+    } else if (!event.target.value) {
+        searchText.value = ''
+    }
 }
 
 function clearSearchText() {

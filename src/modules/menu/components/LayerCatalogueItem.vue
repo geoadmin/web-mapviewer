@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import booleanContains from '@turf/boolean-contains'
 import { polygon } from '@turf/helpers'
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
@@ -38,7 +38,10 @@ const props = defineProps({
         default: 0,
     },
 })
-const { item, search, compact, depth } = toRefs(props)
+const { item, compact, depth } = props
+// Here for performance reason on big catalogue it is important to only keep the search
+// reactive, the other items should not change and don't need to be reactive.
+const search = toRef(props, 'search')
 
 // Declaring own properties (ex-data)
 
@@ -49,33 +52,33 @@ const showLayerLegend = ref(false)
 const store = useStore()
 
 const showItem = computed(() => {
-    if (!search.value) {
-        return true
+    if (search.value) {
+        if (item.name.toLowerCase().includes(search.value)) {
+            return true
+        }
+        if (hasChildren.value) {
+            return hasChildrenMatchSearch.value
+        }
+        return false
     }
-    if (item.value.name.toLowerCase().includes(search.value)) {
-        return true
-    }
-    if (hasChildren.value) {
-        return hasChildrenMatchSearch.value
-    }
-    return false
+    return true
 })
 const activeLayers = computed(() => store.state.layers.activeLayers)
 const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
-const hasChildren = computed(() => item.value?.layers?.length > 0)
-const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+const hasChildren = computed(() => item?.layers?.length > 0)
+const hasLegend = computed(() => canBeAddedToTheMap.value && item?.hasLegend)
 
 /**
  * Flag telling if one of the children (deep search) match the search text When no search text is
  * given it return true if the item has children
  */
 const hasChildrenMatchSearch = computed(() => {
-    if (!search.value) {
-        return hasChildren.value
-    }
-    if (hasChildren.value) {
-        return containsLayer(item.value.layers, search.value)
+    if (search.value) {
+        if (hasChildren.value) {
+            return containsLayer(item.layers, search.value)
+        }
+        return false
     }
     return false
 })
@@ -86,52 +89,41 @@ const hasChildrenMatchSearch = computed(() => {
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item.value && !(item.value instanceof GeoAdminGroupOfLayers)
+    return item && !(item instanceof GeoAdminGroupOfLayers)
 })
 const isPresentInActiveLayers = computed(() =>
-    activeLayers.value.find((layer) => layer.getID() === item.value.getID())
+    activeLayers.value.find((layer) => layer.getID() === item.getID())
 )
 
 // reacting to topic changes (some categories might need some auto-opening)
 watch(openThemesIds, (newValue) => {
-    showChildren.value = showChildren.value || newValue.indexOf(item.value.getID()) !== -1
+    showChildren.value = showChildren.value || newValue.indexOf(item.getID()) !== -1
 })
 // When search text is entered, update the children collapsing if needed.
-watch(search, (newValue) => {
-    if (!hasChildren.value) {
-        return
-    }
-    if (newValue) {
-        if (hasChildrenMatchSearch.value) {
-            showChildren.value = true
-        } else {
-            showChildren.value = false
-        }
-    } else {
-        showChildren.value = false
-    }
+watch(hasChildrenMatchSearch, (newValue) => {
+    showChildren.value = newValue
 })
 
 // reading the current topic at startup and opening any required category
 onMounted(() => {
-    showChildren.value = openThemesIds.value.indexOf(item.value.getID()) !== -1
+    showChildren.value = openThemesIds.value.indexOf(item.getID()) !== -1
 })
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
-        store.dispatch('setPreviewLayer', item.value)
+        store.dispatch('setPreviewLayer', item)
     }
 }
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.getID())
+    const matchingActiveLayer = store.getters.getActiveLayerById(item.getID())
     if (matchingActiveLayer) {
         store.dispatch('removeLayer', matchingActiveLayer)
-    } else if (item.value.isExternal) {
-        store.dispatch('addLayer', item.value)
+    } else if (item.isExternal) {
+        store.dispatch('addLayer', item)
     } else {
-        store.dispatch('addLayer', new ActiveLayerConfig(item.value.getID(), true))
+        store.dispatch('addLayer', new ActiveLayerConfig(item.getID(), true))
     }
 }
 
@@ -161,16 +153,16 @@ function transformExtentIntoPolygon(flattenExtent) {
 
 const lv95Extent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
 function zoomToLayer() {
-    log.debug(`Zoom to layer ${item.value.name}`, item.value.extent)
+    log.debug(`Zoom to layer ${item.name}`, item.extent)
     // Only zooming to layer's extent if its extent is entirely within LV95 extent.
     // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.
     if (
         booleanContains(
             transformExtentIntoPolygon(lv95Extent.flat()),
-            transformExtentIntoPolygon(item.value.extent.flat())
+            transformExtentIntoPolygon(item.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', item.value.extent)
+        store.dispatch('zoomToExtent', item.extent)
     } else {
         store.dispatch('zoomToExtent', lv95Extent)
     }
