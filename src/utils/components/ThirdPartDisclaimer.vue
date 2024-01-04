@@ -59,6 +59,7 @@ export default {
             arrow: true,
             placement: 'top',
             touch: false,
+            delay: 250,
         })
     },
     beforeUnmount() {
