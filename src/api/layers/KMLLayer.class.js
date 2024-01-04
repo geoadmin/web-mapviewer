@@ -7,7 +7,8 @@ import { parseKmlName } from '@/utils/kmlUtils'
 export default class KMLLayer extends AbstractLayer {
     /**
      * @param {string} kmlFileUrl The URL to access the KML data.
-     * @param {boolean} visible If the layer is visible on the map (or hidden).
+     * @param {boolean} [visible=true] If the layer is visible on the map (or hidden). When `null`
+     *   is given, then it uses the default value. Default is `true`
      * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
      *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`
      * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
@@ -19,7 +20,7 @@ export default class KMLLayer extends AbstractLayer {
      */
     constructor(
         kmlFileUrl,
-        visible,
+        visible = null,
         opacity = null,
         adminId = null,
         kmlData = null,
@@ -32,7 +33,7 @@ export default class KMLLayer extends AbstractLayer {
             'KML',
             LayerTypes.KML,
             opacity ?? 1.0,
-            visible,
+            visible ?? true,
             [new LayerAttribution(attributionName)],
             false,
             isExternal
