@@ -84,7 +84,9 @@ onMounted(() => {
     if (clickInfo.value) {
         updateWhat3Word()
         updateHeight()
-        updateShareLink()
+        if (showEmbedSharing.value) {
+            updateShareLink()
+        }
     }
 })
 
@@ -92,24 +94,30 @@ watch(clickInfo, (newClickInfo) => {
     if (newClickInfo) {
         updateWhat3Word()
         updateHeight()
-        showEmbedSharing.value = false
+        if (showEmbedSharing.value) {
+            updateShareLink()
+        }
     }
 })
 watch(currentLang, () => {
     updateWhat3Word()
     updateShareLink()
 })
-watch(() => route.query, updateShareLink)
+watch(() => {
+    if (showEmbedSharing.value) {
+        route.query, updateShareLink
+    }
+})
 
 watch(showEmbedSharing, () => {
-    if(showEmbedSharing.value)
-    {
+    if (showEmbedSharing.value) {
         updateShareLink()
     }
 })
 
 function clearClick() {
     store.dispatch('clearClick')
+    showEmbedSharing.value = false
 }
 async function updateWhat3Word() {
     try {
@@ -159,8 +167,8 @@ async function updateQrCode(url) {
 }
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
+    document.getElementById('MyElement').className += ' MyClass'
 }
-
 </script>
 
 <template>
@@ -175,7 +183,7 @@ function toggleEmbedSharing() {
         data-cy="location-popup"
         @close="clearClick"
     >
-        <div class="location-popup-coordinates">
+        <div class="pb-2 location-popup-coordinates">
             <LocationPopupCopySlot
                 identifier="lv95"
                 :value="LV95Format.format(coordinate, projection)"
@@ -228,27 +236,31 @@ function toggleEmbedSharing() {
             >
                 <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
             </LocationPopupCopySlot>
-
         </div>
         <div class="menu-share-embed">
             <button
-                class="btn btn-light btn-sm embedded-button"
-                data-cy="menu-share-embed-button"
+                :class="{
+                    'rounded-0': showEmbedSharing,
+                    'rounded-top btn btn-light btn-sm embedded-button': true,
+                }"
+                data-cy="location-popup-embed-button"
                 @click="toggleEmbedSharing"
             >
                 <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
                 <span class="ms-2">{{ $t('share_link') }}</span>
             </button>
             <CollapseTransition :duration="100">
-                <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
-                    <!-- eslint-disable vue/no-v-html-->
-                    <div class="location-popup-link location-popup-coordinates-data">
+                <div
+                    v-if="showEmbedSharing"
+                    class="p-2 rounded-0 rounded-bottom card border-light bg-light"
+                >
+                    <div class="py-2 location-popup-link location-popup-coordinates-data">
                         <LocationPopupCopyInput
                             :value="shareLinkUrlDisplay"
                             data-cy="location-popup-link-bowl-crosshair"
                         />
                     </div>
-                    <div class="location-popup-qrcode">
+                    <div class="p-2 location-popup-qrcode">
                         <img
                             v-if="qrCodeImageSrc"
                             :src="qrCodeImageSrc"
@@ -256,7 +268,6 @@ function toggleEmbedSharing() {
                             data-cy="location-popup-qr-code"
                         />
                     </div>
-                    <!-- eslint-enable vue/no-v-html-->
                 </div>
             </CollapseTransition>
         </div>
@@ -274,7 +285,6 @@ function toggleEmbedSharing() {
         grid-column-gap: 8px;
         font-size: 0.75rem;
         grid-row-gap: 2px;
-        padding-bottom: 0.5rem;
         &-label {
             white-space: nowrap;
         }
@@ -282,14 +292,10 @@ function toggleEmbedSharing() {
     &-link {
         display: flex;
         align-items: center;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
     }
     &-qrcode {
         display: none;
         text-align: center;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
     }
     &-coordinates-wgs84-plain {
         display: inline-block;
