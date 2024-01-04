@@ -15,7 +15,7 @@ import log from '@/utils/logging'
  *
  * @param {Feature} legacyKmlFeature An olFeature that was just deserialized with {@link KML}
  * @param {DrawingIconSet[]} availableIconSets
- * @returns {EditableFeature}
+ * @returns {EditableFeature | null} Returns the EditableFeature or null if not convertible
  */
 export function getEditableFeatureFromLegacyKmlFeature(legacyKmlFeature, availableIconSets) {
     if (
@@ -34,11 +34,13 @@ export function getEditableFeatureFromLegacyKmlFeature(legacyKmlFeature, availab
     // We will now analyse this style to retrieve all information we need to generate the editable feature.
     const style = parseStyle(legacyKmlFeature)
     if (!style) {
-        throw new Error('Parsing error: Could not get the style from the ol Feature')
+        log.error('Parsing error: Could not get the style from the ol Feature', legacyKmlFeature)
+        return null
     }
-    const featureType = legacyKmlFeature.get('type').toUpperCase() // only set by mf-geoadmin3's kml
+    const featureType = legacyKmlFeature.get('type')?.toUpperCase() // only set by mf-geoadmin3's kml
     if (!Object.values(EditableFeatureTypes).includes(featureType)) {
-        throw new Error('Parsing error: Type of features in kml not recognized')
+        log.error('Parsing error: Type of features in kml not recognized', legacyKmlFeature)
+        return null
     }
     const textSize = parseTextSize(style)
     const featureId = parseFeatureID(legacyKmlFeature)
