@@ -12,7 +12,7 @@ module.exports = {
         'eslint:recommended',
         'plugin:vue/vue3-recommended',
         'plugin:cypress/recommended',
-        'prettier',
+        'plugin:prettier-vue/recommended',
     ],
     env: {
         node: true,
