@@ -43,6 +43,7 @@ const clickInfo = computed(() => store.state.map.clickInfo)
 const currentLang = computed(() => store.state.i18n.lang)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
+var requestClipboard = false
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -115,6 +116,13 @@ watch(showEmbedSharing, () => {
     }
 })
 
+watch(shareLinkUrlShorten, () => {
+    if (requestClipboard) {
+        copyValue()
+        requestClipboard = false
+    }
+})
+
 function clearClick() {
     store.dispatch('clearClick')
     showEmbedSharing.value = false
@@ -157,6 +165,17 @@ async function shortenShareLink(url) {
         shareLinkUrlShorten.value = null
     }
 }
+
+async function copyValue() {
+    try {
+        if (showEmbedSharing.value && shareLinkUrlShorten.value != null) {
+            await navigator.clipboard.writeText(shareLinkUrlShorten.value)
+        }
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
+    }
+}
+
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)
@@ -167,7 +186,6 @@ async function updateQrCode(url) {
 }
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
-    document.getElementById('MyElement').className += ' MyClass'
 }
 </script>
 
@@ -244,7 +262,7 @@ function toggleEmbedSharing() {
                     'rounded-top btn btn-light btn-sm embedded-button': true,
                 }"
                 data-cy="location-popup-embed-button"
-                @click="toggleEmbedSharing"
+                @click="copyValue(), (requestClipboard = true), toggleEmbedSharing()"
             >
                 <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
                 <span class="ms-2">{{ $t('share_link') }}</span>
@@ -252,7 +270,7 @@ function toggleEmbedSharing() {
             <CollapseTransition :duration="100">
                 <div
                     v-if="showEmbedSharing"
-                    class="p-2 rounded-0 rounded-bottom card border-light bg-light"
+                    class="p-2 rounded-0 rounded-bottom rounded-end card border-light bg-light"
                 >
                     <div class="py-2 location-popup-link location-popup-coordinates-data">
                         <LocationPopupCopyInput
