@@ -132,6 +132,7 @@ function validateForm() {
                     :value="filePathInfo"
                     readonly
                     required
+                    data-cy="import-file-local-input-text"
                     @click="importFileLocalInput.click()"
                 />
                 <div

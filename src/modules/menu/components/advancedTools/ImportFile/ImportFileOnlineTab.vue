@@ -114,6 +114,7 @@ function validateForm() {
                 :validate="validateUrl"
                 :form-validation-error="urlError"
                 :form-validated="layerAdded"
+                data-cy="import-file-online-url-input"
                 @input="onUrlChange"
                 @keydown.enter="loadFile"
             />
