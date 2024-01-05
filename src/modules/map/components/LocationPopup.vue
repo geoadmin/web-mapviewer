@@ -44,6 +44,7 @@ const currentLang = computed(() => store.state.i18n.lang)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 var requestClipboard = false
+var buttonText = 'share_link'
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -170,11 +171,17 @@ async function copyValue() {
     try {
         if (showEmbedSharing.value && shareLinkUrlShorten.value != null) {
             await navigator.clipboard.writeText(shareLinkUrlShorten.value)
+            buttonText = 'copy_success'
+            setTimeout(resetButton, 1000)
         }
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
     }
 }
+
+async function resetButton() {
+            buttonText = 'share_link'
+        }
 
 async function updateQrCode(url) {
     try {
@@ -265,7 +272,7 @@ function toggleEmbedSharing() {
                 @click="copyValue(), (requestClipboard = true), toggleEmbedSharing()"
             >
                 <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
-                <span class="ms-2">{{ $t('share_link') }}</span>
+                <span class="ms-2">{{ $t(buttonText) }} </span>
             </button>
             <CollapseTransition :duration="100">
                 <div
