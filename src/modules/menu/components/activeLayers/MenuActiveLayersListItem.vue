@@ -25,7 +25,7 @@
             <span
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
-                :data-cy="`active-layer-name${id}`"
+                :data-cy="`active-layer-name-${id}`"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</span
             >
@@ -43,6 +43,7 @@
                 v-else-if="layer.hasError"
                 :compact="compact"
                 :error-message="layer.errorKey"
+                :data-cy="`button-error-${id}`"
             />
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"

@@ -129,6 +129,7 @@ function validateForm() {
                     :value="filePathInfo"
                     readonly
                     required
+                    data-cy="import-file-local-input-text"
                     @click="importFileLocalInput.click()"
                 />
                 <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
@@ -139,6 +140,7 @@ function validateForm() {
                 placeholder="kml_name"
                 :validate="validateName"
                 :form-validated="layerAdded"
+                data-cy="import-file-local-name-input"
             />
         </form>
         <ImportFileButtons

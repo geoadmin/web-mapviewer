@@ -95,6 +95,7 @@ function validateForm() {
                 :validate="validateUrl"
                 :form-validation-error="urlError"
                 :form-validated="layerAdded"
+                data-cy="import-file-online-url-input"
                 @input="onUrlChange"
             />
             <TextInput
@@ -103,6 +104,7 @@ function validateForm() {
                 placeholder="kml_name"
                 :validate="validateName"
                 :form-validated="layerAdded"
+                data-cy="import-file-online-name-input"
             />
         </form>
         <ImportFileButtons

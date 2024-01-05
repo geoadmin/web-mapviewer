@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Placemark>
+    <name>Sample Placemark</name>
+    <description>This is a sample KML Placemark.</description>
+    <Point>
+      <coordinates>8.117189,46.852375</coordinates>
+    </Point>
+  </Placemark>
+</kml>
