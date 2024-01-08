@@ -647,5 +647,7 @@
     "import_file_url_placeholder": "GPX KML URL",
     "no_result": "Nessun risultato",
     "loading": "Caricamento",
-    "search_in_catalogue_placeholder": "Cerca nel catalogo"
+    "search_in_catalogue_placeholder": "Cerca nel catalogo",
+    "kml_name": "Nome del KML",
+    "name_too_long": "Il nome è troppo lungo"
 }

@@ -15,10 +15,12 @@ import log from '@/utils/logging'
 async function loadDataAndMetadata(store, kmlLayer) {
     try {
         const layerCopy = kmlLayer.clone()
-        if (!kmlLayer.kmlMetadata) {
-            kmlLayer.kmlMetadata = await loadKmlMetadata(layerCopy)
+        if (!kmlLayer.kmlMetadata && !kmlLayer.isExternal) {
+            layerCopy.kmlMetadata = await loadKmlMetadata(layerCopy)
         }
-        layerCopy.kmlData = await loadKmlData(layerCopy)
+        if (!kmlLayer.kmlData) {
+            layerCopy.kmlData = await loadKmlData(layerCopy)
+        }
         layerCopy.isLoading = false
         store.dispatch('updateLayer', layerCopy)
     } catch (error) {

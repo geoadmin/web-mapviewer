@@ -30,6 +30,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
         try {
             const kml = await getKml(layer.fileId)
             const features = parseKml(kml, projection.value, availableIconSets.value)
+            log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
             store.dispatch(
                 'setDrawingFeatures',
@@ -63,13 +64,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     getKmlUrl(kmlMetadata.id),
                     true, // visible
                     activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
-                    kmlMetadata.id,
                     kmlMetadata.adminId,
                     i18n.t('draw_layer_label'),
                     kmlData,
-                    kmlMetadata,
-                    false, // isExternal
-                    false // isLoading, we already have kml data available, so no need to load it once more
+                    kmlMetadata
                 )
                 // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
                 // Meaning we must remove the old one from the layers; it will otherwise be there twice

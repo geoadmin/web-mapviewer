@@ -24,13 +24,13 @@
             </button>
             <span
                 class="menu-layer-item-name"
-                :class="{ 'text-body-tertiary fst-italic': layer.isLoading }"
+                :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name${id}`"
                 @click="onToggleLayerVisibility"
                 >{{ layer.name }}</span
             >
             <button
-                v-if="layer.isLoading && !layer.hasError"
+                v-if="showSpinner"
                 class="loading-button btn"
                 :class="{
                     'btn-lg': !compact,
@@ -205,6 +205,11 @@ export default {
         },
         tooltipContent() {
             return this.$t('loading_external_layer')
+        },
+        showSpinner() {
+            // only show the spinner for external layer, for our layers the
+            // backend should be quick enough and don't require any spinner
+            return this.layer.isLoading && this.layer.isExternal && !this.layer.hasError
         },
     },
     watch: {

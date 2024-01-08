@@ -33,6 +33,10 @@ $nav-link-color: $black;
 $nav-tabs-link-active-color: $white;
 $nav-tabs-link-active-bg: $primary;
 
+::placeholder {
+    font-style: italic;
+}
+
 // Add our custom class here
 .btn-outline-group {
     @include button-outline-variant($gray-400);

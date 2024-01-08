@@ -1,52 +1,46 @@
 <script setup>
 import axios, { AxiosError } from 'axios'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, watch } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
-import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import {
+    handleFileContent,
+    validateName,
+} from '@/modules/menu/components/advancedTools/ImportFile/utils'
+import store from '@/store'
+import TextInput from '@/utils/components/TextInput.vue'
 import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
 
 const REQUEST_TIMEOUT = 5 * 60 * 1000 // milliseconds
 
-const i18n = useI18n()
-
 // Reactive data
 const fileUrl = ref('')
 const buttonState = ref('default')
-const errorMessage = ref(null)
-const fileLoaded = ref(false)
+const urlError = ref('')
+const layerAdded = ref(false)
+const kmlName = ref('')
+const isFormValid = ref(false)
 
-// Computed properties
-const isValid = computed(() => !errorMessage.value && fileLoaded.value)
-const isInvalid = computed(() => errorMessage.value)
+watch(kmlName, validateForm)
+watch(fileUrl, validateForm)
 
 // Methods
-function onFileUrlChange(event) {
-    errorMessage.value = null
-    fileUrl.value = event.target.value
+function onUrlChange() {
+    buttonState.value = 'default'
 }
 
-function validateUrl() {
-    errorMessage.value = null
-    if (!fileUrl.value) {
-        errorMessage.value = 'no_url'
-    } else if (!isValidUrl(fileUrl.value)) {
-        errorMessage.value = 'invalid_url'
+function validateUrl(url) {
+    if (!url) {
+        return 'no_url'
+    } else if (!isValidUrl(url)) {
+        return 'invalid_url'
     }
-    return !errorMessage.value
-}
-
-function clearUrl() {
-    fileUrl.value = ''
-    errorMessage.value = null
+    return ''
 }
 
 async function loadFile() {
-    if (!validateUrl()) {
-        return
-    }
+    layerAdded.value = false
     buttonState.value = 'loading'
     let response
 
@@ -55,18 +49,31 @@ async function loadFile() {
         if (response.status !== 200) {
             throw new Error(`Failed to fetch ${fileUrl.value}; status_code=${response.status}`)
         }
-        handleFileContent(response.data, fileUrl.value)
+        handleFileContent(store, response.data, fileUrl.value, kmlName.value)
         buttonState.value = 'succeeded'
-        fileLoaded.value = true
+        layerAdded.value = true
+        setTimeout(() => (buttonState.value = 'default'), 3000)
     } catch (error) {
         buttonState.value = 'default'
         if (error instanceof AxiosError || /fetch/.test(error.message)) {
             log.error(`Failed to load file from url ${fileUrl.value}`, error)
-            errorMessage.value = 'loading_error_network_failure'
+            urlError.value = 'loading_error_network_failure'
         } else {
             log.error(`Failed to parse file from url ${fileUrl.value}`, error)
-            errorMessage.value = 'invalid_kml_gpx_file_error'
+            urlError.value = 'invalid_kml_gpx_file_error'
         }
+    }
+}
+
+function validateForm() {
+    layerAdded.value = false
+    urlError.value = ''
+    if (validateUrl(fileUrl.value)) {
+        isFormValid.value = false
+    } else if (validateName(kmlName.value)) {
+        isFormValid.value = false
+    } else {
+        isFormValid.value = true
     }
 }
 </script>
@@ -80,37 +87,29 @@ async function loadFile() {
         aria-labelledby="nav-online-tab"
         data-cy="import-file-online-content"
     >
-        <form class="input-group d-flex needs-validation">
-            <input
-                type="text"
-                class="form-control import-input"
-                :class="{
-                    'rounded-end': !fileUrl?.length,
-                    'is-valid': isValid,
-                    'is-invalid': isInvalid,
-                }"
-                :placeholder="i18n.t('import_file_url_placeholder')"
-                :value="fileUrl"
-                data-cy="import"
-                @input="onFileUrlChange"
-                @focusout="validateUrl()"
+        <form class="needs-validation">
+            <TextInput
+                v-model="fileUrl"
+                class="mb-2"
+                placeholder="import_file_url_placeholder"
+                :validate="validateUrl"
+                :form-validation-error="urlError"
+                :form-validated="layerAdded"
+                @input="onUrlChange"
             />
-            <button
-                v-if="fileUrl?.length > 0"
-                id="button-addon1"
-                class="btn btn-outline-group rounded-end"
-                type="button"
-                data-cy="import-input-clear"
-                @click="clearUrl"
-            >
-                <FontAwesomeIcon :icon="['fas', 'times-circle']" />
-            </button>
-            <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
+            <TextInput
+                v-model="kmlName"
+                class="mb-3"
+                placeholder="kml_name"
+                :validate="validateName"
+                :form-validated="layerAdded"
+            />
         </form>
-        <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
+        <ImportFileButtons
+            class="mt-2"
+            :button-state="buttonState"
+            :disabled="!isFormValid"
+            @load-file="loadFile"
+        />
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import 'src/scss/webmapviewer-bootstrap-theme';
-</style>

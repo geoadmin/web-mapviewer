@@ -97,6 +97,7 @@ function createSourceForProjection() {
             features: parseKml(kmlData.value, projection.value, availableIconSets.value),
         })
     )
+    log.debug('Openlayer KML layer source created')
 }
 </script>
 

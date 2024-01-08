@@ -645,5 +645,7 @@
     "import_file_url_placeholder": "GPX KML URL",
     "no_result": "Nagut resultat",
     "loading": "Chargiada",
-    "search_in_catalogue_placeholder": "Cercar en il catalog"
+    "search_in_catalogue_placeholder": "Cercar en il catalog",
+    "kml_name": "Num da la KML",
+    "name_too_long": "Il num è massa lung"
 }
