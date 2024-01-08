@@ -59,7 +59,7 @@ const { formValidated, formValidationError } = toRefs(props)
 
 const i18n = useI18n()
 
-const value = ref('')
+const value = ref(model.value)
 const error = ref('')
 
 const isValid = computed(() => {
@@ -71,6 +71,7 @@ const isValid = computed(() => {
 const isInvalid = computed(() => !!error.value || !!formValidationError.value)
 
 watch(value, (newValue) => (model.value = newValue))
+watch(model, (newValue) => (value.value = newValue))
 
 function onInput(event) {
     value.value = event.target.value
