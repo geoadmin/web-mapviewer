@@ -139,13 +139,13 @@ watch(showEmbedSharing, () => {
         copyValue()
     }
 })
+watch(copied, showTooltip)
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
         copyValue()
     }
     requestClipboard.value = false
 })
-watch(copied, showTooltip)
 
 function clearClick() {
     store.dispatch('clearClick')
