@@ -12,18 +12,28 @@ import log from '@/utils/logging'
  * @param {KMLLayer} kmlLayer
  * @returns {Promise<void>}
  */
-async function loadDataAndMetadata(store, kmlLayer) {
+async function loadMetadata(store, kmlLayer) {
+    log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
-        const layerCopy = kmlLayer.clone()
-        if (!kmlLayer.kmlMetadata) {
-            kmlLayer.kmlMetadata = await loadKmlMetadata(layerCopy)
-        }
-        layerCopy.kmlData = await loadKmlData(layerCopy)
-        layerCopy.isLoading = false
-        store.dispatch('updateLayer', layerCopy)
+        const metadata = await loadKmlMetadata(kmlLayer)
+        store.dispatch('updateLayer', { id: kmlLayer.getID(), kmlMetadata: metadata })
     } catch (error) {
-        log.error(`Error while fetching KML data/metadata for layer ${kmlLayer?.getID()}`, error)
-        throw error
+        log.error(`Error while fetching KML metadata for layer ${kmlLayer?.getID()}`)
+    }
+}
+
+/**
+ * @param {Vuex.Store} store
+ * @param {KMLLayer} kmlLayer
+ * @returns {Promise<void>}
+ */
+async function loadData(store, kmlLayer) {
+    log.debug(`Loading data for added KML layer`, kmlLayer)
+    try {
+        const data = await loadKmlData(kmlLayer)
+        store.dispatch('updateLayer', { id: kmlLayer.getID(), kmlData: data })
+    } catch (error) {
+        log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}`)
     }
 }
 
@@ -38,10 +48,16 @@ export default function loadKmlDataAndMetadata(store) {
         if (
             mutation.type === 'addLayer' &&
             mutation.payload instanceof KMLLayer &&
-            mutation.payload.isLoading
+            (!mutation.payload.kmlData || !mutation.payload.kmlMetadata)
         ) {
-            log.debug(`Loading data/metadata for added KML layer`, mutation.payload)
-            loadDataAndMetadata(store, mutation.payload)
+            const kmlLayer = mutation.payload
+
+            if (!kmlLayer.kmlData) {
+                loadData(store, kmlLayer)
+            }
+            if (!kmlLayer.kmlMetadata) {
+                loadMetadata(store, kmlLayer)
+            }
         }
     })
 }

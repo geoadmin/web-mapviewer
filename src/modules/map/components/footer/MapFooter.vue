@@ -13,8 +13,11 @@
                 <div id="map-footer-mobile-scale-line" />
             </div>
         </div>
-        <div id="map-footer-middle" class="map-footer-middle">
+        <div id="map-footer-middle-0" class="map-footer-middle">
             <!-- teleport for: Infobox, Profile, ... -->
+        </div>
+        <div id="map-footer-middle-1" class="map-footer-middle">
+            <!-- teleport for: Import file -->
         </div>
         <div class="map-footer-bottom">
             <div id="map-footer-scale-line" />

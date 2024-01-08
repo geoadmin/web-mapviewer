@@ -39,13 +39,11 @@ const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 const layerId = computed(() => kmlLayerConfig.value.getID())
 const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.opacity)
 const url = computed(() => kmlLayerConfig.value.getURL())
-const isLoading = computed(() => kmlLayerConfig.value.isLoading)
 const kmlData = computed(() => kmlLayerConfig.value.kmlData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
 watch(iconsArePresent, createSourceForProjection)
-watch(isLoading, createSourceForProjection)
 watch(availableIconSets, createSourceForProjection)
 watch(kmlData, createSourceForProjection)
 
@@ -97,6 +95,7 @@ function createSourceForProjection() {
             features: parseKml(kmlData.value, projection.value, availableIconSets.value),
         })
     )
+    log.debug('Openlayer KML layer source created')
 }
 </script>
 

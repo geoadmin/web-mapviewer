@@ -453,7 +453,7 @@ describe('Drawing module tests', () => {
             const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
 
-            // opening up the app and certering it directly on the single marker feature from the fixture
+            // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL

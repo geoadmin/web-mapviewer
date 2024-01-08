@@ -172,9 +172,8 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
         kmlMetaData.links.kml,
         true, // visible
         null, // opacity, null := use default
-        kmlMetaData.id,
         kmlMetaData.adminId,
-        null, // name, null := use default
+        null, // kml data
         kmlMetaData
     )
 }
