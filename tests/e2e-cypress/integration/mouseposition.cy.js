@@ -129,6 +129,7 @@ describe('Test mouse position and interactions', () => {
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
             cy.get('[data-cy="map"]').rightclick()
+            cy.get('[data-cy="location-popup-embed-button"]').click()
 
             cy.get('[data-cy="location-popup"]').should('be.visible')
             cy.log('the LocationPopUp is visible')
@@ -142,6 +143,7 @@ describe('Test mouse position and interactions', () => {
             // closing the menu if mobile
             cy.clickOnMenuButtonIfMobile()
             cy.get('[data-cy="map"]').rightclick()
+            cy.get('[data-cy="location-popup-embed-button"]').click()
 
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {
