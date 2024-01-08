@@ -74,7 +74,7 @@ export default defineConfig({
             })
         },
         baseUrl: 'http://localhost:8080',
-        specPattern: 'tests/e2e-cypress/integration/**/*.cy.js',
+        specPattern: 'tests/cypress/tests-e2e/**/*.cy.js',
         supportFile: 'tests/cypress/support/e2e.js',
     },
 
@@ -83,7 +83,7 @@ export default defineConfig({
             framework: 'vue',
             bundler: 'vite',
         },
-        specPattern: 'tests/component-cypress/components/**/*.cy.js',
+        specPattern: 'tests/cypress/tests-component/**/*.cy.js',
         supportFile: 'tests/cypress/support/component.js',
         indexHtmlFile: 'tests/cypress/support/component-index.html',
     },
