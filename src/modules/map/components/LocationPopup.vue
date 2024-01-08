@@ -97,16 +97,18 @@ onMounted(() => {
 
 onMounted(() => {
     copyTooltip = tippy(copyButton.value, {
+        content: i18n.t('copy_success'),
         arrow: true,
         placement: 'right',
-        hideOnClick: false,
-        // no tooltip on mobile/touch
-        touch: false,
+        trigger: 'manual',
         // The French translation of "copy_done" contains a &nbsp;
         allowHTML: true,
-        delay: [500,500],
+        onShow(instance) {
+            setTimeout(() => {
+                instance.hide()
+            }, 1000)
+        },
     })
-    setTooltipContent()
 })
 
 onBeforeUnmount(() => {
@@ -148,8 +150,11 @@ watch(shareLinkUrlShorten, () => {
     requestClipboard = false
 })
 
-watch(currentLang, setTooltipContent)
-watch(copied, setTooltipContent)
+watch(copied, showTooltip)
+
+function showTooltip() {
+    copyTooltip.show()
+}
 
 function clearClick() {
     store.dispatch('clearClick')
@@ -209,14 +214,6 @@ async function copyValue() {
     }
 }
 
-function setTooltipContent() {
-    if (copied.value) {
-        copyTooltip.setContent(i18n.t('copy_success'))
-    } else {
-        copyTooltip.setContent(i18n.t('share_link'))
-    }
-}
-
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)
@@ -245,6 +242,17 @@ function toggleEmbedSharing() {
         data-cy="location-popup"
         @close="clearClick"
     >
+        <div class="pb-2">
+            <button
+                ref="copyButton"
+                class="rounded-top btn btn-light btn-sm embedded-button"
+                data-cy="location-popup-embed-button"
+                @click="toggleEmbedSharing()"
+            >
+                <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
+                <span class="ms-2">{{ $t('share_link') }}</span>
+            </button>
+        </div>
         <div class="pb-2 location-popup-coordinates">
             <LocationPopupCopySlot
                 identifier="lv95"
@@ -300,23 +308,8 @@ function toggleEmbedSharing() {
             </LocationPopupCopySlot>
         </div>
         <div class="menu-share-embed">
-            <button
-                ref="copyButton"
-                :class="{
-                    'rounded-0': showEmbedSharing,
-                    'rounded-top btn btn-light btn-sm embedded-button': true,
-                }"
-                data-cy="location-popup-embed-button"
-                @click="toggleEmbedSharing()"
-            >
-                <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
-                <span class="ms-2">{{ $t('share_link') }}</span>
-            </button>
             <CollapseTransition :duration="100">
-                <div
-                    v-if="showEmbedSharing"
-                    class="p-2 rounded-0 rounded-bottom rounded-end card border-light bg-light"
-                >
+                <div v-if="showEmbedSharing" class="p-2 card border-light bg-light">
                     <div class="py-2 location-popup-link location-popup-coordinates-data">
                         <LocationPopupCopyInput
                             :value="shareLinkUrlDisplay"
