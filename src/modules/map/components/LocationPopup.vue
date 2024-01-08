@@ -46,8 +46,8 @@ const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const copyButton = ref(null)
 const copied = ref(false)
-let requestClipboard = false
-let copyTooltip = null
+const requestClipboard = ref(false)
+const copyTooltip = ref(null)
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -96,13 +96,11 @@ onMounted(() => {
 })
 
 onMounted(() => {
-    copyTooltip = tippy(copyButton.value, {
+    copyTooltip.value = tippy(copyButton.value, {
         content: i18n.t('copy_success'),
         arrow: true,
         placement: 'right',
         trigger: 'manual',
-        // The French translation of "copy_done" contains a &nbsp;
-        allowHTML: true,
         onShow(instance) {
             setTimeout(() => {
                 instance.hide()
@@ -112,7 +110,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-    copyTooltip.destroy()
+    copyTooltip.value.destroy()
 })
 
 watch(clickInfo, (newClickInfo) => {
@@ -120,14 +118,14 @@ watch(clickInfo, (newClickInfo) => {
         updateWhat3Word()
         updateHeight()
         if (showEmbedSharing.value) {
-            requestClipboard = false
+            requestClipboard.value = false
             updateShareLink()
         }
     }
 })
 watch(currentLang, () => {
     updateWhat3Word()
-    requestClipboard = false
+    requestClipboard.value = false
     updateShareLink()
 })
 watch(() => {
@@ -135,26 +133,19 @@ watch(() => {
         route.query, updateShareLink
     }
 })
-
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
         copyValue()
     }
 })
-
+watch(copied, showTooltip)
 watch(shareLinkUrlShorten, () => {
-    if (requestClipboard) {
+    if (requestClipboard.value) {
         copyValue()
     }
-    requestClipboard = false
+    requestClipboard.value = false
 })
-
-watch(copied, showTooltip)
-
-function showTooltip() {
-    copyTooltip.show()
-}
 
 function clearClick() {
     store.dispatch('clearClick')
@@ -198,7 +189,6 @@ async function shortenShareLink(url) {
         shareLinkUrlShorten.value = null
     }
 }
-
 async function copyValue() {
     try {
         copied.value = true
@@ -213,7 +203,6 @@ async function copyValue() {
         log.error(`Failed to copy to clipboard:`, error)
     }
 }
-
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)
@@ -225,8 +214,11 @@ async function updateQrCode(url) {
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
     if (showEmbedSharing.value) {
-        requestClipboard = true
+        requestClipboard.value = true
     }
+}
+function showTooltip() {
+    copyTooltip.value.show()
 }
 </script>
 
@@ -242,7 +234,7 @@ function toggleEmbedSharing() {
         data-cy="location-popup"
         @close="clearClick"
     >
-        <div class="pb-2">
+        <div class="pb-2 location-popup-coordinates">
             <button
                 ref="copyButton"
                 class="rounded-top btn btn-light btn-sm embedded-button"
