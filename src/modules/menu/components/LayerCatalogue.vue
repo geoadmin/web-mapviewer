@@ -1,10 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
 
-const { layerCatalogue, compact } = defineProps({
+const props = defineProps({
     layerCatalogue: {
         type: Array,
         required: true,
@@ -14,6 +14,7 @@ const { layerCatalogue, compact } = defineProps({
         default: false,
     },
 })
+const { layerCatalogue, compact } = toRefs(props)
 
 const store = useStore()
 
