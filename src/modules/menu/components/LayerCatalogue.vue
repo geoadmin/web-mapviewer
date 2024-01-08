@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
@@ -17,6 +18,7 @@ const props = defineProps({
 const { layerCatalogue, compact } = toRefs(props)
 
 const store = useStore()
+const i18n = useI18n()
 
 const searchText = ref('')
 const searchInput = ref(null)
@@ -58,7 +60,7 @@ function clearSearchText() {
                 type="text"
                 class="form-control"
                 :class="{ 'rounded-end': !searchText.length }"
-                :placeholder="$t('search_in_catalogue_placeholder')"
+                :placeholder="i18n.t('search_in_catalogue_placeholder')"
                 aria-label="Search"
                 aria-describedby="searchCatalogueIcon searchCatalogueInputButton"
                 :value="searchText"
