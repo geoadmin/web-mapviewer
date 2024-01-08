@@ -13,6 +13,7 @@
         "test:e2e:tablet": "start-server-and-test preview 8080 'cypress open --config viewportWidth=768,viewportHeight=1024'",
         "test:e2e:desktop": "start-server-and-test preview 8080 'cypress open --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:ci": "npm run delete:reports:e2e && start-server-and-test preview 8080 'cypress run'",
+        "test:component": "cypress run --component",
         "lint": "eslint . --fix --ignore-path .gitignore --ext .js,.vue",
         "type-check": "vue-tsc --noEmit -p tsconfig.dom.json --composite false",
         "build": "npm run type-check && vite build",
