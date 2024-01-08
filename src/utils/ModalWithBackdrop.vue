@@ -38,7 +38,7 @@
                                 'btn-primary': headerPrimary,
                             }"
                             data-cy="modal-close-button"
-                            @click="onClose(false)"
+                            @click.stop="onClose(false)"
                         >
                             <FontAwesomeIcon icon="times" />
                         </button>
@@ -53,14 +53,14 @@
                             <button
                                 class="btn btn-light me-2"
                                 data-cy="modal-cancel-button"
-                                @click="onClose(false)"
+                                @click.stop="onClose(false)"
                             >
                                 {{ $t('cancel') }}
                             </button>
                             <button
                                 class="btn btn-primary"
                                 data-cy="modal-confirm-button"
-                                @click="onClose(true)"
+                                @click.stop="onClose(true)"
                             >
                                 {{ $t('success') }}
                             </button>
@@ -127,6 +127,8 @@ export default {
 .modal-popup {
     z-index: $zindex-modal;
     .card {
+        width: max-content;
+        max-width: 100vw;
         &:not(.modal-popup-fluid) {
             // only setting a width if the modal content shouldn't be fluid
             width: 80vw;

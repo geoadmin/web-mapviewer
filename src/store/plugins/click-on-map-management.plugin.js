@@ -68,10 +68,6 @@ const clickOnMapManagementPlugin = (store) => {
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
 
             if (isLeftSingleClick) {
-                // if there are some search result shown, we hide the search list
-                if (state.search.show) {
-                    store.dispatch('hideSearchResults')
-                }
                 // running an identification of feature even if we cleared the search result
                 runIdentify(
                     store,

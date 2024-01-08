@@ -23,7 +23,6 @@ import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-data.plugin'
 import loadLayersConfigOnLangChange from '@/store/plugins/load-layersconfig-on-lang-change'
 import loadingBarManagementPlugin from '@/store/plugins/loading-bar-management.plugin'
-import menuSearchBarInteractionManagementPlugin from '@/store/plugins/menu-search-interaction.plugin'
 import redoSearchOnLangChange from '@/store/plugins/redo-search-on-lang-change.plugin'
 import reprojectSelectedFeaturesOnProjectionChangePlugin from '@/store/plugins/reproject-selected-features-on-projection-change.plugin'
 import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.plugin'
@@ -36,7 +35,6 @@ const store = createStore({
     plugins: [
         loadLayersConfigOnLangChange,
         redoSearchOnLangChange,
-        menuSearchBarInteractionManagementPlugin,
         clickOnMapManagementPlugin,
         appReadinessPlugin,
         geolocationManagementPlugin,

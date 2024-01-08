@@ -8,12 +8,6 @@ import log from '@/utils/logging'
 
 const state = {
     /**
-     * Flag telling if a search requesting is ongoing with the backend
-     *
-     * @type Boolean
-     */
-    pending: false,
-    /**
      * The search query, will trigger a search to the backend if it contains 3 or more characters
      *
      * @type String
@@ -25,12 +19,6 @@ const state = {
      * @type CombinedSearchResults
      */
     results: new CombinedSearchResults(),
-    /**
-     * Flag telling if search results should visible
-     *
-     * @type Boolean
-     */
-    show: false,
 }
 
 const getters = {}
@@ -40,16 +28,12 @@ const actions = {
      * @param {vuex} vuex
      * @param {Object} payload
      * @param {String} payload.query
-     * @param {Boolean} payload.showResultsAfterRequest
      */
-    setSearchQuery: async (
-        { commit, rootState, dispatch },
-        { query = '', showResultsAfterRequest = true }
-    ) => {
+    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '' }) => {
+        let results = new CombinedSearchResults()
         commit('setSearchQuery', query)
-        let updatedSearchResults = false
-        // only firing search if query is longer than 2 chars
-        if (query.length > 2) {
+        // only firing search if query is longer than or equal to 2 chars
+        if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
             const coordinate = coordinateFromString(query, currentProjection)
@@ -83,18 +67,7 @@ const actions = {
                 })
             } else {
                 try {
-                    const searchResults = await search(
-                        currentProjection,
-                        query,
-                        rootState.i18n.lang
-                    )
-                    if (searchResults) {
-                        commit('setSearchResults', searchResults)
-                        updatedSearchResults = true
-                        if (showResultsAfterRequest && searchResults.count() > 0) {
-                            commit('showSearchResults')
-                        }
-                    }
+                    results = await search(currentProjection, query, rootState.i18n.lang)
                 } catch (error) {
                     log.error(`Search failed`, error)
                 }
@@ -102,19 +75,15 @@ const actions = {
         } else if (query.length === 0) {
             dispatch('clearPinnedLocation')
         }
-        if (!updatedSearchResults) {
-            commit('setSearchResults', new CombinedSearchResults())
-        }
+        commit('setSearchResults', results)
     },
     setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
-    showSearchResults: ({ commit }) => commit('showSearchResults'),
-    hideSearchResults: ({ commit }) => commit('hideSearchResults'),
     /**
      * @param commit
      * @param dispatch
      * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
      */
-    selectResultEntry: ({ commit, dispatch }, entry) => {
+    selectResultEntry: ({ dispatch }, entry) => {
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
                 dispatch('addLayer', new ActiveLayerConfig(entry.layerId, true))
@@ -129,16 +98,14 @@ const actions = {
                 dispatch('setPinnedLocation', entry.coordinates)
                 break
         }
-        commit('setSearchQuery', entry.getSimpleTitle())
-        commit('hideSearchResults')
+        dispatch('setSearchQuery', { query: entry.getSimpleTitle() })
     },
 }
 
 const mutations = {
     setSearchQuery: (state, query) => (state.query = query),
-    setSearchResults: (state, results) => (state.results = results ? results : []),
-    showSearchResults: (state) => (state.show = true),
-    hideSearchResults: (state) => (state.show = false),
+    setSearchResults: (state, results) =>
+        (state.results = results ? results : new CombinedSearchResults()),
 }
 
 export default {

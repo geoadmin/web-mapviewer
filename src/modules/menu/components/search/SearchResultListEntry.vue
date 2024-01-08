@@ -14,7 +14,8 @@
     >
         <!-- eslint-disable vue/no-v-html-->
         <div
-            class="search-category-entry-main p-2 flex-grow-1"
+            class="search-category-entry-main px-2 flex-grow-1"
+            :class="{ 'py-1': compact, 'py-2': !compact }"
             @click="selectItem"
             v-html="entry.title"
         ></div>
@@ -22,6 +23,7 @@
         <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
             <button
                 class="btn btn-default"
+                :class="{ 'btn-xs': compact }"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"
                 tabindex="-1"
                 @click="showLayerLegendPopup"
@@ -33,7 +35,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 import { SearchResult } from '@/api/search.api'
 
@@ -49,8 +51,12 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup'],
+    emits: ['showLayerLegendPopup', 'entrySelected', 'firstEntryReached', 'lastEntryReached'],
     computed: {
+        ...mapGetters(['isDesktopMode']),
+        compact() {
+            return this.isDesktopMode
+        },
         resultType() {
             return this.entry.resultType.toLowerCase()
         },
@@ -58,23 +64,30 @@ export default {
     methods: {
         ...mapActions([
             'selectResultEntry',
-            'setPinnedLocation',
             'setPreviewedPinnedLocation',
-            'clearPinnedLocation',
             'setPreviewLayer',
             'clearPreviewLayer',
         ]),
         selectItem() {
+            this.$emit('entrySelected')
             this.selectResultEntry(this.entry)
         },
         showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup')
+            this.$emit('showLayerLegendPopup', this.entry)
         },
         goToPrevious() {
-            this.changeFocus(this.$refs.item.previousElementSibling)
+            if (this.$refs.item.previousElementSibling) {
+                this.changeFocus(this.$refs.item.previousElementSibling)
+            } else {
+                this.$emit('firstEntryReached')
+            }
         },
         goToNext() {
-            this.changeFocus(this.$refs.item.nextElementSibling)
+            if (this.$refs.item.nextElementSibling) {
+                this.changeFocus(this.$refs.item.nextElementSibling)
+            } else {
+                this.$emit('lastEntryReached')
+            }
         },
         goToFirst() {
             this.changeFocus(this.$refs.item.parentElement.firstElementChild)
@@ -84,9 +97,7 @@ export default {
         },
         changeFocus(target) {
             if (target) {
-                target.tabIndex = '0'
                 target.focus()
-                this.$refs.item.tabIndex = '-1'
             }
         },
         startResultPreview() {
@@ -122,6 +133,9 @@ export default {
             // Same (no) transition on button and list-item.
             transition: unset;
         }
+    }
+    &:focus {
+        outline-offset: -$focus-outline-size;
     }
 }
 </style>
