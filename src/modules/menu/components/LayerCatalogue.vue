@@ -1,5 +1,5 @@
 <script setup>
-import { ref, toRefs } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
@@ -20,6 +20,8 @@ const store = useStore()
 
 const searchText = ref('')
 const searchInput = ref(null)
+
+const showSearchBar = computed(() => layerCatalogue.value.length > 0)
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
@@ -47,7 +49,7 @@ function clearSearchText() {
 
 <template>
     <div @mouseleave="clearPreviewLayer">
-        <div class="input-group input-group-sm d-flex p-1">
+        <div v-if="showSearchBar" class="input-group input-group-sm d-flex p-1">
             <span id="searchCatalogueIcon" class="input-group-text">
                 <FontAwesomeIcon :icon="['fas', 'search']" />
             </span>
