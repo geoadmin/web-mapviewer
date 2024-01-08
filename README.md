@@ -211,21 +211,24 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 ### List of npm scripts
 
 <!-- prettier-ignore -->
-| command                          | what it does                                                                                                                                                               |
-|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| command                          | what it does                                                  |
+|----------------------------------|---------------------------------------------------------------|
 | `npm run dev`                    | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `npm run build`                  | Compiles all file without bundling and minification                                                                                                                        |
-| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                                                                                                                                 |
-| `npm run lint`                   | Lints and fixes files                                                                                                                                                      |
-| `npm run format`                 | Format (with Prettier) source files                                                                                                                                        |
-| `npm run format-lint`            | run both target above in succession                                                                                                                                        |
-| `npm run test:unit`              | Runs unit tests from vitest.                                                                                                                                               |
-| `npm run test:unit:watch`        | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed).                        |
-| `npm run test:e2e`               | Opens up the cypress app with a mobile sized view                                                                                                                          |
-| `npm run test:e2e:tablet`        | Opens up the cypress app with a iPad sized view                                                                                                                            |
-| `npm run test:e2e:desktop`       | Opens up the cypress app with a 1080p sized view                                                                                                                           |
-| `npm run test:e2e:ci`            | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests). Only tests the mobile sized view.                                       |
-| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools.                                             |
+| `npm run build`                  | Compiles all file without bundling and minification           |
+| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                    |
+| `npm run lint`                   | Format, lints and fixes                                       |
+| `npm run lint:no-fix`            | Check formatting and linting without auto fixes               |
+| `npm run test:unit`              | Runs unit tests from vitest.                                  |
+| `npm run test:unit:watch`        | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed). |
+| `npm run test:e2e`               | Opens up the cypress app with a mobile sized view             |
+| `npm run test:e2e:headless`      | Run cypress E2E tests in headless mode with a mobile sized view |
+| `npm run test:e2e:tablet`        | Opens up the cypress app with a iPad sized view               |
+| `npm run test:e2e:desktop`       | Opens up the cypress app with a 1080p sized view              |
+| `npm run test:e2e:ci`            | Run cypress E2E tests on the served URL (NOTE: the server should be started before). Only tests the mobile sized view. |
+| `npm run test:component`         | Opens up the cypress component tests |
+| `npm run test:component:headless` | Run cypress component tests in headless mode |
+| `npm run test:component:ci`      | Run cypress component tests |
+| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
 All script commands starting a webserver or using one (`dev` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
