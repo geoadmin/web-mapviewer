@@ -19,7 +19,7 @@ const fileUrl = ref('')
 const buttonState = ref('default')
 const urlError = ref('')
 const layerAdded = ref(false)
-const kmlName = ref('')
+const kmlName = ref('KML')
 const isFormValid = ref(false)
 
 watch(kmlName, validateForm)
@@ -87,10 +87,11 @@ function validateForm() {
         aria-labelledby="nav-online-tab"
         data-cy="import-file-online-content"
     >
-        <form class="needs-validation">
+        <form class="mt-2 needs-validation">
             <TextInput
                 v-model="fileUrl"
                 class="mb-2"
+                label="import_file_url_placeholder"
                 placeholder="import_file_url_placeholder"
                 :validate="validateUrl"
                 :form-validation-error="urlError"
@@ -101,14 +102,14 @@ function validateForm() {
             <TextInput
                 v-model="kmlName"
                 class="mb-3"
-                placeholder="kml_name"
+                label="Name"
+                description="Name used for the display in the layer list"
                 :validate="validateName"
                 :form-validated="layerAdded"
                 data-cy="import-file-online-name-input"
             />
         </form>
         <ImportFileButtons
-            class="mt-2"
             :button-state="buttonState"
             :disabled="!isFormValid"
             @load-file="loadFile"

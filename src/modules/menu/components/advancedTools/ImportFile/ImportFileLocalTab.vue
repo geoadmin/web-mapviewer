@@ -26,7 +26,7 @@ const errorMessage = ref(null)
 const isFormValid = ref(false)
 const layerAdded = ref(false)
 
-const kmlName = ref('')
+const kmlName = ref('Local KML')
 
 useImportButton(buttonState)
 
@@ -104,7 +104,7 @@ function validateForm() {
         aria-labelledby="nav-local-tab"
         data-cy="import-file-local-content"
     >
-        <form class="needs-validation">
+        <form class="mt-2 needs-validation">
             <div class="input-group rounded needs-validation mb-2">
                 <button
                     class="btn btn-outline-secondary"
@@ -113,31 +113,38 @@ function validateForm() {
                 >
                     {{ i18n.t('browse') }}
                 </button>
-                <input
-                    ref="importFileLocalInput"
-                    type="file"
-                    :accept="LOCAL_UPLOAD_ACCEPT"
-                    hidden
-                    data-cy="import-file-local-input"
-                    @change="onFileSelected"
-                />
-                <input
-                    type="text"
-                    class="form-control import-input rounded-end import-file-local-input"
+                <div
+                    class="form-floating"
                     :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }"
-                    :placeholder="i18n.t('no_file')"
-                    :value="filePathInfo"
-                    readonly
-                    required
-                    data-cy="import-file-local-input-text"
-                    @click="importFileLocalInput.click()"
-                />
+                >
+                    <input
+                        ref="importFileLocalInput"
+                        type="file"
+                        :accept="LOCAL_UPLOAD_ACCEPT"
+                        hidden
+                        data-cy="import-file-local-input"
+                        @change="onFileSelected"
+                    />
+                    <input
+                        id="import-file-local-input"
+                        type="text"
+                        class="form-control import-input rounded-end import-file-local-input"
+                        :placeholder="i18n.t('no_file')"
+                        :value="filePathInfo"
+                        readonly
+                        required
+                        data-cy="import-file-local-input-text"
+                        @click="importFileLocalInput.click()"
+                    />
+                    <label for="import-file-local-input">File</label>
+                </div>
                 <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
             </div>
             <TextInput
                 v-model="kmlName"
                 class="mb-3"
-                placeholder="kml_name"
+                label="Name"
+                description="Name used for the display in the layer list"
                 :validate="validateName"
                 :form-validated="layerAdded"
                 data-cy="import-file-local-name-input"

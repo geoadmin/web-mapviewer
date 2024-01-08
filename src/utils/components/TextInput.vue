@@ -9,11 +9,31 @@ import { useI18n } from 'vue-i18n'
 
 // On each component creation set the current component ID and increase the counter
 const clearButtonId = `button-addon-clear-${components}`
+const formInputId = `form-input-${components}`
+const descriptionId = `input-description-${components}`
 components = components + 1
 
 const model = defineModel()
 
 const props = defineProps({
+    /**
+     * Label to add above the input field
+     *
+     * @type {String}
+     */
+    label: {
+        type: String,
+        default: '',
+    },
+    /**
+     * Description to add below the input
+     *
+     * @type {String}
+     */
+    description: {
+        type: String,
+        default: '',
+    },
     /**
      * Placeholder to put in the input
      *
@@ -54,14 +74,16 @@ const props = defineProps({
         default: null,
     },
 })
-const { placeholder, validate } = props
-const { formValidated, formValidationError } = toRefs(props)
+const { formValidated, formValidationError, placeholder, validate, label, description } =
+    toRefs(props)
 
 const i18n = useI18n()
 
 const value = ref(model.value)
 const error = ref('')
 
+const showLabel = computed(() => label.value?.length > 0)
+const showDescription = computed(() => description.value?.length > 0)
 const isValid = computed(() => {
     if (formValidated.value !== null) {
         return value.value && !error.value && !formValidationError.value && formValidated.value
@@ -75,8 +97,8 @@ watch(model, (newValue) => (value.value = newValue))
 
 function onInput(event) {
     value.value = event.target.value
-    if (validate) {
-        error.value = validate(value.value)
+    if (validate.value) {
+        error.value = validate.value(value.value)
     }
     emit('input', event)
 }
@@ -95,35 +117,42 @@ const emit = defineEmits(['input', 'focusout', 'clear'])
 </script>
 
 <template>
-    <div class="input-group d-flex needs-validation">
-        <input
-            type="text"
-            class="form-control text-truncate"
-            :class="{
-                'rounded-end': !value?.length,
-                'is-valid': isValid,
-                'is-invalid': isInvalid,
-            }"
-            :aria-describedby="clearButtonId"
-            :placeholder="i18n.t(placeholder)"
-            :value="value"
-            data-cy="text-input"
-            @input="onInput"
-            @focusout="onFocusOut"
-        />
-        <button
-            v-if="value?.length > 0"
-            :id="clearButtonId"
-            class="btn btn-outline-group rounded-end"
-            type="button"
-            data-cy="text-input-clear"
-            @click="onClearInput"
-        >
-            <FontAwesomeIcon :icon="['fas', 'times-circle']" />
-        </button>
-        <div v-if="error" class="invalid-feedback">{{ i18n.t(error) }}</div>
-        <div v-if="formValidationError" class="invalid-feedback">
-            {{ i18n.t(formValidationError) }}
+    <div class="">
+        <div class="input-group d-flex needs-validation has-validation">
+            <div class="form-floating" :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }">
+                <input
+                    :id="formInputId"
+                    type="text"
+                    class="form-control text-truncate"
+                    :class="{
+                        'rounded-end': !value?.length,
+                    }"
+                    :aria-describedby="clearButtonId"
+                    :placeholder="i18n.t(placeholder)"
+                    :value="value"
+                    data-cy="text-input"
+                    @input="onInput"
+                    @focusout="onFocusOut"
+                />
+                <label v-if="showLabel" :for="formInputId">{{ i18n.t(label) }}</label>
+            </div>
+            <button
+                v-if="value?.length > 0"
+                :id="clearButtonId"
+                class="btn btn-outline-group rounded-end"
+                type="button"
+                data-cy="text-input-clear"
+                @click="onClearInput"
+            >
+                <FontAwesomeIcon :icon="['fas', 'times-circle']" />
+            </button>
+            <div v-if="error" class="invalid-feedback">{{ i18n.t(error) }}</div>
+            <div v-if="formValidationError" class="invalid-feedback">
+                {{ i18n.t(formValidationError) }}
+            </div>
+        </div>
+        <div v-if="showDescription" :id="descriptionId" class="form-text">
+            {{ i18n.t(description) }}
         </div>
     </div>
 </template>

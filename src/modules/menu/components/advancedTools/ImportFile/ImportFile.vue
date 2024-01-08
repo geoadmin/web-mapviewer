@@ -43,7 +43,7 @@ const selectedTab = ref('online')
                 </button>
             </li>
         </ul>
-        <div class="tab-content mt-2">
+        <div class="tab-content mt-1">
             <!-- Online Tab -->
             <ImportFileOnlineTab
                 :class="{ active: selectedTab === 'online', show: selectedTab === 'online' }"
