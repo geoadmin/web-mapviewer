@@ -119,14 +119,18 @@ const emit = defineEmits(['input', 'focusout', 'clear'])
 <template>
     <div class="">
         <div class="input-group d-flex needs-validation has-validation">
-            <div class="form-floating" :class="{ 'is-valid': isValid, 'is-invalid': isInvalid }">
+            <div
+                class="form-floating"
+                :class="{
+                    'is-valid': isValid,
+                    'is-invalid': isInvalid,
+                }"
+            >
                 <input
                     :id="formInputId"
                     type="text"
                     class="form-control text-truncate"
-                    :class="{
-                        'rounded-end': !value?.length,
-                    }"
+                    :class="{ 'rounded-end-0': value?.length }"
                     :aria-describedby="clearButtonId"
                     :placeholder="i18n.t(placeholder)"
                     :value="value"

@@ -129,14 +129,13 @@ function validateForm() {
                         id="import-file-local-input"
                         type="text"
                         class="form-control import-input rounded-end import-file-local-input"
-                        :placeholder="i18n.t('no_file')"
                         :value="filePathInfo"
                         readonly
                         required
                         data-cy="import-file-local-input-text"
                         @click="importFileLocalInput.click()"
                     />
-                    <label for="import-file-local-input">File</label>
+                    <label for="import-file-local-input">GPX/KML File</label>
                 </div>
                 <div v-if="errorMessage" class="invalid-feedback">{{ i18n.t(errorMessage) }}</div>
             </div>
@@ -144,7 +143,7 @@ function validateForm() {
                 v-model="kmlName"
                 class="mb-3"
                 label="Name"
-                description="Name used for the display in the layer list"
+                description="Name used for the display in the maps list"
                 :validate="validateName"
                 :form-validated="layerAdded"
                 data-cy="import-file-local-name-input"

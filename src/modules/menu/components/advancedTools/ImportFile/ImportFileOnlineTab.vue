@@ -91,8 +91,7 @@ function validateForm() {
             <TextInput
                 v-model="fileUrl"
                 class="mb-2"
-                label="import_file_url_placeholder"
-                placeholder="import_file_url_placeholder"
+                label="GPX / KML URL"
                 :validate="validateUrl"
                 :form-validation-error="urlError"
                 :form-validated="layerAdded"
@@ -103,7 +102,7 @@ function validateForm() {
                 v-model="kmlName"
                 class="mb-3"
                 label="Name"
-                description="Name used for the display in the layer list"
+                description="Name used for the display in the maps list"
                 :validate="validateName"
                 :form-validated="layerAdded"
                 data-cy="import-file-online-name-input"
