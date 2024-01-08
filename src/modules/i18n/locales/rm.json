@@ -643,5 +643,7 @@
     "no_layer_found": "Nagut strato chattà",
     "import_maps_url_placeholder": "WMTS WMS GPX KML URL",
     "import_file_url_placeholder": "GPX KML URL",
-    "no_result": "Nagut resultat"
+    "no_result": "Nagut resultat",
+    "loading": "Chargiada",
+    "search_in_catalogue_placeholder": "Cercar en il catalog"
 }

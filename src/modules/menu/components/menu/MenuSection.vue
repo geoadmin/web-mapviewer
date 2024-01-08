@@ -3,6 +3,7 @@
         class="menu-section"
         :class="{
             'menu-section-secondary': secondary && !showBody,
+            'menu-section-light': light && !showBody,
             'menu-section-open': showBody,
         }"
     >
@@ -65,6 +66,10 @@ export default {
             default: false,
         },
         secondary: {
+            type: Boolean,
+            default: false,
+        },
+        light: {
             type: Boolean,
             default: false,
         },
@@ -133,9 +138,15 @@ $section-border: 1px;
         background-color: $secondary;
         border-color: $gray-400;
     }
+    .menu-section-light & {
+        color: $black;
+        background-color: $gray-200;
+        border-color: $gray-400;
+    }
+
     .menu-section-open & {
         border-bottom: $section-border solid $gray-400;
-        background-color: $white;
+        background-color: $gray-200;
     }
 
     &.disabled {

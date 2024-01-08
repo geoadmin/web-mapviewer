@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const { google } = require('googleapis')
+import fs from 'fs'
+import { google } from 'googleapis'
 
 const googleApiKey = process.env.GOOGLE_API_KEY
 

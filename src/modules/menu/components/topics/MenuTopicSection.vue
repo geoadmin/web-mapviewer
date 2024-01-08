@@ -5,6 +5,7 @@
         ref="menuTopicSection"
         :title="$t(currentTopic?.id)"
         :show-content="showTopicTree"
+        light
         data-cy="menu-topic-section"
         @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
