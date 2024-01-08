@@ -4,7 +4,8 @@
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import proj4 from 'proj4'
-import { computed, onMounted, ref, watch } from 'vue'
+import tippy from 'tippy.js'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -43,8 +44,10 @@ const clickInfo = computed(() => store.state.map.clickInfo)
 const currentLang = computed(() => store.state.i18n.lang)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
-var requestClipboard = false
-var buttonText = 'share_link'
+const copyButton = ref(null)
+const copied = ref(false)
+let requestClipboard = false
+let copyTooltip = null
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -92,17 +95,37 @@ onMounted(() => {
     }
 })
 
+onMounted(() => {
+    copyTooltip = tippy(copyButton.value, {
+        arrow: true,
+        placement: 'right',
+        hideOnClick: false,
+        // no tooltip on mobile/touch
+        touch: false,
+        // The French translation of "copy_done" contains a &nbsp;
+        allowHTML: true,
+        delay: [500,500],
+    })
+    setTooltipContent()
+})
+
+onBeforeUnmount(() => {
+    copyTooltip.destroy()
+})
+
 watch(clickInfo, (newClickInfo) => {
     if (newClickInfo) {
         updateWhat3Word()
         updateHeight()
         if (showEmbedSharing.value) {
+            requestClipboard = false
             updateShareLink()
         }
     }
 })
 watch(currentLang, () => {
     updateWhat3Word()
+    requestClipboard = false
     updateShareLink()
 })
 watch(() => {
@@ -114,15 +137,19 @@ watch(() => {
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
+        copyValue()
     }
 })
 
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard) {
         copyValue()
-        requestClipboard = false
     }
+    requestClipboard = false
 })
+
+watch(currentLang, setTooltipContent)
+watch(copied, setTooltipContent)
 
 function clearClick() {
     store.dispatch('clearClick')
@@ -169,19 +196,26 @@ async function shortenShareLink(url) {
 
 async function copyValue() {
     try {
-        if (showEmbedSharing.value && shareLinkUrlShorten.value != null) {
+        copied.value = true
+        if (showEmbedSharing.value) {
             await navigator.clipboard.writeText(shareLinkUrlShorten.value)
-            buttonText = 'copy_success'
-            setTimeout(resetButton, 1000)
+            copied.value = true
+            setTimeout(() => {
+                copied.value = false
+            }, 1000)
         }
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
     }
 }
 
-async function resetButton() {
-            buttonText = 'share_link'
-        }
+function setTooltipContent() {
+    if (copied.value) {
+        copyTooltip.setContent(i18n.t('copy_success'))
+    } else {
+        copyTooltip.setContent(i18n.t('share_link'))
+    }
+}
 
 async function updateQrCode(url) {
     try {
@@ -193,6 +227,9 @@ async function updateQrCode(url) {
 }
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
+    if (showEmbedSharing.value) {
+        requestClipboard = true
+    }
 }
 </script>
 
@@ -264,15 +301,16 @@ function toggleEmbedSharing() {
         </div>
         <div class="menu-share-embed">
             <button
+                ref="copyButton"
                 :class="{
                     'rounded-0': showEmbedSharing,
                     'rounded-top btn btn-light btn-sm embedded-button': true,
                 }"
                 data-cy="location-popup-embed-button"
-                @click="copyValue(), (requestClipboard = true), toggleEmbedSharing()"
+                @click="toggleEmbedSharing()"
             >
                 <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
-                <span class="ms-2">{{ $t(buttonText) }} </span>
+                <span class="ms-2">{{ $t('share_link') }}</span>
             </button>
             <CollapseTransition :duration="100">
                 <div
