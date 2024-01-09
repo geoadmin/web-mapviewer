@@ -36,39 +36,32 @@ $slider-position: 50%;
     display: inline-block;
     width: 40px;
     height: 100%;
-    left: $slider-position;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
     z-index: $zindex-compare-slider;
-}
-.compare-slider-caret-left {
-    position: absolute;
-    translate: 24px;
-    top: 50%;
-    z-index: $zindex-compare-slider;
-    width: 14px;
-    height: 14px;
-    color: white;
-    background: red;
-}
 
-.compare-slider-caret-right {
-    position: absolute;
-    top: 50%;
-    translate: 42px;
-    z-index: $zindex-compare-slider;
-    width: 14px;
-    height: 14px;
-    color: white;
-    background: red;
-}
-.compare-slider-line {
-    position: relative;
-    width: 4px;
-    height: 100%;
-    left: $slider-position;
-    margin: auto;
-    z-index: $zindex-compare-slider;
-    background-color: red;
+    &-caret-left,
+    &-caret-right {
+        position: inherit;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        color: $white;
+        background: $primary;
+        z-index: inherit;
+    }
+
+    &-caret-left {
+        translate: 4px;
+    }
+    &-caret-right {
+        translate: 22px;
+    }
+    &-line {
+        position: relative;
+        margin: auto;
+        width: 4px;
+        height: 100%;
+        background: $primary;
+        z-index: inherit;
+    }
 }
 </style>
