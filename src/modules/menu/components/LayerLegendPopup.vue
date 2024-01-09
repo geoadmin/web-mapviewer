@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { getLayerLegend } from '@/api/layers/layers.api'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const props = defineProps({
     layer: {

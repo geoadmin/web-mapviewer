@@ -132,7 +132,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 /**
  * Different pre-defined sizes that an iFrame can take

@@ -10,7 +10,7 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 import DrawingHeader from './DrawingHeader.vue'
 

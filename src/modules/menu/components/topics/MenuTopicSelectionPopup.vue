@@ -23,7 +23,7 @@
 
 <script>
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 export default {
     components: { TopicIcon, ModalWithBackdrop },
