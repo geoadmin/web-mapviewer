@@ -88,7 +88,7 @@ export default class ExternalLayer extends AbstractLayer {
     }
 
     get hasLegend() {
-        return this.abstract || this.legends.length > 0 || super.hasLegend
+        return this.abstract || this.legends.length > 0
     }
 
     /**

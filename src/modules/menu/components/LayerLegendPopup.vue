@@ -62,8 +62,8 @@ onMounted(async () => {
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
             <div v-else-if="isExternal">
-                <h6>{{ i18n.t('description') }}</h6>
-                <div>{{ body }}</div>
+                <h6 v-if="body">{{ i18n.t('description') }}</h6>
+                <div v-if="body">{{ body }}</div>
                 <div v-if="legends.length" class="mt-4">
                     <h6>{{ i18n.t('legend') }}</h6>
                     <div v-for="legend in legends" :key="legend.url">
