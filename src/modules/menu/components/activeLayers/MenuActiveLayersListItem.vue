@@ -131,8 +131,8 @@ import { mapGetters, mapState } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import ErrorButton from '@/utils/ErrorButton.vue'
-import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
+import ErrorButton from '@/utils/components/ErrorButton.vue'
+import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like

@@ -1,4 +1,4 @@
-import TextSearchMarker from '@/utils/TextSearchMarker.vue'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 describe('<TextSearchMarker />', () => {
     it('Renders', () => {

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import LoadingBar from '@/utils/LoadingBar.vue'
+import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 export default {
     components: {
