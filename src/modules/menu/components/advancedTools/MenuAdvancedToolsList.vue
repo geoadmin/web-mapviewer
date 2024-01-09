@@ -34,7 +34,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 export default {
     components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem, ImportCatalogue },

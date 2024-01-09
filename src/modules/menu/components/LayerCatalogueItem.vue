@@ -15,10 +15,10 @@ import { useStore } from 'vuex'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
-import TextSearchMarker from '@/utils/TextSearchMarker.vue'
 
 const props = defineProps({
     item: {

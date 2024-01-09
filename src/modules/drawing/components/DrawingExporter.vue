@@ -9,7 +9,7 @@ import {
     generateGpxString,
     generateKmlString,
 } from '@/modules/drawing/lib/export-utils'
-import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
+import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
 const exportOptions = [new DropdownItem('kml', 'KML'), new DropdownItem('gpx', 'GPX')]
 

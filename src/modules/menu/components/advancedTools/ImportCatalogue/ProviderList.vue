@@ -1,7 +1,7 @@
 <script setup>
 import { ref, toRefs } from 'vue'
 
-import TextSearchMarker from '@/utils/TextSearchMarker.vue'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const props = defineProps({
     showProviders: {
