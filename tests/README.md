@@ -3,6 +3,7 @@
 - [Unit testing](#unit-testing)
 - [E2E testing](#e2e-testing)
   - [Cypress Cloud](#cypress-cloud)
+    - [Component Testing on Cloud](#component-testing-on-cloud)
   - [Using cypress on a Windows machine](#using-cypress-on-a-windows-machine)
     - [Source code in WSL2 file system](#source-code-in-wsl2-file-system)
   - [Using cypress on a Unix machine](#using-cypress-on-a-unix-machine)
@@ -18,9 +19,9 @@ To run unit tests, execute `npm run test:unit`.
 
 ## E2E testing
 
-This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/e2e-cypress/`.
+This project uses [Cypress.io](https://www.cypress.io/) for E2E tests. All things related to tests are in the folder `/tests/cypress/tests-e2e`.
 
-There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:e2e:ci`.
+There are two ways of executing E2E tests, either with a UI feedback using `npm run test:e2e` (which will open the Cypress GUI, you can then choose which test to run), or by running all E2E test headless with `npm run test:e2e:headless`.
 
 ### Cypress Cloud
 
@@ -31,8 +32,20 @@ You can also record your local run of cypress to the cloud as follow
 ```bash
 npm run start &
 
-summon npx cypress run --record --tag local [--spec tests/e2e-cypress/integration/SPECFILE]
+summon npx cypress run --record --tag local [--spec tests/cypress/tests-e2e/SPECFILE]
 ```
+
+:warning: The cypress cloud project is public !
+
+#### Component Testing on Cloud
+
+To run the cypress component tests on the cloud enter
+
+```bash
+summon npx cypress run --component --browser chrome --record --tag local
+```
+
+:memo: Only `chrome` browser supports proper replay on the cloud.
 
 :warning: The cypress cloud project is public !
 

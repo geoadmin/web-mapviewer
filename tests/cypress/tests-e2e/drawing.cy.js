@@ -409,7 +409,7 @@ describe('Drawing module tests', () => {
             })
 
             // re-opening the drawing module
-            cy.get('[data-cy="menu-tray-drawing-section"]').click()
+            cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             cy.wait('@get-kml')
 
             // deleting all features (clearing/emptying the KML)

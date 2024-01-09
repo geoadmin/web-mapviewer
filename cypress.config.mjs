@@ -11,16 +11,19 @@ export default defineConfig({
     defaultCommandTimeout: 5000,
     requestTimeout: 5000,
     numTestsKeptInMemory: 2,
+
     retries: {
         runMode: 1,
         openMode: 0,
     },
+
     viewportWidth: 320,
     viewportHeight: 568,
-    downloadsFolder: 'tests/e2e-cypress/downloads',
-    fixturesFolder: 'tests/e2e-cypress/fixtures',
-    screenshotsFolder: 'tests/e2e-cypress/screenshots',
-    videosFolder: 'tests/e2e-cypress/videos',
+    fixturesFolder: 'tests/cypress/fixtures',
+    downloadsFolder: 'tests/cypress/downloads',
+    screenshotsFolder: 'tests/cypress/screenshots',
+    videosFolder: 'tests/cypress/videos',
+
     e2e: {
         setupNodeEvents(on, config) {
             // setup Vite as the preprocessor for Cypress (it will automatically read vite.config.mts from the root of the project)
@@ -71,7 +74,17 @@ export default defineConfig({
             })
         },
         baseUrl: 'http://localhost:8080',
-        specPattern: 'tests/e2e-cypress/integration/**/*.*',
-        supportFile: 'tests/e2e-cypress/support/index.js',
+        specPattern: 'tests/cypress/tests-e2e/**/*.cy.js',
+        supportFile: 'tests/cypress/support/e2e.js',
+    },
+
+    component: {
+        devServer: {
+            framework: 'vue',
+            bundler: 'vite',
+        },
+        specPattern: 'tests/cypress/tests-component/**/*.cy.js',
+        supportFile: 'tests/cypress/support/component.js',
+        indexHtmlFile: 'tests/cypress/support/component-index.html',
     },
 })
