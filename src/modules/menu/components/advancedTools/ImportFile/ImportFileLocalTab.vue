@@ -26,7 +26,7 @@ const errorMessage = ref(null)
 const isFormValid = ref(false)
 const layerAdded = ref(false)
 
-const kmlName = ref('Local KML')
+const kmlName = ref('')
 
 useImportButton(buttonState)
 

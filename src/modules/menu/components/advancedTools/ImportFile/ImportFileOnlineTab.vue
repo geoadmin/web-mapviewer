@@ -19,7 +19,7 @@ const fileUrl = ref('')
 const buttonState = ref('default')
 const urlError = ref('')
 const layerAdded = ref(false)
-const kmlName = ref('KML')
+const kmlName = ref('')
 const isFormValid = ref(false)
 
 watch(kmlName, validateForm)
