@@ -14,8 +14,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hasSearchBar: {
+        type: Boolean,
+        default: false,
+    },
 })
-const { layerCatalogue, compact } = toRefs(props)
+const { layerCatalogue, compact, hasSearchBar } = toRefs(props)
 
 const store = useStore()
 const i18n = useI18n()
@@ -23,7 +27,7 @@ const i18n = useI18n()
 const searchText = ref('')
 const searchInput = ref(null)
 
-const showSearchBar = computed(() => layerCatalogue.value.length > 0)
+const showSearchBar = computed(() => hasSearchBar.value && layerCatalogue.value.length > 0)
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {

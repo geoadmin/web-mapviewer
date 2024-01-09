@@ -1,6 +1,5 @@
 <script setup>
 import { ref, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
@@ -13,33 +12,30 @@ const props = defineProps({
     },
 })
 
-const i18n = useI18n()
-
 const { compact } = toRefs(props)
-const wmsMaxSize = ref(null)
 const capabilities = ref([])
 
-function onNewCapabilities(newCapabilities, newWmsMaxSize) {
-    log.debug(`New capabilities`, newCapabilities, newWmsMaxSize)
+function onNewCapabilities(newCapabilities) {
+    log.debug(`New capabilities`, newCapabilities)
     capabilities.value = newCapabilities.sort((layerA, layerB) =>
         layerA.name.localeCompare(layerB.name, undefined, { sensitivity: 'base' })
     )
-    wmsMaxSize.value = newWmsMaxSize
 }
 
 function onClear() {
     capabilities.value = []
-    wmsMaxSize.value = null
 }
 </script>
 
 <template>
     <div class="ps-2" data-cy="import-catalog-content">
         <ProviderUrl @capabilities:parsed="onNewCapabilities" @capabilities:cleared="onClear" />
-        <div v-if="wmsMaxSize">
-            {{ i18n.t('wms_max_size_allowed') }} {{ wmsMaxSize.width }} * {{ wmsMaxSize.height }}
-        </div>
-        <LayerCatalogue class="mb-2" :layer-catalogue="capabilities" :compact="compact" />
+        <LayerCatalogue
+            class="mb-2"
+            :layer-catalogue="capabilities"
+            :compact="compact"
+            has-search-bar
+        />
     </div>
 </template>
 
