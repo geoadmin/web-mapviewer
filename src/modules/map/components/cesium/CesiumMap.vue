@@ -229,6 +229,14 @@ export default {
             // see https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing
             flush: 'post',
         },
+        centerEpsg4326: {
+            handler() {
+                if (this.isProjectionWebMercator && this.cameraPosition) {
+                    this.flyToPosition()
+                }
+            },
+            flush: 'post',
+        },
     },
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
@@ -415,46 +423,50 @@ export default {
                 : firstFeature.coordinates
         },
         flyToPosition() {
-            if (this.cameraPosition) {
-                this.viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        this.cameraPosition.x,
-                        this.cameraPosition.y,
-                        this.cameraPosition.z
-                    ),
-                    orientation: {
-                        heading: CesiumMath.toRadians(this.cameraPosition.heading),
-                        pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
-                        roll: CesiumMath.toRadians(this.cameraPosition.roll),
-                    },
-                    duration: 0,
-                })
-            } else {
-                this.viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        this.centerEpsg4326[0],
-                        this.centerEpsg4326[1],
-                        calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
-                    ),
-                    orientation: {
-                        heading: -this.rotation,
-                        pitch: -CesiumMath.PI_OVER_TWO,
-                        roll: 0,
-                    },
-                    duration: 0,
-                })
+            try {
+                if (this.cameraPosition) {
+                    this.viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            this.cameraPosition.x,
+                            this.cameraPosition.y,
+                            this.cameraPosition.z
+                        ),
+                        orientation: {
+                            heading: CesiumMath.toRadians(this.cameraPosition.heading),
+                            pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
+                            roll: CesiumMath.toRadians(this.cameraPosition.roll),
+                        },
+                        duration: 1,
+                    })
+                } else {
+                    this.viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            this.centerEpsg4326[0],
+                            this.centerEpsg4326[1],
+                            calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+                        ),
+                        orientation: {
+                            heading: -CesiumMath.toRadians(this.rotation),
+                            pitch: -CesiumMath.PI_OVER_TWO,
+                            roll: 0,
+                        },
+                        duration: 0,
+                    })
+                }
+            } catch (error) {
+                log.error('Error while moving the camera', error, this.cameraPosition)
             }
         },
         onCameraMoveEnd() {
             const camera = this.viewer.camera
             const position = camera.positionCartographic
             this.setCameraPosition({
-                x: CesiumMath.toDegrees(position.longitude).toFixed(6),
-                y: CesiumMath.toDegrees(position.latitude).toFixed(6),
-                z: position.height.toFixed(0),
-                heading: CesiumMath.toDegrees(camera.heading).toFixed(0),
-                pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
-                roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
+                x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
+                y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
+                z: parseFloat(position.height.toFixed(1)),
+                heading: parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0)),
+                pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
+                roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
