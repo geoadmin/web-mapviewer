@@ -23,7 +23,7 @@ export const LogLevel = {
  * @param {LogLevel} level
  * @param {...any} message
  */
-export default function log(level, ...message) {
+const log = (level, ...message) => {
     // In production we only log errors.
     if (ENVIRONMENT === 'production' && level !== LogLevel.ERROR) {
         return
@@ -52,9 +52,11 @@ export default function log(level, ...message) {
 
 /** Shorthand for log('error', ...message) */
 log.error = (...message) => log(LogLevel.ERROR, ...message)
-/** Shorthand for log('info', ...message) */
+/** Shorthand for log('warn', ...message) */
 log.warn = (...message) => log(LogLevel.WARNING, ...message)
 /** Shorthand for log('info', ...message) */
 log.info = (...message) => log(LogLevel.INFO, ...message)
 /** Shorthand for log('debug', ...message) */
 log.debug = (...message) => log(LogLevel.DEBUG, ...message)
+
+export default log
