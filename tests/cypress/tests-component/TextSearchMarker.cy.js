@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 describe('<TextSearchMarker />', () => {

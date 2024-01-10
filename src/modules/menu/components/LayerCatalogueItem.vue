@@ -9,14 +9,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
 import booleanContains from '@turf/boolean-contains'
 import { polygon } from '@turf/helpers'
-import tippy from 'tippy.js'
-import { computed, onMounted, onUnmounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -41,15 +41,10 @@ const props = defineProps({
 })
 const { item, compact, depth, search } = toRefs(props)
 
-let tippyInstance = null
-let resizeObserver = null
-
 // Declaring own properties (ex-data)
 
 const showChildren = ref(false)
 const showLayerLegend = ref(false)
-const itemNameElement = ref(null)
-const itemNameSize = ref(null)
 
 // Mapping the store to the component
 const store = useStore()
@@ -106,48 +101,11 @@ watch(openThemesIds, (newValue) => {
 watch(hasChildrenMatchSearch, (newValue) => {
     showChildren.value = newValue
 })
-watch(
-    () => item.value.name,
-    (name) => tippyInstance?.setContent(name)
-)
 
 // reading the current topic at startup and opening any required category
 onMounted(() => {
     showChildren.value = openThemesIds.value.indexOf(item.value.getID()) !== -1
-    initializeTippy()
-
-    // Observe the catalogue entry resize to add/remove tooltip
-    resizeObserver = new ResizeObserver(() => initializeTippy())
-    resizeObserver.observe(itemNameElement.value)
 })
-
-onUnmounted(() => {
-    resizeObserver?.disconnect()
-    tippyInstance?.destroy()
-    tippyInstance = null
-})
-
-function initializeTippy() {
-    // We add a tooltip only if the text is truncated
-    if (
-        itemNameSize.value?.getBoundingClientRect().width >
-        itemNameElement.value?.getBoundingClientRect().width
-    ) {
-        tippyInstance = tippy(itemNameElement.value, {
-            theme: 'dark',
-            content: item.value.name,
-            placement: 'top',
-            arrow: true,
-            delay: 500,
-            touch: ['hold', 500], // 500ms delay
-        })
-    } else if (tippyInstance) {
-        log.debug(`Remove tippy for "${item.value.name}"`)
-        tippyInstance.unmount()
-        tippyInstance.destroy()
-        tippyInstance = null
-    }
-}
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
@@ -265,15 +223,13 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
             </button>
 
-            <div
-                ref="itemNameElement"
+            <TextTruncate
+                :text="item.name"
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
             >
-                <span ref="itemNameSize">
-                    <TextSearchMarker :text="item.name" :search="search" />
-                </span>
-            </div>
+                <TextSearchMarker :text="item.name" :search="search" />
+            </TextTruncate>
             <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
