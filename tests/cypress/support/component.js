@@ -1,3 +1,5 @@
+import '../../../src/scss/main.scss'
+
 import { mount } from 'cypress/vue'
 
 Cypress.Commands.add('mount', (component, options = {}) => {
