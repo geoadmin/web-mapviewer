@@ -172,8 +172,9 @@ The followings programs/tools are required in order to develop on `web-mapviewer
 ### Install
 
 ```bash
-npm install
+summon npm install
 ```
+Summon is used because we are using the licensed font set awsomfont pro (https://fontawesome.com).
 
 ### Environment variables
 
