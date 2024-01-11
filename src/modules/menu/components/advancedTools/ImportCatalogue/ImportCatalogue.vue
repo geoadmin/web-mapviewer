@@ -34,7 +34,7 @@ function onClear() {
             class="mb-2"
             :layer-catalogue="capabilities"
             :compact="compact"
-            has-search-bar
+            with-search-bar
         />
     </div>
 </template>
