@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faFacebook, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 import {
     faCheckSquare,
     faCircle as faRegularCircle,
@@ -136,5 +136,5 @@ library.add(
     faTrashAlt,
     // Brands
     faFacebook,
-    faTwitter
+    faXTwitter
 )
