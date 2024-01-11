@@ -2,21 +2,27 @@
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 
 const selectedTab = ref('position')
-
 const store = useStore()
+const open = ref(true)
+
 const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
+const showIn3d = computed(() => store.state.cesium.active)
 const copyTooltip = ref(null)
 
 const mappingFrameworkSpecificPopup = computed(() => {
+    if (showIn3d.value) {
+        return CesiumPopover
+    }
     return OpenLayersPopover
 })
 const coordinate = computed(() => {
@@ -84,10 +90,12 @@ function clearClick() {
             <!-- Position Tab -->
             <LocationPopupPosition
                 :class="{ active: selectedTab === 'position', show: selectedTab === 'position' }"
+                @close="clearClick"
             />
             <!-- Share tab -->
             <LocationPopupShare
                 :class="{ active: selectedTab === 'share', show: selectedTab === 'share' }"
+                @close="clearClick"
             />
         </div>
     </component>
