@@ -35,6 +35,7 @@ const storeSyncConfig = [
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
     // to the default projection EPSG number
     new PositionParamConfig(),
+    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'z',
         'setZoom',
@@ -52,10 +53,6 @@ const storeSyncConfig = [
         Boolean,
         false
     ),
-    // very important that this is added/defined AFTER the 3D flag param,
-    // so that when it is called the 3D param has already been processed (and is correctly set in the query)
-    // this will manage lon,lat,z and camera URL params
-    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',

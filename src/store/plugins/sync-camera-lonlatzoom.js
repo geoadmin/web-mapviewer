@@ -55,7 +55,7 @@ export default function syncCameraLonLatZoom(store) {
                 triggeredByThisModule.setCameraPosition = false
             }
         }
-        if (mutation.type === 'setCenter') {
+        if (state.position.camera && mutation.type === 'setCenter') {
             if (!triggeredByThisModule.setCenter) {
                 triggeredByThisModule.setCameraPosition = true
                 store.dispatch('setCameraPosition', {
@@ -70,7 +70,7 @@ export default function syncCameraLonLatZoom(store) {
                 triggeredByThisModule.setCenter = false
             }
         }
-        if (mutation.type === 'setZoom') {
+        if (state.position.camera && mutation.type === 'setZoom') {
             if (!triggeredByThisModule.setZoom) {
                 const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
                 triggeredByThisModule.setCameraPosition = true
