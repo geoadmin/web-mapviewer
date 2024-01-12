@@ -1,12 +1,96 @@
 <script setup>
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-import { ref } from 'vue'
 import { generateQrCode } from '@/api/qrcode.api'
+import { createShortLink } from '@/api/shortlink.api'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
+import log from '@/utils/logging'
+import { stringifyQuery } from '@/utils/url-router'
 
+const props = defineProps({
+    coordinate: {
+        type: Boolean,
+        required: true,
+    },
+    clickInfo: {
+        type: Object,
+        required: true,
+    },
+    currentLang: {
+        type: Object,
+        required: true,
+    },
+})
+const { clickInfo, currentLang, coordinate } = toRefs(props)
 
-const qrCodeImageSrc = ref(null)
+const qrCodeImageSrc = ref(false)
+const shareLinkUrlShorten = ref(null)
+const shareLinkUrl = ref(null)
+const showEmbedSharing = ref(false)
+const requestClipboard = ref(true)
 
+const route = useRoute()
+
+const shareLinkUrlDisplay = computed(() => {
+    return shareLinkUrlShorten.value || shareLinkUrl.value || ''
+})
+
+onMounted(() => {
+    if (clickInfo.value) {
+        if (showEmbedSharing.value) {
+            updateShareLink()
+        }
+    }
+})
+
+watch(clickInfo, (newClickInfo) => {
+    if (newClickInfo) {
+        updateShareLink()
+    }
+})
+watch(currentLang, () => {
+    requestClipboard.value = false
+    updateShareLink()
+})
+watch(() => {
+    if (showEmbedSharing.value) {
+        route.query, updateShareLink
+    }
+})
+watch(showEmbedSharing, () => {
+    if (showEmbedSharing.value) {
+        updateShareLink()
+    }
+})
+watch(shareLinkUrlShorten, () => {
+    requestClipboard.value = false
+})
+function updateShareLink() {
+    let query = {
+        ...route.query,
+        crosshair: 'marker',
+        center: coordinate.value.join(','),
+    }
+    shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
+    shortenShareLink(shareLinkUrl.value)
+}
+async function shortenShareLink(url) {
+    try {
+        shareLinkUrlShorten.value = await createShortLink(url)
+        await updateQrCode(shareLinkUrlShorten.value)
+    } catch (error) {
+        log.error(`Failed to shorten Share URL`, error)
+        shareLinkUrlShorten.value = null
+    }
+}
+
+function toggleEmbedSharing() {
+    showEmbedSharing.value = !showEmbedSharing.value
+    if (showEmbedSharing.value) {
+        requestClipboard.value = true
+    }
+}
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)

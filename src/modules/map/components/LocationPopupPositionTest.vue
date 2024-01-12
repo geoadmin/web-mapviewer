@@ -4,7 +4,6 @@
 import proj4 from 'proj4'
 import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import { requestHeight } from '@/api/height.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
@@ -32,16 +31,17 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    currentLang: {
+        type: Object,
+        required: true,
+    },
 })
-const { coordinate, clickInfo, projection } = toRefs(props)
+const { coordinate, clickInfo, projection, currentLang } = toRefs(props)
 
 const what3Words = ref(null)
 const height = ref(null)
 
 const i18n = useI18n()
-const store = useStore()
-
-const currentLang = computed(() => store.state.i18n.lang)
 
 const coordinateWGS84Metric = computed(() => {
     return proj4(projection.value.epsg, WGS84.epsg, coordinate.value)

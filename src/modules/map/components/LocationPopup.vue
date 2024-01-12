@@ -19,6 +19,7 @@ const store = useStore()
 const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
+const currentLang = computed(() => store.state.i18n.lang)
 const copyButton = ref(null)
 const copyTooltip = ref(null)
 
@@ -114,10 +115,14 @@ function clearClick() {
                         :coordinate="coordinate"
                         :click-info="clickInfo"
                         :projection="projection"
+                        :current-lang="currentLang"
                     />
                     <!-- Share tab -->
                     <LocationPopupShareTest
                         :class="{ active: selectedTab === 'share', show: selectedTab === 'share' }"
+                        :coordinate="coordinate"
+                        :click-info="clickInfo"
+                        :current-lang="currentLang"
                     />
                 </div>
             </div>
