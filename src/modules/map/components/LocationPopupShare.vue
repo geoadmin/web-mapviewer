@@ -32,6 +32,7 @@ const qrCodeImageSrc = ref(false)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
 const requestClipboard = ref(true)
+const copied = ref(false)
 
 const route = useRoute()
 
@@ -49,11 +50,13 @@ onMounted(() => {
 
 watch(clickInfo, (newClickInfo) => {
     if (showEmbedSharing.value) {
+        requestClipboard.value = false
         updateShareLink()
     }
 })
 watch(currentLang, () => {
-    updateShareLink()
+    requestClipboard.value = false
+    setTimeout(() => updateShareLink(), 1)
 })
 watch(() => {
     if (showEmbedSharing.value) {
@@ -63,7 +66,14 @@ watch(() => {
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
+        copyValue()
     }
+})
+watch(shareLinkUrlShorten, () => {
+    if (requestClipboard.value) {
+        copyValue()
+    }
+    requestClipboard.value = false
 })
 watch(shareLinkUrlShorten, () => {
     requestClipboard.value = false
@@ -84,6 +94,20 @@ async function shortenShareLink(url) {
     } catch (error) {
         log.error(`Failed to shorten Share URL`, error)
         shareLinkUrlShorten.value = null
+    }
+}
+async function copyValue() {
+    try {
+        copied.value = true
+        if (showEmbedSharing.value) {
+            await navigator.clipboard.writeText(shareLinkUrlShorten.value)
+            copied.value = true
+            setTimeout(() => {
+                copied.value = false
+            }, 1000)
+        }
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
     }
 }
 async function updateQrCode(url) {
@@ -124,7 +148,6 @@ async function updateQrCode(url) {
                 </div>
             </div>
         </form>
-        <div>{{ shareLinkUrlDisplay }}</div>
         <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>

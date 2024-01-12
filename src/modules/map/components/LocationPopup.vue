@@ -20,9 +20,11 @@ const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const currentLang = computed(() => store.state.i18n.lang)
+const shareLinkUrlValue = ref(null)
 const showEmbedSharing = ref(false)
 const copyButton = ref(null)
 const copyTooltip = ref(null)
+const requestClipboard = ref(false)
 
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
@@ -100,7 +102,11 @@ function clearClick() {
                         aria-controls="nav-share"
                         :aria-selected="selectedTab === 'share'"
                         data-cy="import-file-share-btn"
-                        @click="(selectedTab = 'share'), (showEmbedSharing = true)"
+                        @click="
+                            (selectedTab = 'share'),
+                                (showEmbedSharing = true),
+                                (requestClipboard = true)
+"
                     >
                         Share
                     </button>
@@ -125,6 +131,7 @@ function clearClick() {
                     :click-info="clickInfo"
                     :current-lang="currentLang"
                     :show-embed-sharing="showEmbedSharing"
+                    :share-link-url-value="shareLinkUrlValue"
                 />
             </div>
         </div>
