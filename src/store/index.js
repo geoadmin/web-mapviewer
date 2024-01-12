@@ -10,6 +10,7 @@ import i18n from '@/store/modules/i18n.store'
 import layers from '@/store/modules/layers.store'
 import map from '@/store/modules/map.store'
 import position from '@/store/modules/position.store'
+import print from '@/store/modules/print.store'
 import search from '@/store/modules/search.store'
 import share from '@/store/modules/share.store'
 import topics from '@/store/modules/topics.store'
@@ -62,6 +63,7 @@ const store = createStore({
         ui,
         share,
         cesium,
+        print,
     },
 })
 

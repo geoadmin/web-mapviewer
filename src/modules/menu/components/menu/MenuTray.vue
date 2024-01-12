@@ -13,6 +13,11 @@
             <MenuSettings />
         </MenuSection>
         <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
+        <MenuPrintSection
+            v-if="!is3dMode"
+            ref="printSection"
+            @open-menu-section="onOpenMenuSection"
+        />
         <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
         <div id="drawSectionTooltip" tabindex="0">
             <MenuSection
@@ -67,11 +72,13 @@ import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuAct
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuSettings from '@/modules/menu/components/menu/MenuSettings.vue'
+import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 
 export default {
     components: {
+        MenuPrintSection,
         MenuShareSection,
         MenuTopicSection,
         MenuSection,
@@ -96,7 +103,12 @@ export default {
             /* Please note that if the following 2 arrays are updated, "grid-template-rows" in
             the css section must also be updated. */
             scrollableMenuSections: ['topicsSection', 'activeLayersSection'],
-            nonScrollableMenuSections: ['settingsSection', 'shareSection', 'toolsSection'],
+            nonScrollableMenuSections: [
+                'settingsSection',
+                'shareSection',
+                'toolsSection',
+                'printSection',
+            ],
         }
     },
     computed: {
