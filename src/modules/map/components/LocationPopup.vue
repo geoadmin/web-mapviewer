@@ -3,7 +3,7 @@
 
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -35,6 +35,7 @@ const mappingFrameworkSpecificPopup = computed(() => {
 const coordinate = computed(() => {
     return clickInfo.value?.coordinate
 })
+watch(requestClipboard, showTooltip)
 
 onMounted(() => {
     copyTooltip.value = tippy(copyButton.value, {
@@ -58,6 +59,10 @@ function clearClick() {
     store.dispatch('clearClick')
     showEmbedSharing.value = false
 }
+
+function showTooltip() {
+    copyTooltip.value.show()
+}
 </script>
 
 <template>
@@ -72,7 +77,6 @@ function clearClick() {
         data-cy="location-popup"
         @close="clearClick"
     >
-        <div ref="copyButton"></div>
         <div data-cy="import-file-content">
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -93,6 +97,7 @@ function clearClick() {
                 </li>
                 <li class="nav-item" role="presentation">
                     <button
+                        ref="copyButton"
                         class="nav-link py-1"
                         :class="{
                             active: selectedTab === 'share',
