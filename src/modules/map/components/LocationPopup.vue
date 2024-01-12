@@ -111,6 +111,9 @@ function clearClick() {
                             active: selectedTab === 'position',
                             show: selectedTab === 'position',
                         }"
+                        :coordinate="coordinate"
+                        :click-info="clickInfo"
+                        :projection="projection"
                     />
                     <!-- Share tab -->
                     <LocationPopupShareTest

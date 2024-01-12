@@ -2,9 +2,8 @@
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import proj4 from 'proj4'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 import { requestHeight } from '@/api/height.api'
@@ -20,20 +19,30 @@ import {
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
+const props = defineProps({
+    coordinate: {
+        type: Boolean,
+        required: true,
+    },
+    clickInfo: {
+        type: Object,
+        required: true,
+    },
+    projection: {
+        type: Object,
+        required: true,
+    },
+})
+const { coordinate, clickInfo, projection } = toRefs(props)
+
 const what3Words = ref(null)
 const height = ref(null)
 
 const i18n = useI18n()
-const route = useRoute()
 const store = useStore()
 
-const clickInfo = computed(() => store.state.map.clickInfo)
 const currentLang = computed(() => store.state.i18n.lang)
-const projection = computed(() => store.state.position.projection)
 
-const coordinate = computed(() => {
-    return clickInfo.value?.coordinate
-})
 const coordinateWGS84Metric = computed(() => {
     return proj4(projection.value.epsg, WGS84.epsg, coordinate.value)
 })
@@ -74,7 +83,6 @@ watch(clickInfo, (newClickInfo) => {
 watch(currentLang, () => {
     updateWhat3Word()
 })
-watch(() => route.query)
 
 async function updateWhat3Word() {
     try {
@@ -96,7 +104,6 @@ async function updateHeight() {
         height.value = null
     }
 }
-
 </script>
 
 <template>
