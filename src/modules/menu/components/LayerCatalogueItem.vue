@@ -16,6 +16,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -222,12 +223,13 @@ function containsLayer(layers, searchText) {
                 <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
             </button>
 
-            <div
+            <TextTruncate
+                :text="item.name"
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
             >
-                <TextSearchMarker :text="item.name" :search="search" :markers="['fw-bolder']" />
-            </div>
+                <TextSearchMarker :text="item.name" :search="search" />
+            </TextTruncate>
             <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>

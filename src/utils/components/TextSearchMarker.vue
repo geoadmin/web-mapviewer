@@ -32,12 +32,12 @@ const props = defineProps({
     /**
      * List of class to use as markers for matching text.
      *
-     * @default ['fw-bold'] Default to bold
+     * @default ['fw-bolder', 'bg-info', 'bg-opacity-25'] Default to bold
      * @type {[String]}
      */
     markers: {
-        type: Array,
-        default: new Array('fw-bold'),
+        type: [Array, String],
+        default: new Array(['fw-bold', 'bg-info', 'bg-opacity-25']),
     },
 })
 const { text, search, markers } = toRefs(props)

@@ -1,4 +1,10 @@
+import '../../../src/scss/main.scss'
+import 'cypress-real-events'
+
 import { mount } from 'cypress/vue'
+import tippy from 'tippy.js'
+
+tippy.setDefaultProps({ theme: 'light-border' })
 
 Cypress.Commands.add('mount', (component, options = {}) => {
     // Setup options object

@@ -22,12 +22,12 @@
             >
                 <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
             </button>
-            <span
+            <TextTruncate
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': layer.isLoading }"
                 :data-cy="`active-layer-name${id}`"
                 @click="onToggleLayerVisibility"
-                >{{ layer.name }}</span
+                >{{ layer.name }}</TextTruncate
             >
             <button
                 v-if="layer.isLoading && !layer.hasError"
@@ -132,6 +132,7 @@ import { mapGetters, mapState } from 'vuex'
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import ErrorButton from '@/utils/components/ErrorButton.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
 
 /**
@@ -144,6 +145,7 @@ export default {
         MenuActiveLayersListItemTimeSelector,
         ThirdPartDisclaimer,
         ErrorButton,
+        TextTruncate,
     },
     props: {
         layer: {
