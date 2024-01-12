@@ -134,7 +134,7 @@ library.add(
     faClock,
     faCopy,
     faEye,
-    //faRegularCircle,
+    faRegularCircle,
     faSquare,
     faTrashAlt,
     // Brands

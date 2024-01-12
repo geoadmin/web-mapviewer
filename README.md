@@ -23,6 +23,7 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
   - [Install](#install)
   - [Environment variables](#environment-variables)
   - [Tooling for translation update](#tooling-for-translation-update)
+  - [Tooling to install fontawesome Pro](#tooling-to-install-fontawesome-pro)
   - [List of npm scripts](#list-of-npm-scripts)
   - [What about `package-lock.json` file?](#what-about-package-lockjson-file)
 - [Project deployment](#project-deployment)
@@ -172,9 +173,8 @@ The followings programs/tools are required in order to develop on `web-mapviewer
 ### Install
 
 ```bash
-summon npm install
+npm install
 ```
-Summon is used because we are using the licensed font set awsomfont pro (https://fontawesome.com).
 
 ### Environment variables
 
@@ -209,6 +209,18 @@ summon -p gopass npm run update:translations
 
 The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 
+
+### Tooling to install fontawesome Pro
+
+We are using fontawesome Pro (https://fontawesome.com) for some icons. For the installation of these icons we need a token. If you are part of the team pp-bgdi you have access to this icon and you can install fontawesome pro.
+
+Install fontawesome pro by
+
+```bash
+summon -p gopass npm run build:fontawesome-pro
+npm install
+```
+
 ### List of npm scripts
 
 <!-- prettier-ignore -->
@@ -217,6 +229,7 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 | `npm run dev`                    | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
 | `npm run build`                  | Compiles all file without bundling and minification           |
 | `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                    |
+| `npm run build:fontawesome-pro`  | Install pro fonts under license. Sets the license token (run with `summon`). |
 | `npm run lint`                   | Format, lints and fixes                                       |
 | `npm run lint:no-fix`            | Check formatting and linting without auto fixes               |
 | `npm run test:unit`              | Runs unit tests from vitest.                                  |

@@ -24,6 +24,7 @@
         "build:int": "npm run build -- --mode integration",
         "build:prod": "npm run build -- --mode production",
         "update:translations": "node scripts/generate-i18n-files.js",
+        "build:fontawesome-pro": "npm config set @fortawesome:registry https://npm.fontawesome.com/ && npm config set //npm.fontawesome.com/:_authToken ${FONTAWESOME_PRO_TOKEN}",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true"
     },
@@ -32,8 +33,6 @@
         "@fortawesome/free-brands-svg-icons": "^6.5.1",
         "@fortawesome/free-regular-svg-icons": "^6.5.1",
         "@fortawesome/free-solid-svg-icons": "^6.5.1",
-        "@fortawesome/pro-regular-svg-icons": "^6.5.1",
-        "@fortawesome/pro-solid-svg-icons": "^6.5.1",
         "@fortawesome/vue-fontawesome": "^3.0.5",
         "@geoblocks/cesium-compass": "^0.5.0",
         "@geoblocks/ol-maplibre-layer": "^0.1.2",
@@ -72,6 +71,9 @@
         "vue-router": "^4.2.5",
         "vue-social-sharing": "next",
         "vuex": "^4.1.0"
+    },
+    "optionalDependencies":{
+        "@fortawesome/pro-regular-svg-icons": "^6.5.1"
     },
     "devDependencies": {
         "@cypress/vite-dev-server": "^5.0.6",
