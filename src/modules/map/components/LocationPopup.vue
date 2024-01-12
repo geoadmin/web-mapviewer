@@ -8,8 +8,8 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import LocationPopupPositionTest from '@/modules/map/components/LocationPopupPositionTest.vue'
-import LocationPopupShareTest from '@/modules/map/components/LocationPopupShareTest.vue'
+import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
+import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 
 const selectedTab = ref('position')
@@ -20,6 +20,7 @@ const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const currentLang = computed(() => store.state.i18n.lang)
+const showEmbedSharing = ref(false)
 const copyButton = ref(null)
 const copyTooltip = ref(null)
 
@@ -53,6 +54,7 @@ onBeforeUnmount(() => {
 
 function clearClick() {
     store.dispatch('clearClick')
+    showEmbedSharing.value = false
 }
 </script>
 
@@ -69,62 +71,61 @@ function clearClick() {
         @close="clearClick"
     >
         <div ref="copyButton"></div>
-        <div>
-            <div @close="toggleEmbedSharing" data-cy="import-file-content">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button
-                            class="nav-link py-1"
-                            :class="{
-                                active: selectedTab === 'position',
-                            }"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-position"
-                            :aria-selected="selectedTab === 'position'"
-                            data-cy="import-file-position-btn"
-                            @click="selectedTab = 'position'"
-                        >
-                            Position
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button
-                            class="nav-link py-1"
-                            :class="{
-                                active: selectedTab === 'share',
-                            }"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-share"
-                            :aria-selected="selectedTab === 'share'"
-                            data-cy="import-file-share-btn"
-                            @click="selectedTab = 'share'"
-                        >
-                            Share
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content mt-2">
-                    <!-- Position Tab -->
-                    <LocationPopupPositionTest
+        <div data-cy="import-file-content">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button
+                        class="nav-link py-1"
                         :class="{
                             active: selectedTab === 'position',
-                            show: selectedTab === 'position',
                         }"
-                        :coordinate="coordinate"
-                        :click-info="clickInfo"
-                        :projection="projection"
-                        :current-lang="currentLang"
-                    />
-                    <!-- Share tab -->
-                    <LocationPopupShareTest
-                        :class="{ active: selectedTab === 'share', show: selectedTab === 'share' }"
-                        :coordinate="coordinate"
-                        :click-info="clickInfo"
-                        :current-lang="currentLang"
-                    />
-                </div>
+                        type="button"
+                        role="tab"
+                        aria-controls="nav-position"
+                        :aria-selected="selectedTab === 'position'"
+                        data-cy="import-file-position-btn"
+                        @click="(selectedTab = 'position'), (showEmbedSharing = false)"
+                    >
+                        Position
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button
+                        class="nav-link py-1"
+                        :class="{
+                            active: selectedTab === 'share',
+                        }"
+                        type="button"
+                        role="tab"
+                        aria-controls="nav-share"
+                        :aria-selected="selectedTab === 'share'"
+                        data-cy="import-file-share-btn"
+                        @click="(selectedTab = 'share'), (showEmbedSharing = true)"
+                    >
+                        Share
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content mt-2">
+                <!-- Position Tab -->
+                <LocationPopupPosition
+                    :class="{
+                        active: selectedTab === 'position',
+                        show: selectedTab === 'position',
+                    }"
+                    :coordinate="coordinate"
+                    :click-info="clickInfo"
+                    :projection="projection"
+                    :current-lang="currentLang"
+                />
+                <!-- Share tab -->
+                <LocationPopupShare
+                    :class="{ active: selectedTab === 'share', show: selectedTab === 'share' }"
+                    :coordinate="coordinate"
+                    :click-info="clickInfo"
+                    :current-lang="currentLang"
+                    :show-embed-sharing="showEmbedSharing"
+                />
             </div>
         </div>
     </component>

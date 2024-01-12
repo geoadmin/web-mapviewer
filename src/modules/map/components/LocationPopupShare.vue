@@ -1,131 +1,58 @@
 <script setup>
-/** Right click pop up which shows the coordinates of the position under the cursor. */
-
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
-import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
-import proj4 from 'proj4'
-import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
-import { requestHeight } from '@/api/height.api'
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-import { registerWhat3WordsLocation } from '@/api/what3words.api'
-import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
-import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
-import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import {
-    LV03Format,
-    LV95Format,
-    MGRSFormat,
-    UTMFormat,
-    WGS84Format,
-} from '@/utils/coordinates/coordinateFormat'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
 
-const what3Words = ref(null)
-const height = ref(null)
-const qrCodeImageSrc = ref(null)
+const props = defineProps({
+    coordinate: {
+        type: Boolean,
+        required: true,
+    },
+    clickInfo: {
+        type: Object,
+        required: true,
+    },
+    currentLang: {
+        type: Object,
+        required: true,
+    },
+    showEmbedSharing: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+})
+const { coordinate, clickInfo, currentLang, showEmbedSharing } = toRefs(props)
+const qrCodeImageSrc = ref(false)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
-const showEmbedSharing = ref(false)
+const requestClipboard = ref(true)
 
-const i18n = useI18n()
 const route = useRoute()
-const store = useStore()
 
-const clickInfo = computed(() => store.state.map.clickInfo)
-const currentLang = computed(() => store.state.i18n.lang)
-const projection = computed(() => store.state.position.projection)
-const showIn3d = computed(() => store.state.cesium.active)
-const copyButton = ref(null)
-const copied = ref(false)
-const requestClipboard = ref(false)
-const copyTooltip = ref(null)
-
-const mappingFrameworkSpecificPopup = computed(() => {
-    if (showIn3d.value) {
-        return CesiumPopover
-    }
-    return OpenLayersPopover
-})
-const coordinate = computed(() => {
-    return clickInfo.value?.coordinate
-})
-const coordinateWGS84Metric = computed(() => {
-    return proj4(projection.value.epsg, WGS84.epsg, coordinate.value)
-})
-const coordinateWGS84Plain = computed(() => {
-    // we want to output lat / lon, meaning we have to give the coordinate as y / x
-    return coordinateWGS84Metric.value
-        .slice()
-        .reverse()
-        .map((val) => WGS84.roundCoordinateValue(val).toFixed(6))
-        .join(', ')
-})
-const heightInFeet = computed(() => {
-    if (height.value?.heightInFeet) {
-        return `${height.value.heightInFeet}ft`
-    }
-    return null
-})
-const heightInMeter = computed(() => {
-    if (height.value?.heightInMeter) {
-        return `${height.value.heightInMeter}m`
-    }
-    return ''
-})
 const shareLinkUrlDisplay = computed(() => {
     return shareLinkUrlShorten.value || shareLinkUrl.value || ''
 })
 
 onMounted(() => {
     if (clickInfo.value) {
-        updateWhat3Word()
-        updateHeight()
         if (showEmbedSharing.value) {
             updateShareLink()
         }
     }
-})
-
-onMounted(() => {
-    copyTooltip.value = tippy(copyButton.value, {
-        content: i18n.t('copy_success'),
-        arrow: true,
-        placement: 'right',
-        trigger: 'manual',
-        onShow(instance) {
-            setTimeout(() => {
-                instance.hide()
-            }, 1000)
-        },
-    })
-})
-
-onBeforeUnmount(() => {
-    copyTooltip.value.destroy()
 })
 
 watch(clickInfo, (newClickInfo) => {
-    if (newClickInfo) {
-        updateWhat3Word()
-        updateHeight()
-        if (showEmbedSharing.value) {
-            requestClipboard.value = false
-            updateShareLink()
-        }
+    if (showEmbedSharing.value) {
+        updateShareLink()
     }
 })
 watch(currentLang, () => {
-    updateWhat3Word()
-    requestClipboard.value = false
     updateShareLink()
 })
 watch(() => {
@@ -136,41 +63,11 @@ watch(() => {
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
-        copyValue()
     }
 })
-watch(copied, showTooltip)
 watch(shareLinkUrlShorten, () => {
-    if (requestClipboard.value) {
-        copyValue()
-    }
     requestClipboard.value = false
 })
-
-function clearClick() {
-    store.dispatch('clearClick')
-    showEmbedSharing.value = false
-}
-async function updateWhat3Word() {
-    try {
-        what3Words.value = await registerWhat3WordsLocation(
-            coordinate.value,
-            projection.value,
-            currentLang.value
-        )
-    } catch (error) {
-        log.error(`Failed to retrieve What3Words Location`, error)
-        what3Words.value = null
-    }
-}
-async function updateHeight() {
-    try {
-        height.value = await requestHeight(coordinate.value, projection.value)
-    } catch (error) {
-        log.error(`Failed to get position height`, error)
-        height.value = null
-    }
-}
 function updateShareLink() {
     let query = {
         ...route.query,
@@ -189,20 +86,6 @@ async function shortenShareLink(url) {
         shareLinkUrlShorten.value = null
     }
 }
-async function copyValue() {
-    try {
-        copied.value = true
-        if (showEmbedSharing.value) {
-            await navigator.clipboard.writeText(shareLinkUrlShorten.value)
-            copied.value = true
-            setTimeout(() => {
-                copied.value = false
-            }, 1000)
-        }
-    } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
-    }
-}
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)
@@ -211,15 +94,7 @@ async function updateQrCode(url) {
         qrCodeImageSrc.value = null
     }
 }
-function toggleEmbedSharing() {
-    showEmbedSharing.value = !showEmbedSharing.value
-    if (showEmbedSharing.value) {
-        requestClipboard.value = true
-    }
-}
-function showTooltip() {
-    copyTooltip.value.show()
-}
+
 </script>
 
 <template>
@@ -249,6 +124,7 @@ function showTooltip() {
                 </div>
             </div>
         </form>
+        <div>{{ shareLinkUrlDisplay }}</div>
         <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />
     </div>
 </template>
@@ -258,16 +134,6 @@ function showTooltip() {
 .location-popup {
     @extend .clear-no-ios-long-press;
 
-    &-coordinates {
-        display: grid;
-        grid-template-columns: max-content auto;
-        grid-column-gap: 8px;
-        font-size: 0.75rem;
-        grid-row-gap: 2px;
-        &-label {
-            white-space: nowrap;
-        }
-    }
     &-link {
         display: flex;
         align-items: center;
@@ -275,10 +141,6 @@ function showTooltip() {
     &-qrcode {
         display: none;
         text-align: center;
-    }
-    &-coordinates-wgs84-plain {
-        display: inline-block;
-        margin-bottom: 0.1rem;
     }
 }
 @media (min-height: 0px) {
