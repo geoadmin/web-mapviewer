@@ -67,7 +67,10 @@ import {
     faWindowMinimize,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons'
-
+import {
+    faCircleMinus as farCircleMinus,
+    faCirclePlus as farCirclePlus,
+} from '@fortawesome/pro-regular-svg-icons'
 library.add(
     // Solid
     faArrowDown,
@@ -131,10 +134,13 @@ library.add(
     faClock,
     faCopy,
     faEye,
-    faRegularCircle,
+    //faRegularCircle,
     faSquare,
     faTrashAlt,
     // Brands
     faFacebook,
-    faTwitter
+    faTwitter,
+    // PRO
+    farCirclePlus,
+    farCircleMinus
 )

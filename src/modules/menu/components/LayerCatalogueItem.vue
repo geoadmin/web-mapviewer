@@ -218,8 +218,7 @@ function containsLayer(layers, searchText) {
                 }"
                 @click.stop="onCollapseClick"
             >
-                <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
-                <FontAwesomeIcon :icon="['fas', showChildren ? 'circle-minus' : 'circle-plus']" />
+                <FontAwesomeIcon :icon="['far', showChildren ? 'circle-minus' : 'circle-plus']" />
             </button>
 
             <div
