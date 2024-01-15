@@ -1,9 +1,7 @@
 <script setup>
-import { computed, defineProps, inject, onMounted, toRefs } from 'vue'
-import { useStore } from 'vuex'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-olMap = inject('olMap')
+import { computed, defineProps, Numeric, onMounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
     clientWidth: {
@@ -18,8 +16,7 @@ const compareRatio = ref(-0.5)
 
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const compareSliderPosition = computed(() => compareRatio * 100 + '%')
-const visibleLayers = computed(() => store.getters.visibleLayers)
+const compareSliderPosition = computed(() => compareRatio.value * 100 + '%')
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
@@ -30,14 +27,16 @@ onMounted(() => {
 })
 
 function grabSlider(event) {
-    window.addEventListener('mousemove', listenToMouseMove, { passive: true })
-    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
-    window.addEventListener('mouseup', releaseSlider, { passive: true })
-    window.addEventListener('touchend', releaseSlider, { passive: true })
+    if (event.type === 'mousedown' || event.type === 'touchstart') {
+        window.addEventListener('mousemove', listenToMouseMove, { passive: true })
+        window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+        window.addEventListener('mouseup', releaseSlider, { passive: true })
+        window.addEventListener('touchend', releaseSlider, { passive: true })
+    }
 }
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
-    compareRatio = currentPosition / clientWidth
+    compareRatio.value = currentPosition / clientWidth.value
 }
 function releaseSlider() {
     window.removeEventListener('mousemove', listenToMouseMove)
