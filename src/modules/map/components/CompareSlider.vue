@@ -2,7 +2,6 @@
 import { computed, defineProps, inject, onMounted, toRefs } from 'vue'
 import { useStore } from 'vuex'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useStore } from 'vuex'
 
 olMap = inject('olMap')
 
