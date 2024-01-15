@@ -1,13 +1,14 @@
 <script setup>
-import { computed, onMounted, ref, toRefs, watch } from 'vue'
+import { onMounted, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
+
+const emit = defineEmits(['shareLink'])
 
 const props = defineProps({
     coordinate: {
@@ -32,8 +33,6 @@ const { coordinate, clickInfo, currentLang, showEmbedSharing } = toRefs(props)
 const qrCodeImageSrc = ref(false)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
-const requestClipboard = ref(true)
-const copied = ref(false)
 const route = useRoute()
 
 onMounted(() => {
@@ -44,15 +43,15 @@ onMounted(() => {
     }
 })
 
-watch(clickInfo, (newClickInfo) => {
+watch(clickInfo, () => {
     if (showEmbedSharing.value) {
-        requestClipboard.value = false
         updateShareLink()
     }
 })
 watch(currentLang, () => {
-    requestClipboard.value = false
-    setTimeout(() => updateShareLink(), 1)
+    if (showEmbedSharing.value) {
+        setTimeout(() => updateShareLink(), 1)
+    }
 })
 watch(() => {
     if (showEmbedSharing.value) {
@@ -62,18 +61,9 @@ watch(() => {
 watch(showEmbedSharing, () => {
     if (showEmbedSharing.value) {
         updateShareLink()
-        copyValue()
     }
 })
-watch(shareLinkUrlShorten, () => {
-    if (requestClipboard.value) {
-        copyValue()
-    }
-    requestClipboard.value = false
-})
-watch(shareLinkUrlShorten, () => {
-    requestClipboard.value = false
-})
+
 function updateShareLink() {
     let query = {
         ...route.query,
@@ -86,26 +76,14 @@ function updateShareLink() {
 async function shortenShareLink(url) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
+        emit('shareLink', shareLinkUrlShorten.value)
         await updateQrCode(shareLinkUrlShorten.value)
     } catch (error) {
         log.error(`Failed to shorten Share URL`, error)
         shareLinkUrlShorten.value = null
     }
 }
-async function copyValue() {
-    try {
-        copied.value = true
-        if (showEmbedSharing.value) {
-            await navigator.clipboard.writeText(shareLinkUrlShorten.value)
-            copied.value = true
-            setTimeout(() => {
-                copied.value = false
-            }, 1000)
-        }
-    } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
-    }
-}
+
 async function updateQrCode(url) {
     try {
         qrCodeImageSrc.value = await generateQrCode(url)
@@ -136,14 +114,6 @@ async function updateQrCode(url) {
                     class="px-0 py-2"
                     data-cy="location-popup-link-bowl-crosshair"
                 />
-                <div class="p-2 location-popup-qrcode">
-                    <img
-                        v-if="qrCodeImageSrc"
-                        :src="qrCodeImageSrc"
-                        alt="qrcode"
-                        data-cy="location-popup-qr-code"
-                    />
-                </div>
             </div>
         </form>
         <ImportFileButtons class="mt-2" :button-state="buttonState" @load-file="loadFile" />

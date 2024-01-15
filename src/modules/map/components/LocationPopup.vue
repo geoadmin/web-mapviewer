@@ -11,8 +11,8 @@ import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import log from '@/utils/logging'
 
-const selectedTab = ref('position')
 const i18n = useI18n()
 const store = useStore()
 
@@ -20,19 +20,15 @@ const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const currentLang = computed(() => store.state.i18n.lang)
-const shareLinkUrlValue = ref(null)
+const selectedTab = ref('position')
+const newClickInfo = ref(true)
 const showEmbedSharing = ref(false)
+const requestClipboard = ref(false)
 const copyButton = ref(null)
 const copyTooltip = ref(null)
-const requestClipboard = ref(false)
+const copied = ref(false)
+const shareLink = ref(null)
 
-const buttonIcon = computed(() => {
-    if (requestClipboard.value) {
-        return 'check'
-    }
-    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
-    return ['far', 'copy']
-})
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
         return CesiumPopover
@@ -42,7 +38,29 @@ const mappingFrameworkSpecificPopup = computed(() => {
 const coordinate = computed(() => {
     return clickInfo.value?.coordinate
 })
-watch(requestClipboard, showTooltip)
+
+const buttonIcon = computed(() => {
+    if (copied.value) {
+        return 'check'
+    }
+    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
+    return ['far', 'copy']
+})
+
+watch(clickInfo, () => {
+    newClickInfo.value = true
+})
+
+watch(shareLink, () => {
+    if (requestClipboard.value) {
+        copied.value = true
+        copyValue()
+        setTimeout(() => {
+            copied.value = false
+        }, 1000)
+        requestClipboard.value = false
+    }
+})
 
 onMounted(() => {
     copyTooltip.value = tippy(copyButton.value, {
@@ -65,10 +83,40 @@ onBeforeUnmount(() => {
 function clearClick() {
     store.dispatch('clearClick')
     showEmbedSharing.value = false
+    requestClipboard.value = false
 }
 
 function showTooltip() {
     copyTooltip.value.show()
+}
+
+async function requestCopy() {
+    if (showEmbedSharing.value) {
+        copyValue()
+        newClickInfo.value = false
+    } else if (newClickInfo.value) {
+        ;(showEmbedSharing.value = true)((requestClipboard.value = true))
+        newClickInfo.value = false
+    } else {
+        showEmbedSharing.value = true
+        copyValue()
+    }
+}
+
+async function copyValue() {
+    try {
+        copied.value = true
+        if (showEmbedSharing.value) {
+            await navigator.clipboard.writeText(shareLink.value)
+            showTooltip()
+            copied.value = true
+            setTimeout(() => {
+                copied.value = false
+            }, 1000)
+        }
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
+    }
 }
 </script>
 
@@ -99,7 +147,7 @@ function showTooltip() {
                         data-cy="import-file-position-btn"
                         @click="(selectedTab = 'position'), (showEmbedSharing = false)"
                     >
-                        Position
+                        {{ $t('position') }}
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -114,13 +162,10 @@ function showTooltip() {
                         aria-controls="nav-share"
                         :aria-selected="selectedTab === 'share'"
                         data-cy="import-file-share-btn"
-                        @click="
-                            (selectedTab = 'share'),
-                                (showEmbedSharing = true),
-                                (requestClipboard = true)
-"
+                        @click="requestCopy(), (selectedTab = 'share')"
                     >
-                        Share <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+                        {{ $t('share_link') }}
+                        <FontAwesomeIcon class="px-2 icon" :icon="buttonIcon" />
                     </button>
                 </li>
             </ul>
@@ -143,7 +188,7 @@ function showTooltip() {
                     :click-info="clickInfo"
                     :current-lang="currentLang"
                     :show-embed-sharing="showEmbedSharing"
-                    :share-link-url-value="shareLinkUrlValue"
+                    @share-link="(i) => (shareLink = i)"
                 />
             </div>
         </div>
