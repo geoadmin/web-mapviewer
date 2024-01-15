@@ -32,7 +32,9 @@ function dispatchCameraFromUrlIntoStore(store, urlParamValue) {
     const promisesForAllDispatch = []
     const camera = readCameraFromUrlParam(urlParamValue)
     if (camera) {
-        promisesForAllDispatch.push(store.dispatch('setCameraPosition', camera))
+        promisesForAllDispatch.push(
+            store.dispatch('setCameraPosition', { position: camera, source: 'URL param parsing' })
+        )
     }
     return Promise.all(promisesForAllDispatch)
 }

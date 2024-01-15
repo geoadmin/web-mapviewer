@@ -38,30 +38,39 @@ const actions = {
             // checking first if this corresponds to a set of coordinates (or a what3words)
             const coordinate = coordinateFromString(query, currentProjection)
             if (coordinate) {
-                dispatch('setCenter', coordinate)
+                dispatch('setCenter', { center: coordinate, source: 'search coordinates' })
                 if (currentProjection instanceof CustomCoordinateSystem) {
-                    dispatch(
-                        'setZoom',
-                        currentProjection.transformStandardZoomLevelToCustom(
+                    dispatch('setZoom', {
+                        zoom: currentProjection.transformStandardZoomLevelToCustom(
                             STANDARD_ZOOM_LEVEL_1_25000_MAP
-                        )
-                    )
+                        ),
+                        source: 'search coordinates',
+                    })
                 } else {
-                    dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                    dispatch('setZoom', {
+                        zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
+                        source: 'search coordinates',
+                    })
                 }
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
-                    dispatch('setCenter', what3wordLocation)
+                    dispatch('setCenter', {
+                        center: what3wordLocation,
+                        source: 'search what3words',
+                    })
                     if (currentProjection instanceof CustomCoordinateSystem) {
-                        dispatch(
-                            'setZoom',
-                            currentProjection.transformStandardZoomLevelToCustom(
+                        dispatch('setZoom', {
+                            zoom: currentProjection.transformStandardZoomLevelToCustom(
                                 STANDARD_ZOOM_LEVEL_1_25000_MAP
-                            )
-                        )
+                            ),
+                            source: 'search what3words',
+                        })
                     } else {
-                        dispatch('setZoom', STANDARD_ZOOM_LEVEL_1_25000_MAP)
+                        dispatch('setZoom', {
+                            zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
+                            source: 'search what3words',
+                        })
                     }
                     dispatch('setPinnedLocation', what3wordLocation)
                 })
@@ -92,8 +101,11 @@ const actions = {
                 if (entry.extent.length === 2) {
                     dispatch('zoomToExtent', entry.extent)
                 } else if (entry.zoom) {
-                    dispatch('setCenter', entry.coordinates)
-                    dispatch('setZoom', entry.zoom)
+                    dispatch('setCenter', {
+                        center: entry.coordinates,
+                        source: 'search select entry',
+                    })
+                    dispatch('setZoom', { zoom: entry.zoom, source: 'search select entry' })
                 }
                 dispatch('setPinnedLocation', entry.coordinates)
                 break
