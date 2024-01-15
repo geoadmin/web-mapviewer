@@ -80,11 +80,11 @@ export default function useViewBasedOnProjection(map) {
         if (currentView) {
             const [x, y] = currentView.getCenter()
             if (x !== center.value[0] || y !== center.value[1]) {
-                store.dispatch('setCenter', { x, y })
+                store.dispatch('setCenter', { center: { x, y }, source: 'OpenLayers' })
             }
             const currentZoom = round(currentView.getZoom(), 3)
             if (currentZoom && currentZoom !== zoom.value) {
-                store.dispatch('setZoom', currentZoom)
+                store.dispatch('setZoom', { zoom: currentZoom, source: 'OpenLayers' })
             }
             const currentRotation = currentView.getRotation()
             if (currentRotation !== rotation.value) {

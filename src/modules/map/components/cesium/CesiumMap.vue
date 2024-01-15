@@ -275,24 +275,11 @@ export default {
             // have nothing to do with the top-down 2D view.
             // here we ray trace the coordinate of where the camera is looking at, and send this "target"
             // to the store as the new center
-            const ray = this.viewer.camera.getPickRay(
-                new Cartesian2(
-                    Math.round(this.viewer.scene.canvas.clientWidth / 2),
-                    Math.round(this.viewer.scene.canvas.clientHeight / 2)
-                )
-            )
-            const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
-            if (defined(cameraTarget)) {
-                const cameraTargetCartographic =
-                    Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
-                const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
-                const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
-                this.setCenter(proj4(WGS84.epsg, this.projection.epsg, [lon, lat]))
-            }
+            this.setCenterToCameraTarget()
         }
     },
     unmounted() {
-        this.setCameraPosition(null)
+        this.setCameraPosition({ position: null, source: 'CesiumMap unmount' })
         this.viewer.destroy()
         delete this.viewer
     },
@@ -461,12 +448,15 @@ export default {
             const camera = this.viewer.camera
             const position = camera.positionCartographic
             this.setCameraPosition({
-                x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
-                y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
-                z: parseFloat(position.height.toFixed(1)),
-                heading: parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0)),
-                pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
-                roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
+                position: {
+                    x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
+                    y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
+                    z: parseFloat(position.height.toFixed(1)),
+                    heading: parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0)),
+                    pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
+                    roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
+                },
+                source: 'CesiumMap camera move end',
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
@@ -571,6 +561,25 @@ export default {
         },
         clearLongPressTimer() {
             clearTimeout(this.contextMenuTimeoutId)
+        },
+        setCenterToCameraTarget() {
+            const ray = this.viewer.camera.getPickRay(
+                new Cartesian2(
+                    Math.round(this.viewer.scene.canvas.clientWidth / 2),
+                    Math.round(this.viewer.scene.canvas.clientHeight / 2)
+                )
+            )
+            const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
+            if (defined(cameraTarget)) {
+                const cameraTargetCartographic =
+                    Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
+                const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
+                const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
+                this.setCenter({
+                    center: proj4(WGS84.epsg, this.projection.epsg, [lon, lat]),
+                    source: 'CesiumMap',
+                })
+            }
         },
     },
 }

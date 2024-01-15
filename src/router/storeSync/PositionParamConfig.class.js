@@ -14,7 +14,9 @@ function dispatchCenterFromUrlIntoStore(store, urlParamValue) {
     const promisesForAllDispatch = []
     const center = readCenterFromUrlParam(urlParamValue)
     if (center) {
-        promisesForAllDispatch.push(store.dispatch('setCenter', center))
+        promisesForAllDispatch.push(
+            store.dispatch('setCenter', { center, source: 'URL param parsing' })
+        )
     }
     return Promise.all(promisesForAllDispatch)
 }

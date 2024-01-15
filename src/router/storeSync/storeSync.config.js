@@ -6,6 +6,7 @@ import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
+import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
 
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
@@ -36,14 +37,7 @@ const storeSyncConfig = [
     // to the default projection EPSG number
     new PositionParamConfig(),
     new CameraParamConfig(),
-    new SimpleUrlParamConfig(
-        'z',
-        'setZoom',
-        'setZoom',
-        (store) => store.state.position.zoom,
-        true,
-        Number
-    ),
+    new ZoomParamConfig(),
     new SimpleUrlParamConfig(
         '3d',
         'set3dActive',

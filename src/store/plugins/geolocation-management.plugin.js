@@ -21,7 +21,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy)
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
-        store.dispatch('setCenter', positionProjected)
+        store.dispatch('setCenter', { center: positionProjected, source: 'geolocation tracking' })
     }
 }
 
@@ -78,7 +78,7 @@ const geolocationManagementPlugin = (store) => {
                                         zoomLevel
                                     )
                             }
-                            store.dispatch('setZoom', zoomLevel)
+                            store.dispatch('setZoom', { zoom: zoomLevel, source: 'geolocation' })
                         }
                         geolocationWatcher = navigator.geolocation.watchPosition(
                             (position) => handlePositionAndDispatchToStore(position, store),
