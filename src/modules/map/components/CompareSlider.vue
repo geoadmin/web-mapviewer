@@ -8,7 +8,7 @@ olMap = inject('olMap')
 
 const props = defineProps({
     clientWidth: {
-        type: int,
+        type: Numeric,
         default: window.innerWidth,
     },
 })
@@ -31,21 +31,21 @@ onMounted(() => {
 })
 
 function grabSlider(event) {
-    window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
-    window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
-    window.addEventListener('mouseup', this.releaseSlider, { passive: true })
-    window.addEventListener('touchend', this.releaseSlider, { passive: true })
+    window.addEventListener('mousemove', listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+    window.addEventListener('mouseup', releaseSlider, { passive: true })
+    window.addEventListener('touchend', releaseSlider, { passive: true })
 }
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
-    compareRatio = currentPosition / this.clientWidth
+    compareRatio = currentPosition / clientWidth
 }
 function releaseSlider() {
-    window.removeEventListener('mousemove', this.listenToMouseMove)
-    window.removeEventListener('touchmove', this.listenToMouseMove)
-    window.removeEventListener('mouseup', this.releaseSlider)
-    window.removeEventListener('touchend', this.releaseSlider)
-    store.state.ui.setCompareRatio(compareRatio)
+    window.removeEventListener('mousemove', listenToMouseMove)
+    window.removeEventListener('touchmove', listenToMouseMove)
+    window.removeEventListener('mouseup', releaseSlider)
+    window.removeEventListener('touchend', releaseSlider)
+    store.dispatch('setCompareRatio', compareRatio)
 }
 </script>
 

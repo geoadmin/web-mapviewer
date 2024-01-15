@@ -21,11 +21,7 @@ const is3DActive = computed(() => store.state.cesium.active)
 const uiMode = computed(() => store.state.ui.mode)
 const displayLocationPopup = computed(() => store.state.map.displayLocationPopup)
 const isCompareSliderActive = computed(() => {
-    if (store.state.ui.compareRatio > 0 && store.state.ui.compareRatio < 1) {
-        true
-    } else {
-        false
-    }
+    return store.state.ui.compareRatio > 0 && store.state.ui.compareRatio < 1
 })
 const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
 </script>
