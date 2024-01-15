@@ -9,7 +9,7 @@ import log from '@/utils/logging.js'
  * This is where information about print capabilities for a specific layout will be stored (inside
  * the clientInfo object), e.g. which scales can be used on the map, available DPIs, etc...
  */
-class PrintLayoutAttribute {
+export class PrintLayoutAttribute {
     constructor(name, type, defaultValue = null, clientParams = null, clientInfo = null) {
         this.name = name
         this.type = type
@@ -50,14 +50,16 @@ class PrintLayoutAttribute {
 }
 
 /** Representation of a layout available to be printed on our service-print3 backend */
-class PrintLayout {
+export class PrintLayout {
     /**
      * @param {String} name
-     * @param {PrintLayoutAttribute[]} attributes
+     * @param {PrintLayoutAttribute} attributes
      */
-    constructor(name, attributes) {
+    constructor(name, ...attributes) {
         this.name = name
-        this.attributes = attributes
+        this.attributes = attributes.filter(
+            (attribute) => attribute instanceof PrintLayoutAttribute
+        )
     }
 
     /**
