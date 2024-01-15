@@ -60,6 +60,11 @@ export default class LayerTimeConfig {
         return !!this.timeEntries.find((entry) => entry.timestamp === timestamp)
     }
 
+    /**
+     * Return all years present in this time config (without the "all" year)
+     *
+     * @returns {Number[]}
+     */
     get years() {
         return this.timeEntries
             .map((entry) => entry.year)

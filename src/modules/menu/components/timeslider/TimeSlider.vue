@@ -77,58 +77,23 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
+import {
+    findMostRecentCommonYear,
+    TIME_SLIDER_ALL_YEARS,
+    TIME_SLIDER_YOUNGEST_YEAR,
+} from '@/modules/menu/components/timeslider/timeSlider.utils'
 import { round } from '@/utils/numberUtils'
-
-/**
- * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
- * which has data from the year 1844
- *
- * @type {Number}
- */
-const OLDEST_YEAR = 1844
-
-/**
- * The youngest (closest to now) year in our system, it will always be the previous year as of now
- *
- * @type {Number}
- */
-const YOUNGEST_YEAR = new Date().getFullYear() - 1
-
-const ALL_YEARS = (() => {
-    const years = []
-    for (let year = OLDEST_YEAR; year <= YOUNGEST_YEAR; year++) {
-        years.push(year)
-    }
-    return years
-})()
 
 const LABEL_WIDTH = 32
 const PLAY_BUTTON_SIZE = 54
-
-/**
- * Finds the most recent common year between all given time configs
- *
- * @param {LayerTimeConfig[]} timeConfigs
- * @returns {Number} Most recent common year between all given time configs
- */
-function findMostRecentCommonYear(timeConfigs) {
-    if (timeConfigs.length < 2) {
-        return null
-    }
-    let yearsInCommon = [...timeConfigs[0].years]
-    timeConfigs.slice(1).forEach((timeConfig) => {
-        yearsInCommon = yearsInCommon.filter((year) => timeConfig.years.includes(year))
-    })
-    return yearsInCommon[0]
-}
 
 export default {
     components: { FontAwesomeIcon },
     data() {
         return {
             sliderWidth: 0,
-            allYears: ALL_YEARS,
-            currentYear: YOUNGEST_YEAR,
+            allYears: TIME_SLIDER_ALL_YEARS,
+            currentYear: TIME_SLIDER_YOUNGEST_YEAR,
             cursorDeltaX: 0,
             playYearsWithData: false,
             yearCursorIsGrabbed: false,
@@ -161,7 +126,7 @@ export default {
             } else if (amountOfLabelsOnScreen < 16) {
                 yearThreshold = 25
             }
-            return ALL_YEARS.filter((year) => year % yearThreshold === 0)
+            return this.allYears.filter((year) => year % yearThreshold === 0)
         },
         innerBarStyle() {
             return {
@@ -169,7 +134,7 @@ export default {
             }
         },
         yearPositionOnSlider() {
-            return (1 + ALL_YEARS.indexOf(this.currentYear)) * this.distanceBetweenLabels
+            return (1 + this.allYears.indexOf(this.currentYear)) * this.distanceBetweenLabels
         },
         cursorPosition() {
             const yearCursorWidth = this.$refs.yearCursor?.clientWidth || 0
@@ -192,7 +157,7 @@ export default {
             }
         },
         distanceBetweenLabels() {
-            return this.sliderWidth / ALL_YEARS.length
+            return this.sliderWidth / this.allYears.length
         },
         innerBarStepStyle() {
             return {
@@ -260,7 +225,7 @@ export default {
             initialYear =
                 findMostRecentCommonYear(
                     this.layersWithTimestamps.map((layer) => layer.timeConfig)
-                ) || YOUNGEST_YEAR
+                ) || TIME_SLIDER_YOUNGEST_YEAR
         }
         // We always need to propagate the changes to the store in order to have a proper time
         // slider toggling
@@ -280,7 +245,7 @@ export default {
             this.sliderWidth = this.$refs.sliderContainer.clientWidth - 19 - PLAY_BUTTON_SIZE
         },
         positionNodeLabel(year) {
-            const timestampIndex = ALL_YEARS.indexOf(year) || 1
+            const timestampIndex = this.allYears.indexOf(year) || 1
             const leftPosition = Math.max(
                 LABEL_WIDTH / 2.0,
                 timestampIndex * this.distanceBetweenLabels -
@@ -312,15 +277,15 @@ export default {
                 event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
             const deltaX = this.cursorX - currentPosition
             if (Math.abs(deltaX) >= this.distanceBetweenLabels) {
-                let futureYearIndex = ALL_YEARS.indexOf(this.currentYear)
+                let futureYearIndex = this.allYears.indexOf(this.currentYear)
 
                 // maybe we must skip multiple indexes, checking how wide is the delta
                 const absoluteDeltaIndex = Math.floor(Math.abs(deltaX) / this.distanceBetweenLabels)
                 if (deltaX < 0) {
-                    if (ALL_YEARS.length > futureYearIndex + absoluteDeltaIndex) {
+                    if (this.allYears.length > futureYearIndex + absoluteDeltaIndex) {
                         // we can skip steps
                         futureYearIndex += absoluteDeltaIndex
-                    } else if (ALL_YEARS.length > futureYearIndex + 1) {
+                    } else if (this.allYears.length > futureYearIndex + 1) {
                         // we can't skip steps
                         futureYearIndex++
                     }
@@ -331,7 +296,7 @@ export default {
                         futureYearIndex--
                     }
                 }
-                const futureYear = ALL_YEARS[futureYearIndex]
+                const futureYear = this.allYears[futureYearIndex]
                 // checking that this is a valid year in the context of currently displayed data
                 if (this.yearsWithData.includes(futureYear)) {
                     // reset of the starting position for delta calculation
