@@ -26,6 +26,13 @@ const copyButton = ref(null)
 const copyTooltip = ref(null)
 const requestClipboard = ref(false)
 
+const buttonIcon = computed(() => {
+    if (requestClipboard.value) {
+        return 'check'
+    }
+    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
+    return ['far', 'copy']
+})
 const mappingFrameworkSpecificPopup = computed(() => {
     if (showIn3d.value) {
         return CesiumPopover
@@ -113,7 +120,7 @@ function showTooltip() {
                                 (requestClipboard = true)
 "
                     >
-                        Share
+                        Share <FontAwesomeIcon class="icon" :icon="buttonIcon" />
                     </button>
                 </li>
             </ul>

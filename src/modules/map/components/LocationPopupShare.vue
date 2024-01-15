@@ -4,7 +4,8 @@ import { useRoute } from 'vue-router'
 
 import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-import LocationPopupCopyInput from '@/modules/map/components/LocationPopupCopyInput.vue'
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
 
@@ -33,12 +34,7 @@ const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
 const requestClipboard = ref(true)
 const copied = ref(false)
-
 const route = useRoute()
-
-const shareLinkUrlDisplay = computed(() => {
-    return shareLinkUrlShorten.value || shareLinkUrl.value || ''
-})
 
 onMounted(() => {
     if (clickInfo.value) {
@@ -132,12 +128,14 @@ async function updateQrCode(url) {
     >
         <form class="input-group d-flex needs-validation">
             <div class="menu-share-embed">
-                <div class="py-2 location-popup-link location-popup-coordinates-data">
-                    <LocationPopupCopyInput
-                        :value="shareLinkUrlDisplay"
-                        data-cy="location-popup-link-bowl-crosshair"
-                    />
-                </div>
+                <MenuShareSocialNetworks :short-link="shareLinkUrlShorten" class="pt-1" />
+                <MenuShareInputCopyButton
+                    :input-text="shareLinkUrlShorten"
+                    :copy-text="'copy_url'"
+                    :copied-text="'copy_success'"
+                    class="px-0 py-2"
+                    data-cy="location-popup-link-bowl-crosshair"
+                />
                 <div class="p-2 location-popup-qrcode">
                     <img
                         v-if="qrCodeImageSrc"
