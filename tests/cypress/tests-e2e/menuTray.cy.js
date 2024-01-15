@@ -140,9 +140,13 @@ function init(nbLayers, nbSelectedLayers) {
                 cy.wrap(height - 70).as('expectedMenuTrayBottom')
             }
             cy.get(menuTopicHeaderSelector).click()
-            /*Wait for all animations to finish (animations last 0.2s) */
-            cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+            waitForAnimationsToFinish()
         })
+}
+
+function waitForAnimationsToFinish() {
+    // animations last 0.2s
+    cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
 }
 
 /**
@@ -217,32 +221,32 @@ describe('Test menu tray ui', () => {
         checkScrollbarVisibility(true, true)
 
         cy.get(menuActiveLayersHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections(['topics'])
         measureMenu(true)
 
         cy.get(menuTopicHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections([])
         measureMenu(false)
 
         cy.get(menuActiveLayersHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections(['activeLayers'])
         measureMenu(true)
 
         cy.get(menuSettingsHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections(['settings'])
         measureMenu(false)
 
         cy.get(menuShareHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections(['share'])
         measureMenu(false)
 
         cy.get(menuTopicHeaderSelector).click()
-        cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+        waitForAnimationsToFinish()
         checkOpenSections(['topics'])
         measureMenu(true)
     })

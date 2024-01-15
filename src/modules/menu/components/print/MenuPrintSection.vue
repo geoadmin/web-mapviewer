@@ -56,7 +56,7 @@ defineExpose({
         id="printSection"
         :title="$t('print')"
         :show-content="isSectionShown"
-        data-cy="menu-share-section"
+        data-cy="menu-print-section"
         secondary
         @click:header="togglePrintMenu"
         @open-menu-section="(id) => emits('openMenuSection', id)"
