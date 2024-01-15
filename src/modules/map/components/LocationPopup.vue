@@ -49,6 +49,7 @@ const buttonIcon = computed(() => {
 
 watch(clickInfo, () => {
     newClickInfo.value = true
+    requestClipboard.value = false
 })
 
 watch(shareLink, () => {
@@ -95,12 +96,14 @@ async function requestCopy() {
         copyValue()
         newClickInfo.value = false
     } else if (newClickInfo.value) {
-        ;(showEmbedSharing.value = true)((requestClipboard.value = true))
+        showEmbedSharing.value = true
+        requestClipboard.value = true
         newClickInfo.value = false
     } else {
         showEmbedSharing.value = true
         copyValue()
     }
+    copyValue
 }
 
 async function copyValue() {
@@ -145,7 +148,11 @@ async function copyValue() {
                         aria-controls="nav-position"
                         :aria-selected="selectedTab === 'position'"
                         data-cy="import-file-position-btn"
-                        @click="(selectedTab = 'position'), (showEmbedSharing = false)"
+                        @click="
+                            (selectedTab = 'position'),
+                                (showEmbedSharing = false),
+                                (newClickInfo = false)
+                        "
                     >
                         {{ $t('position') }}
                     </button>

@@ -2,7 +2,6 @@
 import { onMounted, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { generateQrCode } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
@@ -30,7 +29,6 @@ const props = defineProps({
     },
 })
 const { coordinate, clickInfo, currentLang, showEmbedSharing } = toRefs(props)
-const qrCodeImageSrc = ref(false)
 const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
 const route = useRoute()
@@ -77,22 +75,10 @@ async function shortenShareLink(url) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
         emit('shareLink', shareLinkUrlShorten.value)
-        await updateQrCode(shareLinkUrlShorten.value)
     } catch (error) {
-        log.error(`Failed to shorten Share URL`, error)
         shareLinkUrlShorten.value = null
     }
 }
-
-async function updateQrCode(url) {
-    try {
-        qrCodeImageSrc.value = await generateQrCode(url)
-    } catch (error) {
-        log.error(`Failed to generate qrcode for share url`, error)
-        qrCodeImageSrc.value = null
-    }
-}
-
 </script>
 
 <template>
@@ -128,15 +114,6 @@ async function updateQrCode(url) {
     &-link {
         display: flex;
         align-items: center;
-    }
-    &-qrcode {
-        display: none;
-        text-align: center;
-    }
-}
-@media (min-height: 0px) {
-    .location-popup-qrcode {
-        display: block;
     }
 }
 </style>
