@@ -1,3 +1,54 @@
+<script setup>
+import { computed, defineProps, inject, onMounted, toRefs } from 'vue'
+import { useStore } from 'vuex'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useStore } from 'vuex'
+
+olMap = inject('olMap')
+
+const props = defineProps({
+    clientWidth: {
+        type: int,
+        default: window.innerWidth,
+    },
+})
+
+const { clientWidth } = toRefs(props)
+
+const compareRatio = ref(-0.5)
+
+const store = useStore()
+const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const compareSliderPosition = computed(() => compareRatio * 100 + '%')
+const visibleLayers = computed(() => store.getters.visibleLayers)
+
+watch(storeCompareRatio, (newValue) => {
+    compareRatio.value = newValue
+})
+
+onMounted(() => {
+    compareRatio.value = storeCompareRatio
+})
+
+function grabSlider(event) {
+    window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
+    window.addEventListener('mouseup', this.releaseSlider, { passive: true })
+    window.addEventListener('touchend', this.releaseSlider, { passive: true })
+}
+function listenToMouseMove(event) {
+    const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
+    compareRatio = currentPosition / this.clientWidth
+}
+function releaseSlider() {
+    window.removeEventListener('mousemove', this.listenToMouseMove)
+    window.removeEventListener('touchmove', this.listenToMouseMove)
+    window.removeEventListener('mouseup', this.releaseSlider)
+    window.removeEventListener('touchend', this.releaseSlider)
+    store.state.ui.setCompareRatio(compareRatio)
+}
+</script>
+
 <template>
     <div
         class="compare-slider"
@@ -11,64 +62,6 @@
         <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
     </div>
 </template>
-
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapGetters, mapState } from 'vuex'
-export default {
-    data() {
-        return {
-            clientWidth: window.innerWidth,
-            compareRatio: -0.5,
-        }
-    },
-    inject: ['getMap'],
-    components: {
-        FontAwesomeIcon,
-    },
-    computed: {
-        ...mapState({
-            storeCompareRatio: (state) => state.ui.compareRatio,
-        }),
-        ...mapGetters(['visibleLayers']),
-        compareSliderPosition() {
-            return {
-                left: this.compareRatio * 100 + '%',
-            }
-        },
-    },
-    mounted() {
-        this.compareRatio = this.storeCompareRatio
-    },
-    methods: {
-        ...mapActions(['setCompareRatio']),
-        grabSlider(event) {
-            window.addEventListener('mousemove', this.listenToMouseMove, { passive: true })
-            window.addEventListener('touchmove', this.listenToMouseMove, { passive: true })
-            window.addEventListener('mouseup', this.releaseSlider, { passive: true })
-            window.addEventListener('touchend', this.releaseSlider, { passive: true })
-        },
-        listenToMouseMove(event) {
-            const currentPosition =
-                event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
-            // THIS DIES ON CLIENT SMALLER THAN SCREEN
-            this.compareRatio = currentPosition / this.clientWidth
-        },
-        releaseSlider() {
-            window.removeEventListener('mousemove', this.listenToMouseMove)
-            window.removeEventListener('touchmove', this.listenToMouseMove)
-            window.removeEventListener('mouseup', this.releaseSlider)
-            window.removeEventListener('touchend', this.releaseSlider)
-            this.setCompareRatio(this.compareRatio)
-        },
-    },
-    watch: {
-        storeCompareRatio() {
-            this.compareRatio = this.storeCompareRatio
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
