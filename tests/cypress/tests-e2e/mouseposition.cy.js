@@ -122,14 +122,11 @@ describe('Test mouse position and interactions', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
-            cy.intercept(`**/api/qrcode/generate**`, {
-                fixture: 'service-qrcode/position-popup.png',
-            }).as('qrcode')
 
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
             cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-embed-button"]').click()
+            cy.get('[data-cy="location-popup-share-tab-button"]').click()
 
             cy.get('[data-cy="location-popup"]').should('be.visible')
             cy.log('the LocationPopUp is visible')
@@ -143,7 +140,7 @@ describe('Test mouse position and interactions', () => {
             // closing the menu if mobile
             cy.clickOnMenuButtonIfMobile()
             cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-embed-button"]').click()
+            cy.get('[data-cy="location-popup-share-tab-button"]').click()
 
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {
@@ -203,22 +200,10 @@ describe('Test mouse position and interactions', () => {
             })
             cy.log('a link with crosshair and correct position is sent to shortlink')
 
-            cy.wait('@qrcode').then((interception) => {
-                expect(interception.request.url).not.to.be.empty
-                expect(interception.request.url).to.include('?')
-                const query = interception.request.url.split('?')[1]
-                const params = new URLSearchParams(query)
-                expect(params.get('url')).to.be.equal(shortUrl)
-            })
-            cy.log('a shortlink is passed to create the qrcode')
-
             const shortUrl2 = 'https://s.geo.admin.ch/1111111'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl2, success: true },
             }).as('shortlink-bg-void')
-            cy.intercept(`**/api/qrcode/generate**`, {
-                fixture: 'service-qrcode/position-popup.png',
-            }).as('qrcode-bg-void')
             cy.writeStoreValue('setBackground', null)
             cy.wait('@shortlink-bg-void').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
@@ -226,20 +211,8 @@ describe('Test mouse position and interactions', () => {
                 const params = new URLSearchParams(query)
                 expect(params.get('bgLayer')).to.be.equal('void')
             })
-            cy.get('[data-cy="location-popup-link-input"]').should('have.value', shortUrl2)
+            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.value', shortUrl2)
             cy.log('the shortlink was updated when the app changed')
-
-            cy.wait('@qrcode-bg-void').then((interception) => {
-                expect(interception.request.url).not.to.be.empty
-                expect(interception.request.url).to.include('?')
-                const query = interception.request.url.split('?')[1]
-                const params = new URLSearchParams(query)
-                expect(params.get('url')).to.be.equal(shortUrl2)
-            })
-            cy.get('[data-cy="location-popup-qr-code"').then(($element) => {
-                expect($element.attr('src')).not.to.be.empty
-            })
-            cy.log('the QR code was updated when the app changed')
         })
     })
 })

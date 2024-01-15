@@ -103,7 +103,6 @@ async function requestCopy() {
         showEmbedSharing.value = true
         copyValue()
     }
-    copyValue
 }
 
 async function copyValue() {
@@ -143,11 +142,11 @@ async function copyValue() {
                         :class="{
                             active: selectedTab === 'position',
                         }"
+                        data-cy="location-popup-position-tab-button"
                         type="button"
                         role="tab"
                         aria-controls="nav-position"
                         :aria-selected="selectedTab === 'position'"
-                        data-cy="import-file-position-btn"
                         @click="
                             (selectedTab = 'position'),
                                 (showEmbedSharing = false),
@@ -164,11 +163,11 @@ async function copyValue() {
                         :class="{
                             active: selectedTab === 'share',
                         }"
+                        data-cy="location-popup-share-tab-button"
                         type="button"
                         role="tab"
                         aria-controls="nav-share"
                         :aria-selected="selectedTab === 'share'"
-                        data-cy="import-file-share-btn"
                         @click="requestCopy(), (selectedTab = 'share')"
                     >
                         {{ $t('share_link') }}
