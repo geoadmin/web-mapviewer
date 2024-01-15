@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, defineProps, Numeric, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const props = defineProps({
     clientWidth: {
-        type: Numeric,
+        type: Number,
         default: window.innerWidth,
     },
 })
