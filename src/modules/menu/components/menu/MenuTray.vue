@@ -24,11 +24,13 @@
                 v-if="!is3dMode"
                 id="drawSection"
                 :title="$t('draw_panel_title')"
-                :always-keep-closed="true"
                 secondary
                 :disabled="disableDrawing"
+                :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
-                @click:header="toggleDrawingOverlay"
+                @click:header="toggleDrawingOverlay()"
+                @open-menu-section="onOpenMenuSection"
+                @close-menu-section="onCloseMenuSection"
             />
         </div>
         <MenuSection
@@ -39,6 +41,7 @@
             :title="$t('map_tools')"
             secondary
             @open-menu-section="onOpenMenuSection"
+            @close-menu-section="onCloseMenuSection"
         >
             <MenuAdvancedToolsList :compact="compact" />
         </MenuSection>
@@ -52,8 +55,8 @@
             id="activeLayersSection"
             ref="activeLayersSection"
             :title="$t('layers_displayed')"
-            :show-content="showLayerList"
             light
+            show-content
             data-cy="menu-active-layers"
             @open-menu-section="onOpenMenuSection"
         >
@@ -100,10 +103,12 @@ export default {
     },
     data() {
         return {
-            /* Please note that if the following 2 arrays are updated, "grid-template-rows" in
-            the css section must also be updated. */
-            scrollableMenuSections: ['topicsSection', 'activeLayersSection'],
-            nonScrollableMenuSections: [
+            // multiMenuSections means that they can be open together
+            multiMenuSections: ['topicsSection', 'activeLayersSection'],
+            // singleModeSections means that those section cannot be open together with other
+            // sections and would therefore toggle other sections automatically.
+            singleModeSections: [
+                'drawSection',
                 'settingsSection',
                 'shareSection',
                 'toolsSection',
@@ -118,11 +123,10 @@ export default {
             hostname: (state) => state.ui.hostname,
             lang: (state) => state.i18n.lang,
             is3dMode: (state) => state.cesium.active,
+            showImportFile: (state) => state.ui.importFile,
+            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
-        showLayerList() {
-            return this.activeLayers.length > 0
-        },
         disableDrawing() {
             // TODO BGDIINF_SB-2685: remove this protection once on prod
             if (
@@ -160,15 +164,25 @@ export default {
         lang() {
             this.setDisableDrawingTooltipContent()
         },
+        showImportFile(show) {
+            if (show) {
+                this.$refs['activeLayersSection'].open()
+            }
+        },
     },
     methods: {
         ...mapActions(['toggleDrawingOverlay']),
         onOpenMenuSection(id) {
-            let toClose = this.nonScrollableMenuSections.filter((section) => section !== id)
-            if (this.nonScrollableMenuSections.includes(id)) {
-                toClose = toClose.concat(this.scrollableMenuSections)
+            let toClose = this.singleModeSections.filter((section) => section !== id)
+            if (this.singleModeSections.includes(id)) {
+                toClose = toClose.concat(this.multiMenuSections)
             }
             toClose.forEach((section) => this.$refs[section]?.close())
+        },
+        onCloseMenuSection(id) {
+            if (['drawSection', 'toolsSection'].includes(id)) {
+                this.$refs['activeLayersSection'].open()
+            }
         },
         setDisableDrawingTooltipContent() {
             this.disableDrawingTooltip?.forEach((instance) => {
