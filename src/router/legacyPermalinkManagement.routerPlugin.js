@@ -51,7 +51,8 @@ const handleLegacyParam = (
     store,
     newQuery,
     latlongCoordinates,
-    legacyCoordinates
+    legacyCoordinates,
+    cameraPosition
 ) => {
     const { projection } = store.state.position
     let newValue
@@ -83,9 +84,11 @@ const handleLegacyParam = (
 
         case 'lon':
             latlongCoordinates[0] = Number(legacyValue)
+            cameraPosition[0] = Number(legacyValue)
             break
         case 'lat':
             latlongCoordinates[1] = Number(legacyValue)
+            cameraPosition[1] = Number(legacyValue)
             break
 
         // taking all layers related param aside so that they can be processed later (see below)
@@ -123,6 +126,18 @@ const handleLegacyParam = (
             newValue = legacyValue
             break
 
+        case 'elevation':
+            cameraPosition[2] = Number(legacyValue)
+            break
+
+        case 'pitch':
+            cameraPosition[3] = Number(legacyValue)
+            break
+
+        case 'heading':
+            cameraPosition[4] = Number(legacyValue)
+            break
+
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
             newValue = legacyValue
@@ -145,6 +160,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const { projection } = store.state.position
     let legacyCoordinates = []
     let latlongCoordinates = []
+    let cameraPosition = []
     // TODO BGDIINF_SB-2685: remove once legacy prod is decommissioned
     const isOnDevelopmentHost = DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
         (hostname) => hostname === store.state.ui.hostname
@@ -157,9 +173,16 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             store,
             newQuery,
             latlongCoordinates,
-            legacyCoordinates
+            legacyCoordinates,
+            cameraPosition
         )
     })
+    if (cameraPosition.length === 5) {
+        cameraPosition.push('')
+        newQuery['camera'] = cameraPosition.join(',')
+        newQuery['3d'] = true
+        newQuery['sr'] = WEBMERCATOR.epsgNumber
+    }
 
     // Convert legacies coordinates if needed
     if (latlongCoordinates.length === 2) {
@@ -241,7 +264,6 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
     // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams =
         window.location && window.location.search ? parseLegacyParams(window.location.search) : null
-
     router.beforeEach((to, from, next) => {
         // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
         // the storeSync plugin might overwrite some parameters. To handle legacy param we also
