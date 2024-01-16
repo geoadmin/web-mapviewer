@@ -1,34 +1,73 @@
-<template>
-    <div class="compare-slider">
-        <font-awesome-icon
-            class="compare-slider-caret-left"
-            :icon="['fas', 'caret-up']"
-            :rotation="270"
-        />
-        <div class="compare-slider-line"></div>
-
-        <font-awesome-icon
-            class="compare-slider-caret-right"
-            :icon="['fas', 'caret-up']"
-            :rotation="90"
-        />
-    </div>
-</template>
-
-<script>
+<script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-    components: {
-        FontAwesomeIcon,
+import { round } from '@/utils/numberUtils'
+const props = defineProps({
+    clientWidth: {
+        type: Number,
+        default: window.innerWidth,
     },
+})
+
+const { clientWidth } = toRefs(props)
+
+const compareRatio = ref(-0.5)
+
+const store = useStore()
+const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const compareSliderPosition = computed(() => {
+    return {
+        left: compareRatio.value * 100 + '%',
+    }
+})
+
+watch(storeCompareRatio, (newValue) => {
+    compareRatio.value = newValue
+})
+
+onMounted(() => {
+    compareRatio.value = storeCompareRatio.value
+})
+
+function grabSlider() {
+    window.addEventListener('mousemove', listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+    window.addEventListener('mouseup', releaseSlider, { passive: true })
+    window.addEventListener('touchend', releaseSlider, { passive: true })
+}
+
+function listenToMouseMove(event) {
+    const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
+    compareRatio.value = round(currentPosition / clientWidth.value, 2)
+}
+
+function releaseSlider() {
+    window.removeEventListener('mousemove', listenToMouseMove)
+    window.removeEventListener('touchmove', listenToMouseMove)
+    window.removeEventListener('mouseup', releaseSlider)
+    window.removeEventListener('touchend', releaseSlider)
+    store.dispatch('setCompareRatio', compareRatio.value)
 }
 </script>
 
+<template>
+    <div
+        class="compare-slider"
+        :style="compareSliderPosition"
+        @touchstart.passive="grabSlider"
+        @mousedown.passive="grabSlider"
+    >
+        <FontAwesomeIcon class="compare-slider-caret-left" :icon="['fas', 'caret-left']" />
+        <div class="compare-slider-line"></div>
+
+        <FontAwesomeIcon class="compare-slider-caret-right" :icon="['fas', 'caret-right']" />
+    </div>
+</template>
+
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-
-$slider-position: 50%;
 
 .compare-slider {
     position: absolute;
