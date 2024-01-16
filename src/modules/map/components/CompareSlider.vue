@@ -23,34 +23,36 @@ watch(storeCompareRatio, (newValue) => {
 })
 
 onMounted(() => {
-    compareRatio.value = storeCompareRatio
+    compareRatio.value = storeCompareRatio.value
 })
-
-function grabSlider(event) {
-    if (event.type === 'mousedown' || event.type === 'touchstart') {
-        window.addEventListener('mousemove', listenToMouseMove, { passive: true })
-        window.addEventListener('touchmove', listenToMouseMove, { passive: true })
-        window.addEventListener('mouseup', releaseSlider, { passive: true })
-        window.addEventListener('touchend', releaseSlider, { passive: true })
-    }
+function generateCSSPosition() {
+    return { left: compareSliderPosition.value }
 }
+function grabSlider() {
+    window.addEventListener('mousemove', listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+    window.addEventListener('mouseup', releaseSlider, { passive: true })
+    window.addEventListener('touchend', releaseSlider, { passive: true })
+}
+
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
     compareRatio.value = currentPosition / clientWidth.value
 }
+
 function releaseSlider() {
     window.removeEventListener('mousemove', listenToMouseMove)
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseSlider)
     window.removeEventListener('touchend', releaseSlider)
-    store.dispatch('setCompareRatio', compareRatio)
+    store.dispatch('setCompareRatio', compareRatio.value)
 }
 </script>
 
 <template>
     <div
         class="compare-slider"
-        :style="compareSliderPosition"
+        :style="generateCSSPosition()"
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
     >
