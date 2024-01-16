@@ -55,7 +55,7 @@ function clearSearchText() {
 
 <template>
     <div @mouseleave="clearPreviewLayer">
-        <div v-if="showSearchBar" class="input-group input-group-sm d-flex p-1">
+        <div v-if="showSearchBar" class="input-group input-group-sm d-flex pb-1">
             <span id="searchCatalogueIcon" class="input-group-text">
                 <FontAwesomeIcon :icon="['fas', 'search']" />
             </span>
