@@ -7,7 +7,7 @@
             @contextmenu.stop
         >
             <div
-                class="card-header d-flex justify-content-end"
+                class="infobox-header card-header d-flex justify-content-end"
                 data-cy="infobox-header"
                 @click="onToggleContent"
             >
@@ -20,7 +20,6 @@
                     <FontAwesomeIcon icon="caret-up" />
                 </button>
                 <button
-                    v-if="showPrintBtn"
                     class="btn btn-light btn-sm d-flex align-items-center"
                     @click.stop="onPrint"
                 >
@@ -101,7 +100,6 @@ export default {
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
             projection: (state) => state.position.projection,
-            importOverlay: (state) => state.ui.importOverlay,
         }),
         selectedFeature() {
             return this.selectedFeatures[0]
@@ -129,13 +127,7 @@ export default {
             )
         },
         showContainer() {
-            return (
-                this.isList ||
-                this.isEdit ||
-                this.showElevationProfile ||
-                this.isCombo ||
-                this.importOverlay
-            )
+            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
         },
         showFloatingToggle() {
             return (
@@ -143,9 +135,6 @@ export default {
                 (this.isEdit && !this.showElevationProfile) ||
                 (this.isCombo && !this.floatingTooltip)
             )
-        },
-        showPrintBtn() {
-            return !this.importOverlay
         },
     },
     watch: {
@@ -162,7 +151,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip', 'toggleImportOverlay']),
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
         onToggleContent() {
             this.showContent = !this.showContent
         },
@@ -173,11 +162,7 @@ export default {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            if (this.importOverlay) {
-                this.toggleImportOverlay()
-            } else {
-                this.clearAllSelectedFeatures()
-            }
+            this.clearAllSelectedFeatures()
         },
     },
 }
