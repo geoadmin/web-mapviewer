@@ -271,11 +271,27 @@ const actions = {
             log.error('Can not remove layer that is not yet added', layerIdOrObject)
         }
     },
-    updateLayer({ commit }, layer) {
-        if (!(layer instanceof AbstractLayer)) {
+    updateLayer({ commit, getters }, layer) {
+        if (layer instanceof AbstractLayer) {
+            commit('updateLayer', layer)
+        } else if (layer instanceof Object && layer.id) {
+            // Partial update of a layer
+            const currentLayer = getters.getActiveLayerById(layer.id)
+            if (!currentLayer) {
+                throw new Error(
+                    `Failed to update layer "${layer.id}", layer not found in active layers`
+                )
+            }
+            const updatedLayer = currentLayer.clone()
+            Object.entries(layer).forEach((entry) => {
+                if (entry[0] !== 'id') {
+                    updatedLayer[entry[0]] = entry[1]
+                }
+            })
+            commit('updateLayer', updatedLayer)
+        } else {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
-        commit('updateLayer', layer)
     },
     clearLayers({ commit }) {
         commit('clearLayers')
