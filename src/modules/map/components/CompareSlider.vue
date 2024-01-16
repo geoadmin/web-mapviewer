@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, defineProps, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { round } from '@/utils/numberUtils'
 const props = defineProps({
     clientWidth: {
         type: Number,
@@ -16,7 +17,11 @@ const compareRatio = ref(-0.5)
 
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const compareSliderPosition = computed(() => compareRatio.value * 100 + '%')
+const compareSliderPosition = computed(() => {
+    return {
+        left: compareRatio.value * 100 + '%',
+    }
+})
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
@@ -25,9 +30,7 @@ watch(storeCompareRatio, (newValue) => {
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
 })
-function generateCSSPosition() {
-    return { left: compareSliderPosition.value }
-}
+
 function grabSlider() {
     window.addEventListener('mousemove', listenToMouseMove, { passive: true })
     window.addEventListener('touchmove', listenToMouseMove, { passive: true })
@@ -37,7 +40,7 @@ function grabSlider() {
 
 function listenToMouseMove(event) {
     const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
-    compareRatio.value = currentPosition / clientWidth.value
+    compareRatio.value = round(currentPosition / clientWidth.value, 2)
 }
 
 function releaseSlider() {
@@ -52,7 +55,7 @@ function releaseSlider() {
 <template>
     <div
         class="compare-slider"
-        :style="generateCSSPosition()"
+        :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
     >
