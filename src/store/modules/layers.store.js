@@ -271,6 +271,14 @@ const actions = {
             log.error('Can not remove layer that is not yet added', layerIdOrObject)
         }
     },
+    /**
+     * Full or partial update of a layer in the active layer list
+     *
+     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
+     * @param {AbstractLayer | { id: String; any: any }} layer Full layer object (AbstractLayer) to
+     *   update or an object with the layer ID to update and any property to update (partial
+     *   update)
+     */
     updateLayer({ commit, getters }, layer) {
         if (layer instanceof AbstractLayer) {
             commit('updateLayer', layer)

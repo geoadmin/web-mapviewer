@@ -9,7 +9,7 @@ describe('KMLLayer', () => {
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
         const layer = new KMLLayer(kmlFileUrl)
         expect(layer.kmlFileUrl).toBe(kmlFileUrl)
-        expect(layer.visible).toBe(true)
+        expect(layer.visible).to.be.true
         expect(layer.opacity).toBe(1.0)
         expect(layer.fileId).toBe(fileId)
         expect(layer.adminId).toBe(null)
@@ -25,7 +25,7 @@ describe('KMLLayer', () => {
         expect(layer.attributions[0].name).toBe(defaultAttributionName)
     })
 
-    it('sopuld create a KMLLayer instance with custom values', () => {
+    it('should create a KMLLayer instance with custom values', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
 
