@@ -1,7 +1,7 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
-const backgroundMatriceBetween2dAnd3d = {
+export const backgroundMatriceBetween2dAnd3d = {
     'ch.swisstopo.pixelkarte-farbe': 'ch.swisstopo.swisstlm3d-karte-farbe_3d',
     'ch.swisstopo.pixelkarte-grau': 'ch.swisstopo.swisstlm3d-karte-grau_3d',
     'ch.swisstopo.swissimage': 'ch.swisstopo.swissimage_3d',

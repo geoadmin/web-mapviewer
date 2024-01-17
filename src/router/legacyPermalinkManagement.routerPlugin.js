@@ -2,6 +2,7 @@ import proj4 from 'proj4'
 
 import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
+import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.class'
@@ -182,6 +183,14 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         newQuery['camera'] = cameraPosition.join(',')
         newQuery['3d'] = true
         newQuery['sr'] = WEBMERCATOR.epsgNumber
+
+        // Handle different backrgound layer from legacy 3D parameter
+        if (newQuery['bgLayer']) {
+            const newBackgroundLayer = backgroundMatriceBetweenLegacyAndNew[newQuery['bgLayer']]
+            if (newBackgroundLayer) {
+                newQuery['bgLayer'] = newBackgroundLayer
+            }
+        }
     }
 
     // Convert legacies coordinates if needed
