@@ -1,6 +1,5 @@
 <script setup>
 import Feature from 'ol/Feature'
-import { watch } from 'vue'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'
@@ -12,17 +11,16 @@ const emits = defineEmits({
     },
 })
 
-const { removeLastPoint, lastFinishedFeature } = useDrawingLineInteraction({
+const { removeLastPoint } = useDrawingLineInteraction({
     style: drawLineStyle,
     featureType: EditableFeatureTypes.LINEPOLYGON,
-})
-watch(lastFinishedFeature, (newFinishedFeature) => {
-    emits('drawEnd', newFinishedFeature)
+    drawEndCallback: (feature) => {
+        emits('drawEnd', feature)
+    },
 })
 
 defineExpose({
     removeLastPoint,
-    lastFinishedFeature,
 })
 </script>
 

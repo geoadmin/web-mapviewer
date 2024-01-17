@@ -1,6 +1,6 @@
 <script setup>
 import Feature from 'ol/Feature'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features.api'
@@ -16,19 +16,14 @@ const store = useStore()
 
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
-const { lastFinishedFeature } = useDrawingModeInteraction({
+useDrawingModeInteraction({
     editableFeatureArgs: {
         icon: availableIconSets.value.find((set) => set.name === 'default')?.icons[0],
         featureType: EditableFeatureTypes.MARKER,
     },
-})
-
-watch(lastFinishedFeature, (newFinishedFeature) => {
-    emits('drawEnd', newFinishedFeature)
-})
-
-defineExpose({
-    lastFinishedFeature,
+    drawEndCallback: (feature) => {
+        emits('drawEnd', feature)
+    },
 })
 </script>
 
