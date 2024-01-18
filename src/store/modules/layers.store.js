@@ -77,7 +77,9 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) => {
-        return state.activeLayers.find((layer) => layer.type === LayerTypes.KML && layer.fileId)
+        return state.activeLayers.find(
+            (layer) => layer.type === LayerTypes.KML && !layer.isExternal
+        )
     },
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -271,11 +273,35 @@ const actions = {
             log.error('Can not remove layer that is not yet added', layerIdOrObject)
         }
     },
-    updateLayer({ commit }, layer) {
-        if (!(layer instanceof AbstractLayer)) {
+    /**
+     * Full or partial update of a layer in the active layer list
+     *
+     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
+     * @param {AbstractLayer | { id: String; any: any }} layer Full layer object (AbstractLayer) to
+     *   update or an object with the layer ID to update and any property to update (partial
+     *   update)
+     */
+    updateLayer({ commit, getters }, layer) {
+        if (layer instanceof AbstractLayer) {
+            commit('updateLayer', layer)
+        } else if (layer instanceof Object && layer.id) {
+            // Partial update of a layer
+            const currentLayer = getters.getActiveLayerById(layer.id)
+            if (!currentLayer) {
+                throw new Error(
+                    `Failed to update layer "${layer.id}", layer not found in active layers`
+                )
+            }
+            const updatedLayer = currentLayer.clone()
+            Object.entries(layer).forEach((entry) => {
+                if (entry[0] !== 'id') {
+                    updatedLayer[entry[0]] = entry[1]
+                }
+            })
+            commit('updateLayer', updatedLayer)
+        } else {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
-        commit('updateLayer', layer)
     },
     clearLayers({ commit }) {
         commit('clearLayers')
@@ -454,7 +480,9 @@ const mutations = {
     },
     setLayerYear(state, { layerId, year }) {
         const timedLayer = getActiveLayerById(state, layerId)
-        timedLayer.timeConfig.currentTimeEntry = timedLayer.timeConfig.getTimeEntryForYear(year)
+        timedLayer.timeConfig.updateCurrentTimeEntry(
+            timedLayer.timeConfig.getTimeEntryForYear(year)
+        )
     },
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)

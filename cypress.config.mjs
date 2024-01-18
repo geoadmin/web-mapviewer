@@ -28,7 +28,10 @@ export default defineConfig({
         setupNodeEvents(on, config) {
             // setup Vite as the preprocessor for Cypress (it will automatically read vite.config.mts from the root of the project)
             // this way we can import helper functions in Cypress tests through @/ notation
-            on('file:preprocessor', vitePreprocessor())
+            on(
+                'file:preprocessor',
+                vitePreprocessor({ configFile: './vite.config.mts', mode: 'development' })
+            )
 
             // plugin that help tests define which browser permission is set or denied (e.g. location API)
             cypressBrowserPermissionsPlugin(on, config)

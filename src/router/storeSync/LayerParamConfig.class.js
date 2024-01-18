@@ -2,7 +2,6 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL } from '@/config'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
@@ -43,47 +42,31 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  */
 export function createLayerObject(parsedLayer) {
     let layer = parsedLayer
-    // format is KML|FILE_URL|LAYER_NAME
-    if (parsedLayer.id.startsWith('KML|') && parsedLayer.id.split('|').length === 3) {
-        const splitLayerId = parsedLayer.id.split('|')
-        const kmlUrl = splitLayerId[1]
-        layer = new KMLLayer(
-            kmlUrl,
-            parsedLayer.visible,
-            parsedLayer.opacity,
-            null, // fileId, null := parsed from url
-            parsedLayer.customAttributes.adminId,
-            splitLayerId[2], // name
-            null, // kmlMetadata will be loaded whenever the layer is added to the map
-            false, // no tooltip
-            kmlUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1,
-            true // isLoading, as we need to load this layer's metadata dans file data before adding it
-        )
+    const [layerType, url, id] = parsedLayer.id.split('|')
+    // format is KML|FILE_URL
+    if (layerType === 'KML') {
+        if (url.startsWith('http')) {
+            layer = new KMLLayer(
+                url,
+                parsedLayer.visible,
+                parsedLayer.opacity,
+                parsedLayer.customAttributes.adminId
+            )
+        } else {
+            // If the url does not start with http, then it is a local file and we don't add it
+            // to the layer list upon start as we cannot load it anymore.
+            layer = null
+        }
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.id.startsWith('WMTS|')) {
-        const [_externalLayerType, wmtsServerGetCapabilitiesUrl, wmtsLayerId] =
-            parsedLayer.id.split('|')
-        layer = new ExternalWMTSLayer(
-            wmtsLayerId,
-            parsedLayer.opacity,
-            parsedLayer.visible,
-            wmtsServerGetCapabilitiesUrl,
-            wmtsLayerId
-        )
+    else if (layerType === 'WMTS') {
+        layer = new ExternalWMTSLayer(id, parsedLayer.opacity, parsedLayer.visible, url, id)
     }
     // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.id.startsWith('WMS|')) {
-        const [_externalLayerType, wmsServerBaseURL, wmsLayerId] = parsedLayer.id.split('|')
+    else if (layerType === 'WMS') {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
-        layer = new ExternalWMSLayer(
-            wmsLayerId,
-            parsedLayer.opacity,
-            parsedLayer.visible,
-            wmsServerBaseURL,
-            wmsLayerId
-        )
+        layer = new ExternalWMSLayer(id, parsedLayer.opacity, parsedLayer.visible, url, id)
     }
     return layer
 }
@@ -149,11 +132,13 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             )
         ) {
             const layerObject = createLayerObject(parsedLayer)
-            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
-                promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
+            if (layerObject) {
+                if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
+                    promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
+                }
+                log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
+                promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
             }
-            log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
-            promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
         }
     })
     // setting year fore timed layers if specified in the URL

@@ -33,6 +33,7 @@ module.exports = {
     globals: {
         VITE_ENVIRONMENT: true,
         __APP_VERSION__: true,
+        defineModel: 'readonly',
     },
     overrides: [
         {

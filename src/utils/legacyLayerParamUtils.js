@@ -123,8 +123,9 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         }
                         // checking if a timestamp is defined for this layer
                         if (layerTimestamps.length > index && layerTimestamps[index]) {
-                            layer.timeConfig.currentTimeEntry =
+                            layer.timeConfig.updateCurrentTimeEntry(
                                 layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
+                            )
                         }
                         layersToBeActivated.push(layer)
                     }
@@ -172,9 +173,8 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
         kmlMetaData.links.kml,
         true, // visible
         null, // opacity, null := use default
-        kmlMetaData.id,
         kmlMetaData.adminId,
-        null, // name, null := use default
+        null, // kml data
         kmlMetaData
     )
 }

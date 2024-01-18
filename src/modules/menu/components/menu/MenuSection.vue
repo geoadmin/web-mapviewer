@@ -61,10 +61,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        alwaysKeepClosed: {
-            type: Boolean,
-            default: false,
-        },
         secondary: {
             type: Boolean,
             default: false,
@@ -78,8 +74,8 @@ export default {
             default: false,
         },
     },
-    expose: ['close'],
-    emits: ['openMenuSection', 'click:header'],
+    expose: ['close', 'open'],
+    emits: ['openMenuSection', 'closeMenuSection', 'click:header'],
     data() {
         return {
             showBody: this.showContent,
@@ -95,7 +91,7 @@ export default {
     },
     watch: {
         showContent(showContent) {
-            this.showBody = showContent
+            this.setShowBody(showContent)
         },
     },
     methods: {
@@ -104,16 +100,24 @@ export default {
                 return
             }
 
-            if (!this.alwaysKeepClosed) {
-                this.showBody = !this.showBody
-            }
+            this.setShowBody(!this.showBody)
             this.$emit('click:header')
-            if (this.showBody) {
-                this.$emit('openMenuSection', this.id)
+        },
+        setShowBody(value) {
+            if (this.showBody !== value) {
+                this.showBody = value
+                if (this.showBody) {
+                    this.$emit('openMenuSection', this.id)
+                } else {
+                    this.$emit('closeMenuSection', this.id)
+                }
             }
         },
+        open() {
+            this.setShowBody(true)
+        },
         close() {
-            this.showBody = false
+            this.setShowBody(false)
         },
     },
 }

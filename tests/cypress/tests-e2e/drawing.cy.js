@@ -5,6 +5,7 @@ import proj4 from 'proj4'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -450,10 +451,10 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `https://public.geo.admin.ch/api/kml/files/${kmlFileId}`
+            const kmlFileUrl = `${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}|Dessin@adminId=${kmlFileAdminId}`
 
-            // opening up the app and certering it directly on the single marker feature from the fixture
+            // opening up the app and centering it directly on the single marker feature from the fixture
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
 
             // the app must open the drawing module at startup whenever an adminId is found in the URL

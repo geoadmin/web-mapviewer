@@ -2,7 +2,17 @@ import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
-/** Metadata for a tiled image layers (WMTS stands for Web Map Tile Service) */
+/**
+ * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
@@ -55,6 +65,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         )
         this.format = format
         this.timeConfig = timeConfig
+        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
     }
 
     /**
@@ -80,9 +91,5 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             timestampToUse = CURRENT_YEAR_WMTS_TIMESTAMP
         }
         return `${this.baseURL}1.0.0/${this.serverLayerId}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
-    }
-
-    get hasMultipleTimestamps() {
-        return this.timeConfig && this.timeConfig.timeEntries.length > 1
     }
 }

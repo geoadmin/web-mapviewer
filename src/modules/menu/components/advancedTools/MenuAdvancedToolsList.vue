@@ -17,13 +17,7 @@
             data-cy="menu-advanced-tools-import-file"
             @toggle-menu="onToggleImportFile"
         >
-            <ModalWithBackdrop
-                v-if="showImportFile"
-                :title="$t('import_file')"
-                @close="onToggleImportFile"
-            >
-                <ImportFile />
-            </ModalWithBackdrop>
+            <ImportFile v-if="showImportFile" />
         </MenuAdvancedToolsListItem>
     </div>
 </template>
@@ -34,10 +28,9 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 export default {
-    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem, ImportCatalogue },
+    components: { MenuAdvancedToolsListItem, ImportCatalogue, ImportFile },
     props: {
         compact: {
             type: Boolean,

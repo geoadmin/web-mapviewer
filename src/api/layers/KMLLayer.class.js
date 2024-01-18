@@ -1,69 +1,76 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import i18n from '@/modules/i18n'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
+import { parseKmlName } from '@/utils/kmlUtils'
 
-/** Metadata for an external KML layer, mostly used to show drawing */
+/**
+ * Metadata for an external KML layer, mostly used to show drawing
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
 export default class KMLLayer extends AbstractLayer {
     /**
      * @param {string} kmlFileUrl The URL to access the KML data.
-     * @param {boolean} visible If the layer is visible on the map (or hidden).
+     * @param {boolean} [visible=true] If the layer is visible on the map (or hidden). When `null`
+     *   is given, then it uses the default value. Default is `true`
      * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
      *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`
-     * @param {string | null} [fileId=null] The KML id (which is part of the kmlFileUrl). If null it
-     *   is parsed from kmlFileUrl. Default is `null`
      * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
      *   not allowed to edit the file. Default is `null`
-     * @param {string | null} [name=null] Name of this layer, if nothing is given a default name
-     *   "Drawing" (or equivalent in the current UI lang) will be defined. Default is `null`
      * @param {string | null} [kmlData=null] Data/content of the KML file, as a string. Default is
      *   `null`
      * @param {object | null} [kmlMetadata=null] Metadata of the KML drawing. This object contains
      *   all the metadata returned by the backend. Default is `null`
-     * @param {boolean} [isExternal=false] Flag telling if this KML comes from our backend (false)
-     *   or is loaded from a different source (true). Default is `false`
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
      */
     constructor(
         kmlFileUrl,
-        visible,
+        visible = null,
         opacity = null,
-        fileId = null,
         adminId = null,
-        name = null,
         kmlData = null,
-        kmlMetadata = null,
-        isExternal = false,
-        isLoading = false
+        kmlMetadata = null
     ) {
+        const isLocalFile = !kmlFileUrl.startsWith('http')
+        const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
+        const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
         super(
-            name ?? i18n.global.t('draw_layer_label'),
+            'KML',
             LayerTypes.KML,
             opacity ?? 1.0,
-            visible,
-            [new LayerAttribution(new URL(kmlFileUrl).hostname)],
+            visible ?? true,
+            [new LayerAttribution(attributionName)],
             false,
-            isExternal,
-            isLoading
+            isExternal
         )
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
-        if (fileId) {
-            this.fileId = fileId
-        } else {
+        this.fileId = null
+        if (!isLocalFile && !isExternal) {
             // Based on the service-kml API reference, the KML file URL has the following structure
             // <base-url>/kml/files/{kml_id} or <base-url>/{kml_id} for legacy files. Those one are
             // redirected to <base-url>/kml/files/{kml_id}
-            this.fileId = this.kmlFileUrl.split('/').pop()
+            this.fileId = kmlFileUrl.split('/').pop()
         }
 
-        this.kmlData = kmlData
         this.kmlMetadata = kmlMetadata
+        if (kmlData) {
+            this.name = parseKmlName(kmlData)
+            this.isLoading = false
+        } else {
+            this.isLoading = true
+        }
+        this.kmlData = kmlData
     }
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `KML|${this.kmlFileUrl}|${this.name}`
+        return `KML|${this.kmlFileUrl}`
     }
 
     getURL(_epsgNumber, _timestamp) {

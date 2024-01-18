@@ -255,6 +255,7 @@ export class EditableFeature extends SelectableFeature {
         let editableFeature = olFeature.get('editableFeature')
         // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
         // will not be present, and we will have to rebuild one from the styles tags in the KML
+        // Same is for external kml.
         if (!editableFeature) {
             editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
         } else {

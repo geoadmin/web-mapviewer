@@ -241,7 +241,7 @@ describe('Test of layer handling', () => {
             it('shows active layers in the menu', () => {
                 goToMenuWithLayers()
                 visibleLayerIds.forEach((layerId) => {
-                    cy.get(`[data-cy="active-layer-name${layerId}"]`).should('be.visible')
+                    cy.get(`[data-cy="active-layer-name-${layerId}"]`).should('be.visible')
                 })
             })
             it('removes a layer from the visible layers when the "remove" button is pressed', () => {

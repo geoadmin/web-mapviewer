@@ -11,7 +11,17 @@ export function getDefaultAttribution(baseUrl) {
     return [new LayerAttribution(new URL(baseUrl).hostname)]
 }
 
-/** External Layer Legend */
+/**
+ * External Layer Legend
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
 export class LayerLegend {
     /**
      * @param {String} url Legend URL
@@ -33,6 +43,13 @@ export class LayerLegend {
  * Base for all external layers, defining a flag to differentiate them from GeoAdminLayers
  *
  * @abstract
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class ExternalLayer extends AbstractLayer {
     /**
@@ -81,30 +98,11 @@ export default class ExternalLayer extends AbstractLayer {
         this.legends = legends
         this.isLoading = isLoading
         this.errorKey = null
+        this.hasError = false
+        this.hasLegend = this.abstract || this.legends?.length > 0
     }
 
     getURL() {
         return this.baseURL
-    }
-
-    get hasLegend() {
-        return this.abstract || this.legends.length > 0
-    }
-
-    /**
-     * Is true when the layer has an error (e.g. failed to load layer metadata, invalid layer url,
-     * ...)
-     */
-    get hasError() {
-        return !!this.errorKey
-    }
-
-    /**
-     * Sets the error message i18n key
-     *
-     * @param {string} errorKey I18n error key to be used as translated error message
-     */
-    setError(errorKey) {
-        this.errorKey = errorKey
     }
 }

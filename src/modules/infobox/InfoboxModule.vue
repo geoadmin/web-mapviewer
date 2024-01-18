@@ -1,5 +1,5 @@
 <template>
-    <teleport to="#map-footer-middle">
+    <teleport to="#map-footer-middle-0">
         <div
             v-show="showContainer"
             class="infobox card rounded-0"

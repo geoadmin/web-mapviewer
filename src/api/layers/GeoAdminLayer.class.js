@@ -5,6 +5,13 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
  * @class GeoAdminLayer Base class for layer coming from our backend, must be extended to a more
  *   specific flavor of Layer (e.g. {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer},
  *   {@link GeoAdminGeoJsonLayer} or {@link GeoAdminAggregateLayer})
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class GeoAdminLayer extends AbstractLayer {
     /**
