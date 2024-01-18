@@ -107,77 +107,67 @@ async function updateHeight() {
 </script>
 
 <template>
-    <div
-        id="nav-local"
-        class="tab-pane fade"
-        role="tabpanel"
-        aria-labelledby="nav-local-tab"
-        data-cy="import-file-local-content"
-    >
-        <form class="input-group rounded needs-validation">
-            <div class="pb-2 location-popup-coordinates">
-                <LocationPopupCopySlot
-                    identifier="lv95"
-                    :value="LV95Format.format(coordinate, projection)"
-                >
-                    <a :href="i18n.t('contextpopup_lv95_url')" target="_blank">
-                        {{ LV95Format.label }}
-                    </a>
-                </LocationPopupCopySlot>
+    <div id="nav-local" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
+        <div class="pb-2 location-popup-coordinates">
+            <LocationPopupCopySlot
+                identifier="lv95"
+                :value="LV95Format.format(coordinate, projection)"
+            >
+                <a :href="i18n.t('contextpopup_lv95_url')" target="_blank">
+                    {{ LV95Format.label }}
+                </a>
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot
-                    identifier="lv03"
-                    :value="LV03Format.format(coordinate, projection)"
-                >
-                    <a :href="i18n.t('contextpopup_lv03_url')" target="_blank">
-                        {{ LV03Format.label }}
-                    </a>
-                </LocationPopupCopySlot>
+            <LocationPopupCopySlot
+                identifier="lv03"
+                :value="LV03Format.format(coordinate, projection)"
+            >
+                <a :href="i18n.t('contextpopup_lv03_url')" target="_blank">
+                    {{ LV03Format.label }}
+                </a>
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot
-                    identifier="wgs84"
-                    :value="coordinateWGS84Plain"
-                    :extra-value="WGS84Format.format(coordinate, projection)"
-                >
-                    <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
-                </LocationPopupCopySlot>
+            <LocationPopupCopySlot
+                identifier="wgs84"
+                :value="coordinateWGS84Plain"
+                :extra-value="WGS84Format.format(coordinate, projection)"
+            >
+                <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot
-                    identifier="utm"
-                    :value="UTMFormat.format(coordinate, projection)"
-                >
-                    <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
-                </LocationPopupCopySlot>
+            <LocationPopupCopySlot
+                identifier="utm"
+                :value="UTMFormat.format(coordinate, projection)"
+            >
+                <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot
-                    identifier="mgrs"
-                    :value="MGRSFormat.format(coordinate, projection)"
-                >
-                    MGRS
-                </LocationPopupCopySlot>
+            <LocationPopupCopySlot
+                identifier="mgrs"
+                :value="MGRSFormat.format(coordinate, projection)"
+            >
+                MGRS
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot v-if="what3Words" identifier="w3w" :value="what3Words">
-                    <a href="http://what3words.com/" target="_blank">what3words</a>
-                </LocationPopupCopySlot>
+            <LocationPopupCopySlot v-if="what3Words" identifier="w3w" :value="what3Words">
+                <a href="http://what3words.com/" target="_blank">what3words</a>
+            </LocationPopupCopySlot>
 
-                <LocationPopupCopySlot
-                    v-if="height"
-                    identifier="height"
-                    :value="heightInMeter"
-                    :extra-value="heightInFeet"
-                >
-                    <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
-                </LocationPopupCopySlot>
-            </div>
-        </form>
+            <LocationPopupCopySlot
+                v-if="height"
+                identifier="height"
+                :value="heightInMeter"
+                :extra-value="heightInFeet"
+            >
+                <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
+            </LocationPopupCopySlot>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
 .location-popup {
-    @extend .clear-no-ios-long-press;
-
     &-coordinates {
         display: grid;
         grid-template-columns: max-content auto;
