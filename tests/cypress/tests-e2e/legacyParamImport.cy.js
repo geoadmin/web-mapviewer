@@ -304,7 +304,6 @@ describe('Test on legacy param import', () => {
                 elevation,
                 heading,
                 pitch,
-                '3d': true, // this should be removed
             })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
