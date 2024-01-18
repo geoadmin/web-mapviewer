@@ -288,4 +288,38 @@ describe('Test on legacy param import', () => {
             })
         })
     })
+
+    context('3D import', () => {
+        it('transfers camera parameter from legacy URL to the new URL', () => {
+            const lat = 47.3
+            const lon = 7.3
+            const elevation = 215370
+            const heading = 318
+            const pitch = -45
+
+            const defaultRoll = 360
+            cy.goToMapView({
+                lat,
+                lon,
+                elevation,
+                heading,
+                pitch,
+                '3d': true, // this should be removed
+            })
+
+            // checking in the store that the parameters have been converted into the new 3D parameters
+            cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
+
+            // Checking camera position
+            cy.readStoreValue('state.position.camera.x').should('eq', lon)
+            cy.readStoreValue('state.position.camera.y').should('eq', lat)
+            cy.readStoreValue('state.position.camera.z').should('eq', elevation)
+            cy.readStoreValue('state.position.camera.heading').should('eq', heading)
+            cy.readStoreValue('state.position.camera.pitch').should('eq', pitch)
+            cy.readStoreValue('state.position.camera.roll').should('eq', defaultRoll)
+
+            // EPSG is set to 3857
+            cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
+        })
+    })
 })
