@@ -19,10 +19,10 @@ export default function useDrawingModeInteraction({
     editableFeatureArgs = {},
     useGeodesicDrawing = false,
     snapping = false,
+    drawEndCallback = null,
 }) {
     const counterLinePolyPoints = ref(0)
     const isSnappingOnFirstPoint = ref(false)
-    const lastFinishedFeature = ref(null)
 
     const drawingLayer = inject('drawingLayer')
     const olMap = inject('olMap')
@@ -166,7 +166,9 @@ export default function useDrawingModeInteraction({
         interaction.finishDrawing()
         store.dispatch('addDrawingFeature', feature.getId())
         store.dispatch('setDrawingMode', null)
-        lastFinishedFeature.value = feature
+        if (drawEndCallback) {
+            drawEndCallback(feature)
+        }
         // Here we need to save work in next tick to have the drawingLayer source updated.
         // Otherwise, the source might not yet be updated with the new/updated/deleted feature
         nextTick().then(debounceSaveDrawing)
@@ -204,6 +206,5 @@ export default function useDrawingModeInteraction({
 
     return {
         removeLastPoint,
-        lastFinishedFeature,
     }
 }

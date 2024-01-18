@@ -19,7 +19,7 @@ const cesiumSource = `${__dirname}/node_modules/cesium/Source`
 const cesiumWorkers = '../Build/Cesium/Workers'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ _, mode }) => {
+export default defineConfig(({ mode }) => {
     return {
         base: './',
         build: {

@@ -5,8 +5,9 @@ import { drawLineStyle } from '@/modules/drawing/lib/style'
 export default function useDrawingLineInteraction({
     style = drawLineStyle,
     featureType = EditableFeatureTypes.LINEPOLYGON,
+    drawEndCallback = null,
 }) {
-    const { removeLastPoint, lastFinishedFeature } = useDrawingModeInteraction({
+    const { removeLastPoint } = useDrawingModeInteraction({
         geometryType: 'Polygon',
         editingStyle: style,
         editableFeatureArgs: {
@@ -14,10 +15,10 @@ export default function useDrawingLineInteraction({
         },
         useGeodesicDrawing: true,
         snapping: true,
+        drawEndCallback,
     })
 
     return {
         removeLastPoint,
-        lastFinishedFeature,
     }
 }

@@ -1,6 +1,5 @@
 <script setup>
 import Feature from 'ol/Feature'
-import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { EditableFeatureTypes } from '@/api/features.api'
@@ -14,19 +13,15 @@ const emits = defineEmits({
 
 const i18n = useI18n()
 
-const { lastFinishedFeature } = useDrawingModeInteraction({
+useDrawingModeInteraction({
     geometryType: 'Point',
     editableFeatureArgs: {
         title: i18n.t('draw_new_text'),
         featureType: EditableFeatureTypes.ANNOTATION,
     },
-})
-watch(lastFinishedFeature, (newFinishedFeature) => {
-    emits('drawEnd', newFinishedFeature)
-})
-
-defineExpose({
-    lastFinishedFeature,
+    drawEndCallback: (feature) => {
+        emits('drawEnd', feature)
+    },
 })
 </script>
 
