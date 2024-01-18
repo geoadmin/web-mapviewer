@@ -341,5 +341,28 @@ describe('Test on legacy param import', () => {
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
         })
+
+        it('transfers camera parameter from legacy URL to the new URL only elevation', () => {
+            cy.goToMapView({
+                lat,
+                lon,
+                elevation,
+            })
+
+            // checking in the store that the parameters have been converted into the new 3D parameters
+            cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
+
+            // Checking camera position
+            // x, y, and z seems recalculated when there is only elevation, so I just check that they are not null
+            cy.readStoreValue('state.position.camera.x').should('not.be.null')
+            cy.readStoreValue('state.position.camera.y').should('not.be.null')
+            cy.readStoreValue('state.position.camera.z').should('not.be.null')
+            cy.readStoreValue('state.position.camera.heading').should('eq', 360)
+            cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
+            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
+
+            // EPSG is set to 3857
+            cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
+        })
     })
 })
