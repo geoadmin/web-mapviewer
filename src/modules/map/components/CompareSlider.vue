@@ -1,23 +1,20 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, defineProps, inject, onMounted, ref, toRefs, watch } from 'vue'
+import { unByKey } from 'ol/Observable'
+import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
-const props = defineProps({
-    clientWidth: {
-        type: Number,
-        default: window.innerWidth,
-    },
-})
-inject['getMap']
+const getMap = inject('getMap')
 
-const { clientWidth } = toRefs(props)
-const olMap = ref(null)
+const preRenderKey = ref(null)
+const postRenderKey = ref(null)
+const compareSliderOffset = ref(0)
 
 const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const clientWidth = computed(() => store.state.ui.width)
 const compareSliderPosition = computed(() => {
     return {
         left: compareRatio.value * 100 + '%',
@@ -27,10 +24,11 @@ const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
+    slice()
 })
 
 watch(visibleLayerOnTop, () => {
-    $nextTick(slice())
+    nextTick(slice)
 })
 
 onMounted(() => {
@@ -39,46 +37,64 @@ onMounted(() => {
 })
 
 function slice() {
-    if (olMap.value) {
-        olMap.value.un('prerender', onPreCompose)
-        olMap.value.un('postrender', onPostCompose)
+    if (preRenderKey.value != null && postRenderKey.value != null) {
+        unByKey(preRenderKey.value)
+        unByKey(postRenderKey.value)
+        preRenderKey.value = null
+        postRenderKey.value = null
     }
-    olMap.value = getMap()
-        .getAllLayers()
+    const topVisibleLayer = getMap()
+        ?.getAllLayers()
         .find((layer) => {
             return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
         })
-    if (olMap.value) {
-        olMap.value.on('prerender', onPreCompose)
-
-        olMap.value.on('postrender', onPostCompose)
+    if (topVisibleLayer) {
+        preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
+        postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
     }
+    getMap().render()
 }
 
-function onPreCompose(event) {
+function onPreRender(event) {
     const ctx = event.context
-    const width = ctx.canvas.width * this.compareRatio + 20
+    // the offset is there to ensure we get to the slider line, and not the border of the element
+    let width = ctx.canvas.width
+    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
+        width = ctx.canvas.width * compareRatio.value + 20
+    }
+
     ctx.save()
     ctx.beginPath()
     ctx.rect(0, 0, width, ctx.canvas.height)
     ctx.clip()
 }
 
-function onPostCompose(event) {
+function onPostRender(event) {
     event.context.restore()
 }
 
-function grabSlider() {
+function grabSlider(event) {
     window.addEventListener('mousemove', listenToMouseMove, { passive: true })
     window.addEventListener('touchmove', listenToMouseMove, { passive: true })
     window.addEventListener('mouseup', releaseSlider, { passive: true })
     window.addEventListener('touchend', releaseSlider, { passive: true })
+    if (event.type === 'touchstart') {
+        compareSliderOffset.value =
+            event.touches[0].clientX - compareRatio.value * clientWidth.value
+    } else {
+        compareSliderOffset.value = event.clientX - compareRatio.value * clientWidth.value
+    }
 }
 
 function listenToMouseMove(event) {
-    const currentPosition = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX
-    compareRatio.value = round(currentPosition / clientWidth.value, 2)
-    this.getMap().render()
+    let currentPosition
+    if (event.type === 'touchstart') {
+        currentPosition = event.touches[0].clientX - compareSliderOffset.value
+    } else {
+        currentPosition = event.clientX - compareSliderOffset.value
+    }
+    compareRatio.value = round(currentPosition / clientWidth.value, 3)
+    getMap().render()
 }
 
 function releaseSlider() {
@@ -86,6 +102,7 @@ function releaseSlider() {
     window.removeEventListener('touchmove', listenToMouseMove)
     window.removeEventListener('mouseup', releaseSlider)
     window.removeEventListener('touchend', releaseSlider)
+    compareSliderOffset.value = 0
     store.dispatch('setCompareRatio', compareRatio.value)
 }
 </script>
