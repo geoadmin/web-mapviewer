@@ -7,12 +7,9 @@
         "paths": {
             "@/*": ["./src/*"]
         },
-        // see https://www.typescriptlang.org/tsconfig#composite
-        "composite": true,
         // see https://www.typescriptlang.org/tsconfig#allowJs
         "allowJs": true,
-        // see https://www.typescriptlang.org/tsconfig#target
-        "target": "ES6",
+
         // we do not specify "types" so that all @types/... import from our package.json are included
     }
 }
