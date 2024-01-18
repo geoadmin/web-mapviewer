@@ -16,7 +16,7 @@ body {
 input,
 p,
 li {
-    // whitelisting inputs, so that they may be selected by iOS (otherewise, link copy is a bit weird without
+    // whitelisting inputs, so that they may be selected by iOS (otherwise, link copy is a bit weird without
     // having selected the text first)
     @extend .clear-no-ios-long-press;
 }
