@@ -135,7 +135,7 @@ async function copyValue() {
         @close="clearClick"
     >
         <div data-cy="import-file-content">
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button
                         class="nav-link py-1"
@@ -159,7 +159,7 @@ async function copyValue() {
                 <li class="nav-item" role="presentation">
                     <button
                         ref="copyButton"
-                        class="nav-link py-1"
+                        class="nav-link py-1 px-0"
                         :class="{
                             active: selectedTab === 'share',
                         }"
@@ -170,8 +170,11 @@ async function copyValue() {
                         :aria-selected="selectedTab === 'share'"
                         @click="requestCopy(), (selectedTab = 'share')"
                     >
-                        {{ $t('share_link') }}
-                        <FontAwesomeIcon class="px-2 icon" :icon="buttonIcon" />
+                        {{ $t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                            v-if="currentLang != 'it'"
+                            class="px-0 icon"
+                            :icon="buttonIcon"
+                        />
                     </button>
                 </li>
             </ul>

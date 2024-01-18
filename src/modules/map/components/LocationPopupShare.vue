@@ -1,12 +1,14 @@
 <script setup>
-import { onMounted, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 import { createShortLink } from '@/api/shortlink.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import { stringifyQuery } from '@/utils/url-router'
 
+const store = useStore()
 const emit = defineEmits(['shareLink'])
 
 const props = defineProps({
@@ -33,6 +35,8 @@ const shareLinkUrlShorten = ref(null)
 const shareLinkUrl = ref(null)
 const route = useRoute()
 
+const zoom = computed(() => store.state.position.zoom)
+
 onMounted(() => {
     if (clickInfo.value) {
         if (showEmbedSharing.value) {
@@ -51,9 +55,9 @@ watch(currentLang, () => {
         setTimeout(() => updateShareLink(), 1)
     }
 })
-watch(() => {
+watch(zoom, () => {
     if (showEmbedSharing.value) {
-        route.query, updateShareLink
+        setTimeout(() => updateShareLink(), 1)
     }
 })
 watch(showEmbedSharing, () => {
