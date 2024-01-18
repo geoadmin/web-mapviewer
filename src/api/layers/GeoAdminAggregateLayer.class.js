@@ -4,6 +4,14 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 /**
  * A sub-layer of an aggregate layer. Will define at which resolution this sub-layer should be shown
  * (shouldn't overlap other sub-layers from the aggregate)
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export class AggregateSubLayer {
     /**
@@ -37,6 +45,14 @@ export class AggregateSubLayer {
  * An aggregate layer is a combination of 2 or more layers where only one of them will be shown at a
  * time. Which one is shown is decided by the map resolution, and by the min/max resolution of all
  * sub-layer's config
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class GeoAdminAggregateLayer extends GeoAdminLayer {
     /**
@@ -52,6 +68,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
      *   endpoint)
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
+     * @param {[AggregateSubLayer]} subLayers
      */
     constructor(
         name,
@@ -62,7 +79,8 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
         timeConfig,
         isHighlightable = false,
         hasTooltip = false,
-        topics = []
+        topics = [],
+        subLayers = []
     ) {
         super(
             name,
@@ -80,12 +98,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             topics
         )
         this.timeConfig = timeConfig
-        this.subLayers = []
-    }
-
-    /** @param {AggregateSubLayer} subLayer */
-    addSubLayer(subLayer) {
-        this.subLayers.push(subLayer)
+        this.subLayers = subLayers
     }
 
     getURL() {

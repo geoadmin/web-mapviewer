@@ -3,7 +3,17 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { parseKmlName } from '@/utils/kmlUtils'
 
-/** Metadata for an external KML layer, mostly used to show drawing */
+/**
+ * Metadata for an external KML layer, mostly used to show drawing
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
 export default class KMLLayer extends AbstractLayer {
     /**
      * @param {string} kmlFileUrl The URL to access the KML data.
@@ -48,8 +58,14 @@ export default class KMLLayer extends AbstractLayer {
             this.fileId = kmlFileUrl.split('/').pop()
         }
 
-        this.kmlData = kmlData
         this.kmlMetadata = kmlMetadata
+        if (kmlData) {
+            this.name = parseKmlName(kmlData)
+            this.isLoading = false
+        } else {
+            this.isLoading = true
+        }
+        this.kmlData = kmlData
     }
 
     getID() {
@@ -79,16 +95,5 @@ export default class KMLLayer extends AbstractLayer {
             )
         }
         return clone
-    }
-
-    get kmlData() {
-        return this._kmlData
-    }
-
-    set kmlData(content) {
-        if (content) {
-            this.name = parseKmlName(content)
-        }
-        this._kmlData = content
     }
 }

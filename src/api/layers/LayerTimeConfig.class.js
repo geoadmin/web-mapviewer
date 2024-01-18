@@ -7,6 +7,13 @@ import LayerTimeConfigEntry, {
  * @class
  * @name layers:LayerTimeConfig Time configuration for a {@link GeoAdminWMTSLayer} or {@link GeoAdminWMSLayer}. It will
  *   determine which "timestamp" to add to the URL used to request tiles/image.
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class LayerTimeConfig {
     /**
@@ -44,11 +51,33 @@ export default class LayerTimeConfig {
          */
         this.currentTimeEntry = null
         if ((this.behaviour === 'last' || !this.behaviour) && this.timeEntries.length > 0) {
-            this.currentTimeEntry = this.timeEntries[0]
+            this.updateCurrentTimeEntry(this.timeEntries[0])
         } else if (this.behaviour) {
             // otherwise if it is a layer that has a specific behaviour (could be "all" for WMS, or a specific timestamp for either type)
-            this.currentTimeEntry = this.timeEntries.find((entry) => entry.timestamp === behaviour)
+            this.updateCurrentTimeEntry(
+                this.timeEntries.find((entry) => entry.timestamp === behaviour)
+            )
         }
+
+        this.years = this.timeEntries
+            .map((entry) => entry.year)
+            .filter((year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA)
+    }
+
+    /**
+     * Update current time entry
+     *
+     * This method update the current time entry, current timestamp and current year.
+     *
+     * - @WARNING USE ONLY THIS METHOD inside a vuex mutation ! This has side effects and could cause
+     *   reactivity issue when used outside a vuex mutation context.
+     *
+     * @param {LayerTimeConfigEntry} currentTimeEntry New current time entry to set
+     */
+    updateCurrentTimeEntry(currentTimeEntry) {
+        this.currentTimeEntry = currentTimeEntry
+        this.currentTimestamp = this.currentTimeEntry?.timestamp || null
+        this.currentYear = this.currentTimeEntry?.year || null
     }
 
     /**
@@ -58,26 +87,6 @@ export default class LayerTimeConfig {
      */
     hasTimestamp(timestamp) {
         return !!this.timeEntries.find((entry) => entry.timestamp === timestamp)
-    }
-
-    get years() {
-        return this.timeEntries
-            .map((entry) => entry.year)
-            .filter((year) => year !== YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA)
-    }
-
-    get currentTimestamp() {
-        if (this.currentTimeEntry) {
-            return this.currentTimeEntry.timestamp
-        }
-        return null
-    }
-
-    get currentYear() {
-        if (this.currentTimeEntry) {
-            return this.currentTimeEntry.year
-        }
-        return null
     }
 
     /**

@@ -77,7 +77,9 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) => {
-        return state.activeLayers.find((layer) => layer.type === LayerTypes.KML && layer.fileId)
+        return state.activeLayers.find(
+            (layer) => layer.type === LayerTypes.KML && !layer.isExternal
+        )
     },
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -478,7 +480,9 @@ const mutations = {
     },
     setLayerYear(state, { layerId, year }) {
         const timedLayer = getActiveLayerById(state, layerId)
-        timedLayer.timeConfig.currentTimeEntry = timedLayer.timeConfig.getTimeEntryForYear(year)
+        timedLayer.timeConfig.updateCurrentTimeEntry(
+            timedLayer.timeConfig.getTimeEntryForYear(year)
+        )
     },
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)

@@ -5,6 +5,7 @@
 
 import { loadKmlData, loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { updateKmlActiveLayer } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 /**
@@ -16,7 +17,7 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
-        store.dispatch('updateLayer', { id: kmlLayer.getID(), kmlMetadata: metadata })
+        updateKmlActiveLayer(store, kmlLayer, null, metadata)
     } catch (error) {
         log.error(`Error while fetching KML metadata for layer ${kmlLayer?.getID()}`)
     }
@@ -31,7 +32,7 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
         const data = await loadKmlData(kmlLayer)
-        store.dispatch('updateLayer', { id: kmlLayer.getID(), kmlData: data })
+        updateKmlActiveLayer(store, kmlLayer, data)
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}`)
     }
@@ -55,7 +56,7 @@ export default function loadKmlDataAndMetadata(store) {
             if (!kmlLayer.kmlData) {
                 loadData(store, kmlLayer)
             }
-            if (!kmlLayer.kmlMetadata) {
+            if (!kmlLayer.kmlMetadata && !kmlLayer.isExternal) {
                 loadMetadata(store, kmlLayer)
             }
         }

@@ -53,8 +53,11 @@ async function updateExternalLayer(store, externalLayer, projection) {
         store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
-        const erroredLayer = externalLayer.clone()
-        erroredLayer.setError(error.key ? error.key : 'error')
+        const erroredLayer = {
+            id: externalLayer.getID(),
+            errorKey: error.key ? error.key : 'error',
+            hasError: true,
+        }
         store.dispatch('updateLayer', erroredLayer)
     }
 }
