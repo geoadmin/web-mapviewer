@@ -178,7 +178,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
             cameraPosition
         )
     })
-    if (cameraPosition.length === 5) {
+    if (cameraPosition.length >= 3) {
         cameraPosition.push('')
         newQuery['camera'] = cameraPosition.join(',')
         newQuery['3d'] = true
