@@ -313,14 +313,21 @@ export function loadKmlData(kmlLayer) {
                 )
             )
         }
-        axios.get(kmlLayer.kmlFileUrl).then((response) => {
-            if (response.status === 200 && response.data) {
-                resolve(response.data)
-            } else {
-                const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.getID()}`
-                log.error(msg, response)
+        axios
+            .get(kmlLayer.kmlFileUrl)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(response.data)
+                } else {
+                    const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.getID()}`
+                    log.error(msg, response)
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                const msg = `Failed to load KML data: ${error}`
+                log.error(msg)
                 reject(new Error(msg))
-            }
-        })
+            })
     })
 }

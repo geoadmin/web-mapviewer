@@ -66,6 +66,8 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
+        this.errorKey = null
+        this.hasError = false
     }
 
     getID() {

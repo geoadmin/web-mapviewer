@@ -162,6 +162,7 @@ export default class WMTSCapabilitiesParser {
     }
 
     _getLayerExtent(layerId, layer, projection) {
+        // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
         let layerExtent = null
         let extentEpsg = null
         // First try to get the extent from the default bounding box

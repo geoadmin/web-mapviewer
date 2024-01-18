@@ -6,7 +6,6 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { updateKmlActiveLayer } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 // ref/variables outside useSaveKmlOnChange function so that they may be shared between all usages of the usaSaveKmlOnChange
@@ -81,7 +80,11 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     activeKmlLayer.value.adminId,
                     kmlData
                 )
-                await updateKmlActiveLayer(store, activeKmlLayer.value, kmlData, kmlMetadata)
+                await store.dispatch('updateKmlLayer', {
+                    layerId: activeKmlLayer.value.getID(),
+                    kmlData: kmlData,
+                    kmlMetadata: kmlMetadata,
+                })
                 saveState.value = DrawingState.SAVED
             }
         } catch (e) {

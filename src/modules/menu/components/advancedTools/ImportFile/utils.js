@@ -1,4 +1,6 @@
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyKMLError, getKmlExtent, getKmlExtentForProjection } from '@/utils/kmlUtils'
 
 /**
  * Checks if file is KML
@@ -32,6 +34,16 @@ export function handleFileContent(store, content, source) {
     let layer = null
     if (isKml(content)) {
         layer = new KMLLayer(source, true, 1.0, null /* adminId */, content)
+        const extent = getKmlExtent(content)
+        if (!extent) {
+            throw new EmptyKMLError()
+        }
+        const projectedExtent = getKmlExtentForProjection(store.state.position.projection, extent)
+
+        if (!projectedExtent) {
+            throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
+        }
+        store.dispatch('zoomToExtent', projectedExtent)
         store.dispatch('addLayer', layer)
     } else if (isGpx(content)) {
         // TODO GPX layer not done yet

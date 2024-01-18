@@ -208,6 +208,15 @@ export default class WMSCapabilitiesParser {
     }
 
     _getLayerExtent(layerId, layer, parents, projection) {
+        // TODO PB-243 handling of extent out of projection bound (currently not properly handled)
+        // - extent totally out of projection bounds
+        //    => return null and set outOfBounds flag to true
+        // - extent totally inside of projection bounds
+        //   => crop extent and set outOfBounds flag to true
+        // - extent partially inside projection bounds
+        //   => take intersect extent and set outOfBounds flag to true
+        // - no extent
+        //   => return null and set the outOfBounds flag to false (we don't know)
         let layerExtent = null
         const matchedBbox = layer.BoundingBox?.find((bbox) => bbox.crs === projection.epsg)
         // First try to find a matching extent from the BoundingBox

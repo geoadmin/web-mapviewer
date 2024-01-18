@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import TextInput from '@/utils/components/TextInput.vue'
+import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 import { isValidUrl } from '@/utils/utils'
 
@@ -74,6 +76,10 @@ async function loadFile() {
         if (error instanceof AxiosError || /fetch/.test(error.message)) {
             log.error(`Failed to load file from url ${fileUrl.value}`, error)
             urlError.value = 'loading_error_network_failure'
+        } else if (error instanceof OutOfBoundsError) {
+            urlError.value = 'kml_gpx_file_out_of_bounds'
+        } else if (error instanceof EmptyKMLError) {
+            urlError.value = 'kml_gpx_file_empty'
         } else {
             log.error(`Failed to parse file from url ${fileUrl.value}`, error)
             urlError.value = 'invalid_kml_gpx_file_error'

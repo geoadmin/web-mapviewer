@@ -151,6 +151,16 @@ function transformExtentIntoPolygon(flattenExtent) {
 
 const lv95Extent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
 function zoomToLayer() {
+    // TODO PB-243 better handling of layers extent errors
+    // - extent totally out of projection bounds
+    //    => layer should be marked as out of bounds and disabled, no zoom to layer icon
+    //       but an error icon with reason
+    // - extent totally inside of projection bounds
+    //   => current behavior, maybe add a warning icon about partial layer display
+    // - extent partially inside projection bounds
+    //   => take intersection as extent, maybe add a warning icon about partial layer display
+    // - no extent
+    //   => add a warning that the layer might be out of bound
     log.debug(`Zoom to layer ${item.value.name}`, item.value.extent)
     // Only zooming to layer's extent if its extent is entirely within LV95 extent.
     // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.

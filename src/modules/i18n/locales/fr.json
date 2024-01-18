@@ -648,6 +648,6 @@
     "no_result": "Pas de résultat",
     "loading": "Chargement",
     "search_in_catalogue_placeholder": "Rechercher dans les cartes importées",
-    "kml_name": "Nom du KML",
-    "name_too_long": "Le nom est trop long"
+    "kml_gpx_file_out_of_bounds": "Le contenu du fichier est hors des limites de projection",
+    "kml_gpx_file_empty": "Le fichier KML/GPX est vide"
 }

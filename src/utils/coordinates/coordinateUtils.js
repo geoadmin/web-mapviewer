@@ -82,3 +82,47 @@ export function projExtent(fromProj, toProj, extent) {
     }
     return null
 }
+
+/**
+ * Return an extent normalized to [[x, y], [x, y]] from a flat extent
+ *
+ * @param {Array} extent Extent to normalize
+ * @returns {Array} Extent in the form [[x, y], [x, y]]
+ */
+export function normalizeExtent(extent) {
+    let extentNormalized = extent
+    if (extent?.length === 4) {
+        // convert to the flat extent to [[x, y], [x, y]]
+        extentNormalized = [
+            [extent[0], extent[1]],
+            [extent[2], extent[3]],
+        ]
+    } else if (extent?.length !== 2) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return extentNormalized
+}
+
+/**
+ * Flatten extent
+ *
+ * @param {Array} extent Extent to flatten
+ * @returns {Array} Flatten extent in from [minx, miny, maxx, maxy]
+ */
+export function flattenExtent(extent) {
+    let flattenExtent = extent
+    if (extent?.length === 2) {
+        flattenExtent = [...extent[0], ...extent[1]]
+    } else if (extent?.length !== 4) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return flattenExtent
+}
+
+/** Coordinates or extent out of bounds error */
+export class OutOfBoundsError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = 'OutOfBoundsError'
+    }
+}

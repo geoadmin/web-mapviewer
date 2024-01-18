@@ -5,7 +5,6 @@
 
 import { loadKmlData, loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { updateKmlActiveLayer } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 /**
@@ -17,7 +16,7 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
-        updateKmlActiveLayer(store, kmlLayer, null, metadata)
+        store.dispatch('updateKmlLayer', { layerId: kmlLayer?.getID(), kmlMetadata: metadata })
     } catch (error) {
         log.error(`Error while fetching KML metadata for layer ${kmlLayer?.getID()}`)
     }
@@ -32,9 +31,13 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
         const data = await loadKmlData(kmlLayer)
-        updateKmlActiveLayer(store, kmlLayer, data)
+        store.dispatch('updateKmlLayer', { layerId: kmlLayer?.getID(), kmlData: data })
     } catch (error) {
-        log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}`)
+        log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}: ${error}`)
+        store.dispatch('setLayerErrorKey', {
+            layerId: kmlLayer.getID(),
+            errorKey: `loading_error_network_failure`,
+        })
     }
 }
 
