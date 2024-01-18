@@ -126,7 +126,7 @@ async function copyValue() {
     <component
         :is="mappingFrameworkSpecificPopup"
         v-if="coordinate"
-        :title="$t('')"
+        :title="selectedTab == 'position' ? $t('position') : $t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="projection"
         use-content-padding

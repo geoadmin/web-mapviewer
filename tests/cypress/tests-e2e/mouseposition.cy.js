@@ -126,7 +126,6 @@ describe('Test mouse position and interactions', () => {
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
             cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-share-tab-button"]').click()
 
             cy.get('[data-cy="location-popup"]').should('be.visible')
             cy.log('the LocationPopUp is visible')
@@ -140,7 +139,6 @@ describe('Test mouse position and interactions', () => {
             // closing the menu if mobile
             cy.clickOnMenuButtonIfMobile()
             cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-share-tab-button"]').click()
 
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {
@@ -189,6 +187,8 @@ describe('Test mouse position and interactions', () => {
             )
             cy.log('it shows correct MGRS coordinates in the popup')
 
+            cy.get('[data-cy="location-popup-share-tab-button"]').click()
+
             cy.get('[data-cy="map"]').rightclick()
             cy.wait('@shortlink').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
@@ -199,6 +199,11 @@ describe('Test mouse position and interactions', () => {
                 expect(params.get('crosshair')).not.to.be.empty
             })
             cy.log('a link with crosshair and correct position is sent to shortlink')
+
+            cy.get(`[data-cy="share-shortlink-email"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
 
             const shortUrl2 = 'https://s.geo.admin.ch/1111111'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
