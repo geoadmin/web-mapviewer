@@ -45,11 +45,21 @@ function onEnter(el, done) {
         onComplete: done,
     })
 }
+
+function onAfterEnter() {
+    // for iOs devices, we need to scroll down to the bottom so that the import popup is not covered by the keyboard
+    window.scrollBy(0, window.innerHeight)
+}
 </script>
 
 <template>
     <teleport to="#map-footer-middle-1">
-        <Transition :css="false" @before-enter="onBeforeEnter" @enter="onEnter">
+        <Transition
+            :css="false"
+            @before-enter="onBeforeEnter"
+            @enter="onEnter"
+            @after-enter="onAfterEnter"
+        >
             <SimpleWindow
                 v-if="debounceAnimate"
                 title="import_file"
