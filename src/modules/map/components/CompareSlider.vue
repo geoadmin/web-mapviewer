@@ -93,6 +93,14 @@ function listenToMouseMove(event) {
     } else {
         currentPosition = event.clientX - compareSliderOffset.value
     }
+    // we ensure the slider can't get off the screen
+    if (currentPosition < 1) {
+        currentPosition = 1
+    }
+    // same on the other side, but with also the idea of keeping the cartes completely in the screen
+    if (currentPosition > clientWidth.value - 36) {
+        currentPosition = clientWidth.value - 36
+    }
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
     getMap().render()
 }
