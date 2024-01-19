@@ -20,6 +20,13 @@ const props = defineProps({
         required: true,
     },
     /**
+     * Allow HTML tags in text
+     *
+     * @type {Boolean}
+     * @WARNING Should only be used if the text source is safe !
+     */
+    allowHtml: { type: Boolean, default: false },
+    /**
      * Search pattern to match for marking in text. Can be either a string or a Regular Expression
      *
      * @default '' Empty string
@@ -44,6 +51,8 @@ const { text, search, markers } = toRefs(props)
 
 const segments = computed(() => segmentizeMatch(text.value, search.value))
 
+const emit = defineEmits(['click'])
+
 function getClasses(match) {
     if (match) {
         return markers.value
@@ -53,11 +62,24 @@ function getClasses(match) {
 </script>
 
 <template>
-    <span
-        v-for="(segment, index) in segments"
-        :key="`${segment.text}-${index}`"
-        :class="getClasses(segment.match)"
-        :data-cy="`segment${segment.match ? '-match' : ''}`"
-        >{{ segment.text }}</span
-    >
+    <div v-if="allowHtml" @click="emit('click')">
+        <!-- eslint-disable vue/no-v-html-->
+        <span
+            v-for="(segment, index) in segments"
+            :key="`${segment.text}-${index}`"
+            :class="getClasses(segment.match)"
+            :data-cy="`segment${segment.match ? '-match' : ''}`"
+            v-html="segment.text"
+        />
+        <!-- eslint-enable vue/no-v-html-->
+    </div>
+    <div v-else @click="emit('click')">
+        <span
+            v-for="(segment, index) in segments"
+            :key="`${segment.text}-${index}`"
+            :class="getClasses(segment.match)"
+            :data-cy="`segment${segment.match ? '-match' : ''}`"
+            >{{ segment.text }}</span
+        >
+    </div>
 </template>
