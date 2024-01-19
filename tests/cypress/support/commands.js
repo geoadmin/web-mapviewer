@@ -215,7 +215,7 @@ Cypress.Commands.add(
             }
         )
 
-        // In the legacy URL, 3d is not found. We check is the map in 3d or not by checking the pitch, heading, and elevation
+        // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
             'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
         const is3d = '3d' in queryParams && queryParams['3d'] === true

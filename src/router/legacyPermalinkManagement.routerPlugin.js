@@ -184,7 +184,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
         newQuery['3d'] = true
         newQuery['sr'] = WEBMERCATOR.epsgNumber
 
-        // Handle different backrgound layer from legacy 3D parameter
+        // Handle different background layer from legacy 3D parameter
         if (newQuery['bgLayer']) {
             const newBackgroundLayer = backgroundMatriceBetweenLegacyAndNew[newQuery['bgLayer']]
             if (newBackgroundLayer) {
