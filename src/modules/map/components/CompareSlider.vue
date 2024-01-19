@@ -1,11 +1,11 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { unByKey } from 'ol/Observable'
-import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { round } from '@/utils/numberUtils'
 import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store'
+import { round } from '@/utils/numberUtils'
 const getMap = inject('getMap')
 
 const preRenderKey = ref(null)
@@ -37,6 +37,11 @@ watch(visibleLayerOnTop, () => {
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
+    slice()
+})
+
+onUnmounted(() => {
+    compareRatio.value = COMPARE_SLIDER_DEFAULT_VALUE
     slice()
 })
 
@@ -143,6 +148,7 @@ function releaseSlider() {
     width: 40px;
     height: 100%;
     z-index: $zindex-compare-slider;
+    cursor: w-resize;
 
     &-caret-left,
     &-caret-right {
