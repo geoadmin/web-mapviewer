@@ -214,7 +214,13 @@ Cypress.Commands.add(
                 errorMsg: 'Timeout waiting for all layers to be loaded',
             }
         )
-        if ('3d' in queryParams && queryParams['3d'] === true) {
+
+        // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
+        const isLegacy3d =
+            'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
+        const is3d = '3d' in queryParams && queryParams['3d'] === true
+
+        if (is3d || isLegacy3d) {
             cy.get('[data-cy="cesium-map"]').should('be.visible')
         } else {
             cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
