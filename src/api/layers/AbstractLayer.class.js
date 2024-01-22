@@ -77,6 +77,8 @@ export default class AbstractLayer {
         } else {
             this.hasLegend = true
         }
+        this.errorKey = null
+        this.hasError = false
     }
 
     /**
