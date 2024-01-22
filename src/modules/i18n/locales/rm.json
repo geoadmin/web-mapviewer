@@ -646,6 +646,6 @@
     "no_result": "Nagut resultat",
     "loading": "Chargiada",
     "search_in_catalogue_placeholder": "Cercar en mapas importads",
-    "kml_name": "Num da la KML",
-    "name_too_long": "Il num è massa lung"
+    "kml_gpx_file_out_of_bounds": "Il contetn dal file è en furma da las limitas da projezziun",
+    "kml_gpx_file_empty": "La datoteca KML/GPX è vegnida empruva"
 }

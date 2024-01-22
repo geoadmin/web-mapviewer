@@ -97,8 +97,6 @@ export default class ExternalLayer extends AbstractLayer {
         this.extent = extent
         this.legends = legends
         this.isLoading = isLoading
-        this.errorKey = null
-        this.hasError = false
         this.hasLegend = this.abstract || this.legends?.length > 0
     }
 

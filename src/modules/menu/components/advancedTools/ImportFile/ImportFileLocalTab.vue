@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { useImportButton } from '@/modules/menu/components/advancedTools/useImportButton'
+import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const LOCAL_UPLOAD_ACCEPT = '.kml,.KML,.gpx,.GPX'
@@ -72,8 +74,14 @@ async function loadFile() {
             handleFileContent(store, content, selectedFile.value.name)
             layerAdded.value = true
         } catch (error) {
-            errorMessage.value = 'invalid_kml_gpx_file_error'
-            log.error(`Failed to load file`, error)
+            if (error instanceof OutOfBoundsError) {
+                errorMessage.value = 'kml_gpx_file_out_of_bounds'
+            } else if (error instanceof EmptyKMLError) {
+                errorMessage.value = 'kml_gpx_file_empty'
+            } else {
+                errorMessage.value = 'invalid_kml_gpx_file_error'
+                log.error(`Failed to load file`, error)
+            }
         }
     }
 

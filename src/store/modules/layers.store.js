@@ -1,6 +1,7 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { getKmlExtent, getKmlExtentForProjection, parseKmlName } from '@/utils/kmlUtils'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
@@ -428,6 +429,48 @@ const actions = {
     },
     clearPreviewYear({ commit }) {
         commit('setPreviewYear', null)
+    },
+    setLayerErrorKey({ commit, getters }, payload) {
+        const { layerId, errorKey } = payload
+        const currentLayer = getters.getActiveLayerById(layerId)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update layer error key "${layerId}", layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+        updatedLayer.errorKey = errorKey
+        updatedLayer.hasError = !!errorKey
+        commit('updateLayer', updatedLayer)
+    },
+    updateKmlLayer({ commit, getters, rootState }, payload) {
+        const { layerId, kmlData, kmlMetadata } = payload
+        const currentLayer = getters.getActiveLayerById(layerId)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update KML layer data/metadata "${layerId}", ` +
+                    `layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+
+        if (kmlData) {
+            updatedLayer.name = parseKmlName(kmlData) || 'KML'
+            updatedLayer.kmlData = kmlData
+            updatedLayer.isLoading = false
+            const extent = getKmlExtent(kmlData)
+            if (!extent) {
+                updatedLayer.errorKey = 'kml_gpx_file_empty'
+                updatedLayer.hasError = true
+            } else if (!getKmlExtentForProjection(rootState.position.projection, extent)) {
+                updatedLayer.errorKey = 'kml_gpx_file_out_of_bounds'
+                updatedLayer.hasError = true
+            }
+        }
+        if (kmlMetadata) {
+            updatedLayer.kmlMetadata = kmlMetadata
+        }
+        commit('updateLayer', updatedLayer)
     },
 }
 

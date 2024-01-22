@@ -3,7 +3,11 @@ import proj4 from 'proj4'
 import { describe, it } from 'vitest'
 
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
+import {
+    flattenExtent,
+    normalizeExtent,
+    reprojectUnknownSrsCoordsToWGS84,
+} from '@/utils/coordinates/coordinateUtils'
 
 describe('Unit test functions from coordinateUtils.js', () => {
     describe('reprojectUnknownSrsCoordsToWGS84(x,y)', () => {
@@ -73,6 +77,30 @@ describe('Unit test functions from coordinateUtils.js', () => {
                 reprojectUnknownSrsCoordsToWGS84(coordinatesWGS84[1], coordinatesWGS84[0]),
                 coordinatesWGS84
             )
+        })
+        it('normalize an extent', () => {
+            const flatExtent = [1, 2, 3, 4]
+            const result = normalizeExtent(flatExtent)
+            expect(result).to.have.length(2)
+            expect(result[0]).to.have.length(2)
+            expect(result[1]).to.have.length(2)
+            expect(result[0][0]).to.equal(1)
+            expect(result[0][1]).to.equal(2)
+            expect(result[1][0]).to.equal(3)
+            expect(result[1][1]).to.equal(4)
+
+            expect(normalizeExtent(result)).to.deep.equal(result)
+        })
+        it('flattern an extent', () => {
+            const normalizedExtent = [
+                [1, 2],
+                [3, 4],
+            ]
+            const flatExtent = flattenExtent(normalizedExtent)
+            expect(flatExtent).to.have.length(4)
+            expect(flatExtent).to.deep.equal([1, 2, 3, 4])
+
+            expect(flattenExtent(flatExtent)).to.deep.equal([1, 2, 3, 4])
         })
     })
 })

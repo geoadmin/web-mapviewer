@@ -34,6 +34,12 @@ onMounted(() => {
         placement: 'top',
         touch: false,
         hideOnClick: false,
+        onCreate: (instance) => {
+            const dataCy = instance.reference.getAttribute('data-cy')
+            if (dataCy) {
+                instance.popper.setAttribute('data-cy', `tippy-${dataCy}`)
+            }
+        },
     })
 })
 
