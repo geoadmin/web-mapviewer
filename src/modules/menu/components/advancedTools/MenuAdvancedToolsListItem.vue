@@ -74,15 +74,16 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
+@import 'src/modules/menu/scss/menu-items';
 .advanced-tools-item {
     .advanced-tools-title {
+        // Here we add the menu-item styling to the title only to avoid hover
+        // on the content once the item has been opened
+        @extend .menu-item;
+
         cursor: pointer;
         height: 2.75em;
         line-height: 2.75em;
-    }
-    .advanced-tools-title:hover,
-    .advanced-tools-title:focus {
-        color: $list-item-hover-text-color !important;
     }
 }
 </style>
