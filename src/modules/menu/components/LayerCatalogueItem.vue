@@ -240,7 +240,13 @@ function containsLayer(layers, searchText) {
             >
                 <TextSearchMarker :text="item.name" :search="search" />
             </TextTruncate>
-            <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
+            <button
+                v-if="item.extent?.length"
+                class="btn"
+                :class="{ 'btn-lg': !compact }"
+                data-cy="catalogue-zoom-extent-button"
+                @click.stop="zoomToLayer"
+            >
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
             <button
