@@ -56,13 +56,13 @@ onUnmounted(() => {
 <template>
     <div class="advanced-tools-item border-bottom">
         <a
-            class="d-flex align-items-center advanced-tools-title text-decoration-none"
+            class="d-flex align-items-center advanced-tools-title text-decoration-none ps-2"
             :class="{ 'text-primary': isSelected, 'text-black': !isSelected }"
             :data-cy="`menu-advanced-tools-${title}`"
             @click="emit('toggleMenu')"
         >
             <FontAwesomeIcon
-                class="me-2"
+                class="dropdown-icon me-2"
                 :class="{ invisible: !dropdownMenu }"
                 :icon="`caret-${isSelected ? 'down' : 'right'}`"
             />
@@ -76,6 +76,11 @@ onUnmounted(() => {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 @import 'src/modules/menu/scss/menu-items';
 .advanced-tools-item {
+    .dropdown-icon {
+        // The min-width here is to avoid size changes when toggling the dropdown, the caret-down
+        // icon is wider than the caret right
+        min-width: 8.5px;
+    }
     .advanced-tools-title {
         // Here we add the menu-item styling to the title only to avoid hover
         // on the content once the item has been opened
