@@ -92,9 +92,7 @@ defineExpose({
                     class="form-check-input"
                     type="checkbox"
                 />
-                <label class="form-check-label" for="checkboxLegend">{{
-                    i18n.t('print_legend')
-                }}</label>
+                <label class="form-check-label" for="checkboxLegend">{{ i18n.t('legend') }}</label>
             </div>
             <div class="form-check">
                 <input
@@ -104,8 +102,13 @@ defineExpose({
                     type="checkbox"
                 />
                 <label class="form-check-label" for="checkboxGraticule">{{
-                    i18n.t('print_graticule')
+                    i18n.t('graticule')
                 }}</label>
+            </div>
+            <div class="full-width justify-content-center">
+                <button type="button" class="btn btn-light w-100">
+                    {{ i18n.t('print_action') }}
+                </button>
             </div>
         </div>
     </MenuSection>
@@ -117,5 +120,8 @@ defineExpose({
     label {
         text-align: end;
     }
+}
+.full-width {
+    grid-column: span 2;
 }
 </style>
