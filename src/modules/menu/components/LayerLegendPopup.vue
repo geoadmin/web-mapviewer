@@ -62,18 +62,24 @@ onMounted(async () => {
                 <font-awesome-icon spin :icon="['fa', 'spinner']" />
             </h4>
             <div v-else-if="isExternal">
-                <h6 v-if="body">{{ i18n.t('description') }}</h6>
-                <div v-if="body">{{ body }}</div>
+                <h6 v-if="body" data-cy="layer-legend-popup-description-title">
+                    {{ i18n.t('description') }}
+                </h6>
+                <div v-if="body" data-cy="layer-legend-popup-description-body">{{ body }}</div>
                 <div v-if="legends.length" class="mt-4">
-                    <h6>{{ i18n.t('legend') }}</h6>
-                    <div v-for="legend in legends" :key="legend.url">
+                    <h6 data-cy="layer-legend-popup-legends-title">{{ i18n.t('legend') }}</h6>
+                    <div
+                        v-for="legend in legends"
+                        :key="legend.url"
+                        :data-cy="`layer-legend-popup-legends-body-${legend.url}`"
+                    >
                         <img v-if="legend.format.startsWith('image/')" :src="legend.url" />
                         <iframe v-else-if="legend.format === 'text/html'" :src="legend.url" />
                         <a v-else :href="legend.url" target="_blank">{{ legend.url }}</a>
                     </div>
                 </div>
 
-                <div class="mt-2 text-primary text-end">
+                <div class="mt-2 text-primary text-end" data-cy="layer-legend-popup-attributions">
                     <span class="me-1">{{ $t('copyright_data') }}</span>
                     <a v-if="attributionUrl" :href="attributionUrl" target="_blank">{{
                         attributionName

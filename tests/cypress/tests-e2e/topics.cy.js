@@ -163,7 +163,7 @@ describe('Topics', () => {
         if (isMobileViewport) {
             cy.get('[data-cy="menu-button"]').click()
         }
-        cy.get('[data-cy="menu-topic-section"]').click()
+        cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
 
         // it must not open the first elements of the tree by default
@@ -171,13 +171,13 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-3"]').should('not.be.visible')
 
         // shows a topic tree item's children when we click on it
-        cy.get('[data-cy="catalogue-tree-item-2"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-2"]').click()
         cy.get('[data-cy="catalogue-tree-item-3"]').should('be.visible')
 
         // it adds a layer to the map when we click on its name in the topic tree
-        cy.get('[data-cy="catalogue-tree-item-3"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-        cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').click()
         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
             expect(activeLayers).to.be.an('Array').lengthOf(1)
             const [firstLayer] = activeLayers
@@ -191,7 +191,7 @@ describe('Topics', () => {
             `<div>${expectedContent}</div>`
         ).as('legend')
 
-        cy.get('[data-cy="catalogue-tree-item-info"]').first().click()
+        cy.get('[data-cy^="catalogue-tree-item-info-"]').first().click()
         cy.get('[data-cy="layer-legend-popup"]').should('be.visible').contains(expectedContent)
     })
 
@@ -202,8 +202,8 @@ describe('Topics', () => {
 
             cy.goToMapView()
             cy.get('[data-cy="menu-topic-section"]').click()
-            cy.get('[data-cy="catalogue-tree-item-2"]').click()
-            cy.get('[data-cy="catalogue-tree-item-3"]').click()
+            cy.get('[data-cy="catalogue-tree-item-title-2"]').click()
+            cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
 
             cy.get(layerSelector).trigger('mouseenter')
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
@@ -247,7 +247,7 @@ describe('Topics', () => {
             expect(currentlyOpenedThemesId).to.deep.equal(['2'])
         })
         // it must not change the URL when we close on a tree item (it's not meant to be synced with the UI after loading)
-        cy.get('[data-cy="catalogue-tree-item-3"]').click()
+        cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
         cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.visible')
         cy.url().should('contain', 'catalogNodes=2')
         cy.url().should('not.contain', 'catalogNodes=2,3')
