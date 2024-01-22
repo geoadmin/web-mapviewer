@@ -16,9 +16,6 @@
         <div id="map-footer-middle-0" class="map-footer-middle">
             <!-- teleport for: Infobox, Profile, ... -->
         </div>
-        <div id="map-footer-middle-1" class="map-footer-middle">
-            <!-- teleport for: Import file -->
-        </div>
         <div class="map-footer-bottom">
             <div id="map-footer-scale-line" />
             <div id="map-footer-mouse-tracker" class="d-flex gap-1 align-items-center" />

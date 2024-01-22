@@ -4,7 +4,13 @@
         sure that it is always on top of the reset. -->
         <div>
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
-            <div class="modal-popup position-fixed top-50 start-50 translate-middle">
+            <div
+                class="modal-popup position-fixed start-50"
+                :class="{
+                    'top-50 translate-middle': !top,
+                    'translate-middle-x on-top-with-padding': top,
+                }"
+            >
                 <div
                     class="card"
                     :class="{
@@ -75,7 +81,7 @@
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
 /**
@@ -105,6 +111,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        top: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['close'],
     methods: {
@@ -124,6 +134,11 @@ export default {
 <style lang="scss" scoped>
 @import 'src/scss/variables';
 @import 'src/scss/media-query.mixin';
+
+.on-top-with-padding {
+    top: $card-spacer-y !important;
+}
+
 .modal-popup {
     z-index: $zindex-modal;
     .card {

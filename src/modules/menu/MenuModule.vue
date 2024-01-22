@@ -4,7 +4,6 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import BlackBackdrop from '@/modules/menu/components/BlackBackdrop.vue'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
@@ -14,6 +13,7 @@ import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vu
 import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
 import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const showTimeSlider = ref(false)
 
