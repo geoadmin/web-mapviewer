@@ -6,7 +6,7 @@
             :network="network.id"
             :url="shortLink"
             title=""
-            class="btn btn-light share-network-button"
+            class="btn btn-sm btn-light share-network-button"
             :options="shareNetworkOptions"
             :data-cy="`share-shortlink-${network.id}`"
         >

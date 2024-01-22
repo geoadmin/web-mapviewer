@@ -265,6 +265,7 @@ export default {
 }
 
 .menu-layer-item {
+    @extend .menu-item;
     border-bottom: 1px solid $gray-400;
 }
 .menu-layer-item-title {

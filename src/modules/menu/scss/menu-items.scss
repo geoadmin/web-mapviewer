@@ -1,7 +1,15 @@
+@import 'src/scss/webmapviewer-bootstrap-theme';
+
 .menu-list {
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+.menu-item {
+    &:hover {
+        background-color: $list-item-hover-bg-color !important;
+    }
 }
 
 .menu-title {

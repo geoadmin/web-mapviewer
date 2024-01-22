@@ -8,18 +8,17 @@
         @click:header="toggleShareMenu"
         @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
-        <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
-        <div v-if="shortLink" class="p-2">
-            <MenuShareSocialNetworks :short-link="shortLink" class="pt-1" />
+        <div class="p-2">
+            <MenuShareSocialNetworks :short-link="shortLink" />
             <MenuShareInputCopyButton
                 :input-text="shortLink"
                 :label-text="'share_link'"
                 :copy-text="'copy_url'"
                 :copied-text="'copy_success'"
-                class="px-2 py-3"
+                class="p-2"
             />
-            <MenuShareEmbed :short-link="embeddedShortLink" class="pb-1" />
         </div>
+        <MenuShareEmbed :short-link="embeddedShortLink" class="menu-share-embed border-top" />
     </MenuSection>
 </template>
 

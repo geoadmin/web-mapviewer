@@ -82,7 +82,9 @@ function onDeleteLastPoint() {
     <teleport to=".drawing-toolbox-in-menu">
         <DrawingHeader v-if="isDesktopMode" @close="closeDrawing" />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
-            <div class="card text-center drawing-toolbox-content rounded-0">
+            <div
+                class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
+            >
                 <div class="card-body position-relative container">
                     <div
                         class="row justify-content-start g-2"

@@ -125,7 +125,11 @@ function toggleMenu() {
                 >
                     <MenuTray
                         class="menu-tray-content"
-                        :class="{ 'shadow-lg': isDesktopMode, 'rounded-bottom': isDesktopMode }"
+                        :class="{
+                            'shadow-lg': isDesktopMode,
+                            'rounded-bottom': isDesktopMode,
+                            'rounded-start-0': isDesktopMode,
+                        }"
                         :compact="isDesktopMode"
                     />
                     <button

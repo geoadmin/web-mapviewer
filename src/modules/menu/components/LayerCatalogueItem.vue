@@ -286,8 +286,8 @@ function containsLayer(layers, searchText) {
         }
     }
 }
-.menu-catalogue-item-title:hover {
-    background-color: $list-item-hover-bg-color;
+.menu-catalogue-item-title {
+    @extend .menu-item;
 }
 .menu-catalogue-item-name {
     @extend .menu-name;
