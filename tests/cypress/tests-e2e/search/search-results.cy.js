@@ -131,12 +131,9 @@ describe('Test the search bar result handling', () => {
         cy.wait(`@search-locations`)
         cy.get('[data-cy="search-result-entry-location"]')
             .first()
-            .then((entries) => {
-                expect(entries.length).to.eq(1)
-                const entry = entries[0]
-                expect(entry.innerHTML).to.contain(expectedLocationLabel)
-            })
-            .click()
+            .invoke('text')
+            .should('eq', expectedLocationLabel.replaceAll(/<\/?b>/g, ''))
+        cy.get('[data-cy="search-result-entry-location"]').first().click()
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').then((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
@@ -174,9 +171,9 @@ describe('Test the search bar result handling', () => {
         // Ensure that all layers have been added and contain an info-button.
         cy.get('[data-cy="search-result-entry-layer"]')
             .should('have.length', layerResponse.results.length)
-            .then(([entry]) => {
-                expect(entry.innerHTML).to.contain(expectedLayerLabel)
-            })
+            .invoke('text')
+            .should('contain', expectedLayerLabel.replaceAll(/<\/?b>/g, ''))
+        cy.get('[data-cy="search-result-entry-layer"]')
             .find('[data-cy^="button-show-legend-layer-"]')
             .should('exist')
     })

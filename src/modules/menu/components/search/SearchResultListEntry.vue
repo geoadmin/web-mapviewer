@@ -12,13 +12,14 @@
         @mouseenter="startResultPreview"
         @mouseleave="stopResultPreview"
     >
-        <!-- eslint-disable vue/no-v-html-->
-        <div
+        <TextSearchMarker
             class="search-category-entry-main px-2 flex-grow-1"
             :class="{ 'py-1': compact, 'py-2': !compact }"
+            :text="entry.title"
+            :search="searchQuery"
+            allow-html
             @click="selectItem"
-            v-html="entry.title"
-        ></div>
+        />
 
         <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
             <button
@@ -35,12 +36,14 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 import { SearchResult } from '@/api/search.api'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 /** Component showing one search result entry (and dispatching its selection to the store) */
 export default {
+    components: { TextSearchMarker },
     props: {
         index: {
             type: Number,
@@ -54,6 +57,9 @@ export default {
     emits: ['showLayerLegendPopup', 'entrySelected', 'firstEntryReached', 'lastEntryReached'],
     computed: {
         ...mapGetters(['isDesktopMode']),
+        ...mapState({
+            searchQuery: (state) => state.search.query,
+        }),
         compact() {
             return this.isDesktopMode
         },
