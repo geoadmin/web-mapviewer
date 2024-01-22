@@ -94,7 +94,7 @@ export function readPrintCapabilities() {
                     capabilities?.layouts.map((layout) => {
                         return new PrintLayout(
                             layout.name,
-                            layout.attributes.map((attribute) => {
+                            ...layout.attributes.map((attribute) => {
                                 return new PrintLayoutAttribute(
                                     attribute.name,
                                     attribute.type,
