@@ -66,6 +66,7 @@ const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
 const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
  * Flag telling if one of the children (deep search) match the search text When no search text is
@@ -173,6 +174,10 @@ function zoomToLayer() {
         store.dispatch('zoomToExtent', item.value.extent)
     } else {
         store.dispatch('zoomToExtent', lv95Extent)
+    }
+    if (isPhoneMode.value) {
+        // On mobile phone we close the menu so that the user can see the zoom to extent
+        store.dispatch('toggleMenu')
     }
 }
 
