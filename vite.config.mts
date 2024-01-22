@@ -34,10 +34,6 @@ export default defineConfig(({ mode }) => {
                         isCustomElement: (tag) => tag === 'cesium-compass',
                     },
                 },
-                script: {
-                    // TODO remove this once updated vue to 3.4
-                    defineModel: true,
-                },
             }),
             generateBuildInfo(appVersion),
             // CesiumJS requires static files from the following 4 folders to be included in the build
