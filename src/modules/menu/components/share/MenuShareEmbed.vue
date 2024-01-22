@@ -1,15 +1,16 @@
 <template>
     <div class="menu-share-embed">
-        <button
-            class="btn btn-light btn-sm embedded-button"
+        <a
+            class="embed-btn d-flex align-items-center text-decoration-none ps-3 p-2"
+            :class="{ 'text-primary': isSelected, 'text-black': !isSelected }"
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
             <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
             <span class="ms-2">{{ $t('share_more') }}</span>
-        </button>
+        </a>
         <CollapseTransition :duration="200">
-            <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
+            <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
@@ -29,7 +30,7 @@
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div v-html="$t('share_disclaimer')"></div>
+                <div class="py-2" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
@@ -253,6 +254,13 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+.embed-btn {
+    &:hover {
+        background-color: $list-item-hover-bg-color !important;
+        cursor: pointer;
+    }
+}
 
 .menu-share-embed {
     display: none;
