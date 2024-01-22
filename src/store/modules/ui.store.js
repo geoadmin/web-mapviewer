@@ -18,6 +18,7 @@ export const UIModes = {
  *
  * @type int
  */
+
 export const COMPARE_SLIDER_DEFAULT_VALUE = -1
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
@@ -238,8 +239,8 @@ export default {
         setCompareRatio({ commit }, value) {
             /*
                 This check is here to make sure the compare ratio doesn't get out of hand
-                The logic is, when we toggle the ratio, we add or substract 1 depending on the sign of the
-                compare ratio. When the Compare Slider is < 0, it won't be here
+                The logic is, if we try to set a value outside of the range at which the compare
+                slider would be visible, we set it to its default value instead
             */
             if (0.0 < value && value < 1.0) {
                 commit('setCompareRatio', value)
