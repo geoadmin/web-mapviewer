@@ -11,6 +11,8 @@ const emits = defineEmits(['openMenuSection'])
 const isSectionShown = ref(false)
 const selectedLayoutName = ref(null)
 const selectedScale = ref(null)
+const useLegend = ref(false)
+const useGraticule = ref(false)
 
 const i18n = useI18n()
 const store = useStore()
@@ -83,6 +85,28 @@ defineExpose({
                     1:{{ formatThousand(scale) }}
                 </option>
             </select>
+            <div class="form-check">
+                <input
+                    id="checkboxLegend"
+                    v-model="useLegend"
+                    class="form-check-input"
+                    type="checkbox"
+                />
+                <label class="form-check-label" for="checkboxLegend">{{
+                    i18n.t('print_legend')
+                }}</label>
+            </div>
+            <div class="form-check">
+                <input
+                    id="checkboxGraticule"
+                    v-model="useGraticule"
+                    class="form-check-input"
+                    type="checkbox"
+                />
+                <label class="form-check-label" for="checkboxGraticule">{{
+                    i18n.t('print_graticule')
+                }}</label>
+            </div>
         </div>
     </MenuSection>
 </template>
