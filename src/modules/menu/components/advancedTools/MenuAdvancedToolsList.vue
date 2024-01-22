@@ -1,5 +1,5 @@
 <template>
-    <div class="advanced-tools-list px-2 py-1">
+    <div class="advanced-tools-list">
         <MenuAdvancedToolsListItem
             :is-selected="showImportCatalogue"
             title="import_maps"
@@ -8,7 +8,7 @@
             data-cy="menu-advanced-tools-import-catalogue"
             @toggle-menu="onToggleImportCatalogue"
         >
-            <ImportCatalogue v-show="showImportCatalogue" :compact="compact" />
+            <ImportCatalogue v-show="showImportCatalogue" class="py-2" :compact="compact" />
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             :is-selected="showImportFile"
