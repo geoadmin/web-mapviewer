@@ -2,7 +2,6 @@
     <div class="menu-share-embed">
         <a
             class="embed-btn d-flex align-items-center text-decoration-none ps-3 p-2"
-            :class="{ 'text-primary': isSelected, 'text-black': !isSelected }"
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
