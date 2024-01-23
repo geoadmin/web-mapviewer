@@ -52,14 +52,6 @@ const copyButtonIcon = computed(() => {
     return ['far', 'copy']
 })
 
-onMounted(() => {
-    if (clickInfo.value) {
-        if (showEmbedSharing.value) {
-            updateShareLink()
-        }
-    }
-})
-
 watch(clickInfo, () => {
     newClickInfo.value = true
     requestClipboard.value = false
@@ -83,7 +75,7 @@ watch(
     (newQuery, oldQuery) => {
         //Cannot watch language and zoom directly due to the delayed url update
         if (showEmbedSharing.value) {
-            if (oldQuery['z'] != newQuery['z'] || oldQuery['lang'] != newQuery['lang']) {
+            if (oldQuery['lang'] != newQuery['lang']) {
                 updateShareLink()
             }
         }
@@ -104,10 +96,12 @@ onMounted(() => {
         },
     })
 })
-
 onBeforeUnmount(() => {
     copyTooltipInstance.destroy()
 })
+function showCopiedTooltip() {
+    copyTooltipInstance.show()
+}
 
 function updateShareLink() {
     let query = {
@@ -127,22 +121,11 @@ async function shortenShareLink(url) {
     }
 }
 
-function clearClick() {
-    store.dispatch('clearClick')
-    showEmbedSharing.value = false
-    requestClipboard.value = false
-}
-
-function showCopiedTooltip() {
-    copyTooltipInstance.show()
-}
-
 function onPositionTabClick() {
     selectedTab.value = 'position'
     showEmbedSharing.value = false
     newClickInfo.value = false
 }
-
 async function onShareTabClick() {
     selectedTab.value = 'share'
     if (newClickInfo.value && showEmbedSharing.value == false) {
@@ -166,6 +149,12 @@ async function copyShareLink() {
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
     }
+}
+
+function clearClick() {
+    store.dispatch('clearClick')
+    showEmbedSharing.value = false
+    requestClipboard.value = false
 }
 </script>
 
@@ -212,11 +201,18 @@ async function copyShareLink() {
                     :aria-selected="selectedTab === 'share'"
                     @click="onShareTabClick()"
                 >
-                    {{ $t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
-                        v-if="currentLang != 'it'"
-                        class="px-0 icon"
-                        :icon="copyButtonIcon"
-                    />
+                    <!-- Italian text does not fit on one line with normal sized text -->
+                    <div
+                        :class="{
+                            small: currentLang == 'it',
+                            '': currentLang != 'it',
+                        }"
+                    >
+                        {{ $t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                            class="px-0 icon"
+                            :icon="copyButtonIcon"
+                        />
+                    </div>
                 </button>
             </li>
         </ul>

@@ -25,6 +25,7 @@ const { shareLinkUrlShorten } = toRefs(props)
         <MenuShareSocialNetworks :short-link="shareLinkUrlShorten" class="pt-1" />
         <MenuShareInputCopyButton
             :input-text="shareLinkUrlShorten"
+            :label-text="'share_link'"
             :copy-text="'copy_url'"
             :copied-text="'copy_success'"
             class="px-0 py-2"
