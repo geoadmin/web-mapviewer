@@ -117,8 +117,9 @@ const handleLegacyParam = (
         case 'layers_opacity':
         case 'layers_visibility':
         case 'layers_timestamp':
-            // we ignore those params as they are now obsolete
-            // see adr/2021_03_16_url_param_structure.md
+            // Those are checked within the `isLayersUrlParamLegacy` function, which is
+            // called under the `layers` case. We simply ensure here that they're not called
+            // multiple times for nothing
             break
 
         case '3d':

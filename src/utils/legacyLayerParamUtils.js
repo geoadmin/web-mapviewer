@@ -2,6 +2,7 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { useStore } from 'vuex'
 
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
@@ -54,9 +55,11 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         const layerIdsUrlParam = readUrlParamValue(legacyLayersParam, 'layers')
         const layerVisibilityParam = readUrlParamValue(legacyLayersParam, 'layers_visibility')
         const layerOpacityParam = readUrlParamValue(legacyLayersParam, 'layers_opacity')
-        const layerTimestampsParam = readUrlParamValue(legacyLayersParam, 'layers_timestamps')
-
+        const layerTimestampsParam = readUrlParamValue(legacyLayersParam, 'layers_timestamp')
         const layerVisibilities = []
+
+        const store = useStore()
+
         if (layerVisibilityParam) {
             layerVisibilities.push(...layerVisibilityParam.split(','))
         }
@@ -123,9 +126,24 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         }
                         // checking if a timestamp is defined for this layer
                         if (layerTimestamps.length > index && layerTimestamps[index]) {
-                            layer.timeConfig.updateCurrentTimeEntry(
+                            // TODO : the commit doesn't work on the swissimage product, apparently
+                            // it doesn't have a time series
+                            // gives the following error 'Failed to set layer year, layer not found or has no time config',
+                            let year = layerTimestamps[index]
+                            if (
                                 layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
-                            )
+                                    .year
+                            ) {
+                                year = layer.timeConfig.getTimeEntryForTimestamp(
+                                    layerTimestamps[index]
+                                ).year
+                            }
+                            console.log(layerId)
+                            console.log(year)
+                            store.dispatch('setTimedLayerCurrentYear', {
+                                layerId: layerId,
+                                year: year,
+                            })
                         }
                         layersToBeActivated.push(layer)
                     }
