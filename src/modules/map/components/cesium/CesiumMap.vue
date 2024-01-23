@@ -86,9 +86,11 @@ import {
     Color,
     defined,
     Ellipsoid,
+    JulianDate,
     Math as CesiumMath,
     RequestScheduler,
     ScreenSpaceEventType,
+    ShadowMode,
     SkyBox,
     Viewer,
 } from 'cesium'
@@ -315,6 +317,10 @@ export default {
                 navigationInstructionsInitiallyVisible: false,
                 // each geometry instance will only be rendered in 3D to save GPU memory.
                 scene3DOnly: true,
+                // activating shadows so that buildings cast shadows on the ground/roof elements
+                shadows: true,
+                // no casting of buildings shadow on the terrain
+                terrainShadows: ShadowMode.DISABLED,
                 // skybox/stars visible if sufficiently zoomed out and looking at the horizon
                 skyBox: new SkyBox({
                     sources: {
@@ -333,6 +339,16 @@ export default {
                 terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
                 requestRenderMode: true,
             })
+
+            const clock = this.viewer.clock
+            // good time/date for lighting conditions
+            clock.currentTime = JulianDate.fromIso8601('2024-06-20T07:00')
+
+            const shadowMap = this.viewer.shadowMap
+            // lighter shadow than default (closer to 0.1 the darker)
+            shadowMap.darkness = 0.6
+            // increasing shadowMap size 4x the default value, to reduce shadow artifacts at the edges of roofs
+            shadowMap.size = 2048 * 4
 
             const scene = this.viewer.scene
             scene.useDepthPicking = true
