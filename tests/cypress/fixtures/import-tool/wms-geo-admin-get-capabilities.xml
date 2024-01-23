@@ -299,15 +299,18 @@
                 <CRS>EPSG:32632</CRS>
                 <CRS>EPSG:32633</CRS>
                 <CRS>EPSG:900913</CRS>
+                <!-- Boundingbox see https://s.geo.admin.ch/v6gi8a9w4o1e -->
                 <EX_GeographicBoundingBox>
-                    <westBoundLongitude>0.659965</westBoundLongitude>
-                    <eastBoundLongitude>10.8344</eastBoundLongitude>
-                    <southBoundLatitude>45.4183</southBoundLatitude>
-                    <northBoundLatitude>48.7495</northBoundLatitude>
+                    <westBoundLongitude>9.37643</westBoundLongitude>
+                    <eastBoundLongitude>9.81128</eastBoundLongitude>
+                    <southBoundLatitude>46.73864</southBoundLatitude>
+                    <northBoundLatitude>46.90512</northBoundLatitude>
                 </EX_GeographicBoundingBox>
-                <BoundingBox CRS="EPSG:2056"
-                    minx="2.1e+06" miny="1.05e+06" maxx="2.85e+06" maxy="1.4e+06" />
-                <MetadataURL type="TC211">
+                <BoundingBox
+                    CRS="EPSG:2056"
+                    minx="2748085.3" miny="1178210.8" maxx="2780747.1" maxy="1197623.5" />
+                <MetadataURL
+                    type="TC211">
                     <Format>text/xml</Format>
                     <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
                         xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.vbs.bundestankstellen-bebeco" />
@@ -322,6 +325,140 @@
                             xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.vbs.bundestankstellen-bebeco&amp;format=image/png&amp;STYLE=default" />
                     </LegendURL>
                 </Style>
+            </Layer>
+            <Layer queryable="1" opaque="0" cascaded="1">
+                <Name>ch.swisstopo-vd.official-survey</Name>
+                <Title>Beta OpenData-AV</Title>
+                <Layer queryable="1" opaque="0" cascaded="1">
+                    <Name>ch.swisstopo-vd.official-survey-1</Name>
+                    <Title>OpenData-AV 1</Title>
+                </Layer>
+                <Layer queryable="1" opaque="0" cascaded="1">
+                    <Name>ch.swisstopo-vd.official-survey-2</Name>
+                    <Title>OpenData-AV 2</Title>
+                    <Style>
+                        <Name>default</Name>
+                        <Title>default</Title>
+                        <LegendURL width="299" height="345">
+                            <Format>image/png</Format>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:type="simple"
+                                xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.official-survey-2&amp;format=image/png&amp;STYLE=default" />
+                        </LegendURL>
+                    </Style>
+                </Layer>
+                <Layer queryable="1" opaque="0" cascaded="1">
+                    <Name>ch.swisstopo-vd.official-survey-3</Name>
+                    <Title>OpenData-AV 3</Title>
+                    <Abstract>OpenData-AV 3 abstract</Abstract>
+                    <Style>
+                        <Name>default</Name>
+                        <Title>default</Title>
+                        <LegendURL width="299" height="345">
+                            <Format>image/png</Format>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:type="simple"
+                                xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.official-survey-3&amp;format=image/png&amp;STYLE=default" />
+                        </LegendURL>
+                    </Style>
+                </Layer>
+            </Layer>
+            <Layer queryable="1" opaque="0" cascaded="1">
+                <Name>ch.bafu.naqua-grundwasser_nitrat</Name>
+                <Title>Groundwater: Nitrate</Title>
+                <Abstract>Nitrates are an essential food for plants. Nitrates enter into groundwater mainly through excess agricultural or mineral fertilizers. Under the Waters Protection Ordinance (WPO), nitrate concentrations in groundwater should not exceed 25 mg/l . Nitrate concentrations in Swiss groundwater are measured as part of the NAQUA National Groundwater Monitoring program. The national groundwater monitoring network includes more than 500 monitoring sites and is run by the FOEN in close collaboration with the cantons. Source: NAQUA National Groundwater Monitoring program, Federal Office of the Environment</Abstract>
+                <Layer queryable="1" opaque="0" cascaded="1">
+                    <Name>ch.bafu.naqua-grundwasser_nitrat_p</Name>
+                    <Title>Groundwater: Nitrate - ch.bafu.naqua-grundwasser_nitrat</Title>
+                    <Abstract>technical sub layer, please use the group instead ch.bafu.naqua-grundwasser_nitrat</Abstract>
+                    <KeywordList>
+                        <Keyword>ch.bafu.naqua-grundwasser_nitrat.wms_ows_keywordlist</Keyword>
+                    </KeywordList>
+                    <CRS>EPSG:2056</CRS>
+                    <CRS>EPSG:21781</CRS>
+                    <CRS>EPSG:4326</CRS>
+                    <CRS>EPSG:3857</CRS>
+                    <CRS>EPSG:3034</CRS>
+                    <CRS>EPSG:3035</CRS>
+                    <CRS>EPSG:4258</CRS>
+                    <CRS>EPSG:25832</CRS>
+                    <CRS>EPSG:25833</CRS>
+                    <CRS>EPSG:31467</CRS>
+                    <CRS>EPSG:32632</CRS>
+                    <CRS>EPSG:32633</CRS>
+                    <CRS>EPSG:900913</CRS>
+                    <EX_GeographicBoundingBox>
+                        <westBoundLongitude>0.659866</westBoundLongitude>
+                        <eastBoundLongitude>10.8359</eastBoundLongitude>
+                        <southBoundLatitude>45.4195</southBoundLatitude>
+                        <northBoundLatitude>48.7511</northBoundLatitude>
+                    </EX_GeographicBoundingBox>
+                    <BoundingBox CRS="EPSG:2056" minx="2.1e+06" miny="1.05e+06" maxx="2.85e+06"
+                        maxy="1.4e+06" />
+                    <MetadataURL type="TC211">
+                        <Format>text/xml</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.bafu.naqua-grundwasser_nitrat_p" />
+                    </MetadataURL>
+                    <Style>
+                        <Name>default</Name>
+                        <Title>default</Title>
+                        <LegendURL width="100" height="90">
+                            <Format>image/png</Format>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:type="simple"
+                                xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.bafu.naqua-grundwasser_nitrat_p&amp;format=image/png&amp;STYLE=default" />
+                        </LegendURL>
+                    </Style>
+                    <MinScaleDenominator>450000</MinScaleDenominator>
+                </Layer>
+                <Layer queryable="1" opaque="0" cascaded="1">
+                    <Name>ch.bafu.naqua-grundwasser_nitrat_gwk</Name>
+                    <Title>Groundwater: Nitrate - ch.bafu.naqua-grundwasser_nitrat</Title>
+                    <Abstract>technical sub layer, please use the group instead ch.bafu.naqua-grundwasser_nitrat</Abstract>
+                    <KeywordList>
+                        <Keyword>ch.bafu.naqua-grundwasser_nitrat.wms_ows_keywordlist</Keyword>
+                    </KeywordList>
+                    <CRS>EPSG:2056</CRS>
+                    <CRS>EPSG:21781</CRS>
+                    <CRS>EPSG:4326</CRS>
+                    <CRS>EPSG:3857</CRS>
+                    <CRS>EPSG:3034</CRS>
+                    <CRS>EPSG:3035</CRS>
+                    <CRS>EPSG:4258</CRS>
+                    <CRS>EPSG:25832</CRS>
+                    <CRS>EPSG:25833</CRS>
+                    <CRS>EPSG:31467</CRS>
+                    <CRS>EPSG:32632</CRS>
+                    <CRS>EPSG:32633</CRS>
+                    <CRS>EPSG:900913</CRS>
+                    <EX_GeographicBoundingBox>
+                        <westBoundLongitude>0.659866</westBoundLongitude>
+                        <eastBoundLongitude>10.8359</eastBoundLongitude>
+                        <southBoundLatitude>45.4195</southBoundLatitude>
+                        <northBoundLatitude>48.7511</northBoundLatitude>
+                    </EX_GeographicBoundingBox>
+                    <BoundingBox CRS="EPSG:2056" minx="2.1e+06" miny="1.05e+06" maxx="2.85e+06"
+                        maxy="1.4e+06" />
+                    <MetadataURL type="TC211">
+                        <Format>text/xml</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.bafu.naqua-grundwasser_nitrat_gwk" />
+                    </MetadataURL>
+                    <Style>
+                        <Name>default</Name>
+                        <Title>default</Title>
+                        <LegendURL width="299" height="260">
+                            <Format>image/png</Format>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:type="simple"
+                                xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.bafu.naqua-grundwasser_nitrat_gwk&amp;format=image/png&amp;STYLE=default" />
+                        </LegendURL>
+                    </Style>
+                    <MaxScaleDenominator>440000</MaxScaleDenominator>
+                </Layer>
             </Layer>
         </Layer>
     </Capability>

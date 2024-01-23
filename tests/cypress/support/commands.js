@@ -30,6 +30,22 @@ const addLayerTileFixture = () => {
     }).as('png-tiles')
 }
 
+const addWmsLayerFixture = () => {
+    // catching WMS type URLs
+    cy.intercept(
+        {
+            method: 'GET',
+            hostname: /(wms\d*\.geo\.admin\.ch|sys-wms\d*\.\w+\.bgdi\.ch)/,
+            query: {
+                SERVICE: 'WMS',
+                REQUEST: 'GetMap',
+                FORMAT: 'image/png',
+            },
+        },
+        { fixture: 'wms-geo-admin.png' }
+    ).as('wms-png')
+}
+
 const addLayerFixtureAndIntercept = () => {
     cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
         fixture: 'layers.fixture',
@@ -110,6 +126,7 @@ export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
         addLayerTileFixture,
+        addWmsLayerFixture,
         addLayerFixtureAndIntercept,
         addTopicFixtureAndIntercept,
         addCatalogFixtureAndIntercept,
@@ -494,3 +511,61 @@ Cypress.Commands.add(
         }
     }
 )
+
+/**
+ * Check if the layer(s) have been successfully added and rendered on Open Layer Map
+ *
+ * @param {String
+ *     | { id: String; opacity?: Number; visible?: Boolean }
+ *     | [String]
+ *     | [{ id: String }]
+ *     | [{ id: String; opacity?: Number; visible?: Boolean }]} args
+ *   Layer(s) to check
+ */
+Cypress.Commands.add('checkOlLayer', (args = null) => {
+    let layers = []
+    if (typeof args === 'string' || args instanceof String) {
+        layers.push({ id: args, visible: true, opacity: 1 })
+    } else if (args instanceof Array) {
+        layers = args
+    } else if (args instanceof Object) {
+        layers.push(args)
+    } else {
+        throw new Error(`Invalid checkOlLayer argument: ${args}`)
+    }
+
+    // validate the layers arguments
+    layers = layers.map((l) => {
+        if (typeof l === 'string' || l instanceof String) {
+            return { id: l, opacity: 1, visible: true }
+        }
+        if (!l.id) {
+            throw new Error(`Invalid layer object ${l}: don't have an id`)
+        }
+        if (!l.visible) {
+            l.visible = true
+        }
+        if (!l.opacity) {
+            l.opacity = 1
+        }
+        return l
+    })
+
+    cy.readWindowValue('map').then((map) => {
+        const olLayers = map.getAllLayers()
+
+        layers.forEach((layer) => {
+            const olLayer = olLayers.find((l) => l.get('id') === layer.id)
+            expect(olLayer, `[${layer.id}] layer`).not.to.be.null
+            expect(olLayer, `[${layer.id}] layer`).not.to.be.undefined
+            expect(olLayer.get('id'), `[${layer.id}] layer.id`).to.be.equal(layer.id)
+            expect(olLayer.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
+            expect(olLayer.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
+            // The rendered flag is set asynchronously therefore we need to do some retry here
+            cy.waitUntil(() => olLayer.rendered === layer.visible, {
+                description: `[${layer.id}] waitUntil layer.rendered`,
+                errorMsg: `[${layer.id}] layer.rendered is no ${layer.visible}`,
+            })
+        })
+    })
+})
