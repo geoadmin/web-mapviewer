@@ -25,15 +25,19 @@ const storeCompareRatio = computed(() => store.state.ui.compareRatio)
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
+function compareSliderActive() {
+    return storeCompareRatio.value > 0.0 && storeCompareRatio.value < 1.0
+}
 
 function onToggleImportCatalogue() {
     store.dispatch('toggleImportCatalogue')
 }
+
 function onToggleCompareSlider() {
-    if (storeCompareRatio.value <= 0.0 || storeCompareRatio.value >= 1.0) {
-        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
-    } else {
+    if (compareSliderActive()) {
         store.dispatch('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+    } else {
+        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
     }
 }
 
@@ -80,7 +84,7 @@ function onToggleImportFile() {
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             v-if="isCompareSliderToggleAvailable()"
-            class="advanced-tools-title"
+            :is-selected="compareSliderActive()"
             :title="$t('compare')"
             @click.stop="onToggleCompareSlider"
         >
