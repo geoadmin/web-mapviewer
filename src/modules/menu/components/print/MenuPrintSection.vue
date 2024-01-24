@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils.js'
 
 const emits = defineEmits(['openMenuSection'])
@@ -21,6 +22,14 @@ const selectedLayout = computed(() =>
     printLayouts.value.find((layout) => layout.name === selectedLayoutName.value)
 )
 const scales = computed(() => selectedLayout.value?.scales || [])
+
+watch(selectedScale, () => {
+    store.commit('setSelectedScale', selectedScale.value)
+})
+
+watch(selectedLayout, () => {
+    store.commit('setSelectedLayout', selectedLayout.value)
+})
 
 watch(printLayouts, () => {
     // whenever layouts are loaded form the backend, we select the first one as default value
@@ -46,6 +55,14 @@ function selectLayout(layout) {
 
 function close() {
     isSectionShown.value = false
+}
+
+function printMap() {
+    log.info('from UI: ', selectedScale.value)
+    log.info('from store: ', store.state.print.selectedScale)
+
+    log.info('from UI: ', selectedLayout.value.name)
+    log.info('from store: ', store.state.print.selectedLayout.name)
 }
 
 defineExpose({
@@ -106,7 +123,7 @@ defineExpose({
                 }}</label>
             </div>
             <div class="full-width justify-content-center">
-                <button type="button" class="btn btn-light w-100">
+                <button type="button" class="btn btn-light w-100" @click="printMap">
                     {{ i18n.t('print_action') }}
                 </button>
             </div>

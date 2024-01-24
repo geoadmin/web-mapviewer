@@ -4,6 +4,8 @@ import log from '@/utils/logging.js'
 export default {
     state: {
         layouts: [],
+        selectedLayout: {},
+        selectedScale: 0,
     },
     getters: {},
     actions: {
@@ -18,5 +20,7 @@ export default {
     },
     mutations: {
         setPrintLayouts: (state, layouts) => (state.layouts = layouts),
+        setSelectedLayout: (state, layout) => (state.selectedLayout = layout),
+        setSelectedScale: (state, scale) => (state.selectedScale = scale),
     },
 }
