@@ -15,6 +15,7 @@ import OpenLayersCrossHair from '@/modules/map/components/openlayers/OpenLayersC
 import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/OpenLayersGeolocationFeedback.vue'
 import OpenLayersHighlightedFeature from '@/modules/map/components/openlayers/OpenLayersHighlightedFeatures.vue'
 import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLayersPinnedLocation.vue'
+import OpenLayersPrintRectangle from '@/modules/map/components/openlayers/OpenLayersPrintRectangle.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/map-interactions.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
@@ -38,6 +39,7 @@ const mapElement = ref(null)
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const showPrintRectangle = computed(() => store.state.print.printSectionShown)
 
 const map = new Map({ controls: [] })
 useViewBasedOnProjection(map)
@@ -73,6 +75,7 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
         <OpenLayersGeolocationFeedback />
+        <OpenLayersPrintRectangle v-if="showPrintRectangle" />
         <!-- Debug tooling -->
         <OpenLayersTileDebugInfo v-if="showTileDebugInfo" :z-index="zIndexTileInfo" />
         <OpenLayersLayerExtents v-if="showLayerExtents" :z-index="zIndexLayerExtents" />
