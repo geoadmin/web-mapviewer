@@ -118,7 +118,7 @@ describe('Test mouse position and interactions', () => {
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
-            const shortUrl = 'https://s.geo.admin.ch/0000000'
+            let shortUrl = 'https://s.geo.admin.ch/0000000'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
@@ -187,7 +187,53 @@ describe('Test mouse position and interactions', () => {
             )
             cy.log('it shows correct MGRS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-share-tab-button"]').click()
+            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
+
+            cy.get(`[data-cy="share-shortlink-email"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
+            cy.get('[data-cy="map"]').rightclick()
+
+            shortUrl = 'https://s.geo.admin.ch/1111111'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl, success: true },
+            }).as('shortlink')
+            cy.get('[data-cy="map"]').trigger('mousemove', 0, 0, { force: true })
+            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
+            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+                'contain.value',
+                'https://s.geo.admin.ch/1111111'
+            )
+            cy.log('link updated when new position selected')
+
+            shortUrl = 'https://s.geo.admin.ch/2222222'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl, success: true },
+            }).as('shortlink')
+            cy.clickOnMenuButtonIfMobile()
+            cy.clickOnLanguage('de')
+            cy.clickOnMenuButtonIfMobile()
+            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+                'contain.value',
+                'https://s.geo.admin.ch/2222222'
+            )
+            cy.log('link updated when new language  selected')
+
+            shortUrl = 'https://s.geo.admin.ch/3333333'
+            cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
+                body: { shorturl: shortUrl, success: true },
+            }).as('shortlink')
+
+            cy.get('[data-cy="map"]').dblclick(120, 240)
+            cy.get('[data-cy="map"]').rightclick()
+            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
+            cy.get('[data-cy="location-popup-share-tab-button"]').focus()
+            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.be.equal('https://s.geo.admin.ch/3333333')
+            })
+            cy.log('link copied to clipboard if share tab is pressed ')
 
             cy.get('[data-cy="map"]').rightclick()
             cy.wait('@shortlink').then((interception) => {
@@ -205,9 +251,9 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
 
-            const shortUrl2 = 'https://s.geo.admin.ch/1111111'
+            shortUrl = 'https://s.geo.admin.ch/4444444'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
-                body: { shorturl: shortUrl2, success: true },
+                body: { shorturl: shortUrl, success: true },
             }).as('shortlink-bg-void')
             cy.writeStoreValue('setBackground', null)
             cy.wait('@shortlink-bg-void').then((interception) => {
@@ -216,7 +262,10 @@ describe('Test mouse position and interactions', () => {
                 const params = new URLSearchParams(query)
                 expect(params.get('bgLayer')).to.be.equal('void')
             })
-            cy.get('[data-cy="menu-share-input-copy-button"]').should('have.value', shortUrl2)
+            cy.get('[data-cy="menu-share-input-copy-button"]').should(
+                'have.value',
+                'https://s.geo.admin.ch/4444444'
+            )
             cy.log('the shortlink was updated when the app changed')
         })
     })
