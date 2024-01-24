@@ -126,6 +126,8 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
+
+                cy.checkOlLayer(fakeLayerId)
             })
             it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
@@ -160,6 +162,7 @@ describe('Test of layer handling', () => {
                     expect(externalWmtsLayer.name).to.eq('Test External WMTS')
                     expect(externalWmtsLayer.isLoading).to.be.false
                 })
+                cy.checkOlLayer(fakeLayerId)
 
                 // reads and sets non default layer config; visible and opacity
                 cy.goToMapView(
@@ -184,6 +187,8 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
+
+                cy.checkOlLayer({ id: fakeLayerId, visible: false })
             })
         })
     })
