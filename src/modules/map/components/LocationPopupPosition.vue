@@ -159,7 +159,7 @@ async function updateHeight() {
                 :value="heightInMeter"
                 :extra-value="heightInFeet"
             >
-                <a :href="$t('elevation_href')" target="_blank">{{ $t('elevation') }}</a>
+                <a :href="i18n.t('elevation_href')" target="_blank">{{ i18n.t('elevation') }}</a>
             </LocationPopupCopySlot>
         </div>
     </div>

@@ -1,7 +1,6 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-// importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import tippy from 'tippy.js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -18,17 +17,17 @@ import { stringifyQuery } from '@/utils/url-router'
 
 const i18n = useI18n()
 const store = useStore()
+const route = useRoute()
 
 const clickInfo = computed(() => store.state.map.clickInfo)
 const projection = computed(() => store.state.position.projection)
 const showIn3d = computed(() => store.state.cesium.active)
 const currentLang = computed(() => store.state.i18n.lang)
+const showEmbedSharing = computed(() => selectedTab.value === 'share')
 
-const route = useRoute()
 const selectedTab = ref('position')
 const shareTabButton = ref(null)
 const newClickInfo = ref(true)
-const showEmbedSharing = ref(false)
 const requestClipboard = ref(false)
 const shareLinkCopied = ref(false)
 const shareLinkUrl = ref(null)
@@ -79,7 +78,6 @@ watch(
                 updateShareLink()
             }
         }
-        console.log('Query parameters changed:', newQuery)
     }
 )
 
@@ -123,18 +121,16 @@ async function shortenShareLink(url) {
 
 function onPositionTabClick() {
     selectedTab.value = 'position'
-    showEmbedSharing.value = false
     newClickInfo.value = false
 }
 async function onShareTabClick() {
-    selectedTab.value = 'share'
     if (newClickInfo.value && showEmbedSharing.value == false) {
         //copyShareLink is called by watcher since new shortlink is computed with a delay
         requestClipboard.value = true
     } else {
         copyShareLink()
     }
-    showEmbedSharing.value = true
+    selectedTab.value = 'share'
     newClickInfo.value = false
 }
 
@@ -153,7 +149,6 @@ async function copyShareLink() {
 
 function clearClick() {
     store.dispatch('clearClick')
-    showEmbedSharing.value = false
     requestClipboard.value = false
 }
 </script>
@@ -162,7 +157,7 @@ function clearClick() {
     <component
         :is="mappingFrameworkSpecificPopup"
         v-if="coordinate"
-        :title="selectedTab == 'position' ? $t('position') : $t('link_bowl_crosshair')"
+        :title="selectedTab == 'position' ? i18n.t('position') : i18n.t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="projection"
         use-content-padding
@@ -184,7 +179,7 @@ function clearClick() {
                     :aria-selected="selectedTab === 'position'"
                     @click="onPositionTabClick()"
                 >
-                    {{ $t('position') }}
+                    {{ i18n.t('position') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -208,7 +203,8 @@ function clearClick() {
                             '': currentLang != 'it',
                         }"
                     >
-                        {{ $t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                        {{ i18n.t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
+                            data-cy="location-popup-share-tab-check"
                             class="px-0 icon"
                             :icon="copyButtonIcon"
                         />

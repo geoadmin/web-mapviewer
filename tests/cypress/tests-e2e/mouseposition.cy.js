@@ -227,9 +227,10 @@ describe('Test mouse position and interactions', () => {
 
             cy.get('[data-cy="map"]').dblclick(120, 240)
             cy.get('[data-cy="map"]').rightclick()
-            cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
             cy.get('[data-cy="location-popup-share-tab-button"]').focus()
+            cy.get('[data-cy="location-popup-share-tab-button"]').click()
             cy.get('[data-cy="location-popup-share-tab-button"]').realClick()
+            cy.get('[data-cy="location-popup-share-tab-check"]').should('have.class', 'fa-check')
             cy.readClipboardValue().then((clipboardText) => {
                 expect(clipboardText).to.be.equal('https://s.geo.admin.ch/3333333')
             })
