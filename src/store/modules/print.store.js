@@ -6,6 +6,7 @@ export default {
         layouts: [],
         selectedLayout: {},
         selectedScale: 0,
+        printSectionShown: false,
     },
     getters: {},
     actions: {
@@ -22,5 +23,6 @@ export default {
         setPrintLayouts: (state, layouts) => (state.layouts = layouts),
         setSelectedLayout: (state, layout) => (state.selectedLayout = layout),
         setSelectedScale: (state, scale) => (state.selectedScale = scale),
+        setprintSectionShown: (state, isShown) => (state.printSectionShown = isShown),
     },
 }
