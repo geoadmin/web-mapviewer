@@ -14,6 +14,7 @@ import DrawingStylePopoverButton from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
+import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
 const props = defineProps({
@@ -33,7 +34,8 @@ const description = computed({
         return feature.value.description
     },
     set(value) {
-        store.dispatch('changeFeatureDescription', { feature: feature.value, description: value })
+        this.description = value
+        debounce(store.dispatch('changeFeatureDescription', { feature, description: value }), 3000)
     },
 })
 const text = computed({
@@ -41,7 +43,8 @@ const text = computed({
         return feature.value.title
     },
     set(value) {
-        store.dispatch('changeFeatureTitle', { feature: feature.value, title: value })
+        this.text = value
+        debounce(store.dispatch('changeFeatureTitle', { feature, title: value }), 3000)
     },
 })
 /**

@@ -41,9 +41,11 @@ describe('Drawing module tests', () => {
             const title = `This is a random title ${randomIntBetween(1000, 9999)}`
             cy.get('[data-cy="drawing-style-feature-title"]').clear()
             cy.get('[data-cy="drawing-style-feature-title"]').type(title)
+            cy.get('[data-cy="drawing-style-feature-title"]').should('have.value', title)
             cy.wait('@update-kml').then((interception) =>
                 cy.checkKMLRequest(interception, [new RegExp(`<name>${title}</name>`)])
             )
+            cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
         }
 
         beforeEach(() => {
@@ -185,10 +187,18 @@ describe('Drawing module tests', () => {
             // changing/editing the description of this marker
             const description = 'A description for this marker'
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
+            cy.get('[data-cy="drawing-style-feature-description"]').should(
+                'have.value',
+                description
+            )
             cy.wait('@update-kml').then((interception) =>
                 cy.checkKMLRequest(interception, [
                     new RegExp(`<description>${description}</description>`),
                 ])
+            )
+            cy.readStoreValue('state.features.selectedFeatures[0].description').should(
+                'eq',
+                description
             )
 
             //  moving the marker by drag&drop on the map
