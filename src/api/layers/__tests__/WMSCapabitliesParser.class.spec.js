@@ -93,11 +93,14 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         // General layer
         let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
         expect(layer.externalLayerId).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer.abstract).not.empty
+        expect(layer.hasLegend).toBeTruthy()
         expect(layer.legends.length).toBe(0)
 
         // Layer without .Name
         layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
         expect(layer.externalLayerId).toBe('Periodic-Tracking')
+        expect(layer.hasLegend).toBeTruthy()
         expect(layer.legends.length).toBe(1)
         expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
         expect(layer.legends[0].url).toBe(
@@ -106,6 +109,12 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer.legends[0].format).toBe('image/png')
         expect(layer.legends[0].width).toBe(168)
         expect(layer.legends[0].height).toBe(22)
+
+        // Layer without abstract and legend
+        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.stand-oerebkataster', WGS84)
+        expect(layer.externalLayerId).toBe('ch.swisstopo-vd.stand-oerebkataster')
+        expect(layer.hasLegend).toBeFalsy()
+        expect(layer.legends.length).toBe(0)
     })
 })
 

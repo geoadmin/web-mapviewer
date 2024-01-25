@@ -287,25 +287,13 @@ describe('Test of layer handling', () => {
                 cy.clickOnMenuButtonIfMobile()
                 const testLayerId = 'test.wmts.layer'
                 const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
-                cy.get('[data-cy="menu-topic-section"]').click()
+                cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
                 // opening up layer parents in the topic tree
-                cy.get('[data-cy="catalogue-tree-item-2"]').click()
-                cy.get('[data-cy="catalogue-tree-item-3"]').click()
-                // Find the test layer and open the appropriate menu entries.
-                cy.get(testLayerSelector)
-                    .parentsUntil('[data-cy="menu-topic-section"]')
-                    .filter('[data-cy="catalogue-tree-item"]')
-                    .then((menuItems) => {
-                        menuItems
-                            .toArray()
-                            // The first match is the layer itself which we'll handle separately.
-                            .slice(1)
-                            // We need to reverse the menu items as we started at the layer.
-                            .reverse()
-                            .forEach((menuItem) => cy.wrap(menuItem).click())
-                    })
+                cy.get('[data-cy="catalogue-tree-item-title-2"]').should('be.visible').click()
+                cy.get('[data-cy="catalogue-tree-item-title-3"]').should('be.visible').click()
+
                 // Add the test layer.
-                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
@@ -358,25 +346,13 @@ describe('Test of layer handling', () => {
             it('allows toggling layers visibility from the topic menu', () => {
                 const testLayerId = 'test.wmts.layer'
                 const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
-                cy.get('[data-cy="menu-topic-section"]').click()
+                cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
                 // opening up layer parents in the topic tree
-                cy.get('[data-cy="catalogue-tree-item-2"]').click()
-                cy.get('[data-cy="catalogue-tree-item-3"]').click()
-                // Find the test layer and open the appropriate menu entries.
-                cy.get(testLayerSelector)
-                    .parentsUntil('[data-cy="menu-topic-section"]')
-                    .filter('[data-cy="catalogue-tree-item"]')
-                    .then((menuItems) => {
-                        menuItems
-                            .toArray()
-                            // The first match is the layer itself which we'll handle separately.
-                            .slice(1)
-                            // We need to reverse the menu items as we started at the layer.
-                            .reverse()
-                            .forEach((menuItem) => cy.wrap(menuItem).click())
-                    })
+                cy.get('[data-cy="catalogue-tree-item-title-2"]').should('be.visible').click()
+                cy.get('[data-cy="catalogue-tree-item-title-3"]').should('be.visible').click()
+
                 // Toggle (hide) the test layer.
-                cy.get(testLayerSelector).click()
+                cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     const visibleIds = visibleLayers.map((layer) => layer.getID())

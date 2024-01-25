@@ -1,5 +1,5 @@
 <template>
-    <div class="advanced-tools-list">
+    <div class="advanced-tools-list" data-cy="menu-advanced-tools-list">
         <MenuAdvancedToolsListItem
             :is-selected="showImportCatalogue"
             title="import_maps"

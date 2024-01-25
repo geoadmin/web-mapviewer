@@ -66,6 +66,7 @@ const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
 
 const hasChildren = computed(() => item.value?.layers?.length > 0)
 const hasLegend = computed(() => canBeAddedToTheMap.value && item.value?.hasLegend)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
 
 /**
  * Flag telling if one of the children (deep search) match the search text When no search text is
@@ -174,6 +175,10 @@ function zoomToLayer() {
     } else {
         store.dispatch('zoomToExtent', lv95Extent)
     }
+    if (isPhoneMode.value) {
+        // On mobile phone we close the menu so that the user can see the zoom to extent
+        store.dispatch('toggleMenu')
+    }
 }
 
 /**
@@ -199,11 +204,15 @@ function containsLayer(layers, searchText) {
 </script>
 
 <template>
-    <div v-show="showItem" class="menu-catalogue-item" data-cy="catalogue-tree-item">
+    <div
+        v-show="showItem"
+        class="menu-catalogue-item"
+        :data-cy="`catalogue-tree-item-${item.getID()}`"
+    >
         <div
             class="menu-catalogue-item-title ps-2"
             :class="{ group: hasChildren }"
-            :data-cy="`catalogue-tree-item-${item.getID()}`"
+            :data-cy="`catalogue-tree-item-title-${item.getID()}`"
             @click="onItemClick"
             @mouseenter="startLayerPreview"
         >
@@ -214,6 +223,7 @@ function containsLayer(layers, searchText) {
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
+                :data-cy="`catalogue-add-layer-button-${item.getID()}`"
                 @click.stop="addRemoveLayer()"
             >
                 <FontAwesomeIcon
@@ -227,6 +237,7 @@ function containsLayer(layers, searchText) {
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
+                :data-cy="`catalogue-collapse-layer-button-${item.getID()}`"
                 @click.stop="onCollapseClick"
             >
                 <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
@@ -237,17 +248,24 @@ function containsLayer(layers, searchText) {
                 :text="item.name"
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
+                :data-cy="`catalogue-tree-item-name-${item.getID()}`"
             >
                 <TextSearchMarker :text="item.name" :search="search" />
             </TextTruncate>
-            <button v-if="item.extent?.length" class="btn" @click.stop="zoomToLayer">
+            <button
+                v-if="item.extent?.length"
+                class="btn"
+                :class="{ 'btn-lg': !compact }"
+                :data-cy="`catalogue-zoom-extent-button-${item.getID()}`"
+                @click.stop="zoomToLayer"
+            >
                 <FontAwesomeIcon icon="fa fa-search-plus" />
             </button>
             <button
                 v-if="hasLegend"
                 class="btn"
                 :class="{ 'btn-lg': !compact }"
-                data-cy="catalogue-tree-item-info"
+                :data-cy="`catalogue-tree-item-info-${item.getID()}`"
                 @click.stop="showLayerLegend = true"
             >
                 <FontAwesomeIcon icon="info-circle" />

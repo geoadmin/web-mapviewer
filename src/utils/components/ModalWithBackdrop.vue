@@ -2,7 +2,7 @@
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
         sure that it is always on top of the reset. -->
-        <div>
+        <div data-cy="modal-with-backdrop">
             <BlackBackdrop place-for-modal @click.stop="onClose(false)" />
             <div
                 class="modal-popup position-fixed start-50"
@@ -22,9 +22,12 @@
                         class="card-header d-flex align-middle"
                         :class="{ 'bg-primary text-white border-primary': headerPrimary }"
                     >
-                        <span v-if="title" class="flex-grow-1 text-start text-truncate">{{
-                            title
-                        }}</span>
+                        <span
+                            v-if="title"
+                            class="flex-grow-1 text-start text-truncate"
+                            data-cy="modal-with-backdrop-title"
+                            >{{ title }}</span
+                        >
                         <button
                             v-if="allowPrint"
                             class="btn btn-sm"

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+    xmlns:ows="http://www.opengis.net/ows/1.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
+    version="1.0.0">
+
+    <!-- Service Identification -->
+    <ows:ServiceIdentification>
+        <ows:Title>My WMTS Service</ows:Title>
+        <ows:Abstract>This is a sample WMTS service for testing purposes.</ows:Abstract>
+        <ows:Keywords>
+            <ows:Keyword>WMTS</ows:Keyword>
+            <ows:Keyword>GIS</ows:Keyword>
+        </ows:Keywords>
+        <ows:ServiceType>OGC WMTS</ows:ServiceType>
+        <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+        <ows:Fees>No fees</ows:Fees>
+        <ows:AccessConstraints>Unrestricted access</ows:AccessConstraints>
+    </ows:ServiceIdentification>
+
+    <!-- Service Provider -->
+    <ows:ServiceProvider>
+        <ows:ProviderName>My Organization</ows:ProviderName>
+        <ows:ProviderSite xlink:href="http://www.myorganization.com" />
+        <ows:ServiceContact>
+            <ows:IndividualName>John Doe</ows:IndividualName>
+            <ows:PositionName>GIS Administrator</ows:PositionName>
+            <ows:ContactInfo>
+                <ows:Phone>
+                    <ows:Voice>+1 (123) 456-7890</ows:Voice>
+                    <ows:Facsimile>+1 (123) 456-7899</ows:Facsimile>
+                </ows:Phone>
+                <ows:Address>
+                    <ows:DeliveryPoint>123 Main St</ows:DeliveryPoint>
+                    <ows:City>Cityville</ows:City>
+                    <ows:PostalCode>12345</ows:PostalCode>
+                    <ows:Country>Countryland</ows:Country>
+                    <ows:ElectronicMailAddress>john.doe@myorganization.com</ows:ElectronicMailAddress>
+                </ows:Address>
+            </ows:ContactInfo>
+        </ows:ServiceContact>
+    </ows:ServiceProvider>
+
+    <!-- Operations Metadata -->
+    <ows:OperationsMetadata>
+        <ows:Operation name="GetCapabilities">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get xlink:href="https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml">
+                        <ows:Constraint name="GetEncoding">
+                            <ows:AllowedValues>
+                                <ows:Value>REST</ows:Value>
+                            </ows:AllowedValues>
+                        </ows:Constraint>
+                    </ows:Get>
+                </ows:HTTP>
+            </ows:DCP>
+        </ows:Operation>
+        <ows:Operation name="GetTile">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get xlink:href="https://wmts.geo.admin.ch/">
+                        <ows:Constraint name="GetEncoding">
+                            <ows:AllowedValues>
+                                <ows:Value>REST</ows:Value>
+                            </ows:AllowedValues>
+                        </ows:Constraint>
+                    </ows:Get>
+                </ows:HTTP>
+            </ows:DCP>
+        </ows:Operation>
+    </ows:OperationsMetadata>
+
+    <!-- Contents -->
+    <Contents>
+        <!-- Layer 1 -->
+        <Layer>
+            <ows:Title>Layer 1</ows:Title>
+            <ows:Identifier>layer1</ows:Identifier>
+            <ows:WGS84BoundingBox>
+                <ows:LowerCorner>-180 -90</ows:LowerCorner>
+                <ows:UpperCorner>180 90</ows:UpperCorner>
+            </ows:WGS84BoundingBox>
+            <Style isDefault="true">
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>EPSG:4326</TileMatrixSet>
+            </TileMatrixSetLink>
+        </Layer>
+
+        <!-- Layer 2 -->
+        <Layer>
+            <ows:Identifier>layer2</ows:Identifier>
+        </Layer>
+
+        <!-- Layer 3 -->
+        <Layer>
+            <ows:Title>Layer 3</ows:Title>
+            <ows:Identifier>layer3</ows:Identifier>
+            <ows:WGS84BoundingBox>
+                <ows:LowerCorner>-180 -90</ows:LowerCorner>
+                <ows:UpperCorner>180 90</ows:UpperCorner>
+            </ows:WGS84BoundingBox>
+            <Style isDefault="true">
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>EPSG:4326</TileMatrixSet>
+            </TileMatrixSetLink>
+        </Layer>
+
+        <!-- Layer 4 -->
+        <Layer>
+            <ows:Title>Layer 4</ows:Title>
+            <ows:Identifier>layer4</ows:Identifier>
+            <ows:BoundingBox crs="EPSG:2056">
+                <ows:LowerCorner>420000 30000</ows:LowerCorner>
+                <ows:UpperCorner>900000 350000</ows:UpperCorner>
+            </ows:BoundingBox>
+            <Style isDefault="true">
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>EPSG:2056</TileMatrixSet>
+            </TileMatrixSetLink>
+        </Layer>
+        <!-- Tile Matrix Sets -->
+        <TileMatrixSet>
+            <ows:Identifier>EPSG:4326</ows:Identifier>
+            <ows:SupportedCRS>urn:ogc:def:crs:EPSG::4326</ows:SupportedCRS>
+            <TileMatrix>
+                <ows:Identifier>0</ows:Identifier>
+                <ScaleDenominator>5.590822640287695E8</ScaleDenominator>
+                <TopLeftCorner>-180 90</TopLeftCorner>
+                <TileWidth>256</TileWidth>
+                <TileHeight>256</TileHeight>
+                <MatrixWidth>1</MatrixWidth>
+                <MatrixHeight>1</MatrixHeight>
+            </TileMatrix>
+        </TileMatrixSet>
+
+        <TileMatrixSet>
+            <ows:Identifier>EPSG:2056</ows:Identifier>
+            <ows:SupportedCRS>urn:ogc:def:crs:EPSG::2056</ows:SupportedCRS>
+            <TileMatrix>
+                <ows:Identifier>0</ows:Identifier>
+                <ScaleDenominator>2.7954113201438476E8</ScaleDenominator>
+                <TopLeftCorner>420000 350000</TopLeftCorner>
+                <TileWidth>256</TileWidth>
+                <TileHeight>256</TileHeight>
+                <MatrixWidth>1</MatrixWidth>
+                <MatrixHeight>1</MatrixHeight>
+            </TileMatrix>
+        </TileMatrixSet>
+    </Contents>
+
+</Capabilities>
