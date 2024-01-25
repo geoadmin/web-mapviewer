@@ -5,7 +5,6 @@ import { useStore } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
 import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 
 const props = defineProps({
@@ -22,7 +21,6 @@ const store = useStore()
 const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
 const showImportFile = computed(() => store.state.ui.importFile)
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 function compareSliderActive() {
@@ -34,15 +32,9 @@ function onToggleImportCatalogue() {
 }
 
 function onToggleCompareSlider() {
-    if (compareSliderActive()) {
-        store.dispatch('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
-    } else {
-        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
-    }
-}
-
-function isCompareSliderToggleAvailable() {
-    return visibleLayerOnTop.value !== null && !is3dActive.value
+    // this allows us to store the previous compare ratio while making
+    // the Compare Slider invisible.
+    store.dispatch('setCompareRatio', null)
 }
 
 function onToggleImportFile() {
@@ -83,7 +75,7 @@ function onToggleImportFile() {
             </ModalWithBackdrop>
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
-            v-if="isCompareSliderToggleAvailable()"
+            v-if="!is3dActive.value"
             :is-selected="compareSliderActive()"
             :title="$t('compare')"
             @click.stop="onToggleCompareSlider"

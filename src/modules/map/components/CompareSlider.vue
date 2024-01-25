@@ -4,8 +4,8 @@ import { unByKey } from 'ol/Observable'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store'
 import { round } from '@/utils/numberUtils'
+
 const getMap = inject('getMap')
 
 const preRenderKey = ref(null)
@@ -29,19 +29,15 @@ watch(storeCompareRatio, (newValue) => {
 })
 
 watch(visibleLayerOnTop, () => {
-    if (!visibleLayerOnTop.value) {
-        store.dispatch('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
-    }
     nextTick(slice)
 })
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
-    slice()
+    nextTick(slice)
 })
 
 onUnmounted(() => {
-    compareRatio.value = COMPARE_SLIDER_DEFAULT_VALUE
     slice()
 })
 
@@ -97,7 +93,7 @@ function grabSlider(event) {
 
 function listenToMouseMove(event) {
     let currentPosition
-    if (event.type === 'touchstart') {
+    if (event.type === 'touchmove') {
         currentPosition = event.touches[0].clientX - compareSliderOffset.value
     } else {
         currentPosition = event.clientX - compareSliderOffset.value
