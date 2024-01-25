@@ -488,4 +488,134 @@ describe('The Import Maps Tool', () => {
             .should('be.visible')
             .contains('My Organization')
     })
+    it('handles error correctly', () => {
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an unreachable external WMTS provider')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { forceNetworkError: true }
+        ).as('wmts-get-capabilities-unreachable')
+
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Network error')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which returns an error')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { statusCode: 400 }
+        ).as('wmts-get-capabilities-unreachable')
+
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Network error')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which return an invalid content type')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { body: 'Invalid body' }
+        ).as('wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Unsupported response content type')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which return an invalid xml')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            {
+                body: '<xml>Not a valid xml get capabilities</xml>',
+                headers: { 'Content-Type': 'text/xml' },
+            }
+        ).as('wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Unsupported response content type')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+    })
 })
