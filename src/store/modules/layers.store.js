@@ -441,6 +441,9 @@ const actions = {
         const updatedLayer = currentLayer.clone()
         updatedLayer.errorKey = errorKey
         updatedLayer.hasError = !!errorKey
+        if (updatedLayer.isLoading) {
+            updatedLayer.isLoading = false
+        }
         commit('updateLayer', updatedLayer)
     },
     updateKmlLayer({ commit, getters, rootState }, payload) {
