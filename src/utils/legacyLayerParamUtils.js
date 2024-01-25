@@ -135,10 +135,19 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                                     layerTimestamps[index]
                                 ).year
                             }
-                            store.dispatch('setLegacyTimeLayerYear', {
-                                layer: layer,
-                                year: year,
-                            })
+                            if (store) {
+                                store.dispatch('setLegacyTimeLayerYear', {
+                                    layer: layer,
+                                    year: year,
+                                })
+                            } else {
+                                // this does tell us that the changes have been taken into account
+                                // and would be updated, without using a store that is not active
+                                // during unit tests
+                                layer.timeConfig.updateCurrentTimeEntry(
+                                    layer.timeConfig.getTimeEntryForYear(year)
+                                )
+                            }
                         }
                         layersToBeActivated.push(layer)
                     }
