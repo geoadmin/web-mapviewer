@@ -88,7 +88,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             const checkOneLayerTimestamps = (timestamp) => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=test.timed.wmts.layer&layers_timestamps=${timestamp}`
+                    `layers=test.timed.wmts.layer&layers_timestamp=${timestamp}`
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
@@ -102,7 +102,7 @@ describe('Test parsing of legacy URL param into new params', () => {
         it('Parses multiples layers with all params set', () => {
             const result = getLayersFromLegacyUrlParams(
                 fakeLayerConfig,
-                'layers=test.wmts.layer,test.wms.layer,test.timed.wmts.layer&layers_opacity=0.6,0.5,0.8&layers_visibility=false,true,false&layers_timestamps=,,456'
+                'layers=test.wmts.layer,test.wms.layer,test.timed.wmts.layer&layers_opacity=0.6,0.5,0.8&layers_visibility=false,true,false&layers_timestamp=,,456'
             )
             expect(result).to.be.an('Array').length(3)
             const [wmtsLayer, wmsLayer, timedWmtsLayer] = result
