@@ -66,18 +66,31 @@ function setSourceForProjection() {
         .then((response) => response.text())
         .then((textResponse) => {
             const getCapabilities = wmtsGetCapParser.read(textResponse)
-            // filtering the whole getCap XML with the given layer ID
-            const options = optionsFromCapabilities(getCapabilities, {
-                layer: layerId.value,
-                projection: projection.value.epsg,
-            })
-            if (options) {
-                // finally setting the source with the options drawn from the getCapabilities helper function
-                // the layer might be shown on the map a little later than all the others because of that
-                layer.setSource(new WMTS(options))
+            if (getCapabilities.version) {
+                // filtering the whole getCap XML with the given layer ID
+                const options = optionsFromCapabilities(getCapabilities, {
+                    layer: layerId.value,
+                    projection: projection.value.epsg,
+                })
+                if (options) {
+                    // finally setting the source with the options drawn from the getCapabilities helper function
+                    // the layer might be shown on the map a little later than all the others because of that
+                    layer.setSource(new WMTS(options))
+                } else {
+                    log.error(
+                        `Layer ${layerId.value} not found in WMTS Capabilities:`,
+                        getCapabilities
+                    )
+                }
             } else {
-                log.error(`Layer ${layerId.value} not found in WMTS Capabilities:`, getCapabilities)
+                log.error(`Invalid WMTS Capabilities:`, textResponse)
             }
+        })
+        .catch((error) => {
+            log.error(
+                `Failed to fetch external WMTS layer from ${getCapabilitiesUrl.value}: ${error}`,
+                error
+            )
         })
 }
 </script>
