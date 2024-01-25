@@ -1,9 +1,9 @@
+import { useStore } from 'vuex'
+
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { useStore } from 'vuex'
-
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
         const urlStartingAtParamDeclaration = url.substr(url.indexOf(paramName) + 1)
@@ -126,9 +126,6 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         }
                         // checking if a timestamp is defined for this layer
                         if (layerTimestamps.length > index && layerTimestamps[index]) {
-                            // TODO : the commit doesn't work on the swissimage product, apparently
-                            // it doesn't have a time series
-                            // gives the following error 'Failed to set layer year, layer not found or has no time config',
                             let year = layerTimestamps[index]
                             if (
                                 layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
@@ -138,10 +135,8 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                                     layerTimestamps[index]
                                 ).year
                             }
-                            console.log(layerId)
-                            console.log(year)
-                            store.dispatch('setTimedLayerCurrentYear', {
-                                layerId: layerId,
+                            store.dispatch('setLegacyTimeLayerYear', {
+                                layer: layer,
                                 year: year,
                             })
                         }
