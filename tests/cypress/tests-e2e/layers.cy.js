@@ -126,6 +126,8 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
+
+                cy.checkOlLayer(fakeLayerId)
             })
             it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
@@ -160,6 +162,7 @@ describe('Test of layer handling', () => {
                     expect(externalWmtsLayer.name).to.eq('Test External WMTS')
                     expect(externalWmtsLayer.isLoading).to.be.false
                 })
+                cy.checkOlLayer(fakeLayerId)
 
                 // reads and sets non default layer config; visible and opacity
                 cy.goToMapView(
@@ -184,6 +187,153 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
+
+                cy.checkOlLayer({ id: fakeLayerId, visible: false })
+            })
+            it('handles errors correctly', () => {
+                const wmtsUnreachableUrl =
+                    'https://fake.unreachable.getcap.url/WMTSGetCapabilities.xml'
+                const wmtsUnreachableLayerId = 'WMTSUnreachableURL'
+                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+                const wmtsUnreachableUrlId = `WMTS|${wmtsUnreachableUrl}|${wmtsUnreachableLayerId}`
+
+                const wmtsInvalidContentUrl =
+                    'https://fake.invalid.content.getcap.url/WMTSGetCapabilities.xml'
+                const wmtsInvalidContentLayerId = 'WMTSInvalidContent'
+                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+                const wmtsInvalidContentUrlId = `WMTS|${wmtsInvalidContentUrl}|${wmtsInvalidContentLayerId}`
+
+                const wmsUnreachableUrl = 'https://fake.unreachable.getcap.url/WMS'
+                const wmsUnreachableLayerId = 'WMSUnreachableURL'
+                // format is WMS|GET_CAPABILITIES_URL|LAYER_ID
+                const wmsUnreachableUrlId = `WMS|${wmsUnreachableUrl}|${wmsUnreachableLayerId}`
+
+                const wmsInvalidContentUrl = 'https://fake.invalid.content.getcap.url/WMS'
+                const wmsInvalidContentLayerId = 'WMSInvalidContent'
+                // format is WMS|GET_CAPABILITIES_URL|LAYER_ID
+                const wmsInvalidContentUrlId = `WMS|${wmsInvalidContentUrl}|${wmsInvalidContentLayerId}`
+
+                // intercepting call to our fake WMTS
+                cy.intercept(`${wmtsUnreachableUrl}**`, {
+                    forceNetworkError: true,
+                }).as('external-wmts-unreachable')
+
+                cy.intercept(`${wmtsInvalidContentUrl}**`, {
+                    body: 'Invalid body',
+                }).as('external-wmts-invalid')
+
+                cy.intercept(`${wmsUnreachableUrl}**`, {
+                    forceNetworkError: true,
+                }).as('external-wms-unreachable')
+
+                cy.intercept(`${wmsInvalidContentUrl}**`, {
+                    body: 'Invalid body',
+                }).as('external-wms-invalid')
+
+                cy.goToMapView(
+                    {
+                        layers: [
+                            wmtsUnreachableUrlId,
+                            wmtsInvalidContentUrlId,
+                            wmsUnreachableUrlId,
+                            wmsInvalidContentUrlId,
+                        ].join(';'),
+                    },
+                    true
+                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                cy.wait('@external-wmts-unreachable')
+                cy.wait('@external-wmts-invalid')
+                cy.wait('@external-wms-unreachable')
+                cy.wait('@external-wms-invalid')
+                cy.clickOnMenuButtonIfMobile()
+
+                //----------------------------------------------------------------------------------
+                cy.log('WMTS URL unreachable')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(4)
+                    const externaLayer = layers[0]
+                    expect(externaLayer.getID()).to.eq(wmtsUnreachableUrlId)
+                    expect(externaLayer.baseURL).to.eq(wmtsUnreachableUrl)
+                    expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
+                    expect(externaLayer.isLoading).to.be.false
+                })
+                cy.get(`[data-cy="menu-active-layer-${wmtsUnreachableUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
+                cy.get(`[data-cy="button-error-${wmtsUnreachableUrlId}"]`)
+                    .should('be.visible')
+                    .get('[data-cy="button-has-error"]')
+                    .should('have.class', 'text-danger')
+                cy.get(`[data-cy="button-error-${wmtsUnreachableUrlId}"]`).click()
+                cy.get('[data-cy^="tippy-button-error-"]')
+                    .should('be.visible')
+                    .contains('Network error')
+
+                //----------------------------------------------------------------------------------
+                cy.log('WMTS URL invalid content')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(4)
+                    const externaLayer = layers[1]
+                    expect(externaLayer.getID()).to.eq(wmtsInvalidContentUrlId)
+                    expect(externaLayer.baseURL).to.eq(wmtsInvalidContentUrl)
+                    expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
+                    expect(externaLayer.isLoading).to.be.false
+                })
+                cy.get(`[data-cy="menu-active-layer-${wmtsInvalidContentUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
+                cy.get(`[data-cy="button-error-${wmtsInvalidContentUrlId}"]`)
+                    .should('be.visible')
+                    .get('[data-cy="button-has-error"]')
+                    .should('have.class', 'text-danger')
+                cy.get(`[data-cy="button-error-${wmtsInvalidContentUrlId}"]`).click()
+                cy.get('[data-cy^="tippy-button-error-"]')
+                    .should('be.visible')
+                    .contains('Invalid WMTS Capabilities')
+
+                //----------------------------------------------------------------------------------
+                cy.log('WMS URL unreachable')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(4)
+                    const externaLayer = layers[2]
+                    expect(externaLayer.getID()).to.eq(wmsUnreachableUrlId)
+                    expect(externaLayer.baseURL).to.eq(wmsUnreachableUrl)
+                    expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
+                    expect(externaLayer.isLoading).to.be.false
+                })
+                cy.get(`[data-cy="menu-active-layer-${wmsUnreachableUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
+                cy.get(`[data-cy="button-error-${wmsUnreachableUrlId}"]`)
+                    .should('be.visible')
+                    .get('[data-cy="button-has-error"]')
+                    .should('have.class', 'text-danger')
+                cy.get(`[data-cy="button-error-${wmsUnreachableUrlId}"]`).click()
+                cy.get('[data-cy^="tippy-button-error-"]')
+                    .should('be.visible')
+                    .contains('Network error')
+
+                //----------------------------------------------------------------------------------
+                cy.log('WMS URL invalid content')
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    expect(layers).to.have.lengthOf(4)
+                    const externaLayer = layers[3]
+                    expect(externaLayer.getID()).to.eq(wmsInvalidContentUrlId)
+                    expect(externaLayer.baseURL).to.eq(wmsInvalidContentUrl)
+                    expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
+                    expect(externaLayer.isLoading).to.be.false
+                })
+                cy.get(`[data-cy="menu-active-layer-${wmsInvalidContentUrlId}"]`)
+                    .get('[data-cy="menu-external-disclaimer-icon"]')
+                    .should('be.visible')
+                cy.get(`[data-cy="button-error-${wmsInvalidContentUrlId}"]`)
+                    .should('be.visible')
+                    .get('[data-cy="button-has-error"]')
+                    .should('have.class', 'text-danger')
+                cy.get(`[data-cy="button-error-${wmsInvalidContentUrlId}"]`).click()
+                cy.get('[data-cy^="tippy-button-error-"]')
+                    .should('be.visible')
+                    .contains('Invalid WMS Capabilities')
             })
         })
     })

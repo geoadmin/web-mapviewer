@@ -363,15 +363,13 @@ describe('The Import Maps Tool', () => {
     it('Import external WMTS layers', () => {
         cy.intercept(
             {
-                https: true,
-                hostname: 'wmts.geo.admin.ch',
-                query: { REQUEST: 'GetCapabilities' },
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
             },
             { fixture: 'import-tool/wmts-geo-admin-get-capabilities.xml' }
         ).as('wmts-get-capabilities')
 
         //-----------------------------------------------------------------------------------------
-        cy.log('Select an external provider')
+        cy.log('Select an external WMTS provider')
         cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
@@ -380,5 +378,244 @@ describe('The Import Maps Tool', () => {
             .contains('https://wmts.geo.admin.ch')
             .click()
         cy.wait('@wmts-get-capabilities')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^=catalogue-tree-item-name-]')
+            .should('have.length', 4)
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Add a WMTS layer')
+        const layer1Id = 'layer1'
+        const layer1FullId = `WMTS|https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml|${layer1Id}`
+        const layer1Name = 'Layer 1'
+
+        cy.get(`[data-cy="catalogue-tree-item-${layer1FullId}"]`)
+            .should('be.visible')
+            .contains(layer1Name)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer1FullId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer1FullId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer1FullId}"]`).should('be.visible')
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer1FullId}"]`)
+            .should('be.visible')
+            .click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer1FullId}"]`).should(
+            'have.class',
+            'text-primary'
+        )
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer1FullId}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 1)
+            .then((layers) => {
+                cy.wrap(layers[0].name).should('be.equal', layer1Name)
+                cy.wrap(layers[0].externalLayerId).should('be.equal', layer1Id)
+                cy.wrap(layers[0].visible).should('be.true')
+                cy.wrap(layers[0].opacity).should('be.equal', 1)
+                cy.wrap(layers[0].isExternal).should('be.true')
+            })
+        cy.checkOlLayer(layer1Id)
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Add a layer without title')
+        const layer2Id = 'layer2'
+        const layer2FullId = `WMTS|https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml|${layer2Id}`
+        const layer2Name = 'layer2'
+
+        cy.get(`[data-cy="catalogue-tree-item-${layer2FullId}"]`)
+            .should('be.visible')
+            .contains(layer2Name)
+        cy.get(`[data-cy="catalogue-collapse-layer-button-${layer2FullId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-zoom-extent-button-${layer2FullId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer2FullId}"]`).should('not.exist')
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer2FullId}"]`)
+            .should('be.visible')
+            .click()
+        cy.get(`[data-cy="catalogue-tree-item-name-${layer2FullId}"]`).should(
+            'have.class',
+            'text-primary'
+        )
+        cy.get(`[data-cy="catalogue-add-layer-button-${layer2FullId}"]`)
+            .should('have.class', 'text-primary')
+            .find('svg')
+            .should('have.class', 'fa-square-check')
+        cy.readStoreValue('state.layers.activeLayers')
+            .should('have.length', 2)
+            .then((layers) => {
+                cy.wrap(layers[1].name).should('be.equal', layer2Name)
+                cy.wrap(layers[1].externalLayerId).should('be.equal', layer2Id)
+                cy.wrap(layers[1].visible).should('be.true')
+                cy.wrap(layers[1].opacity).should('be.equal', 1)
+                cy.wrap(layers[1].isExternal).should('be.true')
+            })
+        cy.checkOlLayer(layer2Id)
+
+        //---------------------------------------------------------------------------------
+        cy.log('Check layer 1 show legend')
+        cy.intercept('https://wmts.geo.admin.ch/legends/layer1.png', {
+            fixture: 'import-tool/legend.png',
+        }).as('wmts-legend')
+        cy.get(`[data-cy="catalogue-tree-item-info-${layer1FullId}"]`).should('be.visible').click()
+        cy.wait('@wmts-legend')
+        cy.get(`[data-cy="modal-with-backdrop-title"]`).should('be.visible').contains(layer1Name)
+        cy.get(`[data-cy="layer-legend-popup-description-title"]`).should('be.visible')
+        cy.get(`[data-cy="layer-legend-popup-description-body"]`)
+            .should('be.visible')
+            .contains('This is layer 1')
+        cy.get(`[data-cy="layer-legend-popup-legends-title"]`).should('be.visible')
+        cy.get(`[data-cy^="layer-legend-popup-legends-body-"]`)
+            .should('be.visible')
+            .find('img')
+            .should('be.visible')
+        cy.get('[data-cy="modal-close-button"]').click()
+
+        //---------------------------------------------------------------------
+        cy.log('Check layer map attribution')
+        cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+        cy.get('[data-cy="menu-external-disclaimer-icon"]')
+            .should('have.length', 2)
+            .first()
+            .should('be.visible')
+            .click()
+        cy.get('[data-cy="modal-content"]').contains(
+            'Warning: Third party data and/or style shown (My Organization)'
+        )
+        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        if (isMobile()) {
+            cy.get('[data-cy="menu-button"]').click()
+        }
+        cy.get('[data-cy="layer-copyright-My Organization"]')
+            .should('be.visible')
+            .contains('My Organization')
+    })
+    it('handles error correctly', () => {
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an unreachable external WMTS provider')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { forceNetworkError: true }
+        ).as('wmts-get-capabilities-unreachable')
+
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Network error')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which returns an error')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { statusCode: 400 }
+        ).as('wmts-get-capabilities-unreachable')
+
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Network error')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which return an invalid content type')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            { body: 'Invalid body' }
+        ).as('wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Unsupported response content type')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
+
+        //-----------------------------------------------------------------------------------------
+        cy.log('Select an external WMTS provider which return an invalid xml')
+        cy.intercept(
+            {
+                url: 'https://wmts.geo.admin.ch/1.0.0/WMTSCapabilities.xml*',
+            },
+            {
+                body: '<xml>Not a valid xml get capabilities</xml>',
+                headers: { 'Content-Type': 'text/xml' },
+            }
+        ).as('wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
+        cy.get('[data-cy="import-provider-list"]')
+            .children()
+            .contains('https://wmts.geo.admin.ch')
+            .click()
+        cy.wait('@wmts-get-capabilities-unreachable')
+        cy.get('[data-cy="import-catalogue-input"]').should('have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Unsupported response content type')
+        cy.get('[data-cy="import-catalog-content"]')
+            .find('[data-cy^="catalogue-tree-item-"]')
+            .should('have.length', 0)
+
+        cy.get('[data-cy="import-input-clear"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-providers-toggle"]').should('be.visible').click()
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-catalogue-input"]').should('not.have.class', 'is-valid')
+        cy.get('[data-cy="import-catalog-invalid-feedback"]').should('not.exist')
     })
 })

@@ -192,6 +192,7 @@ function hideProviders() {
                 v-if="isInvalid && !showProviders"
                 id="urlInvalidMessageFeedback"
                 class="invalid-feedback"
+                data-cy="import-catalog-invalid-feedback"
             >
                 {{ i18n.t(errorMessage) }}
             </div>
