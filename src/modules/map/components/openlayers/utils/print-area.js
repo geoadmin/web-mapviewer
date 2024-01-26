@@ -19,37 +19,42 @@ export default function usePrintArea(map) {
     })
 
     watch(isActive, (newValue) => {
-        togglePrintArea(newValue)
+        if (newValue) {
+            activatePrintArea()
+        } else {
+            deactivatePrintArea()
+        }
     })
 
-    function togglePrintArea(newValue) {
-        log.info('Print is active: ', newValue)
-        if (newValue) {
-            deregister = [
-                activatePrintArea(),
-                watch(layoutName, () => {
-                    log.info(scale.value, layoutName.value)
-                }),
-                watch(scale, () => {
-                    log.info(scale.value, layoutName.value)
-                }),
-            ]
-        } else {
-            while (deregister.length > 0) {
-                var item = deregister.pop()
-                if (typeof item === 'function') {
-                    item()
-                } else {
-                    item.target.un(item.type, item.listener)
-                }
+    function activatePrintArea() {
+        log.info('activate print area')
+        deregister = [
+            map.on('postrender', (event) => {
+                log.info(event)
+                updatePrintArea()
+            }),
+            watch(layoutName, () => {
+                updatePrintArea()
+            }),
+            watch(scale, () => {
+                updatePrintArea()
+            }),
+        ]
+    }
+
+    function deactivatePrintArea() {
+        log.info('deactivate print area')
+        while (deregister.length > 0) {
+            var item = deregister.pop()
+            if (typeof item === 'function') {
+                item()
+            } else {
+                item.target.un(item.type, item.listener)
             }
         }
     }
 
-    function activatePrintArea() {
-        log.info('activate print area')
-        return map.on('postcompose', (event) => {
-            log.info(scale.value, layoutName.value, event)
-        })
+    function updatePrintArea() {
+        log.info(scale.value, layoutName.value)
     }
 }
