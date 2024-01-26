@@ -1,5 +1,3 @@
-import { useStore } from 'vuex'
-
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
@@ -16,8 +14,12 @@ function readUrlParamValue(url, paramName) {
     return undefined
 }
 
-const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
-
+/*
+ Return true if the layer is a layer WITH a specified non legacy parameter.
+ Layers without parameters will return false
+ */
+const newLayerParamRegex =
+    /^([\w.-]+)((@[\w=\d]+)+(,[ft,]+)*([,\d.]+)*|(@[\w=\d]+)*(,[ft,]+)+([,\d.]+)*|(@[\w=\d]+)*(,[ft,]+)*([,\d.]+)+)$/
 function isExternalLayer(layerId) {
     return (
         layerId &&
@@ -27,6 +29,11 @@ function isExternalLayer(layerId) {
 }
 
 export function isLayersUrlParamLegacy(layersParamValue) {
+    // current error : layers thich finish in f/t are recognized as problematic
+    if (layersParamValue.split(';').length > 1) {
+        // if layers are separated by ;, this means we are not having legacy layers
+        return false
+    }
     return !layersParamValue.split(';').some((layer) => {
         return isExternalLayer(layer) || newLayerParamRegex.test(layer)
     })
@@ -58,8 +65,6 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         const layerTimestampsParam = readUrlParamValue(legacyLayersParam, 'layers_timestamp')
         const layerVisibilities = []
 
-        const store = useStore()
-
         if (layerVisibilityParam) {
             layerVisibilities.push(...layerVisibilityParam.split(','))
         }
@@ -68,7 +73,6 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
         if (layerOpacityParam) {
             layerOpacities.push(...layerOpacityParam.split(','))
         }
-
         const layerTimestamps = []
         if (layerTimestampsParam) {
             layerTimestamps.push(...layerTimestampsParam.split(','))
@@ -135,19 +139,9 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                                     layerTimestamps[index]
                                 ).year
                             }
-                            if (store) {
-                                store.dispatch('setLegacyTimeLayerYear', {
-                                    layer: layer,
-                                    year: year,
-                                })
-                            } else {
-                                // this does tell us that the changes have been taken into account
-                                // and would be updated, without using a store that is not active
-                                // during unit tests
-                                layer.timeConfig.updateCurrentTimeEntry(
-                                    layer.timeConfig.getTimeEntryForYear(year)
-                                )
-                            }
+                            layer.timeConfig.updateCurrentTimeEntry(
+                                layer.timeConfig.getTimeEntryForYear(year)
+                            )
                         }
                         layersToBeActivated.push(layer)
                     }

@@ -375,49 +375,6 @@ const actions = {
             log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
-    setLegacyTimeLayerYear({ commit }, { layer, year }) {
-        /*
-            Legacy Parameters are added to layers that might not yet be active, but
-            timeSeries still require them to go through mutations. So we need to be
-            able to add a time series to a layer without it being active
-        */
-        if (layer && year) {
-            if (layer.timeConfig) {
-                // checking that the year exists in this timeConfig
-                const timeEntryForYear = layer.timeConfig.getTimeEntryForYear(year)
-                if (timeEntryForYear) {
-                    commit('setLegacyLayerYear', {
-                        timedLayer: layer,
-                        year: year,
-                    })
-                } else {
-                    log.error('timestamp for year not found, ignoring change', layer, year)
-                }
-            } else {
-                log.error(
-                    'Failed to set layer year, layer has no time config',
-                    layer?.layerId,
-                    layer
-                )
-            }
-        } else {
-            log.error('Failed to set layer year, invalid payload', layer, year)
-        }
-    },
-    moveActiveLayerBack({ commit, state, getters }, layerId) {
-        const activeLayer = getters.getActiveLayerById(layerId)
-        if (activeLayer) {
-            // checking if the layer can be put one step back
-            const currentIndex = state.activeLayers.indexOf(activeLayer)
-            if (currentIndex > 0) {
-                commit('moveActiveLayerFromIndexToIndex', {
-                    layer: activeLayer,
-                    startingIndex: currentIndex,
-                    endingIndex: currentIndex - 1,
-                })
-            }
-        }
-    },
     moveActiveLayerFront({ commit, state, getters }, layerId) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {
@@ -576,11 +533,6 @@ const mutations = {
     },
     setLayerYear(state, { layerId, year }) {
         const timedLayer = getActiveLayerById(state, layerId)
-        timedLayer.timeConfig.updateCurrentTimeEntry(
-            timedLayer.timeConfig.getTimeEntryForYear(year)
-        )
-    },
-    setLegacyLayerYear(state, { timedLayer, year }) {
         timedLayer.timeConfig.updateCurrentTimeEntry(
             timedLayer.timeConfig.getTimeEntryForYear(year)
         )

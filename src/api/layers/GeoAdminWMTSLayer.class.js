@@ -68,6 +68,12 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
     }
 
+    clone() {
+        const clone = super.clone()
+        clone.timeConfig = this.timeConfig ? this.timeConfig.clone() : null
+        return clone
+    }
+
     /**
      * @param {Number} epsgNumber The EPSG number of the projection system to use (for instance,
      *   EPSG:2056 will require an input of 2056)

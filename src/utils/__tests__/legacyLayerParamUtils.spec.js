@@ -213,8 +213,9 @@ describe('Test parsing of legacy URL param into new params', () => {
     })
     describe('test isLayersUrlParamLegacy', () => {
         it('recognize a valid new layers param as such', () => {
-            expect(isLayersUrlParamLegacy('layer.id')).to.be.false
             expect(isLayersUrlParamLegacy('layer.id@time=123')).to.be.false
+            expect(isLayersUrlParamLegacy('layer.id-layer-name-extension@time=123')).to.be.false
+            expect(isLayersUrlParamLegacy('layer.id_layername_extension@time=123')).to.be.false
             expect(isLayersUrlParamLegacy('layer.id,f')).to.be.false
             expect(isLayersUrlParamLegacy('layer.id@time=123,f')).to.be.false
             expect(isLayersUrlParamLegacy('layer.id,,0.5')).to.be.false
@@ -227,8 +228,14 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
             ).to.be.false
         })
-        it('detects old layers syntax with many layers as legacy', () => {
-            expect(isLayersUrlParamLegacy('layer.id,layer.id')).to.be.true
+        it('detects single layers without any parameter as legacy', () => {
+            expect(isLayersUrlParamLegacy('layer.id')).to.be.true
+            expect(isLayersUrlParamLegacy('layer.id.finish.with.t')).to.be.true
+            expect(isLayersUrlParamLegacy('layer.id-layer-name-extension')).to.be.true
+            expect(isLayersUrlParamLegacy('layer.id_layer_name_extension')).to.be.true
+        })
+        it('detects old layers syntax with any number of layers as legacy', () => {
+            expect(isLayersUrlParamLegacy('layer.id,layer.id.2,layer.id_3')).to.be.true
         })
         it('detects legacy external URL structure correctly', () => {
             expect(

@@ -79,6 +79,12 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
         this.wmsVersion = wmsVersion
     }
 
+    clone() {
+        const clone = super.clone()
+        clone.timeConfig = this.timeConfig ? this.timeConfig.clone() : null
+        return clone
+    }
+
     getURL() {
         return this.baseURL ?? WMS_BASE_URL
     }
