@@ -10,6 +10,16 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { getLayersFromLegacyUrlParams } from '@/utils/legacyLayerParamUtils'
 
+// TODO HERE : GET NEW SYNTAX FOR ALL TESTS
+/*
+newValue = getLayersFromLegacyUrlParams(
+                store.state.layers.config,
+                legacyValue,
+                params['layers_visibility'],
+                params['layers_opacity'],
+                params['layers_timestamp']
+            )
+            */
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
@@ -41,7 +51,13 @@ describe('Test parsing of legacy URL param into new params', () => {
             ),
         ]
         it('Parses layers IDs and pass them along', () => {
-            const result = getLayersFromLegacyUrlParams(fakeLayerConfig, 'layers=test.wms.layer')
+            const result = getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'test.wms.layer',
+                undefined,
+                undefined,
+                undefined
+            )
             expect(result).to.be.an('Array').length(1)
             const [firstLayer] = result
             expect(firstLayer.getID()).to.eq('test.wms.layer')
@@ -50,7 +66,10 @@ describe('Test parsing of legacy URL param into new params', () => {
             const checkOneLayerVisibility = (flagValue) => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=test.wms.layer&layers_visibility=${flagValue}`
+                    `test.wms.layer`,
+                    `${flagValue}`,
+                    undefined,
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
@@ -64,7 +83,13 @@ describe('Test parsing of legacy URL param into new params', () => {
             checkOneLayerVisibility(false)
         })
         it('sets visibility to true when layers_visibility is not present', () => {
-            const result = getLayersFromLegacyUrlParams(fakeLayerConfig, 'layers=test.wms.layer')
+            const result = getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'test.wms.layer',
+                undefined,
+                undefined,
+                undefined
+            )
             expect(result).to.be.an('Array').length(1)
             const [firstLayer] = result
             expect(firstLayer.visible).to.be.true
@@ -73,7 +98,10 @@ describe('Test parsing of legacy URL param into new params', () => {
             const checkOneLayerOpacity = (opacity) => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=test.wms.layer&layers_opacity=${opacity}`
+                    `test.wms.layer`,
+                    undefined,
+                    `${opacity}`,
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
@@ -88,7 +116,10 @@ describe('Test parsing of legacy URL param into new params', () => {
             const checkOneLayerTimestamps = (timestamp) => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=test.timed.wmts.layer&layers_timestamp=${timestamp}`
+                    `test.timed.wmts.layer`,
+                    undefined,
+                    undefined,
+                    `${timestamp}`
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
@@ -102,7 +133,10 @@ describe('Test parsing of legacy URL param into new params', () => {
         it('Parses multiples layers with all params set', () => {
             const result = getLayersFromLegacyUrlParams(
                 fakeLayerConfig,
-                'layers=test.wmts.layer,test.wms.layer,test.timed.wmts.layer&layers_opacity=0.6,0.5,0.8&layers_visibility=false,true,false&layers_timestamp=,,456'
+                'test.wmts.layer,test.wms.layer,test.timed.wmts.layer',
+                'false,true,false',
+                '0.6,0.5,0.8',
+                ',,456'
             )
             expect(result).to.be.an('Array').length(3)
             const [wmtsLayer, wmsLayer, timedWmtsLayer] = result
@@ -132,7 +166,10 @@ describe('Test parsing of legacy URL param into new params', () => {
                 const kmlFileUrl = 'https://public.geo.admin.ch/super-legit-file-id'
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=KML||${kmlFileUrl}`
+                    `KML||${kmlFileUrl}`,
+                    undefined,
+                    undefined,
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
@@ -142,7 +179,10 @@ describe('Test parsing of legacy URL param into new params', () => {
             it('Handles opacity/visibility correctly with external layers', () => {
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    'layers=KML||https://we-dont-care-about-this-url&layers_opacity=0.65&layers_visibility=true'
+                    'KML||https://we-dont-care-about-this-url',
+                    'true',
+                    '0.65',
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
@@ -158,9 +198,10 @@ describe('Test parsing of legacy URL param into new params', () => {
 
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=${encodeURIComponent(
-                        legacyLayerUrlString
-                    )}&layers_opacity=0.45&layers_visibility=true`
+                    `${encodeURIComponent(legacyLayerUrlString)}`,
+                    `true`,
+                    `0.45`,
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmsLayer] = result
@@ -182,7 +223,10 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 const result = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `layers=${legacyLayerUrlString}&layers_opacity=0.77&layers_visibility=false`
+                    `${legacyLayerUrlString}`,
+                    `false`,
+                    `0.77`,
+                    undefined
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmtsLayer] = result
@@ -200,12 +244,18 @@ describe('Test parsing of legacy URL param into new params', () => {
             it('does not parse an external layer if it is in the current format', () => {
                 const wmtsResult = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    'WMTS|https://url.to.wmts.server|layer.id|LayerName'
+                    'WMTS|https://url.to.wmts.server|layer.id|LayerName',
+                    undefined,
+                    undefined,
+                    undefined
                 )
                 expect(wmtsResult).to.be.an('Array').empty
                 const wmsResult = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id|5.4.3|LayerName`
+                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id|5.4.3|LayerName`,
+                    undefined,
+                    undefined,
+                    undefined
                 )
                 expect(wmsResult).to.be.an('Array').empty
             })

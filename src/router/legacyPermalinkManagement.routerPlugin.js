@@ -45,6 +45,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
 }
 
 const handleLegacyParam = (
+    params,
     param,
     legacyValue,
     store,
@@ -96,11 +97,12 @@ const handleLegacyParam = (
             // for legacy layers param, we need to give the whole search query
             // as it needs to look for layers, layers_visibility, layers_opacity and
             // layers_timestamp param altogether
-
-            // HERE : use params to get visibility, opacity, timestamps
             newValue = getLayersFromLegacyUrlParams(
                 store.state.layers.config,
-                window.location.search
+                legacyValue,
+                params['layers_visibility'],
+                params['layers_opacity'],
+                params['layers_timestamp']
             )
                 .map((layer) => transformLayerIntoUrlString(layer))
                 .join(';')
@@ -167,6 +169,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
 
     Object.keys(legacyParams).forEach((param) => {
         handleLegacyParam(
+            legacyParams,
             param,
             legacyParams[param],
             store,
