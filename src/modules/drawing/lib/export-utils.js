@@ -65,10 +65,9 @@ export function generateGpxString(projection, features = []) {
  *
  * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to KML format
- * @param styleFunction
  * @returns {string}
  */
-export function generateKmlString(projection, features = [], styleFunction = null) {
+export function generateKmlString(projection, features = []) {
     if (!projection) {
         log.error('Cannot generate KML string without projection')
         return ''
@@ -79,8 +78,7 @@ export function generateKmlString(projection, features = [], styleFunction = nul
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        let styles = styleFunction || featureStyleFunction
-        styles = styles(clone)
+        const styles = featureStyleFunction(clone)
         const newStyle = {
             fill: styles[0].getFill(),
             stroke: styles[0].getStroke(),
