@@ -34,6 +34,8 @@ export default function usePrintArea(map) {
     const store = useStore()
     var deregister = []
     var worldPolygon = null
+    // Hardcoded for now
+    var printRectangle = [480, 230, 1440, 700]
     const isActive = computed(() => {
         return store.state.print.printSectionShown
     })
@@ -98,10 +100,17 @@ export default function usePrintArea(map) {
         var height = size[1] * olHas.DEVICE_PIXEL_RATIO,
             width = size[0] * olHas.DEVICE_PIXEL_RATIO
 
-        var minx = width * 0.25,
-            miny = height * 0.25,
-            maxx = width * 0.75,
-            maxy = height * 0.75
+        // var minx = width * 0.25,
+        //     miny = height * 0.25,
+        //     maxx = width * 0.75,
+        //     maxy = height * 0.75
+
+        var minx = printRectangle[0],
+            miny = printRectangle[1],
+            maxx = printRectangle[2],
+            maxy = printRectangle[3]
+
+        log.info(minx, miny, maxx, maxy, height, width)
 
         context.save()
 
