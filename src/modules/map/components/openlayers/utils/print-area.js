@@ -33,6 +33,8 @@ function createWorldPolygon() {
 export default function usePrintArea(map) {
     const store = useStore()
     var deregister = []
+    var POINTS_PER_INCH = 72 // PostScript points 1/72"
+    var MM_PER_INCHES = 25.4
     var worldPolygon = null
     // Hardcoded for now
     var printRectangle = [480, 230, 1440, 700]
@@ -70,11 +72,20 @@ export default function usePrintArea(map) {
             }),
             watch(layoutName, () => {
                 updatePrintArea()
+                updatePrintRectanglePixels(scale)
             }),
             watch(scale, () => {
                 updatePrintArea()
+                updatePrintRectanglePixels(scale)
+            }),
+            map.on('change:size', () => {
+                updatePrintRectanglePixels(scale)
+            }),
+            map.getView().on('propertychange', () => {
+                updatePrintRectanglePixels(scale)
             }),
         ]
+        refreshComp()
     }
 
     function deactivatePrintArea() {
@@ -88,6 +99,50 @@ export default function usePrintArea(map) {
                 item.target.un(item.type, item.listener)
             }
         }
+    }
+
+    function refreshComp() {
+        updatePrintRectanglePixels(scale)
+        map.render()
+    }
+
+    function updatePrintRectanglePixels(scale) {
+        if (isActive.value) {
+            printRectangle = calculatePageBoundsPixels(scale)
+            map.render()
+        }
+    }
+
+    function calculatePageBoundsPixels(scale) {
+        var s = parseFloat(scale.value)
+        log.info('scale', scale.value, s)
+        // TODO(IS): this is still hard coded to A3 Landscape
+        var size = {
+            width: 1150,
+            height: 777,
+        }
+        // var size = $scope.layout.map // papersize in dot!
+        var view = map.getView()
+        var resolution = view.getResolution()
+        var w =
+            (((((size.width / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution) *
+            olHas.DEVICE_PIXEL_RATIO
+        var h =
+            (((((size.height / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * s) / resolution) *
+            olHas.DEVICE_PIXEL_RATIO
+        var mapSize = map.getSize()
+        var center = [
+            (mapSize[0] * olHas.DEVICE_PIXEL_RATIO) / 2,
+            (mapSize[1] * olHas.DEVICE_PIXEL_RATIO) / 2,
+        ]
+
+        var minx, miny, maxx, maxy
+
+        minx = center[0] - w / 2
+        miny = center[1] - h / 2
+        maxx = center[0] + w / 2
+        maxy = center[1] + h / 2
+        return [minx, miny, maxx, maxy]
     }
 
     function updatePrintArea() {
