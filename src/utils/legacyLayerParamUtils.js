@@ -17,6 +17,15 @@ function readUrlParamValue(url, paramName) {
 }
 
 /**
+ * @param {String} search The query made to the mapviewer
+ * @returns True if the query starts with ? or /?
+ */
+export const isLegacyParams = (search) => {
+    const parts = search?.match(/^(\?|\/\?).*$/g) ?? null
+    return parts && Array.isArray(parts)
+}
+
+/**
  * Ensure opacity is within its bounds (0 and 1). Also assign a default value of 1 should the
  * parameter be something unexpected
  *
@@ -67,7 +76,6 @@ export function getLayersFromLegacyUrlParams(
     // 'undefined' elements. Since the function is also called in `topics.api.js`, it can be called
     // with a completely empty string.
     const layersIds = layers?.split(',').map(decodeURIComponent) ?? []
-
     const layerOpacities = legacyOpacities?.split(',').map(parseOpacity) ?? []
     const layerVisibilities = legacyVisibilities?.split(',') ?? []
     const layerTimestamps = legacyTimestamp?.split(',') ?? []

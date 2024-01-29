@@ -142,8 +142,15 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     (layer) => layer.getID() === defaultBackgroundLayerId
                                 )
                             }
+                            const params = new URLSearchParams(legacyUrlParams)
                             const layersToActivate = [
-                                ...getLayersFromLegacyUrlParams(layersConfig, legacyUrlParams),
+                                ...getLayersFromLegacyUrlParams(
+                                    layersConfig,
+                                    params.get('layers'),
+                                    params.get('layers_visibility'),
+                                    params.get('layers_opacity'),
+                                    params.get('layers_timestamp')
+                                ),
                             ]
                             if (
                                 Array.isArray(rawTopic.activatedLayers) &&

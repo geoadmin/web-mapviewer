@@ -8,33 +8,9 @@ import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.cla
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
+    isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-
-/**
- * @param {String} search The query made to the mapviewer
- * @returns True if the query starts with ? or /?
- */
-const isLegacyParams = (search) => {
-    const parts = search.match(/^(\?|\/).*$/g)
-    return parts && Array.isArray(parts)
-}
-
-/**
- * @param {String} search
- * @returns {any}
- */
-const parseLegacyParams = (search) => {
-    const params = {}
-    const parts = search.match(/(\?|&)([^=]+)=([^&]+)/g)
-    parts?.forEach((part) => {
-        const equalSignIndex = part.indexOf('=')
-        const paramName = part.substr(1, equalSignIndex - 1)
-        params[paramName] = part.substr(equalSignIndex + 1)
-    })
-
-    return params
-}
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
@@ -108,9 +84,9 @@ const handleLegacyParam = (
             newValue = getLayersFromLegacyUrlParams(
                 store.state.layers.config,
                 legacyValue,
-                params['layers_visibility'],
-                params['layers_opacity'],
-                params['layers_timestamp']
+                params.get('layers_visibility'),
+                params.get('layers_opacity'),
+                params.get('layers_timestamp')
             )
                 .map((layer) => transformLayerIntoUrlString(layer))
                 .join(';')
@@ -279,7 +255,7 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
     // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams =
         window.location && window.location.search && isLegacyParams(window.location.search)
-            ? parseLegacyParams(window.location.search)
+            ? new URLSearchParams(window.location.search)
             : null
     router.beforeEach((to, from, next) => {
         // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
