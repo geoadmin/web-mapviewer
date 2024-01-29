@@ -8,7 +8,6 @@ import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.cla
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
-    isLayersUrlParamLegacy,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 
@@ -94,20 +93,19 @@ const handleLegacyParam = (
         // taking all layers related param aside so that they can be processed later (see below)
         // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
         case 'layers':
-            if (isLayersUrlParamLegacy(legacyValue)) {
-                // for legacy layers param, we need to give the whole search query
-                // as it needs to look for layers, layers_visibility, layers_opacity and
-                // layers_timestamp param altogether
-                const layers = getLayersFromLegacyUrlParams(
-                    store.state.layers.config,
-                    window.location.search
-                )
-                newValue = layers.map((layer) => transformLayerIntoUrlString(layer)).join(';')
-                log.debug('Importing legacy layers as', newValue)
-            } else {
-                // if not legacy, we let it go as it is
-                newValue = legacyValue
-            }
+            // for legacy layers param, we need to give the whole search query
+            // as it needs to look for layers, layers_visibility, layers_opacity and
+            // layers_timestamp param altogether
+
+            // HERE : use params to get visibility, opacity, timestamps
+            newValue = getLayersFromLegacyUrlParams(
+                store.state.layers.config,
+                window.location.search
+            )
+                .map((layer) => transformLayerIntoUrlString(layer))
+                .join(';')
+            log.debug('Importing legacy layers as', newValue)
+
             break
         // Setting the position of the compare slider
         case 'swipe_ratio':
@@ -117,9 +115,8 @@ const handleLegacyParam = (
         case 'layers_opacity':
         case 'layers_visibility':
         case 'layers_timestamp':
-            // Those are checked within the `isLayersUrlParamLegacy` function, which is
-            // called under the `layers` case. We simply ensure here that they're not called
-            // multiple times for nothing
+            // Those are combined with the layers case. We simply ensure here that
+            // they're not called multiple times for nothing
             break
 
         case '3d':

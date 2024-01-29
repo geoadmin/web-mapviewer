@@ -8,7 +8,7 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { getLayersFromLegacyUrlParams, isLayersUrlParamLegacy } from '@/utils/legacyLayerParamUtils'
+import { getLayersFromLegacyUrlParams } from '@/utils/legacyLayerParamUtils'
 
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
@@ -209,61 +209,6 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(wmsResult).to.be.an('Array').empty
             })
-        })
-    })
-    describe('test isLayersUrlParamLegacy', () => {
-        it('recognize a valid new layers param as such', () => {
-            expect(isLayersUrlParamLegacy('layer.id@time=123')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id-layer-name-extension@time=123')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id_layername_extension@time=123')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id,f')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id@time=123,f')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id,,0.5')).to.be.false
-            expect(isLayersUrlParamLegacy('layer.id@time=123,,0.5')).to.be.false
-        })
-        it('recognize many layers with the new syntax as non legacy', () => {
-            expect(
-                isLayersUrlParamLegacy(
-                    'layer.id,,0.5;layer.id.2;layer.id.3,f;layer.id.4@time=123,,0.5'
-                )
-            ).to.be.false
-        })
-        it('detects single layers without any parameter as legacy', () => {
-            expect(isLayersUrlParamLegacy('layer.id')).to.be.true
-            expect(isLayersUrlParamLegacy('layer.id.finish.with.t')).to.be.true
-            expect(isLayersUrlParamLegacy('layer.id-layer-name-extension')).to.be.true
-            expect(isLayersUrlParamLegacy('layer.id_layer_name_extension')).to.be.true
-        })
-        it('detects old layers syntax with any number of layers as legacy', () => {
-            expect(isLayersUrlParamLegacy('layer.id,layer.id.2,layer.id_3')).to.be.true
-        })
-        it('detects legacy external URL structure correctly', () => {
-            expect(
-                isLayersUrlParamLegacy(
-                    encodeURIComponent(
-                        'WMTS||fake.layer.id||https://fake.get.cap.url/WMTSGetCapabilities.xml'
-                    )
-                )
-            ).to.be.true
-            expect(
-                isLayersUrlParamLegacy(
-                    encodeURIComponent(
-                        'WMS||fake layer name||https://fake.wms.server/||fake.wms.layer_id||0.0.0'
-                    )
-                )
-            ).to.be.true
-        })
-        it("doesn't detect the new external layer format as legacy", () => {
-            expect(
-                isLayersUrlParamLegacy(
-                    'WMTS|https://fake.get.cap.url/WMTSGetCapabilities.xml|fake.layer.id|Layer name'
-                )
-            ).to.be.false
-            expect(
-                isLayersUrlParamLegacy(
-                    'WMS|https://base.url/|wms.layer_id|2.2.2|External layer name'
-                )
-            ).to.be.false
         })
     })
 })

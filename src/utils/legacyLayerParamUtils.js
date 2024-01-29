@@ -14,31 +14,6 @@ function readUrlParamValue(url, paramName) {
     return undefined
 }
 
-/*
- Return true if the layer is a layer WITH a specified non legacy parameter.
- Layers without parameters will return false
- */
-const newLayerParamRegex =
-    /^([\w.-]+)((@[\w=\d]+)+(,[ft,]+)*([,\d.]+)*|(@[\w=\d]+)*(,[ft,]+)+([,\d.]+)*|(@[\w=\d]+)*(,[ft,]+)*([,\d.]+)+)$/
-function isExternalLayer(layerId) {
-    return (
-        layerId &&
-        (layerId.startsWith('WMS|') || layerId.startsWith('WMTS|')) &&
-        layerId.indexOf('||') === -1
-    )
-}
-
-export function isLayersUrlParamLegacy(layersParamValue) {
-    // current error : layers thich finish in f/t are recognized as problematic
-    if (layersParamValue.split(';').length > 1) {
-        // if layers are separated by ;, this means we are not having legacy layers
-        return false
-    }
-    return !layersParamValue.split(';').some((layer) => {
-        return isExternalLayer(layer) || newLayerParamRegex.test(layer)
-    })
-}
-
 /**
  * Reads URL params :
  *
