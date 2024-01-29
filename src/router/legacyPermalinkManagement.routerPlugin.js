@@ -12,19 +12,27 @@ import {
 import log from '@/utils/logging'
 
 /**
+ * @param {String} search The query made to the mapviewer
+ * @returns True if the query starts with ? or /?
+ */
+const isLegacyParams = (search) => {
+    const parts = search.match(/^(\?|\/).*$/g)
+    return parts && Array.isArray(parts)
+}
+
+/**
  * @param {String} search
  * @returns {any}
  */
 const parseLegacyParams = (search) => {
-    const parts = search.match(/(\?|&)([^=]+)=([^&]+)/g)
     const params = {}
-    if (parts && Array.isArray(parts)) {
-        parts.forEach((part) => {
-            const equalSignIndex = part.indexOf('=')
-            const paramName = part.substr(1, equalSignIndex - 1)
-            params[paramName] = part.substr(equalSignIndex + 1)
-        })
-    }
+    const parts = search.match(/(\?|&)([^=]+)=([^&]+)/g)
+    parts?.forEach((part) => {
+        const equalSignIndex = part.indexOf('=')
+        const paramName = part.substr(1, equalSignIndex - 1)
+        params[paramName] = part.substr(equalSignIndex + 1)
+    })
+
     return params
 }
 
@@ -270,7 +278,9 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
     // We need to take the legacy params from the window.location.search, because the Vue Router
     // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams =
-        window.location && window.location.search ? parseLegacyParams(window.location.search) : null
+        window.location && window.location.search && isLegacyParams(window.location.search)
+            ? parseLegacyParams(window.location.search)
+            : null
     router.beforeEach((to, from, next) => {
         // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
         // the storeSync plugin might overwrite some parameters. To handle legacy param we also
