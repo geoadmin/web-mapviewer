@@ -70,7 +70,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
 
     clone() {
         const clone = super.clone()
-        clone.timeConfig = this.timeConfig ? this.timeConfig.clone() : null
+        clone.timeConfig = this.timeConfig?.clone() ?? null
         return clone
     }
 

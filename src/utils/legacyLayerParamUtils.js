@@ -130,17 +130,8 @@ export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
                         }
                         // checking if a timestamp is defined for this layer
                         if (layerTimestamps.length > index && layerTimestamps[index]) {
-                            let year = layerTimestamps[index]
-                            if (
-                                layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
-                                    .year
-                            ) {
-                                year = layer.timeConfig.getTimeEntryForTimestamp(
-                                    layerTimestamps[index]
-                                ).year
-                            }
                             layer.timeConfig.updateCurrentTimeEntry(
-                                layer.timeConfig.getTimeEntryForYear(year)
+                                layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
                             )
                         }
                         layersToBeActivated.push(layer)

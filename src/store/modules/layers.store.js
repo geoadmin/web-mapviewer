@@ -375,6 +375,20 @@ const actions = {
             log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
+    moveActiveLayerBack({ commit, state, getters }, layerId) {
+        const activeLayer = getters.getActiveLayerById(layerId)
+        if (activeLayer) {
+            // checking if the layer can be put one step back
+            const currentIndex = state.activeLayers.indexOf(activeLayer)
+            if (currentIndex > 0) {
+                commit('moveActiveLayerFromIndexToIndex', {
+                    layer: activeLayer,
+                    startingIndex: currentIndex,
+                    endingIndex: currentIndex - 1,
+                })
+            }
+        }
+    },
     moveActiveLayerFront({ commit, state, getters }, layerId) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {

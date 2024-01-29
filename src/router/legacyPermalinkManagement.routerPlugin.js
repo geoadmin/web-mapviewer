@@ -94,10 +94,6 @@ const handleLegacyParam = (
         // taking all layers related param aside so that they can be processed later (see below)
         // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
         case 'layers':
-            console.log('----------------------------')
-            console.log(legacyValue)
-            console.log(isLayersUrlParamLegacy(legacyValue))
-            console.log('----------------------------')
             if (isLayersUrlParamLegacy(legacyValue)) {
                 // for legacy layers param, we need to give the whole search query
                 // as it needs to look for layers, layers_visibility, layers_opacity and
