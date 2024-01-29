@@ -151,11 +151,11 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     let latlongCoordinates = []
     let cameraPosition = []
 
-    Object.keys(legacyParams).forEach((param) => {
+    legacyParams.forEach((param_value, param_key) => {
         handleLegacyParam(
             legacyParams,
-            param,
-            legacyParams[param],
+            param_key,
+            param_value,
             store,
             newQuery,
             latlongCoordinates,

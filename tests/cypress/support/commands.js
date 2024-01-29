@@ -155,7 +155,7 @@ Cypress.Commands.add(
     'goToMapView',
     (
         queryParams = {},
-        withHash = false,
+        withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {}
     ) => {

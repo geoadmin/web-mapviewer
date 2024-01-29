@@ -11,11 +11,14 @@ describe('Test on legacy param import', () => {
             const lat = 47.3
             const lon = 7.3
             const zoom = 10.4
-            cy.goToMapView({
-                lat,
-                lon,
-                z: zoom,
-            })
+            cy.goToMapView(
+                {
+                    lat,
+                    lon,
+                    z: zoom,
+                },
+                false
+            )
 
             // checking in the store that the position has not changed from what was in the URL
             cy.readStoreValue('state.position.zoom').should('eq', 10) // zoom should be rounded to the closest Swisstopo zoom level
@@ -49,11 +52,14 @@ describe('Test on legacy param import', () => {
             const E = 2660000
             const N = 1200000
             const lv95zoom = 8
-            cy.goToMapView({
-                E,
-                N,
-                zoom: lv95zoom,
-            })
+            cy.goToMapView(
+                {
+                    E,
+                    N,
+                    zoom: lv95zoom,
+                },
+                false
+            )
 
             cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
 
@@ -103,11 +109,14 @@ describe('Test on legacy param import', () => {
         })
 
         it('Combines all old layers_*** params into the new one', () => {
-            cy.goToMapView({
-                layers: 'test.wms.layer,test.wmts.layer',
-                layers_opacity: '0.6,0.5',
-                layers_visibility: 'true,false',
-            })
+            cy.goToMapView(
+                {
+                    layers: 'test.wms.layer,test.wmts.layer',
+                    layers_opacity: '0.6,0.5',
+                    layers_visibility: 'true,false',
+                },
+                false
+            )
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = activeLayers
@@ -120,11 +129,14 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            cy.goToMapView({
-                layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
-                layers_opacity: '0.6',
-                layers_visibility: 'true',
-            })
+            cy.goToMapView(
+                {
+                    layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
+                    layers_opacity: '0.6',
+                    layers_visibility: 'true',
+                },
+                false
+            )
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
@@ -135,9 +147,12 @@ describe('Test on legacy param import', () => {
         })
         // TODO BGDIINF_SB-2685: re-activate
         it.skip('is able to import an external KML from a legacy adminId query param', () => {
-            cy.goToMapView({
-                adminId: adminId,
-            })
+            cy.goToMapView(
+                {
+                    adminId: adminId,
+                },
+                false
+            )
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -151,9 +166,12 @@ describe('Test on legacy param import', () => {
         })
         // TODO BGDIINF_SB-2685: re-activate
         it.skip("don't keep KML adminId in URL after import", () => {
-            cy.goToMapView({
-                adminId: adminId,
-            })
+            cy.goToMapView(
+                {
+                    adminId: adminId,
+                },
+                false
+            )
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -168,12 +186,15 @@ describe('Test on legacy param import', () => {
         })
         // TODO BGDIINF_SB-2685: re-activate
         it.skip('is able to import an external KML from a legacy adminId query param with other layers', () => {
-            cy.goToMapView({
-                adminId: adminId,
-                layers: 'test.wms.layer,test.wmts.layer',
-                layers_opacity: '0.6,0.5',
-                layers_visibility: 'true,false',
-            })
+            cy.goToMapView(
+                {
+                    adminId: adminId,
+                    layers: 'test.wms.layer,test.wmts.layer',
+                    layers_opacity: '0.6,0.5',
+                    layers_visibility: 'true,false',
+                },
+                false
+            )
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -206,9 +227,12 @@ describe('Test on legacy param import', () => {
                     ],
                 },
             }).as('search-locations')
-            cy.goToMapView({
-                swisssearch: '1530 Payerne',
-            })
+            cy.goToMapView(
+                {
+                    swisssearch: '1530 Payerne',
+                },
+                false
+            )
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('include', 'swisssearch=1530+Payerne')
             cy.get('[data-cy="search-result-entry-location"]').should('be.visible')
@@ -228,12 +252,15 @@ describe('Test on legacy param import', () => {
                 { fixture: 'external-wms-getcap.fixture.xml' }
             ).as('externalWMSGetCap')
 
-            cy.goToMapView({
-                layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
-                layers_opacity: '1,1',
-                layers_visibility: 'false,true',
-                layers_timestam: ',',
-            })
+            cy.goToMapView(
+                {
+                    layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
+                    layers_opacity: '1,1',
+                    layers_visibility: 'false,true',
+                    layers_timestam: ',',
+                },
+                false
+            )
             cy.wait('@externalWMSGetCap')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
@@ -264,12 +291,15 @@ describe('Test on legacy param import', () => {
             const layerId = 'TestExternalWMTS'
             const layerName = 'Test External WMTS'
             const url = 'http://wmts-test.url/'
-            cy.goToMapView({
-                layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
-                layers_opacity: '1,1',
-                layers_visibility: 'false,true',
-                layers_timestam: ',',
-            })
+            cy.goToMapView(
+                {
+                    layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
+                    layers_opacity: '1,1',
+                    layers_visibility: 'false,true',
+                    layers_timestam: ',',
+                },
+                false
+            )
             cy.wait('@externalWMTSGetCap')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
@@ -297,13 +327,16 @@ describe('Test on legacy param import', () => {
         const pitch = -45
 
         it('transfers camera parameter from legacy URL to the new URL', () => {
-            cy.goToMapView({
-                lat,
-                lon,
-                elevation,
-                heading,
-                pitch,
-            })
+            cy.goToMapView(
+                {
+                    lat,
+                    lon,
+                    elevation,
+                    heading,
+                    pitch,
+                },
+                false
+            )
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
@@ -321,11 +354,14 @@ describe('Test on legacy param import', () => {
         })
 
         it('transfers camera parameter from legacy URL to the new URL only heading', () => {
-            cy.goToMapView({
-                lat,
-                lon,
-                heading,
-            })
+            cy.goToMapView(
+                {
+                    lat,
+                    lon,
+                    heading,
+                },
+                false
+            )
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
@@ -343,11 +379,14 @@ describe('Test on legacy param import', () => {
         })
 
         it('transfers camera parameter from legacy URL to the new URL only elevation', () => {
-            cy.goToMapView({
-                lat,
-                lon,
-                elevation,
-            })
+            cy.goToMapView(
+                {
+                    lat,
+                    lon,
+                    elevation,
+                },
+                false
+            )
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
