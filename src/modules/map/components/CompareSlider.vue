@@ -37,6 +37,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+    compareRatio.value = storeCompareRatio.value
+
     slice()
 })
 
