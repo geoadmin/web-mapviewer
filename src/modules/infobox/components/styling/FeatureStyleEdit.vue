@@ -4,7 +4,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Polygon } from 'ol/geom'
 import { getLength } from 'ol/sphere'
-import { computed, toRefs } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
@@ -29,24 +29,18 @@ const props = defineProps({
 })
 const { feature, readOnly } = toRefs(props)
 
-const description = computed({
-    get() {
-        return feature.value.description
-    },
-    set(value) {
-        this.description = value
-        debounce(store.dispatch('changeFeatureDescription', { feature, description: value }), 3000)
-    },
+const descriptionValue = ref(feature.value.description)
+const textValue = ref(feature.value.title)
+
+watch(textValue, (newTextValue) => {
+    const dispatch = debounce(store.dispatch, 3000)
+    dispatch('changeFeatureTitle', { feature, title: newTextValue })
 })
-const text = computed({
-    get() {
-        return feature.value.title
-    },
-    set(value) {
-        this.text = value
-        debounce(store.dispatch('changeFeatureTitle', { feature, title: value }), 3000)
-    },
+watch(descriptionValue, (newDescriptionValue) => {
+    const dispatch = debounce(store.dispatch, 3000)
+    dispatch('changeFeatureDescription', { feature, description: newDescriptionValue })
 })
+
 /**
  * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
  * is to hold the coordinates, which are in an array themselves. We don't have rings in this case,
@@ -141,7 +135,7 @@ function onDelete() {
             </label>
             <textarea
                 id="drawing-style-feature-title"
-                v-model="text"
+                v-model="textValue"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="feature-title form-control"
@@ -157,7 +151,7 @@ function onDelete() {
             </label>
             <textarea
                 id="drawing-style-feature-description"
-                v-model="description"
+                v-model="descriptionValue"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="feature-description form-control"
