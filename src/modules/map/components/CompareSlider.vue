@@ -122,6 +122,7 @@ function releaseSlider() {
 <template>
     <div
         class="compare-slider position-absolute top-0 translate-middle-x h-100 d-inline-block"
+        data-cy="compare_slider"
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
