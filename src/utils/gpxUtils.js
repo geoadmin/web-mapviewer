@@ -1,6 +1,6 @@
-import { gpxStyle } from '@/modules/drawing/lib/style.js'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems.js'
-import GPX from '@/utils/GPX.js'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import GPX from '@/utils/GPX'
+import { gpxStyle } from '@/utils/styleUtils'
 
 /**
  * Parses a GPX's data into OL Features, including deserialization of features
@@ -11,7 +11,7 @@ import GPX from '@/utils/GPX.js'
  */
 export function parseGpx(gpxData, projection) {
     const features = new GPX().readFeatures(gpxData, {
-        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        dataProjection: WGS84.epsg, // GPX files should always be in WGS84
         featureProjection: projection.epsg,
     })
     features.forEach((feature) => {

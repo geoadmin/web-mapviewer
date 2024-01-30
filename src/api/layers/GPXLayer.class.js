@@ -22,8 +22,8 @@ export default class GPXLayer extends AbstractLayer {
             opacity ?? 1.0,
             visible ?? true,
             [new LayerAttribution(attributionName)],
-            false,
-            true
+            false, //hasTooltip
+            true // isExternal
         )
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
