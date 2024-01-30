@@ -55,7 +55,6 @@ watch(featureIds, (next, last) => {
     }
 })
 
-let unsubscribe = null
 onMounted(() => {
     // if icons have not yet been loaded, we do so
     if (availableIconSets.value.length === 0) {
@@ -80,21 +79,6 @@ onMounted(() => {
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
     document.addEventListener('contextmenu', removeLastPoint, { passive: true })
 
-    log.debug(`subscribe for feature mutation`)
-    unsubscribe = store.subscribe((mutation) => {
-        // The title description of an editable feature are only set in the editable feature
-        // however in the KML standard they should be set in the name and description tags.
-        // To do this we need to set them on the ol feature as properties.
-        if (mutation.type === 'changeFeatureTitle') {
-            const feature = drawingLayer.getSource().getFeatureById(mutation.payload.feature.id)
-            feature?.set('name', mutation.payload.title)
-        }
-        if (mutation.type === 'changeFeatureDescription') {
-            const feature = drawingLayer.getSource().getFeatureById(mutation.payload.feature.id)
-            feature?.set('description', mutation.payload.description)
-        }
-    })
-
     if (IS_TESTING_WITH_CYPRESS) {
         window.drawingLayer = drawingLayer
     }
@@ -110,7 +94,6 @@ onBeforeUnmount(async () => {
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
 
     log.debug(`unsubscribe feature mutation`)
-    unsubscribe()
 
     if (IS_TESTING_WITH_CYPRESS) {
         delete window.drawingLayer
