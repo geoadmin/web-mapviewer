@@ -4,7 +4,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Polygon } from 'ol/geom'
 import { getLength } from 'ol/sphere'
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
@@ -16,7 +16,7 @@ import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
 import { round } from '@/utils/numberUtils'
 
-const { feature, readOnly } = defineProps({
+const props = defineProps({
     feature: {
         type: EditableFeature,
         required: true,
@@ -26,21 +26,22 @@ const { feature, readOnly } = defineProps({
         default: false,
     },
 })
+const { feature, readOnly } = toRefs(props)
 
 const description = computed({
     get() {
-        return feature.description
+        return feature.value.description
     },
     set(value) {
-        store.dispatch('changeFeatureDescription', { feature, description: value })
+        store.dispatch('changeFeatureDescription', { feature: feature.value, description: value })
     },
 })
 const text = computed({
     get() {
-        return feature.title
+        return feature.value.title
     },
     set(value) {
-        store.dispatch('changeFeatureTitle', { feature, title: value })
+        store.dispatch('changeFeatureTitle', { feature: feature.value, title: value })
     },
 })
 /**
@@ -50,7 +51,7 @@ const text = computed({
  *
  * @type {ComputedRef<Polygon>}
  */
-const geometry = computed(() => new Polygon([feature.coordinates]))
+const geometry = computed(() => new Polygon([feature.value.coordinates]))
 /** @type {ComputedRef<Number>} */
 const length = computed(() => {
     const calculatedLength = getLength(geometry.value)
@@ -86,18 +87,18 @@ const area = computed(() => {
  * @type {ComputedRef<Boolean>}
  */
 const isFeatureClosed = computed(() => {
-    const { coordinates } = feature
+    const { coordinates } = feature.value
     return (
         coordinates.length > 3 &&
         coordinates[0][0] === coordinates[coordinates.length - 1][0] &&
         coordinates[0][1] === coordinates[coordinates.length - 1][1]
     )
 })
-const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
-const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
-const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
+const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
+const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
 const isFeaturePolygon = computed(() => {
-    return feature.featureType === EditableFeatureTypes.LINEPOLYGON && isFeatureClosed.value
+    return feature.value.featureType === EditableFeatureTypes.LINEPOLYGON && isFeatureClosed.value
 })
 
 const store = useStore()
@@ -110,22 +111,22 @@ function roundValueIfGreaterThan(value, threshold, divider) {
     return `${round(value, 2)}`
 }
 function onTextSizeChange(textSize) {
-    store.dispatch('changeFeatureTextSize', { feature, textSize })
+    store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize })
 }
 function onTextColorChange(textColor) {
-    store.dispatch('changeFeatureTextColor', { feature, textColor })
+    store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor })
 }
 function onColorChange(color) {
-    store.dispatch('changeFeatureColor', { feature, color })
+    store.dispatch('changeFeatureColor', { feature: feature.value, color })
 }
 function onIconChange(icon) {
-    store.dispatch('changeFeatureIcon', { feature, icon })
+    store.dispatch('changeFeatureIcon', { feature: feature.value, icon })
 }
 function onIconSizeChange(iconSize) {
-    store.dispatch('changeFeatureIconSize', { feature, iconSize })
+    store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize })
 }
 function onDelete() {
-    store.dispatch('deleteDrawingFeature', feature.id)
+    store.dispatch('deleteDrawingFeature', feature.value.id)
 }
 </script>
 

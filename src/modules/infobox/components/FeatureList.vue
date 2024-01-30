@@ -1,14 +1,15 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
-const { direction } = defineProps({
+const props = defineProps({
     direction: {
         type: String,
         default: 'row',
         validator: (value) => ['row', 'column'].includes(value),
     },
 })
+const { direction } = toRefs(props)
 
 const store = useStore()
 const features = computed(() =>

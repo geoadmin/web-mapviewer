@@ -1,10 +1,12 @@
 <script setup>
+import { toRefs } from 'vue'
+
 import { EditableFeature } from '@/api/features.api'
 
 import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
-const { feature, readOnly } = defineProps({
+const props = defineProps({
     feature: {
         type: EditableFeature,
         required: true,
@@ -14,6 +16,7 @@ const { feature, readOnly } = defineProps({
         default: false,
     },
 })
+const { feature, readOnly } = toRefs(props)
 </script>
 
 <template>
