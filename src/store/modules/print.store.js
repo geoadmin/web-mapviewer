@@ -8,7 +8,16 @@ export default {
         selectedScale: 0,
         printSectionShown: false,
     },
-    getters: {},
+    getters: {
+        mapSize(state) {
+            var mapAttributes = state.selectedLayout.attributes.find((atr) => atr.name === 'map')
+
+            return {
+                width: mapAttributes?.clientParams?.width?.default,
+                height: mapAttributes?.clientParams?.height?.default,
+            }
+        },
+    },
     actions: {
         async loadPrintLayouts({ commit }) {
             try {

@@ -36,8 +36,7 @@ export default function usePrintArea(map) {
     var POINTS_PER_INCH = 72 // PostScript points 1/72"
     var MM_PER_INCHES = 25.4
     var worldPolygon = null
-    // Hardcoded for now
-    var printRectangle = [480, 230, 1440, 700]
+    var printRectangle = []
     const isActive = computed(() => {
         return store.state.print.printSectionShown
     })
@@ -66,16 +65,12 @@ export default function usePrintArea(map) {
         map.addLayer(worldPolygon)
         deregister = [
             worldPolygon.on('postrender', (event) => {
-                log.info(event)
                 handlePostRender(event.context)
-                updatePrintArea()
             }),
             watch(layoutName, () => {
-                updatePrintArea()
                 updatePrintRectanglePixels(scale)
             }),
             watch(scale, () => {
-                updatePrintArea()
                 updatePrintRectanglePixels(scale)
             }),
             map.on('change:size', () => {
@@ -115,13 +110,7 @@ export default function usePrintArea(map) {
 
     function calculatePageBoundsPixels(scale) {
         var s = parseFloat(scale.value)
-        log.info('scale', scale.value, s)
-        // TODO(IS): this is still hard coded to A3 Landscape
-        var size = {
-            width: 1150,
-            height: 777,
-        }
-        // var size = $scope.layout.map // papersize in dot!
+        var size = store.getters.mapSize
         var view = map.getView()
         var resolution = view.getResolution()
         var w =
@@ -145,27 +134,16 @@ export default function usePrintArea(map) {
         return [minx, miny, maxx, maxy]
     }
 
-    function updatePrintArea() {
-        log.info(scale.value, layoutName.value)
-    }
-
     function handlePostRender(context) {
         const size = map.getSize()
 
         var height = size[1] * olHas.DEVICE_PIXEL_RATIO,
             width = size[0] * olHas.DEVICE_PIXEL_RATIO
 
-        // var minx = width * 0.25,
-        //     miny = height * 0.25,
-        //     maxx = width * 0.75,
-        //     maxy = height * 0.75
-
         var minx = printRectangle[0],
             miny = printRectangle[1],
             maxx = printRectangle[2],
             maxy = printRectangle[3]
-
-        log.info(minx, miny, maxx, maxy, height, width)
 
         context.save()
 

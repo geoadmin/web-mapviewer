@@ -45,12 +45,14 @@ watch(printLayouts, () => {
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (printLayouts.value.length === 0) {
-        store.dispatch('loadPrintLayouts')
+        store.dispatch('loadPrintLayouts').then(() => {
+            isSectionShown.value = !isSectionShown.value
+        })
     } else {
         // if layouts are already present, we select the first one as default value
         selectLayout(printLayouts.value[0])
+        isSectionShown.value = !isSectionShown.value
     }
-    isSectionShown.value = !isSectionShown.value
 }
 function selectLayout(layout) {
     selectedLayoutName.value = layout.name
