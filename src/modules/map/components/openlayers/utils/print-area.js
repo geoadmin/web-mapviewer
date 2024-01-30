@@ -35,6 +35,7 @@ export default function usePrintArea(map) {
     var deregister = []
     var POINTS_PER_INCH = 72 // PostScript points 1/72"
     var MM_PER_INCHES = 25.4
+    var UNITS_RATIO = 39.37 // inches per meter
     var worldPolygon = null
     var printRectangle = []
     const isActive = computed(() => {
@@ -79,6 +80,7 @@ export default function usePrintArea(map) {
                 updatePrintRectanglePixels(scale)
             }),
         ]
+        store.commit('setSelectedScale', getOptimalScale())
         refreshComp()
     }
 
@@ -93,6 +95,7 @@ export default function usePrintArea(map) {
                 item.target.un(item.type, item.listener)
             }
         }
+        refreshComp()
     }
 
     function refreshComp() {
@@ -173,5 +176,33 @@ export default function usePrintArea(map) {
         context.fill()
 
         context.restore()
+    }
+
+    function getOptimalScale() {
+        log.info('getOptimalScale')
+        var size = map.getSize()
+        var resolution = map.getView().getResolution()
+        // TODO(IS): hardcoded for now
+        var widthMargin = 100
+        var heightMargin = 100
+        var width = resolution * (size[0] - widthMargin * 2)
+        var height = resolution * (size[1] - heightMargin * 2)
+        var layoutSize = store.getters.mapSize
+        var scaleWidth = (width * UNITS_RATIO * POINTS_PER_INCH) / layoutSize.width
+        var scaleHeight = (height * UNITS_RATIO * POINTS_PER_INCH) / layoutSize.height
+        var testScale = scaleWidth
+        if (scaleHeight < testScale) {
+            testScale = scaleHeight
+        }
+        var nextBiggest = null
+        var selectedLayoutScales = Array.from(store.state.print.selectedLayout.scales)
+        // Make sure it's sorted ascending
+        selectedLayoutScales.sort((a, b) => a - b)
+        selectedLayoutScales.forEach(function (scale) {
+            if (nextBiggest == null || testScale > scale) {
+                nextBiggest = scale
+            }
+        })
+        return nextBiggest
     }
 }

@@ -11,7 +11,6 @@ const emits = defineEmits(['openMenuSection'])
 
 const isSectionShown = ref(false)
 const selectedLayoutName = ref(null)
-const selectedScale = ref(null)
 const useLegend = ref(false)
 const useGraticule = ref(false)
 
@@ -23,8 +22,14 @@ const selectedLayout = computed(() =>
 )
 const scales = computed(() => selectedLayout.value?.scales || [])
 
-watch(selectedScale, () => {
-    store.commit('setSelectedScale', selectedScale.value)
+const selectedScale = computed({
+    get() {
+        return store.getters.getSelectedScale
+    },
+    set(value) {
+        log.info('update value', value)
+        store.commit('setSelectedScale', value)
+    },
 })
 
 watch(selectedLayout, () => {

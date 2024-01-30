@@ -17,6 +17,9 @@ export default {
                 height: mapAttributes?.clientParams?.height?.default,
             }
         },
+        getSelectedScale(state) {
+            return state.selectedScale
+        },
     },
     actions: {
         async loadPrintLayouts({ commit }) {
