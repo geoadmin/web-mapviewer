@@ -93,8 +93,6 @@ onBeforeUnmount(async () => {
     document.removeEventListener('contextmenu', removeLastPoint)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
 
-    log.debug(`unsubscribe feature mutation`)
-
     if (IS_TESTING_WITH_CYPRESS) {
         delete window.drawingLayer
     }
