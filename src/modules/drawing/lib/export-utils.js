@@ -101,19 +101,6 @@ export function generateKmlString(projection, features = []) {
         const myStyle = new Style(newStyle)
         clone.setStyle(myStyle)
 
-        const editableFeature = clone.get('editableFeature')
-        // For backward compatibility with the legacy mf-geoadmin3 viewer we need to add the
-        // feature type as proprietary property
-        if (editableFeature?.featureType) {
-            clone.set('type', editableFeature.featureType.toLowerCase())
-        }
-
-        // The description of an editable feature is only set in the editable feature
-        // however in the KML standard the description should be set in the <description> tag
-        // to do this we need to set the description on the ol feature.
-        if (editableFeature?.description) {
-            clone.set('description', editableFeature.description)
-        }
         exportFeatures.push(clone)
     })
 
