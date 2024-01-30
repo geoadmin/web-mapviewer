@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector'
 import { mapActions, mapState } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
+import { parseKml } from '@/utils/kmlUtils'
 
 import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
 

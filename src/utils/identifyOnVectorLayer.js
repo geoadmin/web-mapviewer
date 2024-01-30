@@ -1,4 +1,4 @@
-import { kml as toGeoJSON } from '@mapbox/togeojson'
+import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import distance from '@turf/distance'
 import { lineString, point, polygon } from '@turf/helpers'
@@ -11,6 +11,46 @@ import reprojectGeoJsonData from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 const pixelToleranceForIdentify = 10
+
+function generateHtmlPopup(layerName, featureDescription, extraInformation = null) {
+    let popup = `<div class="htmlpopup-container">`
+    if (layerName) {
+        popup += `<div class="htmlpopup-header">${layerName}</div>`
+    }
+    if (featureDescription) {
+        popup += `<div class="htmlpopup-content">${featureDescription}`
+        if (extraInformation) {
+            popup += `<div>${extraInformation}</div>`
+        }
+        popup += '</div>'
+    }
+    popup += `</div>`
+    return popup
+}
+
+/**
+ * @param {Array} coordinates
+ * @param {CoordinateSystem} targetProjection
+ * @returns {Array}
+ */
+function reprojectCoordinates(coordinates, targetProjection) {
+    let reprojectedCoordinates
+    if (Array.isArray(coordinates[0])) {
+        // closed polygons are expressed as a double-wrapped array
+        if (Array.isArray(coordinates[0][0])) {
+            reprojectedCoordinates = coordinates[0].map((coord) =>
+                proj4(WGS84.epsg, targetProjection.epsg, coord)
+            )
+        } else {
+            reprojectedCoordinates = coordinates.map((coord) =>
+                proj4(WGS84.epsg, targetProjection.epsg, coord)
+            )
+        }
+    } else {
+        reprojectedCoordinates = proj4(WGS84.epsg, targetProjection.epsg, coordinates)
+    }
+    return reprojectedCoordinates
+}
 
 function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
     const features = []
@@ -95,16 +135,8 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 geoJsonLayer,
                 feature.id,
                 feature.properties.station_name || feature.id,
-                `<div class="htmlpopup-container">
-                               <div class="htmlpopup-header">
-                                   <span>${geoJsonLayer.name}</span>
-                               </div>
-                               <div class="htmlpopup-content">
-                                   ${feature.properties.description}
-                               </div>
-                           </div>`,
-                // back to the starting projection
-                proj4(WGS84.epsg, projection.epsg, feature.geometry.coordinates),
+                generateHtmlPopup(geoJsonLayer.name, feature.properties.description),
+                reprojectCoordinates(feature.geometry.coordinates, projection),
                 null,
                 feature.geometry
             )
@@ -134,34 +166,60 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
 export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolution) {
     if (kmlLayer?.kmlData) {
         const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
-        const convertedKml = toGeoJSON(parseKml)
+        const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                let reprojectedCoordinates
-                if (Array.isArray(feature.geometry.coordinates[0])) {
-                    // closed polygons are expressed as a double-wrapped array
-                    if (Array.isArray(feature.geometry.coordinates[0][0])) {
-                        reprojectedCoordinates = feature.geometry.coordinates[0].map((coord) =>
-                            proj4(WGS84.epsg, projection.epsg, coord)
-                        )
-                    } else {
-                        reprojectedCoordinates = feature.geometry.coordinates.map((coord) =>
-                            proj4(WGS84.epsg, projection.epsg, coord)
-                        )
-                    }
-                } else {
-                    reprojectedCoordinates = proj4(
-                        WGS84.epsg,
-                        projection.epsg,
-                        feature.geometry.coordinates
-                    )
-                }
                 if (feature.properties.editableFeature) {
                     return EditableFeature.deserialize(
                         feature.properties.editableFeature,
-                        reprojectedCoordinates
+                        reprojectCoordinates(feature.geometry.coordinates, projection)
                     )
+                } else {
+                    // TODO: identify on external KML
                 }
+            }
+        )
+    }
+    return []
+}
+
+/**
+ * @param {GPXLayer} gpxLayer
+ * @param {[Number, Number]} coordinate Where we want to find features ([x, y])
+ * @param {CoordinateSystem} projection The projection used to describe the coordinate where we want
+ *   to search for feature
+ * @param {Number} resolution The current map resolution, in meters/pixel. Used to calculate a
+ *   tolerance of 10 pixels around the given coordinate.
+ * @returns {SelectableFeature[]} The feature found at the coordinate, or an empty array if none
+ *   were found
+ */
+export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolution) {
+    if (gpxLayer?.gpxData) {
+        const parseGpx = new DOMParser().parseFromString(gpxLayer.gpxData, 'text/xml')
+        const convertedGpx = gpxToGeoJSON(parseGpx)
+        return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
+            (feature) => {
+                const reprojectedCoordinates = reprojectCoordinates(
+                    feature.geometry.coordinates,
+                    projection
+                )
+                const reprojectedGeometry = {
+                    type: feature.geometry.type,
+                    coordinates: reprojectedCoordinates,
+                }
+                return new LayerFeature(
+                    gpxLayer,
+                    `${gpxLayer.name}-${feature.properties?.name}`,
+                    feature.properties?.name,
+                    generateHtmlPopup(
+                        gpxLayer.name,
+                        feature.properties?.name || gpxLayer.gpxMetadata?.description,
+                        feature.properties?.type ? `Type: ${feature.properties.type}` : null
+                    ),
+                    reprojectedCoordinates,
+                    null,
+                    reprojectedGeometry
+                )
             }
         )
     }

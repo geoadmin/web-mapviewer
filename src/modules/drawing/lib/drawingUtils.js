@@ -1,11 +1,9 @@
 import { wrapX } from 'ol/coordinate'
-import KML from 'ol/format/KML'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
 
-import { EditableFeature } from '@/api/features.api'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { format } from '@/utils/numberUtils'
 
 export function toLv95(input, epsg) {
@@ -166,24 +164,4 @@ export function getVertexCoordinates(feature) {
     }
 
     return normalized
-}
-
-/**
- * Parses a KML's data into OL Features, including deserialization of features
- *
- * @param {String} kmlData KML content to parse
- * @param {CoordinateSystem} projection Projection to use for the OL Feature
- * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
- * @returns {ol/Feature[]} List of OL Features
- */
-export function parseKml(kmlData, projection, iconSets) {
-    const features = new KML().readFeatures(kmlData, {
-        dataProjection: WGS84.epsg, // KML files should always be in WGS84
-        featureProjection: projection.epsg,
-    })
-    features.forEach((olFeature) => {
-        EditableFeature.fromOlFeature(olFeature, iconSets, projection)
-    })
-
-    return features
 }

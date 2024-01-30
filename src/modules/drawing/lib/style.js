@@ -2,6 +2,13 @@ import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
 
 import { EditableFeatureTypes } from '@/api/features.api'
+import {
+    circleStyle,
+    dashedRedStroke,
+    redStroke,
+    sketchPointStyle,
+    whiteSketchFill,
+} from '@/utils/styleUtils.js'
 
 /* Z-INDICES
 The z indices for the styles are given according to the following table:
@@ -13,42 +20,6 @@ white dot / sketch points: 30
 tooltip:                   40
 */
 
-/** Color for polygon area fill while drawing */
-const whiteSketchFill = new Fill({
-    color: [255, 255, 255, 0.4],
-})
-
-/** Standard line styling */
-const redStroke = new Stroke({
-    width: 3,
-    color: [255, 0, 0],
-})
-
-/** Styling specific for measurement, with a dashed red line */
-const dashedRedStroke = new Stroke({
-    color: [255, 0, 0],
-    width: 3,
-    lineDash: [8],
-})
-
-const pointStyle = {
-    radius: 7,
-    stroke: new Stroke({
-        color: [0, 0, 0, 1],
-    }),
-}
-const point = new Circle({
-    ...pointStyle,
-    fill: new Fill({
-        color: [255, 255, 255, 1],
-    }),
-})
-/** Style for grabbing points when editing a feature */
-const sketchPoint = new Circle({
-    ...pointStyle,
-    fill: whiteSketchFill,
-})
-
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line
  * when hovering it to indicate that the user can grab the line to create a new point.
@@ -58,7 +29,7 @@ export const editingVertexStyleFunction = (vertex) => {
     if (!associatedFeature) return
     return associatedFeature.get('editableFeature').isLineOrMeasure()
         ? new Style({
-              image: sketchPoint,
+              image: sketchPointStyle,
           })
         : null
 }
@@ -75,7 +46,7 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
     the white dot when selecting a symbol or text feature. */
     const styles = [
         new Style({
-            image: point,
+            image: circleStyle,
             zIndex: 30,
         }),
     ]
@@ -87,7 +58,7 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
         // grabable.)
         styles.push(
             new Style({
-                image: point,
+                image: circleStyle,
                 geometry(f) {
                     const geometry = f.getGeometry()
                     let coordinates = geometry.getCoordinates()

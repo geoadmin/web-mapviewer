@@ -4,8 +4,8 @@ import { useStore } from 'vuex'
 import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 // ref/variables outside useSaveKmlOnChange function so that they may be shared between all usages of the usaSaveKmlOnChange

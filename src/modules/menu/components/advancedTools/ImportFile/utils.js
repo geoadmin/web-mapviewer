@@ -1,5 +1,7 @@
+import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import GPX from '@/utils/GPX'
 import { EmptyKMLError, getKmlExtent, getKmlExtentForProjection } from '@/utils/kmlUtils'
 
 /**
@@ -46,7 +48,11 @@ export function handleFileContent(store, content, source) {
         store.dispatch('zoomToExtent', projectedExtent)
         store.dispatch('addLayer', layer)
     } else if (isGpx(content)) {
-        // TODO GPX layer not done yet
+        const gpxParser = new GPX()
+        const metadata = gpxParser.readMetadata(content)
+        layer = new GPXLayer(source, true, 1.0, content, metadata)
+        // TODO : zoom to extent
+        store.dispatch('addLayer', layer)
     } else {
         throw new Error(`Unsupported file ${source} content`)
     }

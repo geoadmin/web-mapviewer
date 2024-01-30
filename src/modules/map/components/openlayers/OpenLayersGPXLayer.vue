@@ -1,20 +1,20 @@
 <script setup>
-/** Renders a KML file on the map */
+/** Renders a GPX file on the map */
 
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import { parseKml } from '@/utils/kmlUtils'
+import { parseGpx } from '@/utils/gpxUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({
-    kmlLayerConfig: {
-        type: KMLLayer,
+    gpxLayerConfig: {
+        type: GPXLayer,
         required: true,
     },
     parentLayerOpacity: {
@@ -26,26 +26,21 @@ const props = defineProps({
         default: -1,
     },
 })
-const { kmlLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
+const { gpxLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // mapping relevant store values
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const availableIconSets = computed(() => store.state.drawing.iconSets)
-
-const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => kmlLayerConfig.value.getID())
-const opacity = computed(() => parentLayerOpacity.value || kmlLayerConfig.value.opacity)
-const url = computed(() => kmlLayerConfig.value.getURL())
-const kmlData = computed(() => kmlLayerConfig.value.kmlData)
+const layerId = computed(() => gpxLayerConfig.value.getID())
+const opacity = computed(() => parentLayerOpacity.value || gpxLayerConfig.value.opacity)
+const url = computed(() => gpxLayerConfig.value.getURL())
+const gpxData = computed(() => gpxLayerConfig.value.gpxData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
-watch(iconsArePresent, createSourceForProjection)
-watch(availableIconSets, createSourceForProjection)
-watch(kmlData, createSourceForProjection)
+watch(gpxData, createSourceForProjection)
 
 /* We cannot directly let the vectorSource load the URL. We need to run the deserialize
 function on each feature before it is added to the vectorsource, as it may overwrite
@@ -60,42 +55,34 @@ const olMap = inject('olMap')
 useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
-    if (!iconsArePresent.value) {
-        store.dispatch('loadAvailableIconSets')
-    }
-
     // exposing things for Cypress testing
     if (IS_TESTING_WITH_CYPRESS) {
-        window.kmlLayer = layer
-        window.kmlLayerUrl = url.value
+        window.gpxLayer = layer
+        window.gpxLayerUrl = url.value
     }
 
     createSourceForProjection()
 })
 onUnmounted(() => {
     if (IS_TESTING_WITH_CYPRESS) {
-        delete window.kmlLayer
-        delete window.kmlLayerUrl
+        delete window.gpxLayer
+        delete window.gpxLayerUrl
     }
 })
 
 function createSourceForProjection() {
-    if (!kmlData.value) {
-        log.debug('no KML data loaded yet, could not create source')
-        return
-    }
-    if (!availableIconSets.value || availableIconSets.value.length === 0) {
-        log.debug('no icons loaded yet, could not create source')
+    if (!gpxData.value) {
+        log.debug('no GPX data loaded yet, could not create source')
         return
     }
     layer.setSource(
         new VectorSource({
             wrapX: true,
             projection: projection.value.epsg,
-            features: parseKml(kmlData.value, projection.value, availableIconSets.value),
+            features: parseGpx(gpxData.value, projection.value),
         })
     )
-    log.debug('Openlayer KML layer source created')
+    log.debug('Openlayer GPX layer source created')
 }
 </script>
 

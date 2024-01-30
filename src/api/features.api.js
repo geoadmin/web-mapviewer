@@ -444,7 +444,7 @@ export class EditableFeature extends SelectableFeature {
  */
 export class LayerFeature extends SelectableFeature {
     /**
-     * @param {GeoAdminLayer} layer The layer in which this feature belongs
+     * @param {AbstractLayer} layer The layer in which this feature belongs
      * @param {Number | String} id The unique feature ID in the layer it is part of
      * @param {String} name The name (localized) of this feature
      * @param {String} htmlPopup HTML code for this feature's popup (or tooltip)
