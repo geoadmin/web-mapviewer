@@ -1,7 +1,8 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getKmlExtent, getKmlExtentForProjection, parseKmlName } from '@/utils/kmlUtils'
+import { getExtentForProjection } from '@/utils/extentUtils.js'
+import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
@@ -465,7 +466,7 @@ const actions = {
             if (!extent) {
                 updatedLayer.errorKey = 'kml_gpx_file_empty'
                 updatedLayer.hasError = true
-            } else if (!getKmlExtentForProjection(rootState.position.projection, extent)) {
+            } else if (!getExtentForProjection(rootState.position.projection, extent)) {
                 updatedLayer.errorKey = 'kml_gpx_file_out_of_bounds'
                 updatedLayer.hasError = true
             }

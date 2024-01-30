@@ -1,10 +1,12 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { getKmlExtent } from '@/utils/kmlUtils'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
+import { getExtentForProjection } from '@/utils/extentUtils'
+import { getKmlExtent } from '@/utils/kmlUtils.js'
 
-describe('Test KML utils', () => {
-    describe('get KML Extent', () => {
+describe('Test extent utils', () => {
+    describe('get Extent within projection bounds', () => {
         it('get extent of a single feature', () => {
             const content = `<?xml version="1.0" encoding="UTF-8"?>
             <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -20,8 +22,12 @@ describe('Test KML utils', () => {
             </kml>
             `
             const extent = getKmlExtent(content)
+            const projectedExtent = getExtentForProjection(LV95, extent)
 
-            expect(extent).to.deep.equal([8.117189, 46.852375, 8.117189, 46.852375])
+            expect(projectedExtent).to.deep.equal([
+                [2651749.9748876626, 1189249.9890369223],
+                [2651749.9748876626, 1189249.9890369223],
+            ])
         })
         it('get extent of a single line feature crossing europe', () => {
             const content = `<?xml version="1.0" encoding="UTF-8"?>
@@ -48,9 +54,11 @@ describe('Test KML utils', () => {
             </kml>
             `
             const extent = getKmlExtent(content)
+            const projectedExtent = getExtentForProjection(LV95, extent)
 
-            expect(extent).to.deep.equal([
-                -0.771255570521181, 46.45920177484218, 15.69760034017345, 47.72412908565185,
+            expect(projectedExtent).to.deep.equal([
+                [2423458.972383674, 1147908.7345235168],
+                [2902899.0399873387, 1293747.491178336],
             ])
         })
         it('get extent of multiples features (marker, line, polygone)', () => {
@@ -93,9 +101,11 @@ describe('Test KML utils', () => {
             </kml>
             `
             const extent = getKmlExtent(content)
+            const projectedExtent = getExtentForProjection(LV95, extent)
 
-            expect(extent).to.deep.equal([
-                7.659940678339698, 46.75405886506746, 8.092263503513564, 46.96964910688379,
+            expect(projectedExtent).to.deep.equal([
+                [2616908.846006978, 1178120.7002258834],
+                [2649740.5472833975, +1202270.7737464283],
             ])
         })
     })
