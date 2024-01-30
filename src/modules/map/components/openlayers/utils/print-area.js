@@ -64,9 +64,8 @@ export default function usePrintArea(map) {
         }
         map.addLayer(worldPolygon)
         deregister = [
-            worldPolygon.on('postrender', (event) => {
-                handlePostRender(event.context)
-            }),
+            worldPolygon.on('prerender', handlePreRender),
+            worldPolygon.on('postrender', handlePostRender),
             watch(layoutName, () => {
                 updatePrintRectanglePixels(scale)
             }),
@@ -134,7 +133,13 @@ export default function usePrintArea(map) {
         return [minx, miny, maxx, maxy]
     }
 
-    function handlePostRender(context) {
+    // Compose events
+    function handlePreRender(event) {
+        var context = event.context
+        context.save()
+    }
+    function handlePostRender(event) {
+        var context = event.context
         const size = map.getSize()
 
         var height = size[1] * olHas.DEVICE_PIXEL_RATIO,
