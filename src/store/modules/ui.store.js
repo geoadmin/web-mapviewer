@@ -19,7 +19,7 @@ export const UIModes = {
  * @type int
  */
 
-export const COMPARE_SLIDER_DEFAULT_VALUE = -1
+export const COMPARE_SLIDER_DEFAULT_VALUE = -0.5
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -132,7 +132,7 @@ export default {
          *
          * @type Number
          */
-        compareRatio: -1,
+        compareRatio: COMPARE_SLIDER_DEFAULT_VALUE,
     },
     getters: {
         screenDensity(state) {
@@ -259,8 +259,9 @@ export default {
         setCompareRatio({ commit }, value) {
             /*
                 This check is here to make sure the compare ratio doesn't get out of hand
-                The logic is, if we try to set a value outside of the range at which the compare
-                slider would be visible, we set it to its default value instead
+                The logic is, we want the compare ratio to be either in its visible range,
+                which is 0.001 to 0.999, and it's "storage range" (-0.001 to -0.999). If
+                we are not within these bounds, we revert to the default value (-0.5)
             */
             if (0.0 < value && value < 1.0) {
                 commit('setCompareRatio', value)

@@ -1,7 +1,7 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { unByKey } from 'ol/Observable'
-import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
@@ -33,6 +33,10 @@ watch(visibleLayerOnTop, () => {
 
 onMounted(() => {
     compareRatio.value = storeCompareRatio.value
+    nextTick(slice)
+})
+
+onUnmounted(() => {
     slice()
 })
 
@@ -60,7 +64,7 @@ function onPreRender(event) {
     // the offset is there to ensure we get to the slider line, and not the border of the element
     let width = ctx.canvas.width
     if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-        width = ctx.canvas.width * compareRatio.value + 20
+        width = ctx.canvas.width * compareRatio.value
     }
 
     ctx.save()
@@ -88,18 +92,18 @@ function grabSlider(event) {
 
 function listenToMouseMove(event) {
     let currentPosition
-    if (event.type === 'touchstart') {
+    if (event.type === 'touchmove') {
         currentPosition = event.touches[0].clientX - compareSliderOffset.value
     } else {
         currentPosition = event.clientX - compareSliderOffset.value
     }
     // we ensure the slider can't get off the screen
-    if (currentPosition < 1) {
-        currentPosition = 1
+    if (currentPosition < 14) {
+        currentPosition = 14
     }
     // same on the other side, but with also the idea of keeping the cartes completely in the screen
-    if (currentPosition > clientWidth.value - 36) {
-        currentPosition = clientWidth.value - 36
+    if (currentPosition > clientWidth.value - 14) {
+        currentPosition = clientWidth.value - 14
     }
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
     getMap().render()
@@ -117,7 +121,7 @@ function releaseSlider() {
 
 <template>
     <div
-        class="compare-slider"
+        class="compare-slider position-absolute top-0 translate-middle-x h-100 d-inline-block"
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
         @mousedown.passive="grabSlider"
@@ -133,13 +137,9 @@ function releaseSlider() {
 @import 'src/scss/webmapviewer-bootstrap-theme';
 
 .compare-slider {
-    position: absolute;
-    top: 0;
-    display: inline-block;
     width: 40px;
-    height: 100%;
     z-index: $zindex-compare-slider;
-
+    cursor: ew-resize;
     &-caret-left,
     &-caret-right {
         position: inherit;
