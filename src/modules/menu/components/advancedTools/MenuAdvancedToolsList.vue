@@ -5,7 +5,8 @@ import { useStore } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
+import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 const props = defineProps({
     compact: {
         type: Boolean,
@@ -28,7 +29,11 @@ function onToggleImportCatalogue() {
 function onToggleCompareSlider() {
     // this allows us to store the previous compare ratio while making
     // the Compare Slider invisible.
-    store.dispatch('setCompareRatio', null)
+    if (compareSliderActive()) {
+        store.dispatch('setCompareRatio', null)
+    } else {
+        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
+    }
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {
