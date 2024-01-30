@@ -8,8 +8,8 @@ import { useStore } from 'vuex'
 
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { parseGpx } from '@/modules/drawing/lib/drawingUtils'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import { parseGpx } from '@/utils/gpxUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({

@@ -5,7 +5,6 @@ import { beforeEach, describe, it } from 'vitest'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {
     BLACK,
@@ -19,6 +18,7 @@ import {
     WHITE,
     YELLOW,
 } from '@/utils/featureStyleUtils'
+import { parseKml } from '@/utils/kmlUtils'
 
 const fakeDefaultIconSet = new DrawingIconSet(
     'default',

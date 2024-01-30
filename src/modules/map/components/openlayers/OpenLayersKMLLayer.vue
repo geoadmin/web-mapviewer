@@ -8,8 +8,8 @@ import { useStore } from 'vuex'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({

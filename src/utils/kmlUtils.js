@@ -6,6 +6,7 @@ import {
 } from 'ol/extent'
 import KML from 'ol/format/KML'
 
+import { EditableFeature } from '@/api/features.api.js'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { normalizeExtent, projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
@@ -20,6 +21,26 @@ export function parseKmlName(content) {
     const kml = new KML()
 
     return kml.readName(content)
+}
+
+/**
+ * Parses a KML's data into OL Features, including deserialization of features
+ *
+ * @param {String} kmlData KML content to parse
+ * @param {CoordinateSystem} projection Projection to use for the OL Feature
+ * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
+ * @returns {ol/Feature[]} List of OL Features
+ */
+export function parseKml(kmlData, projection, iconSets) {
+    const features = new KML().readFeatures(kmlData, {
+        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        featureProjection: projection.epsg,
+    })
+    features.forEach((olFeature) => {
+        EditableFeature.fromOlFeature(olFeature, iconSets, projection)
+    })
+
+    return features
 }
 
 /**
