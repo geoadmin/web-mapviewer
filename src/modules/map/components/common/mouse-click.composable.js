@@ -3,7 +3,11 @@ import { useStore } from 'vuex'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { identifyGeoJSONFeatureAt, identifyKMLFeatureAt } from '@/utils/identifyOnVectorLayer'
+import {
+    identifyGeoJSONFeatureAt,
+    identifyGPXFeatureAt,
+    identifyKMLFeatureAt,
+} from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
 const msBeforeTriggeringLocationPopup = 700
@@ -20,6 +24,9 @@ export function useMouseOnMap() {
     )
     const visibleKMLLayers = computed(() =>
         store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
+    )
+    const visibleGPXLayers = computed(() =>
+        store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.GPX)
     )
     const currentMapResolution = computed(() => store.getters.resolution)
     const currentProjection = computed(() => store.state.position.projection)
@@ -66,6 +73,17 @@ export function useMouseOnMap() {
                 features.push(
                     ...identifyKMLFeatureAt(
                         kmlLayer,
+                        coordinate,
+                        currentProjection.value,
+                        currentMapResolution.value
+                    )
+                )
+            })
+            // and lastly for GPX layers
+            visibleGPXLayers.value.forEach((gpxLayer) => {
+                features.push(
+                    ...identifyGPXFeatureAt(
+                        gpxLayer,
                         coordinate,
                         currentProjection.value,
                         currentMapResolution.value

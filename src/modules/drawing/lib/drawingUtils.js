@@ -5,7 +5,9 @@ import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
 
 import { EditableFeature } from '@/api/features.api'
+import { gpxStyle } from '@/modules/drawing/lib/style.js'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import GPX from '@/utils/GPX.js'
 import { format } from '@/utils/numberUtils'
 
 export function toLv95(input, epsg) {
@@ -185,5 +187,23 @@ export function parseKml(kmlData, projection, iconSets) {
         EditableFeature.fromOlFeature(olFeature, iconSets, projection)
     })
 
+    return features
+}
+
+/**
+ * Parses a GPX's data into OL Features, including deserialization of features
+ *
+ * @param {String} gpxData KML content to parse
+ * @param {CoordinateSystem} projection Projection to use for the OL Feature
+ * @returns {ol/Feature[]} List of OL Features
+ */
+export function parseGpx(gpxData, projection) {
+    const features = new GPX().readFeatures(gpxData, {
+        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        featureProjection: projection.epsg,
+    })
+    features.forEach((feature) => {
+        feature.setStyle(gpxStyle)
+    })
     return features
 }

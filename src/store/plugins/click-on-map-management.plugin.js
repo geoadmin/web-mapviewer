@@ -18,7 +18,7 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang, projection) =>
         const allRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
-            if (layer.type === LayerTypes.GEOJSON || layer.type === LayerTypes.KML) {
+            if ([LayerTypes.GEOJSON, LayerTypes.KML, LayerTypes.GPX].includes(layer.type)) {
                 allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
             } else if (layer.hasTooltip) {
                 allRequests.push(

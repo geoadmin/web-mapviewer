@@ -18,6 +18,10 @@ const whiteSketchFill = new Fill({
     color: [255, 255, 255, 0.4],
 })
 
+const redFill = new Fill({
+    color: [255, 0, 0, 0.7],
+})
+
 /** Standard line styling */
 const redStroke = new Stroke({
     width: 3,
@@ -47,6 +51,12 @@ const point = new Circle({
 const sketchPoint = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
+})
+
+export const gpxStyle = new Style({
+    fill: redFill,
+    stroke: redStroke,
+    image: point,
 })
 
 /**
