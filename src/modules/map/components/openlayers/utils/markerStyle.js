@@ -56,7 +56,7 @@ function imageForMarkerStyle(markerStyle) {
     return null
 }
 
-export function getOlStyle(markerStyle) {
+export function getMarkerStyle(markerStyle) {
     switch (markerStyle) {
         case OpenLayersMarkerStyles.POSITION:
             // style for geolocation point
@@ -106,8 +106,8 @@ export function getOlStyle(markerStyle) {
 }
 
 export function highlightFeatureStyle(olFeature) {
-    const geoJsonType = olFeature.get('geometry').getType()
-    switch (geoJsonType) {
+    const geometryType = olFeature.get('geometry').getType()
+    switch (geometryType) {
         case 'LineString':
         case 'MultiLineString':
             return new Style({

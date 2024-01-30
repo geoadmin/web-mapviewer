@@ -9,7 +9,7 @@ import { computed, inject, toRefs, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import {
-    getOlStyle,
+    getMarkerStyle,
     highlightFeatureStyle,
     OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
@@ -62,7 +62,7 @@ watch(position, () => {
     layer.getSource().addFeatures(features.value)
 })
 watch(markerStyle, (newStyle) => {
-    const olStyle = getOlStyle(newStyle)
+    const olStyle = getMarkerStyle(newStyle)
     features.value.forEach((feature) => feature.setStyle(olStyle))
 })
 
@@ -79,7 +79,7 @@ function featuresForPosition(position, style) {
         id: `marker-${randomIntBetween(0, 100000)}`,
         geometry: new Point(position),
     })
-    feature.setStyle(getOlStyle(style))
+    feature.setStyle(getMarkerStyle(style))
     return feature
 }
 </script>
