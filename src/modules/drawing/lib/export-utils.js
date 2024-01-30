@@ -100,6 +100,14 @@ export function generateKmlString(projection, features = []) {
 
         const myStyle = new Style(newStyle)
         clone.setStyle(myStyle)
+
+        // The description of an editable feature is only set in the editable feature
+        // however in the KML standard the description should be set in the <description> tag
+        // to do this we need to set the description on the ol feature.
+        const editableFeature = clone.get('editableFeature')
+        if (editableFeature?.description) {
+            clone.set('description', editableFeature.description)
+        }
         exportFeatures.push(clone)
     })
 
