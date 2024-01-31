@@ -1,5 +1,5 @@
 <template>
-    <div class="header" data-cy="app-header">
+    <div ref="header" class="header" data-cy="app-header">
         <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
@@ -60,6 +60,11 @@ export default {
         LangSwitchToolbar,
         FeedbackToolbar,
     },
+    data() {
+        return {
+            currentHeight: 0,
+        }
+    },
     computed: {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
@@ -67,10 +72,28 @@ export default {
         }),
         ...mapGetters(['currentTopicId', 'isPhoneMode', 'hasDevSiteWarning']),
     },
+    mounted() {
+        this.$nextTick(() => {
+            // Initial height
+            this.currentHeight = this.$refs.header.clientHeight
+            console.log('Height changed:', this.currentHeight)
+            // Watch for changes in height
+            window.addEventListener('resize', this.handleResize)
+        })
+    },
+    beforeUnmount() {
+        // Remove the event listener when the component is destroyed
+        window.removeEventListener('resize', this.handleResize)
+    },
     methods: {
         resetApp() {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopicId}`
+        },
+        handleResize() {
+            // Update the height when the window is resized
+            this.currentHeight = this.$refs.header.clientHeight
+            console.log('Height changed:', this.currentHeight)
         },
     },
 }
