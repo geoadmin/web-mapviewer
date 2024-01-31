@@ -60,6 +60,7 @@ export default {
         LangSwitchToolbar,
         FeedbackToolbar,
     },
+    emits: { heightChanged: null },
     data() {
         return {
             currentHeight: 0,
@@ -76,9 +77,9 @@ export default {
         this.$nextTick(() => {
             // Initial height
             this.currentHeight = this.$refs.header.clientHeight
-            console.log('Height changed:', this.currentHeight)
             // Watch for changes in height
             window.addEventListener('resize', this.handleResize)
+            this.emitHeightChangeSignal()
         })
     },
     beforeUnmount() {
@@ -93,7 +94,10 @@ export default {
         handleResize() {
             // Update the height when the window is resized
             this.currentHeight = this.$refs.header.clientHeight
-            console.log('Height changed:', this.currentHeight)
+            this.emitHeightChangeSignal()
+        },
+        emitHeightChangeSignal() {
+            this.$emit('heightChanged', this.currentHeight)
         },
     },
 }

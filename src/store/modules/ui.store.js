@@ -103,6 +103,13 @@ export default {
          * @type Boolean
          */
         importFile: false,
+
+        /**
+         * Height of the header (in px)
+         *
+         * @type Number
+         */
+        headerHeight: 100,
     },
     getters: {
         screenDensity(state) {
@@ -252,6 +259,9 @@ export default {
         },
         setImportFile(state, flagValue) {
             state.importFile = flagValue
+        },
+        setHeaderHeight(state, height) {
+            state.headerHeight = height
         },
     },
 }
