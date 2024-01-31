@@ -36,12 +36,13 @@ export default function usePrintArea(map) {
     var UNITS_RATIO = 39.37 // inches per meter
     var worldPolygon = null
     var printRectangle = []
+
     const isActive = computed(() => {
         return store.state.print.printSectionShown
     })
 
-    const layoutName = computed(() => {
-        return store.state.print.selectedLayout.name
+    const selectedLayout = computed(() => {
+        return store.state.print.selectedLayout
     })
 
     const scale = computed(() => {
@@ -64,7 +65,7 @@ export default function usePrintArea(map) {
         deregister = [
             worldPolygon.on('prerender', handlePreRender),
             worldPolygon.on('postrender', handlePostRender),
-            watch(layoutName, () => {
+            watch(selectedLayout, () => {
                 updatePrintRectanglePixels(scale)
             }),
             watch(scale, () => {
