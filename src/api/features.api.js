@@ -2,26 +2,15 @@ import axios from 'axios'
 import { Icon as openlayersIcon } from 'ol/style'
 import proj4 from 'proj4'
 
-import { DrawingIcon } from '@/api/icon.api'
 import { API_BASE_URL } from '@/config'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
 } from '@/modules/drawing/lib/drawingUtils'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
-import {
-    allStylingColors,
-    allStylingSizes,
-    FeatureStyleColor,
-    FeatureStyleSize,
-    MEDIUM,
-    RED,
-} from '@/utils/featureStyleUtils'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
-import { getEditableFeatureFromLegacyKmlFeature } from '@/utils/legacyKmlUtils'
+import { allStylingColors, allStylingSizes, MEDIUM, RED, LARGE } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
@@ -215,89 +204,6 @@ export class EditableFeature extends SelectableFeature {
     }
 
     /**
-     * Serialize the EditableFeature into a plain javascript object.
-     *
-     * NOTE: To avoid projection confusion and simplify the serialization/deserialization process,
-     * the coordinates are not serialized. During deserialization the coordinates are set from the
-     * geometry of the OL Feature.
-     *
-     * @returns {object} The serialized plain object
-     */
-    serialize() {
-        /* Warning: Changing this method will break the compability of KML files */
-        return {
-            id: this.id,
-            title: this.title,
-            description: this.description,
-            featureType: this.featureType,
-            textColor: this.textColor.serialize(),
-            textSize: this.textSize.serialize(),
-            fillColor: this.fillColor.serialize(),
-            icon: this.icon ? this.icon.serialize() : null,
-            iconSize: this.iconSize.serialize(),
-        }
-    }
-
-    /**
-     * This method deserializes an editable feature that is stored in the extra properties of an
-     * openlayers feature. If there is no editable feature to deserialize (e.g. in the case of a kml
-     * that was generated with mf-geoadmin3), the editable feature is instead reconstructed with the
-     * styling information stored in the official '<style>' tag of the kml. It then recreates a
-     * fully functional olFeature with the correct styling.
-     *
-     * @param {ol/Feature} olFeature An olFeature that was just deserialized with
-     * @param {DrawingIconSet[]} availableIconSets Icon sets to use for the EditableFeature.
-     * @param {CoordinateSystem} projection Projection currently in use
-     * @returns {EditableFeature | Null} Returns the EditableFeature in case of success or null
-     *   otherwise
-     */
-    static fromOlFeature(olFeature, availableIconSets, projection) {
-        let editableFeature = olFeature.get('editableFeature')
-        // in case we are deserializing a legacy KML (one made with mf-geoadmin3) the editableFeature object
-        // will not be present, and we will have to rebuild one from the styles tags in the KML
-        // Same is for external kml.
-        if (!editableFeature) {
-            editableFeature = getEditableFeatureFromLegacyKmlFeature(olFeature, availableIconSets)
-        } else {
-            editableFeature = EditableFeature.deserialize(
-                editableFeature,
-                extractOlFeatureCoordinates(olFeature)
-            )
-        }
-        if (editableFeature) {
-            // Set the EditableFeature coordinates from the olFeature geometry
-            editableFeature.setCoordinatesFromFeature(olFeature)
-
-            olFeature.set('editableFeature', editableFeature)
-            olFeature.setStyle(featureStyleFunction)
-            if (editableFeature.isLineOrMeasure()) {
-                /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                if present. The lines connecting the vertices of the geometry will appear
-                geodesic (follow the shortest path) in this case instead of linear (be straight on
-                the screen)  */
-                olFeature.geodesic = new GeodesicGeometries(olFeature, projection)
-            }
-        }
-        return editableFeature
-    }
-
-    static deserialize(editableFeatureJson, coordinates) {
-        const o = JSON.parse(editableFeatureJson)
-        return new EditableFeature(
-            o.id,
-            coordinates,
-            o.title,
-            o.description,
-            o.featureType,
-            FeatureStyleColor.deserialize(o.textColor),
-            FeatureStyleSize.deserialize(o.textSize),
-            FeatureStyleColor.deserialize(o.fillColor),
-            o.icon ? DrawingIcon.deserialize(o.icon) : null,
-            FeatureStyleSize.deserialize(o.iconSize)
-        )
-    }
-
-    /**
      * Set the coordinates from the ol Feature
      *
      * @param {ol/Feature} olFeature Ol Feature to get the coordinate from
@@ -314,16 +220,6 @@ export class EditableFeature extends SelectableFeature {
         )
     }
 
-    /**
-     * This getter is automatically called by openlayers when serializing the openlayers feature. In
-     * fact, if objects are saved in the extra properties of a feature, openlayers will save their
-     * 'value' property in the KML. Warning: This feature seems to be undocumented, but I did not
-     * found another good way to do this.
-     */
-    get value() {
-        return JSON.stringify(this.serialize())
-    }
-
     // getters and setters for all properties (with event emit for setters)
     get featureType() {
         return this._featureType
@@ -334,6 +230,7 @@ export class EditableFeature extends SelectableFeature {
     get textColor() {
         return this._textColor
     }
+
     /** @param newColor {FeatureStyleColor} */
     set textColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
@@ -346,10 +243,12 @@ export class EditableFeature extends SelectableFeature {
     get textSize() {
         return this._textSize
     }
+
     /** @returns {Number} */
     get textSizeScale() {
         return this._textSize?.textScale
     }
+
     /** @param newSize {FeatureStyleSize} */
     set textSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.textScale === newSize.textScale)) {
@@ -357,6 +256,7 @@ export class EditableFeature extends SelectableFeature {
             this.emitStylingChangeEvent('textSize')
         }
     }
+
     get font() {
         return this._textSize?.font
     }
@@ -365,11 +265,13 @@ export class EditableFeature extends SelectableFeature {
     get icon() {
         return this._icon
     }
+
     /** @param newIcon {DrawingIcon} */
     set icon(newIcon) {
         this._icon = newIcon
         this.emitStylingChangeEvent('icon')
     }
+
     /** @returns {String} */
     get iconUrl() {
         return this._icon?.generateURL(this.iconSize, this.fillColor)
@@ -389,6 +291,7 @@ export class EditableFeature extends SelectableFeature {
     get fillColor() {
         return this._fillColor
     }
+
     /** @param newColor {FeatureStyleColor} */
     set fillColor(newColor) {
         if (newColor && allStylingColors.find((color) => color.name === newColor.name)) {
@@ -401,10 +304,12 @@ export class EditableFeature extends SelectableFeature {
     get iconSize() {
         return this._iconSize
     }
+
     /** @returns {Number} */
     get iconSizeScale() {
         return this._iconSize?.iconScale
     }
+
     /** @param newSize {FeatureStyleSize} */
     set iconSize(newSize) {
         if (newSize && allStylingSizes.find((size) => size.iconScale === newSize.iconScale)) {
@@ -421,6 +326,7 @@ export class EditableFeature extends SelectableFeature {
     get isDragged() {
         return this._isDragged
     }
+
     set isDragged(flag) {
         this._isDragged = flag
         this.emitChangeEvent('isDragged')
@@ -433,6 +339,7 @@ export class EditableFeature extends SelectableFeature {
     get geodesicCoordinates() {
         return this._geodesicCoordinates
     }
+
     set geodesicCoordinates(coordinates) {
         this._geodesicCoordinates = coordinates
     }

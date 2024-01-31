@@ -1,3 +1,5 @@
+import log from '@/utils/logging'
+
 /**
  * Check if the provided string is a valid URL
  *
@@ -47,4 +49,19 @@ export function segmentizeMatch(text, search) {
             return { text: segment, match: false }
         }
     })
+}
+
+/**
+ * Parse an RGB color
+ *
+ * @param {string} color Color code in string format (should be between 0 and 255)
+ * @returns {Number} Color code, default to 255 in case of invalid
+ */
+export function parseRGBColor(color) {
+    try {
+        return Math.max(Math.min(Number(color), 255), 0)
+    } catch (error) {
+        log.error(`Invalid RGB color code ${color}`)
+        return 255
+    }
 }

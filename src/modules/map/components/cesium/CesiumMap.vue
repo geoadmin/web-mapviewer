@@ -527,6 +527,7 @@ export default {
                                     editableFeature.geometry = feature.getGeometry()
                                     kmlFeatures[feature.getId()] = editableFeature
                                 } else {
+                                    // TODO
                                     log.debug(
                                         'KMLs which are not editable Features are not supported for selection'
                                     )

@@ -83,7 +83,7 @@ function onPointerMove(event) {
     )
 
     const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
-    let featureDrawingMode = featureUnderCursor?.get('editableFeature').featureType
+    let featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
     let translationKeys
 
     if (hoveringSelectedFeature) {
