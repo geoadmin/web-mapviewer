@@ -10,7 +10,7 @@ import {
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
-import { allStylingColors, allStylingSizes, MEDIUM, RED, LARGE } from '@/utils/featureStyleUtils'
+import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
@@ -274,7 +274,9 @@ export class EditableFeature extends SelectableFeature {
 
     /** @returns {String} */
     get iconUrl() {
+        // TODO PB-266 use a fix size for icon from the backend and uses the icon style scale instead
         return this._icon?.generateURL(this.iconSize, this.fillColor)
+        // return this._icon?.generateURL(LARGE, this.fillColor)
     }
 
     generateOpenlayersIcon() {
@@ -283,6 +285,8 @@ export class EditableFeature extends SelectableFeature {
                   src: this.iconUrl,
                   crossOrigin: 'Anonymous',
                   anchor: this.icon.anchor,
+                  // TODO PB-266 use the icon style scale instead of the icon scaled size from backend
+                  scale: this.iconSizeScale,
               })
             : null
     }
