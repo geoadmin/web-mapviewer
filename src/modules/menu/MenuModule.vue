@@ -1,6 +1,8 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref, watch } from 'vue'
+import { onMounted } from 'vue'
+import { onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
@@ -37,12 +39,31 @@ const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
 
+const menuTray = ref(null)
+
 watch(previewYear, () => {
     // hiding the time slider if the preview has been cleared
     if (!previewYear.value) {
         showTimeSlider.value = false
     }
 })
+
+// Watch for changes on component mount
+onMounted(() => {
+    updateMenuTrayWidth()
+    window.addEventListener('resize', updateMenuTrayWidth)
+})
+
+// Cleanup on component unmount
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateMenuTrayWidth)
+})
+
+const updateMenuTrayWidth = () => {
+    if (menuTray.value) {
+        store.commit('setMenuTrayWidth', menuTray.value.offsetWidth)
+    }
+}
 
 function toggleGeolocation() {
     store.dispatch('toggleGeolocation')
@@ -123,6 +144,7 @@ function updateHeaderHeight(newHeight) {
             <transition name="slide-up">
                 <div
                     v-show="isMenuTrayShown"
+                    ref="menuTray"
                     class="menu-tray"
                     :class="{
                         'desktop-mode': isDesktopMode,

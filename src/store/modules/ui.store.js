@@ -110,6 +110,13 @@ export default {
          * @type Number
          */
         headerHeight: 100,
+
+        /**
+         * Height of the menu tray (in px)
+         *
+         * @type Number
+         */
+        menuTrayWidth: 400,
     },
     getters: {
         screenDensity(state) {
@@ -262,6 +269,9 @@ export default {
         },
         setHeaderHeight(state, height) {
             state.headerHeight = height
+        },
+        setMenuTrayWidth(state, width) {
+            state.menuTrayWidth = width
         },
     },
 }

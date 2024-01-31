@@ -6,8 +6,6 @@ import VectorSource from 'ol/source/Vector'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import log from '@/utils/logging'
-
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
     var worldPolygon = new Feature({
@@ -59,7 +57,6 @@ export default function usePrintArea(map) {
     })
 
     function activatePrintArea() {
-        log.info('activate print area')
         if (!worldPolygon) {
             worldPolygon = createWorldPolygon()
         }
@@ -85,7 +82,6 @@ export default function usePrintArea(map) {
     }
 
     function deactivatePrintArea() {
-        log.info('deactivate print area')
         map.removeLayer(worldPolygon)
         while (deregister.length > 0) {
             var item = deregister.pop()
@@ -179,11 +175,9 @@ export default function usePrintArea(map) {
     }
 
     function getOptimalScale() {
-        log.info('getOptimalScale')
         var size = map.getSize()
         var resolution = map.getView().getResolution()
-        // TODO(IS): hardcoded for now
-        var widthMargin = 100
+        var widthMargin = store.state.ui.menuTrayWidth
         var heightMargin = store.state.ui.headerHeight
         var width = resolution * (size[0] - widthMargin * 2)
         var height = resolution * (size[1] - heightMargin * 2)
