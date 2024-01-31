@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n'
 const clearButtonId = `button-addon-clear-${components}`
 components = components + 1
 
-const model = defineModel()
+const model = defineModel({ type: String })
 
 const props = defineProps({
     /**

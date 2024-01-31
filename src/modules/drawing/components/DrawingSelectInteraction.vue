@@ -84,7 +84,12 @@ function onSelectChange(event) {
         currentlySelectedFeature.value = null
     }
 }
-function onFeatureChange() {
+function onFeatureChange(editableFeature) {
+    // The title and description of an editable feature are only set in the editable feature
+    // however in the KML standard they should be set in the name and description tags.
+    // To do this we need to set them on the ol feature as properties.
+    currentlySelectedFeature.value?.set('name', editableFeature.title)
+    currentlySelectedFeature.value?.set('description', editableFeature.description)
     currentlySelectedFeature.value?.changed()
     debounceSaveDrawing()
 }

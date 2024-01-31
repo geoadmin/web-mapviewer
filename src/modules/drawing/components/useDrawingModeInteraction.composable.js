@@ -113,6 +113,9 @@ export default function useDrawingModeInteraction({
             update must be triggered manually.*/
             feature.setProperties({
                 editableFeature: EditableFeature.newFeature(args),
+                // For backward compatibility with the legacy mf-geoadmin3 viewer we need to add the
+                // feature type as proprietary property
+                type: args.featureType.toLowerCase(),
             })
         }
     }
