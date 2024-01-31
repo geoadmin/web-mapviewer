@@ -27,7 +27,6 @@ const selectedScale = computed({
         return store.getters.getSelectedScale
     },
     set(value) {
-        log.info('update value', value)
         store.commit('setSelectedScale', value)
     },
 })

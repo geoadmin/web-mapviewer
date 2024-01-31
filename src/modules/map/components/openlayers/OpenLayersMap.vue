@@ -18,7 +18,7 @@ import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLa
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/map-interactions.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/map-views.composable'
-import usePrintArea from '@/modules/map/components/openlayers/utils/print-area'
+import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/print-area-renderer.composable'
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
@@ -60,7 +60,7 @@ map.once('rendercomplete', () => {
 onMounted(() => {
     map.setTarget(mapElement.value)
     useMapInteractions(map)
-    usePrintArea(map)
+    usePrintAreaRenderer(map)
     log.info('OpenLayersMap component mounted and ready')
 })
 

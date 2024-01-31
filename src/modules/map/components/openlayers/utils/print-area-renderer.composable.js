@@ -28,8 +28,9 @@ function createWorldPolygon() {
     return vectorLayer
 }
 
-export default function usePrintArea(map) {
+export default function usePrintAreaRenderer(map) {
     const store = useStore()
+
     var deregister = []
     var POINTS_PER_INCH = 72 // PostScript points 1/72"
     var MM_PER_INCHES = 25.4
@@ -45,7 +46,7 @@ export default function usePrintArea(map) {
         return store.state.print.selectedLayout
     })
 
-    const scale = computed(() => {
+    const selectedScale = computed(() => {
         return store.state.print.selectedScale
     })
 
@@ -66,16 +67,16 @@ export default function usePrintArea(map) {
             worldPolygon.on('prerender', handlePreRender),
             worldPolygon.on('postrender', handlePostRender),
             watch(selectedLayout, () => {
-                updatePrintRectanglePixels(scale)
+                updatePrintRectanglePixels(selectedScale)
             }),
-            watch(scale, () => {
-                updatePrintRectanglePixels(scale)
+            watch(selectedScale, () => {
+                updatePrintRectanglePixels(selectedScale)
             }),
             map.on('change:size', () => {
-                updatePrintRectanglePixels(scale)
+                updatePrintRectanglePixels(selectedScale)
             }),
             map.getView().on('propertychange', () => {
-                updatePrintRectanglePixels(scale)
+                updatePrintRectanglePixels(selectedScale)
             }),
         ]
         store.commit('setSelectedScale', getOptimalScale())
@@ -96,7 +97,7 @@ export default function usePrintArea(map) {
     }
 
     function refreshComp() {
-        updatePrintRectanglePixels(scale)
+        updatePrintRectanglePixels(selectedScale)
         map.render()
     }
 
@@ -139,6 +140,7 @@ export default function usePrintArea(map) {
         context.save()
     }
     function handlePostRender(event) {
+        // This is where we draw the print area rectangle using the worldPolygon
         var context = event.context
         const size = map.getSize()
 
@@ -175,6 +177,8 @@ export default function usePrintArea(map) {
         context.restore()
     }
 
+    // Compute the optimal scale based on the map size (layout), resolution,
+    // non-covered map vie (by header and menu tray)
     function getOptimalScale() {
         var size = map.getSize()
         var resolution = map.getView().getResolution()
