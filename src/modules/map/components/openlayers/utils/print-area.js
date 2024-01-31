@@ -184,7 +184,7 @@ export default function usePrintArea(map) {
         var resolution = map.getView().getResolution()
         // TODO(IS): hardcoded for now
         var widthMargin = 100
-        var heightMargin = 100
+        var heightMargin = store.state.ui.headerHeight
         var width = resolution * (size[0] - widthMargin * 2)
         var height = resolution * (size[1] - heightMargin * 2)
         var layoutSize = store.getters.mapSize
