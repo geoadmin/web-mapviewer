@@ -42,8 +42,8 @@ export default function usePrintAreaRenderer(map) {
         return store.state.print.printSectionShown
     })
 
-    const selectedLayout = computed(() => {
-        return store.state.print.selectedLayout
+    const selectedLayoutName = computed(() => {
+        return store.state.print.selectedLayout.name
     })
 
     const selectedScale = computed(() => {
@@ -66,7 +66,7 @@ export default function usePrintAreaRenderer(map) {
         deregister = [
             worldPolygon.on('prerender', handlePreRender),
             worldPolygon.on('postrender', handlePostRender),
-            watch(selectedLayout, () => {
+            watch(selectedLayoutName, () => {
                 updatePrintRectanglePixels(selectedScale)
             }),
             watch(selectedScale, () => {

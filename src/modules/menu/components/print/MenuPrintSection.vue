@@ -68,11 +68,7 @@ function close() {
 }
 
 function printMap() {
-    log.info('from UI: ', selectedScale.value)
-    log.info('from store: ', store.state.print.selectedScale)
-
-    log.info('from UI: ', selectedLayout.value.name)
-    log.info('from store: ', store.state.print.selectedLayout.name)
+    log.info('Print Map...')
 }
 
 defineExpose({
