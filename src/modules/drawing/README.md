@@ -11,11 +11,9 @@ Adds a toolbox that enables drawing on the map
   When serializing the openlayers features as KML, this information will appear inside the
   `<Style>` tag and is readable by any mapviewer that supports KML.
 
-TODO update this
-
 - **EditableFeature:** We store on the openlayers feature directly the corresponding **EditableFeature**. When
-  serializing the openlayers features as KML, this data will appear inside the `<ExtendedData>` tag. When the
-  extended data is modified or when the openlayers feature is rerendered, openlayers will automatically call
+  serializing the openlayers features as KML, this data will be removed to avoid duplicate styling in the final
+  KML which would increase its size. When the openlayers feature is rerendered, openlayers will automatically call
   the [featurestylefunction](lib/style.js) that was previously defined with `setStyle(featureStyleFunction)`.
   This function will take the **EditableFeature** and generate the corresponding **Style**. When an
   openlayers feature is selected, its corresponding **EditableFeature** will be saved in the store so

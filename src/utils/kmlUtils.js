@@ -197,7 +197,7 @@ export function parseIconUrl(url) {
     const legacyDefaultMatch = new RegExp(
         'color/(?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})/(?<name>[^/]+)-\\d+@(?<scale>\\d+)x\\.png$'
     ).exec(url)
-    const legacySetMatch = new RegExp('image/(?<set>\\w+)/(?<name>[^/]+)\\.png$').exec(url)
+    const legacySetMatch = new RegExp('images/(?<set>\\w+)/(?<name>[^/]+)\\.png$').exec(url)
 
     // new icon urls pattern
     // /api/icons/sets/{set_name}/icons/{icon_name}.png
@@ -210,7 +210,7 @@ export function parseIconUrl(url) {
     const match = legacyDefaultMatch ?? legacySetMatch ?? setMatch
 
     if (!match) {
-        log.warning(`Could not retrieve icon infos from URL ${url}`)
+        log.warn(`Could not retrieve icon infos from URL ${url}`)
         return null
     }
 
