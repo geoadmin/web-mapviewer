@@ -27,7 +27,7 @@ tooltip:                   40
 export const editingVertexStyleFunction = (vertex) => {
     const associatedFeature = vertex.get('features')[0]
     if (!associatedFeature) return
-    return associatedFeature.get('editableFeature').isLineOrMeasure()
+    return associatedFeature.get('editableFeature')?.isLineOrMeasure()
         ? new Style({
               image: sketchPointStyle,
           })
@@ -100,7 +100,7 @@ export function featureStyleFunction(feature, resolution) {
     const isDrawing = feature.get('isDrawing')
     const styles = [
         new Style({
-            geometry: feature.geodesic?.getGeodesicGeom(),
+            geometry: feature.get('geodesic')?.getGeodesicGeom(),
             image: editableFeature.generateOpenlayersIcon(),
             text: new Text({
                 text: editableFeature.title,
@@ -131,7 +131,7 @@ export function featureStyleFunction(feature, resolution) {
             zIndex: 10,
         }),
     ]
-    const polygonGeom = feature.geodesic?.getGeodesicPolygonGeom()
+    const polygonGeom = feature.get('geodesic')?.getGeodesicPolygonGeom()
     if (polygonGeom) {
         styles.push(
             new Style({
@@ -145,10 +145,10 @@ export function featureStyleFunction(feature, resolution) {
             })
         )
     }
-    /* This function is also called when saving the feature to KML, where "feature.geodesic"
+    /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (editableFeature.featureType === EditableFeatureTypes.MEASURE && feature.geodesic) {
-        styles.push(...feature.geodesic.getMeasureStyles(resolution))
+    if (editableFeature.featureType === EditableFeatureTypes.MEASURE && feature.get('geodesic')) {
+        styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles
 }
@@ -201,14 +201,14 @@ export function drawLineOrMeasureStyle(sketch, resolution, displayMeasures) {
             const styles = [
                 new Style({
                     stroke: displayMeasures ? dashedRedStroke : redStroke,
-                    geometry: sketch.geodesic?.getGeodesicGeom(),
+                    geometry: sketch.get('geodesic')?.getGeodesicGeom(),
                     zIndex: 20,
                 }),
             ]
             if (displayMeasures) {
-                styles.push(...sketch.geodesic.getMeasureStyles(resolution))
+                styles.push(...sketch.get('geodesic').getMeasureStyles(resolution))
             }
-            const polygonGeom = sketch.geodesic?.getGeodesicPolygonGeom()
+            const polygonGeom = sketch.get('geodesic')?.getGeodesicPolygonGeom()
             if (polygonGeom) {
                 styles.push(
                     new Style({

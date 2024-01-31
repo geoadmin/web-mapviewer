@@ -103,6 +103,7 @@ export function generateKmlString(projection, features = []) {
 
         // We need to remove the editableFeature as we don't want it in extended data
         clone.unset('editableFeature')
+        clone.unset('geodesic')
 
         exportFeatures.push(clone)
     })

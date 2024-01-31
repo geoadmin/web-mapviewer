@@ -442,7 +442,7 @@ export function parseKml(kmlData, projection, iconSets) {
                 if present. The lines connecting the vertices of the geometry will appear
                 geodesic (follow the shortest path) in this case instead of linear (be straight on
                 the screen)  */
-                olFeature.geodesic = new GeodesicGeometries(olFeature, projection)
+                olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
             }
         }
     })

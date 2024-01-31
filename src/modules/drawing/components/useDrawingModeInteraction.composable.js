@@ -129,7 +129,7 @@ export default function useDrawingModeInteraction({
         const feature = event.feature
         log.debug(`onDrawStart feature ${feature.getId()}`)
         if (useGeodesicDrawing) {
-            feature.geodesic = new GeodesicGeometries(feature, projection.value)
+            feature.set('geodesic', new GeodesicGeometries(feature, projection.value))
         }
         // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
         feature.set('isDrawing', true)
