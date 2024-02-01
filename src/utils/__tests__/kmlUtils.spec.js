@@ -1,7 +1,10 @@
 import { expect } from 'chai'
+import IconStyle from 'ol/style/Icon'
 import { describe, it } from 'vitest'
 
-import { getKmlExtent } from '@/utils/kmlUtils'
+import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import { BLUE, LARGE } from '@/utils/featureStyleUtils'
+import { getIcon, getKmlExtent, parseIconUrl } from '@/utils/kmlUtils'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
@@ -108,6 +111,262 @@ describe('Test KML utils', () => {
             expect(getKmlExtent(content)).to.deep.equal([
                 7.659940678339698, 46.75405886506746, 8.092263503513564, 46.96964910688379,
             ])
+        })
+    })
+    describe('parseIconUrl', () => {
+        it('parse a new icon url of a default set', () => {
+            const args = parseIconUrl(
+                'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1.5x-0,128,0.png'
+            )
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('001-marker')
+            expect(args.scale).to.be.equal(1.5)
+            expect(args.color).to.be.not.null.and.to.be.not.undefined
+            expect(args.color.r).to.be.equal(0)
+            expect(args.color.g).to.be.equal(128)
+            expect(args.color.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.false
+        })
+        it('parse a new icon url of a default set with invalid color', () => {
+            const args = parseIconUrl(
+                'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@4x-0,600,0.png'
+            )
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('001-marker')
+            expect(args.scale).to.be.equal(4)
+            expect(args.color).to.be.not.null.and.to.be.not.undefined
+            expect(args.color.r).to.be.equal(0)
+            expect(args.color.g).to.be.equal(255)
+            expect(args.color.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.false
+        })
+        it('parse a new icon url of a default set with no number color', () => {
+            const args = parseIconUrl(
+                'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1.5x-0,600,a.png'
+            )
+            expect(args).to.be.null
+        })
+        it('parse a new icon url of a babs set', () => {
+            const args = parseIconUrl(
+                'https://sys-map.dev.bgdi.ch/api/icons/sets/babs/icons/babs-100@1x-255,128,3.png'
+            )
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('babs')
+            expect(args.name).to.be.equal('babs-100')
+            expect(args.scale).to.be.equal(1)
+            expect(args.color).to.be.not.null.and.to.be.not.undefined
+            expect(args.color.r).to.be.equal(255)
+            expect(args.color.g).to.be.equal(128)
+            expect(args.color.b).to.be.equal(3)
+            expect(args.isLegacy).to.be.false
+        })
+        it('parse a new icon standard url of a default set (no scale no color)', () => {
+            const args = parseIconUrl(
+                'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon.png'
+            )
+            expect(args).to.be.null
+        })
+        it('parse a new icon url of a default set without scale', () => {
+            const args = parseIconUrl(
+                'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon-255,0,0.png'
+            )
+            expect(args).to.be.null
+        })
+        it('parse a new icon url of a default set without color', () => {
+            const args = parseIconUrl(
+                'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon@1.5x.png'
+            )
+            expect(args).to.be.null
+        })
+        it('parse a legacy icon url of a default set', () => {
+            const args = parseIconUrl('https://api3.geo.admin.ch/color/45,128,23/star-24@2x.png')
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('star')
+            expect(args.scale).to.be.equal(2)
+            expect(args.color).to.be.not.null.and.to.be.not.undefined
+            expect(args.color.r).to.be.equal(45)
+            expect(args.color.g).to.be.equal(128)
+            expect(args.color.b).to.be.equal(23)
+            expect(args.isLegacy).to.be.true
+        })
+        it('parse a legacy icon url of a default set with invalid color', () => {
+            const args = parseIconUrl('https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png')
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('star')
+            expect(args.scale).to.be.equal(2)
+            expect(args.color).to.be.not.null.and.to.be.not.undefined
+            expect(args.color.r).to.be.equal(45)
+            // invalid color fallback to 255
+            expect(args.color.g).to.be.equal(255)
+            expect(args.color.b).to.be.equal(255)
+            expect(args.isLegacy).to.be.true
+        })
+        it('parse a legacy icon url of a default set with non number color', () => {
+            const args = parseIconUrl('https://api3.geo.admin.ch/color/45,a,800/star-24@2x.png')
+            expect(args).to.be.null
+        })
+        it('parse a legacy icon url of a babs set', () => {
+            const args = parseIconUrl('https://sys-api3.dev.bgdi.ch/images/babs/babs-76.png')
+            expect(args).to.be.not.null.and.to.be.not.undefined
+            expect(args.set).to.be.equal('babs')
+            expect(args.name).to.be.equal('babs-76')
+            // expect default scale and color
+            expect(args.scale).to.be.equal(1)
+            expect(args.color.r).to.be.equal(255)
+            expect(args.color.g).to.be.equal(0)
+            expect(args.color.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.true
+        })
+    })
+    describe('getIcon', () => {
+        const fakeDefaultIconSet = new DrawingIconSet(
+            'default',
+            true,
+            'https://totally.fake.url',
+            'https://tottally.fake.template'
+        )
+        // adding the 3 icons from the default set
+        fakeDefaultIconSet.icons = [
+            new DrawingIcon(
+                '001-marker',
+                'https://fake.image.url',
+                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                'default',
+                [0, 0]
+            ),
+            new DrawingIcon(
+                '002-circle',
+                'https://fake.image.url',
+                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                'default',
+                [0, 0]
+            ),
+            new DrawingIcon(
+                '0003-square',
+                'https://fake.image.url',
+                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                'default',
+                [0, 0]
+            ),
+        ]
+        const fakeBabsIconSet = new DrawingIconSet(
+            'babs',
+            false,
+            'https://another.fake.url',
+            'https://another.fake.template'
+        )
+        fakeBabsIconSet.icons = [
+            new DrawingIcon(
+                'babs-3',
+                'https://fake.image.url',
+                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                'babs',
+                [0, 0]
+            ),
+        ]
+        const fakeIconSets = [fakeDefaultIconSet, fakeBabsIconSet]
+        it('get icon with standard arguments from the set', () => {
+            const icon = getIcon(
+                {
+                    set: 'default',
+                    name: '001-marker',
+                    isLegacy: false,
+                },
+                null,
+                fakeIconSets
+            )
+            expect(icon).to.be.not.null.and.not.undefined
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(icon.generateURL()).to.be.equal(
+                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
+            )
+        })
+        it('get icon with standard arguments from the set with scale and color', () => {
+            const icon = getIcon(
+                {
+                    set: 'default',
+                    name: '001-marker',
+                    isLegacy: false,
+                },
+                null,
+                fakeIconSets
+            )
+            expect(icon).to.be.not.null.and.not.undefined
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(icon.generateURL(LARGE, BLUE)).to.be.equal(
+                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.5x-0,0,255.png'
+            )
+        })
+        it('get icon with standard arguments from the babs set', () => {
+            const icon = getIcon(
+                {
+                    set: 'babs',
+                    name: 'babs-3',
+                    isLegacy: false,
+                },
+                null,
+                fakeIconSets
+            )
+            expect(icon).to.be.not.null.and.not.undefined
+            expect(icon.name).to.be.equal('babs-3')
+            expect(icon.iconSetName).to.be.equal('babs')
+            expect(icon.generateURL()).to.be.equal(
+                'https://fake.image.url/api/icons/sets/babs/icons/babs-3@1x-255,0,0.png'
+            )
+        })
+        it('get icon with standard arguments without sets and style', () => {
+            const icon = getIcon(
+                {
+                    set: 'default',
+                    name: '001-marker',
+                    isLegacy: false,
+                },
+                null,
+                null
+            )
+            expect(icon).to.be.null
+        })
+        it('get icon with standard arguments witout sets', () => {
+            const icon = getIcon(
+                {
+                    set: 'default',
+                    name: '001-marker',
+                    isLegacy: false,
+                },
+                new IconStyle({
+                    src: 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png',
+                })
+            )
+            expect(icon).to.be.not.null.and.not.undefined
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(icon.generateURL()).to.be.equal(
+                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
+            )
+        })
+        it('get legacy icon with standard arguments witout sets', () => {
+            const icon = getIcon(
+                {
+                    set: 'default',
+                    name: 'star',
+                    isLegacy: true,
+                },
+                new IconStyle({
+                    src: 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png',
+                })
+            )
+            expect(icon).to.be.not.null.and.not.undefined
+            expect(icon.name).to.be.equal('star')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(icon.generateURL()).to.be.equal(
+                'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
+            )
         })
     })
 })
