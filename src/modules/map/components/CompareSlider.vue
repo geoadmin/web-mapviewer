@@ -107,6 +107,7 @@ function listenToMouseMove(event) {
     if (currentPosition > clientWidth.value - 14) {
         currentPosition = clientWidth.value - 14
     }
+
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
     getMap().render()
 }
