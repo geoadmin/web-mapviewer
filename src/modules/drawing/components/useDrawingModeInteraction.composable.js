@@ -7,9 +7,9 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue
 import { useStore } from 'vuex'
 
 import { EditableFeature } from '@/api/features.api'
-import { wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'

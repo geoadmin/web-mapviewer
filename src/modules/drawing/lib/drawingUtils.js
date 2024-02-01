@@ -1,27 +1,4 @@
-import { wrapX } from 'ol/coordinate'
 import { LineString, Polygon } from 'ol/geom'
-import { get as getProjection } from 'ol/proj'
-
-/**
- * Wraps the provided coordinates in the world extents (i.e. the coordinate range that if equivalent
- * to the wgs84 [-180, 180))
- *
- * @param {Array} coordinates The coordinates (or array of coordinates) to wrap
- * @param {CoordinateSystem} projection Projection of the coordinates
- * @param {boolean} inPlace If false, the original coordinates remain untouched and only a copy is
- *   modified
- * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
- */
-export function wrapXCoordinates(coordinates, projection, inPlace = false) {
-    let wrappedCoords = coordinates
-    if (!inPlace) {
-        wrappedCoords = wrappedCoords.slice()
-    }
-    if (Array.isArray(wrappedCoords[0])) {
-        return wrappedCoords.map((c) => wrapXCoordinates(c, projection, inPlace))
-    }
-    return wrapX(wrappedCoords, getProjection(projection.epsg))
-}
 
 /**
  * Checks if point is at target within tolerance.
