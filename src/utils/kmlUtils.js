@@ -11,7 +11,6 @@ import Style from 'ol/style/Style'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingIcon } from '@/api/icon.api'
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
@@ -23,6 +22,7 @@ import {
 } from '@/utils/featureStyleUtils'
 import { getStyle } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
+import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
 

@@ -8,8 +8,9 @@ import { useStore } from 'vuex'
 
 import { EditableFeature } from '@/api/features.api'
 import { wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
-import { editingFeatureStyleFunction, featureStyleFunction } from '@/modules/drawing/lib/style'
+import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
