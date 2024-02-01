@@ -10,7 +10,7 @@ export default {
     },
     getters: {
         mapSize(state) {
-            var mapAttributes = state.selectedLayout.attributes.find((atr) => atr.name === 'map')
+            const mapAttributes = state.selectedLayout.attributes.find((atr) => atr.name === 'map')
 
             return {
                 width: mapAttributes?.clientParams?.width?.default,
