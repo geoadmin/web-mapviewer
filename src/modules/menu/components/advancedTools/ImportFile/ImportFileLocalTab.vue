@@ -7,6 +7,7 @@ import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFil
 import { handleFileContent } from '@/modules/menu/components/advancedTools/ImportFile/utils'
 import { useImportButton } from '@/modules/menu/components/advancedTools/useImportButton'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
+import { EmptyGPXError } from '@/utils/gpxUtils'
 import { EmptyKMLError } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
@@ -76,7 +77,7 @@ async function loadFile() {
         } catch (error) {
             if (error instanceof OutOfBoundsError) {
                 errorMessage.value = 'kml_gpx_file_out_of_bounds'
-            } else if (error instanceof EmptyKMLError) {
+            } else if (error instanceof EmptyKMLError || error instanceof EmptyGPXError) {
                 errorMessage.value = 'kml_gpx_file_empty'
             } else {
                 errorMessage.value = 'invalid_kml_gpx_file_error'
