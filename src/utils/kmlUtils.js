@@ -195,18 +195,18 @@ export function parseIconUrl(url) {
     // legacy icon urls pattern
     // default set := /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     // babs set := /images/{set_name}/{image}
-    const legacyDefaultMatch = new RegExp(
-        'color/(?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})/(?<name>[^/]+)-\\d+@(?<scale>\\d+)x\\.png$'
-    ).exec(url)
+    const legacyDefaultMatch =
+        /color\/(?<r>\d+),(?<g>\d+),(?<b>\d+)\/(?<name>[^/]+)-\d+@(?<scale>\d+)x\.png$/.exec(url)
     const legacySetMatch = new RegExp('images/(?<set>\\w+)/(?<name>[^/]+)\\.png$').exec(url)
 
     // new icon urls pattern
     // /api/icons/sets/{set_name}/icons/{icon_name}.png
     // /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
     // if cannot be parsed from legacy or new pattern, then use default
-    const setMatch = new RegExp(
-        'api/icons/sets/(?<set>\\w+)/icons/(?<name>.+)@(?<scale>\\d+(\\.\\d+)?)x-(?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})\\.png$'
-    ).exec(url)
+    const setMatch =
+        /api\/icons\/sets\/(?<set>\w+)\/icons\/(?<name>.+?)(@(?<scale>\d+(\.\d+)?)x-(?<r>\d+),(?<g>\d+),(?<b>\d+))\.png/.exec(
+            url
+        )
 
     const match = legacyDefaultMatch ?? legacySetMatch ?? setMatch
 
