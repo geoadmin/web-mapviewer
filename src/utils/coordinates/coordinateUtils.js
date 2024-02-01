@@ -78,7 +78,7 @@ export function projExtent(fromProj, toProj, extent) {
     if (extent.length === 4) {
         const topLeft = proj4(fromProj.epsg, toProj.epsg, [extent[0], extent[1]])
         const bottomRight = proj4(fromProj.epsg, toProj.epsg, [extent[2], extent[3]])
-        return [...topLeft, ...bottomRight]
+        return [...topLeft, ...bottomRight].map(toProj.roundCoordinateValue)
     }
     return null
 }
