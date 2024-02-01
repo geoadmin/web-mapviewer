@@ -23,6 +23,7 @@ import {
 } from '@/utils/featureStyleUtils'
 import { getStyle } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
+import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
 
 /**
@@ -127,7 +128,7 @@ export function getTextScale(style) {
  * @returns {IconStyle | null} Returns the KML icon style if present otherwise null
  */
 export function getIconStyle(style) {
-    if (!style && !(style instanceof Style)) {
+    if (!(style instanceof Style)) {
         return null
     }
     let icon = style.getImage()
@@ -270,12 +271,13 @@ export function getIcon(iconArgs, iconStyle, availableIconSets) {
     }
 
     // Here if we have already the icon sets and can find the icon within the available sets
-    // we are using it from their, if not we generate the DrawingIcon from the URL parsing.
-    // creating the DrawingIcon from the URL parsing works well for almost all use case, the
+    // we are using it, if not we generate the DrawingIcon from the URL parsing.
+    // Creating the DrawingIcon from the URL parsing works well for almost all uses cases, the
     // exception is for legacy default set url where the name doesn't have the numbered prefix.
     // That means that in this case if we don't have the icon sets when parsing and we then open
     // the drawing menu, when clicking on an icon the preselection in the icon dropdown will not
     // work ! This in theory only happens when opening a legacy drawing with the admin id.
+    // See also the watcher in DrawingModule trying to solve this.
     if (!availableIconSets) {
         log.error(`Iconset not yet available fallback to default icon`)
         return generateIconFromStyle(iconStyle, iconArgs)

@@ -133,7 +133,7 @@ export const allStylingSizes = [VERY_SMALL, SMALL, MEDIUM, LARGE]
  * @returns {Style}
  */
 export function getStyle(olFeature) {
-    const styles = olFeature.getStyle()(olFeature)
+    const styles = olFeature.getStyleFunction()(olFeature)
     if (Array.isArray(styles)) {
         return styles[0]
     } else if (styles instanceof Style) {
@@ -151,7 +151,7 @@ export function getStyle(olFeature) {
  * @returns {FeatureStyleColor} Returns the feature style color
  */
 export function getFeatureStyleColor(fillColor) {
-    if (!fillColor) {
+    if (!Array.isArray(fillColor)) {
         return RED
     }
     const fill =
@@ -186,7 +186,7 @@ export function getTextSize(textScale) {
  *   found
  */
 export function getTextColor(style) {
-    if (style && style.getText()) {
+    if (style?.getText()) {
         return getFeatureStyleColor(style.getText().getFill()?.getColor())
     }
     return null
