@@ -234,6 +234,12 @@ export default {
         toggleImportFile({ commit, state }) {
             commit('setImportFile', !state.importFile)
         },
+        setHeaderHeight({ commit }, height) {
+            commit('setHeaderHeight', parseInt(height))
+        },
+        setMenuTrayWidth({ commit }, width) {
+            commit('setMenuTrayWidth', parseInt(width))
+        },
     },
     mutations: {
         setSize(state, { height, width }) {

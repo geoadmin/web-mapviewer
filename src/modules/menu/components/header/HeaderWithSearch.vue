@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState, useStore } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
@@ -86,7 +86,7 @@ export default {
         },
 
         updateHeaderHeight() {
-            this.$store.commit('setHeaderHeight', this.$refs.header.clientHeight)
+            this.$store.dispatch('setHeaderHeight', this.$refs.header.clientHeight)
         },
     },
 }
