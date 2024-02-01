@@ -36,7 +36,7 @@ watch(selectedLayout, () => {
 })
 
 watch(isSectionShown, () => {
-    store.commit('setprintSectionShown', isSectionShown.value)
+    store.commit('setPrintSectionShown', isSectionShown.value)
 })
 
 watch(printLayouts, () => {
