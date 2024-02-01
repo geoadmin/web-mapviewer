@@ -176,6 +176,15 @@ class IconArgs {
     }
 }
 
+function parseIconScale(scale) {
+    try {
+        return Number(scale)
+    } catch (error) {
+        log.error(`Invalid icon scale: ${scale}`)
+        return 1
+    }
+}
+
 /**
  * Parse an Icon URL
  *
@@ -217,17 +226,18 @@ export function parseIconUrl(url) {
 
     const setName = match.groups.set ?? 'default'
     const name = match.groups.name ?? 'unknown'
-    const isLegacy = legacyDefaultMatch || legacySetMatch
+    const isLegacy = !!(legacyDefaultMatch || legacySetMatch)
+    const scale = parseIconScale(match.groups.scale ?? 1)
 
     return new IconArgs(
         setName,
         name,
         new IconColorArg(
-            parseRGBColor(match.groups.r, 'R'),
-            parseRGBColor(match.groups.g, 'B'),
-            parseRGBColor(match.groups.b, 'G')
+            parseRGBColor(match.groups.r ?? 255, 'R'),
+            parseRGBColor(match.groups.g ?? 0, 'B'),
+            parseRGBColor(match.groups.b ?? 0, 'G')
         ),
-        match.groups.scale ?? 1,
+        scale,
         isLegacy
     )
 }
@@ -249,8 +259,14 @@ function generateIconFromStyle(iconStyle, iconArgs) {
     const url = iconStyle.getSrc()
     const size = iconStyle.getSize()
     let anchor = iconStyle.getAnchor()
-    anchor[0] /= size[0]
-    anchor[1] /= size[1]
+    try {
+        anchor[0] /= size[0]
+        anchor[1] /= size[1]
+    } catch (error) {
+        log.error(`Failed to compute icon anchor: anchor=${anchor}, size=${size}`)
+        anchor = [0, 0]
+    }
+
     return url && anchor ? new DrawingIcon(iconArgs.name, url, url, iconArgs.set, anchor) : null
 }
 
@@ -261,8 +277,8 @@ function generateIconFromStyle(iconStyle, iconArgs) {
  * cannot be found in the icon list.
  *
  * @param {IconArgs} iconArgs Geoadmin icon arguments
- * @param {IconStyle} iconStyle Ol icon style
- * @param {DrawingIconSet[]} availableIconSets
+ * @param {IconStyle | null} iconStyle Ol icon style
+ * @param {DrawingIconSet[] | null} availableIconSets
  * @returns {DrawingIcon | null} Return the drawing icon or nul in case of non geoadmin icon
  */
 export function getIcon(iconArgs, iconStyle, availableIconSets) {
