@@ -235,10 +235,10 @@ export default {
             commit('setImportFile', !state.importFile)
         },
         setHeaderHeight({ commit }, height) {
-            commit('setHeaderHeight', parseInt(height))
+            commit('setHeaderHeight', parseFloat(height))
         },
         setMenuTrayWidth({ commit }, width) {
-            commit('setMenuTrayWidth', parseInt(width))
+            commit('setMenuTrayWidth', parseFloat(width))
         },
     },
     mutations: {
