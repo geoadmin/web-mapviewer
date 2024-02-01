@@ -65,3 +65,20 @@ export function parseRGBColor(color) {
         return 255
     }
 }
+
+/**
+ * Generate file name for exports
+ *
+ * @param {String} fileExtension
+ * @returns {String}
+ */
+export function generateFilename(fileExtension) {
+    fileExtension = fileExtension.replace(/^\./, '')
+    const date = new Date()
+        .toISOString()
+        .split('.')[0]
+        .replaceAll('-', '')
+        .replaceAll(':', '')
+        .replace('T', '')
+    return `map.geo.admin.ch_${fileExtension.toUpperCase()}_${date}.${fileExtension.toLowerCase()}`
+}
