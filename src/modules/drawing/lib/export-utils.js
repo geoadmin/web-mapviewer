@@ -4,9 +4,9 @@ import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
 import i18n from '@/modules/i18n/index'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 const kmlFormat = new KML()
@@ -130,15 +130,4 @@ export function generateKmlString(projection, features = []) {
         )
     }
     return kmlString
-}
-
-export function generateFilename(fileExtension) {
-    fileExtension = fileExtension.replace(/^\./, '')
-    const date = new Date()
-        .toISOString()
-        .split('.')[0]
-        .replaceAll('-', '')
-        .replaceAll(':', '')
-        .replace('T', '')
-    return `map.geo.admin.ch_${fileExtension.toUpperCase()}_${date}.${fileExtension.toLowerCase()}`
 }

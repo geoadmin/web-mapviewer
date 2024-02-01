@@ -1,6 +1,7 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import { extractOlFeatureCoordinates, wrapXCoordinates } from '@/modules/drawing/lib/drawingUtils'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
 const olSelector = '.ol-viewport'

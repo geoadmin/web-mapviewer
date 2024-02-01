@@ -4,12 +4,9 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import {
-    generateFilename,
-    generateGpxString,
-    generateKmlString,
-} from '@/modules/drawing/lib/export-utils'
+import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import { generateFilename } from '@/utils/utils'
 
 const exportOptions = [new DropdownItem('kml', 'KML'), new DropdownItem('gpx', 'GPX')]
 

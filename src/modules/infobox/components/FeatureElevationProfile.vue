@@ -38,12 +38,12 @@ import { mapActions, mapState } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import getProfile from '@/api/profile/profile.api'
-import { generateFilename } from '@/modules/drawing/lib/export-utils'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
+import { generateFilename } from '@/utils/utils'
 
 export default {
     components: {

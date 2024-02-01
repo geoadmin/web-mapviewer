@@ -1,7 +1,7 @@
 import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
-import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
+import { Circle, Fill, Style } from 'ol/style'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import {
     circleStyle,
     dashedRedStroke,
@@ -79,82 +79,13 @@ export const editingFeatureStyleFunction = (feature, resolution) => {
 }
 
 /**
- * OpenLayers style function that will style a feature that is not currently edited but loaded in
- * the drawing layer.
+ * Return a sketch Point Style
  *
- * It can then be selected by the user, but this time the styling will be done by
- * {@link editingFeatureStyleFunction}
- *
- * @param {Feature} feature OpenLayers feature to style
- * @param {number} resolution The resolution of the map in map units / pixel (which is equatorial
- *   meters / pixel for the webmercator projection used in this project)
- * @returns {Style[]}
+ * @param {[Number, Number]} coord
+ * @returns {Style}
  */
-export function featureStyleFunction(feature, resolution) {
-    const editableFeature = feature.get('editableFeature')
-    if (!editableFeature) {
-        return
-    }
-    // Tells if we are drawing a polygon for the first time, in this case we want
-    // to fill this polygon with a transparent white (instead of red)
-    const isDrawing = feature.get('isDrawing')
-    const styles = [
-        new Style({
-            geometry: feature.get('geodesic')?.getGeodesicGeom(),
-            image: editableFeature.generateOpenlayersIcon(),
-            text: new Text({
-                text: editableFeature.title,
-                //font: editableFeature.font,
-                font: `normal 16px Helvetica`,
-                fill: new Fill({
-                    color: editableFeature.textColor.fill,
-                }),
-                stroke: new Stroke({
-                    color: editableFeature.textColor.border,
-                    width: 3,
-                }),
-                scale: editableFeature.textSizeScale || 1,
-            }),
-            stroke:
-                editableFeature.featureType === EditableFeatureTypes.MEASURE
-                    ? dashedRedStroke
-                    : new Stroke({
-                          color: editableFeature.fillColor.fill,
-                          width: 3,
-                      }),
-            // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
-            fill: isDrawing
-                ? whiteSketchFill
-                : new Fill({
-                      color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
-                  }),
-            zIndex: 10,
-        }),
-    ]
-    const polygonGeom = feature.get('geodesic')?.getGeodesicPolygonGeom()
-    if (polygonGeom) {
-        styles.push(
-            new Style({
-                geometry: polygonGeom,
-                fill: isDrawing
-                    ? whiteSketchFill
-                    : new Fill({
-                          color: [...editableFeature.fillColor.rgb.slice(0, 3), 0.4],
-                      }),
-                zIndex: 0,
-            })
-        )
-    }
-    /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
-    is not there anymore, thats why we have to check for it here */
-    if (editableFeature.featureType === EditableFeatureTypes.MEASURE && feature.get('geodesic')) {
-        styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
-    }
-    return styles
-}
-
-const getSketchPointStyle = (coord) =>
-    new Style({
+export function getSketchPointStyle(coord) {
+    return new Style({
         geometry: new Point(coord),
         image: new Circle({
             radius: 4,
@@ -165,6 +96,7 @@ const getSketchPointStyle = (coord) =>
         }),
         zIndex: 30,
     })
+}
 
 /**
  * This is the styling function used by the draw interaction when drawing a line. See the doc of
