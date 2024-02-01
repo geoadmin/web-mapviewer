@@ -191,15 +191,10 @@ export default function usePrintAreaRenderer(map) {
         if (scaleHeight < testScale) {
             testScale = scaleHeight
         }
-        let nextBiggest = null
         const selectedLayoutScales = Array.from(store.state.print.selectedLayout.scales)
-        // Make sure it's sorted ascending
-        selectedLayoutScales.sort((a, b) => a - b)
-        selectedLayoutScales.forEach(function (scale) {
-            if (nextBiggest == null || testScale > scale) {
-                nextBiggest = scale
-            }
-        })
-        return nextBiggest
+        // Make sure it's sorted descending
+        selectedLayoutScales.sort((a, b) => b - a)
+        // Find the first scale that is smaller than the testScale in descending order
+        return selectedLayoutScales.find((scale) => scale < testScale)
     }
 }
