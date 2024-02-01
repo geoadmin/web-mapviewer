@@ -29,17 +29,32 @@ const props = defineProps({
 })
 const { feature, readOnly } = toRefs(props)
 
-const descriptionValue = ref(feature.value.description)
-const textValue = ref(feature.value.title)
+const title = ref(feature.value.title)
+const description = ref(feature.value.description)
 
-watch(textValue, (newTextValue) => {
-    const dispatch = debounce(store.dispatch, 3000)
-    dispatch('changeFeatureTitle', { feature, title: newTextValue })
+// The idea is watching the title and the description.
+// Put a debounce on the update of the feature so that we can compare with the current UI state
+// If the value is the same as in the UI, we can update the feature
+watch(title, (newTitle) => {
+    const debounceTitleUpdate = debounce(updateFeatureTitle, 300)
+    debounceTitleUpdate(newTitle)
 })
-watch(descriptionValue, (newDescriptionValue) => {
-    const dispatch = debounce(store.dispatch, 3000)
-    dispatch('changeFeatureDescription', { feature, description: newDescriptionValue })
+watch(description, (newDescription) => {
+    const debounceDescriptionUpdate = debounce(updateFeatureDecription, 300)
+    debounceDescriptionUpdate(newDescription)
 })
+
+function updateFeatureTitle(previousTitle) {
+    if (previousTitle === title.value) {
+        store.dispatch('changeFeatureTitle', { feature, title: title.value })
+    }
+}
+
+function updateFeatureDecription(previousDescription) {
+    if (previousDescription === description.value) {
+        store.dispatch('changeFeatureDescription', { feature, description: description.value })
+    }
+}
 
 /**
  * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
@@ -135,7 +150,7 @@ function onDelete() {
             </label>
             <textarea
                 id="drawing-style-feature-title"
-                v-model="textValue"
+                v-model="title"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="feature-title form-control"
@@ -151,7 +166,7 @@ function onDelete() {
             </label>
             <textarea
                 id="drawing-style-feature-description"
-                v-model="descriptionValue"
+                v-model="description"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
                 class="feature-description form-control"
