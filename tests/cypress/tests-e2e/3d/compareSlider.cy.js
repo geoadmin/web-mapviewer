@@ -39,5 +39,5 @@ describe('The compare Slider and the menu elements should not be available in 3d
 
             cy.get('[data-cy="menu-advanced-tools-Compare"]').should('not.exist')
         })
-
+    })
 })
