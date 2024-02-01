@@ -6,6 +6,7 @@ import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import GPX from '@/utils/GPX'
+import { EmptyGPXError } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
 
 /**
@@ -56,10 +57,14 @@ export function handleFileContent(store, content, source) {
         const metadata = gpxParser.readMetadata(content)
         const parseGpx = new DOMParser().parseFromString(content, 'text/xml')
         layer = new GPXLayer(source, true, 1.0, content, metadata)
-        const extent = getExtentForProjection(
-            store.state.position.projection,
-            bbox(gpxToGeoJSON(parseGpx))
-        )
+        const extent = bbox(gpxToGeoJSON(parseGpx))
+        if (!extent) {
+            throw new EmptyGPXError()
+        }
+        const projectedExtent = getExtentForProjection(store.state.position.projection, extent)
+        if (!projectedExtent) {
+            throw new OutOfBoundsError(`GPX out of projection bounds: ${extent}`)
+        }
         store.dispatch('zoomToExtent', extent)
         store.dispatch('addLayer', layer)
     } else {

@@ -5,6 +5,23 @@ import { getKmlExtent } from '@/utils/kmlUtils'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
+        it('handles correctly invalid inputs', () => {
+            expect(getKmlExtent()).to.be.null
+            expect(getKmlExtent(null)).to.be.null
+            expect(getKmlExtent(0)).to.be.null
+            expect(getKmlExtent([])).to.be.null
+            expect(getKmlExtent({})).to.be.null
+            expect(getKmlExtent('')).to.be.null
+        })
+        it('returns null if the KML has no feature', () => {
+            const emptyDocument = `<?xml version="1.0" encoding="UTF-8"?>
+            <kml xmlns="http://www.opengis.net/kml/2.2">
+                <Document>
+                </Document>
+            </kml>
+            `
+            expect(getKmlExtent(emptyDocument)).to.be.null
+        })
         it('get extent of a single feature', () => {
             const content = `<?xml version="1.0" encoding="UTF-8"?>
             <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -19,9 +36,7 @@ describe('Test KML utils', () => {
                 </Document>
             </kml>
             `
-            const extent = getKmlExtent(content)
-
-            expect(extent).to.deep.equal([8.117189, 46.852375, 8.117189, 46.852375])
+            expect(getKmlExtent(content)).to.deep.equal([8.117189, 46.852375, 8.117189, 46.852375])
         })
         it('get extent of a single line feature crossing europe', () => {
             const content = `<?xml version="1.0" encoding="UTF-8"?>
@@ -47,9 +62,7 @@ describe('Test KML utils', () => {
                 </Document>
             </kml>
             `
-            const extent = getKmlExtent(content)
-
-            expect(extent).to.deep.equal([
+            expect(getKmlExtent(content)).to.deep.equal([
                 -0.771255570521181, 46.45920177484218, 15.69760034017345, 47.72412908565185,
             ])
         })
@@ -92,9 +105,7 @@ describe('Test KML utils', () => {
                 </Document>
             </kml>
             `
-            const extent = getKmlExtent(content)
-
-            expect(extent).to.deep.equal([
+            expect(getKmlExtent(content)).to.deep.equal([
                 7.659940678339698, 46.75405886506746, 8.092263503513564, 46.96964910688379,
             ])
         })
