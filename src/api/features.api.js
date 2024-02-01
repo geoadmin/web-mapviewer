@@ -3,10 +3,6 @@ import { Icon as openlayersIcon } from 'ol/style'
 import proj4 from 'proj4'
 
 import { API_BASE_URL } from '@/config'
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/modules/drawing/lib/drawingUtils'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import EventEmitter from '@/utils/EventEmitter.class'
@@ -347,6 +343,39 @@ export class EditableFeature extends SelectableFeature {
     set geodesicCoordinates(coordinates) {
         this._geodesicCoordinates = coordinates
     }
+}
+
+/**
+ * Extract OL feature coordinates in format that we support in our application
+ *
+ * @param {Feature} feature Openlayer kml feature
+ * @returns {[[lat, lon]]} Return the coordinate of the feature
+ */
+export function extractOlFeatureCoordinates(feature) {
+    let coordinates = feature.getGeometry().getCoordinates()
+    if (feature.getGeometry().getType() === 'Polygon') {
+        // in case of a polygon, the coordinates structure is
+        // [
+        //   [ (poly1)
+        //      [coord1],[coord2]
+        //   ],
+        //   [ (poly2) ...
+        // ]
+        // so as we will not have multipoly, we only keep what's defined as poly one
+        // (we remove the wrapping array that would enable us to have a second polygon)
+        coordinates = coordinates[0]
+    }
+    return coordinates
+}
+
+/**
+ * Extract geodesic coordinates from OL feature
+ *
+ * @param {Feature} feature OL feature
+ * @returns {[[lat, lon]]} Return the geodesic coordinate of the feature
+ */
+export function extractOlFeatureGeodesicCoordinates(feature) {
+    return feature.get('geodesic')?.getGeodesicGeom().getCoordinates()[0]
 }
 
 /**

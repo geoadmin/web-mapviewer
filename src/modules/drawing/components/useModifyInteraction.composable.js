@@ -3,11 +3,11 @@ import ModifyInteraction from 'ol/interaction/Modify'
 import { inject, onBeforeUnmount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
-import { DRAWING_HIT_TOLERANCE } from '@/config'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
-} from '@/modules/drawing/lib/drawingUtils'
+} from '@/api/features.api'
+import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'

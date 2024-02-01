@@ -21,8 +21,8 @@ import {
     SMALL,
 } from '@/utils/featureStyleUtils'
 import { getStyle } from '@/utils/featureStyleUtils'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
 import { featureStyleFunction } from '@/utils/featureStyleUtils'
+import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
 

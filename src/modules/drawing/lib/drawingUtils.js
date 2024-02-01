@@ -101,27 +101,6 @@ export function formatAngle(value, digits = 2) {
     return `${value.toFixed(digits)}°`
 }
 
-export function extractOlFeatureCoordinates(feature) {
-    let coordinates = feature.getGeometry().getCoordinates()
-    if (feature.getGeometry().getType() === 'Polygon') {
-        // in case of a polygon, the coordinates structure is
-        // [
-        //   [ (poly1)
-        //      [coord1],[coord2]
-        //   ],
-        //   [ (poly2) ...
-        // ]
-        // so as we will not have multipoly, we only keep what's defined as poly one
-        // (we remove the wrapping array that would enable us to have a second polygon)
-        coordinates = coordinates[0]
-    }
-    return coordinates
-}
-
-export function extractOlFeatureGeodesicCoordinates(feature) {
-    return feature.get('geodesic')?.getGeodesicGeom().getCoordinates()[0]
-}
-
 /**
  * Checks if point is at target within tolerance.
  *
