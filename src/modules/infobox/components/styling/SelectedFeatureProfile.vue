@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapState } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
+import { geometryInfo } from '@/utils/utils'
 
 export default {
     components: { FontAwesomeIcon },

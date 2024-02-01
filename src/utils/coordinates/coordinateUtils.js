@@ -126,3 +126,11 @@ export class OutOfBoundsError extends Error {
         this.name = 'OutOfBoundsError'
     }
 }
+
+export function toLv95(input, epsg) {
+    if (Array.isArray(input[0])) {
+        return input.map((si) => toLv95(si, epsg))
+    } else {
+        return proj4(epsg, LV95.epsg, [input[0], input[1]])
+    }
+}

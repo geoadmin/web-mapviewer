@@ -7,6 +7,7 @@ import {
     flattenExtent,
     normalizeExtent,
     reprojectUnknownSrsCoordsToWGS84,
+    toLv95,
 } from '@/utils/coordinates/coordinateUtils'
 
 describe('Unit test functions from coordinateUtils.js', () => {
@@ -101,6 +102,43 @@ describe('Unit test functions from coordinateUtils.js', () => {
             expect(flatExtent).to.deep.equal([1, 2, 3, 4])
 
             expect(flattenExtent(flatExtent)).to.deep.equal([1, 2, 3, 4])
+        })
+    })
+
+    describe('toLv95(coordinate, "EPSG:4326")', () => {
+        it('reprojects points from EPSG:4326', () => {
+            expect(LV95.isInBounds(...toLv95([6.57268, 46.51333], WGS84.epsg))).to.be.true
+        })
+        it('reprojects points from EPSG:3857', () => {
+            expect(LV95.isInBounds(...toLv95([731667, 5862995], WEBMERCATOR.epsg))).to.be.true
+        })
+        it('reprojects lines', () => {
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(2)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
+        })
+        it('reprojects polygons', () => {
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                    [6.9, 46.9],
+                    [6.57268, 46.51333],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(4)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
         })
     })
 })
