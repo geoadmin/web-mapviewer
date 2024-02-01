@@ -74,7 +74,7 @@ function onToggleImportFile() {
             </ModalWithBackdrop>
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
-            v-if="!is3dActive.value"
+            v-if="!is3dActive"
             :is-selected="compareSliderActive()"
             :title="$t('compare')"
             @click.stop="onToggleCompareSlider"
