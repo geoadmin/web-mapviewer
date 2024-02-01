@@ -30,6 +30,15 @@ export default {
                 log.error('Error while loading print layouts', error)
             }
         },
+        setSelectedScale({ commit }, scale) {
+            commit('setSelectedScale', scale)
+        },
+        setSelectedLayout({ commit }, layout) {
+            commit('setSelectedLayout', layout)
+        },
+        setPrintSectionShown({ commit }, isShown) {
+            commit('setPrintSectionShown', isShown)
+        },
     },
     mutations: {
         setPrintLayouts: (state, layouts) => (state.layouts = layouts),

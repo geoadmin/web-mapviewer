@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
 
 const updateMenuTrayWidth = () => {
     if (menuTray.value) {
-        store.commit('setMenuTrayWidth', menuTray.value.offsetWidth)
+        store.dispatch('setMenuTrayWidth', menuTray.value.offsetWidth)
     }
 }
 

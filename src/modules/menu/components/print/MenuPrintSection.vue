@@ -27,16 +27,16 @@ const selectedScale = computed({
         return store.getters.getSelectedScale
     },
     set(value) {
-        store.commit('setSelectedScale', value)
+        store.dispatch('setSelectedScale', value)
     },
 })
 
 watch(selectedLayout, () => {
-    store.commit('setSelectedLayout', selectedLayout.value)
+    store.dispatch('setSelectedLayout', selectedLayout.value)
 })
 
 watch(isSectionShown, () => {
-    store.commit('setPrintSectionShown', isSectionShown.value)
+    store.dispatch('setPrintSectionShown', isSectionShown.value)
 })
 
 watch(printLayouts, () => {

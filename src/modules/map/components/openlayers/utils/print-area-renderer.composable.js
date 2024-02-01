@@ -79,7 +79,7 @@ export default function usePrintAreaRenderer(map) {
                 updatePrintRectanglePixels(selectedScale)
             }),
         ]
-        store.commit('setSelectedScale', getOptimalScale())
+        store.dispatch('setSelectedScale', getOptimalScale())
         refreshComp()
     }
 
