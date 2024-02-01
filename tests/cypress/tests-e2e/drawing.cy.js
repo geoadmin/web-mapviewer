@@ -14,7 +14,6 @@ import {
     BLACK,
     GREEN,
     LARGE,
-    MEDIUM,
     RED,
     VERY_SMALL,
 } from '@/utils/featureStyleUtils'
@@ -24,6 +23,12 @@ const isNonEmptyArray = (value) => {
     return Array.isArray(value) && value.length > 0
 }
 
+// KML Styling color, see https://developers.google.com/kml/documentation/kmlreference#colorstyle
+// format is aabbggrr where aa=alpha (00 to ff); bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff)
+// NOTE: alpha is for opacity
+const KML_STYLE_RED = 'ff0000ff'
+const KML_STYLE_BLACK = 'ff000000'
+
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
         function testTitleEdit() {
@@ -31,7 +36,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-feature-title"]').clear()
             cy.get('[data-cy="drawing-style-feature-title"]').type(title)
             cy.wait('@update-kml').then((interception) =>
-                cy.checkKMLRequest(interception, [new RegExp(`"title":"${title}"`)])
+                cy.checkKMLRequest(interception, [new RegExp(`<name>${title}</name>`)])
             )
         }
 
@@ -102,7 +107,9 @@ describe('Drawing module tests', () => {
             // the color of the marker already placed on the map must switch to green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    new RegExp(`"fillColor":{[^}]*"name":"${GREEN.name}"`),
+                    new RegExp(
+                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@1x-${GREEN.rgbString}.png</href>`
+                    ),
                 ])
             })
 
@@ -130,12 +137,15 @@ describe('Drawing module tests', () => {
             // the existing icon on the map must be updated to large and green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    new RegExp(`"iconSize":{[^}]*"label":"${LARGE.label}"`),
-                    new RegExp(`"fillColor":{[^}]*"name":"${GREEN.name}"`),
+                    // TODO PB-266 correct icon sizing
+                    new RegExp(`<IconStyle><scale>${LARGE.iconScale * 2}</scale>`),
+                    new RegExp(
+                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${LARGE.iconScale}x-${GREEN.rgbString}.png</href>`
+                    ),
                 ])
             })
 
-            // opening up ll icons of the current sets so that we may choose a new one
+            // opening up all icons of the current sets so that we may choose a new one
             cy.get(
                 '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
             ).click()
@@ -148,7 +158,9 @@ describe('Drawing module tests', () => {
                 // the KML must be updated with the newly selected icon
                 cy.wait('@update-kml').then((interception) =>
                     cy.checkKMLRequest(interception, [
-                        new RegExp(`"icon":{[^}]*"name":"${fourthIcon.name}"`),
+                        new RegExp(
+                            `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${LARGE.iconScale}x-${GREEN.rgbString}.png</href>`
+                        ),
                     ])
                 )
             })
@@ -168,7 +180,9 @@ describe('Drawing module tests', () => {
             const description = 'A description for this marker'
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.wait('@update-kml').then((interception) =>
-                cy.checkKMLRequest(interception, [new RegExp(`"description":"${description}"`)])
+                cy.checkKMLRequest(interception, [
+                    new RegExp(`<description>${description}</description>`),
+                ])
             )
 
             //  moving the marker by drag&drop on the map
@@ -215,11 +229,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
+                    // TODO PB-266 size testing correcting after rework of icon size and text size
                     // by default: text color should be red and size be medium
-                    new RegExp(`"textColor":{[^}]*"name":"${RED.name}"`),
-                    new RegExp(`"textSize":{[^}]*"label":"${MEDIUM.label}"`),
+                    new RegExp(
+                        `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
+                    ),
                     // there should be a default title
-                    new RegExp('"title":"New text"'),
+                    new RegExp('<name>New text</name>'),
                 ])
             })
 
@@ -239,7 +255,9 @@ describe('Drawing module tests', () => {
                 .click()
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    new RegExp(`"textColor":{[^}]*"name":"${BLACK.name}"`),
+                    new RegExp(
+                        `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
+                    ),
                 ])
             })
 
@@ -258,7 +276,8 @@ describe('Drawing module tests', () => {
             ).click({ force: true })
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    new RegExp(`"textSize":{[^}]*"label":"${VERY_SMALL.label}"`),
+                    // TODO PB-266 currently no scale is set but it should have one
+                    new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                 ])
             })
         })
@@ -281,8 +300,12 @@ describe('Drawing module tests', () => {
             let kmlId = null
             cy.wait('@post-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    EditableFeatureTypes.LINEPOLYGON,
-                    new RegExp(`"fillColor":{[^}]*"fill":"${RED.fill}"`),
+                    new RegExp(
+                        `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
+                    ),
+                    new RegExp(
+                        `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(2)}</color></PolyStyle></Style>`
+                    ),
                 ])
                 kmlId = interception.response.body.id
             })
@@ -308,7 +331,11 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml').then((interception) =>
                 cy.checkKMLRequest(
                     interception,
-                    [new RegExp(`"fillColor":{[^}]*"fill":"${BLACK.fill}"`)],
+                    [
+                        new RegExp(
+                            `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(2)}</color></PolyStyle></Style>`
+                        ),
+                    ],
                     kmlId
                 )
             )
@@ -544,7 +571,7 @@ describe('Drawing module tests', () => {
             ).click()
             checkFiles('kml', (content) => {
                 expect(content).to.contains(
-                    `"featureType":"${EditableFeatureTypes.LINEPOLYGON}"`,
+                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLocaleLowerCase()}</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
                 )
             })
@@ -559,7 +586,7 @@ describe('Drawing module tests', () => {
             ).click()
             checkFiles('kml', (content) => {
                 expect(content).to.contains(
-                    `"featureType":"${EditableFeatureTypes.LINEPOLYGON}"`,
+                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLocaleLowerCase()}</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
                 )
             })

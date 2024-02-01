@@ -368,14 +368,14 @@ function coordNormalize(coord) {
 }
 
 export function segmentExtent(feature, segmentIndex) {
-    if (feature.geodesic) {
-        return feature.geodesic.getSegmentExtent(segmentIndex)
+    if (feature.get('geodesic')) {
+        return feature.get('geodesic').getSegmentExtent(segmentIndex)
     }
 }
 
 export function subsegments(feature, segmentIndex, viewExtent) {
-    if (feature.geodesic) {
-        return feature.geodesic.getSubsegments(segmentIndex, viewExtent)
+    if (feature.get('geodesic')) {
+        return feature.get('geodesic').getSubsegments(segmentIndex, viewExtent)
     }
 }
 

@@ -91,21 +91,6 @@ export class DrawingIcon {
         this._anchor = anchor
     }
 
-    serialize() {
-        /* Warning: Changing this method will break the compability of KML files */
-        return {
-            name: this.name,
-            imageURL: this.imageURL,
-            imageTemplateURL: this.imageTemplateURL,
-            iconSetName: this.iconSetName,
-            anchor: this.anchor,
-        }
-    }
-
-    static deserialize(o) {
-        return new DrawingIcon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
-    }
-
     /** @returns {String} Name of this icon in the backend (lower cased) */
     get name() {
         return this._name

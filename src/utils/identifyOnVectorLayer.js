@@ -169,14 +169,14 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
         const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                if (feature.properties.editableFeature) {
-                    return EditableFeature.deserialize(
-                        feature.properties.editableFeature,
-                        reprojectCoordinates(feature.geometry.coordinates, projection)
-                    )
-                } else {
-                    // TODO: identify on external KML
-                }
+                // TODO use a new generic feature for identify (same for external KML and GPX) and not the editable
+                return EditableFeature.newFeature({
+                    id: feature.id,
+                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
+                    title: feature.properties.name,
+                    description: feature.properties.description,
+                    featureType: feature.properties.type.toUpperCase(),
+                })
             }
         )
     }

@@ -117,6 +117,7 @@ export default function useDrawingModeInteraction({
                 // feature type as proprietary property
                 type: args.featureType.toLowerCase(),
             })
+            log.debug(`onAddFeature: feature ${feature.getId()} added`)
         }
     }
 
@@ -126,8 +127,9 @@ export default function useDrawingModeInteraction({
 
     function onDrawStart(event) {
         const feature = event.feature
+        log.debug(`onDrawStart feature ${feature.getId()}`)
         if (useGeodesicDrawing) {
-            feature.geodesic = new GeodesicGeometries(feature, projection.value)
+            feature.set('geodesic', new GeodesicGeometries(feature, projection.value))
         }
         // we set a flag telling that this feature is currently being drawn (for the first time, not edited)
         feature.set('isDrawing', true)
@@ -140,7 +142,7 @@ export default function useDrawingModeInteraction({
         // deactivate()
         // grabbing the drawn feature so that we send it through the event
         const feature = event.feature
-        log.debug(`Drawing ended`, feature)
+        log.debug(`Drawing ended ${feature.getId()}`, feature)
         // checking if drawing was finished while linking the first point with the last
         // (if snapping occurred while placing the last point)
         const coordinates = getFeatureCoordinatesWithoutExtraPoint(feature)

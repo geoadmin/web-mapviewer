@@ -101,6 +101,10 @@ export function generateKmlString(projection, features = []) {
         const myStyle = new Style(newStyle)
         clone.setStyle(myStyle)
 
+        // We need to remove the editableFeature as we don't want it in extended data
+        clone.unset('editableFeature')
+        clone.unset('geodesic')
+
         exportFeatures.push(clone)
     })
 

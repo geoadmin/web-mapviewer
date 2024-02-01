@@ -10,6 +10,7 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
+import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
 const olMap = inject('olMap')
@@ -53,6 +54,25 @@ watch(featureIds, (next, last) => {
             .forEach((feature) => source.removeFeature(feature))
         saveDrawing()
     }
+})
+watch(availableIconSets, () => {
+    // Here this is a workaround for the legacy drawing opened in admin mode. In this case if
+    // the availableIconSets is not yet loaded while parsing the KML, we cannot build the correct
+    // DrawingIcon for default set icon because the icon name in the legacy icon service (mf-chsdi3)
+    // did not have any numbered prefix. This means that without this workaround the icon preselection
+    // from the set will not work and when modifying the drawing you might end up with a brocken
+    // drawing.
+    log.debug('New iconsets available update all drawing features')
+    featureIds.value.forEach((featureId) => {
+        const feature = drawingLayer.getSource()?.getFeatureById(featureId)?.get('editableFeature')
+        if (feature?.icon) {
+            const iconArgs = parseIconUrl(feature.icon.imageURL)
+            const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value)
+            if (icon) {
+                feature.icon = icon
+            }
+        }
+    })
 })
 
 onMounted(() => {

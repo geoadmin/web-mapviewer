@@ -1,4 +1,5 @@
 import { fromString } from 'ol/color'
+import Style from 'ol/style/Style'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */
 export class FeatureStyleColor {
@@ -11,19 +12,6 @@ export class FeatureStyleColor {
         this._name = name
         this._fill = fill
         this._border = border
-    }
-
-    serialize() {
-        /* Warning: Changing this method will break the compability of KML files */
-        return {
-            name: this.name,
-            fill: this.fill,
-            border: this.border,
-        }
-    }
-
-    static deserialize(o) {
-        return new FeatureStyleColor(o.name, o.fill, o.border)
     }
 
     /** @returns {String} Name of this color in lower case english */
@@ -97,19 +85,6 @@ export class FeatureStyleSize {
         this._iconScale = iconScale
     }
 
-    serialize() {
-        /* Warning: Changing this method will break the compability of KML files */
-        return {
-            label: this.label,
-            textScale: this.textScale,
-            iconScale: this.iconScale,
-        }
-    }
-
-    static deserialize(o) {
-        return new FeatureStyleSize(o.label, o.textScale, o.iconScale)
-    }
-
     /**
      * @returns {String} Translation key for this size (has to go through the i18n service to have a
      *   human-readable value)
@@ -150,3 +125,69 @@ export const LARGE = new FeatureStyleSize('big_size', 2.0, 1.5)
  * @type {FeatureStyleSize[]}
  */
 export const allStylingSizes = [VERY_SMALL, SMALL, MEDIUM, LARGE]
+
+/**
+ * Get Feature style from feature
+ *
+ * @param {Feature} olFeature
+ * @returns {Style}
+ */
+export function getStyle(olFeature) {
+    const styles = olFeature.getStyleFunction()(olFeature)
+    if (Array.isArray(styles)) {
+        return styles[0]
+    } else if (styles instanceof Style) {
+        return styles
+    }
+    return null
+}
+
+/**
+ * Return an instance of this class matching the requested fill color
+ *
+ * Default to RED if the color code is not found or invalid !
+ *
+ * @param {[Number]} fillColor Rgb array of the requested fill color
+ * @returns {FeatureStyleColor} Returns the feature style color
+ */
+export function getFeatureStyleColor(fillColor) {
+    if (!Array.isArray(fillColor)) {
+        return RED
+    }
+    const fill =
+        '#' +
+        fillColor
+            .slice(0, 3)
+            .map((color) => ('0' + color.toString(16)).slice(-2))
+            .reduce((prev, current) => prev + current)
+    return allStylingColors.find((color) => color.fill === fill) ?? RED
+}
+
+/**
+ * Return an instance of FeatureStyleSize matching the requested text scale
+ *
+ * @param {Number} textScale The requested text scale
+ * @returns {FeatureStyleSize | null} Returns text size or null if not found
+ */
+export function getTextSize(textScale) {
+    if (textScale) {
+        return allStylingSizes.find((size) => size.textScale === textScale) ?? MEDIUM
+    }
+    return null
+}
+
+/**
+ * Get KML text color from style
+ *
+ * When a text is present but no color is given, then default to RED.
+ *
+ * @param {Style} style Feature style
+ * @returns {FeatureStyleColor | null} Returns the feature style color object or null if text is not
+ *   found
+ */
+export function getTextColor(style) {
+    if (style?.getText()) {
+        return getFeatureStyleColor(style.getText().getFill()?.getColor())
+    }
+    return null
+}

@@ -119,7 +119,7 @@ export function extractOlFeatureCoordinates(feature) {
 }
 
 export function extractOlFeatureGeodesicCoordinates(feature) {
-    return feature.geodesic?.getGeodesicGeom().getCoordinates()[0]
+    return feature.get('geodesic')?.getGeodesicGeom().getCoordinates()[0]
 }
 
 /**
