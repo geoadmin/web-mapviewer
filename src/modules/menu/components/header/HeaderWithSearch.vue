@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, useStore } from 'vuex'
 
 import LangSwitchToolbar from '@/modules/i18n/components/LangSwitchToolbar.vue'
 import HeaderMenuButton from '@/modules/menu/components/header/HeaderMenuButton.vue'
@@ -60,12 +60,6 @@ export default {
         LangSwitchToolbar,
         FeedbackToolbar,
     },
-    emits: { heightChanged: null },
-    data() {
-        return {
-            currentHeight: 0,
-        }
-    },
     computed: {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
@@ -76,28 +70,23 @@ export default {
     mounted() {
         this.$nextTick(() => {
             // Initial height
-            this.currentHeight = this.$refs.header.clientHeight
+            this.updateHeaderHeight()
             // Watch for changes in height
-            window.addEventListener('resize', this.handleResize)
-            this.emitHeightChangeSignal()
+            window.addEventListener('resize', this.updateHeaderHeight)
         })
     },
     beforeUnmount() {
         // Remove the event listener when the component is destroyed
-        window.removeEventListener('resize', this.handleResize)
+        window.removeEventListener('resize', this.updateHeaderHeight)
     },
     methods: {
         resetApp() {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopicId}`
         },
-        handleResize() {
-            // Update the height when the window is resized
-            this.currentHeight = this.$refs.header.clientHeight
-            this.emitHeightChangeSignal()
-        },
-        emitHeightChangeSignal() {
-            this.$emit('heightChanged', this.currentHeight)
+
+        updateHeaderHeight() {
+            this.$store.commit('setHeaderHeight', this.$refs.header.clientHeight)
         },
     },
 }

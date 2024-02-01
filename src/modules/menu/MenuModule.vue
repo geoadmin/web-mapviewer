@@ -77,9 +77,6 @@ function decreaseZoom() {
 function toggleMenu() {
     store.dispatch('toggleMenu')
 }
-function updateHeaderHeight(newHeight) {
-    store.commit('setHeaderHeight', newHeight)
-}
 </script>
 
 <template>
@@ -90,11 +87,7 @@ function updateHeaderHeight(newHeight) {
         <transition name="fade-in-out">
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
-        <HeaderWithSearch
-            v-if="isHeaderShown"
-            class="header"
-            @height-changed="updateHeaderHeight"
-        />
+        <HeaderWithSearch v-if="isHeaderShown" class="header" />
         <div
             v-if="visibleLayersWithTimeConfig.length"
             class="time-sliders m-1 position-absolute"
