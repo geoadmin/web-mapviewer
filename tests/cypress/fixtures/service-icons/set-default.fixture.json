@@ -14,8 +14,8 @@
         },
         {
             "icon_set": "default",
-            "name": "003-placeholder",
-            "url": "http://localhost:8080/api/icons/sets/default/icons/003-placeholder-255,0,0.png",
+            "name": "003-square",
+            "url": "http://localhost:8080/api/icons/sets/default/icons/003-square-255,0,0.png",
             "template_url": "http://localhost:8080/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png"
         },
         {

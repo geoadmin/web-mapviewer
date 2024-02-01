@@ -2,6 +2,7 @@
 
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
+import { getKmlAdminIdFromRequest, kmlMetadataTemplate } from 'tests/cypress/support/drawing'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -500,6 +501,94 @@ describe('Drawing module tests', () => {
                 .should('have.length', 1)
 
             // creating another feature
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(200, 200)
+
+            // checking that it updates the existing KML, and not creating a new copy of it
+            cy.wait('@update-kml').then((interception) => {
+                expect(interception.response.body.id).to.eq(kmlFileId)
+            })
+        })
+        it('manages the KML layer correctly if it comes attached with an adminId at startup from a legacy URL', () => {
+            // Position of the marker defined in service-kml/legacy-mf-geoadmin3.kml
+            const markerLatitude = 46.80250110087888
+            const markerLongitude = 7.248686789953856
+            const center = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+                markerLongitude,
+                markerLatitude,
+            ])
+
+            // load map with an injected kml layer containing a text
+            const kmlFileId = 'test-fileID12345678900'
+            const kmlFileAdminId = 'test-fileAdminID12345678900'
+            const kmlFileUrl = `${API_SERVICE_KML_BASE_URL}api/kml/files/${kmlFileId}`
+            const kmlAdminUrl = `${API_SERVICE_KML_BASE_URL}api/kml/admin/${kmlFileId}`
+            const kmlMetadata = {
+                admin_id: kmlFileAdminId,
+                author: 'mf-geoadmin3',
+                author_version: '0.0.0',
+                created: '2024-02-01T06:37:28.788+00:00',
+                empty: false,
+                id: kmlFileId,
+                links: {
+                    kml: kmlFileUrl,
+                    self: kmlAdminUrl,
+                },
+                success: true,
+                updated: '2024-02-01T13:52:10.988+00:00',
+            }
+
+            // Here we overwrite the previous intercept for kml admin id set in support/drawing.js
+            cy.intercept('GET', `**/api/kml/admin?admin_id=*`, {
+                body: kmlMetadata,
+                statusCode: 200,
+            }).as('get-kml-metadata-by-admin-id')
+            cy.intercept('GET', kmlAdminUrl, {
+                body: kmlMetadata,
+                statusCode: 200,
+            }).as('get-kml-metadata')
+            cy.intercept('PUT', kmlAdminUrl, async (req) => {
+                const adminId = await getKmlAdminIdFromRequest(req)
+                req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
+            }).as('update-kml')
+            cy.intercept('GET', kmlFileUrl, {
+                statusCode: 200,
+                fixture: 'service-kml/legacy-mf-geoadmin3.kml',
+            }).as('get-legacy-kml')
+
+            // opening up the app and centering it directly on the single marker feature from the fixture
+            cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
+            cy.wait('@get-kml-metadata-by-admin-id')
+            cy.wait('@get-legacy-kml')
+            cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+
+            // the app must open the drawing module at startup whenever an adminId is found in the URL
+            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.true')
+
+            // checking that the KML was correctly loaded
+            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 0)
+            cy.readWindowValue('drawingLayer')
+                .then((layer) => layer.getSource().getFeatures())
+                .should('have.length', 3)
+
+            // clicking on the single feature of the fixture
+            cy.log('Test clicking on the square feature in center should select it')
+            cy.get('[data-cy="ol-map"]').click('center')
+            cy.readStoreValue('state.features.selectedFeatures').should('have.length', 1)
+            cy.readWindowValue('drawingLayer')
+                .then((layer) => layer.getSource().getFeatures())
+                .should('have.length', 3)
+
+            cy.log('The selected icon should have its icon selected in the icon list')
+            cy.get('[data-cy="drawing-style-marker-button"]').should('be.visible').click()
+            cy.get('[data-cy="drawing-style-toggle-all-icons-button"]').should('be.visible').click()
+            cy.get(`[data-cy="drawing-style-icon-selector-003-square"]`).should(
+                'have.class',
+                'btn-primary'
+            )
+
+            // creating another feature
+            cy.log('Test creating a new feature')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(200, 200)
 

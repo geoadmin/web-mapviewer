@@ -1,0 +1,77 @@
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+    <Document>
+        <name>Dessin</name>
+        <Placemark id="marker_1706796360725">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name></name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/color/255,0,0/marker-24@2x.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                    <hotSpot x="24" y="4.799999999999997" xunits="pixels" yunits="pixels" />
+                </IconStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.886303547206525,47.07614428012044</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="marker_1706796371472">
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <name></name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <Icon>
+                        <href>https://sys-api3.dev.bgdi.ch/color/255,0,0/square-24@2x.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                </IconStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>7.248686789953856,46.80250110087888</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="annotation_1706796378213">
+            <ExtendedData>
+                <Data name="type">
+                    <value>annotation</value>
+                </Data>
+            </ExtendedData>
+            <name>legacy mf-geoadmin3 drawing</name>
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <scale>0</scale>
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff0000ff</color>
+                    <scale>2</scale>
+                </LabelStyle>
+            </Style>
+            <Point>
+                <tessellate>1</tessellate>
+                <altitudeMode>clampToGround</altitudeMode>
+                <coordinates>8.13513639008518,47.47967404695217</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

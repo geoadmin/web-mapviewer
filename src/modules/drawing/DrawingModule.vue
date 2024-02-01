@@ -62,7 +62,10 @@ watch(availableIconSets, () => {
     // did not have any numbered prefix. This means that without this workaround the icon preselection
     // from the set will not work and when modifying the drawing you might end up with a brocken
     // drawing.
-    log.debug('New iconsets available update all drawing features')
+    log.debug(
+        'New iconsets available update all drawing features',
+        drawingLayer.getSource().getFeatures()
+    )
     featureIds.value.forEach((featureId) => {
         const feature = drawingLayer.getSource()?.getFeatureById(featureId)?.get('editableFeature')
         if (feature?.icon) {

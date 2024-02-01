@@ -1,6 +1,5 @@
 import proj4 from 'proj4'
 
-import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -162,10 +161,6 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     let legacyCoordinates = []
     let latlongCoordinates = []
     let cameraPosition = []
-    // TODO BGDIINF_SB-2685: remove once legacy prod is decommissioned
-    const isOnDevelopmentHost = DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
-        (hostname) => hostname === store.state.ui.hostname
-    )
 
     Object.keys(legacyParams).forEach((param) => {
         handleLegacyParam(
@@ -214,10 +209,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
 
-    // TODO BGDIINF_SB-2685: remove dev host check when map.geo.admin.ch hosts web-mapviewer's code
-    //  we cannot let adminId get through right now (on our dev envs) because legacy KML will be broken by the
-    //  new viewer if edited (broken in a sense that they will not be usable by mf-geoadmin3 anymore)
-    if (!isOnDevelopmentHost && 'adminId' in legacyParams) {
+    if ('adminId' in legacyParams) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         handleLegacyKmlAdminIdParam(legacyParams, newQuery)
