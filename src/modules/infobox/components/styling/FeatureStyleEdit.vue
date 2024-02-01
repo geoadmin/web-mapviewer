@@ -32,6 +32,21 @@ const { feature, readOnly } = toRefs(props)
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
 
+// Update the UI when the feature changes
+watch(
+    () => feature.title,
+    (newTitle) => {
+        title.value = newTitle
+    }
+)
+
+watch(
+    () => feature.description,
+    (newDescription) => {
+        description.value = newDescription
+    }
+)
+
 // The idea is watching the title and the description.
 // Put a debounce on the update of the feature so that we can compare with the current UI state
 // If the value is the same as in the UI, we can update the feature
