@@ -315,7 +315,7 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-tree-item-${itemExtentGraubunden}"]`).should('be.visible')
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 1)
         cy.get('[data-cy="search-catalogue-clear"]').click()
-        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 5)
+        cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 6)
         cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type(firstSubItemName)
         cy.get('[data-cy^="catalogue-tree-item-name-"]:visible').should('have.length', 2)
         cy.get(`[data-cy="catalogue-tree-item-${firstSubItemId}"]`).should('be.visible')
@@ -530,7 +530,6 @@ describe('The Import Maps Tool', () => {
             { statusCode: 400 }
         ).as('wmts-get-capabilities-unreachable')
 
-        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         cy.get('[data-cy="import-provider-list"]')
@@ -561,7 +560,6 @@ describe('The Import Maps Tool', () => {
             },
             { body: 'Invalid body' }
         ).as('wmts-get-capabilities-unreachable')
-        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         cy.get('[data-cy="import-provider-list"]')
@@ -595,7 +593,6 @@ describe('The Import Maps Tool', () => {
                 headers: { 'Content-Type': 'text/xml' },
             }
         ).as('wmts-get-capabilities-unreachable')
-        cy.get('[data-cy="menu-tray-tool-section"]').should('be.visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-catalogue"]').should('be.visible').click()
         cy.get('[data-cy="import-catalogue-input"]').should('be.visible').type('wmts.geo.admin')
         cy.get('[data-cy="import-provider-list"]')
