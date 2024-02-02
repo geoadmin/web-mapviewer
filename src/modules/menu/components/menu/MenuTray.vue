@@ -25,7 +25,6 @@
                 id="drawSection"
                 :title="$t('draw_panel_title')"
                 secondary
-                :disabled="disableDrawing"
                 :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
                 @click:header="toggleDrawingOverlay()"
@@ -66,11 +65,9 @@
 </template>
 
 <script>
-import tippy, { followCursor } from 'tippy.js'
 import { useI18n } from 'vue-i18n'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import { DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES } from '@/config'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
@@ -127,43 +124,8 @@ export default {
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
-        disableDrawing() {
-            // TODO BGDIINF_SB-2685: remove this protection once on prod
-            if (
-                DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES.some(
-                    (hostname) => hostname === this.hostname
-                )
-            ) {
-                if (this.activeKmlLayer?.adminId && this.activeKmlLayer?.isLegacy()) {
-                    return true
-                }
-            }
-            return false
-        },
     },
     watch: {
-        disableDrawing(disableDrawing) {
-            if (disableDrawing) {
-                this.disableDrawingTooltip = tippy('#drawSectionTooltip', {
-                    theme: 'danger',
-                    arrow: true,
-                    followCursor: 'initial',
-                    plugins: [followCursor],
-                    hideOnClick: false,
-                    delay: 500,
-                    offset: [15, 15],
-                })
-                this.setDisableDrawingTooltipContent()
-            } else {
-                if (this.disableDrawingTooltip) {
-                    this.disableDrawingTooltip.forEach((tooltip) => tooltip.destroy())
-                    this.disableDrawingTooltip = null
-                }
-            }
-        },
-        lang() {
-            this.setDisableDrawingTooltipContent()
-        },
         showImportFile(show) {
             if (show) {
                 this.$refs['activeLayersSection'].open()
@@ -183,11 +145,6 @@ export default {
             if (['drawSection', 'toolsSection'].includes(id)) {
                 this.$refs['activeLayersSection'].open()
             }
-        },
-        setDisableDrawingTooltipContent() {
-            this.disableDrawingTooltip?.forEach((instance) => {
-                instance.setContent(this.i18n.t('legacy_drawing_warning'))
-            })
         },
     },
 }

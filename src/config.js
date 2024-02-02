@@ -253,18 +253,6 @@ export const NO_WARNING_BANNER_HOSTNAMES = ['test.map.geo.admin.ch', 'map.geo.ad
 export const WARNING_RIBBON_HOSTNAMES = ['test.map.geo.admin.ch']
 
 /**
- * To avoid breaking legacy KML drawing during an MVP (test phases) we disable the drawing menu for
- * those ones on test.map.geo.admin.ch
- *
- * @type {String[]}
- */
-export const DISABLE_DRAWING_MENU_FOR_LEGACY_ON_HOSTNAMES = [
-    'test.map.geo.admin.ch',
-    'sys-map.dev.bgdi.ch',
-    'localhost',
-]
-
-/**
  * WMS supported versions list
  *
  * @type {String[]}
