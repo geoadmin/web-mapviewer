@@ -1,0 +1,50 @@
+/**
+ * Listen to the `addLayer` mutation, and if a GPX is added without data/metadata defined, we load
+ * it here
+ */
+
+import axios from 'axios'
+
+import GPXLayer from '@/api/layers/GPXLayer.class'
+import GPX from '@/utils/GPX'
+import log from '@/utils/logging'
+
+/**
+ * @param {Vuex.Store} store
+ * @param {GPXLayer} gpxLayer
+ * @returns {Promise<void>}
+ */
+async function loadGpx(store, gpxLayer) {
+    log.debug(`Loading data/metadata for added GPX layer`, gpxLayer)
+    try {
+        const response = await axios.get(gpxLayer.gpxFileUrl)
+        const gpxContent = response.data
+        const gpxParser = new GPX()
+        const metadata = gpxParser.readMetadata(gpxContent)
+        store.dispatch('updateKmlGpxLayer', {
+            layerId: gpxLayer.getID(),
+            metadata,
+            data: gpxContent,
+        })
+    } catch (error) {
+        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.getID()}`)
+    }
+}
+
+/**
+ * Load GPX data and metadata whenever a GPX layer is added (or does nothing if the layer was
+ * already processed/loaded)
+ *
+ * @param {Vuex.Store} store
+ */
+export default function loadGpxDataAndMetadata(store) {
+    store.subscribe((mutation) => {
+        if (
+            mutation.type === 'addLayer' &&
+            mutation.payload instanceof GPXLayer &&
+            (!mutation.payload.gpxData || !mutation.payload.gpxMetadata)
+        ) {
+            loadGpx(store, mutation.payload)
+        }
+    })
+}

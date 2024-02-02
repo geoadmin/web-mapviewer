@@ -80,10 +80,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     activeKmlLayer.value.adminId,
                     kmlData
                 )
-                await store.dispatch('updateKmlLayer', {
+                await store.dispatch('updateKmlGpxLayer', {
                     layerId: activeKmlLayer.value.getID(),
-                    kmlData: kmlData,
-                    kmlMetadata: kmlMetadata,
+                    data: kmlData,
+                    metadata: kmlMetadata,
                 })
                 saveState.value = DrawingState.SAVED
             }

@@ -21,6 +21,7 @@ import clickOnMapManagementPlugin from '@/store/plugins/click-on-map-management.
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import geolocationManagementPlugin from '@/store/plugins/geolocation-management.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
+import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-data.plugin'
 import loadLayersConfigOnLangChange from '@/store/plugins/load-layersconfig-on-lang-change'
 import loadingBarManagementPlugin from '@/store/plugins/loading-bar-management.plugin'
@@ -48,6 +49,7 @@ const store = createStore({
         loadExternalLayerAttributes,
         loadGeojsonStyleAndData,
         loadKmlDataAndMetadata,
+        loadGpxDataAndMetadata,
     ],
     modules: {
         app,

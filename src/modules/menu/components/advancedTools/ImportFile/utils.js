@@ -1,12 +1,9 @@
-import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
-import bbox from '@turf/bbox'
-
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import GPX from '@/utils/GPX'
-import { EmptyGPXError } from '@/utils/gpxUtils.js'
+import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
 
 /**
@@ -55,9 +52,8 @@ export function handleFileContent(store, content, source) {
     } else if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)
-        const parseGpx = new DOMParser().parseFromString(content, 'text/xml')
         layer = new GPXLayer(source, true, 1.0, content, metadata)
-        const extent = bbox(gpxToGeoJSON(parseGpx))
+        const extent = getGpxExtent(content)
         if (!extent) {
             throw new EmptyGPXError()
         }
@@ -65,7 +61,7 @@ export function handleFileContent(store, content, source) {
         if (!projectedExtent) {
             throw new OutOfBoundsError(`GPX out of projection bounds: ${extent}`)
         }
-        store.dispatch('zoomToExtent', extent)
+        store.dispatch('zoomToExtent', projectedExtent)
         store.dispatch('addLayer', layer)
     } else {
         throw new Error(`Unsupported file ${source} content`)

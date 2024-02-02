@@ -2,6 +2,7 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
+import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
@@ -447,22 +448,30 @@ const actions = {
         }
         commit('updateLayer', updatedLayer)
     },
-    updateKmlLayer({ commit, getters, rootState }, payload) {
-        const { layerId, kmlData, kmlMetadata } = payload
+    updateKmlGpxLayer({ commit, getters, rootState }, payload) {
+        const { layerId, data, metadata } = payload
         const currentLayer = getters.getActiveLayerById(layerId)
         if (!currentLayer) {
             throw new Error(
-                `Failed to update KML layer data/metadata "${layerId}", ` +
+                `Failed to update GPX/KML layer data/metadata "${layerId}", ` +
                     `layer not found in active layers`
             )
         }
         const updatedLayer = currentLayer.clone()
 
-        if (kmlData) {
-            updatedLayer.name = parseKmlName(kmlData) || 'KML'
-            updatedLayer.kmlData = kmlData
+        if (data) {
+            let extent
+            if (updatedLayer.type === LayerTypes.KML) {
+                updatedLayer.name = parseKmlName(data) || 'KML'
+                updatedLayer.kmlData = data
+                extent = getKmlExtent(data)
+            } else if (updatedLayer.type === LayerTypes.GPX) {
+                // The name of the GPX is derived from the metadata below
+                updatedLayer.gpxData = data
+                extent = getGpxExtent(data)
+            }
             updatedLayer.isLoading = false
-            const extent = getKmlExtent(kmlData)
+
             if (!extent) {
                 updatedLayer.errorKey = 'kml_gpx_file_empty'
                 updatedLayer.hasError = true
@@ -471,8 +480,13 @@ const actions = {
                 updatedLayer.hasError = true
             }
         }
-        if (kmlMetadata) {
-            updatedLayer.kmlMetadata = kmlMetadata
+        if (metadata) {
+            if (updatedLayer.type === LayerTypes.KML) {
+                updatedLayer.kmlMetadata = metadata
+            } else if (updatedLayer.type === LayerTypes.GPX) {
+                updatedLayer.gpxMetadata = metadata
+                updatedLayer.name = metadata.name ?? 'GPX'
+            }
         }
         commit('updateLayer', updatedLayer)
     },
