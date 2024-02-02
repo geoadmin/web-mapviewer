@@ -292,7 +292,7 @@ describe('Testing of the compare slider', () => {
                     return state.features.selectedFeatures.length == 0
                 })
                 cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
-
+                cy.clickOnMenuButtonIfMobile()
                 cy.get(`[data-cy="button-lower-order-layer-${layer1}"]`)
                     .should('be.visible')
                     .click()
