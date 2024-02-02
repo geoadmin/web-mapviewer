@@ -206,7 +206,7 @@ export function parseIconUrl(url) {
     // babs set := /images/{set_name}/{image}
     const legacyDefaultMatch =
         /color\/(?<r>\d+),(?<g>\d+),(?<b>\d+)\/(?<name>[^/]+)-\d+@(?<scale>\d+)x\.png$/.exec(url)
-    const legacySetMatch = new RegExp('images/(?<set>\\w+)/(?<name>[^/]+)\\.png$').exec(url)
+    const legacySetMatch = /images\/(?<set>\w+)\/(?<name>[^/]+)\.png$/.exec(url)
 
     // new icon urls pattern
     // /api/icons/sets/{set_name}/icons/{icon_name}.png
