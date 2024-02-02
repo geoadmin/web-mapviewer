@@ -4,13 +4,24 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { BREAKPOINT_PHONE_WIDTH } from '@/config'
 import { randomIntBetween } from '@/utils/numberUtils'
 
-const addIconFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/default/icons/**@1x-255,0,0.png`, {
+export const addIconFixtureAndIntercept = () => {
+    cy.intercept(`**/api/icons/sets/default/icons/*@*.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/babs/icons/**@1x.png`, {
+    cy.intercept(`**/api/icons/sets/babs/icons/*@*.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-babs')
+}
+
+export const addLegacyIconFixtureAndIntercept = () => {
+    // /color/{r},{g},{b}/{image}-{size}@{scale}x.png
+    cy.intercept(`**/color/*,*,*/*@*.png`, {
+        fixture: 'service-icons/placeholder.png',
+    }).as('legacy-icon-default')
+    //  /images/{set_name}/{image}
+    cy.intercept(`**/images/*.png`, {
+        fixture: 'service-icons/placeholder.png',
+    }).as('legacy-icon-babs')
 }
 
 const addProfileFixtureAndIntercept = () => {

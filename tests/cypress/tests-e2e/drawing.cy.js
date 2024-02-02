@@ -2,7 +2,12 @@
 
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
-import { getKmlAdminIdFromRequest, kmlMetadataTemplate } from 'tests/cypress/support/drawing'
+import {
+    addIconFixtureAndIntercept,
+    addLegacyIconFixtureAndIntercept,
+    getKmlAdminIdFromRequest,
+    kmlMetadataTemplate,
+} from 'tests/cypress/support/drawing'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
@@ -538,7 +543,8 @@ describe('Drawing module tests', () => {
                 updated: '2024-02-01T13:52:10.988+00:00',
             }
 
-            // Here we overwrite the previous intercept for kml admin id set in support/drawing.js
+            addIconFixtureAndIntercept()
+            addLegacyIconFixtureAndIntercept()
             cy.intercept('GET', `**/api/kml/admin?admin_id=*`, {
                 body: kmlMetadata,
                 statusCode: 200,

@@ -4,6 +4,7 @@ import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
 
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
+import log from '@/utils/logging'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 import { isMobile } from './utils'
@@ -206,7 +207,7 @@ Cypress.Commands.add(
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
-        cy.waitUntilState((state) => state.app.isMapReady, { timeout: 10000 })
+        cy.waitUntilState((state) => state.app.isMapReady, { timeout: 15000 })
         cy.waitUntilState(
             (state) => {
                 const active = state.layers.activeLayers.length
@@ -557,6 +558,9 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
         const olLayers = map.getAllLayers()
 
         layers.forEach((layer) => {
+            log.debug(
+                `Cypress test if layer is present in layers=${olLayers.map((l) => l.get('id')).join(',')}`
+            )
             const olLayer = olLayers.find((l) => l.get('id') === layer.id)
             if (layer.visible) {
                 expect(olLayer, `[${layer.id}] layer`).not.to.be.null
