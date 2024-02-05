@@ -2,12 +2,19 @@
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing of the compare slider', () => {
+    function expectCompareRatioToBeNull() {
+        // when the compare Ratio is null, it should not exist instead
+        cy.readStoreValue('state.ui').then((uiStore) => {
+            cy.wrap(uiStore).its('compareRatio').should('not.exist')
+        })
+    }
     context('Comportment of compare slider at startup', () => {
         context('Starting the app with different parameters', () => {
             it('Does not shows up when there are no layers and no compare slider parameter', () => {
                 cy.goToMapView({}, true)
-                cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                    expect(compareRatio).to.eq(-0.5)
+                expectCompareRatioToBeNull()
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(false)
                 })
 
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
@@ -19,8 +26,10 @@ describe('Testing of the compare slider', () => {
                     },
                     true
                 )
-                cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                    expect(compareRatio).to.eq(-0.5)
+                expectCompareRatioToBeNull()
+
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(false)
                 })
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
             })
@@ -36,6 +45,10 @@ describe('Testing of the compare slider', () => {
                     expect(compareRatio).to.eq(0.3)
                 })
 
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(true)
+                })
+
                 cy.get('[data-cy="compare_slider"]').should('be.visible')
             })
             it('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
@@ -46,8 +59,10 @@ describe('Testing of the compare slider', () => {
                     },
                     true
                 )
-                cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                    expect(compareRatio).to.eq(-0.5)
+                expectCompareRatioToBeNull()
+
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(false)
                 })
 
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
@@ -58,8 +73,10 @@ describe('Testing of the compare slider', () => {
                     },
                     true
                 )
-                cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                    expect(compareRatio).to.eq(-0.5)
+                expectCompareRatioToBeNull()
+
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(false)
                 })
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
                 cy.goToMapView(
@@ -69,8 +86,10 @@ describe('Testing of the compare slider', () => {
                     },
                     true
                 )
-                cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                    expect(compareRatio).to.eq(-0.5)
+                expectCompareRatioToBeNull()
+
+                cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                    expect(isSliderActive).to.eq(false)
                 })
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
             })
@@ -351,14 +370,38 @@ describe('Testing of the compare slider', () => {
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(-0.5)
+                        expect(compareRatio).to.eq(0.5)
+                    })
+
+                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                        expect(isSliderActive).to.eq(true)
                     })
                     cy.get('[data-cy="compare_slider"]').should('not.exist')
                 })
-                it.skip('stays "active" when we remove the last layer', () => {
-                    // TODO : PB-262 : implement this
+                it('stays "active" when we remove the last layer', () => {
                     cy.goToMapView({ layers: 'test-1.wms.layer', compare_ratio: '0.3' }, true)
                     cy.clickOnMenuButtonIfMobile()
+                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
+                        expect(compareRatio).to.eq(0.3)
+                    })
+
+                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                        expect(isSliderActive).to.eq(true)
+                    })
+                    cy.get('[data-cy="compare_slider"]').should('be.visible')
+
+                    cy.get(`[data-cy="button-remove-layer-test-1.wms.layer"]`)
+                        .should('be.visible')
+                        .click()
+
+                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
+                        expect(compareRatio).to.eq(0.3)
+                    })
+
+                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                        expect(isSliderActive).to.eq(true)
+                    })
+                    cy.get('[data-cy="compare_slider"]').should('not.exist')
                 })
                 it('appears and is functional when layers are present in 2d', () => {
                     cy.goToMapView(
@@ -376,16 +419,23 @@ describe('Testing of the compare slider', () => {
                         expect(compareRatio).to.eq(0.3)
                     })
 
+                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                        expect(isSliderActive).to.eq(true)
+                    })
+
                     cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(-0.5)
+                        expect(compareRatio).to.eq(0.3)
+                    })
+
+                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
+                        expect(isSliderActive).to.eq(false)
                     })
                     cy.get('[data-cy="compare_slider"]').should('not.exist')
 
                     cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
-                    //TODO PB-262 : when putting it back, we should retrieve the same compare ratio as before
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.5)
+                        expect(compareRatio).to.eq(0.3)
                     })
                     cy.get('[data-cy="compare_slider"]').should('be.visible')
                 })

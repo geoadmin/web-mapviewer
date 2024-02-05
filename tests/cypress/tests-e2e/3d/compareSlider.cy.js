@@ -16,7 +16,7 @@ describe('The compare Slider and the menu elements should not be available in 3d
             cy.get('[data-cy="compare_slider"]').should('not.exist')
 
             cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                expect(compareRatio).to.eq(-0.5)
+                expect(compareRatio).to.eq(0.4)
             })
         })
     })
