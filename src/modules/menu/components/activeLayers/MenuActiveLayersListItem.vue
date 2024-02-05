@@ -26,7 +26,7 @@
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}`"
-                @click="onToggleLayerVisibility"
+                @click="onToggleLayerDetails"
                 >{{ layer.name }}</TextTruncate
             >
             <button
@@ -67,12 +67,11 @@
                 class="btn"
                 :class="{
                     'btn-lg': !compact,
-                    'flip text-primary': showDetails,
                 }"
                 :data-cy="`button-open-visible-layer-settings-${id}`"
                 @click="onToggleLayerDetails"
             >
-                <FontAwesomeIcon icon="cog" />
+                <FontAwesomeIcon :icon="`caret-${showDetails ? 'down' : 'right'}`" />
             </button>
         </div>
         <div
