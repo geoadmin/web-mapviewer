@@ -125,6 +125,13 @@ export default {
          * @type Boolean
          */
         isCompareSliderActive: false,
+
+        /**
+         * Float telling where the compare slider is supposed to be positioned.
+         *
+         * @type Number
+         */
+        compareRatio: null,
     },
     getters: {
         screenDensity(state) {

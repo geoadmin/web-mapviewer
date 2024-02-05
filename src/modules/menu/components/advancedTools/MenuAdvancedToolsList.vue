@@ -27,7 +27,7 @@ function onToggleImportCatalogue() {
 function onToggleCompareSlider() {
     // this allows us to store the previous compare ratio while making
     // the Compare Slider invisible.
-    if (storeCompareRatio.value === null || storeCompareRatio.value === undefined) {
+    if (storeCompareRatio.value === null) {
         store.dispatch('setCompareRatio', 0.5)
     }
     store.dispatch('setCompareSliderActive', !isCompareSliderActive.value)
