@@ -14,6 +14,7 @@ const compareSliderOffset = ref(0)
 const compareRatio = ref(-0.5)
 const store = useStore()
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
 const clientWidth = computed(() => store.state.ui.width)
 const compareSliderPosition = computed(() => {
     return {
@@ -54,7 +55,7 @@ function slice() {
         .find((layer) => {
             return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
         })
-    if (topVisibleLayer) {
+    if (topVisibleLayer && isCompareSliderActive.value) {
         preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
         postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
     }
