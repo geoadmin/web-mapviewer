@@ -27,6 +27,7 @@
                 <button
                     v-if="showContent"
                     class="btn btn-light btn-sm d-flex align-items-center"
+                    data-cy="infobox-minimize"
                     @click="onToggleContent"
                 >
                     <FontAwesomeIcon icon="window-minimize" />
@@ -34,6 +35,7 @@
                 <button
                     v-if="!showContent"
                     class="btn btn-light btn-sm d-flex align-items-center"
+                    data-cy="infobox-maximize"
                     @click="onToggleContent"
                 >
                     <FontAwesomeIcon icon="window-maximize" />
