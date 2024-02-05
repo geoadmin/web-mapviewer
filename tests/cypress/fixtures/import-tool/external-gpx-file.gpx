@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.topografix.com/GPX/gpx_style/0/2 http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2" version="1.1" creator="https://www.crossingswitzerland.com">
+    <metadata>
+        <name>geoadmin cypress test</name>
+        <author>
+            <name>Geoadmin</name>
+            <link href="https://map.geo.admin.ch" />
+        </author>
+    </metadata>
+    <trk>
+        <name>Test track</name>
+        <type>Testing</type>
+        <trkseg>
+            <trkpt lat="47.0" lon="7.5">
+                <ele>1000.0</ele>
+            </trkpt>
+            <trkpt lat="47.1" lon="7.5">
+                <ele>1200.0</ele>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>

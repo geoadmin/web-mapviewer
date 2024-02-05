@@ -1,7 +1,28 @@
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class.js'
+import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
+import bbox from '@turf/bbox'
+import { isEmpty as isExtentEmpty } from 'ol/extent'
+
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import GPX from '@/utils/GPX'
 import { gpxStyle } from '@/utils/styleUtils'
+
+/**
+ * Parse the GPX extent from the GPX tracks or features
+ *
+ * Will return null if the extent is not parsable.
+ *
+ * @param {String} content GPX content as a string
+ * @returns {[number, number, number, number] | null}
+ */
+export function getGpxExtent(content) {
+    const parseGpx = new DOMParser().parseFromString(content, 'text/xml')
+    const extent = bbox(gpxToGeoJSON(parseGpx))
+    if (isExtentEmpty(extent)) {
+        return null
+    }
+    return extent
+}
 
 /**
  * Parses a GPX's data into OL Features, including deserialization of features

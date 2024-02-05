@@ -463,6 +463,9 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
     it('Import GPX file', () => {
+        const gpxFileName = 'external-gpx-file.gpx'
+        const gpxFileFixture = `import-tool/${gpxFileName}`
+
         cy.goToMapView({}, true)
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.clickOnMenuButtonIfMobile()
@@ -474,14 +477,72 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-content"]').should('be.visible')
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
-        // TODO test the import of an online KML file
+        // Test the import of an online GPX file
+        cy.log('Test online import')
+        const validOnlineUrl = 'http://example.com/valid-gpx-file.gpx'
+        const gpxOnlineLayerId = `GPX|${validOnlineUrl}`
+        cy.intercept('GET', validOnlineUrl, {
+            fixture: gpxFileFixture,
+        }).as('getGpxFile')
+
+        // Type a valid online GPX file URL
+        cy.get('[data-cy="import-file-online-url-input"]:visible').type(validOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait('@getGpxFile')
+
+        // Assertions for successful import
+        cy.get('[data-cy="import-file-online-url-input"]')
+            .find('[data-cy="text-input"]')
+            .should('have.class', 'is-valid')
+            .should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
+        cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
+        cy.readStoreValue('state.position.center').then((center) => {
+            cy.wrap(center[0]).should('be.closeTo', 2604663.19, 1)
+            cy.wrap(center[1]).should('be.closeTo', 1210998.57, 1)
+        })
+        cy.checkOlLayer(gpxOnlineLayerId)
 
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
 
-        // TODO test the import of a local KML file
+        cy.log('Test adding a local GPX file')
+        const gpxFileLayerId = `GPX|${gpxFileName}`
+        cy.fixture(gpxFileFixture).as('gpxFileFixture')
+        cy.get('[data-cy="import-file-local-input"]').selectFile('@gpxFileFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+        // Assertions for successful import
+        cy.get('[data-cy="import-file-local-input-text"]')
+            .should('have.class', 'is-valid')
+            .should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Success')
+        cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
+        cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
+
+        cy.log('Check that the GPX layer has been added to the map')
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+        cy.checkOlLayer([gpxOnlineLayerId, gpxFileLayerId])
 
         cy.get('[data-cy="import-file-close-button"]:visible').click()
         cy.get('[data-cy="import-file-content"]').should('not.exist')
+
+        //---------------------------------------------------------------------
+        // Test reloading the page
+        cy.log('Test reloading the page should only keep online external layers')
+        cy.reload()
+        cy.wait('@getGpxFile')
+        // only the URL GPX should be kept while reloading
+        cy.checkOlLayer(gpxOnlineLayerId)
+        // Test removing a layer
+        cy.log('Test removing an external GPX layer')
+        cy.clickOnMenuButtonIfMobile()
+        cy.get(`[data-cy="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
+        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
     })
 })

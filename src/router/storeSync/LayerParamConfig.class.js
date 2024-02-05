@@ -1,5 +1,6 @@
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
@@ -55,6 +56,15 @@ export function createLayerObject(parsedLayer) {
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.
+            layer = null
+        }
+    }
+    // format is GPX|FILE_URL
+    if (layerType === 'GPX') {
+        if (url.startsWith('http')) {
+            layer = new GPXLayer(url, parsedLayer.visible, parsedLayer.opacity)
+        } else {
+            // we can't re-load GPX files loaded through a file import; this GPX file is ignored
             layer = null
         }
     }
