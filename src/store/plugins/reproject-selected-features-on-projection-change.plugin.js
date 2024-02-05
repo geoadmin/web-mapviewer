@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 
-import { EditableFeature, LayerFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
+import LayerFeature from '@/api/features/LayerFeature.class'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 

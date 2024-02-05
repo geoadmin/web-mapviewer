@@ -6,7 +6,7 @@ import { getUid } from 'ol/util'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'

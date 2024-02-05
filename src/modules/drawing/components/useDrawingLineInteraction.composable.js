@@ -1,4 +1,4 @@
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
 

@@ -79,7 +79,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
 import FeatureCombo from './components/FeatureCombo.vue'

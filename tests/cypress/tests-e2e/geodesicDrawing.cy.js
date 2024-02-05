@@ -1,5 +1,5 @@
-import { EditableFeatureTypes } from '@/api/features.api'
-import { extractOlFeatureCoordinates } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'

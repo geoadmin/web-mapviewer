@@ -1,4 +1,4 @@
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 
 const getSelectedFeatureWithId = (state, featureId) => {

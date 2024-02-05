@@ -1,7 +1,7 @@
 <script setup>
 import { toRefs } from 'vue'
 
-import { EditableFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 
 const props = defineProps({

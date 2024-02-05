@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
-} from '@/api/features.api'
+} from '@/api/features/features.api.js'
 import { DRAWING_HIT_TOLERANCE } from '@/config'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'

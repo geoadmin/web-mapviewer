@@ -98,7 +98,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
-import { extractOlFeatureGeodesicCoordinates } from '@/api/features.api'
+import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'

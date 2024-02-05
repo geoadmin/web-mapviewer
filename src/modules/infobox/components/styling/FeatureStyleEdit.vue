@@ -7,7 +7,7 @@ import { getLength } from 'ol/sphere'
 import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'

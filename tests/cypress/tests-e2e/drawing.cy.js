@@ -9,10 +9,9 @@ import {
     kmlMetadataTemplate,
 } from 'tests/cypress/support/drawing'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { API_SERVICE_KML_BASE_URL } from '@/config'
-import { DEFAULT_PROJECTION } from '@/config'
+import { API_SERVICE_KML_BASE_URL, DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingColors,

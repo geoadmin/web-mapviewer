@@ -36,7 +36,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
 import { mapActions, mapState } from 'vuex'
 
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import getProfile from '@/api/profile/profile.api'
 import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
 import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'

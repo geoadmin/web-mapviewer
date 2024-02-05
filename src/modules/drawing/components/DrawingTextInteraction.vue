@@ -2,7 +2,7 @@
 import Feature from 'ol/Feature'
 import { useI18n } from 'vue-i18n'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 
 const emits = defineEmits({

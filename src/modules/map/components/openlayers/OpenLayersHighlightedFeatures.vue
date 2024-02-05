@@ -9,7 +9,7 @@ import { polygon } from '@turf/helpers'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'

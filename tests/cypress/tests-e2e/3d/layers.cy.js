@@ -1,4 +1,4 @@
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test of layer handling in 3D', () => {

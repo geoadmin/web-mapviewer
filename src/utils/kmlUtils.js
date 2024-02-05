@@ -4,24 +4,23 @@ import {
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
 import Feature from 'ol/Feature'
-import KML from 'ol/format/KML'
-import { getDefaultStyle } from 'ol/format/KML'
+import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
+    featureStyleFunction,
     getFeatureStyleColor,
+    getStyle,
     getTextColor,
     getTextSize,
     RED,
     SMALL,
 } from '@/utils/featureStyleUtils'
-import { getStyle } from '@/utils/featureStyleUtils'
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
