@@ -14,7 +14,7 @@ import log from '@/utils/logging'
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
-    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams['adminId'])
+    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams.get('adminId'))
     log.debug('Adding KML layer from legacy kml adminId')
     if (newQuery.layers) {
         newQuery.layers = `${newQuery.layers};${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
@@ -198,8 +198,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
-
-    if ('adminId' in legacyParams) {
+    if (legacyParams.get('adminId')) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         handleLegacyKmlAdminIdParam(legacyParams, newQuery)
