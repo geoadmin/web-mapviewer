@@ -25,20 +25,12 @@
                     <FontAwesomeIcon icon="print" />
                 </button>
                 <button
-                    v-if="showContent"
-                    class="btn btn-light btn-sm d-flex align-items-center"
-                    data-cy="infobox-minimize"
-                    @click="onToggleContent"
-                >
-                    <FontAwesomeIcon icon="window-minimize" />
-                </button>
-                <button
-                    v-if="!showContent"
                     class="btn btn-light btn-sm d-flex align-items-center"
                     data-cy="infobox-maximize"
                     @click="onToggleContent"
                 >
-                    <FontAwesomeIcon icon="window-maximize" />
+                    <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
+                    <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
                 </button>
                 <button
                     class="btn btn-light btn-sm d-flex align-items-center"
