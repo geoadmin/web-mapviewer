@@ -3,6 +3,7 @@ import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -19,11 +20,20 @@ function createWorldPolygon() {
             ],
         ]).transform('EPSG:4326', 'EPSG:3857'),
     })
+
+    // Define a transparent style for the polygon
+    const transparentStyle = new Style({
+        fill: new Fill({
+            color: 'rgba(255, 255, 255, 0)',
+        }),
+    })
+
     // Create a VectorLayer outside the map creation
     const vectorLayer = new VectorLayer({
         source: new VectorSource({
             features: [worldPolygon],
         }),
+        style: transparentStyle,
     })
     return vectorLayer
 }
