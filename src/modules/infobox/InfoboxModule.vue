@@ -26,7 +26,7 @@
                 </button>
                 <button
                     class="btn btn-light btn-sm d-flex align-items-center"
-                    data-cy="infobox-maximize"
+                    data-cy="infobox-minimize-maximize"
                     @click="onToggleContent"
                 >
                     <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
