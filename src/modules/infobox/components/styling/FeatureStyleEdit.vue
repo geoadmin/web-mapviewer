@@ -34,14 +34,14 @@ const description = ref(feature.value.description)
 
 // Update the UI when the feature changes
 watch(
-    () => feature.title,
+    () => feature.value.title,
     (newTitle) => {
         title.value = newTitle
     }
 )
 
 watch(
-    () => feature.description,
+    () => feature.value.description,
     (newDescription) => {
         description.value = newDescription
     }
@@ -61,13 +61,16 @@ watch(description, (newDescription) => {
 
 function updateFeatureTitle(previousTitle) {
     if (previousTitle === title.value) {
-        store.dispatch('changeFeatureTitle', { feature, title: title.value })
+        store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
     }
 }
 
 function updateFeatureDecription(previousDescription) {
     if (previousDescription === description.value) {
-        store.dispatch('changeFeatureDescription', { feature, description: description.value })
+        store.dispatch('changeFeatureDescription', {
+            feature: feature.value,
+            description: description.value,
+        })
     }
 }
 
