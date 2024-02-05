@@ -12,15 +12,6 @@ export const UIModes = {
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
 /**
- * The default value of the compare slider ratio. As long as the ratio is not between 0 and 1, the
- * slider won't be active, and this allow us to have a reset value which is constant across the
- * code.
- *
- * @type int
- */
-
-export const COMPARE_SLIDER_DEFAULT_VALUE = -0.5
-/**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
  * used/synchronized by store plugins as it involved listening to some mutation to trigger this
@@ -111,9 +102,8 @@ export default {
          * @type Boolean
          */
         importFile: false,
-
         /**
-         * Height of the header (in px)
+         * <<<<<<< HEAD Height of the header (in px)
          *
          * @type Number
          */
@@ -127,12 +117,14 @@ export default {
         menuTrayWidth: 400,
 
         /**
-         * Float telling where across the screen is the compare slider. The compare Slider should
+         * # Float telling where across the screen is the compare slider. The compare Slider should
          * only be shown when the value is between 0 and 1
          *
-         * @type Number
+         * Flag telling if the compare slider is currently active or not> > > > > > > BGDIINF_SB-3110: adding compare ratio storage
+         *
+         * @type Boolean
          */
-        compareRatio: COMPARE_SLIDER_DEFAULT_VALUE,
+        isCompareSliderActive: false,
     },
     getters: {
         screenDensity(state) {
@@ -263,11 +255,14 @@ export default {
                 which is 0.001 to 0.999, and it's "storage range" (-0.001 to -0.999). If
                 we are not within these bounds, we revert to the default value (-0.5)
             */
-            if (0.0 < value && value < 1.0) {
+            if (value > 0.0 && value < 1.0) {
                 commit('setCompareRatio', value)
             } else {
-                commit('setCompareRatio', COMPARE_SLIDER_DEFAULT_VALUE)
+                commit('setCompareRatio', null)
             }
+        },
+        setCompareSliderActive({ commit }, value) {
+            commit('setCompareSliderActive', value)
         },
     },
     mutations: {
@@ -310,6 +305,9 @@ export default {
         },
         setCompareRatio(state, value) {
             state.compareRatio = value
+        },
+        setCompareSliderActive(state, value) {
+            state.isCompareSliderActive = value
         },
     },
 }

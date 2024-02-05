@@ -7,7 +7,8 @@ import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
-import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store.js'
+
+import CompareSliderParamConfig from './CompareSliderParamConfig.class'
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
  * vice-versa)
@@ -95,15 +96,7 @@ const storeSyncConfig = [
     ),
     new CrossHairParamConfig(),
 
-    new SimpleUrlParamConfig(
-        'compare_ratio',
-        'setCompareRatio',
-        'setCompareRatio',
-        (store) => store.state.ui.compareRatio,
-        false,
-        Number,
-        COMPARE_SLIDER_DEFAULT_VALUE
-    ),
+    new CompareSliderParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
         'embed',

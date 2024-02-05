@@ -5,7 +5,6 @@ import { useStore } from 'vuex'
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import { COMPARE_SLIDER_DEFAULT_VALUE } from '@/store/modules/ui.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 const props = defineProps({
     compact: {
@@ -18,22 +17,20 @@ const store = useStore()
 const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
 const showImportFile = computed(() => store.state.ui.importFile)
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
-function compareSliderActive() {
-    return storeCompareRatio.value > 0.0 && storeCompareRatio.value < 1.0
-}
+
 function onToggleImportCatalogue() {
     store.dispatch('toggleImportCatalogue')
 }
 function onToggleCompareSlider() {
     // this allows us to store the previous compare ratio while making
     // the Compare Slider invisible.
-    if (compareSliderActive()) {
-        store.dispatch('setCompareRatio', null)
-    } else {
-        store.dispatch('setCompareRatio', -COMPARE_SLIDER_DEFAULT_VALUE)
+    if (storeCompareRatio.value === null || storeCompareRatio.value === undefined) {
+        store.dispatch('setCompareRatio', 0.5)
     }
+    store.dispatch('setCompareSliderActive', !isCompareSliderActive.value)
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {
@@ -75,7 +72,7 @@ function onToggleImportFile() {
         </MenuAdvancedToolsListItem>
         <MenuAdvancedToolsListItem
             v-if="!is3dActive"
-            :is-selected="compareSliderActive()"
+            :is-selected="isCompareSliderActive"
             :title="$t('compare')"
             @click.stop="onToggleCompareSlider"
         >
