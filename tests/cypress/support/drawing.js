@@ -102,7 +102,7 @@ const addFileAPIFixtureAndIntercept = () => {
     }).as('get-kml')
 }
 
-Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = false) => {
+Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     addIconFixtureAndIntercept()
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept()
