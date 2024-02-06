@@ -1,5 +1,5 @@
 <template>
-    <div class="header" data-cy="app-header">
+    <div ref="header" class="header" data-cy="app-header">
         <LoadingBar v-if="showLoadingBar" />
         <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
             <div class="logo-section justify-content-start p-1 d-flex flex-shrink-0 flex-grow-0">
@@ -67,10 +67,26 @@ export default {
         }),
         ...mapGetters(['currentTopicId', 'isPhoneMode', 'hasDevSiteWarning']),
     },
+    mounted() {
+        this.$nextTick(() => {
+            // Initial height
+            this.updateHeaderHeight()
+            // Watch for changes in height
+            window.addEventListener('resize', this.updateHeaderHeight)
+        })
+    },
+    beforeUnmount() {
+        // Remove the event listener when the component is destroyed
+        window.removeEventListener('resize', this.updateHeaderHeight)
+    },
     methods: {
         resetApp() {
             // an app reset means we keep the lang and the current topic but everything else is thrown away
             window.location = `${window.location.origin}?lang=${this.currentLang}&topic=${this.currentTopicId}`
+        },
+
+        updateHeaderHeight() {
+            this.$store.dispatch('setHeaderHeight', this.$refs.header.clientHeight)
         },
     },
 }

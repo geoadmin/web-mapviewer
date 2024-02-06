@@ -103,6 +103,20 @@ export default {
          * @type Boolean
          */
         importFile: false,
+
+        /**
+         * Height of the header (in px)
+         *
+         * @type Number
+         */
+        headerHeight: 100,
+
+        /**
+         * Height of the menu tray (in px)
+         *
+         * @type Number
+         */
+        menuTrayWidth: 400,
     },
     getters: {
         screenDensity(state) {
@@ -220,6 +234,12 @@ export default {
         toggleImportFile({ commit, state }) {
             commit('setImportFile', !state.importFile)
         },
+        setHeaderHeight({ commit }, height) {
+            commit('setHeaderHeight', parseFloat(height))
+        },
+        setMenuTrayWidth({ commit }, width) {
+            commit('setMenuTrayWidth', parseFloat(width))
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -252,6 +272,12 @@ export default {
         },
         setImportFile(state, flagValue) {
             state.importFile = flagValue
+        },
+        setHeaderHeight(state, height) {
+            state.headerHeight = height
+        },
+        setMenuTrayWidth(state, width) {
+            state.menuTrayWidth = width
         },
     },
 }

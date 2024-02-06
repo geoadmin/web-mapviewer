@@ -4,13 +4,15 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils.js'
 
 const emits = defineEmits(['openMenuSection'])
 
 const isSectionShown = ref(false)
 const selectedLayoutName = ref(null)
-const selectedScale = ref(null)
+const useLegend = ref(false)
+const useGraticule = ref(false)
 
 const i18n = useI18n()
 const store = useStore()
@@ -19,6 +21,23 @@ const selectedLayout = computed(() =>
     printLayouts.value.find((layout) => layout.name === selectedLayoutName.value)
 )
 const scales = computed(() => selectedLayout.value?.scales || [])
+
+const selectedScale = computed({
+    get() {
+        return store.getters.getSelectedScale
+    },
+    set(value) {
+        store.dispatch('setSelectedScale', value)
+    },
+})
+
+watch(selectedLayout, () => {
+    store.dispatch('setSelectedLayout', selectedLayout.value)
+})
+
+watch(isSectionShown, () => {
+    store.dispatch('setPrintSectionShown', isSectionShown.value)
+})
 
 watch(printLayouts, () => {
     // whenever layouts are loaded form the backend, we select the first one as default value
@@ -30,12 +49,14 @@ watch(printLayouts, () => {
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (printLayouts.value.length === 0) {
-        store.dispatch('loadPrintLayouts')
+        store.dispatch('loadPrintLayouts').then(() => {
+            isSectionShown.value = !isSectionShown.value
+        })
     } else {
         // if layouts are already present, we select the first one as default value
         selectLayout(printLayouts.value[0])
+        isSectionShown.value = !isSectionShown.value
     }
-    isSectionShown.value = true
 }
 function selectLayout(layout) {
     selectedLayoutName.value = layout.name
@@ -44,6 +65,10 @@ function selectLayout(layout) {
 
 function close() {
     isSectionShown.value = false
+}
+
+function printMap() {
+    log.info('Print Map...')
 }
 
 defineExpose({
@@ -83,6 +108,31 @@ defineExpose({
                     1:{{ formatThousand(scale) }}
                 </option>
             </select>
+            <div class="form-check">
+                <input
+                    id="checkboxLegend"
+                    v-model="useLegend"
+                    class="form-check-input"
+                    type="checkbox"
+                />
+                <label class="form-check-label" for="checkboxLegend">{{ i18n.t('legend') }}</label>
+            </div>
+            <div class="form-check">
+                <input
+                    id="checkboxGraticule"
+                    v-model="useGraticule"
+                    class="form-check-input"
+                    type="checkbox"
+                />
+                <label class="form-check-label" for="checkboxGraticule">{{
+                    i18n.t('graticule')
+                }}</label>
+            </div>
+            <div class="full-width justify-content-center">
+                <button type="button" class="btn btn-light w-100" @click="printMap">
+                    {{ i18n.t('print_action') }}
+                </button>
+            </div>
         </div>
     </MenuSection>
 </template>
@@ -93,5 +143,8 @@ defineExpose({
     label {
         text-align: end;
     }
+}
+.full-width {
+    grid-column: span 2;
 }
 </style>
