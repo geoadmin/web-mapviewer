@@ -8,6 +8,7 @@ import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
+import log from '@/utils/logging'
 
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
@@ -62,6 +63,10 @@ export default function usePrintAreaRenderer(map) {
         return store.state.print.selectedScale
     })
 
+    const printingStatus = computed(() => {
+        return store.state.print.printingStatus
+    })
+
     watch(isActive, (newValue) => {
         if (newValue) {
             activatePrintArea()
@@ -69,6 +74,21 @@ export default function usePrintAreaRenderer(map) {
             deactivatePrintArea()
         }
     })
+
+    watch(printingStatus, (newValue) => {
+        if (newValue) {
+            startPrinting()
+        } else {
+            abortPrinting()
+        }
+    })
+
+    function startPrinting() {
+        log.info('Printing is started ...')
+    }
+    function abortPrinting() {
+        log.info('Printing is aborted')
+    }
 
     function activatePrintArea() {
         if (!worldPolygon) {

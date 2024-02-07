@@ -7,6 +7,7 @@ export default {
         selectedLayout: {},
         selectedScale: 0,
         printSectionShown: false,
+        printingStatus: false,
     },
     getters: {
         mapSize(state) {
@@ -39,11 +40,15 @@ export default {
         setPrintSectionShown({ commit }, { show, dispatcher }) {
             commit('setPrintSectionShown', { show, dispatcher })
         },
+        setPrintingStatus({ commit }, { isPrinting, dispatcher }) {
+            commit('setPrintingStatus', { isPrinting, dispatcher })
+        },
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
         setSelectedLayout: (state, { layout }) => (state.selectedLayout = layout),
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
+        setPrintingStatus: (state, { isPrinting }) => (state.printingStatus = isPrinting),
     },
 }

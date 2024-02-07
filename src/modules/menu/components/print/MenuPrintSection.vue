@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils.js'
 
 const dispatcher = { dispatcher: 'MapPrintSection.vue' }
@@ -23,6 +22,7 @@ const selectedLayout = computed(() =>
     printLayouts.value.find((layout) => layout.name === selectedLayoutName.value)
 )
 const scales = computed(() => selectedLayout.value?.scales || [])
+const printStatus = computed(() => store.state.print.printingStatus)
 
 const selectedScale = computed({
     get() {
@@ -70,7 +70,11 @@ function close() {
 }
 
 function printMap() {
-    log.info('Print Map...')
+    store.dispatch('setPrintingStatus', true)
+}
+
+function abortPrinting() {
+    store.dispatch('setPrintingStatus', false)
 }
 
 defineExpose({
@@ -131,8 +135,21 @@ defineExpose({
                 }}</label>
             </div>
             <div class="full-width justify-content-center">
-                <button type="button" class="btn btn-light w-100" @click="printMap">
+                <button
+                    v-if="!printStatus"
+                    type="button"
+                    class="btn btn-light w-100"
+                    @click="printMap"
+                >
                     {{ i18n.t('print_action') }}
+                </button>
+                <button
+                    v-if="printStatus"
+                    type="button"
+                    class="btn btn-danger w-100 text-white"
+                    @click="abortPrinting"
+                >
+                    {{ i18n.t('abort') }}
                 </button>
             </div>
         </div>
