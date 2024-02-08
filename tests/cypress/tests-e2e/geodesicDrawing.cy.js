@@ -143,7 +143,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 moveMapPos(centerOfLinearLine)
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
 
@@ -155,10 +155,10 @@ describe.skip('Correct handling of geodesic geometries', () => {
 
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 cy.get(olSelector).click('center')
                 // opening the infobox again
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 /* As explained in geodesicManager.js, the maximal discrepancy should be about 2.1cm for
             a line at 47° less than 1000km long. But as 1 equatorial meter < 1 meter at 47°, we are a
             bit more tolerant and allow 0.04 equatorial meters */
@@ -169,7 +169,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 moveMapPos(offsetX(centerOfLinearLine, selectOffset))
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
             }
@@ -227,7 +227,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 moveMapPos(inLinearPolygon)
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureUnselected()
 
@@ -241,7 +241,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 moveMapPos(lineToDraw[2])
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
-                cy.get('[data-cy="infobox-header"]').click()
+                cy.get('[data-cy="infobox-minimize-maximize"]').click()
                 cy.get(olSelector).click('center')
                 checkFeatureSelected([lineDrawn[0], lineDrawn[1], lineDrawn[3], lineDrawn[4]])
             }

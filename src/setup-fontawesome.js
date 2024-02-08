@@ -64,6 +64,7 @@ import {
     faTimesCircle,
     faTree,
     faUser,
+    faWindowMaximize,
     faWindowMinimize,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons'
@@ -120,6 +121,7 @@ library.add(
     faTimesCircle,
     faTree,
     faUser,
+    faWindowMaximize,
     faWindowMinimize,
     faXmark,
     faSortAlphaUp,

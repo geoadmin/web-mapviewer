@@ -9,7 +9,6 @@
             <div
                 class="infobox-header card-header d-flex justify-content-end"
                 data-cy="infobox-header"
-                @click="onToggleContent"
             >
                 <button
                     v-if="showFloatingToggle"
@@ -24,6 +23,14 @@
                     @click.stop="onPrint"
                 >
                     <FontAwesomeIcon icon="print" />
+                </button>
+                <button
+                    class="btn btn-light btn-sm d-flex align-items-center"
+                    data-cy="infobox-minimize-maximize"
+                    @click="onToggleContent"
+                >
+                    <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
+                    <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
                 </button>
                 <button
                     class="btn btn-light btn-sm d-flex align-items-center"

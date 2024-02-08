@@ -27,6 +27,12 @@ describe('The infobox', () => {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
 
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('be.visible')
+
                     cy.get('[data-cy="infobox-toggle-floating"]').click()
                     cy.get('[data-cy="popover"]').should('be.visible')
                     cy.get('[data-cy="infobox"]').should('not.be.visible')
@@ -42,6 +48,11 @@ describe('The infobox', () => {
                     cy.get('[data-cy="toggle-floating-off"]').click()
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('not.be.visible')
+
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('be.visible')
 
                     cy.get('[data-cy="infobox-toggle-floating"]').click()
                     cy.get('[data-cy="popover"]').should('be.visible')

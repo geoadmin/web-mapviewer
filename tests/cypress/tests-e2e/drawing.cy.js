@@ -835,13 +835,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
             // clicking on the header of the profile container
-            cy.get('[data-cy="infobox-header"]').click()
+            cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
             // it should hide the content (only the header stays visible)
             cy.get('[data-cy="infobox-content"]').should('not.be.visible')
 
             // click once again on the header
-            cy.get('[data-cy="infobox-header"]').click()
+            cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
             // the content should now be visible again
             cy.get('[data-cy="infobox-content"]').should('be.visible')
@@ -856,7 +856,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"]').should('be.visible')
 
             // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
-            cy.get('[data-cy="infobox-header"]').click()
+            cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="infobox"]').should('not.be.visible')
         })
