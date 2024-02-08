@@ -1,21 +1,26 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
-let count = 0
+const count = ref(0)
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'w') {
         toggleFullScreen()
+        toggleBrowserFullScreen()
         counter()
     }
 })
 
 function counter() {
-    count = count + 1
+    count.value = count.value + 1
+}
+
+function toggleBrowserFullScreen() {
+    document.documentElement.requestFullscreen()
 }
 
 function toggleFullScreen() {
