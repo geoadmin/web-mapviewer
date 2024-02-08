@@ -5,6 +5,18 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
+let count = 0
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'w') {
+        toggleFullScreen()
+        counter()
+    }
+})
+
+function counter() {
+    count = count + 1
+}
 
 function toggleFullScreen() {
     store.dispatch('toggleFullscreenMode')
@@ -20,6 +32,7 @@ function toggleFullScreen() {
     >
         <FontAwesomeIcon icon="expand" />
     </button>
+    <div>{{ count }}</div>
 </template>
 
 <style lang="scss" scoped>
