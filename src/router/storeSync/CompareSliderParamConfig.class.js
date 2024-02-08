@@ -13,7 +13,7 @@ function dispatchCompareSliderFromUrlParam(store, urlParamValue) {
 }
 
 function generateCompareSliderUrlParamFromStore(store) {
-    if (store.state.ui.compareRatio !== null && store.state.ui.isCompareSliderActive === true) {
+    if (store.state.ui.compareRatio !== null && store.state.ui.isCompareSliderActive) {
         return store.state.ui.compareRatio
     }
     return null
