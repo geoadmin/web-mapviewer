@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
 describe('Testing of the compare slider', () => {
     function expectCompareRatioToBe(value) {
@@ -130,6 +130,21 @@ describe('Testing of the compare slider', () => {
         */
 
         context.skip('Cutting layers', () => {
+            function checkIfFeaturesAreAt(x, y, expectFeatures) {
+                cy.get['ol-map'].click(x, y)
+                cy.expect(
+                    cy.waitUntilState((state) => {
+                        const numberOfFeatures = state.features.selectedFeatures.length
+                        return expectFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
+                    })
+                ).to.be(true)
+                if (expectFeatures) {
+                    cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                } else {
+                    cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
+                }
+            }
+
             it('cuts from the correct spot until the end of the map, and only from the top layer', () => {
                 let feature_layer_1
                 let feature_layer_2
@@ -140,6 +155,14 @@ describe('Testing of the compare slider', () => {
                 const layerIds = ['test1.wms.layer', 'test2.wms.layer']
                 const layer1 = layerIds[0]
                 const layer2 = layerIds[1]
+                const feature_1_coordinates = [
+                    feature_layer_1.properties.x,
+                    feature_layer_1.properties.y,
+                ]
+                const feature_2_coordinates = [
+                    feature_layer_2.properties.x,
+                    feature_layer_2.properties.y,
+                ]
                 cy.intercept('**/MapServer/identify**', { results: [feature_layer_1] })
                 cy.intercept(`**/MapServer/${layer1}/**geometryFormat**`, feature_layer_1)
                 cy.intercept(`**/MapServer/${layer2}/**geometryFormat**`, feature_layer_2)
@@ -155,61 +178,42 @@ describe('Testing of the compare slider', () => {
                 )
                 cy.log('changing the order of the layers and check which on is cut')
 
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1] + 100)
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1])
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length == 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
+                // in initial state, only feature 2 should be visible
+                checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
+                checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], false)
                 cy.clickOnMenuButtonIfMobile()
                 cy.get(`[data-cy="button-lower-order-layer-${layer1}"]`)
                     .should('be.visible')
                     .click()
+                cy.clickOnMenuButtonIfMobile()
+
                 // We check here that feature 1 is present, but feature 2 is not
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1])
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1] + 100)
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length == 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
+                checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
+                checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
+                // making a clean state for the next parts of the tests
+                cy.clickOnMenuButtonIfMobile()
+                cy.get(`[data-cy="button-lower-order-layer-${layer2}"]`)
+                    .should('be.visible')
+                    .click()
+                cy.clickOnMenuButtonIfMobile()
 
                 cy.log('Moving the slider around and see what is cut')
 
                 moveSlider(25)
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1])
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1] + 100)
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
+                checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
 
                 moveSlider(
                     cy.readStoreValue('state.ui.width').then((width) => {
                         return width - 10
                     })
                 )
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1] + 100)
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length > 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1])
-                cy.waitUntilState((state) => {
-                    return state.features.selectedFeatures.length == 0
-                })
-                cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
+
+                checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
+                checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
+
+                // putting the slider back to the left
+                moveSlider(25)
                 cy.log(
                     'checking that if we remove a layer, the compare slider will cut the other layer'
                 )
@@ -217,14 +221,17 @@ describe('Testing of the compare slider', () => {
                 cy.get(`[data-cy="button-toggle-visibility-layer-${layer1}"`)
                     .should('be.visible')
                     .click()
-                cy.get['ol-map'].click(LV95.bounds.center[0], LV95.bounds.center[1] + 100)
-                // maybe wait a bit here
-                cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
+
+                checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
+                checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], false)
 
                 console.log(
                     'checking that we remove the compare slider upon removing the last visible layer'
                 )
+                cy.clickOnMenuButtonIfMobile()
                 cy.get(`[data-cy="button-toggle-visibility-layer-${layer2}"`)
+                    .should('be.visible')
+                    .click()
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
             })
         })
