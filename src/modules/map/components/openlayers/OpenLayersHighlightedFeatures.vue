@@ -4,21 +4,23 @@
  * popup with the features' information
  */
 
-import centroid from '@turf/centroid'
-import { polygon } from '@turf/helpers'
-import { computed } from 'vue'
+import explode from '@turf/explode'
+import { point } from '@turf/helpers'
+import nearestPoint from '@turf/nearest-point'
 import Feature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
+import proj4 from 'proj4'
 import { computed, inject } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 // mapping relevant store values
@@ -26,6 +28,7 @@ const store = useStore()
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
+const projection = computed(() => store.state.position.projection)
 
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
@@ -41,31 +44,28 @@ const featureTransformedAsOlFeatures = computed(() =>
         })
     })
 )
+const southPole = point([0.0, -90.0])
 const popoverCoordinate = computed(() => {
-    if (selectedFeatures.value.length > 0) {
-        const [firstFeature] = selectedFeatures.value
-        let coordinates = [...firstFeature.coordinates]
-        if (firstFeature.geometry) {
-            coordinates = [...firstFeature.geometry.coordinates]
-        }
-        // If we have a closed polygon, we can't just select the last coordinate of the polygon as
-        // its coordinate. We have to take its centroid.
-        if (firstFeature.featureType === EditableFeatureTypes.LINEPOLYGON) {
-            const firstCoordinate = coordinates[0]
-            const lastCoordinate = coordinates.slice(-1)[0]
+    const mostSouthernFeature = selectedFeatures.value
+        .map((feature) => feature.geometry)
+        .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
+        .map((turfGeom) => explode(turfGeom))
+        .map((points) => nearestPoint(southPole, points))
+        .reduce((previousPoint, currentPoint) => {
             if (
-                firstCoordinate[0] === lastCoordinate[0] &&
-                firstCoordinate[1] === lastCoordinate[1]
+                !previousPoint ||
+                previousPoint.geometry.coordinates[1] > currentPoint.geometry.coordinates[1]
             ) {
-                const polygonCentroid = centroid(polygon([coordinates]))
-                return polygonCentroid.geometry.coordinates
-            } else {
-                return coordinates[coordinates.length - 1]
+                return currentPoint
             }
-        }
-        return Array.isArray(coordinates[0]) ? coordinates[coordinates.length - 1] : coordinates
+            return previousPoint
+        }, null)
+    if (!mostSouthernFeature) {
+        return null
     }
-    return null
+    return proj4(WGS84.epsg, projection.value.epsg, mostSouthernFeature.geometry.coordinates).map(
+        projection.value.roundCoordinateValue
+    )
 })
 
 const olMap = inject('olMap')
