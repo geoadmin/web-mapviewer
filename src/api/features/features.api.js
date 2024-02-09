@@ -96,6 +96,7 @@ export const identify = (
                         tolerance: 10,
                         returnGeometry: true,
                         lang: lang,
+                        timeInstant: layer.timeConfig?.currentYear ?? null,
                     },
                 }
             )
