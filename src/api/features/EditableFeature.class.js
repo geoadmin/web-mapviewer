@@ -42,7 +42,7 @@ export default class EditableFeature extends SelectableFeature {
         icon = null,
         iconSize = MEDIUM
     ) {
-        super(id, coordinates, title, description, true)
+        super(id, coordinates, title, description, null, true)
         this._featureType = featureType
         this._textColor = textColor
         this._textSize = textSize

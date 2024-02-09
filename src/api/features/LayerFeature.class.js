@@ -13,13 +13,12 @@ export default class LayerFeature extends SelectableFeature {
      * @param {Object} geometry GeoJSON geometry (if exists)
      */
     constructor(layer, id, name, htmlPopup, coordinates, extent, geometry = null) {
-        super(id, coordinates, name, null, false)
+        super(id, coordinates, name, null, geometry, false)
         this._layer = layer
         // for now the backend gives us the description of the feature as HTML
         // it would be good to change that to only data in the future
         this._htmlPopup = htmlPopup
         this._extent = extent
-        this._geometry = geometry
     }
 
     // overwriting get ID so that we use the layer ID with the feature ID
@@ -43,9 +42,5 @@ export default class LayerFeature extends SelectableFeature {
 
     get extent() {
         return this._extent
-    }
-
-    get geometry() {
-        return this._geometry
     }
 }

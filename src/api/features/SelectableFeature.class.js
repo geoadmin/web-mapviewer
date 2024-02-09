@@ -17,20 +17,23 @@ export default class SelectableFeature extends EventEmitter {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of this feature
+     * @param {Number[][]} coordinates [[x,y],[x2,y2],...] coordinates of the center of this feature
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
+     * @param {Object} geometry GeoJSON representation of this feature (if it has a geometry, for
+     *   points it isn't necessary)
      * @param {Boolean} isEditable Whether this feature is editable when selected (color, size,
      *   etc...)
      */
-    constructor(id, coordinates, title, description, isEditable = false) {
+    constructor(id, coordinates, title, description, geometry = null, isEditable = false) {
         super()
         this._id = id
         // using the setter for coordinate (see below)
         this.coordinates = coordinates
         this.title = title
         this.description = description
+        this.geometry = geometry
         this._isEditable = !!isEditable
         this._isDragged = false
     }
