@@ -1,15 +1,18 @@
 import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
-import distance from '@turf/distance'
-import { lineString, point, polygon } from '@turf/helpers'
+import { point } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
+import { reproject } from 'reproject'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
+import i18n from '@/modules/i18n'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+
+// grabbing Vue18n to add "no further information" in the HTML popup, in case nothing is found in the features
+const { t } = i18n.global
 
 const pixelToleranceForIdentify = 10
 
@@ -18,14 +21,16 @@ function generateHtmlPopup(layerName, featureDescription, extraInformation = nul
     if (layerName) {
         popup += `<div class="htmlpopup-header">${layerName}</div>`
     }
-    if (featureDescription) {
-        popup += `<div class="htmlpopup-content">${featureDescription}`
-        if (extraInformation) {
-            popup += `<div>${extraInformation}</div>`
-        }
-        popup += '</div>'
+    popup += '<div class="htmlpopup-content">'
+    if (extraInformation) {
+        popup += `<div>${extraInformation}</div>`
     }
-    popup += `</div>`
+    if (featureDescription) {
+        popup += featureDescription
+    } else {
+        popup += t('no_more_information')
+    }
+    popup += '</div></div>'
     return popup
 }
 
@@ -114,7 +119,7 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 generateHtmlPopup(geoJsonLayer.name, feature.properties.description),
                 reprojectCoordinates(feature.geometry.coordinates, projection),
                 null,
-                feature.geometry
+                reproject(feature.geometry, WGS84.epsg, projection.epsg)
             )
         }
     )
@@ -145,14 +150,15 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
         const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                // TODO use a new generic feature for identify (same for external KML and GPX) and not the editable
-                return EditableFeature.newFeature({
-                    id: feature.id,
-                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
-                    title: feature.properties.name,
-                    description: feature.properties.description,
-                    featureType: feature.properties.type.toUpperCase(),
-                })
+                return new LayerFeature(
+                    kmlLayer,
+                    feature.id,
+                    feature.properties.name,
+                    generateHtmlPopup(kmlLayer.name, feature.properties.description),
+                    reprojectCoordinates(feature.geometry.coordinates, projection),
+                    null,
+                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
+                )
             }
         )
     }
