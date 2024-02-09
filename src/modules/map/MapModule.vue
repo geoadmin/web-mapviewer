@@ -7,9 +7,9 @@ import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLaye
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import { UIModes } from '@/store/modules/ui.store'
 
+import CompareSlider from './components/CompareSlider.vue'
 import LocationPopup from './components/LocationPopup.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
-
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
 const OpenLayersMap = defineAsyncComponent(
     () => import('./components/openlayers/OpenLayersMap.vue')
@@ -20,7 +20,9 @@ const store = useStore()
 const is3DActive = computed(() => store.state.cesium.active)
 const uiMode = computed(() => store.state.ui.mode)
 const displayLocationPopup = computed(() => store.state.map.displayLocationPopup)
-
+const isCompareSliderActive = computed(() => {
+    return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
+})
 const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
 </script>
 
@@ -44,7 +46,9 @@ const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
             <teleport to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
+            <CompareSlider v-if="isCompareSliderActive" />
         </OpenLayersMap>
+
         <WarningRibbon />
     </div>
 </template>

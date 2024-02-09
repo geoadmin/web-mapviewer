@@ -559,7 +559,9 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
 
         layers.forEach((layer) => {
             log.debug(
-                `Cypress test if layer is present in layers=${olLayers.map((l) => l.get('id')).join(',')}`
+                `Cypress test if layer is present in layers=${olLayers
+                    .map((l) => l.get('id'))
+                    .join(',')}`
             )
             const olLayer = olLayers.find((l) => l.get('id') === layer.id)
             if (layer.visible) {

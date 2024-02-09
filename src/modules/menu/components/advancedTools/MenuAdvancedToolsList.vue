@@ -1,3 +1,48 @@
+<script setup>
+import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
+import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
+import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+const props = defineProps({
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { compact } = toRefs(props)
+const store = useStore()
+const i18n = useI18n()
+const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
+const showImportFile = computed(() => store.state.ui.importFile)
+const storeCompareRatio = computed(() => store.state.ui.compareRatio)
+const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
+const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const is3dActive = computed(() => store.state.cesium.active)
+
+function onToggleImportCatalogue() {
+    store.dispatch('toggleImportCatalogue')
+}
+function onToggleCompareSlider() {
+    if (storeCompareRatio.value === null) {
+        // this allows us to set a value to the compare ratio, in case there was none
+        store.dispatch('setCompareRatio', 0.5)
+    }
+    store.dispatch('setCompareSliderActive', !isCompareSliderActive.value)
+}
+function onToggleImportFile() {
+    if (!showImportFile.value && isPhoneMode.value) {
+        // To avoid the menu overlapping the import overlay after open we automatically
+        // close the menu
+        store.dispatch('toggleMenu')
+    }
+    store.dispatch('toggleImportFile')
+}
+</script>
+
 <template>
     <div class="advanced-tools-list" data-cy="menu-advanced-tools-list">
         <MenuAdvancedToolsListItem
@@ -19,55 +64,22 @@
         >
             <ModalWithBackdrop
                 v-if="showImportFile"
-                :title="$t('import_file')"
+                :title="i18n.t('import_file')"
                 top
                 @close="onToggleImportFile"
             >
                 <ImportFile />
             </ModalWithBackdrop>
         </MenuAdvancedToolsListItem>
+        <MenuAdvancedToolsListItem
+            v-if="!is3dActive"
+            :is-selected="isCompareSliderActive"
+            :title="i18n.t('compare')"
+            @click.stop="onToggleCompareSlider"
+        >
+        </MenuAdvancedToolsListItem>
     </div>
 </template>
-
-<script>
-import { mapActions, mapGetters, mapState } from 'vuex'
-
-import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
-import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
-import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-
-export default {
-    components: { ImportFile, ModalWithBackdrop, MenuAdvancedToolsListItem, ImportCatalogue },
-    props: {
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    computed: {
-        ...mapState({
-            showImportCatalogue: (state) => state.ui.importCatalogue,
-            showImportFile: (state) => state.ui.importFile,
-        }),
-        ...mapGetters(['isPhoneMode']),
-    },
-    methods: {
-        ...mapActions(['toggleImportCatalogue', 'toggleImportFile', 'toggleMenu']),
-        onToggleImportCatalogue() {
-            this.toggleImportCatalogue()
-        },
-        onToggleImportFile() {
-            if (!this.importFile && this.isPhoneMode) {
-                // To avoid the menu overlapping the import overlay after open we automatically
-                // close the menu
-                this.toggleMenu()
-            }
-            this.toggleImportFile()
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/modules/menu/scss/menu-items';

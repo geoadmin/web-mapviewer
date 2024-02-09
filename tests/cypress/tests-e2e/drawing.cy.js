@@ -310,7 +310,9 @@ describe('Drawing module tests', () => {
                         `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
                     ),
                     new RegExp(
-                        `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(2)}</color></PolyStyle></Style>`
+                        `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
+                            2
+                        )}</color></PolyStyle></Style>`
                     ),
                 ])
                 kmlId = interception.response.body.id
@@ -339,7 +341,9 @@ describe('Drawing module tests', () => {
                     interception,
                     [
                         new RegExp(
-                            `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(2)}</color></PolyStyle></Style>`
+                            `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
+                                2
+                            )}</color></PolyStyle></Style>`
                         ),
                     ],
                     kmlId
