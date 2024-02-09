@@ -1,38 +1,22 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref } from 'vue'
+import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
+const height = computed(() => store.state.ui.height)
+const width = computed(() => store.state.ui.width)
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
-let isInBrowserFullScreenMode
+const isInWindowFullScreenMode = computed(
+    () => screen.width == width.value && screen.height == height.value
+)
 
-const count = ref(0)
-
-document.addEventListener('keyup', (e) => {
-    if (e.key === 'F11') {
-        setTimeout(() => {
-            isInBrowserFullScreenMode = window.innerHeight == screen.height && window.innerWidth == screen.width
-            console.log('debug: ', isInFullScreenMode.value, isInBrowserFullScreenMode)
-            console.log(
-                'debug: ',
-                window.innerHeight,
-                screen.height,
-                window.innerWidth,
-                screen.width,
-                window.innerHeight == screen.height && window.innerWidth == screen.width
-            )
-            if (isInFullScreenMode.value != isInBrowserFullScreenMode) {
-                toggleFullScreen()
-                counter()
-            }
-        }, 1000)
+watch(isInWindowFullScreenMode, () => {
+    console.log('debug: flipped')
+    if (isInWindowFullScreenMode.value != isInFullScreenMode.value) {
+        toggleFullScreen()
     }
 })
-
-function counter() {
-    count.value = count.value + 1
-}
 
 function toggleFullScreen() {
     store.dispatch('toggleFullscreenMode')
@@ -48,7 +32,6 @@ function toggleFullScreen() {
     >
         <FontAwesomeIcon icon="expand" />
     </button>
-    <button @click="counter">{{ count }}</button>
 </template>
 
 <style lang="scss" scoped>
