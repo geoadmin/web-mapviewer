@@ -103,7 +103,7 @@ export default {
          */
         importFile: false,
         /**
-         * <<<<<<< HEAD Height of the header (in px)
+         * Height of the header (in px)
          *
          * @type Number
          */
@@ -117,21 +117,19 @@ export default {
         menuTrayWidth: 400,
 
         /**
-         * # Float telling where across the screen is the compare slider. The compare Slider should
+         * Float telling where across the screen is the compare slider. The compare Slider should
          * only be shown when the value is between 0 and 1
          *
-         * Flag telling if the compare slider is currently active or not> > > > > > > BGDIINF_SB-3110: adding compare ratio storage
+         * @type Number
+         */
+
+        compareRatio: null,
+        /**
+         * Flag telling if the compare slider is currently active or not
          *
          * @type Boolean
          */
         isCompareSliderActive: false,
-
-        /**
-         * Float telling where the compare slider is supposed to be positioned.
-         *
-         * @type Number
-         */
-        compareRatio: null,
     },
     getters: {
         screenDensity(state) {
