@@ -1,5 +1,6 @@
 <script setup>
 import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
@@ -14,6 +15,7 @@ const props = defineProps({
 })
 const { compact } = toRefs(props)
 const store = useStore()
+const i18n = useI18n()
 const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
 const showImportFile = computed(() => store.state.ui.importFile)
 const storeCompareRatio = computed(() => store.state.ui.compareRatio)
@@ -25,9 +27,8 @@ function onToggleImportCatalogue() {
     store.dispatch('toggleImportCatalogue')
 }
 function onToggleCompareSlider() {
-    // this allows us to store the previous compare ratio while making
-    // the Compare Slider invisible.
     if (storeCompareRatio.value === null) {
+        // this allows us to set a value to the compare ratio, in case there was none
         store.dispatch('setCompareRatio', 0.5)
     }
     store.dispatch('setCompareSliderActive', !isCompareSliderActive.value)
@@ -63,7 +64,7 @@ function onToggleImportFile() {
         >
             <ModalWithBackdrop
                 v-if="showImportFile"
-                :title="$t('import_file')"
+                :title="i18n.t('import_file')"
                 top
                 @close="onToggleImportFile"
             >
@@ -73,7 +74,7 @@ function onToggleImportFile() {
         <MenuAdvancedToolsListItem
             v-if="!is3dActive"
             :is-selected="isCompareSliderActive"
-            :title="$t('compare')"
+            :title="i18n.t('compare')"
             @click.stop="onToggleCompareSlider"
         >
         </MenuAdvancedToolsListItem>

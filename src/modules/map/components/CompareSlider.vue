@@ -5,7 +5,7 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from '
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
-const getMap = inject('getMap')
+const olMap = inject('olMap')
 
 const preRenderKey = ref(null)
 const postRenderKey = ref(null)
@@ -50,16 +50,14 @@ function slice() {
         preRenderKey.value = null
         postRenderKey.value = null
     }
-    const topVisibleLayer = getMap()
-        ?.getAllLayers()
-        .find((layer) => {
-            return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
-        })
+    const topVisibleLayer = olMap?.getAllLayers().find((layer) => {
+        return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
+    })
     if (topVisibleLayer && isCompareSliderActive.value) {
         preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)
         postRenderKey.value = topVisibleLayer.on('postrender', onPostRender)
     }
-    getMap().render()
+    olMap.render()
 }
 
 function onPreRender(event) {
@@ -110,7 +108,7 @@ function listenToMouseMove(event) {
     }
 
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
-    getMap().render()
+    olMap.render()
 }
 
 function releaseSlider() {
