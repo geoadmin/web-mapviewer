@@ -8,7 +8,7 @@ import proj4 from 'proj4'
 import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import reprojectGeoJsonData from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 const pixelToleranceForIdentify = 10
@@ -57,39 +57,14 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
     const features = []
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
     const matchingFeatures = geoJson.features.filter((feature) => {
-        let distanceWithClick
-        // we have a polygon or a line here
-        if (Array.isArray(feature.geometry.coordinates[0])) {
-            // if it is a polygon, we have to check its area against the coordinate
-            // polygons are expressed as a double-wrapped array of coordinates
-            if (Array.isArray(feature.geometry.coordinates[0][0])) {
-                if (booleanPointInPolygon(coordinateWGS84, polygon(feature.geometry.coordinates))) {
-                    distanceWithClick = 0
-                } else {
-                    // if not within the polygon area, we still need to check the distance with its border
-                    distanceWithClick = pointToLineDistance(
-                        coordinateWGS84,
-                        lineString(feature.geometry.coordinates[0]),
-                        {
-                            units: 'meters',
-                        }
-                    )
-                }
-            } else {
-                // we are dealing with line, no need to unpack the coordinates
-                distanceWithClick = pointToLineDistance(
-                    coordinateWGS84,
-                    lineString(feature.geometry.coordinates),
-                    {
-                        units: 'meters',
-                    }
-                )
-            }
-        } else {
-            distanceWithClick = distance(coordinateWGS84, point(feature.geometry.coordinates), {
-                units: 'meters',
-            })
+        const geometry = transformIntoTurfEquivalent(feature.geometry)
+        if (['Polygon', 'MultiPolygon'].includes(geometry.type)) {
+            return booleanPointInPolygon(coordinateWGS84, geometry)
         }
+        // for other types of feature, we check against the distance with the coordinates
+        const distanceWithClick = pointToLineDistance(coordinateWGS84, geometry, {
+            units: 'meters',
+        })
         return distanceWithClick <= pixelToleranceForIdentify * resolution
     })
     if (matchingFeatures?.length > 0) {

@@ -12,7 +12,7 @@ import { Vector as VectorSource } from 'ol/source'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
-import reprojectGeoJsonData from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
