@@ -3,11 +3,9 @@
 
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
-import { Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
 import { computed, inject, toRefs, watch } from 'vue'
 
-import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
+import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
 import {
     getMarkerStyle,
     highlightFeatureStyle,
@@ -47,20 +45,9 @@ const features = computed(() => {
     return position.value.map((point) => featuresForPosition(point, markerStyle.value))
 })
 
-const layer = new VectorLayer({
-    id: `marker-layer-${randomIntBetween(0, 100000)}`,
-    source: new VectorSource({
-        features: features.value,
-    }),
-    style: highlightFeatureStyle,
-})
 const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, zIndex)
+useVectorLayer(olMap, features, zIndex, highlightFeatureStyle)
 
-watch(position, () => {
-    layer.getSource().clear()
-    layer.getSource().addFeatures(features.value)
-})
 watch(markerStyle, (newStyle) => {
     const olStyle = getMarkerStyle(newStyle)
     features.value.forEach((feature) => feature.setStyle(olStyle))

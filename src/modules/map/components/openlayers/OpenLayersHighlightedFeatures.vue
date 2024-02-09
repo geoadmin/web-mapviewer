@@ -7,14 +7,19 @@
 import centroid from '@turf/centroid'
 import { polygon } from '@turf/helpers'
 import { computed } from 'vue'
+import Feature from 'ol/Feature'
+import GeoJSON from 'ol/format/GeoJSON'
+import { computed, inject } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { randomIntBetween } from '@/utils/numberUtils'
 
 // mapping relevant store values
 const store = useStore()
@@ -27,6 +32,14 @@ const editableFeatures = computed(() =>
 )
 const nonEditableFeature = computed(() =>
     selectedFeatures.value.filter((feature) => !feature.isEditable)
+)
+const featureTransformedAsOlFeatures = computed(() =>
+    selectedFeatures.value.map((feature) => {
+        return new Feature({
+            id: `geom-${randomIntBetween(0, 100000)}`,
+            geometry: new GeoJSON().readGeometry(feature.geometry),
+        })
+    })
 )
 const popoverCoordinate = computed(() => {
     if (selectedFeatures.value.length > 0) {
@@ -55,17 +68,14 @@ const popoverCoordinate = computed(() => {
     return null
 })
 
-const selectedFeatureMarkerPositions = computed(() => {
-    return selectedFeatures.value
-        .filter((feature) => feature?.geometry?.coordinates)
-        .map((feature) => {
-            return Array.isArray(feature.geometry.coordinates[0])
-                ? feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
-                : feature.geometry.coordinates
-        })
-})
-
+const olMap = inject('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
+useVectorLayer(
+    olMap,
+    featureTransformedAsOlFeatures,
+    zIndexHighlightedFeatures,
+    highlightFeatureStyle
+)
 
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures')
@@ -76,12 +86,6 @@ function toggleFloatingTooltip() {
 </script>
 
 <template>
-    <OpenLayersMarker
-        v-if="selectedFeatures.length > 0"
-        :position="selectedFeatureMarkerPositions"
-        marker-style="feature"
-        :z-index="zIndexHighlightedFeatures"
-    />
     <OpenLayersPopover
         v-if="isFloatingTooltip && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
