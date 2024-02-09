@@ -5,22 +5,33 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
+let isInBrowserFullScreenMode
+
 const count = ref(0)
 
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'w') {
-        toggleFullScreen()
-        toggleBrowserFullScreen()
-        counter()
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'F11') {
+        setTimeout(() => {
+            isInBrowserFullScreenMode = window.innerHeight == screen.height && window.innerWidth == screen.width
+            console.log('debug: ', isInFullScreenMode.value, isInBrowserFullScreenMode)
+            console.log(
+                'debug: ',
+                window.innerHeight,
+                screen.height,
+                window.innerWidth,
+                screen.width,
+                window.innerHeight == screen.height && window.innerWidth == screen.width
+            )
+            if (isInFullScreenMode.value != isInBrowserFullScreenMode) {
+                toggleFullScreen()
+                counter()
+            }
+        }, 1000)
     }
 })
 
 function counter() {
     count.value = count.value + 1
-}
-
-function toggleBrowserFullScreen() {
-    document.documentElement.requestFullscreen()
 }
 
 function toggleFullScreen() {
@@ -37,7 +48,7 @@ function toggleFullScreen() {
     >
         <FontAwesomeIcon icon="expand" />
     </button>
-    <div>{{ count }}</div>
+    <button @click="counter">{{ count }}</button>
 </template>
 
 <style lang="scss" scoped>
