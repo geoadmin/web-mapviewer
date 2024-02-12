@@ -9,6 +9,8 @@ import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import LoadingView from '@/views/LoadingView.vue'
 import MapView from '@/views/MapView.vue'
 
+import bodLayerIdRouterPlugin from './BodLayerId.routerPlugin'
+
 const history = createWebHashHistory()
 
 /**
@@ -45,7 +47,7 @@ const router = createRouter({
 appLoadingManagementRouterPlugin(router, store)
 legacyPermalinkManagementRouterPlugin(router, store)
 storeSyncRouterPlugin(router, store)
-
+bodLayerIdRouterPlugin(router, store)
 // exposing the router to Cypress, so that we may change URL param on the fly (without app reload),
 // and this way test app reaction to URL changes
 if (IS_TESTING_WITH_CYPRESS) {

@@ -1,13 +1,15 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-
+import log from '@/utils/logging'
 const getSelectedFeatureWithId = (state, featureId) => {
     return state.selectedFeatures.find((selectedFeature) => selectedFeature.id === featureId)
 }
 
 export default {
     state: {
-        /** @type Array<SelectableFeature> */
+        /** @type {SelectableFeature[]} */
+        preSelectedFeatures: [],
+        /** @type {SelectableFeature[]} */
         selectedFeatures: [],
         highlightedFeatureId: null,
     },
@@ -17,6 +19,32 @@ export default {
         },
     },
     actions: {
+        /**
+         * This function will only be called at startup, if there is a Bod-Layer-Id parameter set
+         *
+         * @param {GeoAdminLayer} layer: The layer containing the features
+         * @param {String[]} featuresIds: An array containing the featuresIds we wish to highlight
+         */
+        setPreselectedFeatures({ commit }, { layer, featuresIds }) {
+            const features = []
+            featuresIds.forEach((featureId) => {
+                getFeature(layer, featureId)
+                    .then((feature) => {
+                        features.push(feature)
+                    })
+                    .catch((error) => {
+                        log.error(
+                            `Could not find feature ${featureId} for layer ${layer.getID()}`,
+                            error
+                        )
+                    })
+            })
+            commit('setPreselectedFeatures', features)
+            commit('setSelectedFeatures', features)
+        },
+        clearPreSelectedFeatures({ commit }) {
+            commit('setPreSelectedFeatures', [])
+        },
         /**
          * Tells the map to highlight a list of features (place a round marker at their location).
          * Those features are currently shown by the tooltip. If in drawing mode, this functions
@@ -232,6 +260,9 @@ export default {
         },
     },
     mutations: {
+        setPreselectedFeatures(state, features) {
+            state.preSelectedFeatures = [...features]
+        },
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
         },

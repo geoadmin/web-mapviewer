@@ -109,6 +109,7 @@ function urlQueryWatcher(store, to) {
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
     // if this module did not trigger the route change, we need to check if a store change is needed
+    // TODO HERE: put the {bod-layer-id} param in the layer list,add selected features to the store
     storeSyncConfig.forEach((paramConfig) => {
         const queryValue = paramConfig.readValueFromQuery(to.query)
         const storeValue = paramConfig.readValueFromStore(store)
