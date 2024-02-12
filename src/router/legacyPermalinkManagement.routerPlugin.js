@@ -8,30 +8,13 @@ import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.cla
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
-    isLayersUrlParamLegacy,
+    isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 
-/**
- * @param {String} search
- * @returns {any}
- */
-const parseLegacyParams = (search) => {
-    const parts = search.match(/(\?|&)([^=]+)=([^&]+)/g)
-    const params = {}
-    if (parts && Array.isArray(parts)) {
-        parts.forEach((part) => {
-            const equalSignIndex = part.indexOf('=')
-            const paramName = part.substr(1, equalSignIndex - 1)
-            params[paramName] = part.substr(equalSignIndex + 1)
-        })
-    }
-    return params
-}
-
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
-    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams['adminId'])
+    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams.get('adminId'))
     log.debug('Adding KML layer from legacy kml adminId')
     if (newQuery.layers) {
         newQuery.layers = `${newQuery.layers};${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
@@ -46,6 +29,7 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
 }
 
 const handleLegacyParam = (
+    params,
     param,
     legacyValue,
     store,
@@ -91,23 +75,21 @@ const handleLegacyParam = (
             cameraPosition[1] = Number(legacyValue)
             break
 
-        // taking all layers related param aside so that they can be processed later (see below)
-        // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
         case 'layers':
-            if (isLayersUrlParamLegacy(legacyValue)) {
-                // for legacy layers param, we need to give the whole search query
-                // as it needs to look for layers, layers_visibility, layers_opacity and
-                // layers_timestamp param altogether
-                const layers = getLayersFromLegacyUrlParams(
-                    store.state.layers.config,
-                    window.location.search
-                )
-                newValue = layers.map((layer) => transformLayerIntoUrlString(layer)).join(';')
-                log.debug('Importing legacy layers as', newValue)
-            } else {
-                // if not legacy, we let it go as it is
-                newValue = legacyValue
-            }
+            // for legacy layers param, we need to give the layers visibility, opacity and timestamps,
+            // as they are combined into one value with the layer in the current 'layers' parameter
+            // implementation
+            newValue = getLayersFromLegacyUrlParams(
+                store.state.layers.config,
+                legacyValue,
+                params.get('layers_visibility'),
+                params.get('layers_opacity'),
+                params.get('layers_timestamp')
+            )
+                .map((layer) => transformLayerIntoUrlString(layer))
+                .join(';')
+            log.debug('Importing legacy layers as', newValue)
+
             break
         // Setting the position of the compare slider
         case 'swipe_ratio':
@@ -117,8 +99,8 @@ const handleLegacyParam = (
         case 'layers_opacity':
         case 'layers_visibility':
         case 'layers_timestamp':
-            // we ignore those params as they are now obsolete
-            // see adr/2021_03_16_url_param_structure.md
+            // Those are combined with the layers case. We simply ensure here that
+            // they're not called multiple times for nothing
             break
 
         case '3d':
@@ -167,10 +149,11 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     let latlongCoordinates = []
     let cameraPosition = []
 
-    Object.keys(legacyParams).forEach((param) => {
+    legacyParams.forEach((param_value, param_key) => {
         handleLegacyParam(
-            param,
-            legacyParams[param],
+            legacyParams,
+            param_key,
+            param_value,
             store,
             newQuery,
             latlongCoordinates,
@@ -213,8 +196,7 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
-
-    if ('adminId' in legacyParams) {
+    if (legacyParams.get('adminId')) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         handleLegacyKmlAdminIdParam(legacyParams, newQuery)
@@ -269,7 +251,9 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
     // We need to take the legacy params from the window.location.search, because the Vue Router
     // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams =
-        window.location && window.location.search ? parseLegacyParams(window.location.search) : null
+        window.location && window.location.search && isLegacyParams(window.location.search)
+            ? new URLSearchParams(window.location.search)
+            : null
     router.beforeEach((to, from, next) => {
         // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
         // the storeSync plugin might overwrite some parameters. To handle legacy param we also

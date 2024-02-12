@@ -2,6 +2,7 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import log from '@/utils/logging'
 
 function readUrlParamValue(url, paramName) {
     if (url && paramName && url.indexOf(paramName) !== -1) {
@@ -15,22 +16,32 @@ function readUrlParamValue(url, paramName) {
     return undefined
 }
 
-const newLayerParamRegex = /^[\w.]+[@\w=]*[,ft]*[,?\d.]*$/
-
-function isExternalLayer(layerId) {
-    return (
-        layerId &&
-        (layerId.startsWith('WMS|') || layerId.startsWith('WMTS|')) &&
-        layerId.indexOf('||') === -1
-    )
+/**
+ * @param {String} search The query made to the mapviewer
+ * @returns {Boolean} True if the query starts with ? or /?
+ */
+export const isLegacyParams = (search) => {
+    return !!search?.match(/^(\?|\/\?).*$/g) ?? false
 }
 
-export function isLayersUrlParamLegacy(layersParamValue) {
-    return !layersParamValue.split(';').some((layer) => {
-        return isExternalLayer(layer) || newLayerParamRegex.test(layer)
-    })
+/**
+ * Ensure opacity is within its bounds (0 and 1). Also assign a default value of 1 should the
+ * parameter be something unexpected
+ *
+ * @param {String} value
+ * @returns {Number} A float between 0 and 1
+ */
+export function parseOpacity(value) {
+    try {
+        if (isNaN(Number(value))) {
+            throw new Error()
+        }
+        return Math.max(Math.min(Number(value), 1), 0)
+    } catch (error) {
+        log.error(`failed to parse opacity value : ${value}, default to 1`)
+        return 1
+    }
 }
-
 /**
  * Reads URL params :
  *
@@ -45,93 +56,75 @@ export function isLayersUrlParamLegacy(layersParamValue) {
  * set according to the legacyLayersParam)
  *
  * @param {GeoAdminLayer[]} layersConfig
- * @param {String} legacyLayersParam
+ * @param {String} layers A string containing all layers ids
+ * @param {String} legacyVisibilities A string containing the visibility value for each layer
+ * @param {String} legacyOpacities A string containing the opacity value for each layer
+ * @param {String} legacyTimestamp A string containing the timestamp or year for each time enabled
+ *   layer
  * @returns {AbstractLayer[]}
  */
-export function getLayersFromLegacyUrlParams(layersConfig, legacyLayersParam) {
+export function getLayersFromLegacyUrlParams(
+    layersConfig,
+    layers,
+    legacyVisibilities,
+    legacyOpacities,
+    legacyTimestamp
+) {
     const layersToBeActivated = []
-    if (legacyLayersParam) {
-        const layerIdsUrlParam = readUrlParamValue(legacyLayersParam, 'layers')
-        const layerVisibilityParam = readUrlParamValue(legacyLayersParam, 'layers_visibility')
-        const layerOpacityParam = readUrlParamValue(legacyLayersParam, 'layers_opacity')
-        const layerTimestampsParam = readUrlParamValue(legacyLayersParam, 'layers_timestamps')
-
-        const layerVisibilities = []
-        if (layerVisibilityParam) {
-            layerVisibilities.push(...layerVisibilityParam.split(','))
+    // In the case these parameters are not defined, we ensure we have empty arrays rather than
+    // 'undefined' elements. Since the function is also called in `topics.api.js`, it can be called
+    // with a completely empty string.
+    const layersIds = layers?.split(',').map(decodeURIComponent) ?? []
+    const layerOpacities = legacyOpacities?.split(',').map(parseOpacity) ?? []
+    const layerVisibilities = legacyVisibilities?.split(',') ?? []
+    const layerTimestamps = legacyTimestamp?.split(',') ?? []
+    layersIds.forEach((layerId, index) => {
+        let layer = layersConfig.find((layer) => layer.getID() === layerId)
+        // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
+        // to add it to the map
+        if (layer) {
+            // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
+            // in order to alter it before returning it
+            layer = layer.clone()
         }
-
-        const layerOpacities = []
-        if (layerOpacityParam) {
-            layerOpacities.push(...layerOpacityParam.split(','))
+        if (layerId.startsWith('KML||')) {
+            const [_layerType, url] = layerId.split('||')
+            layer = new KMLLayer(url, true /* visible */)
         }
-
-        const layerTimestamps = []
-        if (layerTimestampsParam) {
-            layerTimestamps.push(...layerTimestampsParam.split(','))
+        if (layerId.startsWith('WMTS||')) {
+            const [_layerType, id, url] = layerId.split('||')
+            if (layerId && url) {
+                layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
+            }
         }
-
-        if (layerIdsUrlParam) {
-            layerIdsUrlParam
-                .split(',')
-                .map(decodeURIComponent)
-                .forEach((layerId, index) => {
-                    let layer = layersConfig.find((layer) => layer.getID() === layerId)
-                    // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
-                    // to add it to the map
-                    if (layer) {
-                        // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
-                        // in order to alter it before returning it
-                        layer = layer.clone()
-                    }
-                    if (layerId.startsWith('KML||')) {
-                        const [_layerType, url] = layerId.split('||')
-                        layer = new KMLLayer(url, true /* visible */)
-                    }
-                    if (layerId.startsWith('WMTS||')) {
-                        const [_layerType, id, url] = layerId.split('||')
-                        if (layerId && url) {
-                            layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
-                        }
-                    }
-                    if (layerId.startsWith('WMS||')) {
-                        const [_layerType, name, url, id, version] = layerId.split('||')
-                        // we only decode if we have enough material
-                        if (url && id) {
-                            layer = new ExternalWMSLayer(
-                                name ? name : id,
-                                1.0,
-                                true,
-                                url,
-                                id,
-                                null,
-                                version
-                            )
-                        }
-                    }
-                    if (layer) {
-                        // checking if visibility is set in URL
-                        if (layerVisibilities.length > index) {
-                            layer.visible = layerVisibilities[index] === 'true'
-                        } else {
-                            // if param layers_visibility is not present, it means all layers are visible
-                            layer.visible = true
-                        }
-                        // checking if opacity is set in the URL
-                        if (layerOpacities.length > index) {
-                            layer.opacity = Number(layerOpacities[index])
-                        }
-                        // checking if a timestamp is defined for this layer
-                        if (layerTimestamps.length > index && layerTimestamps[index]) {
-                            layer.timeConfig.updateCurrentTimeEntry(
-                                layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
-                            )
-                        }
-                        layersToBeActivated.push(layer)
-                    }
-                })
+        if (layerId.startsWith('WMS||')) {
+            const [_layerType, name, url, id, version] = layerId.split('||')
+            // we only decode if we have enough material
+            if (url && id) {
+                layer = new ExternalWMSLayer(name ? name : id, 1.0, true, url, id, null, version)
+            }
         }
-    }
+        if (layer) {
+            // checking if visibility is set in URL
+            if (layerVisibilities.length > index) {
+                layer.visible = layerVisibilities[index] === 'true'
+            } else {
+                // if param layers_visibility is not present, it means all layers are visible
+                layer.visible = true
+            }
+            // checking if opacity is set in the URL
+            if (layerOpacities.length > index) {
+                layer.opacity = layerOpacities[index]
+            }
+            // checking if a timestamp is defined for this layer
+            if (layerTimestamps.length > index && layerTimestamps[index]) {
+                layer.timeConfig.updateCurrentTimeEntry(
+                    layer.timeConfig.getTimeEntryForTimestamp(layerTimestamps[index])
+                )
+            }
+            layersToBeActivated.push(layer)
+        }
+    })
     return layersToBeActivated
 }
 

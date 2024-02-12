@@ -4,6 +4,7 @@ import 'cypress-wait-until'
 import { MapBrowserEvent } from 'ol'
 
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
+import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { randomIntBetween } from '@/utils/numberUtils'
 
@@ -155,7 +156,7 @@ Cypress.Commands.add(
     'goToMapView',
     (
         queryParams = {},
-        withHash = false,
+        withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {}
     ) => {
@@ -177,8 +178,9 @@ Cypress.Commands.add(
         if (!('center' in queryParams) && !('3d' in queryParams)) {
             // "old" MAP_CENTER constant re-projected in LV95
             queryParams.center = '2660013.5,1185172'
+        } else if ('3d' in queryParams && !('sr' in queryParams)) {
+            queryParams.sr = WEBMERCATOR.epsgNumber
         }
-
         let flattenedQueryParams = ''
         Object.entries(queryParams).forEach(([key, value]) => {
             if (typeof value === Boolean && value === true) {
