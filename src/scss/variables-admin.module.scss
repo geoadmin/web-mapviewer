@@ -48,3 +48,10 @@ $admin-icons: 'Admin Icons';
 //=============================================================================
 $focus-outline-size: 3px;
 $focus-outline: $focus-outline-size solid $malibu;
+
+:export {
+  white: #{$white};
+  red: #{$red};
+  mocassin: #{$mocassin};
+  venetian-red: #{$venetian-red};
+}

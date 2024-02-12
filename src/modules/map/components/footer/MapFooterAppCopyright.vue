@@ -29,7 +29,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/scss/variables-admin';
+@import 'src/scss/variables-admin.module';
 a {
     color: $black;
     text-decoration: initial;
