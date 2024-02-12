@@ -1,3 +1,4 @@
+import { BaseCustomizer, getDownloadUrl, MFPEncoder, requestReport } from '@geoblocks/mapfishprint'
 import { Feature } from 'ol'
 import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
@@ -7,8 +8,10 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'print-area-renderer.composable' }
+import { API_SERVICES_BASE_URL } from '@/config'
 import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
@@ -83,8 +86,43 @@ export default function usePrintAreaRenderer(map) {
         }
     })
 
-    function startPrinting() {
+    async function startPrinting() {
         log.info('Printing is started ...')
+        const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
+        log.info('Print URL: ', mapFishPrintUrl)
+
+        const layout = store.state.print.selectedLayout.name
+
+        const encoder = new MFPEncoder(mapFishPrintUrl)
+        const customizer = new BaseCustomizer([0, 0, 10000, 10000])
+        window.map = map
+        const spec = await encoder.createSpec({
+            map,
+            scale: 1,
+            printResolution: 96,
+            dpi: 254,
+            layout: layout,
+            format: 'pdf',
+            customAttributes: {},
+            customizer: customizer,
+        })
+        log.info('Print spec: ', spec)
+        spec['attributes']['copyright'] = 'Copyright'
+        spec['attributes']['qrimage'] = 'QR Image'
+        spec['attributes']['url'] = 'URL'
+        const report = await requestReport(mapFishPrintUrl, spec)
+        log.info('Report: ', report)
+        await getDownloadUrl(mapFishPrintUrl, report, 1000).then(
+            (url) => {
+                log.info('url', url)
+                // document.location = url
+                return url
+            },
+            (err) => {
+                log.info('result', 'error', err)
+                return err
+            }
+        )
     }
     function abortPrinting() {
         log.info('Printing is aborted')
