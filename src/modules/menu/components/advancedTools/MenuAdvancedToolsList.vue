@@ -74,7 +74,8 @@ function onToggleImportFile() {
         <MenuAdvancedToolsListItem
             v-if="!is3dActive"
             :is-selected="isCompareSliderActive"
-            :title="i18n.t('compare')"
+            title="compare"
+            tooltip="swipe_tooltip"
             @click.stop="onToggleCompareSlider"
         >
         </MenuAdvancedToolsListItem>

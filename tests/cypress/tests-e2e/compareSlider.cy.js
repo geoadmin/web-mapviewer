@@ -248,7 +248,7 @@ describe('Testing of the compare slider', () => {
                     cy.goToMapView({}, true)
                     cy.clickOnMenuButtonIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
-                    cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
+                    cy.get('[data-cy="menu-advanced-tools-compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
                         expect(compareRatio).to.eq(0.5)
                     })
@@ -294,7 +294,7 @@ describe('Testing of the compare slider', () => {
                     cy.get('[data-cy="compare_slider"]').should('be.visible')
                     cy.clickOnMenuButtonIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
-                    cy.get('[data-cy="menu-advanced-tools-Compare"]').should('be.visible')
+                    cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
                         expect(compareRatio).to.eq(0.3)
                     })
@@ -303,7 +303,7 @@ describe('Testing of the compare slider', () => {
                         expect(isSliderActive).to.eq(true)
                     })
 
-                    cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
+                    cy.get('[data-cy="menu-advanced-tools-compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
                         expect(compareRatio).to.eq(0.3)
                     })
@@ -313,7 +313,7 @@ describe('Testing of the compare slider', () => {
                     })
                     cy.get('[data-cy="compare_slider"]').should('not.exist')
 
-                    cy.get('[data-cy="menu-advanced-tools-Compare"]').click()
+                    cy.get('[data-cy="menu-advanced-tools-compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
                         expect(compareRatio).to.eq(0.3)
                     })
@@ -353,14 +353,14 @@ describe('The compare Slider and the menu elements should not be available in 3d
             )
             cy.clickOnMenuButtonIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]').click()
-            cy.get('[data-cy="menu-advanced-tools-Compare"]').should('be.visible')
+            cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
             cy.clickOnMenuButtonIfMobile()
 
             cy.get('[data-cy="3d-button"]').click()
 
             cy.clickOnMenuButtonIfMobile()
 
-            cy.get('[data-cy="menu-advanced-tools-Compare"]').should('not.exist')
+            cy.get('[data-cy="menu-advanced-tools-compare"]').should('not.exist')
         })
     })
 })
