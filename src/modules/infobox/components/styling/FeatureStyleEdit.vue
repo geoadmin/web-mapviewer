@@ -50,28 +50,29 @@ watch(
 // The idea is watching the title and the description.
 // Put a debounce on the update of the feature so that we can compare with the current UI state
 // If the value is the same as in the UI, we can update the feature
-watch(title, (newTitle) => {
-    const debounceTitleUpdate = debounce(updateFeatureTitle, 300)
-    debounceTitleUpdate(newTitle)
+watch(title, () => {
+    debounceTitleUpdate(store)
 })
-watch(description, (newDescription) => {
-    const debounceDescriptionUpdate = debounce(updateFeatureDecription, 300)
-    debounceDescriptionUpdate(newDescription)
+watch(description, () => {
+    debounceDescriptionUpdate(store)
 })
 
-function updateFeatureTitle(previousTitle) {
-    if (previousTitle === title.value) {
-        store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
-    }
+// Here we need to declare the debounce method globally otherwise it does not work (it is based
+// on closure which will not work if the debounce mehtod is defined in a watcher)
+// The title debounce needs to be quick in order to be displayed on the map
+const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+// The description don't need a quick debounce as it is not displayed on the map
+const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
+
+function updateFeatureTitle() {
+    store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
 }
 
-function updateFeatureDecription(previousDescription) {
-    if (previousDescription === description.value) {
-        store.dispatch('changeFeatureDescription', {
-            feature: feature.value,
-            description: description.value,
-        })
-    }
+function updateFeatureDescription() {
+    store.dispatch('changeFeatureDescription', {
+        feature: feature.value,
+        description: description.value,
+    })
 }
 
 /**
