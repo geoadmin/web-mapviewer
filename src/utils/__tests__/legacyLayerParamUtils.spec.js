@@ -8,18 +8,12 @@ import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
-import { getLayersFromLegacyUrlParams } from '@/utils/legacyLayerParamUtils'
+import {
+    getLayersFromLegacyUrlParams,
+    isLegacyParams,
+    parseOpacity,
+} from '@/utils/legacyLayerParamUtils'
 
-// TODO HERE : GET NEW SYNTAX FOR ALL TESTS
-/*
-newValue = getLayersFromLegacyUrlParams(
-                store.state.layers.config,
-                legacyValue,
-                params['layers_visibility'],
-                params['layers_opacity'],
-                params['layers_timestamp']
-            )
-            */
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
@@ -258,6 +252,28 @@ describe('Test parsing of legacy URL param into new params', () => {
                     undefined
                 )
                 expect(wmsResult).to.be.an('Array').empty
+            })
+            describe('utility functions for legacy Parameter Handling', () => {
+                it('ensure the parseOpacity Function always returns a valid value', () => {
+                    const correct_opacity = parseOpacity(0.321)
+                    expect(correct_opacity).to.equal(0.321)
+                    const opacity_too_low = parseOpacity(-0.2)
+                    expect(opacity_too_low).to.equal(0)
+                    const opacity_too_high = parseOpacity(1.45)
+                    expect(opacity_too_high).to.equal(1)
+                    const opacity_NaN = parseOpacity('test')
+                    expect(opacity_NaN).to.equal(1)
+                })
+                it('Makes sure the isLegacyParams function recognize a legacy URL', () => {
+                    const result_true_no_slash = isLegacyParams('?test=true')
+                    expect(result_true_no_slash).to.equal(true)
+                    const result_true_slash = isLegacyParams('/?test=true')
+                    expect(result_true_slash).to.equal(true)
+                    const result_false_no_slash = isLegacyParams('#?test=false')
+                    expect(result_false_no_slash).to.equal(false)
+                    const result_false_slash = isLegacyParams('#/?test=false')
+                    expect(result_false_slash).to.equal(false)
+                })
             })
         })
     })

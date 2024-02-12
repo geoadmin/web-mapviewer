@@ -18,11 +18,10 @@ function readUrlParamValue(url, paramName) {
 
 /**
  * @param {String} search The query made to the mapviewer
- * @returns True if the query starts with ? or /?
+ * @returns {Boolean} True if the query starts with ? or /?
  */
 export const isLegacyParams = (search) => {
-    const parts = search?.match(/^(\?|\/\?).*$/g) ?? null
-    return parts && Array.isArray(parts)
+    return !!search?.match(/^(\?|\/\?).*$/g) ?? false
 }
 
 /**
@@ -30,9 +29,9 @@ export const isLegacyParams = (search) => {
  * parameter be something unexpected
  *
  * @param {String} value
- * @returns
+ * @returns {Number} A float between 0 and 1
  */
-function parseOpacity(value) {
+export function parseOpacity(value) {
     try {
         if (isNaN(Number(value))) {
             throw new Error()
@@ -115,7 +114,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if opacity is set in the URL
             if (layerOpacities.length > index) {
-                layer.opacity = Number(layerOpacities[index])
+                layer.opacity = layerOpacities[index]
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index]) {

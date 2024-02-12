@@ -75,12 +75,10 @@ const handleLegacyParam = (
             cameraPosition[1] = Number(legacyValue)
             break
 
-        // taking all layers related param aside so that they can be processed later (see below)
-        // this only occurs if the syntax is recognized as a mf-geoadmin3 syntax (or legacy)
         case 'layers':
-            // for legacy layers param, we need to give the whole search query
-            // as it needs to look for layers, layers_visibility, layers_opacity and
-            // layers_timestamp param altogether
+            // for legacy layers param, we need to give the layers visibility, opacity and timestamps,
+            // as they are combined into one value with the layer in the current 'layers' parameter
+            // implementation
             newValue = getLayersFromLegacyUrlParams(
                 store.state.layers.config,
                 legacyValue,
