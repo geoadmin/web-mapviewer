@@ -4,7 +4,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Polygon } from 'ol/geom'
 import { getLength } from 'ol/sphere'
-import { computed, toRefs } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
@@ -14,6 +14,7 @@ import DrawingStylePopoverButton from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
+import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
 const props = defineProps({
@@ -28,22 +29,52 @@ const props = defineProps({
 })
 const { feature, readOnly } = toRefs(props)
 
-const description = computed({
-    get() {
-        return feature.value.description
-    },
-    set(value) {
-        store.dispatch('changeFeatureDescription', { feature: feature.value, description: value })
-    },
+const title = ref(feature.value.title)
+const description = ref(feature.value.description)
+
+// Update the UI when the feature changes
+watch(
+    () => feature.value.title,
+    (newTitle) => {
+        title.value = newTitle
+    }
+)
+
+watch(
+    () => feature.value.description,
+    (newDescription) => {
+        description.value = newDescription
+    }
+)
+
+// The idea is watching the title and the description.
+// Put a debounce on the update of the feature so that we can compare with the current UI state
+// If the value is the same as in the UI, we can update the feature
+watch(title, () => {
+    debounceTitleUpdate(store)
 })
-const text = computed({
-    get() {
-        return feature.value.title
-    },
-    set(value) {
-        store.dispatch('changeFeatureTitle', { feature: feature.value, title: value })
-    },
+watch(description, () => {
+    debounceDescriptionUpdate(store)
 })
+
+// Here we need to declare the debounce method globally otherwise it does not work (it is based
+// on closure which will not work if the debounce mehtod is defined in a watcher)
+// The title debounce needs to be quick in order to be displayed on the map
+const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+// The description don't need a quick debounce as it is not displayed on the map
+const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
+
+function updateFeatureTitle() {
+    store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
+}
+
+function updateFeatureDescription() {
+    store.dispatch('changeFeatureDescription', {
+        feature: feature.value,
+        description: description.value,
+    })
+}
+
 /**
  * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
  * is to hold the coordinates, which are in an array themselves. We don't have rings in this case,
@@ -138,7 +169,7 @@ function onDelete() {
             </label>
             <textarea
                 id="drawing-style-feature-title"
-                v-model="text"
+                v-model="title"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
                 class="feature-title form-control"

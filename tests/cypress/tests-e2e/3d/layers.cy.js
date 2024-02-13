@@ -185,11 +185,14 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            const mainCollection = viewer.scene.primitives.get(0)
-            expect(mainCollection.length).to.eq(1)
-            const layerCollection = mainCollection.get(0)
+            // main collection
+            cy.wrap(viewer.scene.primitives.get(0)).should('have.length', 1)
+            // layer collection
             // should be 3 (line, icon, text) but ol-cesium creates additional empty collection
-            expect(layerCollection.length).to.eq(4)
+            cy.wrap(viewer.scene.primitives.get(0).get(0), { timeout: 10000 }).should(
+                'have.length',
+                4
+            )
         })
     })
 })
