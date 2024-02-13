@@ -1,12 +1,12 @@
 <script setup>
 import tippy from 'tippy.js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import log from '@/utils/logging'
 
-const { identifier, value, extraValue, resetDelay } = defineProps({
+const props = defineProps({
     identifier: {
         type: String,
         required: true,
@@ -24,6 +24,7 @@ const { identifier, value, extraValue, resetDelay } = defineProps({
         default: 1000,
     },
 })
+const { identifier, value, extraValue, resetDelay } = toRefs(props)
 
 const copyButton = ref(null)
 const copied = ref(false)
@@ -71,12 +72,12 @@ function setTooltipContent() {
 }
 async function copyValue() {
     try {
-        await navigator.clipboard.writeText(value)
+        await navigator.clipboard.writeText(value.value)
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
             copied.value = false
-        }, resetDelay)
+        }, resetDelay.value)
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error)
     }
