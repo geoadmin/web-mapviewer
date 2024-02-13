@@ -164,24 +164,13 @@ class IconArgs {
      * @param {string} set
      * @param {string} name
      * @param {IconColorArg} color
-     * @param {Number} scale
      * @param {Boolean} isLegacy
      */
-    constructor(set, name, color, scale, isLegacy) {
+    constructor(set, name, color, isLegacy) {
         this.set = set
         this.name = name
         this.color = color
-        this.scale = scale
         this.isLegacy = isLegacy
-    }
-}
-
-function parseIconScale(scale) {
-    try {
-        return Number(scale)
-    } catch (error) {
-        log.error(`Invalid icon scale: ${scale}`)
-        return 1
     }
 }
 
@@ -205,7 +194,9 @@ export function parseIconUrl(url) {
     // default set := /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     // babs set := /images/{set_name}/{image}
     const legacyDefaultMatch =
-        /color\/(?<r>\d+),(?<g>\d+),(?<b>\d+)\/(?<name>[^/]+)-\d+@(?<scale>\d+)x\.png$/.exec(url)
+        /color\/(?<r>\d+),(?<g>\d+),(?<b>\d+)\/(?<name>[^/]+)-(?<size>\d+)@(?<scale>\d+)x\.png$/.exec(
+            url
+        )
     const legacySetMatch = /images\/(?<set>\w+)\/(?<name>[^/]+)\.png$/.exec(url)
 
     // new icon urls pattern
@@ -227,7 +218,6 @@ export function parseIconUrl(url) {
     const setName = match.groups.set ?? 'default'
     const name = match.groups.name ?? 'unknown'
     const isLegacy = !!(legacyDefaultMatch || legacySetMatch)
-    const scale = parseIconScale(match.groups.scale ?? 1)
 
     return new IconArgs(
         setName,
@@ -237,7 +227,6 @@ export function parseIconUrl(url) {
             parseRGBColor(match.groups.g ?? 0, 'B'),
             parseRGBColor(match.groups.b ?? 0, 'G')
         ),
-        scale,
         isLegacy
     )
 }
@@ -413,6 +402,15 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
 
     const iconStyle = getIconStyle(style)
     const iconArgs = iconStyle ? parseIconUrl(iconStyle.getSrc()) : null
+    if (iconArgs?.isLegacy) {
+        // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
+        // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
+        // 32 pixel scale factor below
+        // scale_factor := iconStyle.getSize()[0] / 32
+        // iconStyle.getSize()[0] = 48 (always 48 pixel on old viewer)
+        // scale_factor = 48/32 => 1.5
+        iconStyle.setScale(iconStyle.getScale() * 1.5)
+    }
     const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)

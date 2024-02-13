@@ -270,9 +270,11 @@ export class EditableFeature extends SelectableFeature {
 
     /** @returns {String} */
     get iconUrl() {
-        // TODO PB-266 use a fix size for icon from the backend and uses the icon style scale instead
-        return this._icon?.generateURL(this.iconSize, this.fillColor)
-        // return this._icon?.generateURL(LARGE, this.fillColor)
+        // For simplification and backward compatibility with the old viewer
+        // as well as to use browser cache more efficiently we get all the
+        // icons at the default scale of 1 (48x48px) and do the scaling
+        // on the client
+        return this._icon?.generateURL(this.fillColor)
     }
 
     generateOpenlayersIcon() {
@@ -281,7 +283,6 @@ export class EditableFeature extends SelectableFeature {
                   src: this.iconUrl,
                   crossOrigin: 'Anonymous',
                   anchor: this.icon.anchor,
-                  // TODO PB-266 use the icon style scale instead of the icon scaled size from backend
                   scale: this.iconSizeScale,
               })
             : null

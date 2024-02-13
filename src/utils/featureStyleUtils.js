@@ -72,7 +72,9 @@ export const allStylingColors = [BLACK, BLUE, GRAY, GREEN, ORANGE, RED, WHITE, Y
 /**
  * Representation of a size for feature style
  *
- * Scale values (that are to apply to the KML/GeoJSON) are different for text and icon
+ * Scale values (that are to apply to the KML/GeoJSON) are different for text and icon. For icon the
+ * scale is the one used by open layer and is scaled up by the factor icon_size/32, see
+ * https://github.com/openlayers/openlayers/issues/12670
  */
 export class FeatureStyleSize {
     /**
@@ -118,17 +120,22 @@ export class FeatureStyleSize {
     }
 }
 
-export const VERY_SMALL = new FeatureStyleSize('very_small_size', 1.0, 0.5)
-export const SMALL = new FeatureStyleSize('small_size', 1.25, 0.75)
-export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 1.0)
-export const LARGE = new FeatureStyleSize('big_size', 2.0, 1.5)
+/**
+ * NOTE: Here below the icons scale is the one used by openlayer, not the final scale put in the KML
+ * file. In the kml the scale will be set with a factor icon_size/32 => 48/32 => 1.5. The text scale
+ * is unchanged and the scale in openlayer match the KML scale.
+ */
+export const SMALL = new FeatureStyleSize('small_size', 1, 0.5)
+export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 0.75)
+export const LARGE = new FeatureStyleSize('large_size', 2.0, 1)
+export const EXTRA_LARGE = new FeatureStyleSize('extra_large_size', 2.5, 1.25)
 
 /**
  * List of all available sizes for drawing style
  *
  * @type {FeatureStyleSize[]}
  */
-export const allStylingSizes = [VERY_SMALL, SMALL, MEDIUM, LARGE]
+export const allStylingSizes = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
 
 /**
  * Get Feature style from feature

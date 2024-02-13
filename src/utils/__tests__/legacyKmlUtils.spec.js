@@ -14,7 +14,6 @@ import {
     MEDIUM,
     RED,
     SMALL,
-    VERY_SMALL,
     WHITE,
     YELLOW,
 } from '@/utils/featureStyleUtils'
@@ -124,9 +123,6 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 1', 'desc 1')
             expect(icon.icon.name).to.be.equal('001-marker')
             expect(icon.fillColor).to.be.equal(BLUE)
-            // TODO PB-266
-            // old KMLs were using scales 0.5, 0.75 and 1.0, we are now having an extra 1.5 scale
-            // so legacy SMALL size has become VERY_SMALL
             expect(icon.iconSize).to.be.equal(SMALL)
         })
         it('parses a marker with a small scale and grey fill color correctly', () => {
@@ -134,8 +130,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 2', 'desc 2')
             expect(icon.icon.name).to.be.equal('002-circle')
             expect(icon.fillColor).to.be.equal(GRAY)
-            // TODO PB-266
-            expect(icon.iconSize).to.be.equal(VERY_SMALL)
+            expect(icon.iconSize).to.be.equal(MEDIUM)
             expect(icon.textColor).to.be.equal(WHITE)
         })
         it('parses a marker with a big BABS icon correctly', () => {
@@ -144,8 +139,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             expect(icon.icon).to.be.not.null.and.not.undefined
             expect(icon.icon.name).to.be.equal('babs-3')
             expect(icon.fillColor).to.be.equal(RED) // default should be red
-            // TODO PB-266
-            expect(icon.iconSize).to.be.equal(SMALL)
+            expect(icon.iconSize).to.be.equal(LARGE)
             expect(icon.textColor).to.be.equal(RED)
         })
     })
@@ -154,7 +148,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             const standardText = findFeatureWithId('annotation_1668530699494')
             performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 1', '')
             expect(standardText.textColor).to.be.equal(BLACK)
-            expect(standardText.textSize).to.be.equal(VERY_SMALL)
+            expect(standardText.textSize).to.be.equal(SMALL)
             expect(standardText.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
             expect(standardText.iconSize).to.be.null
             expect(standardText.icon).to.be.null

@@ -143,7 +143,7 @@ export default {
          * @returns {String} An icon URL
          */
         generateColorizedURL(icon) {
-            return icon.generateURL(MEDIUM, this.feature.fillColor)
+            return icon.generateURL(this.feature.fillColor)
         },
         onCurrentIconColorChange(color) {
             this.$emit('change:iconColor', color)

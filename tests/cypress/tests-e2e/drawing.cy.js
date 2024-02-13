@@ -21,7 +21,7 @@ import {
     GREEN,
     LARGE,
     RED,
-    VERY_SMALL,
+    SMALL,
 } from '@/utils/featureStyleUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
@@ -34,6 +34,12 @@ const isNonEmptyArray = (value) => {
 // NOTE: alpha is for opacity
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
+
+// Openlayer correct the KML scale up to a factor, see https://github.com/openlayers/openlayers/pull/12695
+// This factor is define as := icon_size / 32, because our icons are always 48px we use the factor 48/32 = 1.5
+const ICON_XML_SCALE_FACTOR = 1.5
+
+const DEFAULT_ICON_URL_SCALE = '1x'
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
@@ -116,15 +122,10 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
                     new RegExp(
-                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@1x-${GREEN.rgbString}.png</href>`
+                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                     ),
                 ])
             })
-
-            // preparing intercept for large icons
-            cy.intercept(`**/icons/**@${LARGE.iconScale}x-${GREEN.rgbString}.png`, {
-                fixture: 'service-icons/placeholder.png',
-            }).as('large-green-icon')
 
             // opening up the icon size selector
             cy.get(
@@ -141,14 +142,15 @@ describe('Drawing module tests', () => {
                 `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
             ).click()
             // icons should be reloaded as large green
-            cy.wait('@large-green-icon')
+            cy.wait('@icon-default-green')
             // the existing icon on the map must be updated to large and green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    // TODO PB-266 correct icon sizing
-                    new RegExp(`<IconStyle><scale>${LARGE.iconScale * 2}</scale>`),
                     new RegExp(
-                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${LARGE.iconScale}x-${GREEN.rgbString}.png</href>`
+                        `<IconStyle><scale>${LARGE.iconScale * ICON_XML_SCALE_FACTOR}</scale>`
+                    ),
+                    new RegExp(
+                        `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                     ),
                 ])
             })
@@ -167,7 +169,7 @@ describe('Drawing module tests', () => {
                 cy.wait('@update-kml').then((interception) =>
                     cy.checkKMLRequest(interception, [
                         new RegExp(
-                            `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${LARGE.iconScale}x-${GREEN.rgbString}.png</href>`
+                            `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                         ),
                     ])
                 )
@@ -245,8 +247,6 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    // TODO PB-266 size testing correcting after rework of icon size and text size
-                    // by default: text color should be red and size be medium
                     new RegExp(
                         `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
                     ),
@@ -288,11 +288,10 @@ describe('Drawing module tests', () => {
             })
             // selecting "very small" size
             cy.get(
-                `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${VERY_SMALL.label}"]`
+                `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${SMALL.label}"]`
             ).click({ force: true })
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
-                    // TODO PB-266 currently no scale is set but it should have one
                     new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                 ])
             })
