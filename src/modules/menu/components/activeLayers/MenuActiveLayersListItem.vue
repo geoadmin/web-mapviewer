@@ -26,7 +26,8 @@
                 class="menu-layer-item-name"
                 :class="{ 'text-body-tertiary fst-italic': showSpinner }"
                 :data-cy="`active-layer-name-${id}`"
-                @click="onToggleLayerDetails"
+                @click.ctrl="onToggleLayerDetails"
+                @click.exact="onToggleLayerVisibility"
                 >{{ layer.name }}</TextTruncate
             >
             <button
