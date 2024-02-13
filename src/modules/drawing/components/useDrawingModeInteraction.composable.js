@@ -1,4 +1,5 @@
 import { primaryAction } from 'ol/events/condition'
+import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Polygon } from 'ol/geom'
 import DrawInteraction from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
@@ -161,6 +162,7 @@ export default function useDrawingModeInteraction({
 
         const editableFeature = feature.get('editableFeature')
         editableFeature.setCoordinatesFromFeature(feature)
+        editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
 
         // removing the flag we've set above in onDrawStart (this feature is now drawn)
         feature.unset('isDrawing')

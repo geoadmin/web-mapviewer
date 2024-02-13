@@ -1,38 +1,17 @@
 import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
+import distance from '@turf/distance'
 import { point } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import i18n from '@/modules/i18n'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
-// grabbing Vue18n to add "no further information" in the HTML popup, in case nothing is found in the features
-const { t } = i18n.global
-
 const pixelToleranceForIdentify = 10
-
-function generateHtmlPopup(layerName, featureDescription, extraInformation = null) {
-    let popup = `<div class="htmlpopup-container">`
-    if (layerName) {
-        popup += `<div class="htmlpopup-header">${layerName}</div>`
-    }
-    popup += '<div class="htmlpopup-content">'
-    if (extraInformation) {
-        popup += `<div>${extraInformation}</div>`
-    }
-    if (featureDescription) {
-        popup += featureDescription
-    } else {
-        popup += t('no_more_information')
-    }
-    popup += '</div></div>'
-    return popup
-}
 
 /**
  * @param {Array} coordinates
@@ -60,18 +39,34 @@ function reprojectCoordinates(coordinates, targetProjection) {
 
 function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
     const features = []
+    const distanceThreshold = pixelToleranceForIdentify * resolution
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
-    const matchingFeatures = geoJson.features.filter((feature) => {
-        const geometry = transformIntoTurfEquivalent(feature.geometry)
-        if (['Polygon', 'MultiPolygon'].includes(geometry.type)) {
-            return booleanPointInPolygon(coordinateWGS84, geometry)
-        }
-        // for other types of feature, we check against the distance with the coordinates
-        const distanceWithClick = pointToLineDistance(coordinateWGS84, geometry, {
-            units: 'meters',
+    const matchingFeatures = geoJson.features
+        // only keeping feature with geometry (required to run Turf below)
+        .filter((feature) => feature.geometry)
+        .filter((feature) => {
+            const { geometry } = transformIntoTurfEquivalent(feature.geometry)
+            // calculating distance with point coordinate, depending on the geometry type
+            switch (geometry?.type) {
+                case 'Polygon':
+                case 'MultiPolygon':
+                    return booleanPointInPolygon(coordinateWGS84, geometry)
+                case 'LineString':
+                case 'MultiLineString':
+                    return (
+                        pointToLineDistance(coordinateWGS84, geometry, {
+                            units: 'meters',
+                        }) <= distanceThreshold
+                    )
+                case 'Point':
+                case 'MultiPoint':
+                    return (
+                        distance(coordinateWGS84, geometry, { units: 'meters' }) <=
+                        distanceThreshold
+                    )
+            }
+            return false
         })
-        return distanceWithClick <= pixelToleranceForIdentify * resolution
-    })
     if (matchingFeatures?.length > 0) {
         features.push(...matchingFeatures)
     }
@@ -116,7 +111,7 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 geoJsonLayer,
                 feature.id,
                 feature.properties.station_name || feature.id,
-                generateHtmlPopup(geoJsonLayer.name, feature.properties.description),
+                { title: feature.properties.name, description: feature.properties.description },
                 reprojectCoordinates(feature.geometry.coordinates, projection),
                 null,
                 reproject(feature.geometry, WGS84.epsg, projection.epsg)
@@ -153,8 +148,8 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
                 return new LayerFeature(
                     kmlLayer,
                     feature.id,
-                    feature.properties.name,
-                    generateHtmlPopup(kmlLayer.name, feature.properties.description),
+                    kmlLayer.name,
+                    { title: feature.properties.name, description: feature.properties.description },
                     reprojectCoordinates(feature.geometry.coordinates, projection),
                     null,
                     reproject(feature.geometry, WGS84.epsg, projection.epsg)
@@ -181,26 +176,14 @@ export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolutio
         const convertedGpx = gpxToGeoJSON(parseGpx)
         return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
             (feature) => {
-                const reprojectedCoordinates = reprojectCoordinates(
-                    feature.geometry.coordinates,
-                    projection
-                )
-                const reprojectedGeometry = {
-                    type: feature.geometry.type,
-                    coordinates: reprojectedCoordinates,
-                }
                 return new LayerFeature(
                     gpxLayer,
                     `${gpxLayer.name}-${feature.properties?.name}`,
                     feature.properties?.name,
-                    generateHtmlPopup(
-                        gpxLayer.name,
-                        feature.properties?.name || gpxLayer.gpxMetadata?.description,
-                        feature.properties?.type ? `Type: ${feature.properties.type}` : null
-                    ),
-                    reprojectedCoordinates,
+                    { ...feature.properties },
+                    reprojectCoordinates(feature.geometry.coordinates, projection),
                     null,
-                    reprojectedGeometry
+                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
                 )
             }
         )

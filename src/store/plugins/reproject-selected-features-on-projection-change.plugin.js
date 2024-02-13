@@ -43,7 +43,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                                 selectedFeature.layer,
                                 selectedFeature.id,
                                 selectedFeature.name,
-                                selectedFeature.htmlPopup,
+                                selectedFeature.data,
                                 reprojectCoordinates(selectedFeature.coordinates),
                                 projExtent(oldProjection, newProjection, selectedFeature.extent),
                                 selectedFeature.geometry

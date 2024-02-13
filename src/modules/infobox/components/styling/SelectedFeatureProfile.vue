@@ -43,8 +43,8 @@ export default {
         info: function () {
             if (this.geometry) {
                 return geometryInfo(
-                    this.geometry.getType(),
-                    this.geometry.getCoordinates(),
+                    this.geometry.type,
+                    this.geometry.coordinates,
                     this.projection.epsg
                 )
             }
