@@ -114,17 +114,21 @@ export default function usePrintAreaRenderer(map) {
         spec['attributes']['url'] = 'URL'
         const report = await requestReport(mapFishPrintUrl, spec)
         log.info('Report: ', report)
-        await getDownloadUrl(mapFishPrintUrl, report, 1000).then(
-            (url) => {
-                log.info('PDF map url', url)
-                document.location = url
-                return url
-            },
-            (err) => {
-                log.info('result', 'error', err)
-                return err
-            }
-        )
+        await getDownloadUrl(mapFishPrintUrl, report, 1000)
+            .then(
+                (url) => {
+                    log.info('PDF map url', url)
+                    document.location = url
+                    return url
+                },
+                (err) => {
+                    log.info('result', 'error', err)
+                    return err
+                }
+            )
+            .then(() => {
+                store.dispatch('setPrintingStatus', false)
+            })
     }
     function abortPrinting() {
         log.info('Printing is aborted')
