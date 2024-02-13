@@ -3,6 +3,10 @@ import axios from 'axios'
 import { API_SERVICES_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 
+export function getGenerateQRCodeUrl(url) {
+    return `${API_SERVICES_BASE_URL}qrcode/generate?url=${url}`
+}
+
 /**
  * Generates a QR Code that, when scanned by mobile devices, open the URL given in parameters
  *
@@ -20,10 +24,7 @@ export const generateQrCode = (url) => {
             reject(errorMessage)
         }
         axios
-            .get(`${API_SERVICES_BASE_URL}qrcode/generate`, {
-                params: {
-                    url: url,
-                },
+            .get(getGenerateQRCodeUrl(url), {
                 responseType: 'arraybuffer',
             })
             .then((image) => {

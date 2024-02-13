@@ -10,6 +10,7 @@ import { useStore } from 'vuex'
 
 import { API_SERVICES_BASE_URL } from '@/config'
 import log from '@/utils/logging'
+import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
@@ -96,6 +97,11 @@ export default function usePrintAreaRenderer(map) {
         const encoder = new MFPEncoder(mapFishPrintUrl)
         const customizer = new BaseCustomizer([0, 0, 10000, 10000])
         window.map = map
+        // Generate QR code url from current shortlink
+        await store.dispatch('generateShortLinks', false)
+        const shortLink = store.state.share.shortLink
+        const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
+
         const spec = await encoder.createSpec({
             map,
             scale: 1,
@@ -103,15 +109,15 @@ export default function usePrintAreaRenderer(map) {
             dpi: 254,
             layout: layout,
             format: 'pdf',
-            customAttributes: {},
+            customAttributes: {
+                // TODO (IS): Remove this Fake values
+                copyright: 'Copyright',
+                url: 'URL',
+                qrimage: qrCodeUrl,
+            },
             customizer: customizer,
         })
         log.info('Print spec: ', spec)
-        // TODO (IS): Remove this hard coded values
-        spec['attributes']['copyright'] = 'Copyright'
-        spec['attributes']['qrimage'] =
-            'https://sys-map.dev.bgdi.ch/api/qrcode/generate?url=https%3A%2F%2Fsys-s.dev.bgdi.ch%2F5tna6jcogiue'
-        spec['attributes']['url'] = 'URL'
         const report = await requestReport(mapFishPrintUrl, spec)
         log.info('Report: ', report)
         await getDownloadUrl(mapFishPrintUrl, report, 1000)
