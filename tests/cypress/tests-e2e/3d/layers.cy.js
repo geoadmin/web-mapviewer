@@ -184,13 +184,12 @@ describe('Test of layer handling in 3D', () => {
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
+        cy.wait('@terrain-3d-layer')
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             const mainCollection = viewer.scene.primitives.get(0)
             expect(mainCollection.length).to.eq(1)
             const layerCollection = mainCollection.get(0)
             // should be 3 (line, icon, text) but ol-cesium creates additional empty collection
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
-            cy.wait(500)
             expect(layerCollection.length).to.eq(4)
         })
     })

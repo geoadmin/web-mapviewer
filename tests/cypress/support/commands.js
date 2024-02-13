@@ -122,6 +122,9 @@ const addCesiumTilesetIntercepts = () => {
     cy.intercept('**/*.terrain**', {
         fixture: '3d/tile.terrain',
     }).as('cesiumTerrainTile')
+    cy.intercept('**/ch.swisstopo.terrain.3d/*/layer.json', {
+        fixture: '3d/terrain-3d-layer.json',
+    }).as('terrain-3d-layer')
 }
 
 export function getDefaultFixturesAndIntercepts() {
