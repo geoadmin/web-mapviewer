@@ -107,15 +107,17 @@ export default function usePrintAreaRenderer(map) {
             customizer: customizer,
         })
         log.info('Print spec: ', spec)
+        // TODO (IS): Remove this hard coded values
         spec['attributes']['copyright'] = 'Copyright'
-        spec['attributes']['qrimage'] = 'QR Image'
+        spec['attributes']['qrimage'] =
+            'https://sys-map.dev.bgdi.ch/api/qrcode/generate?url=https%3A%2F%2Fsys-s.dev.bgdi.ch%2F5tna6jcogiue'
         spec['attributes']['url'] = 'URL'
         const report = await requestReport(mapFishPrintUrl, spec)
         log.info('Report: ', report)
         await getDownloadUrl(mapFishPrintUrl, report, 1000).then(
             (url) => {
-                log.info('url', url)
-                // document.location = url
+                log.info('PDF map url', url)
+                document.location = url
                 return url
             },
             (err) => {
