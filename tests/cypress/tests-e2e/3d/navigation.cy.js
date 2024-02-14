@@ -29,7 +29,7 @@ describe('Testing 3D navigation', () => {
                     duration: 0.0,
                 })
                 cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: -5000 })
-                cy.waitUntilCesiumTilesLoaded()
+
                 cy.readWindowValue('cesiumViewer').then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).gt(
                         CAMERA_MIN_ZOOM_DISTANCE
@@ -50,7 +50,6 @@ describe('Testing 3D navigation', () => {
                     duration: 0.0,
                 })
                 cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: 5000 })
-                cy.waitUntilCesiumTilesLoaded()
                 cy.readWindowValue('cesiumViewer').then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).lt(
                         CAMERA_MAX_ZOOM_DISTANCE
@@ -70,7 +69,6 @@ describe('Testing 3D navigation', () => {
                     },
                     duration: 0.0,
                 })
-                cy.waitUntilCesiumTilesLoaded()
                 cy.readWindowValue('cesiumViewer').then(() => {
                     cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                         expect(center[0]).to.eq(lon)
