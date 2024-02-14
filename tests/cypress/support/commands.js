@@ -113,18 +113,18 @@ const addGeoJsonIntercept = () => {
 }
 
 const addCesiumTilesetIntercepts = () => {
-    cy.intercept('**/tileset.json', {
+    cy.intercept('**/*.3d/**/tileset.json', {
         fixture: '3d/tileset.json',
     }).as('cesiumTileset')
-    cy.intercept('**/*.vctr**', {
+    cy.intercept('**/tile.vctr*', {
         fixture: '3d/tile.vctr',
     }).as('cesiumTile')
-    cy.intercept('**/*.terrain**', {
+    cy.intercept('**/*.terrain.3d/**/*.terrain*', {
         fixture: '3d/tile.terrain',
     }).as('cesiumTerrainTile')
-    cy.intercept('**/ch.swisstopo.terrain.3d/*/layer.json', {
+    cy.intercept('**/*.terrain.3d/**/layer.json', {
         fixture: '3d/terrain-3d-layer.json',
-    }).as('terrain-3d-layer')
+    }).as('cesiumTerrainConfig')
 }
 
 export function getDefaultFixturesAndIntercepts() {
@@ -460,7 +460,20 @@ Cypress.Commands.add('addProfileJsonFixture', (mockupData) => {
 })
 
 Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
-    cy.wait(['@cesiumTileset', '@cesiumTile'])
+    cy.wait(
+        [
+            '@cesiumTerrainConfig',
+            '@cesiumTerrainTile',
+            '@cesiumTerrainTile',
+            '@cesiumTileset',
+            '@cesiumTileset',
+            '@cesiumTile',
+            '@cesiumTile',
+        ],
+        // the timeout is increased to allow to run the test locally on
+        // which cesium is much slower
+        { timeout: 20000 }
+    )
 })
 
 Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {

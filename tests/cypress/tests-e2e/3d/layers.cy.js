@@ -163,7 +163,9 @@ describe('Test of layer handling in 3D', () => {
             expect(viewer.scene.primitives.length).to.eq(2) // labels anb buildings are still present
         })
     })
-    it('add KML layer from drawing', () => {
+    // TODO: PB-284 This test is flaky and not always pass on the CI (but is working locally).
+    // re-enable the test and modify it to test the feature selection instead of cesium internal
+    it.skip('add KML layer from drawing', () => {
         cy.goToDrawing()
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
         const olSelector = '.ol-viewport'
