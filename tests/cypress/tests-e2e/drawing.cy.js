@@ -23,6 +23,7 @@ import {
     RED,
     SMALL,
 } from '@/utils/featureStyleUtils'
+import { LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 const isNonEmptyArray = (value) => {
@@ -34,10 +35,6 @@ const isNonEmptyArray = (value) => {
 // NOTE: alpha is for opacity
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
-
-// Openlayer correct the KML scale up to a factor, see https://github.com/openlayers/openlayers/pull/12695
-// This factor is define as := icon_size / 32, because our icons are always 48px we use the factor 48/32 = 1.5
-const ICON_XML_SCALE_FACTOR = 1.5
 
 const DEFAULT_ICON_URL_SCALE = '1x'
 
@@ -147,7 +144,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
                     new RegExp(
-                        `<IconStyle><scale>${LARGE.iconScale * ICON_XML_SCALE_FACTOR}</scale>`
+                        `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
                     ),
                     new RegExp(
                         `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`

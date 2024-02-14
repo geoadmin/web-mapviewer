@@ -26,6 +26,15 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
 
+// On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
+// version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
+// 32 pixel scale factor below
+// scale_factor := iconStyle.getSize()[0] / 32
+// iconStyle.getSize()[0] = 48 (always 48 pixel on old viewer)
+// scale_factor = 48/32 => 1.5
+// See https://github.com/openlayers/openlayers/pull/12695
+export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
+
 /**
  * Read the KML name
  *
@@ -409,7 +418,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         // scale_factor := iconStyle.getSize()[0] / 32
         // iconStyle.getSize()[0] = 48 (always 48 pixel on old viewer)
         // scale_factor = 48/32 => 1.5
-        iconStyle.setScale(iconStyle.getScale() * 1.5)
+        iconStyle.setScale(iconStyle.getScale() * LEGACY_ICON_XML_SCALE_FACTOR)
     }
     const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
