@@ -649,5 +649,7 @@
     "loading": "Chargement",
     "search_in_catalogue_placeholder": "Rechercher dans les cartes importées",
     "kml_gpx_file_out_of_bounds": "Le contenu du fichier est hors des limites de projection",
-    "kml_gpx_file_empty": "Le fichier KML/GPX est vide"
+    "kml_gpx_file_empty": "Le fichier KML/GPX est vide",
+    "large_size": "Grande",
+    "extra_large_size": "Très Grande"
 }

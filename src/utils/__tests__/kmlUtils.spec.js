@@ -3,7 +3,7 @@ import IconStyle from 'ol/style/Icon'
 import { describe, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import { BLUE, LARGE } from '@/utils/featureStyleUtils'
+import { BLUE } from '@/utils/featureStyleUtils'
 import { getIcon, getKmlExtent, parseIconUrl } from '@/utils/kmlUtils'
 
 describe('Test KML utils', () => {
@@ -121,7 +121,6 @@ describe('Test KML utils', () => {
             expect(args).to.be.not.null.and.to.be.not.undefined
             expect(args.set).to.be.equal('default')
             expect(args.name).to.be.equal('001-marker')
-            expect(args.scale).to.be.equal(1.5)
             expect(args.color).to.be.not.null.and.to.be.not.undefined
             expect(args.color.r).to.be.equal(0)
             expect(args.color.g).to.be.equal(128)
@@ -135,7 +134,6 @@ describe('Test KML utils', () => {
             expect(args).to.be.not.null.and.to.be.not.undefined
             expect(args.set).to.be.equal('default')
             expect(args.name).to.be.equal('001-marker')
-            expect(args.scale).to.be.equal(4)
             expect(args.color).to.be.not.null.and.to.be.not.undefined
             expect(args.color.r).to.be.equal(0)
             expect(args.color.g).to.be.equal(255)
@@ -155,7 +153,6 @@ describe('Test KML utils', () => {
             expect(args).to.be.not.null.and.to.be.not.undefined
             expect(args.set).to.be.equal('babs')
             expect(args.name).to.be.equal('babs-100')
-            expect(args.scale).to.be.equal(1)
             expect(args.color).to.be.not.null.and.to.be.not.undefined
             expect(args.color.r).to.be.equal(255)
             expect(args.color.g).to.be.equal(128)
@@ -185,7 +182,6 @@ describe('Test KML utils', () => {
             expect(args).to.be.not.null.and.to.be.not.undefined
             expect(args.set).to.be.equal('default')
             expect(args.name).to.be.equal('star')
-            expect(args.scale).to.be.equal(2)
             expect(args.color).to.be.not.null.and.to.be.not.undefined
             expect(args.color.r).to.be.equal(45)
             expect(args.color.g).to.be.equal(128)
@@ -197,7 +193,6 @@ describe('Test KML utils', () => {
             expect(args).to.be.not.null.and.to.be.not.undefined
             expect(args.set).to.be.equal('default')
             expect(args.name).to.be.equal('star')
-            expect(args.scale).to.be.equal(2)
             expect(args.color).to.be.not.null.and.to.be.not.undefined
             expect(args.color.r).to.be.equal(45)
             // invalid color fallback to 255
@@ -215,7 +210,6 @@ describe('Test KML utils', () => {
             expect(args.set).to.be.equal('babs')
             expect(args.name).to.be.equal('babs-76')
             // expect default scale and color
-            expect(args.scale).to.be.equal(1)
             expect(args.color.r).to.be.equal(255)
             expect(args.color.g).to.be.equal(0)
             expect(args.color.b).to.be.equal(0)
@@ -299,7 +293,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('001-marker')
             expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL(LARGE, BLUE)).to.be.equal(
+            expect(icon.generateURL(BLUE, 1.5)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.5x-0,0,255.png'
             )
         })

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { API_SERVICES_BASE_URL } from '@/config'
-import { MEDIUM, RED } from '@/utils/featureStyleUtils'
+import { RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
@@ -131,20 +131,20 @@ export class DrawingIcon {
     }
 
     /**
-     * Generate an icon URL from its template. If no iconSize is given, medium scale will be
+     * Generate an icon URL from its template. If no iconScale is given, default scale 1 will be
      * applied. If no iconColor is given, red will be applied (if applicable, as non-colorable icons
      * will not have {r}, {g}, {b} part of their template URL)
      *
-     * @param {FeatureStyleSize} iconSize The size (or scale) to use for this icon's URL
      * @param {FeatureStyleColor} iconColor The color to use for this icon's URL
+     * @param {Number} iconScale The scale to use for this icon's URL
      * @returns {String} A full URL to this icon on the service-icons backend
      */
-    generateURL(iconSize = MEDIUM, iconColor = RED) {
+    generateURL(iconColor = RED, iconScale = 1) {
         const rgb = iconColor.rgb.slice(0, 3)
         return this._imageTemplateURL
             .replace('{icon_set_name}', this._iconSetName)
             .replace('{icon_name}', this._name)
-            .replace('{icon_scale}', iconSize.iconScale + 'x')
+            .replace('{icon_scale}', iconScale + 'x')
             .replace('{r}', `${rgb[0]}`)
             .replace('{g}', `${rgb[1]}`)
             .replace('{b}', `${rgb[2]}`)
