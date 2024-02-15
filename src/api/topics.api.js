@@ -152,10 +152,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     params.get('layers_timestamp')
                                 ),
                             ]
-                            if (
-                                Array.isArray(rawTopic.activatedLayers) &&
-                                rawTopic.activatedLayers.length > 0
-                            ) {
+                            if (rawTopic.activatedLayers?.length > 0) {
                                 rawTopic.activatedLayers.forEach((layerId) => {
                                     let layer = layersConfig.find(
                                         (layer) => layer.getID() === layerId
@@ -163,15 +160,15 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     if (layer) {
                                         // deep copy so that we can reassign values later on
                                         // (layers come from the Vuex store so it can't be modified directly)
-                                        layer = Object.assign(
-                                            Object.create(Object.getPrototypeOf(layer)),
-                                            layer
-                                        )
+                                        layer = layer.clone()
                                         // checking if the layer should be also visible
                                         layer.visible =
-                                            Array.isArray(rawTopic.selectedLayers) &&
-                                            rawTopic.selectedLayers.indexOf(layerId) !== -1
-                                        layersToActivate.push(layer)
+                                            rawTopic.selectedLayers?.indexOf(layerId) !== -1 ??
+                                            false
+                                        // In the backend the layers are in the wrong order
+                                        // so we need to reverse the order here by simply adding
+                                        // the layer at the beginning of the array
+                                        layersToActivate.unshift(layer)
                                     }
                                 })
                             }

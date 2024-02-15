@@ -8,6 +8,7 @@ describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
+        cy.log(`Select topic ${topicId}`)
         cy.readStoreValue('state.ui').then((ui) => {
             // only click on the menu button if the menu is not opened yet
             if (!ui.showMenu) {
@@ -122,7 +123,7 @@ describe('Topics', () => {
         const complexTopic = mockupTopics.topics[4]
         selectTopicWithId(complexTopic.id)
         // from the mocked up response above
-        const expectedActiveLayers = ['test.wms.layer', 'test.wmts.layer']
+        const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
         const expectedVisibleLayers = ['test.wmts.layer']
         const expectedOpacity = {
             'test.wmts.layer': 0.6,

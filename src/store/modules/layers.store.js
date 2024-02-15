@@ -244,7 +244,7 @@ const actions = {
      *
      * @param {String | AbstractLayer | ActiveLayerConfig} layerIdOrObject
      */
-    async addLayer({ commit, getters }, layerIdOrObject) {
+    addLayer({ commit, getters }, layerIdOrObject) {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
@@ -272,6 +272,19 @@ const actions = {
         } else {
             log.error('no layer found for payload:', layerIdOrObject)
         }
+    },
+    /**
+     * Sets the list of active layers. This replace the existing list.
+     *
+     * NOTE: the layers array is automatically deep cloned
+     *
+     * @param {[AbstractLayer]} layers List of active layers
+     */
+    setLayers({ commit }, layers) {
+        commit(
+            'setLayers',
+            layers.map((layer) => layer.clone())
+        )
     },
     removeLayer({ commit }, layerIdOrObject) {
         if (typeof layerIdOrObject === 'string') {
@@ -513,6 +526,9 @@ const mutations = {
         // first, remove it if already present to avoid duplicate layers
         state.activeLayers = removeActiveLayerById(state, layer.getID())
         state.activeLayers.push(layer)
+    },
+    setLayers(state, layers) {
+        state.activeLayers = layers
     },
     updateLayer(state, layer) {
         const layer2Update = getActiveLayerById(state, layer.getID())

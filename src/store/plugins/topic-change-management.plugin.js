@@ -38,20 +38,11 @@ const topicChangeManagementPlugin = (store) => {
                     store.dispatch('setBackground', null)
                 }
             }
-            // we only set/clear layers after the first setTopic has occurred (after app init)
-            if (!isFirstSetTopic) {
-                store.dispatch('clearLayers')
-            }
+
             // at init, if there is no active layer yet, but the topic has some, we add them
             // after init we always add all layers from topic
             if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
-                // somehow topic layers are stored in reverse (top to bottom) so we swap the order before adding them
-                currentTopic.layersToActivate
-                    .slice()
-                    .reverse()
-                    .forEach((layer) => {
-                        store.dispatch('addLayer', layer)
-                    })
+                store.dispatch('setLayers', currentTopic.layersToActivate)
             }
             // loading topic tree
             loadTopicTreeForTopic(
