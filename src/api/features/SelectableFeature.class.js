@@ -91,7 +91,7 @@ export default class SelectableFeature extends EventEmitter {
         }
     }
     get lastCoordinate() {
-        return this._coordinates[this._coordinates.length - 1]
+        return this._coordinates.slice(-1)[0]
     }
 
     /**

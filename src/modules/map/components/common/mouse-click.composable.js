@@ -19,11 +19,21 @@ export function useMouseOnMap() {
     let contextMenuTimeout = null
 
     const store = useStore()
+    const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
+    const currentKmlDrawingLayer = computed(() => store.getters.activeKmlLayer)
     const visibleGeoJsonLayers = computed(() =>
         store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.GEOJSON)
     )
     const visibleKMLLayers = computed(() =>
-        store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.KML)
+        store.getters.visibleLayers
+            .filter((layer) => layer.type === LayerTypes.KML)
+            .filter(
+                (kmlLayer) =>
+                    // No identification of feature on the active KML layer used in the drawing module
+                    // as this module already does identification of drawn feature itself.
+                    !isCurrentlyDrawing.value ||
+                    kmlLayer.getID() !== currentKmlDrawingLayer.value?.getID()
+            )
     )
     const visibleGPXLayers = computed(() =>
         store.getters.visibleLayers.filter((layer) => layer.type === LayerTypes.GPX)

@@ -36,16 +36,29 @@ const editableFeatures = computed(() =>
 const nonEditableFeature = computed(() =>
     selectedFeatures.value.filter((feature) => !feature.isEditable)
 )
-const featureTransformedAsOlFeatures = computed(() =>
-    selectedFeatures.value.map((feature) => {
+const featureTransformedAsOlFeatures = computed(() => {
+    // While drawing module is active, we do not want any other feature as the editable one highlighted.
+    // And as the drawing module already takes care of applying a specific style to selected editable features,
+    // we do nothing if this module is active (returning an empty array instead of feature's geometries)
+    if (isCurrentlyDrawing.value) {
+        return []
+    }
+    return nonEditableFeature.value.map((feature) => {
         return new Feature({
             id: `geom-${randomIntBetween(0, 100000)}`,
             geometry: new GeoJSON().readGeometry(feature.geometry),
         })
     })
-)
+})
 const southPole = point([0.0, -90.0])
 const popoverCoordinate = computed(() => {
+    // if we are dealing with any editable feature while drawing, we return its last coordinate
+    if (isCurrentlyDrawing.value && editableFeatures.value.length > 0) {
+        const [topEditableFeature] = editableFeatures.value
+        return topEditableFeature.lastCoordinate
+    }
+    // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
+    // selected features. We will find the most southern coordinate present in all features and use it as anchor.
     const mostSouthernFeature = selectedFeatures.value
         .map((feature) => feature.geometry)
         .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
