@@ -39,6 +39,8 @@ import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 
 import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
 
+const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST = 'MenuActiveLayersList.vue'
+
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
@@ -82,7 +84,10 @@ export default {
             'setOverlayShouldBeFront',
         ]),
         onRemoveLayer(layerId) {
-            this.removeLayer(layerId)
+            this.removeLayer({
+                layerId: layerId,
+                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+            })
         },
         onToggleLayerVisibility(layerId) {
             this.toggleLayerVisibility(layerId)
@@ -96,7 +101,11 @@ export default {
             }
         },
         onOpacityChange(layerId, opacity) {
-            this.setLayerOpacity({ layerId, opacity })
+            this.setLayerOpacity({
+                layerId,
+                opacity,
+                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+            })
         },
         isFirstLayer(layerId) {
             return this.activeLayers[0].getID() === layerId

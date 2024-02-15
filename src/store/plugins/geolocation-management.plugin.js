@@ -7,6 +7,8 @@ import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.c
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
+const STORE_DISPATCHER_GEOLOCATION_PLUGIN = 'geolocation-management.plugin'
+
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
 
@@ -21,7 +23,10 @@ const handlePositionAndDispatchToStore = (position, store) => {
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy)
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
-        store.dispatch('setCenter', { center: positionProjected, source: 'geolocation tracking' })
+        store.dispatch('setCenter', {
+            center: positionProjected,
+            dispatcher: STORE_DISPATCHER_GEOLOCATION_PLUGIN,
+        })
     }
 }
 
@@ -78,7 +83,10 @@ const geolocationManagementPlugin = (store) => {
                                         zoomLevel
                                     )
                             }
-                            store.dispatch('setZoom', { zoom: zoomLevel, source: 'geolocation' })
+                            store.dispatch('setZoom', {
+                                zoom: zoomLevel,
+                                dispatcher: STORE_DISPATCHER_GEOLOCATION_PLUGIN,
+                            })
                         }
                         geolocationWatcher = navigator.geolocation.watchPosition(
                             (position) => handlePositionAndDispatchToStore(position, store),

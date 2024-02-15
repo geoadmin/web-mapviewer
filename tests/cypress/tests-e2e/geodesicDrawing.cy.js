@@ -9,7 +9,7 @@ const olSelector = '.ol-viewport'
 const acceptableDelta = 0.01
 
 function moveMapPos(newCenter) {
-    cy.writeStoreValue('setCenter', { center: newCenter, source: 'Cypress geodesic tests' })
+    cy.writeStoreValue('setCenter', { center: newCenter, dispatcher: 'e2e-test' })
     /* In headed mode, the tests work perfectly fine even without these waits. In headless mode
     hovewer, they are needed, as else, the mouse click event following may not be registered
     correctly by the Draw and Modify interactions. The reasons for that are still unclear. */

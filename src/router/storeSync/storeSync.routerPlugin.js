@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
 
@@ -77,7 +78,9 @@ function storeMutationWatcher(store, mutation, router) {
             // and the share menu opened, we must close the share menu and
             // reset the shortlink
             if (store.state.share.shortLink) {
-                store.dispatch('closeShareMenuAndRemoveShortLinks')
+                store.dispatch('closeShareMenuAndRemoveShortLinks', {
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
             }
         }
     }

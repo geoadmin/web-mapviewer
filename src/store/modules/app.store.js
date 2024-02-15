@@ -16,11 +16,11 @@ export default {
     },
     getters: {},
     actions: {
-        setAppIsReady: ({ commit }) => {
-            commit('setAppIsReady')
+        setAppIsReady: ({ commit }, { dispatcher }) => {
+            commit('setAppIsReady', { dispatcher })
         },
-        mapModuleReady: ({ commit }) => {
-            commit('mapModuleReady')
+        mapModuleReady: ({ commit }, { dispatcher }) => {
+            commit('mapModuleReady', { dispatcher })
         },
     },
     mutations: {

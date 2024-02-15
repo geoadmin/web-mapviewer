@@ -7,8 +7,10 @@ const store = useStore()
 const showBuildings = computed(() => store.state.cesium.showBuildings)
 const showVegetation = computed(() => store.state.cesium.showVegetation)
 
-const toggleShow3dVegetation = () => store.dispatch('toggleShow3dVegetation')
-const toggleShow3dBuildings = () => store.dispatch('toggleShow3dBuildings')
+const toggleShow3dVegetation = () =>
+    store.dispatch('toggleShow3dVegetation', { dispatcher: 'Toggle3DLayerButton.vue' })
+const toggleShow3dBuildings = () =>
+    store.dispatch('toggleShow3dBuildings', { dispatcher: 'Toggle3DLayerButton.vue' })
 </script>
 
 <template>

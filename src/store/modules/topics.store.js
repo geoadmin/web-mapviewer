@@ -44,44 +44,41 @@ const getters = {
 }
 
 const actions = {
-    setTopics: ({ commit }, topics) => {
-        if (Array.isArray(topics)) {
-            commit('setTopicConfig', topics)
-        }
+    setTopics: ({ commit }, { topics, dispatcher }) => {
+        commit('setTopics', { topics, dispatcher })
     },
-    setTopicTree: ({ commit }, tree) => {
-        if (Array.isArray(tree)) {
-            commit('setTopicTree', tree)
-        }
+    setTopicTree: ({ commit }, { layers, dispatcher }) => {
+        commit('setTopicTree', { layers: layers.map((layer) => layer.clone()), dispatcher })
     },
-    changeTopic: ({ commit }, topic) => {
-        commit(CHANGE_TOPIC_MUTATION, topic)
+    changeTopic: ({ commit }, args) => {
+        commit(CHANGE_TOPIC_MUTATION, args)
     },
-    setTopicById: ({ commit, state }, topicId) => {
+    setTopicById: ({ commit, state }, { value, dispatcher }) => {
+        const topicId = value
         const topic = state.config.find((topic) => topic.id === topicId)
         if (topic) {
-            commit(CHANGE_TOPIC_MUTATION, topic)
+            commit(CHANGE_TOPIC_MUTATION, { value: topic, dispatcher })
         } else {
             log.error('No topic found with ID', topicId)
         }
     },
-    setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
-        if (typeof themes === 'string') {
-            commit(
-                'setTopicTreeOpenedThemesIds',
-                themes.indexOf(',') !== -1 ? themes.split(',') : [themes]
-            )
-        } else if (Array.isArray(themes)) {
-            commit('setTopicTreeOpenedThemesIds', themes)
+    setTopicTreeOpenedThemesIds: ({ commit }, { value, dispatcher }) => {
+        if (typeof value === 'string') {
+            commit('setTopicTreeOpenedThemesIds', {
+                themes: value.indexOf(',') !== -1 ? value.split(',') : [value],
+                dispatcher,
+            })
+        } else if (Array.isArray(value)) {
+            commit('setTopicTreeOpenedThemesIds', { themes: value.slice(), dispatcher })
         }
     },
 }
 const mutations = {
-    setTopicConfig: (state, topics) => (state.config = [...topics]),
-    setTopicTree: (state, tree) => (state.tree = [...tree]),
-    setTopicTreeOpenedThemesIds: (state, themesIds) => (state.openedTreeThemesIds = [...themesIds]),
+    setTopics: (state, { topics }) => (state.config = topics),
+    setTopicTree: (state, { layers }) => (state.tree = layers),
+    setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
 }
-mutations[CHANGE_TOPIC_MUTATION] = (state, topic) => (state.current = topic)
+mutations[CHANGE_TOPIC_MUTATION] = (state, { value }) => (state.current = value)
 
 export default {
     state,

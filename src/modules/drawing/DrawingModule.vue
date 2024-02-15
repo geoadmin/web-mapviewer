@@ -156,7 +156,7 @@ async function closeDrawing() {
         await saveDrawing(false)
     }
 
-    await store.dispatch('toggleDrawingOverlay')
+    await store.dispatch('toggleDrawingOverlay', { dispatcher: 'DrawingModule.vue' })
     await store.dispatch('setShowLoadingBar', false)
 }
 </script>

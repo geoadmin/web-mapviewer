@@ -1,10 +1,14 @@
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 /**
@@ -60,7 +64,7 @@ export function createLayerObject(parsedLayer) {
         }
     }
     // format is GPX|FILE_URL
-    if (layerType === 'GPX') {
+    else if (layerType === 'GPX') {
         if (url.startsWith('http')) {
             layer = new GPXLayer(url, parsedLayer.visible, parsedLayer.opacity)
         } else {
@@ -105,6 +109,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                         store.dispatch('setLayerOpacity', {
                             layerId: activeLayer.getID(),
                             opacity: matchingLayerMetadata.opacity,
+                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                         })
                     )
                 }
@@ -116,6 +121,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                         store.dispatch('setLayerOpacity', {
                             layerId: activeLayer.getID(),
                             opacity: configForThisLayer.opacity,
+                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                         })
                     )
                 }
@@ -125,13 +131,19 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                     store.dispatch('setLayerVisibility', {
                         layerId: activeLayer.getID(),
                         visible: matchingLayerMetadata.visible,
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
                 )
             }
         } else {
             // this layer has to be removed (not present in the URL anymore)
             log.debug(`  Remove layer ${activeLayer.getID()} from active layers`)
-            promisesForAllDispatch.push(store.dispatch('removeLayer', activeLayer.getID()))
+            promisesForAllDispatch.push(
+                store.dispatch('removeLayer', {
+                    layer: activeLayer,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            )
         }
     })
     // adding any layer that is not present yet
@@ -144,10 +156,21 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
             const layerObject = createLayerObject(parsedLayer)
             if (layerObject) {
                 if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
-                    promisesForAllDispatch.push(store.dispatch('setShowDrawingOverlay', true))
+                    promisesForAllDispatch.push(
+                        store.dispatch('setShowDrawingOverlay', {
+                            value: true,
+                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                        })
+                    )
                 }
                 log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
-                promisesForAllDispatch.push(store.dispatch('addLayer', layerObject))
+                promisesForAllDispatch.push(
+                    store.dispatch('addLayer', {
+                        layer: layerObject instanceof AbstractLayer ? layerObject : null,
+                        layerConfig: layerObject instanceof ActiveLayerConfig ? layerObject : null,
+                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                    })
+                )
             }
         }
     })
@@ -160,6 +183,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
                 store.dispatch('setTimedLayerCurrentYear', {
                     layerId: timedLayer.id,
                     year: timedLayer.customAttributes.year,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             )
         })

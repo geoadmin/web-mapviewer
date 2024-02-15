@@ -55,19 +55,19 @@ export default {
         },
     },
     actions: {
-        set3dActive({ commit }, is3dActive) {
-            commit('set3dActive', !!is3dActive)
+        set3dActive({ commit }, { value, dispatcher }) {
+            commit('set3dActive', { value: !!value, dispatcher })
         },
-        toggleShow3dBuildings({ commit, state }) {
-            commit('setShowBuildings', !state.showBuildings)
+        toggleShow3dBuildings({ commit, state }, { dispatcher }) {
+            commit('setShowBuildings', { value: !state.showBuildings, dispatcher })
         },
-        toggleShow3dVegetation({ commit, state }) {
-            commit('setShowVegetation', !state.showVegetation)
+        toggleShow3dVegetation({ commit, state }, { dispatcher }) {
+            commit('setShowVegetation', { value: !state.showVegetation, dispatcher })
         },
     },
     mutations: {
-        set3dActive: (state, flagValue) => (state.active = flagValue),
-        setShowBuildings: (state, flagValue) => (state.showBuildings = flagValue),
-        setShowVegetation: (state, flagValue) => (state.showVegetation = flagValue),
+        set3dActive: (state, { value }) => (state.active = value),
+        setShowBuildings: (state, { value }) => (state.showBuildings = value),
+        setShowVegetation: (state, { value }) => (state.showVegetation = value),
     },
 }

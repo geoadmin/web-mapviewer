@@ -52,11 +52,11 @@ export default function loadGeojsonStyleAndData(store) {
     store.subscribe((mutation) => {
         if (
             mutation.type === 'addLayer' &&
-            mutation.payload instanceof GeoAdminGeoJsonLayer &&
-            mutation.payload.isLoading
+            mutation.payload.layer instanceof GeoAdminGeoJsonLayer &&
+            mutation.payload.layer?.isLoading
         ) {
             log.debug(`Loading data/style for added GeoJSON layer`, mutation.payload)
-            loadDataAndStyle(store, mutation.payload)
+            loadDataAndStyle(store, mutation.payload.layer)
         }
     })
 }

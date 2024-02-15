@@ -44,7 +44,10 @@ const sortedBackgroundLayersWithVoid = computed(() =>
 )
 
 function selectBackground(backgroundLayer) {
-    store.dispatch('setBackground', backgroundLayer)
+    store.dispatch('setBackground', {
+        value: backgroundLayer,
+        dispatcher: 'BackgroundSelector.vue',
+    })
 }
 </script>
 

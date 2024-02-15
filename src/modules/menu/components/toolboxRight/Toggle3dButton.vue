@@ -79,7 +79,7 @@ export default {
         ...mapActions(['set3dActive']),
         toggle3d() {
             if (this.webGlIsSupported && !this.showDrawingOverlay) {
-                this.set3dActive(!this.isActive)
+                this.set3dActive({ value: !this.isActive, dispatcher: 'Toggle3dButton.vue' })
             }
         },
         updateTooltipContent() {

@@ -34,9 +34,9 @@ const secondLayer = new GeoAdminWMSLayer(
 )
 
 const resetStore = async () => {
-    await store.dispatch('clearLayers')
-    await store.dispatch('setBackground', null)
-    await store.dispatch('setLayerConfig', [])
+    await store.dispatch('clearLayers', { dispatcher: 'unit-test' })
+    await store.dispatch('setBackground', { value: null, dispatcher: 'unit-test' })
+    await store.dispatch('setLayerConfig', { config: [], dispatcher: 'unit-test' })
 }
 
 describe('Background layer is correctly set', () => {
@@ -50,18 +50,21 @@ describe('Background layer is correctly set', () => {
         expect(getBackgroundLayer()).to.be.null
     })
     it('does not select a background if the one given is not present in the config', async () => {
-        await store.dispatch('setBackground', bgLayer.getID())
+        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.null
     })
     it('does select the background if it is present in the config', async () => {
-        await store.dispatch('setLayerConfig', [bgLayer])
-        await store.dispatch('setBackground', bgLayer.getID())
+        await store.dispatch('setLayerConfig', { config: [bgLayer], dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
         expect(getBackgroundLayer().getID()).to.eq(bgLayer.getID())
     })
     it('does not permit to select a background that has not the flag isBackground set to true', async () => {
-        await store.dispatch('setLayerConfig', [firstLayer])
-        await store.dispatch('setBackground', firstLayer.getID())
+        await store.dispatch('setLayerConfig', { config: [firstLayer], dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', {
+            value: firstLayer.getID(),
+            dispatcher: 'unit-test',
+        })
         expect(getBackgroundLayer()).to.be.null
     })
 })
@@ -74,14 +77,17 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
 
     beforeEach(async () => {
         await resetStore()
-        await store.dispatch('setLayerConfig', [bgLayer, firstLayer, secondLayer])
+        await store.dispatch('setLayerConfig', {
+            config: [bgLayer, firstLayer, secondLayer],
+            dispatcher: 'unit-test',
+        })
     })
     it('creates a copy of the layers config when adding a layer through its ID', async () => {
-        await store.dispatch('addLayer', firstLayer.getID())
+        store.dispatch('addLayer', { layerId: firstLayer.getID(), dispatcher: 'unit-test' })
         checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.getID()))
     })
     it('creates a copy of the layers config when adding with the config directly', async () => {
-        await store.dispatch('addLayer', firstLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
         checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.getID()))
         // now the same test, but by grabbing the first layer's config directly from the store's config
         checkRefNotEqButDeepEq(
@@ -92,8 +98,11 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
     it('does not force the visibility of the layer to true when adding it', async () => {
         const invisibleLayer = firstLayer.clone()
         invisibleLayer.visible = false
-        await store.dispatch('setLayerConfig', [bgLayer, invisibleLayer, secondLayer])
-        await store.dispatch('addLayer', invisibleLayer)
+        await store.dispatch('setLayerConfig', {
+            config: [bgLayer, invisibleLayer, secondLayer],
+            dispatcher: 'unit-test',
+        })
+        store.dispatch('addLayer', { layer: invisibleLayer, dispatcher: 'unit-test' })
         const addedLayer = store.getters.getActiveLayerById(invisibleLayer.getID())
         expect(addedLayer).to.be.an.instanceof(AbstractLayer)
         expect(addedLayer.visible).to.be.false
@@ -105,18 +114,21 @@ describe('Visible layers are filtered correctly by the store', () => {
 
     beforeEach(async () => {
         await resetStore()
-        await store.dispatch('setLayerConfig', [bgLayer, firstLayer, secondLayer])
+        await store.dispatch('setLayerConfig', {
+            config: [bgLayer, firstLayer, secondLayer],
+            dispatcher: 'unit-test',
+        })
     })
 
     it('gives an empty array if no layer has been added', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not give background layers with the visible layers', async () => {
-        await store.dispatch('setBackground', bgLayer.getID())
+        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('adds correctly a layer to the visible layers after it is added to the map', async () => {
-        await store.dispatch('addLayer', firstLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         const [layer] = getVisibleLayers()
         expect(layer).to.be.an.instanceof(AbstractLayer)
@@ -124,7 +136,7 @@ describe('Visible layers are filtered correctly by the store', () => {
     })
     it('removes a layer from the visible layers as soon as its visibility is toggled', async () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
-        await store.dispatch('addLayer', firstLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         await store.dispatch('toggleLayerVisibility', firstLayer)
         expect(getVisibleLayers()).to.be.an('Array').empty
@@ -133,7 +145,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         const invisibleLayer = firstLayer.clone()
         invisibleLayer.visible = false
         await store.dispatch('setLayersConfig', [bgLayer, invisibleLayer, secondLayer])
-        await store.dispatch('addLayer', invisibleLayer)
+        store.dispatch('addLayer', { layer: invisibleLayer, dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
 })
@@ -143,9 +155,12 @@ describe('Layer z-index are calculated correctly in the store', () => {
 
     beforeEach(async () => {
         await resetStore()
-        await store.dispatch('setLayerConfig', [bgLayer, firstLayer, secondLayer])
+        await store.dispatch('setLayerConfig', {
+            config: [bgLayer, firstLayer, secondLayer],
+            dispatcher: 'unit-test',
+        })
         // setting up the background layer
-        await store.dispatch('setBackground', bgLayer)
+        await store.dispatch('setBackground', { value: bgLayer, dispatcher: 'unit-test' })
     })
 
     it('gives a z-index of -1 if the given layer is not valid', () => {
@@ -158,13 +173,13 @@ describe('Layer z-index are calculated correctly in the store', () => {
     })
 
     it('counts the BG layer', async () => {
-        await store.dispatch('addLayer', firstLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
         expect(getZIndex(firstLayer)).to.eq(1) // BG layer takes the 0 spot
     })
 
     it('counts two non group layer correctly', async () => {
-        await store.dispatch('addLayer', firstLayer)
-        await store.dispatch('addLayer', secondLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
+        store.dispatch('addLayer', { layer: secondLayer, dispatcher: 'unit-test' })
         expect(getZIndex(firstLayer)).to.eq(1)
         expect(getZIndex(secondLayer)).to.eq(2)
     })
@@ -183,9 +198,9 @@ describe('Layer z-index are calculated correctly in the store', () => {
                 new ExternalWMSLayer('Layer 4', 1.0, true, '...', 'layer4', [], ''),
             ]
         )
-        await store.dispatch('addLayer', firstLayer)
-        await store.dispatch('addLayer', groupLayer)
-        await store.dispatch('addLayer', secondLayer)
+        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
+        store.dispatch('addLayer', { layer: groupLayer, dispatcher: 'unit-test' })
+        store.dispatch('addLayer', { layer: secondLayer, dispatcher: 'unit-test' })
         expect(getZIndex(firstLayer)).to.eq(1)
         expect(getZIndex(groupLayer)).to.eq(2)
         expect(getZIndex(secondLayer)).to.eq(6)

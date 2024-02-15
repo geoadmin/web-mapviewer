@@ -1,4 +1,6 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 
 export function readCenterFromUrlParam(urlParamValue) {
     if (urlParamValue) {
@@ -15,7 +17,7 @@ function dispatchCenterFromUrlIntoStore(store, urlParamValue) {
     const center = readCenterFromUrlParam(urlParamValue)
     if (center) {
         promisesForAllDispatch.push(
-            store.dispatch('setCenter', { center, source: 'URL param parsing' })
+            store.dispatch('setCenter', { center, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
         )
     }
     return Promise.all(promisesForAllDispatch)

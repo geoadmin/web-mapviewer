@@ -51,10 +51,10 @@ export default function loadKmlDataAndMetadata(store) {
     store.subscribe((mutation) => {
         if (
             mutation.type === 'addLayer' &&
-            mutation.payload instanceof KMLLayer &&
-            (!mutation.payload.kmlData || !mutation.payload.kmlMetadata)
+            mutation.payload.layer instanceof KMLLayer &&
+            (!mutation.payload.layer.kmlData || !mutation.payload.layer.kmlMetadata)
         ) {
-            const kmlLayer = mutation.payload
+            const kmlLayer = mutation.payload.layer
 
             if (!kmlLayer.kmlData) {
                 loadData(store, kmlLayer)

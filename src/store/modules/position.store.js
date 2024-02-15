@@ -175,11 +175,11 @@ const actions = {
      * @param source Source of this change, for debug purposes (won't be stored, will be in output
      *   of the debug console)
      */
-    setZoom({ commit, state }, { zoom, source = 'unknown' }) {
+    setZoom({ commit, state }, { zoom, dispatcher }) {
         if (typeof zoom !== 'number' || zoom < 0) {
             return
         }
-        commit('setZoom', { zoom: state.projection.roundZoomLevel(zoom), source })
+        commit('setZoom', { zoom: state.projection.roundZoomLevel(zoom), dispatcher })
     },
     setRotation({ commit }, rotation) {
         if (typeof rotation !== 'number') {
@@ -192,27 +192,27 @@ const actions = {
      * @param commit
      * @param center The new center, either an array of two numbers, or an object with {x, y}
      *   properties
-     * @param source Source of this change, for debug purposes (won't be stored, will be in output
-     *   of the debug console)
+     * @param dispatcher Source of this change, for debug purposes (won't be stored, will be in
+     *   output of the debug console)
      */
-    setCenter: ({ commit }, { center, source = 'unknown' }) => {
+    setCenter: ({ commit }, { center, dispatcher = 'unknown' }) => {
         if (
             !center ||
             (Array.isArray(center) && center.length !== 2) ||
             (!Array.isArray(center) && (!center.x || !center.y))
         ) {
-            log.error('bad center received, ignoring', center, 'source:', source)
+            log.error('bad center received, ignoring', center, 'dispatcher:', dispatcher)
             return
         }
         if (Array.isArray(center)) {
             commit('setCenter', {
                 x: center[0],
                 y: center[1],
-                source,
+                dispatcher,
             })
         } else {
             const { x, y } = center
-            commit('setCenter', { x, y, source })
+            commit('setCenter', { x, y, dispatcher })
         }
     },
     zoomToExtent: ({ commit, state, rootState }, extent) => {
@@ -233,7 +233,7 @@ const actions = {
                 commit('setCenter', {
                     x: centerOfExtent[0],
                     y: centerOfExtent[1],
-                    source: 'zoomToExtent',
+                    dispatcher: 'position.store/zoomToExtent',
                 })
             }
             const extentSize = {
@@ -257,30 +257,33 @@ const actions = {
             // zoom level required to show the full extent on the map (scale to fill).
             // So the view will be too zoomed-in to have an overview of the extent.
             // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
-            commit('setZoom', { zoom: Math.max(zoomForResolution - 1, 0), source: 'zoomToExtent' })
+            commit('setZoom', {
+                zoom: Math.max(zoomForResolution - 1, 0),
+                dispatcher: 'position.store/zoomToExtent',
+            })
         }
     },
     increaseZoom: ({ dispatch, state }) =>
-        dispatch('setZoom', { zoom: Number(state.zoom) + 1, source: 'increaseZoom' }),
+        dispatch('setZoom', { zoom: Number(state.zoom) + 1, dispatcher: 'position.store/increaseZoom' }),
     decreaseZoom: ({ dispatch, state }) =>
-        dispatch('setZoom', { zoom: Number(state.zoom) - 1, source: 'decreaseZoom' }),
+        dispatch('setZoom', { zoom: Number(state.zoom) - 1, dispatcher: 'position.store/decreaseZoom' }),
     /**
      * @param {CrossHairs | String | null} crossHair
      * @param {Number[] | null} crossHairPosition
      */
-    setCrossHair: ({ commit, state }, { crossHair, crossHairPosition }) => {
+    setCrossHair: ({ commit, state }, { crossHair, crossHairPosition, dispatcher }) => {
         if (crossHair === null) {
-            commit('setCrossHair', null)
-            commit('setCrossHairPosition', null)
+            commit('setCrossHair', { value: null, dispatcher })
+            commit('setCrossHairPosition', { value: null, dispatcher })
         } else if (crossHair in CrossHairs) {
-            commit('setCrossHair', CrossHairs[crossHair])
+            commit('setCrossHair', { value: CrossHairs[crossHair], dispatcher })
 
             // if a position is defined as param we use it
             if (crossHairPosition) {
-                commit('setCrossHairPosition', crossHairPosition)
+                commit('setCrossHairPosition', { value: crossHairPosition, dispatcher })
             } else {
                 // if no position was given, we use the current center of the map as crosshair position
-                commit('setCrossHairPosition', state.center)
+                commit('setCrossHairPosition', { value: state.center, dispatcher })
             }
         }
     },
@@ -290,10 +293,11 @@ const actions = {
      * @param source Source of this change, for debug purposes (won't be stored, will be in output
      *   of the debug console)
      */
-    setCameraPosition({ commit }, { position, source }) {
-        commit('setCameraPosition', { position, source })
+    setCameraPosition({ commit }, { position, dispatcher }) {
+        commit('setCameraPosition', { position, dispatcher })
     },
-    setProjection({ commit, state }, projection) {
+    setProjection({ commit, state }, { value, dispatcher }) {
+        const projection = value
         let matchingProjection
         if (projection instanceof CoordinateSystem) {
             matchingProjection = projection
@@ -318,7 +322,7 @@ const actions = {
             const oldProjection = state.projection
             // reprojecting the center of the map
             const [x, y] = proj4(oldProjection.epsg, matchingProjection.epsg, state.center)
-            commit('setCenter', { x, y, source: 'setProjection' })
+            commit('setCenter', { x, y, dispatcher: 'position.store/setProjection' })
             // adapting the zoom level (if needed)
             if (
                 oldProjection instanceof StandardCoordinateSystem &&
@@ -326,7 +330,7 @@ const actions = {
             ) {
                 commit('setZoom', {
                     zoom: matchingProjection.transformStandardZoomLevelToCustom(state.zoom),
-                    source: 'setProjection',
+                    dispatcher: 'position.store/setProjection',
                 })
             }
             if (
@@ -335,7 +339,7 @@ const actions = {
             ) {
                 commit('setZoom', {
                     zoom: oldProjection.transformCustomZoomLevelToStandard(state.zoom),
-                    source: 'setProjection',
+                    dispatcher: 'position.store/setProjection',
                 })
             }
             if (
@@ -348,7 +352,7 @@ const actions = {
                     zoom: oldProjection.transformCustomZoomLevelToStandard(
                         matchingProjection.transformStandardZoomLevelToCustom(state.zoom)
                     ),
-                    source: 'setProjection',
+                    dispatcher: 'position.store/setProjection',
                 })
             }
 
@@ -359,7 +363,7 @@ const actions = {
                 )
             }
 
-            commit('setProjection', matchingProjection)
+            commit('setProjection', { projection: matchingProjection, dispatcher })
         } else {
             log.error('Unsupported projection', projection)
         }
@@ -370,11 +374,10 @@ const mutations = {
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
-    setCrossHair: (state, crossHair) => (state.crossHair = crossHair),
-    setCrossHairPosition: (state, crossHairPosition) =>
-        (state.crossHairPosition = crossHairPosition),
+    setCrossHair: (state, { value }) => (state.crossHair = value),
+    setCrossHairPosition: (state, { value }) => (state.crossHairPosition = value),
     setCameraPosition: (state, { position }) => (state.camera = position),
-    setProjection: (state, projection) => (state.projection = projection),
+    setProjection: (state, { projection }) => (state.projection = projection),
 }
 
 export default {

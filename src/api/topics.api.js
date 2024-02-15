@@ -159,7 +159,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                                 ]),
                             ]
                                 // Filter out layers that have been already added by the infamous
-                                // plConfig topic config that has priority, this avoid duplicate 
+                                // plConfig topic config that has priority, this avoid duplicate
                                 // layers
                                 .filter(
                                     (layerId) =>

@@ -1,4 +1,5 @@
 import { DEFAULT_PROJECTION } from '@/config'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
@@ -51,7 +52,7 @@ const storeSyncConfig = [
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
-        'toggleGeolocation',
+        'setGeolocation',
         (store) => store.state.geolocation.active,
         false,
         Boolean,
@@ -88,6 +89,7 @@ const storeSyncConfig = [
         (store, urlValue) =>
             store.dispatch('setSearchQuery', {
                 query: urlValue,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             }),
         (store) => store.state.search.query,
         false,

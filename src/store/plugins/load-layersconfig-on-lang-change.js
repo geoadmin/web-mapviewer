@@ -4,6 +4,8 @@ import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
+const STORE_DISPATCHER_LANG_CHANGE = 'load-layersconfig-on-lang-change'
+
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
  * from the backend the second time (will disappear on page reload)
@@ -31,7 +33,7 @@ async function loadLayersConfig(lang) {
     }
 }
 
-const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
+const loadLayersAndTopicsConfigAndDispatchToStore = async (store, dispatcher) => {
     try {
         const layersConfig = [...(await loadLayersConfig(store.state.i18n.lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
@@ -58,22 +60,25 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
             )
         }
 
-        store.dispatch('setLayerConfig', layersConfig)
-        store.dispatch('setTopics', topicsConfig)
+        store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
+        store.dispatch('setTopics', { topics: topicsConfig, dispatcher })
         if (store.state.topics.current) {
             const tree = await loadTopicTreeForTopic(
                 store.state.i18n.lang,
                 store.state.topics.current,
                 store.state.layers.config
             )
-            store.dispatch('setTopicTree', tree.layers)
-            store.dispatch('setTopicTreeOpenedThemesIds', tree.itemIdToOpen)
+            store.dispatch('setTopicTree', { layers: tree.layers, dispatcher })
+            store.dispatch('setTopicTreeOpenedThemesIds', {
+                value: tree.itemIdToOpen,
+                dispatcher,
+            })
         } else {
             // if no topic was set in the URL, we load the default topic ECH
-            store.dispatch(
-                'changeTopic',
-                topicsConfig.find((topic) => topic.id === 'ech')
-            )
+            store.dispatch('changeTopic', {
+                value: topicsConfig.find((topic) => topic.id === 'ech'),
+                dispatcher,
+            })
         }
     } catch (error) {
         log.error(error)
@@ -88,7 +93,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
 const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
-            loadLayersAndTopicsConfigAndDispatchToStore(store)
+            loadLayersAndTopicsConfigAndDispatchToStore(store, STORE_DISPATCHER_LANG_CHANGE)
                 .then(() => {
                     log.debug('Layers config for new lang loaded with success')
                 })
@@ -98,7 +103,7 @@ const loadLayersConfigOnLangChange = (store) => {
         }
     })
     // on app init, we load the first layersConfig
-    loadLayersAndTopicsConfigAndDispatchToStore(store)
+    loadLayersAndTopicsConfigAndDispatchToStore(store, 'app-init')
         .then(() => {
             log.debug('Initial layers config loaded')
         })

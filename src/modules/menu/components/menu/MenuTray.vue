@@ -27,7 +27,7 @@
                 secondary
                 :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
-                @click:header="toggleDrawingOverlay()"
+                @click:header="toggleDrawingOverlay({ dispatcher: 'MenuTray.vue' })"
                 @open-menu-section="onOpenMenuSection"
                 @close-menu-section="onCloseMenuSection"
             />

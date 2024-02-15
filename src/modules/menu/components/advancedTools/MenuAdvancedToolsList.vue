@@ -7,6 +7,9 @@ import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatal
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+
+const STORE_DISPATCHER_MENU_ADVANCED_TOOL = 'MenuAdvancedToolsList.vue'
+
 const props = defineProps({
     compact: {
         type: Boolean,
@@ -29,9 +32,15 @@ function onToggleImportCatalogue() {
 function onToggleCompareSlider() {
     if (storeCompareRatio.value === null) {
         // this allows us to set a value to the compare ratio, in case there was none
-        store.dispatch('setCompareRatio', 0.5)
+        store.dispatch('setCompareRatio', {
+            value: 0.5,
+            dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
+        })
     }
-    store.dispatch('setCompareSliderActive', !isCompareSliderActive.value)
+    store.dispatch('setCompareSliderActive', {
+        value: !isCompareSliderActive.value,
+        dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
+    })
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {

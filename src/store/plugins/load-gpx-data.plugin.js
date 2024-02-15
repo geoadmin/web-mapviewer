@@ -41,10 +41,10 @@ export default function loadGpxDataAndMetadata(store) {
     store.subscribe((mutation) => {
         if (
             mutation.type === 'addLayer' &&
-            mutation.payload instanceof GPXLayer &&
-            (!mutation.payload.gpxData || !mutation.payload.gpxMetadata)
+            mutation.payload.layer instanceof GPXLayer &&
+            (!mutation.payload.layer?.gpxData || !mutation.payload.layer?.gpxMetadata)
         ) {
-            loadGpx(store, mutation.payload)
+            loadGpx(store, mutation.payload.layer)
         }
     })
 }

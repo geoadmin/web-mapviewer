@@ -17,7 +17,10 @@ import log from '@/utils/logging'
 const appReadinessPlugin = (store) => {
     const unsubscribe = store.subscribe((mutation, state) => {
         // Log all mutations for debugging
-        log.debug(`[store mutation]: type=${mutation.type} payload=`, mutation.payload)
+        log.debug(
+            `[store mutation]: type=${mutation.type} dispatcher=${mutation.payload?.dispatcher ?? null} payload=`,
+            mutation.payload
+        )
 
         // if app is not ready yet, we go through the checklist
         if (!state.app.isReady) {
@@ -27,7 +30,7 @@ const appReadinessPlugin = (store) => {
                 Object.keys(state.layers.config).length > 0 &&
                 state.topics.config.length > 0
             ) {
-                store.dispatch('setAppIsReady')
+                store.dispatch('setAppIsReady', 'app-readiness-plugin')
 
                 // In production build we are not interested anymore in the mutation logs
                 // therefore unsubscribe here
@@ -42,7 +45,10 @@ const appReadinessPlugin = (store) => {
     // only subscribe to action logs for non productive build
     if (ENVIRONMENT !== 'production') {
         store.subscribeAction((action, _state) => {
-            log.debug(`[store action]: type=${action.type} payload=`, action.payload)
+            log.debug(
+                `[store action]: type=${action.type} dispatcher=${action.payload?.dispatcher ?? null} payload=`,
+                action.payload
+            )
         })
     }
 }

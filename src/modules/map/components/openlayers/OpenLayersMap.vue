@@ -53,7 +53,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 map.once('rendercomplete', () => {
     // This is needed for cypress in order to start the tests only
     // when openlayer is rendered otherwise some tests will fail.
-    store.dispatch('mapModuleReady')
+    store.dispatch('mapModuleReady', { dispatcher: 'OpenLayersMap.vue' })
     log.info('Openlayer map rendered')
 })
 

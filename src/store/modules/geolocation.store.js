@@ -36,6 +36,9 @@ const state = {
 const getters = {}
 
 const actions = {
+    setGeolocation: ({ commit }, args) => {
+        commit('setGeolocationActive', args.value)
+    },
     toggleGeolocation: ({ commit, state }) => {
         const willBeActive = !state.active
         if (willBeActive) {

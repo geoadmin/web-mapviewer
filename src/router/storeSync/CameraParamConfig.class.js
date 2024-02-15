@@ -1,4 +1,6 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 
 /**
  * Reads the camera position from the single URL param. Returns null if the camera position is not
@@ -33,7 +35,10 @@ function dispatchCameraFromUrlIntoStore(store, urlParamValue) {
     const camera = readCameraFromUrlParam(urlParamValue)
     if (camera) {
         promisesForAllDispatch.push(
-            store.dispatch('setCameraPosition', { position: camera, source: 'URL param parsing' })
+            store.dispatch('setCameraPosition', {
+                position: camera,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
         )
     }
     return Promise.all(promisesForAllDispatch)
