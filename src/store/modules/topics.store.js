@@ -1,7 +1,5 @@
 import log from '@/utils/logging'
 
-export const CHANGE_TOPIC_MUTATION = 'changeTopic'
-
 const state = {
     /**
      * List of all available topics
@@ -15,7 +13,7 @@ const state = {
      *
      * @type {Topic}
      */
-    current: null,
+    current: 'ech',
     /**
      * Current topic's layers tree (that will help the user select layers belonging to this topic)
      *
@@ -32,14 +30,14 @@ const state = {
 
 const getters = {
     isDefaultTopic: (state) => {
-        return state.current && state.current.id === 'ech'
+        return state.current === 'ech'
     },
     /** Returns the current topic's id, or `ech` if no topic is selected */
     currentTopicId: (state) => {
-        if (state.current) {
-            return state.current.id
-        }
-        return 'ech'
+        return state.current
+    },
+    currentTopic: (state) => {
+        return state.config.find((topic) => topic.id === state.current)
     },
 }
 
@@ -50,16 +48,16 @@ const actions = {
     setTopicTree: ({ commit }, { layers, dispatcher }) => {
         commit('setTopicTree', { layers: layers.map((layer) => layer.clone()), dispatcher })
     },
-    changeTopic: ({ commit }, args) => {
-        commit(CHANGE_TOPIC_MUTATION, args)
-    },
-    setTopicById: ({ commit, state }, { value, dispatcher }) => {
-        const topicId = value
-        const topic = state.config.find((topic) => topic.id === topicId)
-        if (topic) {
-            commit(CHANGE_TOPIC_MUTATION, { value: topic, dispatcher })
+    changeTopic: ({ commit, state }, { value, dispatcher }) => {
+        if (
+            state.config.find((topic) => topic.id === value) ||
+            // during appLoadingManagement.routerPlugin the topics are not yet set
+            // therefore we cannot validate the topic ID
+            dispatcher === 'appLoadingManagement.routerPlugin'
+        ) {
+            commit('changeTopic', { value, dispatcher })
         } else {
-            log.error('No topic found with ID', topicId)
+            log.error(`Invalid topic ID ${value}`)
         }
     },
     setTopicTreeOpenedThemesIds: ({ commit }, { value, dispatcher }) => {
@@ -77,8 +75,8 @@ const mutations = {
     setTopics: (state, { topics }) => (state.config = topics),
     setTopicTree: (state, { layers }) => (state.tree = layers),
     setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
+    changeTopic: (state, { value }) => (state.current = value),
 }
-mutations[CHANGE_TOPIC_MUTATION] = (state, { value }) => (state.current = value)
 
 export default {
     state,

@@ -81,8 +81,7 @@ describe('Test functions for the header / search bar', () => {
         const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
             cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
             cy.readStoreValue('state.topics.current').then((currentTopic) => {
-                expect(currentTopic).to.not.be.undefined
-                expect(currentTopic.id).to.eq(expectedTopicId)
+                expect(currentTopic).to.eq(expectedTopicId)
             })
         }
         const selectTopicStandardAndAddLayerFromTopicTree = () => {

@@ -76,8 +76,8 @@ const storeSyncConfig = [
     new SimpleUrlParamConfig(
         'topic',
         'changeTopic',
-        'setTopicById',
-        (store) => store.getters.currentTopicId,
+        'changeTopic',
+        (store) => store.state.topics.current,
         true,
         String
     ),

@@ -33,10 +33,12 @@ async function loadLayersConfig(lang) {
     }
 }
 
-const loadLayersAndTopicsConfigAndDispatchToStore = async (store, dispatcher) => {
+const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId, dispatcher) => {
     try {
-        const layersConfig = [...(await loadLayersConfig(store.state.i18n.lang))]
+        log.debug(`Start loading layers config and topics`)
+        const layersConfig = [...(await loadLayersConfig(lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
+        log.debug(`Finished loading layers config and topics`)
 
         // adding SWISSIMAGE as a possible background for 3D
         const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
@@ -62,24 +64,14 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, dispatcher) =>
 
         store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
         store.dispatch('setTopics', { topics: topicsConfig, dispatcher })
-        if (store.state.topics.current) {
-            const tree = await loadTopicTreeForTopic(
-                store.state.i18n.lang,
-                store.state.topics.current,
-                store.state.layers.config
-            )
-            store.dispatch('setTopicTree', { layers: tree.layers, dispatcher })
-            store.dispatch('setTopicTreeOpenedThemesIds', {
-                value: tree.itemIdToOpen,
-                dispatcher,
-            })
-        } else {
-            // if no topic was set in the URL, we load the default topic ECH
-            store.dispatch('changeTopic', {
-                value: topicsConfig.find((topic) => topic.id === 'ech'),
-                dispatcher,
-            })
-        }
+        store.dispatch('changeTopic', { value: topicId, dispatcher })
+        const tree = await loadTopicTreeForTopic(lang, topicId, layersConfig)
+        store.dispatch('setTopicTree', { layers: tree.layers, dispatcher })
+        store.dispatch('setTopicTreeOpenedThemesIds', {
+            value: tree.itemIdToOpen,
+            dispatcher,
+        })
+        log.debug(`layers config and topics dispatched`)
     } catch (error) {
         log.error(error)
     }
@@ -93,7 +85,12 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, dispatcher) =>
 const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
-            loadLayersAndTopicsConfigAndDispatchToStore(store, STORE_DISPATCHER_LANG_CHANGE)
+            loadLayersAndTopicsConfigAndDispatchToStore(
+                store,
+                mutation.payload.value,
+                store.state.topics.current,
+                STORE_DISPATCHER_LANG_CHANGE
+            )
                 .then(() => {
                     log.debug('Layers config for new lang loaded with success')
                 })
@@ -102,8 +99,14 @@ const loadLayersConfigOnLangChange = (store) => {
                 })
         }
     })
-    // on app init, we load the first layersConfig
-    loadLayersAndTopicsConfigAndDispatchToStore(store, 'app-init')
+    // on app init, we load the first layersConfig and topics using the lang and topic from url
+    const queryParams = new URLSearchParams(
+        // The legacy link uses the query, while new permalink are behind the hash
+        window.location.search || window.location.hash.replace('#/map?')
+    )
+    const lang = queryParams.get('lang') ?? store.state.i18n.lang
+    const topic = queryParams.get('topic') ?? store.state.topics.current
+    loadLayersAndTopicsConfigAndDispatchToStore(store, lang, topic, 'app-init')
         .then(() => {
             log.debug('Initial layers config loaded')
         })

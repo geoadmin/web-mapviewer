@@ -71,14 +71,14 @@ const readTopicTreeRecursive = (node, availableLayers) => {
  * Loads the topic tree for a topic. This will be used to create the UI of the topic in the menu.
  *
  * @param {String} lang The lang in which to load the topic tree
- * @param {Topic} topic The topic we want to load the topic tree
+ * @param {String} topicId The topic we want to load the topic tree
  * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
  * @returns {Promise<{ layers: GeoAdminLayer[]; itemIdToOpen: String[] }>} A list of topic's layers
  */
-export const loadTopicTreeForTopic = (lang, topic, layersConfig) => {
+export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(`${API_BASE_URL}rest/services/${topic.id}/CatalogServer?lang=${lang}`)
+            .get(`${API_BASE_URL}rest/services/${topicId}/CatalogServer?lang=${lang}`)
             .then((response) => {
                 const treeItems = []
                 const topicRoot = response.data.results.root
@@ -86,10 +86,7 @@ export const loadTopicTreeForTopic = (lang, topic, layersConfig) => {
                     try {
                         treeItems.push(readTopicTreeRecursive(child, layersConfig))
                     } catch (err) {
-                        log.error(
-                            `Error while loading Layer ${child.id} for Topic ${topic.id}`,
-                            err
-                        )
+                        log.error(`Error while loading Layer ${child.id} for Topic ${topicId}`, err)
                     }
                 })
                 const itemIdToOpen = gatherItemIdThatShouldBeOpened(topicRoot)

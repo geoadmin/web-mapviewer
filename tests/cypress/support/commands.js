@@ -214,10 +214,10 @@ Cypress.Commands.add(
         // waiting for the app to load and layers to be configured.
         cy.waitUntilState((state) => state.app.isMapReady, { timeout: 15000 })
         cy.waitUntilState(
-            (state) => {
+            (state, getters) => {
                 const active = state.layers.activeLayers.length
                 // The required layers can be set via topic or manually.
-                const targetTopic = state.topics.current?.layersToActivate.length
+                const targetTopic = getters.currentTopic?.layersToActivate.length
                 const targetLayers =
                     'layers' in queryParams
                         ? // Legacy layers come with an additional param. At least in our tests.
@@ -328,7 +328,8 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
 // cy.readStoreValue doesn't work as `.its` will prevent retries.
 Cypress.Commands.add('waitUntilState', (predicate, options = {}) => {
     cy.waitUntil(
-        () => cy.window({ log: false }).then((win) => predicate(win.store.state)),
+        () =>
+            cy.window({ log: false }).then((win) => predicate(win.store.state, win.store.getters)),
         Object.assign(
             {
                 errorMsg:

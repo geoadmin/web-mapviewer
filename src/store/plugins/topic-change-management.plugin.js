@@ -1,7 +1,7 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
-
-let isFirstSetTopic = true
+import log from '@/utils/logging'
 
 const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
 
@@ -26,14 +26,18 @@ const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
  * @param store
  */
 const topicChangeManagementPlugin = (store) => {
-    store.subscribe((mutation, state) => {
+    store.subscribe((mutation) => {
         // we listen to the "change topic" mutation
         if (mutation.type === CHANGE_TOPIC_MUTATION) {
-            const currentTopic = state.topics.current
-            // we only set background (from topic) after app startup
-            // otherwise, the URL param bgLayer is ignored/overwritten by the setTopic
-            // we set it anyway if the URL doesn't contain a bgLayer URL param
-            if (!isFirstSetTopic || window.location.href.indexOf('bgLayer=') === -1) {
+            let startTime = performance.now()
+            log.debug(`Topic change management plugin: topic changed to ${mutation.payload.value}`)
+
+            const currentTopic = store.getters.currentTopic
+            // we only set background (from topic) when the user changed the topic from the
+            // menu. If the topic changed via the URL router plugin, we ignore don't set the
+            // topic background. This allow a user to change the default topic background and
+            // create a permalink with a different background.
+            if (mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN) {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
                         value: currentTopic.defaultBackgroundLayer.getID(),
@@ -47,32 +51,42 @@ const topicChangeManagementPlugin = (store) => {
                 }
             }
 
-            // at init, if there is no active layer yet, but the topic has some, we add them
-            // after init we always add all layers from topic
-            if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
+            // When the topic is changed via the router plugin (URL parameter) we don't change
+            // the layers as we want to keep the one from the layers parameter
+            if (mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN) {
                 store.dispatch('setLayers', {
                     layers: currentTopic.layersToActivate,
                     dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                 })
             }
+
+            log.debug(
+                `Topic change management plugin: topic changed to ${mutation.payload.value} bg and layers dispatched: ${performance.now() - startTime}ms`,
+                currentTopic.layersToActivate
+            )
             // loading topic tree
             loadTopicTreeForTopic(
                 store.state.i18n.lang,
-                currentTopic,
+                currentTopic.id,
                 store.state.layers.config
             ).then((topicTree) => {
                 store.dispatch('setTopicTree', {
                     layers: topicTree.layers,
                     dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                 })
-                // checking that no values were set in the URL at app startup, otherwise we might overwrite them here
-                if (!isFirstSetTopic || store.state.topics.openedTreeThemesIds.length === 0) {
+                // checking that no values were set in the URL at app startup, otherwise we might
+                // overwrite them here
+                if (store.state.topics.openedTreeThemesIds.length === 0) {
                     store.dispatch('setTopicTreeOpenedThemesIds', {
                         value: topicTree.itemIdToOpen,
                         dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                     })
                 }
-                isFirstSetTopic = false
+
+                let endTime = performance.now()
+                log.debug(
+                    `Finished Topic change management plugin: topic changed to ${mutation.payload.value}: ${endTime - startTime}ms`
+                )
             })
         }
     })
