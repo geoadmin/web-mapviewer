@@ -158,6 +158,17 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     ...(rawTopic.selectedLayers ?? []),
                                 ]),
                             ]
+                                // Filter out layers that have been already added by the infamous
+                                // plConfig topic config that has priority, this avoid duplicate 
+                                // layers
+                                .filter(
+                                    (layerId) =>
+                                        !(
+                                            layersToActivate.findIndex(
+                                                (layer) => layer.getID() === layerId
+                                            ) !== -1
+                                        )
+                                )
                             activatedLayers.forEach((layerId) => {
                                 let layer = layersConfig.find((layer) => layer.getID() === layerId)
                                 if (layer) {
