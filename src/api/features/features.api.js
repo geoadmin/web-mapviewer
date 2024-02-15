@@ -15,17 +15,25 @@ import log from '@/utils/logging.js'
  */
 export function extractOlFeatureCoordinates(feature) {
     let coordinates = feature.getGeometry().getCoordinates()
-    if (feature.getGeometry().getType() === 'Polygon') {
-        // in case of a polygon, the coordinates structure is
-        // [
-        //   [ (poly1)
-        //      [coord1],[coord2]
-        //   ],
-        //   [ (poly2) ...
-        // ]
-        // so as we will not have multipoly, we only keep what's defined as poly one
-        // (we remove the wrapping array that would enable us to have a second polygon)
-        coordinates = coordinates[0]
+    switch (feature.getGeometry().getType()) {
+        case 'Polygon':
+            // in the case of a polygon, the coordinates structure is
+            // [
+            //   [ (poly1)
+            //      [coord1],[coord2]
+            //   ],
+            //   [ (poly2) ...
+            // ]
+            // so as we will not have multipoly, we only keep what's defined as poly one
+            // (we remove the wrapping array that would enable us to have a second polygon)
+            coordinates = coordinates[0]
+            break
+        case 'Point':
+            // we ensure the coordinates are wrapped ([ [x,y] ]
+            if (!Array.isArray(coordinates[0])) {
+                coordinates = [coordinates]
+            }
+            break
     }
     return coordinates
 }

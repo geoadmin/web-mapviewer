@@ -1,7 +1,7 @@
 import { computed, inject, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { createKml, getKml, getKmlUrl, updateKml } from '@/api/files.api'
+import { createKml, getKmlUrl, updateKml } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
@@ -25,11 +25,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
     async function addKmlLayerToDrawing(layer, retryOnError = true) {
         clearTimeout(addKmlLayerTimeout)
         try {
-            const kml = await getKml(layer.fileId)
-            const features = parseKml(kml, projection.value, availableIconSets.value)
+            const features = parseKml(layer.kmlData, projection.value, availableIconSets.value)
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
-            store.dispatch(
+            await store.dispatch(
                 'setDrawingFeatures',
                 features.map((feature) => feature.getId())
             )

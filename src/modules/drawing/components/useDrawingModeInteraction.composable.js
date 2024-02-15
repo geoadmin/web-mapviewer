@@ -107,7 +107,6 @@ export default function useDrawingModeInteraction({
             feature.setId(uid)
             const args = { ...editableFeatureArgs }
             args.id = uid
-            args.coordinates = null
 
             /* applying extra properties that should be stored with that feature. Openlayers will
             automatically redraw the feature if these properties change, but not in a recursive
