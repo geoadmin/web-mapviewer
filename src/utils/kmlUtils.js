@@ -4,6 +4,7 @@ import {
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
 import Feature from 'ol/Feature'
+import GeoJSON from 'ol/format/GeoJSON'
 import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
@@ -423,6 +424,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
+    const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
     const coordinates = getKmlFeatureCoordinates(kmlFeature)
 
     return EditableFeature.newFeature({
@@ -431,6 +433,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         title,
         description: description,
         coordinates,
+        geometry,
         textColor,
         textSize,
         fillColor,

@@ -17,8 +17,9 @@ export default class EditableFeature extends SelectableFeature {
     /**
      * @param {String | Number} id Unique identifier for this feature (unique in the context it
      *   comes from, not for the whole app)
-     * @param {Number[][]} coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry coordinates of
-     *   this feature
+     * @param {Number[][]} coordinates Coordinates [[x,y],[x2.y2],...] or [x,y] if point geometry
+     *   coordinates of this feature
+     * @param {Object} geometry GeoJSON representation of this feature
      * @param {String} title Title of this feature
      * @param {String} description A description of this feature, can not be HTML content (only
      *   text)
@@ -33,6 +34,7 @@ export default class EditableFeature extends SelectableFeature {
     constructor(
         id,
         coordinates,
+        geometry,
         title = '',
         description = '',
         featureType,
@@ -42,7 +44,7 @@ export default class EditableFeature extends SelectableFeature {
         icon = null,
         iconSize = MEDIUM
     ) {
-        super(id, coordinates, title, description, null, true)
+        super(id, coordinates, title, description, geometry, true)
         this._featureType = featureType
         this._textColor = textColor
         this._textSize = textSize
@@ -63,6 +65,7 @@ export default class EditableFeature extends SelectableFeature {
         return new EditableFeature(
             obj.id,
             obj.coordinates,
+            obj.geometry,
             obj.title,
             obj.description,
             obj.featureType,

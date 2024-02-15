@@ -54,6 +54,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                             new EditableFeature(
                                 selectedFeature.id,
                                 reprojectCoordinates(selectedFeature.coordinates),
+                                selectedFeature.geometry,
                                 selectedFeature.time,
                                 selectedFeature.description,
                                 selectedFeature.featureType,
