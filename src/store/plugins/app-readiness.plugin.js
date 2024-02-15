@@ -1,3 +1,6 @@
+import { ENVIRONMENT } from '@/config'
+import log from '@/utils/logging'
+
 /**
  * Plugin that will listen to most mutation as long as a certain state of readiness is not reached.
  * When the state has loaded enough data / is ready, this plugin will trigger the mutation that will
@@ -12,7 +15,10 @@
  * @param {Vuex.Store} store
  */
 const appReadinessPlugin = (store) => {
-    store.subscribe((_, state) => {
+    const unsubscribe = store.subscribe((mutation, state) => {
+        // Log all mutations for debugging
+        log.debug(`[store mutation]: type=${mutation.type} payload=`, mutation.payload)
+
         // if app is not ready yet, we go through the checklist
         if (!state.app.isReady) {
             if (
@@ -22,10 +28,23 @@ const appReadinessPlugin = (store) => {
                 state.topics.config.length > 0
             ) {
                 store.dispatch('setAppIsReady')
+
+                // In production build we are not interested anymore in the mutation logs
+                // therefore unsubscribe here
+                if (ENVIRONMENT === 'production') {
+                    unsubscribe()
+                }
             }
         }
         // otherwise we ignore all mutations, our job is already done
     })
+
+    // only subscribe to action logs for non productive build
+    if (ENVIRONMENT !== 'production') {
+        store.subscribeAction((action, _state) => {
+            log.debug(`[store action]: type=${action.type} payload=`, action.payload)
+        })
+    }
 }
 
 export default appReadinessPlugin
