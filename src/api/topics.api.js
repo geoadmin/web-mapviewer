@@ -152,26 +152,27 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     params.get('layers_timestamp')
                                 ),
                             ]
-                            if (rawTopic.activatedLayers?.length > 0) {
-                                rawTopic.activatedLayers.forEach((layerId) => {
-                                    let layer = layersConfig.find(
-                                        (layer) => layer.getID() === layerId
-                                    )
-                                    if (layer) {
-                                        // deep copy so that we can reassign values later on
-                                        // (layers come from the Vuex store so it can't be modified directly)
-                                        layer = layer.clone()
-                                        // checking if the layer should be also visible
-                                        layer.visible =
-                                            rawTopic.selectedLayers?.indexOf(layerId) !== -1 ??
-                                            false
-                                        // In the backend the layers are in the wrong order
-                                        // so we need to reverse the order here by simply adding
-                                        // the layer at the beginning of the array
-                                        layersToActivate.unshift(layer)
-                                    }
-                                })
-                            }
+                            const activatedLayers = [
+                                ...new Set([
+                                    ...(rawTopic.activatedLayers ?? []),
+                                    ...(rawTopic.selectedLayers ?? []),
+                                ]),
+                            ]
+                            activatedLayers.forEach((layerId) => {
+                                let layer = layersConfig.find((layer) => layer.getID() === layerId)
+                                if (layer) {
+                                    // deep copy so that we can reassign values later on
+                                    // (layers come from the Vuex store so it can't be modified directly)
+                                    layer = layer.clone()
+                                    // checking if the layer should be also visible
+                                    layer.visible =
+                                        rawTopic.selectedLayers?.indexOf(layerId) !== -1 ?? false
+                                    // In the backend the layers are in the wrong order
+                                    // so we need to reverse the order here by simply adding
+                                    // the layer at the beginning of the array
+                                    layersToActivate.unshift(layer)
+                                }
+                            })
                             topics.push(
                                 new Topic(
                                     topicId,
