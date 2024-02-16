@@ -442,7 +442,6 @@ describe('Drawing module tests', () => {
             })
             // checking that the KML is correctly loaded in the drawing module, even though it doesn't carry an adminId
             cy.openDrawingMode()
-            cy.wait('@get-kml')
 
             // if closing the drawing module without changing anything, no copy must be made
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
@@ -453,7 +452,6 @@ describe('Drawing module tests', () => {
 
             // re-opening the drawing module
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
-            cy.wait('@get-kml')
 
             // deleting all features (clearing/emptying the KML)
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
@@ -868,6 +866,43 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="infobox"]').should('not.be.visible')
+        })
+        it('can switch from floating edit popup to back at bottom', () => {
+            cy.goToDrawing()
+
+            cy.wait('@icon-sets')
+            cy.wait('@icon-set-default')
+            const testEditPopupFloatingToggle = () => {
+                cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('be.visible')
+                cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
+
+                cy.get('[data-cy="infobox-toggle-floating"]').click()
+
+                // checking that the edit form is still present but now in the floating popup
+                cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
+                cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('be.visible')
+
+                cy.get('[data-cy="toggle-floating-off"]').click()
+
+                // on mobile the delete button is a bit hidden behind the background wheel, so we force the click
+                cy.get('[data-cy="drawing-style-delete-button"]').click({ force: true })
+                cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
+                cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
+            }
+
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click()
+            testEditPopupFloatingToggle()
+
+            // same test, but this time with a line
+            // (the placement of the popup is a bit trickier and different from a single coordinate marker)
+            cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+            cy.get('[data-cy="ol-map"]').click(120, 200)
+            cy.get('[data-cy="ol-map"]').click(150, 230)
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            // finishing the line by click the same spot
+            cy.get('[data-cy="ol-map"]').click(150, 250)
+            testEditPopupFloatingToggle()
         })
     })
 })
