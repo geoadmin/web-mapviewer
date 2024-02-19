@@ -111,7 +111,6 @@ function handleBodIdParams(bodIdParams, store, to, next) {
  */
 async function retrieveAndDispatchFeaturesToStore(bodIdParams, store) {
     const features = []
-    // TODO : handle tooltip show on view, not on backend calls
     bodIdParams.features.forEach((featureID) => {
         features.push(
             getFeature(
@@ -124,7 +123,6 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, store) {
         )
     })
     store.dispatch('setPreSelectedFeatures', features)
-    // we might need to create a new flag
     if (!bodIdParams.showToolTip) {
         store.dispatch('hideLocationPopup')
     }
