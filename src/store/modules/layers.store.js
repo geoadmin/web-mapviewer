@@ -211,29 +211,25 @@ const actions = {
      */
     setLayerConfig({ commit, state, getters }, { config, dispatcher }) {
         const activeLayerBeforeConfigChange = [...state.activeLayers]
-        commit('clearLayers', { dispatcher })
         commit('setLayerConfig', { config, dispatcher })
-        activeLayerBeforeConfigChange.forEach((layer) => {
+        const layers = activeLayerBeforeConfigChange.map((layer) => {
             const layerConfig = getters.getLayerConfigById(layer.getID())
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
-                commit('addLayer', { layer: clone, dispatcher })
                 if (layer.timeConfig) {
-                    commit('setLayerYear', {
-                        layerId: clone.getID(),
-                        year: layer.timeConfig.currentYear,
-                        dispatcher,
-                    })
+                    clone.timeConfig.currentYear = layer.timeConfig.currentYear
                 }
+                return clone
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', { layer: layer.clone(), dispatcher })
+                return layer.clone()
             }
         })
+        commit('setLayers', { layers: layers, dispatcher })
     },
     /**
      * Add a layer to the active layers.
