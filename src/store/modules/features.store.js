@@ -1,6 +1,5 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-import log from '@/utils/logging'
 const getSelectedFeatureWithId = (state, featureId) => {
     return state.selectedFeatures.find((selectedFeature) => selectedFeature.id === featureId)
 }
@@ -20,30 +19,15 @@ export default {
     },
     actions: {
         /**
-         * This function will only be called at startup, if there is a Bod-Layer-Id parameter set
+         * This function will only be called if there is a Bod-Layer-Id parameter set
          *
          * @param {GeoAdminLayer} layer: The layer containing the features
          * @param {String[]} featuresIds: An array containing the featuresIds we wish to highlight
          */
-        setPreselectedFeatures({ commit }, { layer, featuresIds }) {
-            const features = []
-            featuresIds.forEach((featureId) => {
-                getFeature(layer, featureId)
-                    .then((feature) => {
-                        features.push(feature)
-                    })
-                    .catch((error) => {
-                        log.error(
-                            `Could not find feature ${featureId} for layer ${layer.getID()}`,
-                            error
-                        )
-                    })
-            })
-            commit('setPreselectedFeatures', features)
-            commit('setSelectedFeatures', features)
-        },
-        clearPreSelectedFeatures({ commit }) {
-            commit('setPreSelectedFeatures', [])
+        setPreSelectedFeatures({ commit }, features) {
+            if (Array.isArray(features)) {
+                commit('setPreSelectedFeatures', features)
+            }
         },
         /**
          * Tells the map to highlight a list of features (place a round marker at their location).
@@ -59,10 +43,6 @@ export default {
                 highlightedFeatureId: null,
                 dispatcher: 'setSelectedFeatures',
             })
-            if (Array.isArray(features)) {
-                commit('setSelectedFeatures', features)
-            }
-        },
         /** Removes all selected features from the map */
         clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
@@ -260,7 +240,7 @@ export default {
         },
     },
     mutations: {
-        setPreselectedFeatures(state, features) {
+        setPreSelectedFeatures(state, features) {
             state.preSelectedFeatures = [...features]
         },
         setSelectedFeatures(state, features) {

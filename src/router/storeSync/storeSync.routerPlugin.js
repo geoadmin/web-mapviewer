@@ -109,7 +109,6 @@ function urlQueryWatcher(store, to) {
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
     // if this module did not trigger the route change, we need to check if a store change is needed
-    // TODO HERE: put the {bod-layer-id} param in the layer list,add selected features to the store
     storeSyncConfig.forEach((paramConfig) => {
         const queryValue = paramConfig.readValueFromQuery(to.query)
         const storeValue = paramConfig.readValueFromStore(store)
@@ -166,6 +165,7 @@ function urlQueryWatcher(store, to) {
             requireQueryUpdate = true
         }
     })
+
     // Fake call to a URL so that Cypress can wait for route changes without waiting for arbitrary length of time
     if (IS_TESTING_WITH_CYPRESS) {
         Promise.all(pendingStoreDispatch).then(() => {
@@ -181,6 +181,7 @@ function urlQueryWatcher(store, to) {
         // stays on `/#/`. When manually chaning any query param it works though.
         return { name: 'MapView', query: newQuery }
     }
+    // HERE : dispatch pre-selected features to the selected features
     return undefined
 }
 
