@@ -181,7 +181,6 @@ function urlQueryWatcher(store, to) {
         // stays on `/#/`. When manually chaning any query param it works though.
         return { name: 'MapView', query: newQuery }
     }
-    // HERE : dispatch pre-selected features to the selected features
     return undefined
 }
 

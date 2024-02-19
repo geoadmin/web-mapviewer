@@ -7,8 +7,6 @@ const getSelectedFeatureWithId = (state, featureId) => {
 export default {
     state: {
         /** @type {SelectableFeature[]} */
-        preSelectedFeatures: [],
-        /** @type {SelectableFeature[]} */
         selectedFeatures: [],
         highlightedFeatureId: null,
     },
@@ -18,17 +16,6 @@ export default {
         },
     },
     actions: {
-        /**
-         * This function will only be called if there is a Bod-Layer-Id parameter set
-         *
-         * @param {GeoAdminLayer} layer: The layer containing the features
-         * @param {String[]} featuresIds: An array containing the featuresIds we wish to highlight
-         */
-        setPreSelectedFeatures({ commit }, features) {
-            if (Array.isArray(features)) {
-                commit('setPreSelectedFeatures', features)
-            }
-        },
         /**
          * Tells the map to highlight a list of features (place a round marker at their location).
          * Those features are currently shown by the tooltip. If in drawing mode, this functions
@@ -43,6 +30,10 @@ export default {
                 highlightedFeatureId: null,
                 dispatcher: 'setSelectedFeatures',
             })
+            if (Array.isArray(features)) {
+                commit('setSelectedFeatures', features)
+            }
+        },
         /** Removes all selected features from the map */
         clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
@@ -240,9 +231,6 @@ export default {
         },
     },
     mutations: {
-        setPreSelectedFeatures(state, features) {
-            state.preSelectedFeatures = [...features]
-        },
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
         },

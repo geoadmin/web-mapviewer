@@ -1,4 +1,6 @@
 import getFeature from '@/api/features.api'
+import log from '@/utils/logging'
+
 import storeSyncConfig from './storeSync/storeSync.config'
 
 // this will include all parameters that are part of the store sync config,
@@ -51,7 +53,7 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
             val.layer = clonedLayer
             val.features = value.split(',')
             // for the showToolTip parameter : if it's null, undefined, or true, it should be true
-            val.showToolTip = !urlParams.get('showtooltip') === false
+            val.showToolTip = !(urlParams.get('showtooltip') === false)
             return null // we get out at the first instance of a bod layer id found
         }
     })
@@ -96,7 +98,7 @@ function handleBodIdParams(bodIdParams, store, to, next) {
     if (JSON.stringify(to.query) === JSON.stringify(newQuery)) {
         next()
     }
-    retrieveAndDispatchFeaturesToStore(bodIdParams, store)
+    retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.center, !newQuery.z, store)
 
     next({
         name: 'MapView',
@@ -109,10 +111,10 @@ function handleBodIdParams(bodIdParams, store, to, next) {
  *   telling us wether we should show their tooltip or not
  * @param {Store} store The store
  */
-async function retrieveAndDispatchFeaturesToStore(bodIdParams, store) {
-    const features = []
-    bodIdParams.features.forEach((featureID) => {
-        features.push(
+async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToRecenter, needToZoom, store) {
+    const featureRequests = []
+    await bodIdParams.features.forEach((featureID) => {
+        featureRequests.push(
             getFeature(
                 bodIdParams.layer,
                 featureID,
@@ -122,7 +124,44 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, store) {
             )
         )
     })
-    store.dispatch('setPreSelectedFeatures', features)
+    const features = []
+    await Promise.all(featureRequests)
+        .then((values) => {
+            values.forEach((value) => {
+                features.push(value)
+            })
+        })
+        .catch((error) => {
+            log.error("Wasn't able to get feature", error)
+        })
+    store.dispatch('setSelectedFeatures', features)
+    // if there is no center set, we set the center in the middle of all features
+    if (needToRecenter && features.length > 0) {
+        const coordinates = []
+        features.forEach((feature) => {
+            coordinates.push(feature.coordinates[0])
+        })
+        const averageCenter = [0, 0]
+        coordinates.forEach((coordinate) => {
+            averageCenter[0] += coordinate[0] / coordinates.length
+            averageCenter[1] += coordinate[1] / coordinates.length
+        })
+        averageCenter[0] = Math.round(averageCenter[0])
+        averageCenter[1] = Math.round(averageCenter[1])
+
+        store.dispatch('setCenter', {
+            center: averageCenter,
+            source: 'Bod Layer Id router',
+        })
+    }
+    //http://localhost:8080/#/map?ch.bav.haltestellen-oev=8577444,8505082,8507423,8508219
+
+    // if the zoom is not set, we set it so we can see all features. With only
+    // one feature, zoom level is 8
+    // TODO : check with pascal to see how to do that.
+    if (needToZoom && features.length > 0) {
+        store.dispatch('setZoom', { zoom: 8, source: 'Bod Layer Id router' })
+    }
     if (!bodIdParams.showToolTip) {
         store.dispatch('hideLocationPopup')
     }
@@ -143,6 +182,7 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, store) {
 
 // TO DO : solve infinite issue. Either by ensuring we go through it only once, or that those bodIdParams are set to something we can work with
 const bodLayerIdRouterPlugin = (router, store) => {
+    let changesMadeByThisPlugin = false
     router.beforeEach((to, from, next) => {
         /**
          * We need to ensure the startup is finished to handle the bod layer Id, as we need some
@@ -150,15 +190,22 @@ const bodLayerIdRouterPlugin = (router, store) => {
          */
 
         if (to.name === 'MapView') {
-            const bodIdParams = window.location?.hash
-                ? parseBodLayerParamsFromQuery(window.location.hash, store.state.layers.config)
-                : null
-            if (bodIdParams?.layer) {
-                handleBodIdParams(bodIdParams, store, to, next)
+            if (!changesMadeByThisPlugin) {
+                const bodIdParams = window.location?.hash
+                    ? parseBodLayerParamsFromQuery(window.location.hash, store.state.layers.config)
+                    : null
+                if (bodIdParams?.layer) {
+                    changesMadeByThisPlugin = true
+                    handleBodIdParams(bodIdParams, store, to, next)
+                } else {
+                    next()
+                }
             } else {
+                changesMadeByThisPlugin = false
                 next()
             }
         } else {
+            changesMadeByThisPlugin = false
             next()
         }
     })
