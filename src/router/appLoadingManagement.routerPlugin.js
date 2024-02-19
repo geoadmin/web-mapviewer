@@ -1,4 +1,7 @@
 import log from '@/utils/logging'
+import { getUrlQuery } from '@/utils/utils'
+
+const STORE_DISPATCHER_APP_ROUTER_PLUGIN = 'appLoadingManagement.routerPlugin'
 
 /**
  * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers
@@ -18,6 +21,21 @@ import log from '@/utils/logging'
 const appLoadingManagementRouterPlugin = (router, store) => {
     const unRegisterRouterHook = router.beforeEach((to) => {
         if (to.meta.requiresAppReady && !store.state.app.isReady) {
+            // Upon application startup we need to first get the language and
+            // topic from the URL in order to quickly load the layers config and
+            // topics. We do this as early as possible as we need topics and config to define
+            // the default application state.
+            const queryParams = getUrlQuery()
+            const lang = queryParams.get('lang') ?? store.state.i18n.lang
+            const topic = queryParams.get('topic') ?? store.state.topics.current
+            store.dispatch('changeTopic', {
+                value: topic,
+                dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
+            })
+            store.dispatch('setLang', {
+                value: lang,
+                dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
+            })
             log.debug(`App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
             return { name: 'LoadingView', query: { redirect: to.fullPath }, replace: true }
         }

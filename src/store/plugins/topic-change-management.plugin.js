@@ -1,7 +1,7 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
-import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
 import log from '@/utils/logging'
+import { getUrlQuery } from '@/utils/utils'
 
 const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
 
@@ -28,16 +28,29 @@ const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
 const topicChangeManagementPlugin = (store) => {
     store.subscribe((mutation) => {
         // we listen to the "change topic" mutation
-        if (mutation.type === CHANGE_TOPIC_MUTATION) {
+        if (
+            // During application startup we trigger a changeTopic before the topics are loaded
+            // therefore in this case we ignore the changeTopic event
+            (mutation.type === 'changeTopic' && store.state.topics.config.length > 0) ||
+            mutation.type === 'setTopics'
+        ) {
             let startTime = performance.now()
-            log.debug(`Topic change management plugin: topic changed to ${mutation.payload.value}`)
+            log.debug(`Topic change management plugin: topic changed to`, mutation.payload)
 
             const currentTopic = store.getters.currentTopic
-            // we only set background (from topic) when the user changed the topic from the
-            // menu. If the topic changed via the URL router plugin, we ignore don't set the
-            // topic background. This allow a user to change the default topic background and
-            // create a permalink with a different background.
-            if (mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN) {
+            const rawQueryParams = getUrlQuery()
+
+            // we only set background (from topic) when the user changed the topic from the menu.
+            // If the topic changed via the URL router plugin or when changing the language
+            // (topics are translated), we ignore the background from topics unless there is no
+            // bgLayers query parameter in URL. This allow a user to change the default topic
+            // background and create a permalink with a different background and layers.
+            // On the otherhand at startup if no bgLayers query parameter is found in URL we need
+            // to setup the default background based on topic.
+            if (
+                mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
+                !rawQueryParams.has('bgLayer')
+            ) {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
                         value: currentTopic.defaultBackgroundLayer.getID(),
@@ -51,9 +64,15 @@ const topicChangeManagementPlugin = (store) => {
                 }
             }
 
-            // When the topic is changed via the router plugin (URL parameter) we don't change
-            // the layers as we want to keep the one from the layers parameter
-            if (mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN) {
+            // we only set the default topic active layers when the user changed the topic from the
+            // menu. If the topic changed via the URL router plugin or when changing the language
+            // (topics are translated), we ignore the default active layers from topics. This allow
+            // a user to change the default topic active layers and to create a permalink with
+            // different layers.
+            if (
+                mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
+                !rawQueryParams.has('layers')
+            ) {
                 store.dispatch('setLayers', {
                     layers: currentTopic.layersToActivate,
                     dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,

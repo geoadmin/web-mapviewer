@@ -1,6 +1,6 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
-import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
+import loadTopicsFromBackend from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -35,7 +35,9 @@ async function loadLayersConfig(lang) {
 
 const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId, dispatcher) => {
     try {
-        log.debug(`Start loading layers config and topics`)
+        log.debug(
+            `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher}`
+        )
         const layersConfig = [...(await loadLayersConfig(lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
         log.debug(`Finished loading layers config and topics`)
@@ -64,13 +66,6 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
 
         store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
         store.dispatch('setTopics', { topics: topicsConfig, dispatcher })
-        store.dispatch('changeTopic', { value: topicId, dispatcher })
-        const tree = await loadTopicTreeForTopic(lang, topicId, layersConfig)
-        store.dispatch('setTopicTree', { layers: tree.layers, dispatcher })
-        store.dispatch('setTopicTreeOpenedThemesIds', {
-            value: tree.itemIdToOpen,
-            dispatcher,
-        })
         log.debug(`layers config and topics dispatched`)
     } catch (error) {
         log.error(error)
@@ -99,20 +94,6 @@ const loadLayersConfigOnLangChange = (store) => {
                 })
         }
     })
-    // on app init, we load the first layersConfig and topics using the lang and topic from url
-    const queryParams = new URLSearchParams(
-        // The legacy link uses the query, while new permalink are behind the hash
-        window.location.search || window.location.hash.replace('#/map?')
-    )
-    const lang = queryParams.get('lang') ?? store.state.i18n.lang
-    const topic = queryParams.get('topic') ?? store.state.topics.current
-    loadLayersAndTopicsConfigAndDispatchToStore(store, lang, topic, 'app-init')
-        .then(() => {
-            log.debug('Initial layers config loaded')
-        })
-        .catch((err) => {
-            log.error('Error while loading initial layers config', err)
-        })
 }
 
 export default loadLayersConfigOnLangChange
