@@ -10,7 +10,7 @@ import nearestPoint from '@turf/nearest-point'
 import Feature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
-import { computed, inject } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
@@ -79,6 +79,19 @@ const popoverCoordinate = computed(() => {
     return proj4(WGS84.epsg, projection.value.epsg, mostSouthernFeature.geometry.coordinates).map(
         projection.value.roundCoordinateValue
     )
+})
+
+// When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
+// the "infobox" (non-floating) tooltip by default.
+// This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
+watch(nonEditableFeature, () => {
+    const containsOnlyPoints =
+        nonEditableFeature.value.filter((feature) =>
+            ['Point', 'MultiPoint'].includes(feature.geometry?.type)
+        ).length === nonEditableFeature.value.length
+    if (isFloatingTooltip.value && !containsOnlyPoints) {
+        toggleFloatingTooltip()
+    }
 })
 
 const olMap = inject('olMap')

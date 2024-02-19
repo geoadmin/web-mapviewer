@@ -161,6 +161,7 @@ export default function useDrawingModeInteraction({
 
         const editableFeature = feature.get('editableFeature')
         editableFeature.setCoordinatesFromFeature(feature)
+        // setting the geometry too so that the floating popup can be placed correctly on the map
         editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
 
         // removing the flag we've set above in onDrawStart (this feature is now drawn)

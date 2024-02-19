@@ -22,13 +22,16 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     let addKmlLayerTimeout = null
     const savesInProgress = ref([])
-    async function addKmlLayerToDrawing(layer, retryOnError = true) {
+    function addKmlLayerToDrawing(layer, retryOnError = true) {
         clearTimeout(addKmlLayerTimeout)
         try {
+            if (!layer.kmlData) {
+                throw new Error('missing KML data')
+            }
             const features = parseKml(layer.kmlData, projection.value, availableIconSets.value)
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
-            await store.dispatch(
+            store.dispatch(
                 'setDrawingFeatures',
                 features.map((feature) => feature.getId())
             )

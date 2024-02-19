@@ -18,17 +18,14 @@ export default class LayerFeature extends SelectableFeature {
         this.layer = layer
         this.data = data
         this.extent = extent
+        // We can't trust the content of the popup data for external layers, and for KML layers.
+        // For KML, the issue is that user can create text-rich (HTML) description with links, and such.
+        // It would then be possible to do some XSS through this, so we need to sanitize this before showing it.
+        this.popupDataCanBeTrusted = !this.layer.isExternal && this.layer.type !== LayerTypes.KML
     }
 
     // overwriting get ID so that we use the layer ID with the feature ID
     get id() {
         return `${this.layer.getID()}-${this._id}`
-    }
-
-    get popupDataCanBeTrusted() {
-        // We can't trust the content of the popup data for external layers, and for KML layers.
-        // For KML, the issue is that user can create text-rich (HTML) description with links, and such.
-        // It would then be possible to do some XSS through this, so we need to sanitize this before showing it.
-        return !this.layer.isExternal && this.layer.type !== LayerTypes.KML
     }
 }
