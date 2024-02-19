@@ -1,5 +1,4 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
-import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
 
