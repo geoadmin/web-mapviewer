@@ -8,9 +8,9 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
+import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { API_SERVICES_BASE_URL } from '@/config'
 import log from '@/utils/logging'
-import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
 
@@ -104,18 +104,28 @@ export default function usePrintAreaRenderer(map) {
 
         const spec = await encoder.createSpec({
             map,
-            scale: 1,
+            scale: selectedScale.value,
             printResolution: 96,
             dpi: 254,
             layout: layout,
             format: 'pdf',
             customAttributes: {
                 // TODO (IS): Remove this Fake values
-                copyright: 'Copyright',
-                url: 'URL',
+                copyright: '© swisstopo, swisstopo + FGS',
+                url: 'https://map.geo.admin.ch',
+                printLegend: 0,
                 qrimage: qrCodeUrl,
             },
             customizer: customizer,
+        })
+        spec.attributes.map.layers.push({
+            baseURL: 'https://sys-wms.dev.bgdi.ch',
+            customParams: { TRANSPARENT: 'true' },
+            imageFormat: 'image/jpeg',
+            layers: ['ch.swisstopo.pixelkarte-farbe,org.epsg.grid_2056'],
+            opacity: 1,
+            styles: ['default'],
+            type: 'WMS',
         })
         log.info('Print spec: ', spec)
         const report = await requestReport(mapFishPrintUrl, spec)
@@ -124,7 +134,7 @@ export default function usePrintAreaRenderer(map) {
             .then(
                 (url) => {
                     log.info('PDF map url', url)
-                    document.location = url
+                    // document.location = url
                     return url
                 },
                 (err) => {
