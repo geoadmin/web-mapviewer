@@ -39,12 +39,18 @@ async function loadGpx(store, gpxLayer) {
  */
 export default function loadGpxDataAndMetadata(store) {
     store.subscribe((mutation) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof GPXLayer &&
-            (!mutation.payload.layer?.gpxData || !mutation.payload.layer?.gpxMetadata)
-        ) {
-            loadGpx(store, mutation.payload.layer)
+        const addLayerSubscriber = (layer) => {
+            if (layer instanceof GPXLayer && (!layer?.gpxData || !layer?.gpxMetadata)) {
+                loadGpx(store, layer)
+            }
+        }
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer)
+            })
         }
     })
 }

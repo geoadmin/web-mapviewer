@@ -1,4 +1,3 @@
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
@@ -8,7 +7,6 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import layersParamParser from '@/router/storeSync/layersParamParser'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 /**
@@ -93,100 +91,26 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         store.state.layers.activeLayers,
         parsedLayers
     )
-    // going through layers that are already present to set opacity / visibility
-    store.state.layers.activeLayers.forEach((activeLayer) => {
-        const matchingLayerMetadata = parsedLayers.find((layer) => layer.id === activeLayer.getID())
-        if (matchingLayerMetadata) {
-            log.debug(
-                `  Update layer ${activeLayer.getID()} parameters (visible, opacity,...); new:`,
-                matchingLayerMetadata,
-                `current:`,
-                activeLayer
-            )
-            if (matchingLayerMetadata.opacity) {
-                if (activeLayer.opacity !== matchingLayerMetadata.opacity) {
-                    promisesForAllDispatch.push(
-                        store.dispatch('setLayerOpacity', {
-                            layerId: activeLayer.getID(),
-                            opacity: matchingLayerMetadata.opacity,
-                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                        })
-                    )
-                }
-            } else {
-                // checking if this active layer's opacity matches the default opacity from the config
-                const configForThisLayer = store.getters.getLayerConfigById(activeLayer.getID())
-                if (configForThisLayer && configForThisLayer.opacity !== activeLayer.opacity) {
-                    promisesForAllDispatch.push(
-                        store.dispatch('setLayerOpacity', {
-                            layerId: activeLayer.getID(),
-                            opacity: configForThisLayer.opacity,
-                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                        })
-                    )
-                }
-            }
-            if (activeLayer.visible !== matchingLayerMetadata.visible) {
+
+    const layers = parsedLayers.map((parsedLayer) => {
+        const layerObject = createLayerObject(parsedLayer)
+        if (layerObject) {
+            if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                 promisesForAllDispatch.push(
-                    store.dispatch('setLayerVisibility', {
-                        layerId: activeLayer.getID(),
-                        visible: matchingLayerMetadata.visible,
+                    store.dispatch('setShowDrawingOverlay', {
+                        showDrawingOverlay: true,
                         dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                     })
                 )
             }
-        } else {
-            // this layer has to be removed (not present in the URL anymore)
-            log.debug(`  Remove layer ${activeLayer.getID()} from active layers`)
-            promisesForAllDispatch.push(
-                store.dispatch('removeLayer', {
-                    layer: activeLayer,
-                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                })
-            )
+            log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
         }
+        return layerObject
     })
-    // adding any layer that is not present yet
-    parsedLayers.forEach((parsedLayer) => {
-        if (
-            !store.state.layers.activeLayers.find(
-                (activeLayer) => activeLayer.getID() === parsedLayer.id
-            )
-        ) {
-            const layerObject = createLayerObject(parsedLayer)
-            if (layerObject) {
-                if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
-                    promisesForAllDispatch.push(
-                        store.dispatch('setShowDrawingOverlay', {
-                            showDrawingOverlay: true,
-                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                        })
-                    )
-                }
-                log.debug(`  Add layer ${parsedLayer.id} to active layers`, layerObject)
-                promisesForAllDispatch.push(
-                    store.dispatch('addLayer', {
-                        layer: layerObject instanceof AbstractLayer ? layerObject : null,
-                        layerConfig: layerObject instanceof ActiveLayerConfig ? layerObject : null,
-                        dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                    })
-                )
-            }
-        }
-    })
-    // setting year fore timed layers if specified in the URL
-    parsedLayers
-        .filter((layer) => layer.customAttributes && layer.customAttributes.year)
-        .forEach((timedLayer) => {
-            log.debug(`  Set year to timed layer ${timedLayer.id}`, timedLayer)
-            promisesForAllDispatch.push(
-                store.dispatch('setTimedLayerCurrentYear', {
-                    layerId: timedLayer.id,
-                    year: timedLayer.customAttributes.year,
-                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                })
-            )
-        })
+    promisesForAllDispatch.push(
+        store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
+    )
+
     return Promise.all(promisesForAllDispatch)
 }
 
@@ -213,6 +137,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'moveActiveLayerFromIndexToIndex',
                 'setLayerOpacity',
                 'setLayerYear',
+                'setLayers',
             ].join(','),
             dispatchLayersFromUrlIntoStore,
             generateLayerUrlParamFromStoreValues,

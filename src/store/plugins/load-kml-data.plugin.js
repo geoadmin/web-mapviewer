@@ -48,20 +48,24 @@ async function loadData(store, kmlLayer) {
  * @param {Vuex.Store} store
  */
 export default function loadKmlDataAndMetadata(store) {
+    const addLayerSubscriber = (layer) => {
+        if (layer instanceof KMLLayer && (!layer.kmlData || !layer.kmlMetadata)) {
+            if (!layer.kmlData) {
+                loadData(store, layer)
+            }
+            if (!layer.kmlMetadata && !layer.isExternal) {
+                loadMetadata(store, layer)
+            }
+        }
+    }
     store.subscribe((mutation) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof KMLLayer &&
-            (!mutation.payload.layer.kmlData || !mutation.payload.layer.kmlMetadata)
-        ) {
-            const kmlLayer = mutation.payload.layer
-
-            if (!kmlLayer.kmlData) {
-                loadData(store, kmlLayer)
-            }
-            if (!kmlLayer.kmlMetadata && !kmlLayer.isExternal) {
-                loadMetadata(store, kmlLayer)
-            }
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer)
+            })
         }
     })
 }

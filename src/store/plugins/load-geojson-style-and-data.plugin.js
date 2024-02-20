@@ -50,13 +50,19 @@ async function loadDataAndStyle(store, geoJsonLayer) {
  */
 export default function loadGeojsonStyleAndData(store) {
     store.subscribe((mutation) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof GeoAdminGeoJsonLayer &&
-            mutation.payload.layer?.isLoading
-        ) {
-            log.debug(`Loading data/style for added GeoJSON layer`, mutation.payload)
-            loadDataAndStyle(store, mutation.payload.layer)
+        const addLayerSubscriber = (layer) => {
+            if (layer instanceof GeoAdminGeoJsonLayer && layer?.isLoading) {
+                log.debug(`Loading data/style for added GeoJSON layer`, layer)
+                loadDataAndStyle(store, layer)
+            }
+        }
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer)
+            })
         }
     })
 }
