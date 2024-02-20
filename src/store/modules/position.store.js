@@ -237,8 +237,8 @@ const actions = {
                 })
             }
             const extentSize = {
-                width: extent[1][0] - extent[0][0],
-                height: extent[1][1] - extent[0][1],
+                width: Math.abs(extent[1][0] - extent[0][0]),
+                height: Math.abs(extent[1][1] - extent[0][1]),
             }
             let targetResolution
             // if the extent's height is greater than width, we base our resolution calculation on that
