@@ -32,8 +32,10 @@ const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'
 const lang = computed(() => store.state.i18n.lang)
 
 watch(lang, () => {
-    // When the language changes re-connect to reload the translated capabilities
-    connect()
+    if (isValid.value) {
+        // When the language changes re-connect to reload the translated capabilities
+        connect()
+    }
 })
 
 // Methods
