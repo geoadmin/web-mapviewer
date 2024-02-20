@@ -14,6 +14,7 @@ The next generation map viewer application of geo.admin.ch: Digital data can be 
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Project structure](#project-structure)
+  - [Best practices](#best-practices)
   - [Architectural decisions](#architectural-decisions)
   - [Vue Composition API](#vue-composition-api)
   - [Store module](#store-module)
@@ -78,6 +79,14 @@ Here's a sample of what project folder structure looks like :
 │   │   ├── modules
 │   │   │   ├── <Module name>.js
 ```
+
+### Best practices
+
+- Prefer primitive data or javascript plain object in reactive data (Vue Component data or refs, Vuex store data)
+- Don't use complex object as reactive data
+- Avoid using javascript getter and setter in class that are used in reactive data
+
+See also [Store Best Practices](./src/store/README.md#best-practices)
 
 ### Architectural decisions
 
