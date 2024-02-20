@@ -30,7 +30,7 @@ const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-
+const showToolTip = computed(() => store.state.ui.showToolTip)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -116,7 +116,7 @@ function toggleFloatingTooltip() {
 
 <template>
     <OpenLayersPopover
-        v-if="isFloatingTooltip && selectedFeatures.length > 0"
+        v-if="showToolTip && isFloatingTooltip && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         authorize-print
         :use-content-padding="editableFeatures.length > 0"

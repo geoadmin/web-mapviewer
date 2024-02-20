@@ -76,6 +76,7 @@ const clickOnMapManagementPlugin = (store) => {
                     store.state.i18n.lang,
                     state.position.projection
                 ).then((newSelectedFeatures) => {
+                    store.dispatch('showToolTip')
                     store.dispatch('setSelectedFeatures', newSelectedFeatures)
                 })
             }

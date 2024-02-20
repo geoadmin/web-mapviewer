@@ -157,11 +157,18 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
     }
     if (!bodIdParams.showToolTip) {
         // we'll need to see how to do this better, as this doesn't  work
-        store.dispatch('hideLocationPopup') // this is apparently not the right thing to show
+        store.dispatch('hideToolTip') // this is apparently not the right thing to show
     }
 }
 
-function getZoomFromExtent(extent, center, store) {
+/**
+ * @param {[Number[], Number[]]} extent An array of two coordinates
+ * @param {Number[]} center The coordinates to the center of the extent. We could calculate it
+ *   inside, but it's already done
+ * @param {Store} store
+ * @returns {Number} The zoom level at which we can see the whole extent
+ */
+export function getZoomFromExtent(extent, center, store) {
     const extentSize = {
         width: Math.abs(extent[1][0] - extent[0][0]),
         height: Math.abs(extent[1][1] - extent[0][1]),
