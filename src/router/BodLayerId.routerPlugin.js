@@ -20,7 +20,7 @@ standardsParams.push('showtooltip')
 /**
  * Check the query for potential layers ids parameters.
  *
- * @param {any} query The string containing the parameters
+ * @param {Object} query The to.query object
  * @param {layersConfig} layersConfig The store layers configuration
  * @returns {Object | undefined} Either an object with the layer, its highlighted features IDS and
  *   the showtooltip parameter if it was set
@@ -29,12 +29,7 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
     if (!query) {
         return undefined
     }
-    // we remove everything until the 'map?', so we are sure we've got
-    // the query parameters
-    const urlParams = new URLSearchParams(
-        decodeURIComponent(query.slice(query.indexOf('map?') + 3))
-    )
-    const nonStandardParamsPresence = Array.from(urlParams.keys()).some(
+    const nonStandardParamsPresence = Array.from(Object.keys(query)).some(
         (param) => !standardsParams.includes(param)
     )
     // if all parameters are standard, we do not need to be here
@@ -42,7 +37,7 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
         return undefined
     }
     const val = {}
-    urlParams.forEach((value, key) => {
+    Object.entries(query).forEach(([key, value]) => {
         let layer = null
         if (!standardsParams.includes(key)) {
             layer = layersConfig.find((layer) => layer.getID() === key)
@@ -52,15 +47,14 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
             clonedLayer.visibility = true
             val.layer = clonedLayer
             val.features = value.split(',')
-            // for the showToolTip parameter : if it's null, undefined, or true, it should be true
-            val.showToolTip = !(urlParams.get('showtooltip') === false)
+            // for the showToolTip parameter : it should be false only when specified as false
+            val.showToolTip = !(query.showtooltip === 'false' || query.showtooltip === false)
             return null // we get out at the first instance of a bod layer id found
         }
     })
     // if we found no layer, we return undefined
     return val?.layer ? val : undefined
 }
-
 /**
  * Checks the layers param in the URL and either ensure an already activated layer is visible, or
  * add the layer in `bodIdParams.layer` to the layers param. It also dispatch the highlighted
@@ -90,16 +84,10 @@ function handleBodIdParams(bodIdParams, store, to, next) {
         }${bodIdParams.layer.getID()}`
     }
     delete newQuery[bodIdParams.layer.getID()]
-    delete newQuery.showToolTip
+    delete newQuery.showtooltip
     // the center parameter is always overwritten
     delete newQuery.center
-    // A WORD OF WARNING :
-    // this checks if the query has changed or not at all, as a way to avoid infinites
-    // this check is quick and easy, but will fail if the parameters order change.
-    // If at some point we have this issue, we'll need to make a deeper equality check.
-    if (JSON.stringify(to.query) === JSON.stringify(newQuery)) {
-        next()
-    }
+
     retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.z, store)
 
     next({
@@ -138,37 +126,60 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
         })
     if (features.length > 0) {
         store.dispatch('setSelectedFeatures', features)
-        const coordinates = []
+        const coordinatesX = []
+        const coordinatesY = []
         features.forEach((feature) => {
-            coordinates.push(feature.coordinates[0])
+            coordinatesX.push(feature.coordinates[0][0])
+            coordinatesY.push(feature.coordinates[0][1])
         })
         const extent = []
+        extent[0] = [Math.min(...coordinatesX), Math.min(...coordinatesY)]
+        extent[1] = [Math.max(...coordinatesX), Math.max(...coordinatesY)]
 
-        extent[0] = [
-            Math.min(coordinates[0][0], coordinates[1][0], coordinates[2][0], coordinates[3][0]),
-            Math.min(coordinates[0][1], coordinates[1][1], coordinates[2][1], coordinates[3][1]),
+        const center = [
+            Math.round([(extent[0][0] + extent[1][0]) / 2]),
+            Math.round([(extent[0][1] + extent[1][1]) / 2]),
         ]
-        extent[1] = [
-            Math.max(coordinates[0][0], coordinates[1][0], coordinates[2][0], coordinates[3][0]),
-            Math.max(coordinates[0][1], coordinates[1][1], coordinates[2][1], coordinates[3][1]),
-        ]
+
         if (needToZoom) {
-            store.dispatch('zoomToExtent', extent)
-        } else {
-            const center = [
-                Math.round([extent[0][0] + extent[1][0] / 2]),
-                Math.round([extent[0][1] + extent[1][1] / 2]),
-            ]
-            store.dispatch('setCenter', {
-                center: center,
-                source: 'Bod Layer Id router',
-            })
+            // In old mapviewer, when there was only one feature we set the zoom level to 8
+            // some icons don't have content at certain zoom level
+            // so rather than use the zoomToExtent function, we get its logic and
+            // use it to calculate the max zoom, and we get 8 if it would zoom further
+            const zoom = Math.min(getZoomFromExtent(extent, center, store), 8)
+
+            store.dispatch('setZoom', { zoom: zoom, source: 'Bod Layer Id router' })
         }
+        store.dispatch('setCenter', {
+            center: center,
+            source: 'Bod Layer Id router',
+        })
+    }
+    if (!bodIdParams.showToolTip) {
+        // we'll need to see how to do this better, as this doesn't  work
+        store.dispatch('hideLocationPopup') // this is apparently not the right thing to show
+    }
+}
+
+function getZoomFromExtent(extent, center, store) {
+    const extentSize = {
+        width: Math.abs(extent[1][0] - extent[0][0]),
+        height: Math.abs(extent[1][1] - extent[0][1]),
+    }
+    let targetResolution
+    // if the extent's height is greater than width, we base our resolution calculation on that
+    if (extentSize.height > extentSize.width) {
+        targetResolution = extentSize.height / (store.state.ui.height - 96) /* header height */
+    } else {
+        targetResolution = extentSize.width / store.state.ui.width
     }
 
-    if (!bodIdParams.showToolTip) {
-        store.dispatch('hideLocationPopup')
-    }
+    const zoomForResolution = store.state.position.projection.getZoomForResolutionAndCenter(
+        targetResolution,
+        center
+    )
+
+    return Math.max(zoomForResolution - 1, 0)
 }
 
 /**
@@ -184,7 +195,6 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
  * @param {Store} store
  */
 
-// TO DO : solve infinite issue. Either by ensuring we go through it only once, or that those bodIdParams are set to something we can work with
 const bodLayerIdRouterPlugin = (router, store) => {
     let changesMadeByThisPlugin = false
     router.beforeEach((to, from, next) => {
@@ -195,8 +205,9 @@ const bodLayerIdRouterPlugin = (router, store) => {
 
         if (to.name === 'MapView') {
             if (!changesMadeByThisPlugin) {
+                // maybe use to.query instead of window.location.hash
                 const bodIdParams = window.location?.hash
-                    ? parseBodLayerParamsFromQuery(window.location.hash, store.state.layers.config)
+                    ? parseBodLayerParamsFromQuery(to.query, store.state.layers.config)
                     : null
                 if (bodIdParams?.layer) {
                     changesMadeByThisPlugin = true
