@@ -1,7 +1,7 @@
 <script setup>
 import { Tile as TileLayer } from 'ol/layer'
-import { XYZ as XYZSource } from 'ol/source'
-import TileGrid from 'ol/tilegrid/TileGrid'
+import { WMTS as WMTSSource } from 'ol/source'
+import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { computed, inject, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -44,7 +44,7 @@ const url = computed(() => {
 const layer = new TileLayer({
     id: layerId.value,
     opacity: opacity.value,
-    source: createXYZSourceForProjection(),
+    source: createWMTSSourceForProjection(),
 })
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
@@ -54,10 +54,11 @@ useAddLayerToMap(layer, olMap, zIndex)
 // reacting to changes accordingly
 watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(projection, () => layer.setSource(createXYZSourceForProjection()))
+watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
 
 /**
- * Returns an OpenLayers XYZ source, with some customization depending on the projection being used.
+ * Returns an OpenLayers WMTS source, with some customization depending on the projection being
+ * used.
  *
  * If the projection is a CustomCoordinateSystem, it will set the extent of this projection to a
  * dedicated TileGrid object, meaning that tiles outside the extent won't be requested.
@@ -65,22 +66,42 @@ watch(projection, () => layer.setSource(createXYZSourceForProjection()))
  * If the projection is not a CustomCoordinateSystem, it will default to a worldwide coverage,
  * meaning no limit where tiles shouldn't be requested.
  *
- * @returns {XYZ}
+ * @returns {WMTSSource}
  */
-function createXYZSourceForProjection() {
+function createWMTSSourceForProjection() {
     let tileGrid = null
     if (projection.value instanceof CustomCoordinateSystem) {
-        tileGrid = new TileGrid({
+        const matrixIds = []
+
+        for (let z = 0; z < projection.value.getResolutions().length; ++z) {
+            // generate resolutions and matrixIds arrays for this WMTS
+            matrixIds[z] = z
+        }
+
+        tileGrid = new WMTSTileGrid({
             resolutions: projection.value.getResolutions(),
-            extent: projection.value.bounds.flatten,
             origin: projection.value.getTileOrigin(),
+            matrixIds: matrixIds,
+            extent: projection.value.bounds.flatten,
         })
     }
-    return new XYZSource({
+
+    const wmtsUrl = url.value
+        .replace('{z}', '{TileMatrix}')
+        .replace('{x}', '{TileCol}')
+        .replace('{y}', '{TileRow}')
+    const wmtsSource = new WMTSSource({
+        layer: layerId.value,
+        format: wmtsLayerConfig.value.format,
         projection: projection.value.epsg,
-        url: url.value,
+        requestEncoding: 'REST',
         tileGrid,
+        attributions: wmtsLayerConfig.value.attribution,
+        url: wmtsUrl,
+        style: 'default',
+        transition: 0,
     })
+    return wmtsSource
 }
 </script>
 
