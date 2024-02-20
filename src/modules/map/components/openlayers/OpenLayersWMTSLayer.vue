@@ -9,6 +9,7 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
+import log from '@/utils/logging'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -52,9 +53,18 @@ const olMap = inject('olMap', null)
 useAddLayerToMap(layer, olMap, zIndex)
 
 // reacting to changes accordingly
-watch(url, (newUrl) => layer.getSource().setUrl(newUrl))
+watch(url, (newUrl) => {
+    layer.getSource().setUrl(getWMTSUrl(newUrl))
+})
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
+
+function getWMTSUrl(xyzUrl) {
+    return xyzUrl
+        .replace('{z}', '{TileMatrix}')
+        .replace('{x}', '{TileCol}')
+        .replace('{y}', '{TileRow}')
+}
 
 /**
  * Returns an OpenLayers WMTS source, with some customization depending on the projection being
@@ -86,10 +96,6 @@ function createWMTSSourceForProjection() {
         })
     }
 
-    const wmtsUrl = url.value
-        .replace('{z}', '{TileMatrix}')
-        .replace('{x}', '{TileCol}')
-        .replace('{y}', '{TileRow}')
     const wmtsSource = new WMTSSource({
         layer: layerId.value,
         format: wmtsLayerConfig.value.format,
@@ -97,7 +103,7 @@ function createWMTSSourceForProjection() {
         requestEncoding: 'REST',
         tileGrid,
         attributions: wmtsLayerConfig.value.attribution,
-        url: wmtsUrl,
+        url: getWMTSUrl(url.value),
         style: 'default',
         transition: 0,
     })
