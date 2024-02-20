@@ -91,6 +91,8 @@ function handleBodIdParams(bodIdParams, store, to, next) {
     }
     delete newQuery[bodIdParams.layer.getID()]
     delete newQuery.showToolTip
+    // the center parameter is always overwritten
+    delete newQuery.center
     // A WORD OF WARNING :
     // this checks if the query has changed or not at all, as a way to avoid infinites
     // this check is quick and easy, but will fail if the parameters order change.
@@ -98,7 +100,7 @@ function handleBodIdParams(bodIdParams, store, to, next) {
     if (JSON.stringify(to.query) === JSON.stringify(newQuery)) {
         next()
     }
-    retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.center, !newQuery.z, store)
+    retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.z, store)
 
     next({
         name: 'MapView',
@@ -111,7 +113,7 @@ function handleBodIdParams(bodIdParams, store, to, next) {
  *   telling us wether we should show their tooltip or not
  * @param {Store} store The store
  */
-async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToRecenter, needToZoom, store) {
+async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store) {
     const featureRequests = []
     await bodIdParams.features.forEach((featureID) => {
         featureRequests.push(
@@ -132,36 +134,38 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToRecenter, n
             })
         })
         .catch((error) => {
-            log.error("Wasn't able to get feature", error)
+            log.error("Wasn't able to get features", error)
         })
-    store.dispatch('setSelectedFeatures', features)
-    // if there is no center set, we set the center in the middle of all features
-    if (needToRecenter && features.length > 0) {
+    if (features.length > 0) {
+        store.dispatch('setSelectedFeatures', features)
         const coordinates = []
         features.forEach((feature) => {
             coordinates.push(feature.coordinates[0])
         })
-        const averageCenter = [0, 0]
-        coordinates.forEach((coordinate) => {
-            averageCenter[0] += coordinate[0] / coordinates.length
-            averageCenter[1] += coordinate[1] / coordinates.length
-        })
-        averageCenter[0] = Math.round(averageCenter[0])
-        averageCenter[1] = Math.round(averageCenter[1])
+        const extent = []
 
-        store.dispatch('setCenter', {
-            center: averageCenter,
-            source: 'Bod Layer Id router',
-        })
+        extent[0] = [
+            Math.min(coordinates[0][0], coordinates[1][0], coordinates[2][0], coordinates[3][0]),
+            Math.min(coordinates[0][1], coordinates[1][1], coordinates[2][1], coordinates[3][1]),
+        ]
+        extent[1] = [
+            Math.max(coordinates[0][0], coordinates[1][0], coordinates[2][0], coordinates[3][0]),
+            Math.max(coordinates[0][1], coordinates[1][1], coordinates[2][1], coordinates[3][1]),
+        ]
+        if (needToZoom) {
+            store.dispatch('zoomToExtent', extent)
+        } else {
+            const center = [
+                Math.round([extent[0][0] + extent[1][0] / 2]),
+                Math.round([extent[0][1] + extent[1][1] / 2]),
+            ]
+            store.dispatch('setCenter', {
+                center: center,
+                source: 'Bod Layer Id router',
+            })
+        }
     }
-    //http://localhost:8080/#/map?ch.bav.haltestellen-oev=8577444,8505082,8507423,8508219
 
-    // if the zoom is not set, we set it so we can see all features. With only
-    // one feature, zoom level is 8
-    // TODO : check with pascal to see how to do that.
-    if (needToZoom && features.length > 0) {
-        store.dispatch('setZoom', { zoom: 8, source: 'Bod Layer Id router' })
-    }
     if (!bodIdParams.showToolTip) {
         store.dispatch('hideLocationPopup')
     }
