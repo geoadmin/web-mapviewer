@@ -1,32 +1,17 @@
 import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import distance from '@turf/distance'
-import { lineString, point, polygon } from '@turf/helpers'
+import { point } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
+import { reproject } from 'reproject'
 
-import { EditableFeature, LayerFeature } from '@/api/features.api'
+import LayerFeature from '@/api/features/LayerFeature.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import reprojectGeoJsonData from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 const pixelToleranceForIdentify = 10
-
-function generateHtmlPopup(layerName, featureDescription, extraInformation = null) {
-    let popup = `<div class="htmlpopup-container">`
-    if (layerName) {
-        popup += `<div class="htmlpopup-header">${layerName}</div>`
-    }
-    if (featureDescription) {
-        popup += `<div class="htmlpopup-content">${featureDescription}`
-        if (extraInformation) {
-            popup += `<div>${extraInformation}</div>`
-        }
-        popup += '</div>'
-    }
-    popup += `</div>`
-    return popup
-}
 
 /**
  * @param {Array} coordinates
@@ -54,43 +39,34 @@ function reprojectCoordinates(coordinates, targetProjection) {
 
 function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
     const features = []
+    const distanceThreshold = pixelToleranceForIdentify * resolution
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
-    const matchingFeatures = geoJson.features.filter((feature) => {
-        let distanceWithClick
-        // we have a polygon or a line here
-        if (Array.isArray(feature.geometry.coordinates[0])) {
-            // if it is a polygon, we have to check its area against the coordinate
-            // polygons are expressed as a double-wrapped array of coordinates
-            if (Array.isArray(feature.geometry.coordinates[0][0])) {
-                if (booleanPointInPolygon(coordinateWGS84, polygon(feature.geometry.coordinates))) {
-                    distanceWithClick = 0
-                } else {
-                    // if not within the polygon area, we still need to check the distance with its border
-                    distanceWithClick = pointToLineDistance(
-                        coordinateWGS84,
-                        lineString(feature.geometry.coordinates[0]),
-                        {
+    const matchingFeatures = geoJson.features
+        // only keeping feature with geometry (required to run Turf below)
+        .filter((feature) => feature.geometry)
+        .filter((feature) => {
+            const { geometry } = transformIntoTurfEquivalent(feature.geometry)
+            // calculating distance with point coordinate, depending on the geometry type
+            switch (geometry?.type) {
+                case 'Polygon':
+                case 'MultiPolygon':
+                    return booleanPointInPolygon(coordinateWGS84, geometry)
+                case 'LineString':
+                case 'MultiLineString':
+                    return (
+                        pointToLineDistance(coordinateWGS84, geometry, {
                             units: 'meters',
-                        }
+                        }) <= distanceThreshold
                     )
-                }
-            } else {
-                // we are dealing with line, no need to unpack the coordinates
-                distanceWithClick = pointToLineDistance(
-                    coordinateWGS84,
-                    lineString(feature.geometry.coordinates),
-                    {
-                        units: 'meters',
-                    }
-                )
+                case 'Point':
+                case 'MultiPoint':
+                    return (
+                        distance(coordinateWGS84, geometry, { units: 'meters' }) <=
+                        distanceThreshold
+                    )
             }
-        } else {
-            distanceWithClick = distance(coordinateWGS84, point(feature.geometry.coordinates), {
-                units: 'meters',
-            })
-        }
-        return distanceWithClick <= pixelToleranceForIdentify * resolution
-    })
+            return false
+        })
     if (matchingFeatures?.length > 0) {
         features.push(...matchingFeatures)
     }
@@ -135,10 +111,10 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
                 geoJsonLayer,
                 feature.id,
                 feature.properties.station_name || feature.id,
-                generateHtmlPopup(geoJsonLayer.name, feature.properties.description),
+                { title: feature.properties.name, description: feature.properties.description },
                 reprojectCoordinates(feature.geometry.coordinates, projection),
                 null,
-                feature.geometry
+                reproject(feature.geometry, WGS84.epsg, projection.epsg)
             )
         }
     )
@@ -169,14 +145,15 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
         const convertedKml = kmlToGeoJSON(parseKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
-                // TODO use a new generic feature for identify (same for external KML and GPX) and not the editable
-                return EditableFeature.newFeature({
-                    id: feature.id,
-                    coordinates: reprojectCoordinates(feature.geometry.coordinates, projection),
-                    title: feature.properties.name,
-                    description: feature.properties.description,
-                    featureType: feature.properties.type.toUpperCase(),
-                })
+                return new LayerFeature(
+                    kmlLayer,
+                    feature.id,
+                    kmlLayer.name,
+                    { title: feature.properties.name, description: feature.properties.description },
+                    reprojectCoordinates(feature.geometry.coordinates, projection),
+                    null,
+                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
+                )
             }
         )
     }
@@ -199,26 +176,14 @@ export function identifyGPXFeatureAt(gpxLayer, coordinate, projection, resolutio
         const convertedGpx = gpxToGeoJSON(parseGpx)
         return identifyInGeoJson(convertedGpx, coordinate, projection, resolution).map(
             (feature) => {
-                const reprojectedCoordinates = reprojectCoordinates(
-                    feature.geometry.coordinates,
-                    projection
-                )
-                const reprojectedGeometry = {
-                    type: feature.geometry.type,
-                    coordinates: reprojectedCoordinates,
-                }
                 return new LayerFeature(
                     gpxLayer,
                     `${gpxLayer.name}-${feature.properties?.name}`,
                     feature.properties?.name,
-                    generateHtmlPopup(
-                        gpxLayer.name,
-                        feature.properties?.name || gpxLayer.gpxMetadata?.description,
-                        feature.properties?.type ? `Type: ${feature.properties.type}` : null
-                    ),
-                    reprojectedCoordinates,
+                    { ...feature.properties },
+                    reprojectCoordinates(feature.geometry.coordinates, projection),
                     null,
-                    reprojectedGeometry
+                    reproject(feature.geometry, WGS84.epsg, projection.epsg)
                 )
             }
         )

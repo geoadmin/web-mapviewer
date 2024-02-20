@@ -76,7 +76,7 @@
 <script>
 import { useI18n } from 'vue-i18n'
 
-import { EditableFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'

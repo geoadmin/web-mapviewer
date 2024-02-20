@@ -1,4 +1,5 @@
 import { primaryAction } from 'ol/events/condition'
+import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Polygon } from 'ol/geom'
 import DrawInteraction from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
@@ -6,7 +7,7 @@ import { getUid } from 'ol/util'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
@@ -106,7 +107,6 @@ export default function useDrawingModeInteraction({
             feature.setId(uid)
             const args = { ...editableFeatureArgs }
             args.id = uid
-            args.coordinates = null
 
             /* applying extra properties that should be stored with that feature. Openlayers will
             automatically redraw the feature if these properties change, but not in a recursive
@@ -161,6 +161,8 @@ export default function useDrawingModeInteraction({
 
         const editableFeature = feature.get('editableFeature')
         editableFeature.setCoordinatesFromFeature(feature)
+        // setting the geometry too so that the floating popup can be placed correctly on the map
+        editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
 
         // removing the flag we've set above in onDrawStart (this feature is now drawn)
         feature.unset('isDrawing')

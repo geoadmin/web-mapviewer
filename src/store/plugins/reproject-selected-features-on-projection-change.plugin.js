@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 
-import { EditableFeature, LayerFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
+import LayerFeature from '@/api/features/LayerFeature.class'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
@@ -42,7 +43,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                                 selectedFeature.layer,
                                 selectedFeature.id,
                                 selectedFeature.name,
-                                selectedFeature.htmlPopup,
+                                selectedFeature.data,
                                 reprojectCoordinates(selectedFeature.coordinates),
                                 projExtent(oldProjection, newProjection, selectedFeature.extent),
                                 selectedFeature.geometry
@@ -53,6 +54,7 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                             new EditableFeature(
                                 selectedFeature.id,
                                 reprojectCoordinates(selectedFeature.coordinates),
+                                selectedFeature.geometry,
                                 selectedFeature.time,
                                 selectedFeature.description,
                                 selectedFeature.featureType,

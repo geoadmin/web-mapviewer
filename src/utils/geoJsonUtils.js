@@ -1,7 +1,16 @@
+import {
+    lineString,
+    multiLineString,
+    multiPoint,
+    multiPolygon,
+    point,
+    polygon,
+} from '@turf/helpers'
 import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection
@@ -17,7 +26,7 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
  * @param {CoordinateSystem} fromProjection Source projection, in which the data is currently being
  *   described (or `null` if none were set in the GeoJSON data, meaning it is described with WGS84)
  */
-export default function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection = null) {
+export function reprojectGeoJsonData(geoJsonData, toProjection, fromProjection = null) {
     let reprojectedGeoJSON
     if (fromProjection instanceof CoordinateSystem && toProjection instanceof CoordinateSystem) {
         if (fromProjection.epsg !== toProjection.epsg) {
@@ -31,4 +40,40 @@ export default function reprojectGeoJsonData(geoJsonData, toProjection, fromProj
         reprojectedGeoJSON = reproject(geoJsonData, WGS84.epsg, toProjection.epsg)
     }
     return reprojectedGeoJSON
+}
+
+/**
+ * Transforms some GeoJSON feature/data into the TurfJS equivalent. This might be useful when we
+ * want to compute distance or similar things with turf, but we do not know what kind of GeoJSON
+ * geometry type we are dealing with.
+ *
+ * @param geoJsonData
+ * @param {CoordinateSystem} fromProjection In which coordinate-system is this GeoJSON data
+ *   described as. If nothing is specified, the default projection of GeoJSON data must be WGS84.
+ * @returns {Feature<MultiPoint, Properties>
+ *     | Feature<LineString, Properties>
+ *     | Feature<MultiLineString, Properties>
+ *     | Feature<MultiPolygon, Properties>
+ *     | null
+ *     | Feature<Point, Properties>
+ *     | Feature<Polygon, Properties>}
+ */
+export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84) {
+    const geometryWGS84 = reprojectGeoJsonData(geoJsonData, WGS84, fromProjection)
+    switch (geometryWGS84.type) {
+        case 'Point':
+            return point(geometryWGS84.coordinates)
+        case 'MultiPoint':
+            return multiPoint(geometryWGS84.coordinates)
+        case 'LineString':
+            return lineString(geometryWGS84.coordinates)
+        case 'MultiLineString':
+            return multiLineString(geometryWGS84.coordinates)
+        case 'Polygon':
+            return polygon(geometryWGS84.coordinates)
+        case 'MultiPolygon':
+            return multiPolygon(geometryWGS84.coordinates)
+    }
+    log.error('Unknown geometry type', geometryWGS84.type)
+    return null
 }

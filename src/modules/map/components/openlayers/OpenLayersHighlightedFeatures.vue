@@ -4,23 +4,31 @@
  * popup with the features' information
  */
 
-import centroid from '@turf/centroid'
-import { polygon } from '@turf/helpers'
-import { computed } from 'vue'
+import explode from '@turf/explode'
+import { point } from '@turf/helpers'
+import nearestPoint from '@turf/nearest-point'
+import Feature from 'ol/Feature'
+import GeoJSON from 'ol/format/GeoJSON'
+import proj4 from 'proj4'
+import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
+import { randomIntBetween } from '@/utils/numberUtils'
 
 // mapping relevant store values
 const store = useStore()
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
+const projection = computed(() => store.state.position.projection)
 
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
@@ -28,44 +36,72 @@ const editableFeatures = computed(() =>
 const nonEditableFeature = computed(() =>
     selectedFeatures.value.filter((feature) => !feature.isEditable)
 )
-const popoverCoordinate = computed(() => {
-    if (selectedFeatures.value.length > 0) {
-        const [firstFeature] = selectedFeatures.value
-        let coordinates = [...firstFeature.coordinates]
-        if (firstFeature.geometry) {
-            coordinates = [...firstFeature.geometry.coordinates]
-        }
-        // If we have a closed polygon, we can't just select the last coordinate of the polygon as
-        // its coordinate. We have to take its centroid.
-        if (firstFeature.featureType === EditableFeatureTypes.LINEPOLYGON) {
-            const firstCoordinate = coordinates[0]
-            const lastCoordinate = coordinates.slice(-1)[0]
-            if (
-                firstCoordinate[0] === lastCoordinate[0] &&
-                firstCoordinate[1] === lastCoordinate[1]
-            ) {
-                const polygonCentroid = centroid(polygon([coordinates]))
-                return polygonCentroid.geometry.coordinates
-            } else {
-                return coordinates[coordinates.length - 1]
-            }
-        }
-        return Array.isArray(coordinates[0]) ? coordinates[coordinates.length - 1] : coordinates
+const featureTransformedAsOlFeatures = computed(() => {
+    // While drawing module is active, we do not want any other feature as the editable one highlighted.
+    // And as the drawing module already takes care of applying a specific style to selected editable features,
+    // we do nothing if this module is active (returning an empty array instead of feature's geometries)
+    if (isCurrentlyDrawing.value) {
+        return []
     }
-    return null
-})
-
-const selectedFeatureMarkerPositions = computed(() => {
-    return selectedFeatures.value
-        .filter((feature) => feature?.geometry?.coordinates)
-        .map((feature) => {
-            return Array.isArray(feature.geometry.coordinates[0])
-                ? feature.geometry.coordinates[feature.geometry.coordinates.length - 1]
-                : feature.geometry.coordinates
+    return nonEditableFeature.value.map((feature) => {
+        return new Feature({
+            id: `geom-${randomIntBetween(0, 100000)}`,
+            geometry: new GeoJSON().readGeometry(feature.geometry),
         })
+    })
+})
+const southPole = point([0.0, -90.0])
+const popoverCoordinate = computed(() => {
+    // if we are dealing with any editable feature while drawing, we return its last coordinate
+    if (isCurrentlyDrawing.value && editableFeatures.value.length > 0) {
+        const [topEditableFeature] = editableFeatures.value
+        return topEditableFeature.lastCoordinate
+    }
+    // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
+    // selected features. We will find the most southern coordinate present in all features and use it as anchor.
+    const mostSouthernFeature = selectedFeatures.value
+        .map((feature) => feature.geometry)
+        .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
+        .map((turfGeom) => explode(turfGeom))
+        .map((points) => nearestPoint(southPole, points))
+        .reduce((previousPoint, currentPoint) => {
+            if (
+                !previousPoint ||
+                previousPoint.geometry.coordinates[1] > currentPoint.geometry.coordinates[1]
+            ) {
+                return currentPoint
+            }
+            return previousPoint
+        }, null)
+    if (!mostSouthernFeature) {
+        return null
+    }
+    return proj4(WGS84.epsg, projection.value.epsg, mostSouthernFeature.geometry.coordinates).map(
+        projection.value.roundCoordinateValue
+    )
 })
 
+// When new features are selected, if some of them have a complex geometry (polygon or line) we switch to
+// the "infobox" (non-floating) tooltip by default.
+// This should avoid the popup window to be out of screen if one of the selected features spreads too much south.
+watch(nonEditableFeature, () => {
+    const containsOnlyPoints =
+        nonEditableFeature.value.filter((feature) =>
+            ['Point', 'MultiPoint'].includes(feature.geometry?.type)
+        ).length === nonEditableFeature.value.length
+    if (isFloatingTooltip.value && !containsOnlyPoints) {
+        toggleFloatingTooltip()
+    }
+})
+
+const olMap = inject('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
+useVectorLayer(
+    olMap,
+    featureTransformedAsOlFeatures,
+    zIndexHighlightedFeatures,
+    highlightFeatureStyle
+)
 
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures')
@@ -76,12 +112,6 @@ function toggleFloatingTooltip() {
 </script>
 
 <template>
-    <OpenLayersMarker
-        v-if="selectedFeatures.length > 0"
-        :position="selectedFeatureMarkerPositions"
-        marker-style="feature"
-        :z-index="zIndexHighlightedFeatures"
-    />
     <OpenLayersPopover
         v-if="isFloatingTooltip && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"

@@ -2,6 +2,8 @@
 import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
+import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
+
 const props = defineProps({
     direction: {
         type: String,
@@ -26,21 +28,18 @@ function generateFeatureIdForList(feature, indexInList) {
 </script>
 
 <template>
-    <ul
+    <div
         class="feature-list"
         :class="{ 'feature-list-row': direction === 'row' }"
         data-cy="highlighted-features"
     >
-        <!-- eslint-disable vue/no-v-html-->
-        <li
+        <FeatureDetail
             v-for="(feature, index) in features"
             :key="generateFeatureIdForList(feature, index)"
+            :feature="feature"
             class="feature-list-item"
-            data-infobox="height-reference"
-            v-html="feature.htmlPopup"
         />
-        <!-- eslint-enable vue/no-v-html-->
-    </ul>
+    </div>
 </template>
 
 <style lang="scss" scoped>

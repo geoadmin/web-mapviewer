@@ -2,7 +2,7 @@ import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */

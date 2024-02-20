@@ -4,24 +4,25 @@ import {
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
 import Feature from 'ol/Feature'
-import KML from 'ol/format/KML'
-import { getDefaultStyle } from 'ol/format/KML'
+import GeoJSON from 'ol/format/GeoJSON'
+import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { DrawingIcon } from '@/api/icon.api'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import {
     allStylingSizes,
+    featureStyleFunction,
     getFeatureStyleColor,
+    getStyle,
     getTextColor,
     getTextSize,
     RED,
     SMALL,
 } from '@/utils/featureStyleUtils'
-import { getStyle } from '@/utils/featureStyleUtils'
-import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 import { parseRGBColor } from '@/utils/utils'
@@ -356,29 +357,6 @@ export function getFillColor(style, geometryType, iconArgs) {
 }
 
 /**
- * Get KML feature coordinates
- *
- * @param {Feature} feature Openlayer kml feature
- * @returns {[[lat, lon]]} Return the coordinate of the feature
- */
-export function getKmlFeatureCoordinates(feature) {
-    let coordinates = feature.getGeometry().getCoordinates()
-    if (feature.getGeometry().getType() === 'Polygon') {
-        // in case of a polygon, the coordinates structure is
-        // [
-        //   [ (poly1)
-        //      [coord1],[coord2]
-        //   ],
-        //   [ (poly2) ...
-        // ]
-        // so as we will not have multipoly, we only keep what's defined as poly one
-        // (we remove the wrapping array that would enable us to have a second polygon)
-        coordinates = coordinates[0]
-    }
-    return coordinates
-}
-
-/**
  * Get the geoadmin editable feature for the given open layer KML feature
  *
  * @param {Feature} kmlFeature Open layer KML feature
@@ -424,7 +402,8 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
     const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    const coordinates = getKmlFeatureCoordinates(kmlFeature)
+    const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
+    const coordinates = extractOlFeatureCoordinates(kmlFeature)
 
     return EditableFeature.newFeature({
         id: featureId,
@@ -432,6 +411,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         title,
         description: description,
         coordinates,
+        geometry,
         textColor,
         textSize,
         fillColor,

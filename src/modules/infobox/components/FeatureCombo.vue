@@ -1,7 +1,7 @@
 <script setup>
 import { toRefs } from 'vue'
 
-import { EditableFeature } from '@/api/features.api'
+import EditableFeature from '@/api/features/EditableFeature.class'
 
 import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'

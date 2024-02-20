@@ -4,7 +4,7 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'

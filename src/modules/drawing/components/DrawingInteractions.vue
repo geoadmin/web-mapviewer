@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'

@@ -11,7 +11,7 @@ import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
-import reprojectGeoJsonData from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 
 const props = defineProps({

@@ -24,11 +24,11 @@ In the following is a list of files related to the handeling of feature styles:
 
 - [Feature](https://openlayers.org/en/latest/apidoc/module-ol_Feature-Feature.html) Openlayers
   representation of the feature. Stores the **EditableFeature** and the **Style** of a feature.
-- [EditableFeature](../../api/features.api.js): Representation of a selected feature in the store. Also
+- [EditableFeature](../../api/features/EditableFeature.class.js): Representation of a selected feature in the store. Also
   stores its style in a manner that is easily modifiable by the rest of the application.
 - [DrawingSelectInteraction.vue](components/DrawingSelectInteraction.vue): If a **feature** is
-  selected, puts the corresponding [EditableFeature](../../api/features.api.js) in the store.
-  Also triggers an update of the **Style** when the corresponding [EditableFeature](../../api/features.api.js)
+  selected, puts the corresponding [EditableFeature](../../api/features/EditableFeature.class.js) in the store.
+  Also triggers an update of the **Style** when the corresponding [EditableFeature](../../api/features/EditableFeature.class.js)
   is modified.
 - [featurestylefunction](lib/style.js): Updates the **Style** when the corresponding **EditableFeature**
   is modified or when the openlayers feature must be rerendered.

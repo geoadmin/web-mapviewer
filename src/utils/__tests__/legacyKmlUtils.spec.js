@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { beforeEach, describe, it } from 'vitest'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {

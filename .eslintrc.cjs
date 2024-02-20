@@ -19,6 +19,7 @@ module.exports = {
         'vue/setup-compiler-macros': true,
     },
     rules: {
+        'no-var': 'error', // no var allowed, only let and const keywords
         'no-unused-vars': [
             'error',
             {
