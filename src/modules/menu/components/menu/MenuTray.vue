@@ -14,7 +14,7 @@
         </MenuSection>
         <MenuShareSection ref="shareSection" @open-menu-section="onOpenMenuSection" />
         <MenuPrintSection
-            v-if="!is3dMode"
+            v-if="!is3dMode && hasDevSiteWarning"
             ref="printSection"
             @open-menu-section="onOpenMenuSection"
         />
@@ -33,7 +33,6 @@
             />
         </div>
         <MenuSection
-            v-if="hasDevSiteWarning"
             id="toolsSection"
             ref="toolsSection"
             data-cy="menu-tray-tool-section"
