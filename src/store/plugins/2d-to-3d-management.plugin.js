@@ -28,7 +28,7 @@ export default function from2Dto3Dplugin(store) {
                     })
                     if (matching2dBackgroundId?.length > 0) {
                         store.dispatch('setBackground', {
-                            value: matching2dBackgroundId[0],
+                            bgLayer: matching2dBackgroundId[0],
                             dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
                         })
                     }
@@ -38,7 +38,7 @@ export default function from2Dto3Dplugin(store) {
                         backgroundMatriceBetween2dAnd3d[state.layers.currentBackgroundLayer.getID()]
                     if (matching3dBackgroundId) {
                         store.dispatch('setBackground', {
-                            value: matching3dBackgroundId,
+                            bgLayer: matching3dBackgroundId,
                             dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
                         })
                     }
@@ -50,12 +50,12 @@ export default function from2Dto3Dplugin(store) {
                 if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg) {
                     if (state.cesium.active) {
                         store.dispatch('setProjection', {
-                            value: WEBMERCATOR,
+                            projection: WEBMERCATOR,
                             dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
                         })
                     } else {
                         store.dispatch('setProjection', {
-                            value: DEFAULT_PROJECTION,
+                            projection: DEFAULT_PROJECTION,
                             dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
                         })
                     }

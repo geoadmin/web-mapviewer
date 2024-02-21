@@ -35,7 +35,7 @@ export default class QueryToStoreOnlyParamConfig extends AbstractParamConfig {
             mutationsToWatch,
             (store, urlParamValue) =>
                 store.dispatch(dispatchChangeTo, {
-                    value: urlParamValue,
+                    [urlParamName]: urlParamValue,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 }),
             () => null,

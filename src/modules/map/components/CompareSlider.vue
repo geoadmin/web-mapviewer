@@ -118,7 +118,7 @@ function releaseSlider() {
     window.removeEventListener('touchend', releaseSlider)
     compareSliderOffset.value = 0
     store.dispatch('setCompareRatio', {
-        value: compareRatio.value,
+        compareRatio: compareRatio.value,
         dispatcher: 'CompareSlider.vue',
     })
 }

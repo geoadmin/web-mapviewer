@@ -188,8 +188,8 @@ const actions = {
      *
      * @param {String | AbstractLayer} layerIdOrObject
      */
-    setBackground({ commit, getters }, { value, dispatcher }) {
-        const layerIdOrObject = value
+    setBackground({ commit, getters }, { bgLayer, dispatcher }) {
+        const layerIdOrObject = bgLayer
         let futureBackground
         if (typeof layerIdOrObject === 'string') {
             futureBackground = getters.getLayerConfigById(layerIdOrObject)
@@ -197,9 +197,9 @@ const actions = {
             futureBackground = getters.getLayerConfigById(layerIdOrObject.getID())
         }
         if (futureBackground?.isBackground) {
-            commit('setBackground', { value: futureBackground, dispatcher })
+            commit('setBackground', { bgLayer: futureBackground, dispatcher })
         } else {
-            commit('setBackground', { value: null, dispatcher })
+            commit('setBackground', { bgLayer: null, dispatcher })
         }
     },
     /**
@@ -505,8 +505,8 @@ const actions = {
 }
 
 const mutations = {
-    setBackground(state, { value }) {
-        state.currentBackgroundLayer = value
+    setBackground(state, { bgLayer }) {
+        state.currentBackgroundLayer = bgLayer
         // forcing its visibility (if not void layer), as 3D layers have their visible flag set to false somehow
         if (state.currentBackgroundLayer) {
             state.currentBackgroundLayer.visible = true

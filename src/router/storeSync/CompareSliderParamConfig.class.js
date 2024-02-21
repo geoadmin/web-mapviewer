@@ -7,7 +7,7 @@ function dispatchCompareSliderFromUrlParam(store, urlParamValue) {
     if (urlParamValue) {
         promisesForAllDispatch.push(
             store.dispatch('setCompareRatio', {
-                value: urlParamValue,
+                compareRatio: urlParamValue,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         )
@@ -15,7 +15,7 @@ function dispatchCompareSliderFromUrlParam(store, urlParamValue) {
         if (urlParamValue > 0.0 && urlParamValue < 1.0) {
             promisesForAllDispatch.push(
                 store.dispatch('setCompareSliderActive', {
-                    value: true,
+                    compareSliderActive: true,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             )

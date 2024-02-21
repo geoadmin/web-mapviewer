@@ -52,12 +52,12 @@ const topicChangeManagementPlugin = (store) => {
             ) {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
-                        value: currentTopic.defaultBackgroundLayer.getID(),
+                        bgLayer: currentTopic.defaultBackgroundLayer.getID(),
                         dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                     })
                 } else {
                     store.dispatch('setBackground', {
-                        value: null,
+                        bgLayer: null,
                         dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                     })
                 }
@@ -79,7 +79,7 @@ const topicChangeManagementPlugin = (store) => {
             }
 
             log.debug(
-                `Topic change management plugin: topic changed to ${mutation.payload.value} bg and layers dispatched: ${performance.now() - startTime}ms`,
+                `Topic change management plugin: topic changed to ${mutation.payload} bg and layers dispatched: ${performance.now() - startTime}ms`,
                 currentTopic.layersToActivate
             )
             // loading topic tree
@@ -96,14 +96,14 @@ const topicChangeManagementPlugin = (store) => {
                 // overwrite them here
                 if (store.state.topics.openedTreeThemesIds.length === 0) {
                     store.dispatch('setTopicTreeOpenedThemesIds', {
-                        value: topicTree.itemIdToOpen,
+                        catalogNodes: topicTree.itemIdToOpen,
                         dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
                     })
                 }
 
                 let endTime = performance.now()
                 log.debug(
-                    `Finished Topic change management plugin: topic changed to ${mutation.payload.value}: ${endTime - startTime}ms`
+                    `Finished Topic change management plugin: topic changed to ${mutation.payload}: ${endTime - startTime}ms`
                 )
             })
         }

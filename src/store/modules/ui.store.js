@@ -214,8 +214,8 @@ export default {
         toggleFullscreenMode({ commit, state }) {
             commit('setFullscreenMode', !state.fullscreenMode)
         },
-        setEmbeddedMode({ commit }, { value, dispatcher }) {
-            commit('setEmbeddedMode', { value: !!value, dispatcher })
+        setEmbeddedMode({ commit }, { embed, dispatcher }) {
+            commit('setEmbeddedMode', { embed: !!embed, dispatcher })
         },
         setShowLoadingBar({ commit }, value) {
             commit('setShowLoadingBar', !!value)
@@ -224,10 +224,16 @@ export default {
             commit('setShowLoadingBar', !state.showLoadingBar)
         },
         toggleDrawingOverlay({ commit, state }, { dispatcher }) {
-            commit('setShowDrawingOverlay', { value: !state.showDrawingOverlay, dispatcher })
+            commit('setShowDrawingOverlay', {
+                showDrawingOverlay: !state.showDrawingOverlay,
+                dispatcher,
+            })
         },
-        setShowDrawingOverlay({ commit }, { value, dispatcher }) {
-            commit('setShowDrawingOverlay', { value: !!value, dispatcher })
+        setShowDrawingOverlay({ commit }, { showDrawingOverlay, dispatcher }) {
+            commit('setShowDrawingOverlay', {
+                showDrawingOverlay: !!showDrawingOverlay,
+                dispatcher,
+            })
         },
         toggleFloatingTooltip({ commit, state }) {
             commit('setFloatingTooltip', !state.floatingTooltip)
@@ -253,17 +259,17 @@ export default {
         setMenuTrayWidth({ commit }, width) {
             commit('setMenuTrayWidth', parseFloat(width))
         },
-        setCompareRatio({ commit }, { value, dispatcher }) {
+        setCompareRatio({ commit }, { compareRatio, dispatcher }) {
             /*
                 This check is here to make sure the compare ratio doesn't get out of hand
                 The logic is, we want the compare ratio to be either in its visible range,
                 which is 0.001 to 0.999, and it's "storage range" (-0.001 to -0.999). If
                 we are not within these bounds, we revert to the default value (-0.5)
             */
-            if (value > 0.0 && value < 1.0) {
-                commit('setCompareRatio', { value, dispatcher })
+            if (compareRatio > 0.0 && compareRatio < 1.0) {
+                commit('setCompareRatio', { compareRatio, dispatcher })
             } else {
-                commit('setCompareRatio', { value: null, dispatcher })
+                commit('setCompareRatio', { compareRatio: null, dispatcher })
             }
         },
         setCompareSliderActive({ commit }, args) {
@@ -281,14 +287,14 @@ export default {
         setFullscreenMode(state, flagValue) {
             state.fullscreenMode = flagValue
         },
-        setEmbeddedMode(state, { value }) {
-            state.embeddedMode = value
+        setEmbeddedMode(state, { embed }) {
+            state.embeddedMode = embed
         },
         setShowLoadingBar(state, flagValue) {
             state.showLoadingBar = flagValue
         },
-        setShowDrawingOverlay(state, { value }) {
-            state.showDrawingOverlay = value
+        setShowDrawingOverlay(state, { showDrawingOverlay }) {
+            state.showDrawingOverlay = showDrawingOverlay
         },
         setFloatingTooltip(state, flagValue) {
             state.floatingTooltip = flagValue
@@ -308,11 +314,11 @@ export default {
         setMenuTrayWidth(state, width) {
             state.menuTrayWidth = width
         },
-        setCompareRatio(state, { value }) {
-            state.compareRatio = value
+        setCompareRatio(state, { compareRatio }) {
+            state.compareRatio = compareRatio
         },
-        setCompareSliderActive(state, { value }) {
-            state.isCompareSliderActive = value
+        setCompareSliderActive(state, { compareSliderActive }) {
+            state.isCompareSliderActive = compareSliderActive
         },
     },
 }

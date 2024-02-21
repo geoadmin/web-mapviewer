@@ -35,7 +35,7 @@ const secondLayer = new GeoAdminWMSLayer(
 
 const resetStore = async () => {
     await store.dispatch('clearLayers', { dispatcher: 'unit-test' })
-    await store.dispatch('setBackground', { value: null, dispatcher: 'unit-test' })
+    await store.dispatch('setBackground', { bgLayer: null, dispatcher: 'unit-test' })
     await store.dispatch('setLayerConfig', { config: [], dispatcher: 'unit-test' })
 }
 
@@ -50,19 +50,19 @@ describe('Background layer is correctly set', () => {
         expect(getBackgroundLayer()).to.be.null
     })
     it('does not select a background if the one given is not present in the config', async () => {
-        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.null
     })
     it('does select the background if it is present in the config', async () => {
         await store.dispatch('setLayerConfig', { config: [bgLayer], dispatcher: 'unit-test' })
-        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
         expect(getBackgroundLayer().getID()).to.eq(bgLayer.getID())
     })
     it('does not permit to select a background that has not the flag isBackground set to true', async () => {
         await store.dispatch('setLayerConfig', { config: [firstLayer], dispatcher: 'unit-test' })
         await store.dispatch('setBackground', {
-            value: firstLayer.getID(),
+            bgLayer: firstLayer.getID(),
             dispatcher: 'unit-test',
         })
         expect(getBackgroundLayer()).to.be.null
@@ -124,7 +124,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not give background layers with the visible layers', async () => {
-        await store.dispatch('setBackground', { value: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('adds correctly a layer to the visible layers after it is added to the map', async () => {
@@ -160,7 +160,7 @@ describe('Layer z-index are calculated correctly in the store', () => {
             dispatcher: 'unit-test',
         })
         // setting up the background layer
-        await store.dispatch('setBackground', { value: bgLayer, dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer, dispatcher: 'unit-test' })
     })
 
     it('gives a z-index of -1 if the given layer is not valid', () => {

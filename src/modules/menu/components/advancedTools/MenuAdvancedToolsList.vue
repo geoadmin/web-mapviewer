@@ -33,12 +33,12 @@ function onToggleCompareSlider() {
     if (storeCompareRatio.value === null) {
         // this allows us to set a value to the compare ratio, in case there was none
         store.dispatch('setCompareRatio', {
-            value: 0.5,
+            compareRatio: 0.5,
             dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
         })
     }
     store.dispatch('setCompareSliderActive', {
-        value: !isCompareSliderActive.value,
+        compareSliderActive: !isCompareSliderActive.value,
         dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
     })
 }

@@ -81,7 +81,7 @@ export default {
             this.showTopicSelectionPopup = true
         },
         selectTopic(topic) {
-            this.changeTopic({ value: topic.id, dispatcher: 'MenuTopicSection.vue' })
+            this.changeTopic({ topicId: topic.id, dispatcher: 'MenuTopicSection.vue' })
             this.showTopicSelectionPopup = false
         },
         close() {

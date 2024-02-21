@@ -23,10 +23,10 @@ const isMercatorTheCurrentProjection = computed(
 
 function toggleProjection() {
     if (isMercatorTheCurrentProjection.value) {
-        store.dispatch('setProjection', { value: LV95, dispatcher: STORE_DISPATCHER_DEBUG_TB })
+        store.dispatch('setProjection', { projection: LV95, dispatcher: STORE_DISPATCHER_DEBUG_TB })
     } else {
         store.dispatch('setProjection', {
-            value: WEBMERCATOR,
+            projection: WEBMERCATOR,
             dispatcher: STORE_DISPATCHER_DEBUG_TB,
         })
     }

@@ -48,26 +48,26 @@ const actions = {
     setTopicTree: ({ commit }, { layers, dispatcher }) => {
         commit('setTopicTree', { layers: layers.map((layer) => layer.clone()), dispatcher })
     },
-    changeTopic: ({ commit, state }, { value, dispatcher }) => {
+    changeTopic: ({ commit, state }, { topicId, dispatcher }) => {
         if (
-            state.config.find((topic) => topic.id === value) ||
+            state.config.find((topic) => topic.id === topicId) ||
             // during appLoadingManagement.routerPlugin the topics are not yet set
             // therefore we cannot validate the topic ID
             dispatcher === 'appLoadingManagement.routerPlugin'
         ) {
-            commit('changeTopic', { value, dispatcher })
+            commit('changeTopic', { topicId, dispatcher })
         } else {
-            log.error(`Invalid topic ID ${value}`)
+            log.error(`Invalid topic ID ${topicId}`)
         }
     },
-    setTopicTreeOpenedThemesIds: ({ commit }, { value, dispatcher }) => {
-        if (typeof value === 'string') {
+    setTopicTreeOpenedThemesIds: ({ commit }, { catalogNodes, dispatcher }) => {
+        if (typeof catalogNodes === 'string') {
             commit('setTopicTreeOpenedThemesIds', {
-                themes: value.indexOf(',') !== -1 ? value.split(',') : [value],
+                themes: catalogNodes.indexOf(',') !== -1 ? catalogNodes.split(',') : [catalogNodes],
                 dispatcher,
             })
-        } else if (Array.isArray(value)) {
-            commit('setTopicTreeOpenedThemesIds', { themes: value.slice(), dispatcher })
+        } else if (Array.isArray(catalogNodes)) {
+            commit('setTopicTreeOpenedThemesIds', { themes: catalogNodes.slice(), dispatcher })
         }
     },
 }
@@ -75,7 +75,7 @@ const mutations = {
     setTopics: (state, { topics }) => (state.config = topics),
     setTopicTree: (state, { layers }) => (state.tree = layers),
     setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
-    changeTopic: (state, { value }) => (state.current = value),
+    changeTopic: (state, { topicId }) => (state.current = topicId),
 }
 
 export default {

@@ -256,7 +256,7 @@ describe('Test mouse position and interactions', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink-bg-void')
-            cy.writeStoreValue('setBackground', { value: null, dispatcher: 'e2e-test' })
+            cy.writeStoreValue('setBackground', { bgLayer: null, dispatcher: 'e2e-test' })
             cy.wait('@shortlink-bg-void').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]

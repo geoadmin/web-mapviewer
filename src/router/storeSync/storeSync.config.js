@@ -32,7 +32,8 @@ const storeSyncConfig = [
         (store) => store.state.position.projection.epsgNumber,
         false,
         Number,
-        DEFAULT_PROJECTION.epsgNumber
+        DEFAULT_PROJECTION.epsgNumber,
+        'projection'
     ),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
@@ -47,7 +48,8 @@ const storeSyncConfig = [
         (store) => store.state.cesium.active,
         false,
         Boolean,
-        false
+        false,
+        'active'
     ),
     new SimpleUrlParamConfig(
         'geolocation',
@@ -79,7 +81,9 @@ const storeSyncConfig = [
         'changeTopic',
         (store) => store.state.topics.current,
         true,
-        String
+        String,
+        null,
+        'topicId'
     ),
     // as the setSearchQuery action requires an object as payload, we need
     // to customize a bit the dispatch to this action (in order to build a correct payload)

@@ -27,9 +27,9 @@ const actions = {
 
 const mutations = {}
 
-mutations[SET_LANG_MUTATION_KEY] = function (state, { value }) {
-    state.lang = value
-    i18n.global.locale = value
+mutations[SET_LANG_MUTATION_KEY] = function (state, { lang }) {
+    state.lang = lang
+    i18n.global.locale = lang
 }
 
 export default {

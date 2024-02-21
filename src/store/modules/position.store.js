@@ -279,17 +279,17 @@ const actions = {
      */
     setCrossHair: ({ commit, state }, { crossHair, crossHairPosition, dispatcher }) => {
         if (crossHair === null) {
-            commit('setCrossHair', { value: null, dispatcher })
-            commit('setCrossHairPosition', { value: null, dispatcher })
+            commit('setCrossHair', { crossHair: null, dispatcher })
+            commit('setCrossHairPosition', { crossHairPosition: null, dispatcher })
         } else if (crossHair in CrossHairs) {
-            commit('setCrossHair', { value: CrossHairs[crossHair], dispatcher })
+            commit('setCrossHair', { crossHair: CrossHairs[crossHair], dispatcher })
 
             // if a position is defined as param we use it
             if (crossHairPosition) {
-                commit('setCrossHairPosition', { value: crossHairPosition, dispatcher })
+                commit('setCrossHairPosition', { crossHairPosition: crossHairPosition, dispatcher })
             } else {
                 // if no position was given, we use the current center of the map as crosshair position
-                commit('setCrossHairPosition', { value: state.center, dispatcher })
+                commit('setCrossHairPosition', { crossHairPosition: state.center, dispatcher })
             }
         }
     },
@@ -302,8 +302,7 @@ const actions = {
     setCameraPosition({ commit }, { position, dispatcher }) {
         commit('setCameraPosition', { position, dispatcher })
     },
-    setProjection({ commit, state }, { value, dispatcher }) {
-        const projection = value
+    setProjection({ commit, state }, { projection, dispatcher }) {
         let matchingProjection
         if (projection instanceof CoordinateSystem) {
             matchingProjection = projection
@@ -363,10 +362,14 @@ const actions = {
             }
 
             if (state.crossHairPosition) {
-                commit(
-                    'setCrossHairPosition',
-                    proj4(oldProjection.epsg, matchingProjection.epsg, state.crossHairPosition)
-                )
+                commit('setCrossHairPosition', {
+                    crossHairPosition: proj4(
+                        oldProjection.epsg,
+                        matchingProjection.epsg,
+                        state.crossHairPosition
+                    ),
+                    dispatcher: 'position.store/setProjection',
+                })
             }
 
             commit('setProjection', { projection: matchingProjection, dispatcher })
@@ -380,8 +383,9 @@ const mutations = {
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
-    setCrossHair: (state, { value }) => (state.crossHair = value),
-    setCrossHairPosition: (state, { value }) => (state.crossHairPosition = value),
+    setCrossHair: (state, { crossHair }) => (state.crossHair = crossHair),
+    setCrossHairPosition: (state, { crossHairPosition }) =>
+        (state.crossHairPosition = crossHairPosition),
     setCameraPosition: (state, { position }) => (state.camera = position),
     setProjection: (state, { projection }) => (state.projection = projection),
 }

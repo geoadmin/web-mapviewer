@@ -82,7 +82,7 @@ const loadLayersConfigOnLangChange = (store) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
             loadLayersAndTopicsConfigAndDispatchToStore(
                 store,
-                mutation.payload.value,
+                mutation.payload.lang,
                 store.state.topics.current,
                 STORE_DISPATCHER_LANG_CHANGE
             )

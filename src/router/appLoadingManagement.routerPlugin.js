@@ -29,11 +29,11 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             const lang = queryParams.get('lang') ?? store.state.i18n.lang
             const topic = queryParams.get('topic') ?? store.state.topics.current
             store.dispatch('changeTopic', {
-                value: topic,
+                topicId: topic,
                 dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
             })
             store.dispatch('setLang', {
-                value: lang,
+                lang: lang,
                 dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
             })
             log.debug(`App is not ready redirect to /#/startup?redirect=${to.fullPath}`)

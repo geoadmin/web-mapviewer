@@ -14,7 +14,7 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
     const getResolution = () => store.getters.resolution
 
     beforeEach(async () => {
-        await store.dispatch('setProjection', { value: WEBMERCATOR, dispatcher: 'unit-test' })
+        await store.dispatch('setProjection', { projection: WEBMERCATOR, dispatcher: 'unit-test' })
         // first we setup a fake screen of 100px by 100px
         await store.dispatch('setSize', {
             width: screenSize,
