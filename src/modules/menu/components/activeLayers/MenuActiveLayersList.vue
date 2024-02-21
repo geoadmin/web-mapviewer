@@ -1,3 +1,78 @@
+<script setup>
+/**
+ * Component that maps the active layers from the state to the menu (and also forwards user
+ * interactions to the state)
+ */
+import { computed, ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+
+const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST = 'MenuActiveLayersList.vue'
+
+const props = defineProps({
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { compact } = toRefs(props)
+
+const showLayerLegendForLayer = ref(null)
+const showLayerDetailsForId = ref(null)
+
+const store = useStore()
+
+// Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
+// So here we swap the order of this array to match the desired order on the UI
+const activeLayers = computed(() => store.state.layers.activeLayers.slice().reverse())
+
+function onToggleLayerDetails(layerId) {
+    if (showLayerDetailsForId.value === layerId) {
+        showLayerDetailsForId.value = null
+    } else {
+        showLayerDetailsForId.value = layerId
+    }
+}
+function onRemoveLayer(layerId) {
+    store.dispatch('removeLayer', { layerId, dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST })
+}
+function onToggleLayerVisibility(layerId) {
+    store.dispatch('toggleLayerVisibility', {
+        layerId,
+        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+    })
+}
+function onOrderChange(layerId, delta) {
+    // raising the layer in the stack means the user wants the layer put front
+    if (delta === 1) {
+        store.dispatch('moveActiveLayerFront', {
+            layerId,
+            dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+        })
+    } else if (delta === -1) {
+        store.dispatch('moveActiveLayerBack', {
+            layerId,
+            dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+        })
+    }
+}
+function onOpacityChange(layerId, opacity) {
+    store.dispatch('setLayerOpacity', {
+        layerId,
+        opacity,
+        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+    })
+}
+function isFirstLayer(layerId) {
+    return activeLayers.value[0].getID() === layerId
+}
+function isLastLayer(layerId) {
+    return activeLayers.value.slice(-1)[0].getID() === layerId
+}
+</script>
+
 <template>
     <div>
         <div
@@ -31,88 +106,3 @@
         </div>
     </div>
 </template>
-
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-
-import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
-
-const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST = 'MenuActiveLayersList.vue'
-
-/**
- * Component that maps the active layers from the state to the menu (and also forwards user
- * interactions to the state)
- */
-export default {
-    components: { LayerLegendPopup, MenuActiveLayersListItem },
-    props: {
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    data() {
-        return {
-            showLayerLegendForLayer: null,
-            showLayerDetailsForId: null,
-        }
-    },
-    computed: {
-        ...mapState({
-            // users are used to have layers ordered top to bottom (first layer is on top) but we store them in the
-            // opposite order. So here we swap the order of this array to match the desired order on the UI
-            activeLayers: (state) => state.layers.activeLayers.slice().reverse(),
-        }),
-    },
-    methods: {
-        onToggleLayerDetails(layerId) {
-            if (this.showLayerDetailsForId === layerId) {
-                this.showLayerDetailsForId = null
-            } else {
-                this.showLayerDetailsForId = layerId
-            }
-        },
-        ...mapActions([
-            'setLayerOpacity',
-            'moveActiveLayerBack',
-            'moveActiveLayerFront',
-            'toggleLayerVisibility',
-            'removeLayer',
-            'showOverlay',
-            'setOverlayShouldBeFront',
-        ]),
-        onRemoveLayer(layerId) {
-            this.removeLayer({
-                layerId: layerId,
-                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
-            })
-        },
-        onToggleLayerVisibility(layerId) {
-            this.toggleLayerVisibility(layerId)
-        },
-        onOrderChange(layerId, delta) {
-            // raising the layer in the stack means the user wants the layer put front
-            if (delta === 1) {
-                this.moveActiveLayerFront(layerId)
-            } else if (delta === -1) {
-                this.moveActiveLayerBack(layerId)
-            }
-        },
-        onOpacityChange(layerId, opacity) {
-            this.setLayerOpacity({
-                layerId,
-                opacity,
-                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
-            })
-        },
-        isFirstLayer(layerId) {
-            return this.activeLayers[0].getID() === layerId
-        },
-        isLastLayer(layerId) {
-            return this.activeLayers[this.activeLayers.length - 1].getID() === layerId
-        },
-    },
-}
-</script>
