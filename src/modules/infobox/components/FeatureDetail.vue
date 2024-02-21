@@ -51,3 +51,23 @@ function sanitizeHtml(htmlText) {
         </div>
     </div>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/scss/variables-admin.module';
+
+// Styling for external HTML content
+:global(.htmlpopup-container) {
+    width: 100%;
+    font-size: 11px;
+    text-align: start;
+}
+:global(.htmlpopup-header) {
+    background-color: $gainsboro;
+    padding: 7px;
+    margin-bottom: 7px;
+    font-weight: 700;
+}
+:global(.htmlpopup-content) {
+    padding: 7px;
+}
+</style>

@@ -14,7 +14,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
-@import 'src/scss/variables-admin';
+@import 'src/scss/variables-admin.module';
 @import 'src/scss/variables';
 
 /* Corner ribbons, from http://codepen.io/eode9/pen/twkKm
@@ -34,7 +34,7 @@ $dist-from-border: 50px; // Distance of the text's center from the border
     transform: rotate(-45deg);
     z-index: $zindex-warning;
     background: $danger;
-    color: white;
+    color: $white;
     text-align: center;
     line-height: 2 * $ribbon-halfheight;
     letter-spacing: 1px;

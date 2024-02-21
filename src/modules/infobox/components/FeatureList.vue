@@ -25,6 +25,18 @@ function generateFeatureIdForList(feature, indexInList) {
     }
     return featureId
 }
+function highlightFeature(feature) {
+    store.dispatch('setHighlightedFeatureId', {
+        highlightedFeatureId: feature?.id,
+        dispatcher: 'FeatureList.vue',
+    })
+}
+function clearHighlightedFeature() {
+    store.dispatch('setHighlightedFeatureId', {
+        highlightedFeatureId: null,
+        dispatcher: 'FeatureList.vue',
+    })
+}
 </script>
 
 <template>
@@ -38,18 +50,28 @@ function generateFeatureIdForList(feature, indexInList) {
             :key="generateFeatureIdForList(feature, index)"
             :feature="feature"
             class="feature-list-item"
+            @mouseenter.passive="highlightFeature(feature)"
+            @mouseleave.passive="clearHighlightedFeature"
         />
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables-admin.module';
 
 .feature-list {
     margin: 0;
-    padding: 0;
     list-style: none;
 
+    &-item {
+        $item-border: $border-width solid $border-color;
+        border-right: $item-border;
+        border-bottom: $item-border;
+        &:hover {
+            background-color: rgba($mocassin-to-red-1, 0.8);
+        }
+    }
     &-row {
         display: grid;
         // on mobile (default size) only one column
@@ -57,7 +79,6 @@ function generateFeatureIdForList(feature, indexInList) {
         grid-template-columns: 1fr;
         max-height: 50vh;
         overflow-y: auto;
-        grid-gap: 8px;
     }
 }
 
@@ -80,21 +101,5 @@ function generateFeatureIdForList(feature, indexInList) {
         // anything above 1200px will have 4 tooltips in a row
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
-}
-
-// Styling for external HTML content
-:global(.htmlpopup-container) {
-    width: 100%;
-    font-size: 11px;
-    text-align: start;
-}
-:global(.htmlpopup-header) {
-    background-color: #e9e9e9;
-    padding: 7px;
-    margin-bottom: 7px;
-    font-weight: 700;
-}
-:global(.htmlpopup-content) {
-    padding: 7px;
 }
 </style>
