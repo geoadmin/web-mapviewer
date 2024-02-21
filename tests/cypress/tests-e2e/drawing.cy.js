@@ -60,7 +60,7 @@ describe('Drawing module tests', () => {
             cy.wait('@icon-set-default')
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click()
+            cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml')
 
@@ -71,10 +71,10 @@ describe('Drawing module tests', () => {
                 .should('include', `${RED.rgbString}.png`)
 
             // clicking on the "Edit icon" button
-            cy.get('[data-cy="drawing-style-marker-button"]').click()
+            cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
             // opening up the icon set selector
             cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
             ).click()
             // the list of icon sets should contain all backend's possibilities
             cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
@@ -91,9 +91,10 @@ describe('Drawing module tests', () => {
             ).should('not.exist')
             // going back to the default icon set
             cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
             ).click()
-            cy.get('[data-cy="dropdown-item-default"]').click()
+            cy.get('[data-cy="dropdown-item-default"]:visible').click()
+            cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
             // color selector should be back
             cy.get(
                 '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
@@ -110,7 +111,7 @@ describe('Drawing module tests', () => {
 
             // changing icon list's color to green
             cy.get(
-                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]`
+                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
             ).click()
             // it should load all icons with the green color
             cy.wait('@icon-default-green')
@@ -125,7 +126,7 @@ describe('Drawing module tests', () => {
 
             // opening up the icon size selector
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
             ).click()
             // all sizes should be represented
             allStylingSizes.forEach((size) => {
@@ -153,14 +154,14 @@ describe('Drawing module tests', () => {
 
             // opening up all icons of the current sets so that we may choose a new one
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
             ).click()
             // picking up the 4th icon of the set
             cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
                 const fourthIcon = defaultIconSet.items[3]
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                ).click({ force: true })
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
+                ).click()
                 // the KML must be updated with the newly selected icon
                 cy.wait('@update-kml').then((interception) =>
                     cy.checkKMLRequest(interception, [
@@ -172,12 +173,12 @@ describe('Drawing module tests', () => {
             })
             // closing the icons
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
-            ).click({ force: true })
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
+            ).click()
             // closing the icon style popup
-            cy.get('[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]').click({
-                force: true,
-            })
+            cy.get(
+                '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
+            ).click()
 
             // changing/editing the title of this marker
             testTitleEdit()
