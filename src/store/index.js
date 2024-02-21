@@ -66,11 +66,8 @@ const store = createStore({
         share,
         cesium,
         print,
+        debug,
     },
 })
-
-if (store.getters.hasDevSiteWarning) {
-    store.registerModule('debug', debug)
-}
 
 export default store
