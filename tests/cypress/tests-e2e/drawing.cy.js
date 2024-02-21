@@ -10,6 +10,7 @@ import {
 } from 'tests/cypress/support/drawing'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL, DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -35,7 +36,7 @@ const isNonEmptyArray = (value) => {
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
 
-const DEFAULT_ICON_URL_SCALE = '1x'
+const DEFAULT_ICON_URL_SCALE = `${DEFAULT_ICON_URL_PARAMS.scale}x`
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
