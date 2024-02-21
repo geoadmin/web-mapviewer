@@ -8,6 +8,8 @@ export default {
         selectedScale: 0,
         printSectionShown: false,
         printingStatus: false,
+        useGraticule: false,
+        useLegend: false,
     },
     getters: {
         mapSize(state) {
@@ -20,6 +22,12 @@ export default {
         },
         getSelectedScale(state) {
             return state.selectedScale
+        },
+        useGraticule(state) {
+            return state.useGraticule
+        },
+        useLegend(state) {
+            return state.useLegend
         },
     },
     actions: {
@@ -43,6 +51,12 @@ export default {
         setPrintingStatus({ commit }, { isPrinting, dispatcher }) {
             commit('setPrintingStatus', { isPrinting, dispatcher })
         },
+        setUseGraticule({ commit }, { useGraticule, dispatcher }) {
+            commit('setUseGraticule', { useGraticule, dispatcher })
+        },
+        setUseLegend({ commit }, { useLegend, dispatcher }) {
+            commit('setUseLegend', { useLegend, dispatcher })
+        },
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
@@ -50,5 +64,7 @@ export default {
         setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
         setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
         setPrintingStatus: (state, { isPrinting }) => (state.printingStatus = isPrinting),
+        setUseGraticule: (state, { useGraticule }) => (state.useGraticule = useGraticule),
+        setUseLegend: (state, { useLegend }) => (state.useLegend = useLegend),
     },
 }

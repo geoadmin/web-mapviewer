@@ -12,8 +12,6 @@ const emits = defineEmits(['openMenuSection'])
 
 const isSectionShown = ref(false)
 const selectedLayoutName = ref(null)
-const useLegend = ref(false)
-const useGraticule = ref(false)
 
 const i18n = useI18n()
 const store = useStore()
@@ -30,6 +28,24 @@ const selectedScale = computed({
     },
     set(value) {
         store.dispatch('setSelectedScale', { scale: value, ...dispatcher })
+    },
+})
+
+const useGraticule = computed({
+    get() {
+        return store.getters.getUseGraticule
+    },
+    set(value) {
+        store.dispatch('setUseGraticule', { useGraticule: value, ...dispatcher })
+    },
+})
+
+const useLegend = computed({
+    get() {
+        return store.getters.getUseLegend
+    },
+    set(value) {
+        store.dispatch('setUseLegend', { useLegend: value, ...dispatcher })
     },
 })
 
@@ -70,11 +86,11 @@ function close() {
 }
 
 function printMap() {
-    store.dispatch('setPrintingStatus', true)
+    store.dispatch('setPrintingStatus', { isPrinting: true, ...dispatcher })
 }
 
 function abortPrinting() {
-    store.dispatch('setPrintingStatus', false)
+    store.dispatch('setPrintingStatus', { isPrinting: false, ...dispatcher })
 }
 
 defineExpose({
