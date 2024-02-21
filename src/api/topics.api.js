@@ -160,11 +160,7 @@ const loadTopicsFromBackend = (layersConfig) => {
                                 // layers
                                 .filter(
                                     (layerId) =>
-                                        !(
-                                            layersToActivate.findIndex(
-                                                (layer) => layer.getID() === layerId
-                                            ) !== -1
-                                        )
+                                        !layersToActivate.some((layer) => layer.getID() === layerId)
                                 )
                             activatedLayers.forEach((layerId) => {
                                 let layer = layersConfig.find((layer) => layer.getID() === layerId)

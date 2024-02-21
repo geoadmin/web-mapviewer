@@ -8,10 +8,10 @@ const state = {
      */
     config: [],
     /**
-     * Current topic (either default 'ech' at app startup, or another from the config later chosen
-     * by the user)
+     * Current topic ID (either default 'ech' at app startup, or another from the config later
+     * chosen by the user)
      *
-     * @type {Topic}
+     * @type {String}
      */
     current: 'ech',
     /**
@@ -50,7 +50,7 @@ const actions = {
     },
     changeTopic: ({ commit, state }, { topicId, dispatcher }) => {
         if (
-            state.config.find((topic) => topic.id === topicId) ||
+            state.config.some((topic) => topic.id === topicId) ||
             // during appLoadingManagement.routerPlugin the topics are not yet set
             // therefore we cannot validate the topic ID
             dispatcher === 'appLoadingManagement.routerPlugin'
@@ -63,7 +63,7 @@ const actions = {
     setTopicTreeOpenedThemesIds: ({ commit }, { catalogNodes, dispatcher }) => {
         if (typeof catalogNodes === 'string') {
             commit('setTopicTreeOpenedThemesIds', {
-                themes: catalogNodes.indexOf(',') !== -1 ? catalogNodes.split(',') : [catalogNodes],
+                themes: catalogNodes.split(','),
                 dispatcher,
             })
         } else if (Array.isArray(catalogNodes)) {

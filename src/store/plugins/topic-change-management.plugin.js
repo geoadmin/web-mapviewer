@@ -33,7 +33,6 @@ const topicChangeManagementPlugin = (store) => {
             (mutation.type === 'changeTopic' && store.state.topics.config.length > 0) ||
             mutation.type === 'setTopics'
         ) {
-            let startTime = performance.now()
             log.debug(`Topic change management plugin: topic changed to`, mutation.payload)
 
             const currentTopic = store.getters.currentTopic
@@ -78,10 +77,6 @@ const topicChangeManagementPlugin = (store) => {
                 })
             }
 
-            log.debug(
-                `Topic change management plugin: topic changed to ${mutation.payload} bg and layers dispatched: ${performance.now() - startTime}ms`,
-                currentTopic.layersToActivate
-            )
             // loading topic tree
             loadTopicTreeForTopic(
                 store.state.i18n.lang,
@@ -101,9 +96,8 @@ const topicChangeManagementPlugin = (store) => {
                     })
                 }
 
-                let endTime = performance.now()
                 log.debug(
-                    `Finished Topic change management plugin: topic changed to ${mutation.payload}: ${endTime - startTime}ms`
+                    `Finished Topic change management plugin: topic changed to ${mutation.payload}`
                 )
             })
         }

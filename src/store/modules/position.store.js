@@ -195,7 +195,7 @@ const actions = {
      * @param dispatcher Source of this change, for debug purposes (won't be stored, will be in
      *   output of the debug console)
      */
-    setCenter: ({ commit }, { center, dispatcher = 'unknown' }) => {
+    setCenter: ({ commit }, { center, dispatcher }) => {
         if (
             !center ||
             (Array.isArray(center) && center.length !== 2) ||
