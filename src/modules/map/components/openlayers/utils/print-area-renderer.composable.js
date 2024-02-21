@@ -45,6 +45,22 @@ function createWorldPolygon() {
     return vectorLayer
 }
 
+function encodeGraticule(dpi) {
+    return {
+        baseURL: 'https://wms.geo.admin.ch/',
+        opacity: 1,
+        singleTile: true,
+        type: 'WMS',
+        layers: ['org.epsg.grid_2056'],
+        format: 'image/png',
+        styles: [''],
+        customParams: {
+            TRANSPARENT: true,
+            MAP_RESOLUTION: dpi,
+        },
+    }
+}
+
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
 
@@ -107,7 +123,7 @@ export default function usePrintAreaRenderer(map) {
             map,
             scale: selectedScale.value,
             printResolution: 96,
-            dpi: 254,
+            dpi: 96,
             layout: layout,
             format: 'pdf',
             customAttributes: {
@@ -119,15 +135,22 @@ export default function usePrintAreaRenderer(map) {
             },
             customizer: customizer,
         })
-
         log.info('Print spec: ', spec)
+
+        if (store.state.print.useGraticule) {
+            log.info('Graticule is enabled')
+            // Put the graticule in the first layer so it's drawn at the top
+            spec.attributes.map.layers.unshift(encodeGraticule(96))
+            log.info('Print spec after graticule: ', spec)
+        }
+
         const report = await requestReport(mapFishPrintUrl, spec)
         log.info('Report: ', report)
         await getDownloadUrl(mapFishPrintUrl, report, 1000)
             .then(
                 (url) => {
                     log.info('PDF map url', url)
-                    // document.location = url
+                    document.location = url
                     return url
                 },
                 (err) => {
