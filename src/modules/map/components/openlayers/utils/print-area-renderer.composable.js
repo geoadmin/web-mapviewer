@@ -96,7 +96,8 @@ export default function usePrintAreaRenderer(map) {
 
         const encoder = new MFPEncoder(mapFishPrintUrl)
         const customizer = new BaseCustomizer([0, 0, 10000, 10000])
-        window.map = map
+        const layers = map.getLayers().getArray()
+        log.info('Layers: ', layers)
         // Generate QR code url from current shortlink
         await store.dispatch('generateShortLinks', false)
         const shortLink = store.state.share.shortLink
@@ -118,15 +119,7 @@ export default function usePrintAreaRenderer(map) {
             },
             customizer: customizer,
         })
-        spec.attributes.map.layers.push({
-            baseURL: 'https://sys-wms.dev.bgdi.ch',
-            customParams: { TRANSPARENT: 'true' },
-            imageFormat: 'image/jpeg',
-            layers: ['ch.swisstopo.pixelkarte-farbe,org.epsg.grid_2056'],
-            opacity: 1,
-            styles: ['default'],
-            type: 'WMS',
-        })
+
         log.info('Print spec: ', spec)
         const report = await requestReport(mapFishPrintUrl, spec)
         log.info('Report: ', report)

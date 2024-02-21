@@ -9,7 +9,6 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
-import log from '@/utils/logging'
 
 const props = defineProps({
     wmtsLayerConfig: {
@@ -106,6 +105,7 @@ function createWMTSSourceForProjection() {
         url: getWMTSUrl(url.value),
         style: 'default',
         transition: 0,
+        matrixSet: projection.value.epsg,
     })
     return wmtsSource
 }
