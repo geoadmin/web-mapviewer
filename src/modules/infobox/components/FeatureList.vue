@@ -99,20 +99,4 @@ $feature-padding: 5px;
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 }
-
-// Styling for external HTML content
-:global(.htmlpopup-container) {
-    width: 100%;
-    font-size: 11px;
-    text-align: start;
-}
-:global(.htmlpopup-header) {
-    background-color: #e9e9e9;
-    padding: 7px;
-    margin-bottom: 7px;
-    font-weight: 700;
-}
-:global(.htmlpopup-content) {
-    padding: 7px;
-}
 </style>
