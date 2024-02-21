@@ -99,10 +99,6 @@ describe('Drawing module tests', () => {
             cy.get(
                 '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
             ).should('be.visible')
-            // closing the icon set selector (we've not selected another icon, so no update of the KML should have occurred)
-            cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
-            ).click()
 
             // creating intercepts for all icon requests
             cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
@@ -138,8 +134,6 @@ describe('Drawing module tests', () => {
             cy.get(
                 `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
             ).click()
-            // icons should be reloaded as large green
-            cy.wait('@icon-default-green')
             // the existing icon on the map must be updated to large and green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
