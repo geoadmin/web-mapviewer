@@ -53,7 +53,6 @@ describe('Drawing module tests', () => {
         beforeEach(() => {
             cy.goToDrawing()
         })
-
         it('can create marker/icons and edit them', () => {
             // it should load all icon sets as soon as we enter the drawing module
             cy.wait('@icon-sets')
@@ -100,17 +99,13 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
             ).should('be.visible')
 
-            // creating intercepts for all icon requests
-            cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
-                fixture: 'service-icons/placeholder.png',
-            }).as('icon-default-green')
-
             // changing icon list's color to green
             cy.get(
                 `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
             ).click()
             // it should load all icons with the green color
-            cy.wait('@icon-default-green')
+            cy.waitOnAllIconsDefaultGreen()
+
             // the color of the marker already placed on the map must switch to green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
@@ -140,6 +135,8 @@ describe('Drawing module tests', () => {
                     new RegExp(
                         `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
                     ),
+                    new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
+                    new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
                     new RegExp(
                         `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                     ),
