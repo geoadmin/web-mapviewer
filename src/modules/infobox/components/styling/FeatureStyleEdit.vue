@@ -142,6 +142,10 @@ const isFeaturePolygon = computed(() => {
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
+function formatCoordinates(coordinates) {
+    return LV03Format.format(coordinates)
+}
+
 function roundValueIfGreaterThan(value, threshold, divider) {
     if (value > threshold) {
         return `${round(value / divider, 2)}`
@@ -165,6 +169,21 @@ function onIconSizeChange(iconSize) {
 }
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
+}
+
+async function copyValue() {
+    try {
+        await navigator.clipboard.writeText(
+            formatCoordinates(feature.value.coordinates.slice(0, 2)).toString()
+        )
+        copied.value = true
+        // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
+        setTimeout(() => {
+            copied.value = false
+        }, 1000)
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
+    }
 }
 </script>
 
@@ -267,6 +286,17 @@ function onDelete() {
                 >
                     <FontAwesomeIcon icon="far fa-trash-alt" />
                 </button>
+
+                <div v-if="isFeatureMarker || isFeatureText" class="d-flex">
+                    <div class="small d-flex">
+                        <FontAwesomeIcon icon="fas fa-map-marker-alt" />
+                        &nbsp;
+                        {{ formatCoordinates(feature.coordinates.slice(0, 2)) }}
+                    </div>
+                    <button class="btn btn-sm btn-light d-flex" @click="copyValue">
+                        <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+                    </button>
+                </div>
             </div>
         </div>
     </div>
