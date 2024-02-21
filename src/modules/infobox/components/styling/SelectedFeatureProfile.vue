@@ -17,10 +17,11 @@
 </template>
 
 <script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { geometryInfo } from '@/modules/drawing/lib/drawingUtils'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapState } from 'vuex'
+
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { geometryInfo } from '@/utils/utils'
 
 export default {
     components: { FontAwesomeIcon },
@@ -42,8 +43,8 @@ export default {
         info: function () {
             if (this.geometry) {
                 return geometryInfo(
-                    this.geometry.getType(),
-                    this.geometry.getCoordinates(),
+                    this.geometry.type,
+                    this.geometry.coordinates,
                     this.projection.epsg
                 )
             }

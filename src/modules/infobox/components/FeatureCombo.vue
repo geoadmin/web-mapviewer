@@ -1,65 +1,48 @@
-<template>
-    <div class="edit-feature" data-infobox="height-reference">
-        <div class="edit-feature-form">
-            <FeatureStyleEdit
-                :feature="feature"
-                :available-icon-sets="availableIconSets"
-                :read-only="readOnly"
-            />
-        </div>
+<script setup>
+import { toRefs } from 'vue'
 
-        <FeatureProfile
-            class="edit-feature-plot"
-            :feature="feature"
-            :read-only="readOnly"
-            :projection="projection"
-        />
-    </div>
-</template>
+import EditableFeature from '@/api/features/EditableFeature.class'
 
-<script>
-import { EditableFeature } from '@/api/features.api'
-import { mapState } from 'vuex'
 import FeatureProfile from './FeatureElevationProfile.vue'
 import FeatureStyleEdit from './styling/FeatureStyleEdit.vue'
 
-export default {
-    components: {
-        FeatureStyleEdit,
-        FeatureProfile,
+const props = defineProps({
+    feature: {
+        type: EditableFeature,
+        required: true,
     },
-    props: {
-        feature: {
-            type: EditableFeature,
-            required: true,
-        },
-        readOnly: {
-            type: Boolean,
-            default: false,
-        },
+    readOnly: {
+        type: Boolean,
+        default: false,
     },
-    computed: {
-        ...mapState({
-            availableIconSets: (state) => state.drawing.iconSets,
-            projection: (state) => state.position.projection,
-        }),
-    },
-}
+})
+const { feature, readOnly } = toRefs(props)
 </script>
 
-<style lang="scss">
+<template>
+    <div class="feature-combo" data-infobox="height-reference">
+        <div class="edit-feature-form">
+            <FeatureStyleEdit :feature="feature" :read-only="readOnly" />
+        </div>
+        <FeatureProfile class="edit-feature-plot" :feature="feature" :read-only="readOnly" />
+    </div>
+</template>
+
+<style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
 
 // minmax(0, 1fr) is needed as 1fr is equivalent to minmax(auto, 1fr) where auto
 // is the size of the content. Which in turn leads to cells that are too wide.
 // https://stackoverflow.com/a/52861514
 
-.edit-feature {
+.feature-combo {
     display: grid;
     // on mobile (default size) only one column
     // see media query under for other screen sizes
     grid-template-columns: minmax(0, 1fr);
     grid-gap: 8px;
+
+    max-height: 50vh;
 }
 
 @include respond-above(md) {

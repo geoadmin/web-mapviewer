@@ -22,15 +22,15 @@
             >
                 <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
             </button>
-            <span
+            <TextTruncate
                 class="menu-layer-item-name"
-                :class="{ 'text-body-tertiary fst-italic': layer.isLoading }"
-                :data-cy="`active-layer-name${id}`"
+                :class="{ 'text-body-tertiary fst-italic': showSpinner }"
+                :data-cy="`active-layer-name-${id}`"
                 @click="onToggleLayerVisibility"
-                >{{ layer.name }}</span
+                >{{ layer.name }}</TextTruncate
             >
             <button
-                v-if="layer.isLoading"
+                v-if="showSpinner"
                 class="loading-button btn"
                 :class="{
                     'btn-lg': !compact,
@@ -39,6 +39,12 @@
             >
                 <FontAwesomeIcon icon="spinner" pulse />
             </button>
+            <ErrorButton
+                v-else-if="layer.hasError"
+                :compact="compact"
+                :error-message="layer.errorKey"
+                :data-cy="`button-error-${id}`"
+            />
             <MenuActiveLayersListItemTimeSelector
                 v-if="layer.timeConfig"
                 :layer-id="id"
@@ -120,12 +126,15 @@
 </template>
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
+import { mapGetters, mapState } from 'vuex'
+
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapGetters, mapState } from 'vuex'
-import tippy from 'tippy.js'
+import ErrorButton from '@/utils/components/ErrorButton.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
+import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
 
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
@@ -136,6 +145,8 @@ export default {
         FontAwesomeIcon,
         MenuActiveLayersListItemTimeSelector,
         ThirdPartDisclaimer,
+        ErrorButton,
+        TextTruncate,
     },
     props: {
         layer: {
@@ -198,6 +209,11 @@ export default {
         tooltipContent() {
             return this.$t('loading_external_layer')
         },
+        showSpinner() {
+            // only show the spinner for external layer, for our layers the
+            // backend should be quick enough and don't require any spinner
+            return this.layer.isLoading && this.layer.isExternal && !this.layer.hasError
+        },
     },
     watch: {
         currentLang() {
@@ -249,6 +265,7 @@ export default {
 }
 
 .menu-layer-item {
+    @extend .menu-item;
     border-bottom: 1px solid $gray-400;
 }
 .menu-layer-item-title {

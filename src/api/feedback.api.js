@@ -1,8 +1,9 @@
+import axios from 'axios'
+
 import { getKmlFromUrl } from '@/api/files.api'
 import { createShortLink } from '@/api/shortlink.api'
 import { API_SERVICES_BASE_URL, APP_VERSION } from '@/config'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 /**
  * @param {String} text Mandatory

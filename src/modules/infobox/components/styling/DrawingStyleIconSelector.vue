@@ -34,7 +34,7 @@
         >
             <div
                 class="rounded d-flex align-content-center p-2"
-                data-cy="drawing-style-show-all-icons-button"
+                data-cy="drawing-style-toggle-all-icons-button"
                 @click="showAllSymbols = !showAllSymbols"
             >
                 {{ $t('modify_icon_label') }}
@@ -74,10 +74,12 @@
 </template>
 
 <script>
-import { EditableFeature } from '@/api/features.api'
+import { useI18n } from 'vue-i18n'
+
+import EditableFeature from '@/api/features/EditableFeature.class'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
-import DropdownButton, { DropdownItem } from '@/utils/DropdownButton.vue'
+import DropdownButton, { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { MEDIUM } from '@/utils/featureStyleUtils'
 
 export default {
@@ -97,6 +99,12 @@ export default {
         },
     },
     emits: ['change', 'change:iconSize', 'change:icon', 'change:iconColor'],
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
+    },
     data: function () {
         return {
             showAllSymbols: false,
@@ -109,13 +117,14 @@ export default {
     computed: {
         currentIconSetName() {
             return this.currentIconSet
-                ? this.$i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
+                ? this.i18n.t(`modify_icon_category_${this.currentIconSet.name}_label`)
                 : ''
         },
         iconSetDropdownItems() {
             return this.iconSets.map((iconSet) => {
                 return new DropdownItem(
-                    this.$i18n.t(`modify_icon_category_${iconSet.name}_label`),
+                    iconSet.name,
+                    this.i18n.t(`modify_icon_category_${iconSet.name}_label`),
                     iconSet
                 )
             })
@@ -134,7 +143,7 @@ export default {
          * @returns {String} An icon URL
          */
         generateColorizedURL(icon) {
-            return icon.generateURL(MEDIUM, this.feature.fillColor)
+            return icon.generateURL(this.feature.fillColor)
         },
         onCurrentIconColorChange(color) {
             this.$emit('change:iconColor', color)

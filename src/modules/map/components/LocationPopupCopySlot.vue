@@ -1,94 +1,124 @@
-<template>
-    <button
-        id="copyButton"
-        ref="button"
-        class="btn btn-light btn-sm"
-        type="button"
-        @click="copyValue"
-    >
-        <FontAwesomeIcon class="icon" :icon="['far', 'copy']" />
-    </button>
-</template>
-
-<script>
-import log from '@/utils/logging'
+<script setup>
 import tippy from 'tippy.js'
-import { mapState } from 'vuex'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
-export default {
-    props: {
-        value: {
-            type: String,
-            default: '',
-        },
-    },
-    computed: {
-        ...mapState({
-            lang: (state) => state.i18n.lang,
-        }),
-    },
-    watch: {
-        lang() {
-            this.setTooltipContent()
-        },
-    },
-    mounted() {
-        this.copyTooltip = tippy('#copyButton', {
-            arrow: true,
-            placement: 'right',
-            touch: 'hold',
-        })
+import log from '@/utils/logging'
 
-        this.copiedTooltip = tippy('#copyButton', {
-            arrow: true,
-            placement: 'right',
-            trigger: 'click',
-            onShow(instance) {
-                setTimeout(() => {
-                    instance.hide()
-                }, 1000)
-            },
-            allowHTML: true,
-        })
-        this.setTooltipContent()
+const props = defineProps({
+    identifier: {
+        type: String,
+        required: true,
     },
-    unmounted() {
-        this.copyTooltip?.forEach((tooltip) => tooltip.destroy())
-        this.copiedTooltip?.forEach((tooltip) => tooltip.destroy())
+    value: {
+        type: String,
+        required: true,
     },
-    methods: {
-        async copyValue() {
-            try {
-                await navigator.clipboard.writeText(this.value)
-            } catch (error) {
-                log.error(`Failed to copy to clipboard:`, error)
-            }
-        },
-        setTooltipContent() {
-            this.copyTooltip?.forEach((instance) => {
-                instance.setContent(this.$i18n.t('copy_cta'))
-            })
-            this.copiedTooltip?.forEach((instance) => {
-                instance.setContent(this.$i18n.t('copy_done'))
-            })
-        },
+    extraValue: {
+        type: String,
+        default: null,
     },
+    resetDelay: {
+        type: Number,
+        default: 1000,
+    },
+})
+const { identifier, value, extraValue, resetDelay } = toRefs(props)
+
+const copyButton = ref(null)
+const copied = ref(false)
+
+const i18n = useI18n()
+
+const store = useStore()
+const lang = computed(() => store.state.i18n.lang)
+
+const buttonIcon = computed(() => {
+    if (copied.value) {
+        return 'check'
+    }
+    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
+    return ['far', 'copy']
+})
+
+let copyTooltip = null
+
+onMounted(() => {
+    copyTooltip = tippy(copyButton.value, {
+        arrow: true,
+        placement: 'right',
+        hideOnClick: false,
+        // no tooltip on mobile/touch
+        touch: false,
+        // The French translation of "copy_done" contains a &nbsp;
+        allowHTML: true,
+    })
+    setTooltipContent()
+})
+onBeforeUnmount(() => {
+    copyTooltip.destroy()
+})
+
+watch(lang, setTooltipContent)
+watch(copied, setTooltipContent)
+
+function setTooltipContent() {
+    if (copied.value) {
+        copyTooltip.setContent(i18n.t('copy_done'))
+    } else {
+        copyTooltip.setContent(i18n.t('copy_cta'))
+    }
+}
+async function copyValue() {
+    try {
+        await navigator.clipboard.writeText(value.value)
+        copied.value = true
+        // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
+        setTimeout(() => {
+            copied.value = false
+        }, resetDelay.value)
+    } catch (error) {
+        log.error(`Failed to copy to clipboard:`, error)
+    }
 }
 </script>
 
+<template>
+    <div class="location-popup-label">
+        <slot />
+    </div>
+    <div class="location-popup-data">
+        <div>
+            <div :data-cy="`location-popup-${identifier}`">
+                {{ value }}
+            </div>
+            <div v-if="extraValue" :data-cy="`location-popup-extra-value-${identifier}`">
+                {{ extraValue }}
+            </div>
+        </div>
+        <button
+            ref="copyButton"
+            class="location-popup-copy-button btn btn-light text-black-50 d-none d-md-block"
+            type="button"
+            @click="copyValue"
+        >
+            <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+        </button>
+    </div>
+</template>
+
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.btn-sm {
-    float: right;
+.location-popup-data {
+    display: grid;
+    grid-template-columns: auto max-content;
+}
+.location-popup-copy-button {
+    // aligning to the top of the container, so that it doesn't spread down if there's an extra value
+    align-self: start;
     margin-top: -0.1rem;
-    margin-left: 0.8rem;
     padding: 0 0.2rem;
-    vertical-align: baseline;
     font-size: inherit;
-    display: none;
-    @media (min-width: $overlay-width) {
-        display: block;
-    }
-    color: $empress;
 }
 </style>

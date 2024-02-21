@@ -6,12 +6,12 @@
  * external resources like the GetCapabilities endpoint of the external layer
  */
 
+import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import log from '@/utils/logging'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
+import log from '@/utils/logging'
 
 /**
  * Load External layers attributes (title, abstract, extent, attributions, ...) on layer added
@@ -22,15 +22,15 @@ export default function loadExternalLayerAttributes(store) {
     store.subscribe((mutation, state) => {
         if (
             mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof ExternalLayer &&
-            mutation.payload.layer.isLoading
+            mutation.payload instanceof ExternalLayer &&
+            mutation.payload.isLoading
         ) {
             log.debug(
                 `Loading state external layer added, trigger attribute updated`,
                 mutation,
                 state
             )
-            updateExternalLayer(store, mutation.payload.layer, state.position.projection)
+            updateExternalLayer(store, mutation.payload, state.position.projection)
         }
     })
 }
@@ -50,50 +50,36 @@ async function updateExternalLayer(store, externalLayer, projection) {
         }
 
         updatedExternalLayer.isLoading = false
-        store.commit('updateLayer', { layer: updatedExternalLayer })
+        store.dispatch('updateLayer', updatedExternalLayer)
     } catch (error) {
-        log.error(`Failed to update external layer: ${error}`)
+        log.error(`Failed to update external layer: `, error)
+        store.dispatch('setLayerErrorKey', {
+            layerId: externalLayer.getID(),
+            errorKey: error.key ? error.key : 'error',
+        })
     }
 }
 
 async function updatedWMSLayerAttributes(externalLayer, projection) {
     const capabilities = await readWmsCapabilities(externalLayer.baseURL)
-
-    const layer = capabilities.findLayer(externalLayer.externalLayerId)
-    if (!layer) {
-        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
-    }
     const newObject = capabilities.getExternalLayerObject(
-        layer,
+        externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
-        externalLayer.visible
+        externalLayer.visible,
+        false /* throw Error in case of  error */
     )
-    if (!newObject) {
-        throw new Error(
-            `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
-        )
-    }
     return newObject
 }
 
 async function updatedWMTSLayerAttributes(externalLayer, projection) {
     const capabilities = await readWmtsCapabilities(externalLayer.baseURL)
-
-    const layer = capabilities.findLayer(externalLayer.externalLayerId)
-    if (!layer) {
-        throw new Error(`No layer ${externalLayer.externalLayerId} found in Capabilities`)
-    }
     const newObject = capabilities.getExternalLayerObject(
-        layer,
+        externalLayer.externalLayerId,
         projection,
         externalLayer.opacity,
-        externalLayer.visible
+        externalLayer.visible,
+        false /* throw Error in case of  error */
     )
-    if (!newObject) {
-        throw new Error(
-            `Failed to update external layer ${externalLayer.getID()}: no layerId found in get cap`
-        )
-    }
     return newObject
 }

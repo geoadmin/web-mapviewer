@@ -1,7 +1,8 @@
+import { describe, expect, it } from 'vitest'
+
 import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
-import { describe, expect, it } from 'vitest'
 
 describe('CoordinateSystem', () => {
     const coordinateSystemWithouBounds = new StandardCoordinateSystem('test', 'test', 1234, null)

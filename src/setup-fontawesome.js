@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faFacebook, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 import {
     faCheckSquare,
     faCircle as faRegularCircle,
@@ -15,7 +15,9 @@ import {
     faArrowsAltH,
     faArrowsAltV,
     faArrowUp,
+    faBorderNone,
     faCaretDown,
+    faCaretLeft,
     faCaretRight,
     faCaretUp,
     faCheck,
@@ -23,6 +25,9 @@ import {
     faChevronUp,
     faCircle,
     faCircleChevronRight,
+    faCircleExclamation,
+    faCircleMinus,
+    faCirclePlus,
     faClockRotateLeft,
     faCog,
     faCube,
@@ -30,6 +35,7 @@ import {
     faDrawPolygon,
     faEarthEurope,
     faEnvelope,
+    faExpand,
     faFont,
     faGripLinesVertical,
     faHouse,
@@ -59,6 +65,7 @@ import {
     faTimesCircle,
     faTree,
     faUser,
+    faWindowMaximize,
     faWindowMinimize,
     faXmark,
 } from '@fortawesome/free-solid-svg-icons'
@@ -70,12 +77,15 @@ library.add(
     faArrowUp,
     faArrowsAltH,
     faArrowsAltV,
+    faBorderNone,
     faCaretDown,
     faCaretRight,
     faCaretUp,
+    faCaretLeft,
     faCheck,
     faCircle,
     faCircleChevronRight,
+    faCircleExclamation,
     faChevronDown,
     faChevronUp,
     faClockRotateLeft,
@@ -85,6 +95,7 @@ library.add(
     faDrawPolygon,
     faEarthEurope,
     faEnvelope,
+    faExpand,
     faFont,
     faGripLinesVertical,
     faHouse,
@@ -112,10 +123,13 @@ library.add(
     faTimesCircle,
     faTree,
     faUser,
+    faWindowMaximize,
     faWindowMinimize,
     faXmark,
     faSortAlphaUp,
     faSortAlphaDown,
+    faCirclePlus,
+    faCircleMinus,
     // Regular
     faCheckSquare,
     faClock,
@@ -126,5 +140,5 @@ library.add(
     faTrashAlt,
     // Brands
     faFacebook,
-    faTwitter
+    faXTwitter
 )

@@ -1,6 +1,7 @@
-import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
+
+import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 
 describe('Test all SimpleUrlParamConfig class functionalities', () => {
     const fakeStore = {

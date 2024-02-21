@@ -8,27 +8,27 @@
         @click:header="toggleShareMenu"
         @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
-        <FontAwesomeIcon v-if="!shortLink" icon="spinner" spin size="2x" class="p-2" />
-        <div v-if="shortLink" class="p-2">
-            <MenuShareSocialNetworks :short-link="shortLink" class="pt-1" />
+        <div class="p-2">
+            <MenuShareSocialNetworks :short-link="shortLink" />
             <MenuShareInputCopyButton
                 :input-text="shortLink"
                 :label-text="'share_link'"
                 :copy-text="'copy_url'"
                 :copied-text="'copy_success'"
-                class="px-2 py-3"
+                class="p-2"
             />
-            <MenuShareEmbed :short-link="embeddedShortLink" class="pb-1" />
         </div>
+        <MenuShareEmbed :short-link="embeddedShortLink" class="menu-share-embed border-top" />
     </MenuSection>
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
+
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import { mapActions, mapState } from 'vuex'
 
 /** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 export default {

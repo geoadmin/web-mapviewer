@@ -11,7 +11,6 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
-
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -92,11 +91,45 @@ export default {
          */
         hostname: window.location.hostname,
         /**
-         * Flag telling if import overlay shown
+         * Flag telling if import catalogue shown
          *
          * @type Boolean
          */
-        importOverlay: false,
+        importCatalogue: false,
+        /**
+         * Flag telling if import file (map tooltip overlay or infobox) is shown
+         *
+         * @type Boolean
+         */
+        importFile: false,
+        /**
+         * Height of the header (in px)
+         *
+         * @type Number
+         */
+        headerHeight: 100,
+
+        /**
+         * Height of the menu tray (in px)
+         *
+         * @type Number
+         */
+        menuTrayWidth: 400,
+
+        /**
+         * Float telling where across the screen is the compare slider. The compare Slider should
+         * only be shown when the value is between 0 and 1
+         *
+         * @type Number
+         */
+
+        compareRatio: null,
+        /**
+         * Flag telling if the compare slider is currently active or not
+         *
+         * @type Boolean
+         */
+        isCompareSliderActive: false,
     },
     getters: {
         screenDensity(state) {
@@ -178,13 +211,14 @@ export default {
         toggleMenu({ commit, state }) {
             commit('setShowMenu', !state.showMenu)
         },
-        toggleFullscreenMode({ commit, state, getters }) {
-            if (getters.isPhoneMode) {
-                commit('setFullscreenMode', !state.fullscreenMode)
-            }
+        toggleFullscreenMode({ commit, state }) {
+            commit('setFullscreenMode', !state.fullscreenMode)
         },
         setEmbeddedMode({ commit }, isEmbedded) {
             commit('setEmbeddedMode', !!isEmbedded)
+        },
+        setShowLoadingBar({ commit }, value) {
+            commit('setShowLoadingBar', !!value)
         },
         toggleLoadingBar({ commit, state }) {
             commit('setShowLoadingBar', !state.showLoadingBar)
@@ -207,8 +241,33 @@ export default {
                 }
             }
         },
-        toggleImportOverlay({ commit, state }) {
-            commit('setImportOverlay', !state.importOverlay)
+        toggleImportCatalogue({ commit, state }) {
+            commit('setImportCatalogue', !state.importCatalogue)
+        },
+        toggleImportFile({ commit, state }) {
+            commit('setImportFile', !state.importFile)
+        },
+        setHeaderHeight({ commit }, height) {
+            commit('setHeaderHeight', parseFloat(height))
+        },
+        setMenuTrayWidth({ commit }, width) {
+            commit('setMenuTrayWidth', parseFloat(width))
+        },
+        setCompareRatio({ commit }, value) {
+            /*
+                This check is here to make sure the compare ratio doesn't get out of hand
+                The logic is, we want the compare ratio to be either in its visible range,
+                which is 0.001 to 0.999, and it's "storage range" (-0.001 to -0.999). If
+                we are not within these bounds, we revert to the default value (-0.5)
+            */
+            if (value > 0.0 && value < 1.0) {
+                commit('setCompareRatio', value)
+            } else {
+                commit('setCompareRatio', null)
+            }
+        },
+        setCompareSliderActive({ commit }, value) {
+            commit('setCompareSliderActive', value)
         },
     },
     mutations: {
@@ -237,8 +296,23 @@ export default {
         setUiMode(state, mode) {
             state.mode = mode
         },
-        setImportOverlay(state, flagValue) {
-            state.importOverlay = flagValue
+        setImportCatalogue(state, flagValue) {
+            state.importCatalogue = flagValue
+        },
+        setImportFile(state, flagValue) {
+            state.importFile = flagValue
+        },
+        setHeaderHeight(state, height) {
+            state.headerHeight = height
+        },
+        setMenuTrayWidth(state, width) {
+            state.menuTrayWidth = width
+        },
+        setCompareRatio(state, value) {
+            state.compareRatio = value
+        },
+        setCompareSliderActive(state, value) {
+            state.isCompareSliderActive = value
         },
     },
 }

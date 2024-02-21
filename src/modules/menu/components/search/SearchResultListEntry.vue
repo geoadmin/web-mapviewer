@@ -12,16 +12,19 @@
         @mouseenter="startResultPreview"
         @mouseleave="stopResultPreview"
     >
-        <!-- eslint-disable vue/no-v-html-->
-        <div
-            class="search-category-entry-main p-2 flex-grow-1"
+        <TextSearchMarker
+            class="search-category-entry-main px-2 flex-grow-1"
+            :class="{ 'py-1': compact, 'py-2': !compact }"
+            :text="entry.title"
+            :search="searchQuery"
+            allow-html
             @click="selectItem"
-            v-html="entry.title"
-        ></div>
+        />
 
         <div v-if="resultType === 'layer'" class="search-category-entry-controls flex-grow-0">
             <button
                 class="btn btn-default"
+                :class="{ 'btn-xs': compact }"
                 :data-cy="`button-show-legend-layer-${entry.layerId}`"
                 tabindex="-1"
                 @click="showLayerLegendPopup"
@@ -33,11 +36,14 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import { SearchResult } from '@/api/search.api'
-import { mapActions } from 'vuex'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 /** Component showing one search result entry (and dispatching its selection to the store) */
 export default {
+    components: { TextSearchMarker },
     props: {
         index: {
             type: Number,
@@ -48,8 +54,15 @@ export default {
             required: true,
         },
     },
-    emits: ['showLayerLegendPopup'],
+    emits: ['showLayerLegendPopup', 'entrySelected', 'firstEntryReached', 'lastEntryReached'],
     computed: {
+        ...mapGetters(['isDesktopMode']),
+        ...mapState({
+            searchQuery: (state) => state.search.query,
+        }),
+        compact() {
+            return this.isDesktopMode
+        },
         resultType() {
             return this.entry.resultType.toLowerCase()
         },
@@ -57,23 +70,30 @@ export default {
     methods: {
         ...mapActions([
             'selectResultEntry',
-            'setPinnedLocation',
             'setPreviewedPinnedLocation',
-            'clearPinnedLocation',
             'setPreviewLayer',
             'clearPreviewLayer',
         ]),
         selectItem() {
+            this.$emit('entrySelected')
             this.selectResultEntry(this.entry)
         },
         showLayerLegendPopup() {
-            this.$emit('showLayerLegendPopup')
+            this.$emit('showLayerLegendPopup', this.entry)
         },
         goToPrevious() {
-            this.changeFocus(this.$refs.item.previousElementSibling)
+            if (this.$refs.item.previousElementSibling) {
+                this.changeFocus(this.$refs.item.previousElementSibling)
+            } else {
+                this.$emit('firstEntryReached')
+            }
         },
         goToNext() {
-            this.changeFocus(this.$refs.item.nextElementSibling)
+            if (this.$refs.item.nextElementSibling) {
+                this.changeFocus(this.$refs.item.nextElementSibling)
+            } else {
+                this.$emit('lastEntryReached')
+            }
         },
         goToFirst() {
             this.changeFocus(this.$refs.item.parentElement.firstElementChild)
@@ -83,9 +103,7 @@ export default {
         },
         changeFocus(target) {
             if (target) {
-                target.tabIndex = '0'
                 target.focus()
-                this.$refs.item.tabIndex = '-1'
             }
         },
         startResultPreview() {
@@ -115,12 +133,15 @@ export default {
     }
     @include respond-above(phone) {
         &:hover {
-            background-color: $list-item-hover-color;
+            background-color: $list-item-hover-bg-color;
         }
         .btn {
             // Same (no) transition on button and list-item.
             transition: unset;
         }
+    }
+    &:focus {
+        outline-offset: -$focus-outline-size;
     }
 }
 </style>

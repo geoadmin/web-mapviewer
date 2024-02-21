@@ -3,6 +3,7 @@
         class="menu-section"
         :class="{
             'menu-section-secondary': secondary && !showBody,
+            'menu-section-light': light && !showBody,
             'menu-section-open': showBody,
         }"
     >
@@ -60,11 +61,11 @@ export default {
             type: Boolean,
             default: false,
         },
-        alwaysKeepClosed: {
+        secondary: {
             type: Boolean,
             default: false,
         },
-        secondary: {
+        light: {
             type: Boolean,
             default: false,
         },
@@ -73,8 +74,8 @@ export default {
             default: false,
         },
     },
-    expose: ['close'],
-    emits: ['openMenuSection', 'click:header'],
+    expose: ['close', 'open'],
+    emits: ['openMenuSection', 'closeMenuSection', 'click:header'],
     data() {
         return {
             showBody: this.showContent,
@@ -90,7 +91,7 @@ export default {
     },
     watch: {
         showContent(showContent) {
-            this.showBody = showContent
+            this.setShowBody(showContent)
         },
     },
     methods: {
@@ -99,16 +100,24 @@ export default {
                 return
             }
 
-            if (!this.alwaysKeepClosed) {
-                this.showBody = !this.showBody
-            }
+            this.setShowBody(!this.showBody)
             this.$emit('click:header')
-            if (this.showBody) {
-                this.$emit('openMenuSection', this.id)
+        },
+        setShowBody(value) {
+            if (this.showBody !== value) {
+                this.showBody = value
+                if (this.showBody) {
+                    this.$emit('openMenuSection', this.id)
+                } else {
+                    this.$emit('closeMenuSection', this.id)
+                }
             }
         },
+        open() {
+            this.setShowBody(true)
+        },
         close() {
-            this.showBody = false
+            this.setShowBody(false)
         },
     },
 }
@@ -133,9 +142,15 @@ $section-border: 1px;
         background-color: $secondary;
         border-color: $gray-400;
     }
+    .menu-section-light & {
+        color: $black;
+        background-color: $gray-200;
+        border-color: $gray-400;
+    }
+
     .menu-section-open & {
         border-bottom: $section-border solid $gray-400;
-        background-color: $white;
+        background-color: $gray-200;
     }
 
     &.disabled {

@@ -1,7 +1,8 @@
+import proj4 from 'proj4'
+
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
-import proj4 from 'proj4'
 
 // 47.5 7.5
 const REGEX_WEB_MERCATOR = /^\s*([\d]{1,3}[.\d]+)\s*[ ,/]+\s*([\d]{1,3}[.\d]+)\s*$/i

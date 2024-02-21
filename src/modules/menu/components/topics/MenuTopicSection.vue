@@ -5,6 +5,7 @@
         ref="menuTopicSection"
         :title="$t(currentTopic?.id)"
         :show-content="showTopicTree"
+        light
         data-cy="menu-topic-section"
         @open-menu-section="(id) => $emit('openMenuSection', id)"
     >
@@ -24,15 +25,20 @@
                 @close="showTopicSelectionPopup = false"
             />
         </template>
-        <LayerCatalogue :layer-catalogue="currentTopicTree" :compact="compact" />
+        <LayerCatalogue
+            data-cy="menu-topic-tree"
+            :layer-catalogue="currentTopicTree"
+            :compact="compact"
+        />
     </MenuSection>
 </template>
 
 <script>
-import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import LayerCatalogue from '@/modules/menu/components/topics/LayerCatalogue.vue'
-import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 import { mapActions, mapGetters, mapState } from 'vuex'
+
+import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
+import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
@@ -89,10 +95,6 @@ export default {
 <style lang="scss" scoped>
 @import 'src/modules/menu/scss/menu-items';
 
-.menu-topic-list {
-    @extend .menu-list;
-    overflow-y: auto;
-}
 .menu-topic-switch {
     border: 0;
     background: none;

@@ -9,8 +9,9 @@
 </template>
 
 <script>
-import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
 import { mapGetters } from 'vuex'
+
+import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
 
 export default {
     props: {

@@ -1,7 +1,22 @@
-import { API_SERVICES_BASE_URL } from '@/config'
-import { MEDIUM, RED } from '@/utils/featureStyleUtils'
-import log from '@/utils/logging'
 import axios from 'axios'
+
+import { API_SERVICES_BASE_URL } from '@/config'
+import { RED } from '@/utils/featureStyleUtils'
+import log from '@/utils/logging'
+
+/**
+ * Default Icon parameters for the URL.
+ *
+ * NOTE: The size should match the received size for the scale from the backend. It is needed to
+ * avoid race condition when exporting/saving KML. Openlayer requires the size to compute the
+ * scale.
+ *
+ * TODO: take the default size from the backend icon API
+ */
+export const DEFAULT_ICON_URL_PARAMS = {
+    scale: 1,
+    size: [48, 48],
+}
 
 /**
  * Collection of icons belonging to the same "category" (or set).
@@ -90,21 +105,6 @@ export class DrawingIcon {
         this._anchor = anchor
     }
 
-    serialize() {
-        /* Warning: Changing this method will break the compability of KML files */
-        return {
-            name: this.name,
-            imageURL: this.imageURL,
-            imageTemplateURL: this.imageTemplateURL,
-            iconSetName: this.iconSetName,
-            anchor: this.anchor,
-        }
-    }
-
-    static deserialize(o) {
-        return new DrawingIcon(o.name, o.imageURL, o.imageTemplateURL, o.iconSetName, o.anchor)
-    }
-
     /** @returns {String} Name of this icon in the backend (lower cased) */
     get name() {
         return this._name
@@ -145,20 +145,20 @@ export class DrawingIcon {
     }
 
     /**
-     * Generate an icon URL from its template. If no iconSize is given, medium scale will be
+     * Generate an icon URL from its template. If no iconScale is given, default scale 1 will be
      * applied. If no iconColor is given, red will be applied (if applicable, as non-colorable icons
      * will not have {r}, {g}, {b} part of their template URL)
      *
-     * @param {FeatureStyleSize} iconSize The size (or scale) to use for this icon's URL
      * @param {FeatureStyleColor} iconColor The color to use for this icon's URL
+     * @param {Number} iconScale The scale to use for this icon's URL
      * @returns {String} A full URL to this icon on the service-icons backend
      */
-    generateURL(iconSize = MEDIUM, iconColor = RED) {
+    generateURL(iconColor = RED, iconScale = DEFAULT_ICON_URL_PARAMS.scale) {
         const rgb = iconColor.rgb.slice(0, 3)
         return this._imageTemplateURL
             .replace('{icon_set_name}', this._iconSetName)
             .replace('{icon_name}', this._name)
-            .replace('{icon_scale}', iconSize.iconScale + 'x')
+            .replace('{icon_scale}', iconScale + 'x')
             .replace('{r}', `${rgb[0]}`)
             .replace('{g}', `${rgb[1]}`)
             .replace('{b}', `${rgb[2]}`)

@@ -18,9 +18,10 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from 'vuex'
+
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import log from '@/utils/logging'
-import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
     components: { HeaderLink },

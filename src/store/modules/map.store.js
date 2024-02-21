@@ -37,25 +37,32 @@ export class ClickInfo {
 export default {
     state: {
         /**
-         * @type Boolean Whether the map is being dragged right now or not (if the mouse/touch is
-         *   down and cursor moving)
+         * Information about the last click that has occurred on the map
+         *
+         * @type ClickInfo
          */
-        isBeingDragged: false,
-        /** @type ClickInfo Information about the last click that has occurred on the map */
         clickInfo: null,
         /**
-         * @type Array<Number> Coordinate of the dropped pin on the map, expressed in EPSG:3857. If
-         *   null, no pin will be shown.
+         * Coordinate of the dropped pin on the map. If null, no pin will be shown.
+         *
+         * @type Array<Number>
          */
         pinnedLocation: null,
         /**
-         * @type Array<Number> Same thing as pinnedLocation, will be used to show location of search
-         *   entries when they are hovered. If we use the same pinned location as the one above, the
-         *   pinned location is lost as soon as another one is hovered (meaning that the search bar
-         *   is still filled with a search query, but no pinned location is present anymore)
+         * Will be used to show the location of search entries when they are hovered. If we use the
+         * same pinned location as the one above, the pinned location is lost as soon as another one
+         * is hovered. Meaning that the search bar is still filled with a search query, but no
+         * pinned location is present anymore.
+         *
+         * @type Array<Number>
          */
         previewedPinnedLocation: null,
-
+        /**
+         * Flags telling if the location popup (information about a set of coordinates) must be
+         * shown at the location of the last click (using clickInfo above).
+         *
+         * @type Boolean
+         */
         displayLocationPopup: false,
     },
     actions: {
@@ -67,8 +74,6 @@ export default {
          */
         click: ({ commit }, clickInfo) => commit('setClickInfo', clickInfo),
         clearClick: ({ commit }) => commit('setClickInfo', null),
-        mapStartBeingDragged: ({ commit }) => commit('mapStartBeingDragged'),
-        mapStoppedBeingDragged: ({ commit }) => commit('mapStoppedBeingDragged'),
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
          *
@@ -105,8 +110,6 @@ export default {
     },
     mutations: {
         setClickInfo: (state, clickInfo) => (state.clickInfo = clickInfo),
-        mapStartBeingDragged: (state) => (state.isBeingDragged = true),
-        mapStoppedBeingDragged: (state) => (state.isBeingDragged = false),
         setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
         setPreviewedPinnedLocation: (state, coordinate) =>
             (state.previewedPinnedLocation = coordinate),

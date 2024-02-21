@@ -30,8 +30,8 @@
 
 <script>
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
-import { formatTime } from '@/modules/drawing/lib/drawingUtils'
 import { format } from '@/utils/numberUtils'
+import { formatMinutesTime } from '@/utils/utils'
 
 export default {
     props: {
@@ -85,7 +85,7 @@ export default {
                     {
                         title: 'profile_hike_time',
                         icons: [['far', 'clock']],
-                        value: formatTime(this.profile.hikingTime),
+                        value: formatMinutesTime(this.profile.hikingTime),
                     },
                 ]
             }

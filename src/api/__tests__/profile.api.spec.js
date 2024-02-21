@@ -1,8 +1,9 @@
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
+
 import ElevationProfile from '@/api/profile/ElevationProfile.class'
 import ElevationProfilePoint from '@/api/profile/ElevationProfilePoint.class'
 import ElevationProfileSegment from '@/api/profile/ElevationProfileSegment.class'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
 
 const testProfile = new ElevationProfile([
     new ElevationProfileSegment([

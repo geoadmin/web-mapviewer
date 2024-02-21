@@ -1,9 +1,10 @@
 # web-mapviewer
 
-| Branch  | Status                                                                                                                                                                                                                                                                                                                      | Deployed version             |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | <https://sys-map.dev.bgdi.ch/> |
-| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)  | <https://sys-map.int.bgdi.ch/> |
+<!-- prettier-ignore -->
+| Branch  | CI Status  | E2E Tests | Deployed version |
+| ------- | ---------- | --------- | ---------------- |
+| develop | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=develop) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/develop&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.dev.bgdi.ch/> |
+| master  | ![Build Status](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiSFlMY3hpUEwvTGkzMDJaMzF1QUdxUm54MmdvR3JKMzVTT3JDdHRaK2JLaXFNZkxjVkoyM3JOaE1DSkJuRzR2MU5RRDdMNFczMWVXSEgvd291cXNkS3dZPSIsIml2UGFyYW1ldGVyU3BlYyI6Im9qVDhwZ2h1VnhSOU5GWE0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master) | [![web-mapviewer](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/fj2ezv/master&style=plastic&logo=cypress)](https://cloud.cypress.io/projects/fj2ezv/runs) | <https://sys-map.int.bgdi.ch/> |
 
 The next generation map viewer application of geo.admin.ch: Digital data can be viewed, printed out, ordered and supplied by means of web-mapviewer. The required data is available in the form of digital maps and imagery, vector data and also as online services.
 
@@ -102,16 +103,17 @@ The structure of the file should be :
 ```vue
 <script setup>
 // 1. First put the imports
-import { computed, defineProps, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 // 2. Put all the props (input)
-const {myProp} = defineProps({
+const props = defineProps({
   myProp: {
-    type: Boolean
-    default: false
-  }
+    type: Boolean,
+    default: false,
+  },
 })
+const { myProp } = toRefs(props)
 
 // 3. reactive data
 const myData = ref('My reactive value')
@@ -133,9 +135,7 @@ onMounted(() => {
 })
 
 // 8. Methods
-function myMethod() {
-
-}
+function myMethod() {}
 </script>
 
 <template>
@@ -158,7 +158,7 @@ See [its README.md](src/store/README.md) for more details.
 
 Unit testing is done through the VueCLI unit test helper, and integration testing is done with Cypress.io.
 All things related to tests are in the `/tests` folder.
-See [TESTING.md](cypress/TESTING.md) for more documentation on testing in this project.
+See [README.md](./tests/README.md) for more documentation on testing in this project.
 
 ## Project setup
 
@@ -211,21 +211,24 @@ The file `secrets.yml` will tell `summon` which keys to get from `gopass`.
 ### List of npm scripts
 
 <!-- prettier-ignore -->
-| command                          | what it does                                                                                                                                                               |
-|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| command                          | what it does                                                  |
+|----------------------------------|---------------------------------------------------------------|
 | `npm run dev`                    | Compiles and hot-reloads for development. Will serve the project under `http://localhost:8080` (or the next available port if `8080` is already used, see console output). |
-| `npm run build`                  | Compiles all file without bundling and minification                                                                                                                        |
-| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                                                                                                                                 |
-| `npm run lint`                   | Lints and fixes files                                                                                                                                                      |
-| `npm run format`                 | Format (with Prettier) source files                                                                                                                                        |
-| `npm run format-lint`            | run both target above in succession                                                                                                                                        |
-| `npm run test:unit`              | Runs unit tests from vitest.                                                                                                                                               |
-| `npm run test:unit:watch`        | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed).                        |
-| `npm run test:e2e`               | Opens up the cypress app with a mobile sized view                                                                                                                          |
-| `npm run test:e2e:tablet`        | Opens up the cypress app with a iPad sized view                                                                                                                            |
-| `npm run test:e2e:desktop`       | Opens up the cypress app with a 1080p sized view                                                                                                                           |
-| `npm run test:e2e:ci`            | Starts a local server, and run cypress tests on the served URL (this used by the CI to run tests). Only tests the mobile sized view.                                       |
-| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools.                                             |
+| `npm run build`                  | Compiles all file without bundling and minification           |
+| `npm run build:(dev\|int\|prod)` | Compiles all file for the according `mode`                    |
+| `npm run lint`                   | Format, lints and fixes                                       |
+| `npm run lint:no-fix`            | Check formatting and linting without auto fixes               |
+| `npm run test:unit`              | Runs unit tests from vitest.                                  |
+| `npm run test:unit:watch`        | Runs unit tests and then watch for changes, re-running any part of the tests that is edited (or tests linked to parts of the app that has changed). |
+| `npm run test:e2e`               | Opens up the cypress app with a mobile sized view             |
+| `npm run test:e2e:headless`      | Run cypress E2E tests in headless mode with a mobile sized view |
+| `npm run test:e2e:tablet`        | Opens up the cypress app with a iPad sized view               |
+| `npm run test:e2e:desktop`       | Opens up the cypress app with a 1080p sized view              |
+| `npm run test:e2e:ci`            | Run cypress E2E tests on the served URL (NOTE: the server should be started before). Only tests the mobile sized view. |
+| `npm run test:component`         | Opens up the cypress component tests |
+| `npm run test:component:headless` | Run cypress component tests in headless mode |
+| `npm run test:component:ci`      | Run cypress component tests |
+| `npm run update:translations`    | Update translation files according to our Google Spreadsheet. See [above](#tooling-for-translation-update) for required tools. |
 
 All script commands starting a webserver or using one (`dev` and all things related to cypress) will determine the port to use by looking for the next one available starting at `8080`.
 
@@ -285,7 +288,7 @@ Depending on the target (`dev|int|prod`), you will have to build and bundle/mini
 
 ## Check External Layer Provider list
 
-In the `Import` tool we provide an hardcoded list of provider via the [src/modules/infobox/utils/external-layer-providers.json](./src/modules/infobox/utils/external-layer-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
+In the `Import` tool we provide an hardcoded list of provider via the [src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json](./src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
 check their validity. The tool can also be used with a single url as input parameter to see the url would be valid
 for our application.
 

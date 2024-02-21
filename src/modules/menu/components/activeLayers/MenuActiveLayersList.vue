@@ -18,12 +18,12 @@
                 @toggle-layer-details="onToggleLayerDetails"
                 @opacity-change="onOpacityChange"
                 @order-change="onOrderChange"
-                @show-layer-legend-popup="showLayerLegendForId = layer.getID()"
+                @show-layer-legend-popup="showLayerLegendForLayer = layer"
             />
             <LayerLegendPopup
-                v-if="showLayerLegendForId"
-                :layer-id="showLayerLegendForId"
-                @close="showLayerLegendForId = null"
+                v-if="showLayerLegendForLayer"
+                :layer="showLayerLegendForLayer"
+                @close="showLayerLegendForLayer = null"
             />
         </div>
         <div v-show="activeLayers.length === 0" class="p-1 ps-3" data-cy="menu-section-no-layers">
@@ -33,8 +33,10 @@
 </template>
 
 <script>
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 import { mapActions, mapState } from 'vuex'
+
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+
 import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
 
 /**
@@ -51,7 +53,7 @@ export default {
     },
     data() {
         return {
-            showLayerLegendForId: null,
+            showLayerLegendForLayer: null,
             showLayerDetailsForId: null,
         }
     },

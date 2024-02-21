@@ -25,5 +25,5 @@ State, getters, mutations, and action don't need to be imported directly but can
 For the cases where an import is necessary it can be done through the `@` resolver.
 
 ```js
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeatures.class'
 ```

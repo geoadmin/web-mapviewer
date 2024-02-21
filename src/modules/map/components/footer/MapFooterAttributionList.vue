@@ -28,9 +28,10 @@
 </template>
 
 <script>
-import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
-import ThirdPartDisclaimer from '@/utils/ThirdPartDisclaimer.vue'
 import { mapGetters, mapState } from 'vuex'
+
+import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
+import ThirdPartDisclaimer from '@/utils/components/ThirdPartDisclaimer.vue'
 
 export default {
     components: { MapFooterAttributionItem, ThirdPartDisclaimer },

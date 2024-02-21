@@ -2,11 +2,12 @@
     <slot />
 </template>
 <script>
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 import { CallbackProperty, Cartesian3, Color, Ellipsoid, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
 import { mapState } from 'vuex'
+
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 
 export default {
     inject: ['getViewer'],

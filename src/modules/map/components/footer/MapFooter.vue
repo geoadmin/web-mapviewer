@@ -1,5 +1,9 @@
 <template>
-    <div class="map-footer" :class="{ 'map-footer-fullscreen': isFullscreenMode }">
+    <div
+        class="map-footer"
+        :class="{ 'map-footer-fullscreen': isFullscreenMode }"
+        data-cy="app-footer"
+    >
         <div class="map-footer-top">
             <MapFooterAttributionList />
             <div>
@@ -9,7 +13,7 @@
                 <div id="map-footer-mobile-scale-line" />
             </div>
         </div>
-        <div id="map-footer-middle" class="map-footer-middle">
+        <div id="map-footer-middle-0" class="map-footer-middle">
             <!-- teleport for: Infobox, Profile, ... -->
         </div>
         <div class="map-footer-bottom">
@@ -23,9 +27,11 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
-import { mapState } from 'vuex'
+
 import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
 import MapFooterAppVersion from './MapFooterAppVersion.vue'
 

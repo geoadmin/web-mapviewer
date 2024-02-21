@@ -1,10 +1,12 @@
+import { PrimitiveCollection } from 'cesium'
+import { Vector as VectorLayer } from 'ol/layer'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/modules/map/components/cesium/constants'
+import addLayerToViewer from '@/modules/map/components/cesium/utils/addLayerToViewer-mixins'
+import FeatureConverter from '@/modules/map/components/cesium/utils/olcs/FeatureConverter'
 import { updateCollectionProperties } from '@/modules/map/components/cesium/utils/primitiveLayerUtils'
-import { PrimitiveCollection } from 'cesium'
-import FeatureConverter from 'ol-cesium/src/olcs/FeatureConverter'
-import { Vector as VectorLayer } from 'ol/layer'
-import addLayerToViewer from './addLayerToViewer-mixins'
+import log from '@/utils/logging'
 
 const STYLE_RESOLUTION = 20
 
@@ -48,9 +50,13 @@ const addPrimitiveFromOLLayerMixins = {
             properties: { altitudeMode: 'clampToGround' },
             projection: this.projection.epsg,
         })
-        this.loadDataInOLLayer().then(() => {
-            this.addPrimitive()
-        })
+        this.loadDataInOLLayer()
+            .then(() => {
+                this.addPrimitive()
+            })
+            .catch((error) => {
+                log.error('Error while loading primitives for layer', this.layerId, error)
+            })
     },
     methods: {
         addLayer(layer) {

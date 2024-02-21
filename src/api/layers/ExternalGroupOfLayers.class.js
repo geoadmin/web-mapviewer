@@ -8,6 +8,14 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  *
  * If the group of layer is added to the map, all layers being part of it should be added under this
  * group's name "banner"
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class ExternalGroupOfLayers extends ExternalLayer {
     /**
@@ -23,6 +31,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      *   layer. When `null` is given it uses the default attribution which is based on the hostname
      *   of the GetCapabilities server.
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -36,6 +45,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
         attributions = null,
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -48,6 +58,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             attributions,
             abstract,
             extent,
+            legends,
             isLoading
         )
         this.layers = [...layers]
@@ -55,7 +66,9 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
 
     getID() {
         // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `GRP|${this.baseURL}|${this.externalLayerId}`
+        // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
+        // done the legacy parameter and is not required.
+        return `WMS|${this.baseURL}|${this.externalLayerId}`
     }
     clone() {
         let clone = super.clone()

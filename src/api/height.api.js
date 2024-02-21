@@ -1,9 +1,10 @@
+import axios from 'axios'
+import proj4 from 'proj4'
+
 import { API_SERVICE_ALTI_BASE_URL } from '@/config'
 import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
-import axios from 'axios'
-import proj4 from 'proj4'
 
 export const meterToFeetFactor = 3.28084
 

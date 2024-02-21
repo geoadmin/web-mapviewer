@@ -1,26 +1,37 @@
+import { expect } from 'chai'
+import { describe, it } from 'vitest'
+
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { createLayerObject } from '@/router/storeSync/LayerParamConfig.class'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
 
 describe('External layer parsing with createLayerObject', () => {
     it('parses a KML layer correctly', () => {
         const kmlFileId = '1234567abc'
-        const kmlFileUrl = `https://totally.random.kml.url/${kmlFileId}`
-        const kmlLayerName = 'What about some name?'
-        const result = createLayerObject(
-            new ActiveLayerConfig(`KML|${kmlFileUrl}|${kmlLayerName}`, true, 0.8)
-        )
+        const kmlFileUrl = `https://${API_SERVICE_KML_BASE_URL}/api/kml/files/${kmlFileId}`
+        const result = createLayerObject(new ActiveLayerConfig(`KML|${kmlFileUrl}`, true, 0.8))
         expect(result).to.be.an.instanceof(KMLLayer)
         expect(result.opacity).to.eq(0.8)
         expect(result.visible).to.be.true
-        expect(result.name).to.equal(kmlLayerName)
+        expect(result.name).to.equal('KML')
         expect(result.kmlFileUrl).to.eq(kmlFileUrl)
         expect(result.adminId).to.be.null // no admin ID in URL
-        expect(result.fileId).to.eq(kmlFileId)
+        expect(result.fileId).to.be.eq(kmlFileId)
+    })
+    it('parses a KML external layer correctly', () => {
+        const kmlFileId = '1234567abc'
+        const kmlFileUrl = `https://totally.random.kml.url/${kmlFileId}`
+        const result = createLayerObject(new ActiveLayerConfig(`KML|${kmlFileUrl}`, true, 0.8))
+        expect(result).to.be.an.instanceof(KMLLayer)
+        expect(result.opacity).to.eq(0.8)
+        expect(result.visible).to.be.true
+        expect(result.name).to.equal('KML')
+        expect(result.kmlFileUrl).to.eq(kmlFileUrl)
+        expect(result.adminId).to.be.null // no admin ID in URL
+        expect(result.fileId).to.be.null
     })
     it('parses an external WMS layer correctly', () => {
         const wmsBaseUrl = 'https://base.wms.url/?SERVICE=GetMap'

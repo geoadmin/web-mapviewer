@@ -1,5 +1,7 @@
-import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
 import proj4 from 'proj4'
+
+import CoordinateSystemBounds from '@/utils/coordinates/CoordinateSystemBounds.class'
+import { round } from '@/utils/numberUtils'
 
 /**
  * Representation of a coordinate system (or also called projection system) in the context of this
@@ -97,6 +99,19 @@ export default class CoordinateSystem {
      */
     getDefaultZoom() {
         throw Error('Not yet implemented')
+    }
+
+    /**
+     * Rounds a zoom level.
+     *
+     * You can, by overwriting this function, add custom zoom level roundings or similar function in
+     * your custom coordinate systems.
+     *
+     * @param {Number} zoom A zoom level in this coordinate system
+     * @returns {Number} The given zoom level after rounding
+     */
+    roundZoomLevel(zoom) {
+        return round(zoom, 3)
     }
 
     /**

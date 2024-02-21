@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import { API_BASE_URL } from '@/config'
 import {
@@ -5,7 +7,6 @@ import {
     getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export class Topic {
@@ -141,8 +142,15 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     (layer) => layer.getID() === defaultBackgroundLayerId
                                 )
                             }
+                            const params = new URLSearchParams(legacyUrlParams)
                             const layersToActivate = [
-                                ...getLayersFromLegacyUrlParams(layersConfig, legacyUrlParams),
+                                ...getLayersFromLegacyUrlParams(
+                                    layersConfig,
+                                    params.get('layers'),
+                                    params.get('layers_visibility'),
+                                    params.get('layers_opacity'),
+                                    params.get('layers_timestamp')
+                                ),
                             ]
                             if (
                                 Array.isArray(rawTopic.activatedLayers) &&

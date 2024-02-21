@@ -1,0 +1,417 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no"?>
+<WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms"
+    xmlns:sld="http://www.opengis.net/sld" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ms="http://mapserver.gis.umn.edu/mapserver"
+    xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd
+                        http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd
+                        http://mapserver.gis.umn.edu/mapserver https://wms.geo.admin.ch/?service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+    <Service>
+        <Name>WMS</Name>
+        <Title>WMS BGDI</Title>
+        <Abstract>Öffentliche Daten der Bundes Geodaten-Infrastruktur (BGDI)</Abstract>
+        <KeywordList>
+            <Keyword>BGDI Geodaten</Keyword>
+        </KeywordList>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="https://wms.geo.admin.ch/?" />
+        <ContactInformation>
+            <ContactPersonPrimary>
+                <ContactPerson>webgis@swisstopo.ch</ContactPerson>
+                <ContactOrganization>Bundesamt für Landestopografie swisstopo</ContactOrganization>
+            </ContactPersonPrimary>
+            <ContactAddress>
+                <AddressType>text/html</AddressType>
+                <Address>Seftigenstrasse 264</Address>
+                <City>Wabern</City>
+                <StateOrProvince>Kanton Bern</StateOrProvince>
+                <PostCode>3084</PostCode>
+                <Country>Schweiz</Country>
+            </ContactAddress>
+            <ContactVoiceTelephone>+41 (0)58 / 000 00 00</ContactVoiceTelephone>
+            <ContactFacsimileTelephone>+41 (0)58 / 000 00 01</ContactFacsimileTelephone>
+        </ContactInformation>
+        <Fees>none</Fees>
+        <MaxWidth>10000</MaxWidth>
+        <MaxHeight>10000</MaxHeight>
+    </Service>
+
+    <Capability>
+        <Request>
+            <GetCapabilities>
+                <Format>text/xml</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </GetCapabilities>
+            <GetMap>
+                <Format>image/jpeg</Format>
+                <Format>image/png</Format>
+                <Format>image/pnga</Format>
+                <Format>image/png; mode=32bit</Format>
+                <Format>image/png; mode=8bit</Format>
+                <Format>image/tiff</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </GetMap>
+            <GetFeatureInfo>
+                <Format>application/json</Format>
+                <Format>application/json; subtype=geojson</Format>
+                <Format>application/vnd.ogc.gml</Format>
+                <Format>text/plain</Format>
+                <Format>text/xml</Format>
+                <Format>text/xml; subtype=gml/3.1.1</Format>
+                <Format>text/xml; subtype=gml/3.2.1</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </GetFeatureInfo>
+            <sld:DescribeLayer>
+                <Format>text/xml</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </sld:DescribeLayer>
+            <sld:GetLegendGraphic>
+                <Format>image/png</Format>
+                <Format>image/jpeg</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </sld:GetLegendGraphic>
+            <ms:GetStyles>
+                <Format>text/xml</Format>
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Get>
+                        <Post>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="https://fake.wms.base.url/?" />
+                        </Post>
+                    </HTTP>
+                </DCPType>
+            </ms:GetStyles>
+        </Request>
+        <Exception>
+            <Format>XML</Format>
+            <Format>INIMAGE</Format>
+            <Format>BLANK</Format>
+        </Exception>
+        <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"
+            InlineFeature="0" RemoteWCS="0" />
+        <Layer>
+            <Title>WMS BGDI</Title>
+            <Abstract>Öffentliche Daten der Bundes Geodaten-Infrastruktur (BGDI)</Abstract>
+            <KeywordList>
+                <Keyword>BGDI Geodaten</Keyword>
+            </KeywordList>
+            <CRS>EPSG:2056</CRS>
+            <CRS>EPSG:21781</CRS>
+            <CRS>EPSG:4326</CRS>
+            <CRS>EPSG:3857</CRS>
+            <CRS>EPSG:3034</CRS>
+            <CRS>EPSG:3035</CRS>
+            <CRS>EPSG:4258</CRS>
+            <CRS>EPSG:25832</CRS>
+            <CRS>EPSG:25833</CRS>
+            <CRS>EPSG:31467</CRS>
+            <CRS>EPSG:32632</CRS>
+            <CRS>EPSG:32633</CRS>
+            <CRS>EPSG:900913</CRS>
+            <EX_GeographicBoundingBox>
+                <westBoundLongitude>0.659866</westBoundLongitude>
+                <eastBoundLongitude>11.514</eastBoundLongitude>
+                <southBoundLatitude>45.2401</southBoundLatitude>
+                <northBoundLatitude>48.7511</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="EPSG:2056"
+                minx="2.1e+06" miny="1.03e+06" maxx="2.9e+06" maxy="1.4e+06" />
+            <Attribution>
+                <Title>The federal geoportal</Title>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                    xlink:href="https://www.geo.admin.ch/attribution" />
+                <LogoURL width="50" height="45">
+                    <Format>image/png</Format>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
+                        xlink:href="http://wms.geo.admin.ch/medias/ch45x50.png" />
+                </LogoURL>
+            </Attribution>
+            <Layer queryable="1" opaque="0" cascaded="1">
+                <Name>ch.swisstopo-vd.official-survey</Name>
+                <Title>OpenData-AV</Title>
+                <Abstract>The official survey (AV).</Abstract>
+                <KeywordList>
+                    <Keyword>ch.swisstopo-vd.official-survey.wms_ows_keywordlist</Keyword>
+                </KeywordList>
+                <CRS>EPSG:2056</CRS>
+                <CRS>EPSG:21781</CRS>
+                <CRS>EPSG:4326</CRS>
+                <CRS>EPSG:3857</CRS>
+                <CRS>EPSG:3034</CRS>
+                <CRS>EPSG:3035</CRS>
+                <CRS>EPSG:4258</CRS>
+                <CRS>EPSG:25832</CRS>
+                <CRS>EPSG:25833</CRS>
+                <CRS>EPSG:31467</CRS>
+                <CRS>EPSG:32632</CRS>
+                <CRS>EPSG:32633</CRS>
+                <CRS>EPSG:900913</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>0.659866</westBoundLongitude>
+                    <eastBoundLongitude>11.514</eastBoundLongitude>
+                    <southBoundLatitude>45.2401</southBoundLatitude>
+                    <northBoundLatitude>48.7511</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:2056"
+                    minx="2.1e+06" miny="1.03e+06" maxx="2.9e+06" maxy="1.4e+06" />
+                <MetadataURL type="TC211">
+                    <Format>text/xml</Format>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
+                        xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.swisstopo-vd.official-survey" />
+                </MetadataURL>
+            </Layer>
+            <!-- Layer without .Name -->
+            <Layer queryable="1" opaque="0" cascaded="0">
+                <Title>Periodic-Tracking</Title>
+                <Abstract>Layer without Name element should use the Title</Abstract>
+                <KeywordList>
+                    <Keyword>ch.swisstopo-vd.geometa-periodische_nachfuehrung.wms_ows_keywordlist</Keyword>
+                </KeywordList>
+                <CRS>EPSG:2056</CRS>
+                <CRS>EPSG:21781</CRS>
+                <CRS>EPSG:4326</CRS>
+                <CRS>EPSG:3857</CRS>
+                <CRS>EPSG:3034</CRS>
+                <CRS>EPSG:3035</CRS>
+                <CRS>EPSG:4258</CRS>
+                <CRS>EPSG:25832</CRS>
+                <CRS>EPSG:25833</CRS>
+                <CRS>EPSG:31467</CRS>
+                <CRS>EPSG:32632</CRS>
+                <CRS>EPSG:32633</CRS>
+                <CRS>EPSG:900913</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>5.96</westBoundLongitude>
+                    <eastBoundLongitude>10.49</eastBoundLongitude>
+                    <southBoundLatitude>45.82</southBoundLatitude>
+                    <northBoundLatitude>47.81</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:4326"
+                    minx="5.96" miny="45.82" maxx="10.49" maxy="47.81" />
+                <Attribution>
+                    <Title>BGDI</Title>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xlink:href="https://www.geo.admin.ch/attribution-bgdi" />
+                    <LogoURL width="50" height="45">
+                        <Format>image/png</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="http://wms.geo.admin.ch/medias/ch45x50.png" />
+                    </LogoURL>
+                </Attribution>
+                <MetadataURL type="TC211">
+                    <Format>text/xml</Format>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
+                        xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung" />
+                </MetadataURL>
+                <Style>
+                    <Name>default</Name>
+                    <Title>default</Title>
+                    <LegendURL width="168" height="22">
+                        <Format>image/png</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&amp;format=image/png&amp;STYLE=default" />
+                    </LegendURL>
+                </Style>
+            </Layer>
+            <Layer queryable="1" opaque="0" cascaded="0">
+                <Name>ch.swisstopo-vd.ortschaftenverzeichnis_plz</Name>
+                <Title>PLZ und Ortschaften</Title>
+                <Abstract>Mit Artikel 24 der Verordnung über die geografischen Namen (GeoNV) wurde das Bundesamt für Landestopografie swisstopo beauftragt, das neue amtliche Ortschaftenverzeichnis mit Postleitzahl und Perimeter zu erstellen, zu verwalten und zu veröffentlichen. Dieser Datensatz wird zentral bei swisstopo geführt und entspricht mit Ausnahme des entfernten Identifikators `IDENT PLZ, Zusatzziffern` in der Tabelle `PLZ` dem TOPIC `PLZOrtschaft` der amtlichen Vermessung. Der Datensatz ist flächendeckend über die ganze Schweiz und kann kostenlos bezogen werden (Datensatz wird monatlich nachgeführt).</Abstract>
+                <KeywordList>
+                    <Keyword>ch.swisstopo-vd.ortschaftenverzeichnis_plz.wms_ows_keywordlist</Keyword>
+                </KeywordList>
+                <CRS>EPSG:2056</CRS>
+                <CRS>EPSG:21781</CRS>
+                <CRS>EPSG:4326</CRS>
+                <CRS>EPSG:3857</CRS>
+                <CRS>EPSG:3034</CRS>
+                <CRS>EPSG:3035</CRS>
+                <CRS>EPSG:4258</CRS>
+                <CRS>EPSG:25832</CRS>
+                <CRS>EPSG:25833</CRS>
+                <CRS>EPSG:31467</CRS>
+                <CRS>EPSG:32632</CRS>
+                <CRS>EPSG:32633</CRS>
+                <CRS>EPSG:900913</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>0.659866</westBoundLongitude>
+                    <eastBoundLongitude>11.514</eastBoundLongitude>
+                    <southBoundLatitude>45.2401</southBoundLatitude>
+                    <northBoundLatitude>48.7511</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:2056"
+                    minx="2.1e+06" miny="1.03e+06" maxx="2.9e+06" maxy="1.4e+06" />
+                <MetadataURL type="TC211">
+                    <Format>text/xml</Format>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
+                        xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.swisstopo-vd.ortschaftenverzeichnis_plz" />
+                </MetadataURL>
+                <Style>
+                    <Name>default</Name>
+                    <Title>default</Title>
+                    <LegendURL width="55" height="22">
+                        <Format>image/png</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.ortschaftenverzeichnis_plz&amp;format=image/png&amp;STYLE=default" />
+                    </LegendURL>
+                </Style>
+            </Layer>
+            <Layer queryable="1" opaque="0" cascaded="0">
+                <Name>ch.swisstopo-vd.spannungsarme-gebiete</Name>
+                <Title>Spannungsarme Gebiete</Title>
+                <Abstract>Bei Feldarbeiten in der amtlichen Vermessung muss jeweils eine lokale Einpassung durchgeführt werden oder zumindest der Nachweis erbracht werden, dass auf eine solche verzichtet werden kann. In spannungsarmen Gebieten erübrigt sich eine lokale Einpassung, weil die geometrische Genauigkeit erhöhten Qualitätskriterien entspricht. In der praktischen Anwendung erleichtert die Kenntnis solcher spannungsarmen Gebiete die Arbeiten mit satellitengestützten Messmethoden, insbesondere mit Positionierungsdiensten wie zum Beispiel swipos.</Abstract>
+                <KeywordList>
+                    <Keyword>ch.swisstopo-vd.spannungsarme-gebiete.wms_ows_keywordlist</Keyword>
+                </KeywordList>
+                <CRS>EPSG:2056</CRS>
+                <CRS>EPSG:21781</CRS>
+                <CRS>EPSG:4326</CRS>
+                <CRS>EPSG:3857</CRS>
+                <CRS>EPSG:3034</CRS>
+                <CRS>EPSG:3035</CRS>
+                <CRS>EPSG:4258</CRS>
+                <CRS>EPSG:25832</CRS>
+                <CRS>EPSG:25833</CRS>
+                <CRS>EPSG:31467</CRS>
+                <CRS>EPSG:32632</CRS>
+                <CRS>EPSG:32633</CRS>
+                <CRS>EPSG:900913</CRS>
+                <EX_GeographicBoundingBox>
+                    <westBoundLongitude>0.659866</westBoundLongitude>
+                    <eastBoundLongitude>11.514</eastBoundLongitude>
+                    <southBoundLatitude>45.2401</southBoundLatitude>
+                    <northBoundLatitude>48.7511</northBoundLatitude>
+                </EX_GeographicBoundingBox>
+                <BoundingBox CRS="EPSG:2056"
+                    minx="2.1e+06" miny="1.03e+06" maxx="2.9e+06" maxy="1.4e+06" />
+                <MetadataURL type="TC211">
+                    <Format>text/xml</Format>
+                    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple"
+                        xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.swisstopo-vd.spannungsarme-gebiete" />
+                </MetadataURL>
+                <Style>
+                    <Name>default</Name>
+                    <Title>default</Title>
+                    <LegendURL width="166" height="22">
+                        <Format>image/png</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.spannungsarme-gebiete&amp;format=image/png&amp;STYLE=default" />
+                    </LegendURL>
+                </Style>
+            </Layer>
+            <Layer queryable="1">
+                <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
+                <Title>Verfügbarkeit des ÖREB-Katasters</Title>
+                <Abstract>Der Datensatz zeigt pro Gemeinde, ob der Kataster der öffentlich-rechtlichen Eigentumsbeschränkungen (ÖREB-Kataster) verfügbar ist, ermöglicht den direkten Link zum kantonalen Geodatenportal sowie die direkte Bestellung des statischen Auszugs (PDF) zum ausgewählten Grundstück via WebService. Ausserdem finden Sie den Namen und die Adresse der zuständigen kantonalen Fachstelle.</Abstract>
+                <Style>
+                    <Name>default</Name>
+                    <Title>default</Title>
+                    <LegendURL width="33" height="5">
+                        <Format>image/png</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ch.swisstopo-vd.stand-oerebkataster&amp;format=image/png&amp;STYLE=default" />
+                    </LegendURL>
+                </Style>
+                <Layer queryable="1" opaque="0" cascaded="0">
+                    <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
+                    <Title>Verfügbarkeit des ÖREB-Katasters</Title>
+                    <Abstract>Der Datensatz zeigt pro Gemeinde, ob der Kataster der öffentlich-rechtlichen Eigentumsbeschränkungen (ÖREB-Kataster) verfügbar ist, ermöglicht den direkten Link zum kantonalen Geodatenportal sowie die direkte Bestellung des statischen Auszugs (PDF) zum ausgewählten Grundstück via WebService. Ausserdem finden Sie den Namen und die Adresse der zuständigen kantonalen Fachstelle.</Abstract>
+                    <KeywordList>
+                        <Keyword>ch.swisstopo-vd.stand-oerebkataster.wms_ows_keywordlist</Keyword>
+                    </KeywordList>
+                    <CRS>EPSG:2056</CRS>
+                    <CRS>EPSG:21781</CRS>
+                    <CRS>EPSG:4326</CRS>
+                    <CRS>EPSG:3857</CRS>
+                    <CRS>EPSG:3034</CRS>
+                    <CRS>EPSG:3035</CRS>
+                    <CRS>EPSG:4258</CRS>
+                    <CRS>EPSG:25832</CRS>
+                    <CRS>EPSG:25833</CRS>
+                    <CRS>EPSG:31467</CRS>
+                    <CRS>EPSG:32632</CRS>
+                    <CRS>EPSG:32633</CRS>
+                    <CRS>EPSG:900913</CRS>
+                    <EX_GeographicBoundingBox>
+                        <westBoundLongitude>0.659866</westBoundLongitude>
+                        <eastBoundLongitude>11.514</eastBoundLongitude>
+                        <southBoundLatitude>45.2401</southBoundLatitude>
+                        <northBoundLatitude>48.7511</northBoundLatitude>
+                    </EX_GeographicBoundingBox>
+                    <BoundingBox CRS="EPSG:2056"
+                        minx="2.1e+06" miny="1.03e+06" maxx="2.9e+06" maxy="1.4e+06" />
+                    <MetadataURL type="TC211">
+                        <Format>text/xml</Format>
+                        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://wms.geo.admin.ch/?request=GetMetadata&amp;layer=ch.swisstopo-vd.stand-oerebkataster" />
+                    </MetadataURL>
+                </Layer>
+            </Layer>
+        </Layer>
+    </Capability>
+</WMS_Capabilities>

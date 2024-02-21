@@ -1,5 +1,5 @@
 <template>
-    <teleport v-if="readyForTeleport" to="#map-footer-middle">
+    <teleport to="#map-footer-middle-0">
         <div
             v-show="showContainer"
             class="infobox card rounded-0"
@@ -7,9 +7,8 @@
             @contextmenu.stop
         >
             <div
-                class="card-header d-flex justify-content-end"
+                class="infobox-header card-header d-flex justify-content-end"
                 data-cy="infobox-header"
-                @click="onToggleContent"
             >
                 <button
                     v-if="showFloatingToggle"
@@ -20,11 +19,18 @@
                     <FontAwesomeIcon icon="caret-up" />
                 </button>
                 <button
-                    v-if="showPrintBtn"
                     class="btn btn-light btn-sm d-flex align-items-center"
                     @click.stop="onPrint"
                 >
                     <FontAwesomeIcon icon="print" />
+                </button>
+                <button
+                    class="btn btn-light btn-sm d-flex align-items-center"
+                    data-cy="infobox-minimize-maximize"
+                    @click="onToggleContent"
+                >
+                    <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
+                    <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
                 </button>
                 <button
                     class="btn btn-light btn-sm d-flex align-items-center"
@@ -42,12 +48,11 @@
                 data-cy="infobox-content"
             >
                 <FeatureElevationProfile
-                    v-if="showElevationProfile"
+                    v-if="showElevationProfile && !isCombo"
                     class="card-body"
                     :feature="selectedFeature"
                     :read-only="!showDrawingOverlay"
                     :projection="projection"
-                    @update-elevation-profile-plot="setMaxHeight"
                 />
 
                 <FeatureCombo
@@ -64,12 +69,6 @@
                     :read-only="!showDrawingOverlay"
                 />
 
-                <ImportContent
-                    v-else-if="importOverlay"
-                    class="card-body"
-                    @connected="setMaxHeight"
-                />
-
                 <FeatureList v-else-if="isList" />
             </div>
         </div>
@@ -77,19 +76,19 @@
 </template>
 
 <script>
-import { EditableFeatureTypes } from '@/api/features.api'
-import promptUserToPrintHtmlContent from '@/utils/print'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { mapActions, mapState } from 'vuex'
+
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import promptUserToPrintHtmlContent from '@/utils/print'
+
 import FeatureCombo from './components/FeatureCombo.vue'
 import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
-import ImportContent from '@/modules/infobox/components/ImportContent.vue'
 
 export default {
     components: {
-        ImportContent,
         FontAwesomeIcon,
         FeatureCombo,
         FeatureEdit,
@@ -100,8 +99,6 @@ export default {
         return {
             /** Allows infobox to be "minimized". */
             showContent: true,
-            /** Delay teleport until view is rendered. Updated in mounted-hook. */
-            readyForTeleport: false,
         }
     },
     computed: {
@@ -110,7 +107,6 @@ export default {
             floatingTooltip: (state) => state.ui.floatingTooltip,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
             projection: (state) => state.position.projection,
-            importOverlay: (state) => state.ui.importOverlay,
         }),
         selectedFeature() {
             return this.selectedFeatures[0]
@@ -131,17 +127,14 @@ export default {
         },
         isCombo() {
             return (
-                this.isEdit && this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON
+                this.isEdit &&
+                [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+                    this.selectedFeature.featureType
+                )
             )
         },
         showContainer() {
-            return (
-                this.isList ||
-                this.isEdit ||
-                this.showElevationProfile ||
-                this.isCombo ||
-                this.importOverlay
-            )
+            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
         },
         showFloatingToggle() {
             return (
@@ -150,16 +143,8 @@ export default {
                 (this.isCombo && !this.floatingTooltip)
             )
         },
-        showPrintBtn() {
-            return !this.importOverlay
-        },
     },
     watch: {
-        showContainer(visible) {
-            if (visible) {
-                this.computeHeightNextTick()
-            }
-        },
         selectedFeatures(features) {
             if (features.length === 0) {
                 return
@@ -167,32 +152,15 @@ export default {
             this.showContent = true
 
             this.$nextTick(() => {
-                // Update maxHeight when the features change while the box is open.
-                this.setMaxHeight()
                 // Reset the container's scroll when the content changes.
                 this.$refs.content.scrollTo(0, 0)
             })
         },
     },
-    mounted() {
-        // We can enable the teleport after the view has been rendered.
-        this.$nextTick(() => {
-            this.readyForTeleport = true
-            this.computeHeightNextTick()
-        })
-    },
     methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip', 'toggleImportOverlay']),
-        computeHeightNextTick() {
-            this.$nextTick(() => {
-                this.setMaxHeight()
-            })
-        },
+        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
         onToggleContent() {
             this.showContent = !this.showContent
-            if (this.showContent) {
-                this.computeHeightNextTick()
-            }
         },
         onToggleFloating() {
             this.toggleFloatingTooltip()
@@ -201,27 +169,7 @@ export default {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            if (this.importOverlay) {
-                this.toggleImportOverlay()
-            } else {
-                this.clearAllSelectedFeatures()
-            }
-        },
-        setMaxHeight() {
-            if (!this.showContainer || !this.$refs.content) {
-                return
-            }
-            const container = this.$refs.content
-            const { paddingTop, paddingBottom } = getComputedStyle(container)
-            const verticalPadding = parseInt(paddingTop) + parseInt(paddingBottom)
-            const childHeight = Array.from(
-                container.querySelectorAll('[data-infobox="height-reference"]')
-            )
-                .map((child) => parseInt(child.offsetHeight))
-                .reduce((max, height) => Math.max(max, height), 0)
-            // We set max-height because setting the height would influence the
-            // height of the children which in turn breaks this calculation.
-            container.style.maxHeight = `min(${verticalPadding + childHeight}px, 35vh)`
+            this.clearAllSelectedFeatures()
         },
     },
 }
@@ -235,12 +183,6 @@ export default {
 
     &-header {
         cursor: pointer;
-    }
-
-    &-content {
-        // The real max-height will be set dynamically. (setMaxHeight)
-        max-height: 0;
-        overflow-y: auto;
     }
 }
 </style>

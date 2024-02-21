@@ -1,8 +1,15 @@
-import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import { reprojectUnknownSrsCoordsToWGS84 } from '@/utils/coordinates/coordinateUtils'
 import { expect } from 'chai'
 import proj4 from 'proj4'
 import { describe, it } from 'vitest'
+
+import { LV03, LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import {
+    flattenExtent,
+    normalizeExtent,
+    reprojectUnknownSrsCoordsToWGS84,
+    toLv95,
+} from '@/utils/coordinates/coordinateUtils'
+import { wrapXCoordinates } from '@/utils/coordinates/coordinateUtils'
 
 describe('Unit test functions from coordinateUtils.js', () => {
     describe('reprojectUnknownSrsCoordsToWGS84(x,y)', () => {
@@ -72,6 +79,98 @@ describe('Unit test functions from coordinateUtils.js', () => {
                 reprojectUnknownSrsCoordsToWGS84(coordinatesWGS84[1], coordinatesWGS84[0]),
                 coordinatesWGS84
             )
+        })
+        it('normalize an extent', () => {
+            const flatExtent = [1, 2, 3, 4]
+            const result = normalizeExtent(flatExtent)
+            expect(result).to.have.length(2)
+            expect(result[0]).to.have.length(2)
+            expect(result[1]).to.have.length(2)
+            expect(result[0][0]).to.equal(1)
+            expect(result[0][1]).to.equal(2)
+            expect(result[1][0]).to.equal(3)
+            expect(result[1][1]).to.equal(4)
+
+            expect(normalizeExtent(result)).to.deep.equal(result)
+        })
+        it('flattern an extent', () => {
+            const normalizedExtent = [
+                [1, 2],
+                [3, 4],
+            ]
+            const flatExtent = flattenExtent(normalizedExtent)
+            expect(flatExtent).to.have.length(4)
+            expect(flatExtent).to.deep.equal([1, 2, 3, 4])
+
+            expect(flattenExtent(flatExtent)).to.deep.equal([1, 2, 3, 4])
+        })
+    })
+
+    describe('toLv95(coordinate, "EPSG:4326")', () => {
+        it('reprojects points from EPSG:4326', () => {
+            expect(LV95.isInBounds(...toLv95([6.57268, 46.51333], WGS84.epsg))).to.be.true
+        })
+        it('reprojects points from EPSG:3857', () => {
+            expect(LV95.isInBounds(...toLv95([731667, 5862995], WEBMERCATOR.epsg))).to.be.true
+        })
+        it('reprojects lines', () => {
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(2)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
+        })
+        it('reprojects polygons', () => {
+            const result = toLv95(
+                [
+                    [6.57268, 46.51333],
+                    [6.7, 46.7],
+                    [6.9, 46.9],
+                    [6.57268, 46.51333],
+                ],
+                WGS84.epsg
+            )
+            expect(result).to.be.an('Array').lengthOf(4)
+            result.forEach((coord) => {
+                expect(LV95.isInBounds(...coord)).to.be.true
+            })
+        })
+    })
+
+    describe('wrapXCoordinates()', () => {
+        it('Wrap in place', () => {
+            const original = [
+                [300, 300],
+                [360, 360],
+            ]
+            const ref2Original = wrapXCoordinates(original, WGS84, true)
+            expect(ref2Original).to.deep.equal([
+                [-60, 300],
+                [0, 360],
+            ])
+            expect(ref2Original).to.deep.equal(original)
+        })
+        it('Wrap not in place', () => {
+            const original = [
+                [300, 300],
+                [360, 360],
+            ]
+            const ref2Original = wrapXCoordinates(original, WGS84, false)
+            expect(ref2Original).to.deep.equal([
+                [-60, 300],
+                [0, 360],
+            ])
+            expect(ref2Original).to.not.deep.equal(original)
+            expect(original).to.deep.equal([
+                [300, 300],
+                [360, 360],
+            ])
         })
     })
 })

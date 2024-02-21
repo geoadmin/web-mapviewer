@@ -1,6 +1,9 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { getExtentForProjection } from '@/utils/extentUtils.js'
+import { getGpxExtent } from '@/utils/gpxUtils.js'
+import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
@@ -67,6 +70,12 @@ const getters = {
         }
         return visibleLayers
     },
+    visibleLayerOnTop: (state, getters) => {
+        if (getters.visibleLayers.length > 0) {
+            return getters.visibleLayers.slice(-1)[0]
+        }
+        return null
+    },
     /**
      * Get current KML layer selected for drawing.
      *
@@ -77,11 +86,9 @@ const getters = {
      * @returns {KMLLayer | null}
      */
     activeKmlLayer: (state) => {
-        const kmlLayers = state.activeLayers.filter((layer) => layer.type === LayerTypes.KML)
-        if (kmlLayers.length > 0) {
-            return kmlLayers[kmlLayers.length - 1]
-        }
-        return null
+        return state.activeLayers.find(
+            (layer) => layer.type === LayerTypes.KML && !layer.isExternal
+        )
     },
     /**
      * All layers in the config that have the flag `background` to `true` (that can be shown as a
@@ -213,7 +220,7 @@ const actions = {
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
-                commit('addLayer', { layer: clone })
+                commit('addLayer', clone)
                 if (layer.timeConfig) {
                     commit('setLayerYear', {
                         layerId: clone.getID(),
@@ -223,7 +230,7 @@ const actions = {
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', { layer: layer.clone() })
+                commit('addLayer', layer.clone())
             }
         })
     },
@@ -261,13 +268,7 @@ const actions = {
             layer = getters.getLayerConfigById(layerIdOrObject)?.clone()
         }
         if (layer) {
-            try {
-                const metadata = await layer.getMetadata()
-                commit('addLayer', { layer: layer, metadata: metadata })
-            } catch (error) {
-                log.error(`Failed to retrieve layer ${layer.getID()} metadata`, error)
-                commit('addLayer', { layer: layer, metadata: null })
-            }
+            commit('addLayer', layer)
         } else {
             log.error('no layer found for payload:', layerIdOrObject)
         }
@@ -281,11 +282,35 @@ const actions = {
             log.error('Can not remove layer that is not yet added', layerIdOrObject)
         }
     },
-    updateLayer({ commit }, layer) {
-        if (!(layer instanceof AbstractLayer)) {
+    /**
+     * Full or partial update of a layer in the active layer list
+     *
+     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
+     * @param {AbstractLayer | { id: String; any: any }} layer Full layer object (AbstractLayer) to
+     *   update or an object with the layer ID to update and any property to update (partial
+     *   update)
+     */
+    updateLayer({ commit, getters }, layer) {
+        if (layer instanceof AbstractLayer) {
+            commit('updateLayer', layer)
+        } else if (layer instanceof Object && layer.id) {
+            // Partial update of a layer
+            const currentLayer = getters.getActiveLayerById(layer.id)
+            if (!currentLayer) {
+                throw new Error(
+                    `Failed to update layer "${layer.id}", layer not found in active layers`
+                )
+            }
+            const updatedLayer = currentLayer.clone()
+            Object.entries(layer).forEach((entry) => {
+                if (entry[0] !== 'id') {
+                    updatedLayer[entry[0]] = entry[1]
+                }
+            })
+            commit('updateLayer', updatedLayer)
+        } else {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
-        commit('updateLayer', layer)
     },
     clearLayers({ commit }) {
         commit('clearLayers')
@@ -413,6 +438,64 @@ const actions = {
     clearPreviewYear({ commit }) {
         commit('setPreviewYear', null)
     },
+    setLayerErrorKey({ commit, getters }, payload) {
+        const { layerId, errorKey } = payload
+        const currentLayer = getters.getActiveLayerById(layerId)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update layer error key "${layerId}", layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+        updatedLayer.errorKey = errorKey
+        updatedLayer.hasError = !!errorKey
+        if (updatedLayer.isLoading) {
+            updatedLayer.isLoading = false
+        }
+        commit('updateLayer', updatedLayer)
+    },
+    updateKmlGpxLayer({ commit, getters, rootState }, payload) {
+        const { layerId, data, metadata } = payload
+        const currentLayer = getters.getActiveLayerById(layerId)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update GPX/KML layer data/metadata "${layerId}", ` +
+                    `layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+
+        if (data) {
+            let extent
+            if (updatedLayer.type === LayerTypes.KML) {
+                updatedLayer.name = parseKmlName(data) || 'KML'
+                updatedLayer.kmlData = data
+                extent = getKmlExtent(data)
+            } else if (updatedLayer.type === LayerTypes.GPX) {
+                // The name of the GPX is derived from the metadata below
+                updatedLayer.gpxData = data
+                extent = getGpxExtent(data)
+            }
+            updatedLayer.isLoading = false
+
+            if (!extent) {
+                updatedLayer.errorKey = 'kml_gpx_file_empty'
+                updatedLayer.hasError = true
+            } else if (!getExtentForProjection(rootState.position.projection, extent)) {
+                updatedLayer.errorKey = 'kml_gpx_file_out_of_bounds'
+                updatedLayer.hasError = true
+            }
+        }
+        if (metadata) {
+            if (updatedLayer.type === LayerTypes.KML) {
+                updatedLayer.kmlMetadata = metadata
+            } else if (updatedLayer.type === LayerTypes.GPX) {
+                updatedLayer.gpxMetadata = metadata
+                updatedLayer.name = metadata.name ?? 'GPX'
+            }
+        }
+        commit('updateLayer', updatedLayer)
+    },
 }
 
 const mutations = {
@@ -426,16 +509,20 @@ const mutations = {
     setLayerConfig(state, config) {
         state.config = config
     },
-    addLayer(state, { layer: layer, metadata: metadata }) {
-        // first remove it if already present in order to avoid duplicate layers
+    addLayer(state, layer) {
+        // first, remove it if already present to avoid duplicate layers
         state.activeLayers = removeActiveLayerById(state, layer.getID())
-        if (metadata) {
-            layer.metadata = metadata
-        }
         state.activeLayers.push(layer)
     },
-    updateLayer(state, { layer: layer }) {
-        Object.assign(getActiveLayerById(state, layer.getID()), layer)
+    updateLayer(state, layer) {
+        const layer2Update = getActiveLayerById(state, layer.getID())
+        if (layer2Update) {
+            Object.assign(layer2Update, layer)
+        } else {
+            throw new Error(
+                `Failed to update layer ${layer.getID()}: layer not found in active layers`
+            )
+        }
     },
     removeLayerWithId(state, layerId) {
         state.activeLayers = removeActiveLayerById(state, layerId)
@@ -460,7 +547,9 @@ const mutations = {
     },
     setLayerYear(state, { layerId, year }) {
         const timedLayer = getActiveLayerById(state, layerId)
-        timedLayer.timeConfig.currentTimeEntry = timedLayer.timeConfig.getTimeEntryForYear(year)
+        timedLayer.timeConfig.updateCurrentTimeEntry(
+            timedLayer.timeConfig.getTimeEntryForYear(year)
+        )
     },
     moveActiveLayerFromIndexToIndex(state, { layer, startingIndex, endingIndex }) {
         state.activeLayers.splice(startingIndex, 1)

@@ -1,8 +1,9 @@
-import { API_SERVICE_KML_BASE_URL, API_SERVICE_KML_STORAGE_BASE_URL } from '@/config'
-import log from '@/utils/logging'
 import axios from 'axios'
 import FormData from 'form-data'
 import pako from 'pako'
+
+import { API_SERVICE_KML_BASE_URL } from '@/config'
+import log from '@/utils/logging'
 
 /**
  * KML links
@@ -65,7 +66,7 @@ export class KmlMetadata {
     }
 }
 
-const urlPrefix = 'api/kml/'
+const kmlBaseUrl = `${API_SERVICE_KML_BASE_URL}api/kml/`
 
 function validateId(id, reject) {
     if (!id) {
@@ -107,17 +108,7 @@ function buildKmlForm(kml, reject) {
  * @returns {string} URL of the kml file
  */
 export const getKmlUrl = (id) => {
-    return `${API_SERVICE_KML_STORAGE_BASE_URL}${urlPrefix}files/${id}`
-}
-
-/**
- * Get KML file metada URL
- *
- * @param {string} id KML id
- * @returns {string} URL of the kml file metadata
- */
-export const getKmlMetadataUrl = (id) => {
-    return `${API_SERVICE_KML_BASE_URL}${urlPrefix}admin/${id}`
+    return `${kmlBaseUrl}files/${id}`
 }
 
 /**
@@ -132,7 +123,7 @@ export const createKml = (kml) => {
         form.append('author', 'web-mapviewer')
         form.append('author_version', '1.0.0')
         axios
-            .post(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin`, form)
+            .post(`${kmlBaseUrl}admin`, form)
             .then((response) => {
                 if (
                     response.status === 201 &&
@@ -169,7 +160,7 @@ export const updateKml = (id, adminId, kml) => {
         const form = buildKmlForm(kml, reject)
         form.append('admin_id', adminId)
         axios
-            .put(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin/${id}`, form)
+            .put(`${kmlBaseUrl}admin/${id}`, form)
             .then((response) => {
                 if (
                     response.status === 200 &&
@@ -191,22 +182,20 @@ export const updateKml = (id, adminId, kml) => {
     })
 }
 
-const _getKml = (url, resolve, reject) => {
-    axios
-        .get(url)
-        .then((response) => {
-            if (response.status === 200 && response.data) {
-                resolve(response.data)
-            } else {
-                const msg = `Incorrect response while getting file with url=${url}`
-                log.error(msg, response)
-                reject(msg)
-            }
-        })
-        .catch((error) => {
-            log.error(`Error while getting file with url=${url}`, error)
-            reject(error)
-        })
+const _getKml = async (url, resolve, reject) => {
+    try {
+        const response = await axios.get(url)
+        if (response.status === 200 && response.data) {
+            resolve(response.data)
+        } else {
+            const msg = `Incorrect response while getting file with url=${url}`
+            log.error(msg, response)
+            reject(msg)
+        }
+    } catch (error) {
+        log.error(`Error while getting file with url=${url}`, error)
+        reject(error)
+    }
 }
 
 /**
@@ -242,7 +231,11 @@ export const getKmlMetadataByAdminId = (adminId) => {
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
-            .get(`${API_SERVICE_KML_BASE_URL}${urlPrefix}admin?admin_id=${adminId}`)
+            .get(`${kmlBaseUrl}admin`, {
+                params: {
+                    admin_id: adminId,
+                },
+            })
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     resolve(KmlMetadata.fromApiData(response.data))
@@ -260,33 +253,81 @@ export const getKmlMetadataByAdminId = (adminId) => {
 }
 
 /**
- * Get KML metadata by fileId
+ * Get KML metadata by for a KML layer (using its fileId to request the backend)
  *
- * @param {string} fileId KML ID
- * @param {string} adminId OPTIONAL KML admin ID
- * @returns {Promise<KmlMetadata>} KML metadata
+ * If this KML file is not managed by our infrastructure (external KML) this will reject the request
+ * (the promise will be rejected)
+ *
+ * @param {KMLLayer} kmlLayer
+ * @returns {Promise<KmlMetadata>}
  */
-export const getKmlMetadata = (fileId, adminId = null) => {
+export function loadKmlMetadata(kmlLayer) {
     return new Promise((resolve, reject) => {
-        validateId(fileId, reject)
+        if (!kmlLayer) {
+            reject(new Error('Missing KML layer, cannot load metadata'))
+        }
+        if (!kmlLayer.fileId || kmlLayer.isExternal) {
+            reject(
+                new Error(
+                    `This KML is not one managed by our infrastructure, metadata loading is not possible ${kmlLayer.getID()}`
+                )
+            )
+        }
         axios
-            .get(getKmlMetadataUrl(fileId))
+            .get(`${kmlBaseUrl}admin/${kmlLayer.fileId}`)
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     let metadata = KmlMetadata.fromApiData(response.data)
-                    if (adminId) {
-                        metadata.adminId = adminId
+                    if (kmlLayer.adminId) {
+                        metadata.adminId = kmlLayer.adminId
                     }
                     resolve(metadata)
                 } else {
-                    const msg = `Incorrect response while getting metadata for kml id=${fileId}`
+                    const msg = `Incorrect response while getting metadata for KML layer ${kmlLayer.getID()}`
                     log.error(msg, response)
-                    reject(msg)
+                    reject(new Error(msg))
                 }
             })
             .catch((error) => {
-                log.error(`Error while getting metadata for kml id=${fileId}`, error)
-                reject(error)
+                log.error(`Error while getting metadata for KML layer ${kmlLayer.getID()}`, error)
+                reject(new Error(error))
+            })
+    })
+}
+
+/**
+ * Loads the XML data from the file of a given KML layer, using the KML file URL of the layer.
+ *
+ * @param {KMLLayer} kmlLayer
+ * @returns {Promise<String>}
+ */
+export function loadKmlData(kmlLayer) {
+    return new Promise((resolve, reject) => {
+        if (!kmlLayer) {
+            reject(new Error('Missing KML layer, cannot load data'))
+        }
+        if (!kmlLayer.kmlFileUrl) {
+            reject(
+                new Error(
+                    `No file URL defined in this KML layer, cannot load data ${kmlLayer.getID()}`
+                )
+            )
+        }
+        axios
+            .get(kmlLayer.kmlFileUrl)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(response.data)
+                } else {
+                    const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.getID()}`
+                    log.error(msg, response)
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                const msg = `Failed to load KML data: ${error}`
+                log.error(msg)
+                reject(new Error(msg))
             })
     })
 }

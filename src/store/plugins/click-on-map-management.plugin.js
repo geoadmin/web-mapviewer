@@ -1,4 +1,4 @@
-import { identify } from '@/api/features.api'
+import { identify } from '@/api/features/features.api.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
@@ -18,7 +18,7 @@ const runIdentify = async (store, clickInfo, visibleLayers, lang, projection) =>
         const allRequests = []
         // for each layer we run a backend request
         visibleLayers.forEach((layer) => {
-            if (layer.type === LayerTypes.GEOJSON || layer.type === LayerTypes.KML) {
+            if ([LayerTypes.GEOJSON, LayerTypes.KML, LayerTypes.GPX].includes(layer.type)) {
                 allRequests.push(new Promise((resolve) => resolve(clickInfo.features)))
             } else if (layer.hasTooltip) {
                 allRequests.push(
@@ -66,20 +66,8 @@ const clickOnMapManagementPlugin = (store) => {
             const clickInfo = mutation.payload
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-            const isFullscreenMode = store.state.ui.fullscreenMode
 
             if (isLeftSingleClick) {
-                // Execute this before the then clause, as else the result could be wrong
-                const allowActivateFullscreen =
-                    !isFullscreenMode &&
-                    !state.features.selectedFeatures?.length &&
-                    !state.map.displayLocationPopup &&
-                    !state.search.show
-
-                // if there are some search result shown, we hide the search list
-                if (state.search.show) {
-                    store.dispatch('hideSearchResults')
-                }
                 // running an identification of feature even if we cleared the search result
                 runIdentify(
                     store,
@@ -88,10 +76,6 @@ const clickOnMapManagementPlugin = (store) => {
                     store.state.i18n.lang,
                     state.position.projection
                 ).then((newSelectedFeatures) => {
-                    if (!newSelectedFeatures?.length && allowActivateFullscreen) {
-                        store.dispatch('toggleFullscreenMode')
-                    }
-
                     store.dispatch('setSelectedFeatures', newSelectedFeatures)
                 })
             }
@@ -100,9 +84,6 @@ const clickOnMapManagementPlugin = (store) => {
                 store.dispatch('displayLocationPopup')
             } else {
                 store.dispatch('hideLocationPopup')
-            }
-            if (isFullscreenMode) {
-                store.dispatch('toggleFullscreenMode')
             }
         }
     })

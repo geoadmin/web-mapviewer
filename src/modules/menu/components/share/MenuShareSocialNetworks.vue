@@ -6,7 +6,7 @@
             :network="network.id"
             :url="shortLink"
             title=""
-            class="btn btn-light share-network-button"
+            class="btn btn-sm btn-light share-network-button"
             :options="shareNetworkOptions"
             :data-cy="`share-shortlink-${network.id}`"
         >
@@ -46,7 +46,7 @@ export default {
                 },
                 {
                     id: 'twitter',
-                    icons: ['fa-brands', 'twitter'],
+                    icons: ['fa-brands', 'x-twitter'],
                 },
             ],
             // while waiting for official app.use support from vue-social-share

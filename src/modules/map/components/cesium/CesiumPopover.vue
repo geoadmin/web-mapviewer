@@ -16,12 +16,13 @@
 </template>
 
 <script>
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+import proj4 from 'proj4'
+
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
-import proj4 from 'proj4'
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component

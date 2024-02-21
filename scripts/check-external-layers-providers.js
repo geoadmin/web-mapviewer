@@ -7,26 +7,25 @@ const dom = new JSDOM()
 global.DOMParser = dom.window.DOMParser
 global.Node = dom.window.Node
 
-import { promises as fs } from 'fs'
 import axios, { AxiosError } from 'axios'
-import writeYamlFile from 'write-yaml-file'
 import axiosRetry from 'axios-retry'
+import { promises as fs } from 'fs'
+import { exit } from 'process'
+import writeYamlFile from 'write-yaml-file'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { exit } from 'process'
+
 import {
-    isWmsGetCap,
-    isWmtsGetCap,
-    isKml,
-    isGpx,
-    guessExternalLayerUrl,
-} from '@/modules/infobox/utils/external-provider'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
-import {
+    EXTERNAL_SERVER_TIMEOUT,
     parseWmsCapabilities,
     parseWmtsCapabilities,
-    EXTERNAL_SERVER_TIMEOUT,
 } from '@/api/layers/layers-external.api'
+import {
+    guessExternalLayerUrl,
+    isWmsGetCap,
+    isWmtsGetCap,
+} from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
+import { LV95 } from '@/utils/coordinates/coordinateSystems'
 
 const SIZE_OF_CONTENT_DISPLAY = 150
 
@@ -35,7 +34,8 @@ const options = yargs(hideBin(process.argv))
     .version('1.0.0')
     .epilog('Check validity of all providers')
     .option('input', {
-        default: './src/modules/infobox/utils/external-layer-providers.json',
+        default:
+            './src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json',
         describe: 'Input JSON providers file to check',
         type: 'string',
     })
@@ -154,9 +154,12 @@ function checkProviderResponseContent(provider, url, response, result) {
     if (isWmsGetCap(content)) {
         try {
             const capabilities = parseWmsCapabilities(content, url)
-            const layers = capabilities.Capability.Layer.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
-            ).filter((layer) => !!layer)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* throw Error in case of  error */
+            )
             if (layers.length === 0) {
                 throw new Error(`No valid WMS layers found`)
             }
@@ -173,9 +176,12 @@ function checkProviderResponseContent(provider, url, response, result) {
     } else if (isWmtsGetCap(content)) {
         try {
             const capabilities = parseWmtsCapabilities(content, url)
-            const layers = capabilities.Contents.Layer.map((layer) =>
-                capabilities.getExternalLayerObject(layer, LV95, 1, true, false /* ignoreError */)
-            ).filter((layer) => !!layer)
+            const layers = capabilities.getAllExternalLayerObjects(
+                LV95,
+                1 /* opacity */,
+                true /* visible */,
+                false /* throw Error in case of  error */
+            )
             if (layers.length === 0) {
                 throw new Error(`No valid WMTS layers found`)
             }
@@ -189,12 +195,6 @@ function checkProviderResponseContent(provider, url, response, result) {
                 content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
             })
         }
-    } else if (isKml(content)) {
-        // TODO check for KML validity
-        throw new Error('kml not supported yet')
-    } else if (isGpx(content)) {
-        // TODO check for GPX validity
-        throw new Error('gpx not supported yet')
     } else {
         isValid = false
         console.error(`Invalid provider ${url}; file type not recognized`)

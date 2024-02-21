@@ -1,4 +1,7 @@
+import { wrapX } from 'ol/coordinate'
+import { get as getProjection } from 'ol/proj'
 import proj4 from 'proj4'
+
 import log from '../logging'
 import { formatThousand } from '../numberUtils'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from './coordinateSystems'
@@ -77,7 +80,87 @@ export function projExtent(fromProj, toProj, extent) {
     if (extent.length === 4) {
         const topLeft = proj4(fromProj.epsg, toProj.epsg, [extent[0], extent[1]])
         const bottomRight = proj4(fromProj.epsg, toProj.epsg, [extent[2], extent[3]])
-        return [...topLeft, ...bottomRight]
+        return [...topLeft, ...bottomRight].map(toProj.roundCoordinateValue)
     }
     return null
+}
+
+/**
+ * Return an extent normalized to [[x, y], [x, y]] from a flat extent
+ *
+ * @param {Array} extent Extent to normalize
+ * @returns {Array} Extent in the form [[x, y], [x, y]]
+ */
+export function normalizeExtent(extent) {
+    let extentNormalized = extent
+    if (extent?.length === 4) {
+        // convert to the flat extent to [[x, y], [x, y]]
+        extentNormalized = [
+            [extent[0], extent[1]],
+            [extent[2], extent[3]],
+        ]
+    } else if (extent?.length !== 2) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return extentNormalized
+}
+
+/**
+ * Flatten extent
+ *
+ * @param {Array} extent Extent to flatten
+ * @returns {Array} Flatten extent in from [minx, miny, maxx, maxy]
+ */
+export function flattenExtent(extent) {
+    let flattenExtent = extent
+    if (extent?.length === 2) {
+        flattenExtent = [...extent[0], ...extent[1]]
+    } else if (extent?.length !== 4) {
+        throw new Error(`Invalid extent: ${extent}`)
+    }
+    return flattenExtent
+}
+
+/** Coordinates or extent out of bounds error */
+export class OutOfBoundsError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = 'OutOfBoundsError'
+    }
+}
+
+/**
+ * Convert recursively input coordinates into LV95
+ *
+ * @param {[]} input Coordinate of a point, multipoint or polygon
+ * @param {String} epsg EPSG code of the coordinates
+ * @returns {[]} Reprojected coordinates
+ */
+export function toLv95(input, epsg) {
+    if (Array.isArray(input[0])) {
+        return input.map((si) => toLv95(si, epsg))
+    } else {
+        return proj4(epsg, LV95.epsg, [input[0], input[1]])
+    }
+}
+
+/**
+ * Wraps the provided coordinates in the world extents (i.e. the coordinate range that if equivalent
+ * to the wgs84 [-180, 180))
+ *
+ * @param {Array} coordinates The coordinates (or array of coordinates) to wrap
+ * @param {CoordinateSystem} projection Projection of the coordinates
+ * @param {boolean} inPlace If false, the original coordinates remain untouched and only a copy is
+ *   modified
+ * @returns If "inPlace", then the same reference as "coords", else a reference to the modified copy
+ */
+export function wrapXCoordinates(coordinates, projection, inPlace = false) {
+    let wrappedCoords = coordinates
+    if (!inPlace) {
+        wrappedCoords = wrappedCoords.slice()
+    }
+    if (Array.isArray(wrappedCoords[0])) {
+        return wrappedCoords.map((c) => wrapXCoordinates(c, projection, inPlace))
+    }
+    return wrapX(wrappedCoords, getProjection(projection.epsg))
 }

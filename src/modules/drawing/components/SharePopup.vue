@@ -47,8 +47,8 @@
 
 <script>
 import { createShortLink } from '@/api/shortlink.api'
-import { stringifyQuery } from '@/utils/url-router'
 import log from '@/utils/logging'
+import { stringifyQuery } from '@/utils/url-router'
 
 export default {
     props: {
@@ -130,11 +130,13 @@ export default {
             }
         },
         async updateShareUrl() {
-            try {
-                this.shareUrl = await createShortLink(this.fileUrl)
-            } catch (error) {
-                // Fallback to normal url
-                this.shareUrl = this.fileUrl
+            if (this.fileUrl) {
+                try {
+                    this.shareUrl = await createShortLink(this.fileUrl)
+                } catch (error) {
+                    // Fallback to normal url
+                    this.shareUrl = this.fileUrl
+                }
             }
         },
         async updateAdminShareUrl() {

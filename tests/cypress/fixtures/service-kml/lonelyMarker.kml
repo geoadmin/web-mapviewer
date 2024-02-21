@@ -1,0 +1,33 @@
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/kml/2.2 https://developers.google.com/kml/schema/kml22gx.xsd">
+    <Document>
+        <name>Dessin</name>
+        <Placemark id="drawing_feature_149">
+            <description></description>
+            <Style>
+                <IconStyle>
+                    <scale>1.5</scale>
+                    <Icon>
+                        <href>https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1x-255,0,0.png</href>
+                        <gx:w>48</gx:w>
+                        <gx:h>48</gx:h>
+                    </Icon>
+                    <hotSpot x="36" y="9" xunits="pixels" yunits="pixels" />
+                </IconStyle>
+                <LabelStyle>
+                    <color>ff0000ff</color>
+                    <scale>1.5</scale>
+                </LabelStyle>
+            </Style>
+            <ExtendedData>
+                <Data name="type">
+                    <value>marker</value>
+                </Data>
+            </ExtendedData>
+            <Point>
+                <coordinates>7.656108679791837,46.883715999352546</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

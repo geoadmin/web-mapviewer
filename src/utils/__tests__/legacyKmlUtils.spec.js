@@ -1,4 +1,9 @@
-import { EditableFeatureTypes } from '@/api/features.api'
+import { expect } from 'chai'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+import { beforeEach, describe, it } from 'vitest'
+
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 import {
@@ -9,15 +14,10 @@ import {
     MEDIUM,
     RED,
     SMALL,
-    VERY_SMALL,
     WHITE,
     YELLOW,
 } from '@/utils/featureStyleUtils'
-import { expect } from 'chai'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
-import { beforeEach, describe, it } from 'vitest'
-import { parseKml } from '@/modules/drawing/lib/drawingUtils'
+import { parseKml } from '@/utils/kmlUtils'
 
 const fakeDefaultIconSet = new DrawingIconSet(
     'default',
@@ -119,97 +119,89 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     })
     describe('icon parsing', () => {
         it('parses a marker with a very small scale and blue fill color correctly', () => {
-            // ID in legacy KML is marker_1668530694970 but "marker" will be replaced by "drawing_feature"
-            const icon = findFeatureWithId('drawing_feature_1668530694970')
+            const icon = findFeatureWithId('marker_1668530694970')
             performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 1', 'desc 1')
             expect(icon.icon.name).to.be.equal('001-marker')
             expect(icon.fillColor).to.be.equal(BLUE)
-            // old KMLs were using scales 0.5, 0.75 and 1.0, we are now having an extra 1.5 scale
-            // so legacy SMALL size has become VERY_SMALL
-            expect(icon.iconSize).to.be.equal(VERY_SMALL)
+            expect(icon.iconSize).to.be.equal(SMALL)
         })
         it('parses a marker with a small scale and grey fill color correctly', () => {
-            const icon = findFeatureWithId('drawing_feature_1668530774636')
+            const icon = findFeatureWithId('marker_1668530774636')
             performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 2', 'desc 2')
             expect(icon.icon.name).to.be.equal('002-circle')
             expect(icon.fillColor).to.be.equal(GRAY)
-            expect(icon.iconSize).to.be.equal(SMALL)
+            expect(icon.iconSize).to.be.equal(MEDIUM)
             expect(icon.textColor).to.be.equal(WHITE)
         })
         it('parses a marker with a big BABS icon correctly', () => {
-            const icon = findFeatureWithId('drawing_feature_1668530823345')
+            const icon = findFeatureWithId('marker_1668530823345')
             performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 3', 'desc 3')
+            expect(icon.icon).to.be.not.null.and.not.undefined
             expect(icon.icon.name).to.be.equal('babs-3')
             expect(icon.fillColor).to.be.equal(RED) // default should be red
-            expect(icon.iconSize).to.be.equal(MEDIUM)
+            expect(icon.iconSize).to.be.equal(LARGE)
             expect(icon.textColor).to.be.equal(RED)
         })
     })
     describe('text parsing', () => {
         it('parses a small black text correctly', () => {
-            const standardText = findFeatureWithId('drawing_feature_1668530699494')
+            const standardText = findFeatureWithId('annotation_1668530699494')
             performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 1', '')
             expect(standardText.textColor).to.be.equal(BLACK)
-            expect(standardText.textSize).to.be.equal(VERY_SMALL)
+            expect(standardText.textSize).to.be.equal(SMALL)
             expect(standardText.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
-            expect(standardText.iconSize).to.be.equal(MEDIUM) // default should be MEDIUM even if no icon is defined
+            expect(standardText.iconSize).to.be.null
             expect(standardText.icon).to.be.null
         })
         it('parses a medium blue text correctly', () => {
-            const standardText = findFeatureWithId('drawing_feature_1668530932170')
+            const standardText = findFeatureWithId('annotation_1668530932170')
             performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 2', '')
             expect(standardText.textColor).to.be.equal(BLUE)
             expect(standardText.textSize).to.be.equal(MEDIUM)
             expect(standardText.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
-            expect(standardText.iconSize).to.be.equal(MEDIUM) // default should be MEDIUM even if no icon is defined
+            expect(standardText.iconSize).to.be.null
             expect(standardText.icon).to.be.null
         })
         it('parses a large gray text correctly', () => {
-            const standardText = findFeatureWithId('drawing_feature_1668530944079')
+            const standardText = findFeatureWithId('annotation_1668530944079')
             performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 3', '')
             expect(standardText.textColor).to.be.equal(GRAY)
             expect(standardText.textSize).to.be.equal(LARGE)
             expect(standardText.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
-            expect(standardText.iconSize).to.be.equal(MEDIUM) // default should be MEDIUM even if no icon is defined
+            expect(standardText.iconSize).to.be.null
             expect(standardText.icon).to.be.null
         })
     })
     describe('line/polygon parsing', () => {
         it('parses a line/polygon with two points and black fill correctly', () => {
-            const line = findFeatureWithId('drawing_feature_1668530962424')
+            const line = findFeatureWithId('linepolygon_1668530962424')
             performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 7', 2)
-            expect(line.textColor).to.be.equal(RED)
-            expect(line.textSize).to.be.equal(MEDIUM)
             expect(line.fillColor).to.be.equal(BLACK)
-            expect(line.iconSize).to.be.equal(MEDIUM)
+            expect(line.iconSize).to.be.null
             expect(line.icon).to.be.null
         })
         it('parses a line/polygon with two points and blue fill correctly', () => {
-            const line = findFeatureWithId('drawing_feature_1668530991477')
+            const line = findFeatureWithId('linepolygon_1668530991477')
             performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 8', 2)
-            expect(line.textColor).to.be.equal(RED)
-            expect(line.textSize).to.be.equal(MEDIUM)
             expect(line.fillColor).to.be.equal(BLUE)
-            expect(line.iconSize).to.be.equal(MEDIUM)
+            expect(line.iconSize).to.be.null
             expect(line.icon).to.be.null
         })
-        it('parses a line/polygon with five points and yello fill correctly', () => {
-            const line = findFeatureWithId('drawing_feature_1668625663095')
+        it('parses a line/polygon with five points and yellow fill correctly', () => {
+            const line = findFeatureWithId('linepolygon_1668625663095')
             performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 9', 5)
-            expect(line.textColor).to.be.equal(RED)
-            expect(line.textSize).to.be.equal(MEDIUM)
             expect(line.fillColor).to.be.equal(YELLOW)
-            expect(line.iconSize).to.be.equal(MEDIUM)
+            expect(line.iconSize).to.be.null
             expect(line.icon).to.be.null
         })
     })
     describe('measure parsing', () => {
         it('parses a measure with two points correctly', () => {
-            const line = findFeatureWithId('drawing_feature_1668531023034')
+            const line = findFeatureWithId('measure_1668531023034')
             performStandardChecks(line, EditableFeatureTypes.MEASURE, '', '', 2)
         })
         it('parses a measure with three points correctly', () => {
-            const line = findFeatureWithId('drawing_feature_1668531037052')
+            const line = findFeatureWithId('measure_1668531037052')
             performStandardChecks(line, EditableFeatureTypes.MEASURE, '', '', 3)
         })
     })

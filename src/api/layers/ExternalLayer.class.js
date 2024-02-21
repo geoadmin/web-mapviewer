@@ -12,9 +12,44 @@ export function getDefaultAttribution(baseUrl) {
 }
 
 /**
+ * External Layer Legend
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
+export class LayerLegend {
+    /**
+     * @param {String} url Legend URL
+     * @param {String} format Legend MIME type
+     * @param {number | null} width Width of the legend image (in case the format is an image
+     *   format)
+     * @param {number | null} height Height of the legend image (in case the format is an image
+     *   format)
+     */
+    constructor(url, format, width = null, height = null) {
+        this.url = url
+        this.format = format
+        this.width = width
+        this.height = height
+    }
+}
+
+/**
  * Base for all external layers, defining a flag to differentiate them from GeoAdminLayers
  *
  * @abstract
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class ExternalLayer extends AbstractLayer {
     /**
@@ -30,6 +65,7 @@ export default class ExternalLayer extends AbstractLayer {
      *   of the GetCapabilities server.
      * @param {String} abstract Abstract of this layer to be shown to the user
      * @param {[[number, number], [number, number]] | null} extent Layer extent
+     * @param {[LayerLegend]} legends Layer legends.
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
@@ -43,6 +79,7 @@ export default class ExternalLayer extends AbstractLayer {
         attributions = null,
         abstract = '',
         extent = null,
+        legends = [],
         isLoading = true
     ) {
         super(
@@ -58,7 +95,9 @@ export default class ExternalLayer extends AbstractLayer {
         this.baseURL = baseURL
         this.abstract = abstract
         this.extent = extent
+        this.legends = legends
         this.isLoading = isLoading
+        this.hasLegend = !!this.abstract || this.legends?.length > 0
     }
 
     getURL() {

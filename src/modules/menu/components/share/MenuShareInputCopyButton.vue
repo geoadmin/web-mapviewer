@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+
 /** Simple input with a helper button to copy the input value to the clipboard */
 export default {
     props: {
@@ -46,6 +48,12 @@ export default {
             default: null,
         },
     },
+    setup() {
+        const i18n = useI18n()
+        return {
+            i18n,
+        }
+    },
     data() {
         return {
             copiedInClipboard: false,
@@ -54,7 +62,7 @@ export default {
     },
     computed: {
         buttonText() {
-            return this.$i18n
+            return this.i18n
                 .t(this.copiedInClipboard ? this.copiedText : this.copyText)
                 .replace('&nbsp;', '\xa0')
         },

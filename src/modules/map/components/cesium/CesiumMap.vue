@@ -66,11 +66,39 @@
             <FeatureEdit v-if="editFeature" :read-only="true" :feature="editFeature" />
             <FeatureList direction="column" />
         </CesiumPopover>
-        <cesium-compass v-show="isDesktopMode" ref="compass" class="compass" />
+        <CesiumToolbox
+            v-if="viewerCreated && isDesktopMode && !isFullScreenMode"
+            class="cesium-toolbox position-absolute start-50 translate-middle-x"
+        />
         <slot />
     </div>
 </template>
 <script>
+import 'cesium/Build/Cesium/Widgets/widgets.css'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import * as cesium from 'cesium'
+import {
+    Cartesian2,
+    Cartesian3,
+    Cartographic,
+    CesiumTerrainProvider,
+    Color,
+    defined,
+    Ellipsoid,
+    JulianDate,
+    Math as CesiumMath,
+    RequestScheduler,
+    ScreenSpaceEventType,
+    ShadowMode,
+    SkyBox,
+    Viewer,
+} from 'cesium'
+import { LineString, Point, Polygon } from 'ol/geom'
+import proj4 from 'proj4'
+import { mapActions, mapGetters, mapState } from 'vuex'
+
+import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api.js'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
@@ -83,50 +111,43 @@ import {
     WMS_BASE_URL,
     WMTS_BASE_URL,
 } from '@/config'
-import { extractOlFeatureGeodesicCoordinates } from '@/modules/drawing/lib/drawingUtils'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
+import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { UIModes } from '@/store/modules/ui.store'
-import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
-import { createGeoJSONFeature } from '@/utils/layerUtils'
-import log from '@/utils/logging'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import '@geoblocks/cesium-compass'
-import * as cesium from 'cesium'
-import {
-    Cartesian2,
-    Cartesian3,
-    Cartographic,
-    CesiumTerrainProvider,
-    Color,
-    defined,
-    Ellipsoid,
-    Math as CesiumMath,
-    RequestScheduler,
-    ScreenSpaceEventType,
-    SkyBox,
-    Viewer,
-} from 'cesium'
-import 'cesium/Build/Cesium/Widgets/widgets.css'
-import { LineString, Point, Polygon } from 'ol/geom'
-import proj4 from 'proj4'
-import { mapActions, mapGetters, mapState } from 'vuex'
-import CesiumInternalLayer from './CesiumInternalLayer.vue'
+import CesiumToolbox from '@/modules/map/components/cesium/CesiumToolbox.vue'
 import {
     CAMERA_MAX_PITCH,
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_PITCH,
     CAMERA_MIN_ZOOM_DISTANCE,
     TERRAIN_URL,
-} from './constants'
-import { calculateHeight, limitCameraCenter, limitCameraPitchRoll } from './utils/cameraUtils'
-import { highlightGroup, unhighlightGroup } from './utils/highlightUtils'
+} from '@/modules/map/components/cesium/constants'
+import {
+    calculateHeight,
+    limitCameraCenter,
+    limitCameraPitchRoll,
+} from '@/modules/map/components/cesium/utils/cameraUtils'
+import {
+    highlightGroup,
+    unhighlightGroup,
+} from '@/modules/map/components/cesium/utils/highlightUtils'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { UIModes } from '@/store/modules/ui.store'
+import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
+import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import log from '@/utils/logging'
 
 export default {
-    components: { FontAwesomeIcon, CesiumPopover, FeatureEdit, FeatureList, CesiumInternalLayer },
+    components: {
+        CesiumToolbox,
+        FontAwesomeIcon,
+        CesiumPopover,
+        FeatureEdit,
+        FeatureList,
+        CesiumInternalLayer,
+    },
     provide() {
         return {
             // sharing cesium viewer object with children components
@@ -149,6 +170,7 @@ export default {
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
+            isFullScreenMode: (state) => state.ui.fullscreenMode,
         }),
         ...mapGetters([
             'centerEpsg4326',
@@ -170,7 +192,7 @@ export default {
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
-                (l) => l instanceof GeoAdminGeoJsonLayer || (l.addToMap && l instanceof KMLLayer)
+                (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer
             )
         },
         showFeaturesPopover() {
@@ -209,6 +231,14 @@ export default {
             // see https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing
             flush: 'post',
         },
+        centerEpsg4326: {
+            handler() {
+                if (this.isProjectionWebMercator && this.cameraPosition) {
+                    this.flyToPosition()
+                }
+            },
+            flush: 'post',
+        },
     },
     beforeCreate() {
         // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
@@ -236,8 +266,9 @@ export default {
         if (this.isProjectionWebMercator) {
             this.createViewer()
         } else {
-            log.debug('Projection is not yet set to WebMercator, Cesium will not load yet')
+            log.warn('Projection is not yet set to WebMercator, Cesium will not load yet')
         }
+        log.info('CesiumMap component mounted and ready')
     },
     beforeUnmount() {
         if (this.viewer) {
@@ -246,24 +277,11 @@ export default {
             // have nothing to do with the top-down 2D view.
             // here we ray trace the coordinate of where the camera is looking at, and send this "target"
             // to the store as the new center
-            const ray = this.viewer.camera.getPickRay(
-                new Cartesian2(
-                    Math.round(this.viewer.scene.canvas.clientWidth / 2),
-                    Math.round(this.viewer.scene.canvas.clientHeight / 2)
-                )
-            )
-            const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
-            if (defined(cameraTarget)) {
-                const cameraTargetCartographic =
-                    Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
-                const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
-                const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
-                this.setCenter(proj4(WGS84.epsg, this.projection.epsg, [lon, lat]))
-            }
+            this.setCenterToCameraTarget()
         }
     },
     unmounted() {
-        this.setCameraPosition(null)
+        this.setCameraPosition({ position: null, source: 'CesiumMap unmount' })
         this.viewer.destroy()
         delete this.viewer
     },
@@ -274,6 +292,7 @@ export default {
             'click',
             'toggleFloatingTooltip',
             'setCenter',
+            'mapModuleReady',
         ]),
         async createViewer() {
             this.viewer = new Viewer(this.$refs.viewer, {
@@ -298,6 +317,10 @@ export default {
                 navigationInstructionsInitiallyVisible: false,
                 // each geometry instance will only be rendered in 3D to save GPU memory.
                 scene3DOnly: true,
+                // activating shadows so that buildings cast shadows on the ground/roof elements
+                shadows: true,
+                // no casting of buildings shadow on the terrain
+                terrainShadows: ShadowMode.DISABLED,
                 // skybox/stars visible if sufficiently zoomed out and looking at the horizon
                 skyBox: new SkyBox({
                     sources: {
@@ -317,9 +340,15 @@ export default {
                 requestRenderMode: true,
             })
 
-            const compass = this.$refs.compass
-            compass.scene = this.viewer.scene
-            compass.clock = this.viewer.clock
+            const clock = this.viewer.clock
+            // good time/date for lighting conditions
+            clock.currentTime = JulianDate.fromIso8601('2024-06-20T07:00')
+
+            const shadowMap = this.viewer.shadowMap
+            // lighter shadow than default (closer to 0.1 the darker)
+            shadowMap.darkness = 0.6
+            // increasing shadowMap size 4x the default value, to reduce shadow artifacts at the edges of roofs
+            shadowMap.size = 2048 * 4
 
             const scene = this.viewer.scene
             scene.useDepthPicking = true
@@ -368,6 +397,7 @@ export default {
                 // reduce screen space error to downgrade visual quality but speed up tests
                 globe.maximumScreenSpaceError = 30
             }
+            this.mapModuleReady()
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
@@ -396,46 +426,53 @@ export default {
                 : firstFeature.coordinates
         },
         flyToPosition() {
-            if (this.cameraPosition) {
-                this.viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        this.cameraPosition.x,
-                        this.cameraPosition.y,
-                        this.cameraPosition.z
-                    ),
-                    orientation: {
-                        heading: CesiumMath.toRadians(this.cameraPosition.heading),
-                        pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
-                        roll: CesiumMath.toRadians(this.cameraPosition.roll),
-                    },
-                    duration: 0,
-                })
-            } else {
-                this.viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        this.centerEpsg4326[0],
-                        this.centerEpsg4326[1],
-                        calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
-                    ),
-                    orientation: {
-                        heading: -this.rotation,
-                        pitch: -CesiumMath.PI_OVER_TWO,
-                        roll: 0,
-                    },
-                    duration: 0,
-                })
+            try {
+                if (this.cameraPosition) {
+                    this.viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            this.cameraPosition.x,
+                            this.cameraPosition.y,
+                            this.cameraPosition.z
+                        ),
+                        orientation: {
+                            heading: CesiumMath.toRadians(this.cameraPosition.heading),
+                            pitch: CesiumMath.toRadians(this.cameraPosition.pitch),
+                            roll: CesiumMath.toRadians(this.cameraPosition.roll),
+                        },
+                        duration: 1,
+                    })
+                } else {
+                    this.viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            this.centerEpsg4326[0],
+                            this.centerEpsg4326[1],
+                            calculateHeight(this.resolution, this.viewer.canvas.clientWidth)
+                        ),
+                        orientation: {
+                            heading: -CesiumMath.toRadians(this.rotation),
+                            pitch: -CesiumMath.PI_OVER_TWO,
+                            roll: 0,
+                        },
+                        duration: 0,
+                    })
+                }
+            } catch (error) {
+                log.error('Error while moving the camera', error, this.cameraPosition)
             }
         },
         onCameraMoveEnd() {
             const camera = this.viewer.camera
             const position = camera.positionCartographic
             this.setCameraPosition({
-                x: CesiumMath.toDegrees(position.longitude).toFixed(6),
-                y: CesiumMath.toDegrees(position.latitude).toFixed(6),
-                z: position.height.toFixed(0),
-                heading: CesiumMath.toDegrees(camera.heading).toFixed(0),
-                pitch: CesiumMath.toDegrees(camera.pitch).toFixed(0),
-                roll: CesiumMath.toDegrees(camera.roll).toFixed(0),
+                position: {
+                    x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
+                    y: parseFloat(CesiumMath.toDegrees(position.latitude).toFixed(6)),
+                    z: parseFloat(position.height.toFixed(1)),
+                    heading: parseFloat(CesiumMath.toDegrees(camera.heading).toFixed(0)),
+                    pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
+                    roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
+                },
+                source: 'CesiumMap camera move end',
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
@@ -461,25 +498,19 @@ export default {
             )
 
             let objects = this.viewer.scene.drillPick(event.position)
-            const geoJsonFeatures = {}
             const kmlFeatures = {}
             // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
             this.visiblePrimitiveLayers
                 .filter((l) => l instanceof GeoAdminGeoJsonLayer)
                 .forEach((geoJSonLayer) => {
-                    objects
-                        .filter((obj) => obj.primitive?.olLayer?.get('id') === geoJSonLayer.getID())
-                        .forEach((obj) => {
-                            const feature = obj.primitive.olFeature
-                            if (!geoJsonFeatures[feature.getId()]) {
-                                geoJsonFeatures[feature.getId()] = createGeoJSONFeature(
-                                    obj.primitive.olFeature,
-                                    geoJSonLayer,
-                                    feature.getGeometry()
-                                )
-                            }
-                        })
-                    features.push(...Object.values(geoJsonFeatures))
+                    features.push(
+                        ...identifyGeoJSONFeatureAt(
+                            geoJSonLayer,
+                            event.position,
+                            this.projection,
+                            this.resolution
+                        )
+                    )
                 })
             this.visiblePrimitiveLayers
                 .filter((l) => l instanceof KMLLayer)
@@ -496,6 +527,7 @@ export default {
                                     editableFeature.geometry = feature.getGeometry()
                                     kmlFeatures[feature.getId()] = editableFeature
                                 } else {
+                                    // TODO
                                     log.debug(
                                         'KMLs which are not editable Features are not supported for selection'
                                     )
@@ -547,6 +579,25 @@ export default {
         clearLongPressTimer() {
             clearTimeout(this.contextMenuTimeoutId)
         },
+        setCenterToCameraTarget() {
+            const ray = this.viewer.camera.getPickRay(
+                new Cartesian2(
+                    Math.round(this.viewer.scene.canvas.clientWidth / 2),
+                    Math.round(this.viewer.scene.canvas.clientHeight / 2)
+                )
+            )
+            const cameraTarget = this.viewer.scene.globe.pick(ray, this.viewer.scene)
+            if (defined(cameraTarget)) {
+                const cameraTargetCartographic =
+                    Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
+                const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
+                const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
+                this.setCenter({
+                    center: proj4(WGS84.epsg, this.projection.epsg, [lon, lat]),
+                    source: 'CesiumMap',
+                })
+            }
+        },
     },
 }
 </script>
@@ -560,15 +611,8 @@ export default {
     display: none !important;
 }
 
-$compass-size: 95px;
-cesium-compass {
-    position: absolute;
+.cesium-toolbox {
     bottom: $footer-height + $screen-padding-for-ui-elements;
-    right: 50%;
     z-index: $zindex-map + 1;
-    width: $compass-size;
-    height: $compass-size;
-    --cesium-compass-stroke-color: rgba(0, 0, 0, 0.6);
-    --cesium-compass-fill-color: rgb(224, 225, 226);
 }
 </style>

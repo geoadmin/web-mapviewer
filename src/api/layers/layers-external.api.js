@@ -1,10 +1,28 @@
 import axios from 'axios'
+
 import WMSCapabilitiesParser from '@/api/layers/WMSCapabilitiesParser.class'
 import WMTSCapabilitiesParser from '@/api/layers/WMTSCapabilitiesParser.class'
 import log from '@/utils/logging'
 
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000
+
+/**
+ * WMS or WMTS Capabilities Error
+ *
+ * This class also contains an i18n translation key in plus of a technical english message. The
+ * translation key can be used to display a translated user message.
+ *
+ * @property {string} message Technical english message
+ * @property {string} key I18n translation key for user message
+ */
+export class CapabilitiesError extends Error {
+    constructor(message, key) {
+        super(message)
+        this.key = key
+        this.name = 'CapabilitiesError'
+    }
+}
 
 /**
  * Sets the WMS GetCapabilities url parameters
@@ -17,6 +35,8 @@ export function setWmsGetCapParams(url, language) {
     // Mandatory params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
+    // Currently openlayers only supports version 1.3.0 !
+    url.searchParams.set('VERSION', '1.3.0')
     // Optional params
     url.searchParams.set('FORMAT', 'text/xml')
     if (language) {
@@ -38,13 +58,13 @@ export async function readWmsCapabilities(baseUrl, language = null) {
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
-        throw new Error(`Failed to get WMS Capabilities: ${error}`)
+        throw new CapabilitiesError(`Failed to get WMS Capabilities: ${error}`, 'network_error')
     }
 
     if (response.status !== 200) {
         const msg = `Failed to read GetCapabilities from ${url}`
         log.error(msg, response)
-        throw new Error(msg)
+        throw new CapabilitiesError(msg, 'network_error')
     }
 
     return parseWmsCapabilities(response.data, baseUrl)
@@ -62,7 +82,10 @@ export function parseWmsCapabilities(content, originUrl) {
     try {
         return new WMSCapabilitiesParser(content, originUrl)
     } catch (error) {
-        throw new Error(`Failed to parse WMS Get Capabilities: ${error}`)
+        throw new CapabilitiesError(
+            `Failed to parse WMS capabilities: ${error?.message}`,
+            'invalid_wms_capabilities'
+        )
     }
 }
 
@@ -99,13 +122,16 @@ export async function readWmtsCapabilities(baseUrl, language = null) {
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
-        throw new Error(`Failed to get the remote capabilities: ${error}`)
+        throw new CapabilitiesError(
+            `Failed to get the remote capabilities: ${error}`,
+            'network_error'
+        )
     }
 
     if (response.status !== 200) {
         const msg = `Failed to read GetCapabilities from ${url}`
         log.error(msg, response)
-        throw new Error(msg)
+        throw new CapabilitiesError(msg, 'network_error')
     }
 
     return parseWmtsCapabilities(response.data, baseUrl)
@@ -123,6 +149,9 @@ export function parseWmtsCapabilities(content, originUrl) {
     try {
         return new WMTSCapabilitiesParser(content, originUrl)
     } catch (error) {
-        throw new Error(`Failed to parse WMTS Get Capabilities: ${error}`)
+        throw new CapabilitiesError(
+            `Failed to parse WMTS capabilities: ${error?.message}`,
+            'invalid_wmts_capabilities'
+        )
     }
 }

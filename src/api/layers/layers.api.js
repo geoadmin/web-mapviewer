@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminAggregateLayer, {
     AggregateSubLayer,
@@ -9,7 +11,6 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { API_BASE_URL, WMTS_BASE_URL } from '@/config'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 // TODO : implement loading of a cached CloudFront version for MVP
@@ -113,7 +114,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     layerConfig.styleUrl
                 )
                 break
-            case 'aggregate':
+            case 'aggregate': {
                 // here it's a bit tricky, the aggregate layer has a main entry in the layers config (with everything as usual)
                 // but things get complicated with sub-layers. Each sub-layer has an entry in the config but it's ID (or
                 // key in the config) is not the one we should ask the server with, that would be the serverLayerName prop,
@@ -134,17 +135,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 // }
 
                 // here id would be "parent.layer" in the example above
-                layer = new GeoAdminAggregateLayer(
-                    name,
-                    id,
-                    opacity,
-                    false,
-                    attributions,
-                    timeConfig,
-                    isHighlightable,
-                    hasTooltip,
-                    topics
-                )
+                const subLayers = []
                 layerConfig.subLayersIds.forEach((subLayerId) => {
                     // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
                     const subLayerRawConfig = allOtherLayers[subLayerId]
@@ -157,7 +148,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                         lang
                     )
                     if (subLayer) {
-                        layer.addSubLayer(
+                        subLayers.push(
                             new AggregateSubLayer(
                                 subLayerId,
                                 subLayer,
@@ -167,8 +158,20 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                         )
                     }
                 })
+                layer = new GeoAdminAggregateLayer(
+                    name,
+                    id,
+                    opacity,
+                    false,
+                    attributions,
+                    timeConfig,
+                    isHighlightable,
+                    hasTooltip,
+                    topics
+                )
 
                 break
+            }
             default:
                 log.error('Unknown layer type', type)
         }

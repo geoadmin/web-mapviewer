@@ -1,6 +1,7 @@
+import axios from 'axios'
+
 import { API_SERVICE_SHORTLINK_BASE_URL } from '@/config'
 import log from '@/utils/logging'
-import axios from 'axios'
 
 /**
  * Generates a short link from the given URL

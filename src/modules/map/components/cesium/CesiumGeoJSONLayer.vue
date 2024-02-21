@@ -5,14 +5,16 @@
 </template>
 
 <script>
-import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
-import reprojectGeoJsonData from '@/utils/geoJsonUtils'
-import log from '@/utils/logging'
 import axios from 'axios'
 import GeoJSON from 'ol/format/GeoJSON'
 import { Vector as VectorSource } from 'ol/source'
+
+import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
+import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
+import allCoordinateSystems from '@/utils/coordinates/coordinateSystems'
+import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
+import log from '@/utils/logging'
+
 import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
 
 /** Adds a GeoJSON layer to the Cesium viewer */

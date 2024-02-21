@@ -1,8 +1,11 @@
+import proj4 from 'proj4'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class.js'
+import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
-import proj4 from 'proj4'
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
@@ -18,14 +21,14 @@ const handlePositionAndDispatchToStore = (position, store) => {
     store.dispatch('setGeolocationAccuracy', position.coords.accuracy)
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
-        store.dispatch('setCenter', positionProjected)
+        store.dispatch('setCenter', { center: positionProjected, source: 'geolocation tracking' })
     }
 }
 
 /**
  * Handles Geolocation API errors
  *
- * @param {PositionError} error
+ * @param {GeolocationPositionError} error
  * @param {Vuex.Store} store
  */
 const handlePositionError = (error, store) => {
@@ -56,11 +59,6 @@ const handlePositionError = (error, store) => {
  */
 const geolocationManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
-        // we listen to the mutation that is triggered when the map is starting being dragged in order to stop
-        // tracking the user geolocation to the center of the view
-        if (state.geolocation.active && mutation.type === 'mapStartBeingDragged') {
-            store.dispatch('setGeolocationTracking', false)
-        }
         // listening to the start/stop of geolocation
         if (mutation.type === 'setGeolocationActive') {
             if (state.geolocation.active) {
@@ -73,8 +71,14 @@ const geolocationManagementPlugin = (store) => {
                         handlePositionAndDispatchToStore(position, store)
                         if (firstTimeActivatingGeolocation) {
                             firstTimeActivatingGeolocation = false
-                            // going to zoom level 15.5 corresponding to map 1:25'000 (or zoom level 8 in the old viewer)
-                            store.dispatch('setZoom', 15.5)
+                            let zoomLevel = STANDARD_ZOOM_LEVEL_1_25000_MAP
+                            if (state.position.projection instanceof CustomCoordinateSystem) {
+                                zoomLevel =
+                                    state.position.projection.transformStandardZoomLevelToCustom(
+                                        zoomLevel
+                                    )
+                            }
+                            store.dispatch('setZoom', { zoom: zoomLevel, source: 'geolocation' })
                         }
                         geolocationWatcher = navigator.geolocation.watchPosition(
                             (position) => handlePositionAndDispatchToStore(position, store),

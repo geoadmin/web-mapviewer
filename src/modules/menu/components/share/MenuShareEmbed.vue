@@ -1,15 +1,15 @@
 <template>
     <div class="menu-share-embed">
-        <button
-            class="btn btn-light btn-sm embedded-button"
+        <a
+            class="embed-btn d-flex align-items-center text-decoration-none ps-3 p-2"
             data-cy="menu-share-embed-button"
             @click="toggleEmbedSharing"
         >
             <FontAwesomeIcon :icon="`caret-${showEmbedSharing ? 'down' : 'right'}`" />
             <span class="ms-2">{{ $t('share_more') }}</span>
-        </button>
+        </a>
         <CollapseTransition :duration="200">
-            <div v-show="showEmbedSharing" class="p-2 card border-light bg-light">
+            <div v-show="showEmbedSharing" class="p-2 ps-4 card border-light">
                 <div class="input-group input-group-sm">
                     <input
                         ref="embedInput"
@@ -29,7 +29,7 @@
                     </button>
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
-                <div v-html="$t('share_disclaimer')"></div>
+                <div class="py-2" v-html="$t('share_disclaimer')"></div>
                 <!-- eslint-enable vue/no-v-html-->
             </div>
         </CollapseTransition>
@@ -127,11 +127,12 @@
 </template>
 
 <script>
-import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
-import ModalWithBackdrop from '@/utils/ModalWithBackdrop.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+
+import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -252,6 +253,13 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/webmapviewer-bootstrap-theme';
+.embed-btn {
+    &:hover {
+        background-color: $list-item-hover-bg-color !important;
+        cursor: pointer;
+    }
+}
 
 .menu-share-embed {
     display: none;

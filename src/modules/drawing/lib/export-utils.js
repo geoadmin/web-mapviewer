@@ -1,11 +1,12 @@
-import { featureStyleFunction } from '@/modules/drawing/lib/style'
-import i18n from '@/modules/i18n/index'
-import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import Feature from 'ol/Feature'
 import { GPX, KML } from 'ol/format'
 import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
+
+import i18n from '@/modules/i18n/index'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 const kmlFormat = new KML()
@@ -64,10 +65,9 @@ export function generateGpxString(projection, features = []) {
  *
  * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to KML format
- * @param styleFunction
  * @returns {string}
  */
-export function generateKmlString(projection, features = [], styleFunction = null) {
+export function generateKmlString(projection, features = []) {
     if (!projection) {
         log.error('Cannot generate KML string without projection')
         return ''
@@ -78,8 +78,7 @@ export function generateKmlString(projection, features = [], styleFunction = nul
         const clone = f.clone()
         clone.setId(f.getId())
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
-        let styles = styleFunction || featureStyleFunction
-        styles = styles(clone)
+        const styles = featureStyleFunction(clone)
         const newStyle = {
             fill: styles[0].getFill(),
             stroke: styles[0].getStroke(),
@@ -101,6 +100,11 @@ export function generateKmlString(projection, features = [], styleFunction = nul
 
         const myStyle = new Style(newStyle)
         clone.setStyle(myStyle)
+
+        // We need to remove the editableFeature as we don't want it in extended data
+        clone.unset('editableFeature')
+        clone.unset('geodesic')
+
         exportFeatures.push(clone)
     })
 
@@ -126,15 +130,4 @@ export function generateKmlString(projection, features = [], styleFunction = nul
         )
     }
     return kmlString
-}
-
-export function generateFilename(fileExtension) {
-    fileExtension = fileExtension.replace(/^\./, '')
-    const date = new Date()
-        .toISOString()
-        .split('.')[0]
-        .replaceAll('-', '')
-        .replaceAll(':', '')
-        .replace('T', '')
-    return `map.geo.admin.ch_${fileExtension.toUpperCase()}_${date}.${fileExtension.toLowerCase()}`
 }

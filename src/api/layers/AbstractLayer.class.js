@@ -1,6 +1,16 @@
 import LayerTypes from './LayerTypes.enum'
 
-/** Name (or description) of a data holder for a layer, with the possibility to define a URL */
+/**
+ * Name (or description) of a data holder for a layer, with the possibility to define a URL
+ *
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
+ */
 export class LayerAttribution {
     /**
      * @param {String} name Name of the data owner of this layer (can be displayed as is in the UI)
@@ -22,6 +32,13 @@ export class LayerAttribution {
  * {@link GeoAdminAggregateLayer} or {@link KMLLayer})
  *
  * @abstract
+ * @WARNING DON'T USE GETTER AND SETTER ! Instances of this class will be used a Vue 3 reactive
+ * object which SHOULD BE plain javascript object ! For convenience we use class instances but this
+ * has some limitations and javascript class getter and setter are not correctly supported which
+ * introduced subtle bugs. As rule of thumb we should avoid any public methods with side effects on
+ * properties, properties should change be changed either by the constructor or directly by setting
+ * them, not through a functions that updates other properties as it can lead to subtle bugs due
+ * to Vue reactivity engine.
  */
 export default class AbstractLayer {
     /**
@@ -55,6 +72,13 @@ export default class AbstractLayer {
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
         this.isLoading = isLoading
+        if ([LayerTypes.KML, LayerTypes.GPX].includes(this.type)) {
+            this.hasLegend = false
+        } else {
+            this.hasLegend = true
+        }
+        this.errorKey = null
+        this.hasError = false
     }
 
     /**
@@ -83,18 +107,5 @@ export default class AbstractLayer {
         let clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
         clone.attributions = this.attributions.map((attribution) => attribution.clone())
         return clone
-    }
-
-    /**
-     * Get layer metadata
-     *
-     * @returns {Object | null} Metadata object
-     */
-    async getMetadata() {
-        return null
-    }
-
-    get hasLegend() {
-        return this.type !== LayerTypes.KML && !this.isExternal
     }
 }

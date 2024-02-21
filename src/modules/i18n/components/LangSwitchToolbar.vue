@@ -10,9 +10,10 @@
 </template>
 
 <script>
-import LangButton from './LangButton.vue'
 import { mapGetters } from 'vuex'
+
 import { languages } from '../index'
+import LangButton from './LangButton.vue'
 
 export default {
     components: {

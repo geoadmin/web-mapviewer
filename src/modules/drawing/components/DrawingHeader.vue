@@ -1,21 +1,38 @@
-<template>
-    <div class="drawing-header">
-        <button class="drawing-header-close-button btn btn-dark" @click="$emit('close')">
-            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
-            {{ $t('draw_back') }}
-        </button>
-        <h1 class="drawing-header-title">{{ $t('draw_mode_title') }}</h1>
-    </div>
-</template>
-
-<script>
+<script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-export default {
-    components: { FontAwesomeIcon },
-    emits: ['close'],
+const emits = defineEmits(['close'])
+
+const isClosing = ref(false)
+
+const i18n = useI18n()
+
+function onClose() {
+    isClosing.value = true
+    emits('close')
 }
 </script>
+
+<template>
+    <div class="drawing-header">
+        <button
+            class="drawing-header-close-button btn btn-dark"
+            :disabled="isClosing"
+            @click="onClose"
+        >
+            <FontAwesomeIcon class="icon me-2" :icon="['fas', 'arrow-left']" />
+            <span v-if="isClosing">
+                {{ i18n.t('draw_file_saving') }}
+            </span>
+            <span v-else>
+                {{ i18n.t('draw_back') }}
+            </span>
+        </button>
+        <h1 class="drawing-header-title">{{ i18n.t('draw_mode_title') }}</h1>
+    </div>
+</template>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';

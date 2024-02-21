@@ -9,7 +9,6 @@
             v-if="elevationProfile"
             :elevation-profile="elevationProfile"
             :tracking-point-color="feature.fillColor"
-            @update="onElevationProfilePlotUpdate"
         />
         <FeatureElevationProfileInformation :profile="elevationProfile">
             <button
@@ -33,18 +32,18 @@
 </template>
 
 <script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import getProfile from '@/api/profile/profile.api'
-import { generateFilename } from '@/modules/drawing/lib/export-utils'
-import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
-import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
-import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
-import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
-import LoadingBar from '@/utils/LoadingBar.vue'
-import log from '@/utils/logging'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import proj4 from 'proj4'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import getProfile from '@/api/profile/profile.api'
+import FeatureElevationProfileInformation from '@/modules/infobox/components/FeatureElevationProfileInformation.vue'
+import FeatureElevationProfilePlot from '@/modules/infobox/components/FeatureElevationProfilePlot.vue'
+import LoadingBar from '@/utils/components/LoadingBar.vue'
+import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
+import log from '@/utils/logging'
+import { generateFilename } from '@/utils/utils'
 
 export default {
     components: {
@@ -62,12 +61,7 @@ export default {
             type: Boolean,
             default: false,
         },
-        projection: {
-            type: CoordinateSystem,
-            required: true,
-        },
     },
-    emits: ['updateElevationProfilePlot'],
     data() {
         return {
             /** @type {ElevationProfile} */
@@ -78,6 +72,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            projection: (state) => state.position.projection,
+        }),
         elevationProfileHasData() {
             return this.elevationProfile?.hasElevationData
         },
@@ -151,10 +148,6 @@ export default {
                     generateFilename('.csv')
                 )
             }
-        },
-        onElevationProfilePlotUpdate() {
-            // bubbling up the event so that the infobox module can set its height accordingly
-            this.$emit('updateElevationProfilePlot')
         },
         updateElevationProfileData() {
             this.request.pending = true

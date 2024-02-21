@@ -1,3 +1,166 @@
+<script setup>
+/** Tools necessary to edit a feature from the drawing module. */
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { Polygon } from 'ol/geom'
+import { getLength } from 'ol/sphere'
+import { computed, ref, toRefs, watch } from 'vue'
+import { useStore } from 'vuex'
+
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
+import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
+import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
+import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
+import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
+import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
+import debounce from '@/utils/debounce'
+import { round } from '@/utils/numberUtils'
+
+const props = defineProps({
+    feature: {
+        type: EditableFeature,
+        required: true,
+    },
+    readOnly: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { feature, readOnly } = toRefs(props)
+
+const title = ref(feature.value.title)
+const description = ref(feature.value.description)
+
+// Update the UI when the feature changes
+watch(
+    () => feature.value.title,
+    (newTitle) => {
+        title.value = newTitle
+    }
+)
+
+watch(
+    () => feature.value.description,
+    (newDescription) => {
+        description.value = newDescription
+    }
+)
+
+// The idea is watching the title and the description.
+// Put a debounce on the update of the feature so that we can compare with the current UI state
+// If the value is the same as in the UI, we can update the feature
+watch(title, () => {
+    debounceTitleUpdate(store)
+})
+watch(description, () => {
+    debounceDescriptionUpdate(store)
+})
+
+// Here we need to declare the debounce method globally otherwise it does not work (it is based
+// on closure which will not work if the debounce mehtod is defined in a watcher)
+// The title debounce needs to be quick in order to be displayed on the map
+const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+// The description don't need a quick debounce as it is not displayed on the map
+const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
+
+function updateFeatureTitle() {
+    store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
+}
+
+function updateFeatureDescription() {
+    store.dispatch('changeFeatureDescription', {
+        feature: feature.value,
+        description: description.value,
+    })
+}
+
+/**
+ * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
+ * is to hold the coordinates, which are in an array themselves. We don't have rings in this case,
+ * so we need to create an ol geometry
+ *
+ * @type {ComputedRef<Polygon>}
+ */
+const geometry = computed(() => new Polygon([feature.value.coordinates]))
+/** @type {ComputedRef<Number>} */
+const length = computed(() => {
+    const calculatedLength = getLength(geometry.value)
+    let result = `${roundValueIfGreaterThan(calculatedLength, 100, 1000)}`
+    if (calculatedLength > 100) {
+        result += 'km'
+    } else {
+        result += 'm'
+    }
+    return result
+})
+/** @type {ComputedRef<Number>} */
+const area = computed(() => {
+    const calculatedArea = geometry.value.getArea()
+    let result = ''
+    if (calculatedArea) {
+        result += roundValueIfGreaterThan(calculatedArea, 1000, 100000)
+        if (calculatedArea > 10000) {
+            result += 'km'
+        } else {
+            result += 'm'
+        }
+    }
+    return result
+})
+
+/**
+ * The length parameter must be greater than 3, because the polygon has one point twice : the first
+ * and last point are both existing in the same exact space. A point would be length 2, a line would
+ * be length 3. We do not consider the case where there are more than 3 points, but all in a single
+ * line.
+ *
+ * @type {ComputedRef<Boolean>}
+ */
+const isFeatureClosed = computed(() => {
+    const { coordinates } = feature.value
+    return (
+        coordinates.length > 3 &&
+        coordinates[0][0] === coordinates[coordinates.length - 1][0] &&
+        coordinates[0][1] === coordinates[coordinates.length - 1][1]
+    )
+})
+const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
+const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
+const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeaturePolygon = computed(() => {
+    return feature.value.featureType === EditableFeatureTypes.LINEPOLYGON && isFeatureClosed.value
+})
+
+const store = useStore()
+const availableIconSets = computed(() => store.state.drawing.iconSets)
+
+function roundValueIfGreaterThan(value, threshold, divider) {
+    if (value > threshold) {
+        return `${round(value / divider, 2)}`
+    }
+    return `${round(value, 2)}`
+}
+function onTextSizeChange(textSize) {
+    store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize })
+}
+function onTextColorChange(textColor) {
+    store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor })
+}
+function onColorChange(color) {
+    store.dispatch('changeFeatureColor', { feature: feature.value, color })
+}
+function onIconChange(icon) {
+    store.dispatch('changeFeatureIcon', { feature: feature.value, icon })
+}
+function onIconSizeChange(iconSize) {
+    store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize })
+}
+function onDelete() {
+    store.dispatch('deleteDrawingFeature', feature.value.id)
+}
+</script>
+
 <template>
     <div data-cy="drawing-style-popup">
         <div v-if="isFeatureMarker || isFeatureText" class="form-group mb-2">
@@ -6,11 +169,13 @@
             </label>
             <textarea
                 id="drawing-style-feature-title"
-                v-model="text"
+                v-model="title"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-title"
-                class="form-control"
-                rows="1"
+                class="feature-title form-control"
+                :class="{
+                    'form-control-plaintext': readOnly,
+                }"
             ></textarea>
         </div>
 
@@ -23,16 +188,19 @@
                 v-model="description"
                 :readonly="readOnly"
                 data-cy="drawing-style-feature-description"
-                class="form-control"
-                rows="2"
+                class="feature-description form-control"
+                :class="{
+                    'form-control-plaintext': readOnly,
+                }"
             ></textarea>
             <div v-if="isFeatureLine">
                 <font-awesome-icon :icon="['far', 'square']" />
-                {{ lengthRounded }} {{ length > 100 ? 'km' : 'm' }}
+                {{ length }}
             </div>
             <div v-if="isFeaturePolygon">
                 <font-awesome-icon :icon="['far', 'square']" class="bg-secondary text-secondary" />
-                {{ areaRounded }} {{ area > 10000 ? 'km' : 'm' }}<sup>2</sup>
+                {{ area }}
+                <sup>2</sup>
             </div>
         </div>
         <div class="d-flex">
@@ -97,170 +265,11 @@
     </div>
 </template>
 
-<script>
-import { EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
-import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
-import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
-import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
-import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
-import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
-import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions } from 'vuex'
-import { getArea, getLength } from 'ol/sphere.js'
-import { Polygon } from 'ol/geom'
-import { round } from '@/utils/numberUtils'
-
-/**
- * Display a popup on the map when a drawing is selected.
- *
- * The popup has a form with the drawing's properties (text, description) and some styling
- * configuration.
- */
-export default {
-    components: {
-        FontAwesomeIcon,
-        DrawingStyleColorSelector,
-        DrawingStyleTextColorSelector,
-        DrawingStyleSizeSelector,
-        DrawingStyleIconSelector,
-        DrawingStylePopoverButton,
-        SelectedFeatureProfile,
-    },
-    props: {
-        feature: {
-            type: EditableFeature,
-            required: true,
-        },
-        availableIconSets: {
-            type: Array,
-            required: true,
-        },
-        readOnly: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['close'],
-    data() {
-        return {
-            colors: allStylingColors,
-            sizes: allStylingSizes,
-        }
-    },
-    computed: {
-        currentTextSize() {
-            return this.feature?.textSize
-        },
-        description: {
-            get() {
-                return this.feature.description
-            },
-            set(value) {
-                this.changeFeatureDescription({ feature: this.feature, description: value })
-            },
-        },
-        text: {
-            get() {
-                return this.feature.title
-            },
-            set(value) {
-                this.changeFeatureTitle({ feature: this.feature, title: value })
-            },
-        },
-        geometry() {
-            /*
-                Openlayers polygons coordinates are in a triple array
-                The first array is the "ring", the second is to hold the coordinates, which are in an array themselves
-                We don't have rings in this case, so we need to create an ol geometry
-                */
-
-            const geom = [this.feature.coordinates]
-
-            return new Polygon(geom)
-        },
-        length() {
-            return getLength(this.geometry)
-        },
-        isClosed() {
-            /*
-                The length parameter must be greater than 3, because the polygon has one point
-                twice : the first and last point are both existing in the same exact space.
-                A point would be length 2, a line would be length 3. We do not consider the
-                case where there are more than 3 points, but all in a single line.
-            */
-            return (
-                this.feature.coordinates.length > 3 &&
-                this.feature.coordinates[0][0] ===
-                    this.feature.coordinates[this.feature.coordinates.length - 1][0] &&
-                this.feature.coordinates[0][1] ===
-                    this.feature.coordinates[this.feature.coordinates.length - 1][1]
-            )
-        },
-        lengthRounded() {
-            if (this.length > 100) {
-                return `${round(this.length / 1000, 2)}`
-            }
-            return `${round(this.length, 2)}`
-        },
-        area() {
-            return getArea(this.geometry)
-        },
-        areaRounded() {
-            if (this.area > 10000) {
-                return `${round(this.area / 1000000, 2)}`
-            }
-            return `${round(area, 2)}`
-        },
-        isFeatureMarker() {
-            return this.feature.featureType === EditableFeatureTypes.MARKER
-        },
-        isFeatureText() {
-            return this.feature.featureType === EditableFeatureTypes.ANNOTATION
-        },
-        isFeatureLine() {
-            return this.feature.featureType === EditableFeatureTypes.LINEPOLYGON
-        },
-        isFeatureMeasure() {
-            return this.feature.featureType === EditableFeatureTypes.MEASURE
-        },
-        isFeaturePolygon() {
-            return this.feature.featureType === EditableFeatureTypes.LINEPOLYGON && this.isClosed
-        },
-    },
-    methods: {
-        ...mapActions([
-            'changeFeatureTitle',
-            'changeFeatureDescription',
-            'changeFeatureColor',
-            'changeFeatureTextSize',
-            'changeFeatureTextColor',
-            'changeFeatureIcon',
-            'changeFeatureIconSize',
-            'deleteDrawingFeature',
-        ]),
-        onClose() {
-            this.$emit('close')
-        },
-        onTextSizeChange(textSize) {
-            this.changeFeatureTextSize({ feature: this.feature, textSize })
-        },
-        onTextColorChange(textColor) {
-            this.changeFeatureTextColor({ feature: this.feature, textColor })
-        },
-        onColorChange(color) {
-            this.changeFeatureColor({ feature: this.feature, color })
-        },
-        onIconChange(icon) {
-            this.changeFeatureIcon({ feature: this.feature, icon })
-        },
-        onIconSizeChange(iconSize) {
-            this.changeFeatureIconSize({ feature: this.feature, iconSize })
-        },
-        onDelete() {
-            this.deleteDrawingFeature(this.feature.id)
-        },
-    },
+<style lang="scss" scoped>
+.feature-title {
+    height: 1rem;
 }
-</script>
+.feature-description {
+    height: 2rem;
+}
+</style>

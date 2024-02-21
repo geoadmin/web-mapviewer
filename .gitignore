@@ -23,9 +23,9 @@ yarn-error.log*
 *.code-*
 
 # Cypress and friends
-tests/e2e-cypress/downloads
-tests/e2e-cypress/videos
-tests/e2e-cypress/screenshots
+tests/cypress/downloads
+tests/cypress/videos
+tests/cypress/screenshots
 tests/results/*
 
 # Git

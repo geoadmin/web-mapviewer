@@ -23,11 +23,19 @@ $component-active-bg: $malibu;
 
 // Add custom variables based on bootstrap here
 
-$list-item-hover-color: $gray-300;
+$list-item-hover-bg-color: $gray-300;
+$list-item-hover-text-color: $gray-600;
 $map-button-border-color: $gray-800;
 $map-button-hover-border-color: $gray-700;
 
-// Override bootstrap class here
+// Override bootstrap variable/class here
+$nav-link-color: $black;
+$nav-tabs-link-active-color: $white;
+$nav-tabs-link-active-bg: $primary;
+
+::placeholder {
+    font-style: italic;
+}
 
 // Add our custom class here
 .btn-outline-group {
@@ -41,4 +49,15 @@ $map-button-hover-border-color: $gray-700;
 
 .btn-xs {
     @include button-size(0.25rem, 0.25rem, 0.7rem, $border-radius);
+}
+
+.no-ios-long-press-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+.clear-no-ios-long-press {
+    user-select: text;
+    -webkit-user-select: text;
+    -webkit-touch-callout: default;
 }

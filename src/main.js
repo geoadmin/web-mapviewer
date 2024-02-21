@@ -1,9 +1,18 @@
 // exposing the config in the logs
+// Importing styling CSS libraries
+import 'animate.css'
+// setting up font awesome vue component
+import './setup-fontawesome'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import tippy from 'tippy.js'
+import { createApp } from 'vue'
+import VueSocialSharing from 'vue-social-sharing'
+
 import {
     API_BASE_URL,
     API_SERVICE_ALTI_BASE_URL,
     API_SERVICE_KML_BASE_URL,
-    API_SERVICE_KML_STORAGE_BASE_URL,
     API_SERVICE_SEARCH_BASE_URL,
     API_SERVICES_BASE_URL,
     APP_VERSION,
@@ -20,20 +29,11 @@ import {
 import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'
+import clickOutside from '@/utils/click-outside'
 import log from '@/utils/logging'
 import setupChartJS from '@/utils/setupChartJS'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-// Importing styling CSS libraries
-import 'animate.css'
-import tippy from 'tippy.js'
-
-import { createApp } from 'vue'
-import VueSocialSharing from 'vue-social-sharing'
-
 import App from './App.vue'
-// setting up font awesome vue component
-import './setup-fontawesome'
 
 log.debug('Config is', {
     ENVIRONMENT,
@@ -43,7 +43,6 @@ log.debug('Config is', {
     API_SERVICES_BASE_URL,
     API_SERVICE_ALTI_BASE_URL,
     API_SERVICE_KML_BASE_URL,
-    API_SERVICE_KML_STORAGE_BASE_URL,
     API_SERVICE_SEARCH_BASE_URL,
     DATA_BASE_URL,
     WMTS_BASE_URL,
@@ -64,6 +63,7 @@ app.use(i18n)
 app.use(store)
 app.use(VueSocialSharing)
 
+app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 // if we are testing with Cypress, we expose the store

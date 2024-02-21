@@ -1,3 +1,5 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
@@ -6,7 +8,6 @@ import store from '@/store'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import LoadingView from '@/views/LoadingView.vue'
 import MapView from '@/views/MapView.vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
 
 const history = createWebHashHistory()
 

@@ -1,4 +1,4 @@
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { allStylingColors, allStylingSizes } from '@/utils/featureStyleUtils'
 
 const getSelectedFeatureWithId = (state, featureId) => {
@@ -7,7 +7,7 @@ const getSelectedFeatureWithId = (state, featureId) => {
 
 export default {
     state: {
-        /** @type Array<Feature> */
+        /** @type Array<SelectableFeature> */
         selectedFeatures: [],
     },
     getters: {
@@ -22,7 +22,8 @@ export default {
          * tells the store which features are selected (it does not select the features by itself)
          *
          * @param commit
-         * @param {Feature[]} features A list of feature we want to highlight/select on the map
+         * @param {SelectableFeature[]} features A list of feature we want to highlight/select on
+         *   the map
          */
         setSelectedFeatures({ commit }, features) {
             if (Array.isArray(features)) {

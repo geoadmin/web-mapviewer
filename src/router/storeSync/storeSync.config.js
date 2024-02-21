@@ -6,7 +6,9 @@ import LayerParamConfig from '@/router/storeSync/LayerParamConfig.class'
 import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
+import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
 
+import CompareSliderParamConfig from './CompareSliderParamConfig.class'
 /**
  * Configuration for all URL parameters of this app that need syncing with the store (and
  * vice-versa)
@@ -35,14 +37,8 @@ const storeSyncConfig = [
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
     // to the default projection EPSG number
     new PositionParamConfig(),
-    new SimpleUrlParamConfig(
-        'z',
-        'setZoom',
-        'setZoom',
-        (store) => store.state.position.zoom,
-        true,
-        Number
-    ),
+    new CameraParamConfig(),
+    new ZoomParamConfig(),
     new SimpleUrlParamConfig(
         '3d',
         'set3dActive',
@@ -52,10 +48,6 @@ const storeSyncConfig = [
         Boolean,
         false
     ),
-    // very important that this is added/defined AFTER the 3D flag param,
-    // so that when it is called the 3D param has already been processed (and is correctly set in the query)
-    // this will manage lon,lat,z and camera URL params
-    new CameraParamConfig(),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
@@ -103,6 +95,8 @@ const storeSyncConfig = [
         ''
     ),
     new CrossHairParamConfig(),
+
+    new CompareSliderParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
         'embed',

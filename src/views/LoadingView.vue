@@ -6,9 +6,10 @@
 </template>
 
 <script>
-import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
-import LoadingBar from '@/utils/LoadingBar.vue'
 import { mapState } from 'vuex'
+
+import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 export default {
     components: { LoadingBar, HeaderWithSearch },
