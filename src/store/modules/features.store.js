@@ -28,7 +28,7 @@ export default {
          */
         setSelectedFeatures({ commit }, features) {
             commit('setHighlightedFeatureId', {
-                featureId: null,
+                highlightedFeatureId: null,
                 dispatcher: 'setSelectedFeatures',
             })
             if (Array.isArray(features)) {
@@ -39,12 +39,12 @@ export default {
         clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
             commit('setHighlightedFeatureId', {
-                featureId: null,
+                highlightedFeatureId: null,
                 dispatcher: 'clearAllSelectedFeatures',
             })
         },
-        setHighlightedFeatureId({ commit }, { featureId = null, dispatcher }) {
-            commit('setHighlightedFeatureId', { featureId, dispatcher })
+        setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
+            commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
         },
         /** Removes a specific feature from the selected features list. Is not used in drawing mode. */
         removeSelectedFeature({ commit, state }, feature) {
@@ -235,8 +235,8 @@ export default {
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
         },
-        setHighlightedFeatureId(state, { featureId }) {
-            state.highlightedFeatureId = featureId
+        setHighlightedFeatureId(state, { highlightedFeatureId }) {
+            state.highlightedFeatureId = highlightedFeatureId
         },
         changeFeatureCoordinates(state, { feature, coordinates, geodesicCoordinates }) {
             feature.coordinates = coordinates

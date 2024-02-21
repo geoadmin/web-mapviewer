@@ -27,12 +27,15 @@ function generateFeatureIdForList(feature, indexInList) {
 }
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
-        featureId: feature?.id,
+        highlightedFeatureId: feature?.id,
         dispatcher: 'FeatureList.vue',
     })
 }
 function clearHighlightedFeature() {
-    store.dispatch('setHighlightedFeatureId', { featureId: null, dispatcher: 'FeatureList.vue' })
+    store.dispatch('setHighlightedFeatureId', {
+        highlightedFeatureId: null,
+        dispatcher: 'FeatureList.vue',
+    })
 }
 </script>
 
