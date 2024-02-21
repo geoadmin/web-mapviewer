@@ -7,7 +7,7 @@
 import explode from '@turf/explode'
 import { point } from '@turf/helpers'
 import nearestPoint from '@turf/nearest-point'
-import Feature from 'ol/Feature'
+import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 import { computed, inject, watch } from 'vue'
@@ -29,6 +29,7 @@ const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
 const projection = computed(() => store.state.position.projection)
+const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
@@ -47,6 +48,8 @@ const featureTransformedAsOlFeatures = computed(() => {
         return new Feature({
             id: `geom-${randomIntBetween(0, 100000)}`,
             geometry: new GeoJSON().readGeometry(feature.geometry),
+            // flag that will be processed by the style function to change the color when the feature is hovered
+            isHovered: highlightedFeatureId.value === feature.id,
         })
     })
 })

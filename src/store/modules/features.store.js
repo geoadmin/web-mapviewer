@@ -9,6 +9,7 @@ export default {
     state: {
         /** @type Array<SelectableFeature> */
         selectedFeatures: [],
+        highlightedFeatureId: null,
     },
     getters: {
         editFeature(state) {
@@ -26,6 +27,10 @@ export default {
          *   the map
          */
         setSelectedFeatures({ commit }, features) {
+            commit('setHighlightedFeatureId', {
+                highlightedFeatureId: null,
+                dispatcher: 'setSelectedFeatures',
+            })
             if (Array.isArray(features)) {
                 commit('setSelectedFeatures', features)
             }
@@ -33,6 +38,13 @@ export default {
         /** Removes all selected features from the map */
         clearAllSelectedFeatures({ commit }) {
             commit('setSelectedFeatures', [])
+            commit('setHighlightedFeatureId', {
+                highlightedFeatureId: null,
+                dispatcher: 'clearAllSelectedFeatures',
+            })
+        },
+        setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
+            commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
         },
         /** Removes a specific feature from the selected features list. Is not used in drawing mode. */
         removeSelectedFeature({ commit, state }, feature) {
@@ -222,6 +234,9 @@ export default {
     mutations: {
         setSelectedFeatures(state, features) {
             state.selectedFeatures = [...features]
+        },
+        setHighlightedFeatureId(state, { highlightedFeatureId }) {
+            state.highlightedFeatureId = highlightedFeatureId
         },
         changeFeatureCoordinates(state, { feature, coordinates, geodesicCoordinates }) {
             feature.coordinates = coordinates
