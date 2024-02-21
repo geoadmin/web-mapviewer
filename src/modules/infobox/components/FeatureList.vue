@@ -57,16 +57,17 @@ function clearHighlightedFeature() {
 @import 'src/scss/media-query.mixin';
 @import 'src/scss/variables-admin.module';
 
-$feature-padding: 5px;
-
 .feature-list {
     margin: 0;
-    padding: $feature-padding;
     list-style: none;
 
-    &-item:hover {
-        box-sizing: border-box;
-        outline: $feature-padding solid $mocassin-to-red-1;
+    &-item {
+        $item-border: $border-width solid $border-color;
+        border-right: $item-border;
+        border-bottom: $item-border;
+        &:hover {
+            background-color: rgba($mocassin-to-red-1, 0.8);
+        }
     }
     &-row {
         display: grid;
@@ -75,7 +76,6 @@ $feature-padding: 5px;
         grid-template-columns: 1fr;
         max-height: 50vh;
         overflow-y: auto;
-        grid-gap: 8px;
     }
 }
 
