@@ -5,6 +5,20 @@ import { RED } from '@/utils/featureStyleUtils'
 import log from '@/utils/logging'
 
 /**
+ * Default Icon parameters for the URL.
+ *
+ * NOTE: The size should match the received size for the scale from the backend. It is needed to
+ * avoid race condition when exporting/saving KML. Openlayer requires the size to compute the
+ * scale.
+ *
+ * TODO: take the default size from the backend icon API
+ */
+export const DEFAULT_ICON_URL_PARAMS = {
+    scale: 1,
+    size: [48, 48],
+}
+
+/**
  * Collection of icons belonging to the same "category" (or set).
  *
  * Some sets are colorable, where other aren't
@@ -139,7 +153,7 @@ export class DrawingIcon {
      * @param {Number} iconScale The scale to use for this icon's URL
      * @returns {String} A full URL to this icon on the service-icons backend
      */
-    generateURL(iconColor = RED, iconScale = 1) {
+    generateURL(iconColor = RED, iconScale = DEFAULT_ICON_URL_PARAMS.scale) {
         const rgb = iconColor.rgb.slice(0, 3)
         return this._imageTemplateURL
             .replace('{icon_set_name}', this._iconSetName)

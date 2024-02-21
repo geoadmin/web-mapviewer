@@ -10,6 +10,7 @@ import {
 } from 'tests/cypress/support/drawing'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL, DEFAULT_PROJECTION } from '@/config'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
@@ -35,7 +36,7 @@ const isNonEmptyArray = (value) => {
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
 
-const DEFAULT_ICON_URL_SCALE = '1x'
+const DEFAULT_ICON_URL_SCALE = `${DEFAULT_ICON_URL_PARAMS.scale}x`
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
@@ -53,14 +54,13 @@ describe('Drawing module tests', () => {
         beforeEach(() => {
             cy.goToDrawing()
         })
-
         it('can create marker/icons and edit them', () => {
             // it should load all icon sets as soon as we enter the drawing module
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-            cy.get('[data-cy="ol-map"]').click()
+            cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml')
 
@@ -71,10 +71,10 @@ describe('Drawing module tests', () => {
                 .should('include', `${RED.rgbString}.png`)
 
             // clicking on the "Edit icon" button
-            cy.get('[data-cy="drawing-style-marker-button"]').click()
+            cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
             // opening up the icon set selector
             cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
             ).click()
             // the list of icon sets should contain all backend's possibilities
             cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
@@ -91,29 +91,22 @@ describe('Drawing module tests', () => {
             ).should('not.exist')
             // going back to the default icon set
             cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
             ).click()
-            cy.get('[data-cy="dropdown-item-default"]').click()
+            cy.get('[data-cy="dropdown-item-default"]:visible').click()
+            cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
             // color selector should be back
             cy.get(
                 '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
             ).should('be.visible')
-            // closing the icon set selector (we've not selected another icon, so no update of the KML should have occurred)
-            cy.get(
-                '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]'
-            ).click()
-
-            // creating intercepts for all icon requests
-            cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
-                fixture: 'service-icons/placeholder.png',
-            }).as('icon-default-green')
 
             // changing icon list's color to green
             cy.get(
-                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]`
+                `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
             ).click()
             // it should load all icons with the green color
-            cy.wait('@icon-default-green')
+            cy.waitOnAllIconsDefaultGreen()
+
             // the color of the marker already placed on the map must switch to green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
@@ -125,7 +118,7 @@ describe('Drawing module tests', () => {
 
             // opening up the icon size selector
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
             ).click()
             // all sizes should be represented
             allStylingSizes.forEach((size) => {
@@ -137,14 +130,14 @@ describe('Drawing module tests', () => {
             cy.get(
                 `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
             ).click()
-            // icons should be reloaded as large green
-            cy.wait('@icon-default-green')
             // the existing icon on the map must be updated to large and green
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
                     new RegExp(
                         `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
                     ),
+                    new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
+                    new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),
                     new RegExp(
                         `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                     ),
@@ -153,14 +146,14 @@ describe('Drawing module tests', () => {
 
             // opening up all icons of the current sets so that we may choose a new one
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
             ).click()
             // picking up the 4th icon of the set
             cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
                 const fourthIcon = defaultIconSet.items[3]
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]`
-                ).click({ force: true })
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
+                ).click()
                 // the KML must be updated with the newly selected icon
                 cy.wait('@update-kml').then((interception) =>
                     cy.checkKMLRequest(interception, [
@@ -172,12 +165,12 @@ describe('Drawing module tests', () => {
             })
             // closing the icons
             cy.get(
-                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]'
-            ).click({ force: true })
+                '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
+            ).click()
             // closing the icon style popup
-            cy.get('[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]').click({
-                force: true,
-            })
+            cy.get(
+                '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
+            ).click()
 
             // changing/editing the title of this marker
             testTitleEdit()

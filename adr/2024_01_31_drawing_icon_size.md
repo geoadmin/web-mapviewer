@@ -91,8 +91,8 @@ With table and following the openlayer scale formulas our Icon size should be
 | --------- | ------------- | ----------- | -------------- |
 | small     | 0.5           | 0.75        | 24             |
 | medium    | 0.75          | 1.125       | 36             |
-| big       | 1             | 1.5         | 48             |
-| bigger    | 1.25          | 1.875       | 60             |
+| large     | 1             | 1.5         | 48             |
+| xlarge    | 1.25          | 1.875       | 60             |
 
 \* `kml_scale` := `ol_scale` \* `size` / 32 => `ol_scale` \* 1.5
 
@@ -102,5 +102,5 @@ With table and following the openlayer scale formulas our Icon size should be
 | ------ | ------------ | --------- |
 | small  | 1            | 1         |
 | medium | 1.5          | 1.5       |
-| big    | 2            | 2         |
-| bigger | -            | 2.5       |
+| large  | 2            | 2         |
+| xlarge | -            | 2.5       |

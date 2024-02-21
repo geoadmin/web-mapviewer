@@ -2,6 +2,7 @@ import { Icon as olIcon } from 'ol/style'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
+import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import { allStylingColors, allStylingSizes, MEDIUM, RED } from '@/utils/featureStyleUtils'
 
 /** @enum */
@@ -152,7 +153,7 @@ export default class EditableFeature extends SelectableFeature {
         // as well as to use browser cache more efficiently we get all the
         // icons at the default scale of 1 (48x48px) and do the scaling
         // on the client
-        return this._icon?.generateURL(this.fillColor)
+        return this._icon?.generateURL(this.fillColor, DEFAULT_ICON_URL_PARAMS.scale)
     }
 
     generateOpenlayersIcon() {
@@ -162,6 +163,7 @@ export default class EditableFeature extends SelectableFeature {
                   crossOrigin: 'Anonymous',
                   anchor: this.icon.anchor,
                   scale: this.iconSizeScale,
+                  size: DEFAULT_ICON_URL_PARAMS.size,
               })
             : null
     }
