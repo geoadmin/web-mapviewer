@@ -25,6 +25,15 @@ function generateFeatureIdForList(feature, indexInList) {
     }
     return featureId
 }
+function highlightFeature(feature) {
+    store.dispatch('setHighlightedFeatureId', {
+        featureId: feature?.id,
+        dispatcher: 'FeatureList.vue',
+    })
+}
+function clearHighlightedFeature() {
+    store.dispatch('setHighlightedFeatureId', { featureId: null, dispatcher: 'FeatureList.vue' })
+}
 </script>
 
 <template>
@@ -38,18 +47,27 @@ function generateFeatureIdForList(feature, indexInList) {
             :key="generateFeatureIdForList(feature, index)"
             :feature="feature"
             class="feature-list-item"
+            @mouseenter.passive="highlightFeature(feature)"
+            @mouseleave.passive="clearHighlightedFeature"
         />
     </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
+@import 'src/scss/variables-admin.module';
+
+$feature-padding: 5px;
 
 .feature-list {
     margin: 0;
-    padding: 0;
+    padding: $feature-padding;
     list-style: none;
 
+    &-item:hover {
+        box-sizing: border-box;
+        outline: $feature-padding solid $mocassin-to-red-1;
+    }
     &-row {
         display: grid;
         // on mobile (default size) only one column

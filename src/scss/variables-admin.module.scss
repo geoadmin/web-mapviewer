@@ -49,9 +49,16 @@ $admin-icons: 'Admin Icons';
 $focus-outline-size: 3px;
 $focus-outline: $focus-outline-size solid $malibu;
 
+// 2 passing colors were picked through this tool (using mocassin and red as start and end)
+// https://www.vis4.net/palettes/#/4|s|fffab2,ffff35,f7001d|ffffe0,ff005e,93003a|1|1
+$mocassin-to-red-1: #ffc248;
+$mocassin-to-red-2: #ff7e29;
+
 :export {
   white: #{$white};
   red: #{$red};
   mocassin: #{$mocassin};
-  venetian-red: #{$venetian-red};
+  mocassinToRed1: #{$mocassin-to-red-1};
+  mocassinToRed2: #{$mocassin-to-red-2};
+  venetianRed: #{$venetian-red};
 }

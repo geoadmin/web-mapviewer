@@ -7,20 +7,75 @@ import circleImage from '@/modules/map/assets/circle.png'
 import crossImage from '@/modules/map/assets/cross.png'
 import markerImage from '@/modules/map/assets/marker.png'
 import pointImage from '@/modules/map/assets/point.png'
+import variables from '@/scss/variables-admin.module.scss'
+
+const { red, mocassin, mocassinToRed1, mocassinToRed2, white } = variables
+
+// OL needs color as RGBA arrays, so we convert them through this function
+function hexToRgba(hexValue, alpha = 1.0) {
+    return [
+        ...hexValue
+            .replaceAll('#', '')
+            .match(/.{1,2}/g)
+            .map((value) => parseInt(value, 16)),
+        alpha,
+    ]
+}
 
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
 export const highlightedFill = new Fill({
-    color: [255, 255, 0, 0.75],
+    color: hexToRgba(mocassin, 0.6),
 })
 export const highlightedStroke = new Stroke({
-    color: [255, 128, 0, 1],
+    color: hexToRgba(mocassinToRed2, 1.0),
     width: 3,
+})
+
+export const hoveredFill = new Fill({
+    color: hexToRgba(mocassinToRed1, 0.8),
+})
+export const hoveredStroke = new Stroke({
+    color: hexToRgba(red, 1.0),
+    width: 3,
+})
+
+export const hoveredLinePolygonStyle = new Style({
+    fill: hoveredFill,
+    stroke: hoveredStroke,
+    // always on top (in case there's an overlap with another selected feature)
+    zIndex: 9999,
+})
+export const hoveredPointStyle = new Style({
+    image: new CircleStyle({
+        radius: 10,
+        fill: hoveredFill,
+        stroke: hoveredStroke,
+    }),
+    // always on top (in case there's an overlap with another selected feature)
+    zIndex: 9999,
+})
+export const highlightedLinePolygonStyle = new Style({
+    fill: highlightedFill,
+    stroke: highlightedStroke,
 })
 export const highlightPointStyle = new Style({
     image: new CircleStyle({
         radius: 10,
         fill: highlightedFill,
         stroke: highlightedStroke,
+    }),
+})
+
+export const geolocationPointStyle = new Style({
+    image: new CircleStyle({
+        radius: 15,
+        fill: new Fill({
+            color: hexToRgba(red, 0.9),
+        }),
+        stroke: new Stroke({
+            color: hexToRgba(white, 1.0),
+            width: 3,
+        }),
     }),
 })
 
@@ -59,19 +114,7 @@ function imageForMarkerStyle(markerStyle) {
 export function getMarkerStyle(markerStyle) {
     switch (markerStyle) {
         case OpenLayersMarkerStyles.POSITION:
-            // style for geolocation point
-            return new Style({
-                image: new CircleStyle({
-                    radius: 5,
-                    fill: new Fill({
-                        color: [255, 0, 0, 0.9],
-                    }),
-                    stroke: new Stroke({
-                        color: [255, 255, 255, 1],
-                        width: 3,
-                    }),
-                }),
-            })
+            return geolocationPointStyle
 
         case OpenLayersMarkerStyles.BALLOON:
             return new Style({
@@ -107,23 +150,18 @@ export function getMarkerStyle(markerStyle) {
 
 export function highlightFeatureStyle(olFeature) {
     const geometryType = olFeature.get('geometry').getType()
+    const isHovered = !!olFeature.get('isHovered')
     switch (geometryType) {
         case 'LineString':
         case 'MultiLineString':
-            return new Style({
-                stroke: highlightedStroke,
-            })
         case 'Polygon':
         case 'MultiPolygon':
         case 'Circle':
         case 'GeometryCollection':
-            return new Style({
-                stroke: highlightedStroke,
-                fill: highlightedFill,
-            })
+            return isHovered ? hoveredLinePolygonStyle : highlightedLinePolygonStyle
         case 'Point':
         case 'MultiPoint':
-            return highlightPointStyle
+            return isHovered ? hoveredPointStyle : highlightPointStyle
         default:
             return null
     }
