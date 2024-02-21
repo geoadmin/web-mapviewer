@@ -281,7 +281,7 @@ export default {
         }
     },
     unmounted() {
-        this.setCameraPosition({ position: null, source: 'CesiumMap unmount' })
+        this.setCameraPosition({ position: null, dispatcher: 'CesiumMap.vue/unmount' })
         this.viewer.destroy()
         delete this.viewer
     },
@@ -397,7 +397,7 @@ export default {
                 // reduce screen space error to downgrade visual quality but speed up tests
                 globe.maximumScreenSpaceError = 30
             }
-            this.mapModuleReady()
+            this.mapModuleReady({ dispatcher: 'CesiumMap.vue' })
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
@@ -472,7 +472,7 @@ export default {
                     pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
                     roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
                 },
-                source: 'CesiumMap camera move end',
+                dispatcher: 'CesiumMap.vue/onCameraMoveEnd',
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {
@@ -594,7 +594,7 @@ export default {
                 const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
                 this.setCenter({
                     center: proj4(WGS84.epsg, this.projection.epsg, [lon, lat]),
-                    source: 'CesiumMap',
+                    dispatcher: 'CesiumMap.vue',
                 })
             }
         },

@@ -71,9 +71,15 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 // Meaning we must remove the old one from the layers; it will otherwise be there twice
                 // (once the pristine "old" KML, and once the new copy)
                 if (activeKmlLayer.value) {
-                    await store.dispatch('removeLayer', activeKmlLayer.value)
+                    await store.dispatch('removeLayer', {
+                        layer: activeKmlLayer.value,
+                        dispatcher: 'useKmlDataManagement.composable/saveDrawing',
+                    })
                 }
-                await store.dispatch('addLayer', kmlLayer)
+                await store.dispatch('addLayer', {
+                    layer: kmlLayer,
+                    dispatcher: 'useKmlDataManagement.composable/saveDrawing',
+                })
                 saveState.value = DrawingState.SAVED
             } else {
                 // if a KMLLayer is already defined, we update it

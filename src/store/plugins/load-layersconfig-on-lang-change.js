@@ -1,8 +1,10 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
-import loadTopicsFromBackend, { loadTopicTreeForTopic } from '@/api/topics.api'
+import loadTopicsFromBackend from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
+
+const STORE_DISPATCHER_LANG_CHANGE = 'load-layersconfig-on-lang-change'
 
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
@@ -31,10 +33,14 @@ async function loadLayersConfig(lang) {
     }
 }
 
-const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
+const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId, dispatcher) => {
     try {
-        const layersConfig = [...(await loadLayersConfig(store.state.i18n.lang))]
+        log.debug(
+            `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher}`
+        )
+        const layersConfig = [...(await loadLayersConfig(lang))]
         const topicsConfig = await loadTopicsFromBackend(layersConfig)
+        log.debug(`Finished loading layers config and topics`)
 
         // adding SWISSIMAGE as a possible background for 3D
         const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
@@ -58,23 +64,9 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
             )
         }
 
-        store.dispatch('setLayerConfig', layersConfig)
-        store.dispatch('setTopics', topicsConfig)
-        if (store.state.topics.current) {
-            const tree = await loadTopicTreeForTopic(
-                store.state.i18n.lang,
-                store.state.topics.current,
-                store.state.layers.config
-            )
-            store.dispatch('setTopicTree', tree.layers)
-            store.dispatch('setTopicTreeOpenedThemesIds', tree.itemIdToOpen)
-        } else {
-            // if no topic was set in the URL, we load the default topic ECH
-            store.dispatch(
-                'changeTopic',
-                topicsConfig.find((topic) => topic.id === 'ech')
-            )
-        }
+        store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
+        store.dispatch('setTopics', { topics: topicsConfig, dispatcher })
+        log.debug(`layers config and topics dispatched`)
     } catch (error) {
         log.error(error)
     }
@@ -88,7 +80,12 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store) => {
 const loadLayersConfigOnLangChange = (store) => {
     store.subscribe((mutation) => {
         if (mutation.type === SET_LANG_MUTATION_KEY) {
-            loadLayersAndTopicsConfigAndDispatchToStore(store)
+            loadLayersAndTopicsConfigAndDispatchToStore(
+                store,
+                mutation.payload.lang,
+                store.state.topics.current,
+                STORE_DISPATCHER_LANG_CHANGE
+            )
                 .then(() => {
                     log.debug('Layers config for new lang loaded with success')
                 })
@@ -97,14 +94,6 @@ const loadLayersConfigOnLangChange = (store) => {
                 })
         }
     })
-    // on app init, we load the first layersConfig
-    loadLayersAndTopicsConfigAndDispatchToStore(store)
-        .then(() => {
-            log.debug('Initial layers config loaded')
-        })
-        .catch((err) => {
-            log.error('Error while loading initial layers config', err)
-        })
 }
 
 export default loadLayersConfigOnLangChange

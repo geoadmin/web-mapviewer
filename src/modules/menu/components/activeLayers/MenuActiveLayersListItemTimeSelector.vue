@@ -50,6 +50,8 @@ import {
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/api/layers/LayerTimeConfigEntry.class'
 
+const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST_TIME = 'MenuActiveLayersListItemTimeSelector.vue'
+
 export default {
     props: {
         layerId: {
@@ -119,6 +121,7 @@ export default {
             this.setTimedLayerCurrentYear({
                 layerId: this.layerId,
                 year,
+                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST_TIME,
             })
         },
         hidePopover() {

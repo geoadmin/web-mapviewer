@@ -1,9 +1,8 @@
 <template>
     <MenuSection
-        v-if="currentTopic"
         id="menu-topic-section"
         ref="menuTopicSection"
-        :title="$t(currentTopic?.id)"
+        :title="$t(currentTopic)"
         :show-content="showTopicTree"
         light
         data-cy="menu-topic-section"
@@ -20,7 +19,7 @@
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
                 :topics="allTopics"
-                :current-id="currentTopic?.id"
+                :current-id="currentTopic"
                 @select-topic="selectTopic"
                 @close="showTopicSelectionPopup = false"
             />
@@ -82,7 +81,7 @@ export default {
             this.showTopicSelectionPopup = true
         },
         selectTopic(topic) {
-            this.changeTopic(topic)
+            this.changeTopic({ topicId: topic.id, dispatcher: 'MenuTopicSection.vue' })
             this.showTopicSelectionPopup = false
         },
         close() {

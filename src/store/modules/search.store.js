@@ -38,38 +38,43 @@ const actions = {
             // checking first if this corresponds to a set of coordinates (or a what3words)
             const coordinate = coordinateFromString(query, currentProjection)
             if (coordinate) {
-                dispatch('setCenter', { center: coordinate, source: 'search coordinates' })
+                const dispatcherCoordinate = 'search.store/setSearchQuery/coordinate'
+                dispatch('setCenter', {
+                    center: coordinate,
+                    dispatcher: dispatcherCoordinate,
+                })
                 if (currentProjection instanceof CustomCoordinateSystem) {
                     dispatch('setZoom', {
                         zoom: currentProjection.transformStandardZoomLevelToCustom(
                             STANDARD_ZOOM_LEVEL_1_25000_MAP
                         ),
-                        source: 'search coordinates',
+                        dispatcher: dispatcherCoordinate,
                     })
                 } else {
                     dispatch('setZoom', {
                         zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
-                        source: 'search coordinates',
+                        dispatcher: dispatcherCoordinate,
                     })
                 }
                 dispatch('setPinnedLocation', coordinate)
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
+                    const dispatcherWhat3words = 'search.store/setSearchQuery/what3words'
                     dispatch('setCenter', {
                         center: what3wordLocation,
-                        source: 'search what3words',
+                        dispatcher: dispatcherWhat3words,
                     })
                     if (currentProjection instanceof CustomCoordinateSystem) {
                         dispatch('setZoom', {
                             zoom: currentProjection.transformStandardZoomLevelToCustom(
                                 STANDARD_ZOOM_LEVEL_1_25000_MAP
                             ),
-                            source: 'search what3words',
+                            dispatcher: dispatcherWhat3words,
                         })
                     } else {
                         dispatch('setZoom', {
                             zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
-                            source: 'search what3words',
+                            dispatcher: dispatcherWhat3words,
                         })
                     }
                     dispatch('setPinnedLocation', what3wordLocation)
@@ -93,9 +98,13 @@ const actions = {
      * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
      */
     selectResultEntry: ({ dispatch }, entry) => {
+        const dipsatcherSelectResultEntry = 'search.store/selectResultEntry'
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
-                dispatch('addLayer', new ActiveLayerConfig(entry.layerId, true))
+                dispatch('addLayer', {
+                    layerConfig: new ActiveLayerConfig(entry.layerId, true),
+                    dispatcher: dipsatcherSelectResultEntry,
+                })
                 break
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {
@@ -103,9 +112,12 @@ const actions = {
                 } else if (entry.zoom) {
                     dispatch('setCenter', {
                         center: entry.coordinates,
-                        source: 'search select entry',
+                        dispatcher: dipsatcherSelectResultEntry,
                     })
-                    dispatch('setZoom', { zoom: entry.zoom, source: 'search select entry' })
+                    dispatch('setZoom', {
+                        zoom: entry.zoom,
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
                 }
                 dispatch('setPinnedLocation', entry.coordinates)
                 break

@@ -21,6 +21,8 @@ import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
+const STORE_DISPATCHER_LAYER_CATALOGUE_ITEM = 'LayerCatalogueItem.vue'
+
 const props = defineProps({
     item: {
         type: AbstractLayer,
@@ -118,11 +120,20 @@ function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
     const matchingActiveLayer = store.getters.getActiveLayerById(item.value.getID())
     if (matchingActiveLayer) {
-        store.dispatch('removeLayer', matchingActiveLayer)
+        store.dispatch('removeLayer', {
+            layer: matchingActiveLayer,
+            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+        })
     } else if (item.value.isExternal) {
-        store.dispatch('addLayer', item.value)
+        store.dispatch('addLayer', {
+            layer: item.value,
+            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+        })
     } else {
-        store.dispatch('addLayer', new ActiveLayerConfig(item.value.getID(), true))
+        store.dispatch('addLayer', {
+            layerConfig: new ActiveLayerConfig(item.value.getID(), true),
+            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+        })
     }
 }
 

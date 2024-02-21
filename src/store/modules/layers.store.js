@@ -4,7 +4,6 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
-import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const getActiveLayerById = (state, layerId) =>
@@ -189,7 +188,8 @@ const actions = {
      *
      * @param {String | AbstractLayer} layerIdOrObject
      */
-    setBackground({ commit, getters }, layerIdOrObject) {
+    setBackground({ commit, getters }, { bgLayer, dispatcher }) {
+        const layerIdOrObject = bgLayer
         let futureBackground
         if (typeof layerIdOrObject === 'string') {
             futureBackground = getters.getLayerConfigById(layerIdOrObject)
@@ -197,9 +197,9 @@ const actions = {
             futureBackground = getters.getLayerConfigById(layerIdOrObject.getID())
         }
         if (futureBackground?.isBackground) {
-            commit('setBackground', futureBackground)
+            commit('setBackground', { bgLayer: futureBackground, dispatcher })
         } else {
-            commit('setBackground', null)
+            commit('setBackground', { bgLayer: null, dispatcher })
         }
     },
     /**
@@ -209,30 +209,27 @@ const actions = {
      *
      * @param {AbstractLayer[]} config
      */
-    setLayerConfig({ commit, state, getters }, config) {
+    setLayerConfig({ commit, state, getters }, { config, dispatcher }) {
         const activeLayerBeforeConfigChange = [...state.activeLayers]
-        commit('clearLayers')
-        commit('setLayerConfig', [...config])
-        activeLayerBeforeConfigChange.forEach((layer) => {
+        commit('setLayerConfig', { config, dispatcher })
+        const layers = activeLayerBeforeConfigChange.map((layer) => {
             const layerConfig = getters.getLayerConfigById(layer.getID())
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
-                commit('addLayer', clone)
                 if (layer.timeConfig) {
-                    commit('setLayerYear', {
-                        layerId: clone.getID(),
-                        year: layer.timeConfig.currentYear,
-                    })
+                    clone.timeConfig.currentYear = layer.timeConfig.currentYear
                 }
+                return clone
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', layer.clone())
+                return layer.clone()
             }
         })
+        commit('setLayers', { layers: layers, dispatcher })
     },
     /**
      * Add a layer to the active layers.
@@ -242,44 +239,59 @@ const actions = {
      * layers list (for instance having a time enabled layer added multiple time with a different
      * timestamp)
      *
-     * @param {String | AbstractLayer | ActiveLayerConfig} layerIdOrObject
+     * @param {AbstractLayer} layer
+     * @param {String} layerId
+     * @param {ActiveLayerConfig} layerConfig
      */
-    async addLayer({ commit, getters }, layerIdOrObject) {
+    addLayer(
+        { commit, getters },
+        { layer = null, layerId = null, layerConfig = null, dispatcher }
+    ) {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
-        let layer = null
-        if (layerIdOrObject instanceof AbstractLayer) {
-            layer = layerIdOrObject.clone()
-        } else if (layerIdOrObject instanceof ActiveLayerConfig) {
+        let clone = null
+        if (layer) {
+            clone = layer.clone()
+        } else if (layerConfig) {
             // Get the AbstractLayer Config object, we need to clone it in order
             // to update the config (opacity/visible) if needed.
-            layer = getters.getLayerConfigById(layerIdOrObject.id)?.clone()
+            clone = getters.getLayerConfigById(layerConfig.id)?.clone() ?? null
 
-            if (layer) {
-                if (layerIdOrObject.visible !== undefined) {
-                    layer.visible = layerIdOrObject.visible
+            if (clone) {
+                if (layerConfig.visible !== undefined) {
+                    clone.visible = layerConfig.visible
                 }
-                if (layerIdOrObject.opacity !== undefined) {
-                    layer.opacity = layerIdOrObject.opacity
+                if (layerConfig.opacity !== undefined) {
+                    clone.opacity = layerConfig.opacity
                 }
             }
-        } else if (typeof layerIdOrObject === 'string') {
-            layer = getters.getLayerConfigById(layerIdOrObject)?.clone()
+        } else if (layerId) {
+            clone = getters.getLayerConfigById(layerId)?.clone() ?? null
         }
-        if (layer) {
-            commit('addLayer', layer)
+        if (clone) {
+            commit('addLayer', { layer: clone, dispatcher })
         } else {
-            log.error('no layer found for payload:', layerIdOrObject)
+            log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
         }
     },
-    removeLayer({ commit }, layerIdOrObject) {
-        if (typeof layerIdOrObject === 'string') {
-            commit('removeLayerWithId', layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
-            commit('removeLayerWithId', layerIdOrObject.getID())
+    /**
+     * Sets the list of active layers. This replace the existing list.
+     *
+     * NOTE: the layers array is automatically deep cloned
+     *
+     * @param {[AbstractLayer]} layers List of active layers
+     */
+    setLayers({ commit }, { layers, dispatcher }) {
+        commit('setLayers', { layers: layers.map((layer) => layer.clone()), dispatcher })
+    },
+    removeLayer({ commit }, { layer = null, layerId = null, dispatcher }) {
+        if (layerId) {
+            commit('removeLayerWithId', { layerId, dispatcher })
+        } else if (layer) {
+            commit('removeLayerWithId', { layerId: layer.getID(), dispatcher })
         } else {
-            log.error('Can not remove layer that is not yet added', layerIdOrObject)
+            log.error('Can not remove layer that is not yet added', layer, layerId, dispatcher)
         }
     },
     /**
@@ -312,8 +324,8 @@ const actions = {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
     },
-    clearLayers({ commit }) {
-        commit('clearLayers')
+    clearLayers({ commit }, args) {
+        commit('clearLayers', args)
     },
     toggleLayerVisibility({ commit, state }, layerIdOrObject) {
         let layer = null
@@ -341,16 +353,9 @@ const actions = {
         }
     },
     setLayerOpacity({ commit }, payload) {
-        if ('opacity' in payload && 'layerId' in payload) {
-            commit('setLayerOpacity', {
-                layerId: payload.layerId,
-                opacity: Number(payload.opacity),
-            })
-        } else {
-            log.error('Cannot set layer opacity invalid payload', payload)
-        }
+        commit('setLayerOpacity', payload)
     },
-    setTimedLayerCurrentYear({ commit, getters }, { layerId, year }) {
+    setTimedLayerCurrentYear({ commit, getters }, { layerId, year, dispatcher }) {
         if (layerId && year) {
             const layer = getters.getActiveLayerById(layerId)
             if (layer && layer.timeConfig) {
@@ -360,6 +365,7 @@ const actions = {
                     commit('setLayerYear', {
                         layerId,
                         year: year,
+                        dispatcher,
                     })
                 } else {
                     log.error('timestamp for year not found, ignoring change', layer, year)
@@ -499,20 +505,23 @@ const actions = {
 }
 
 const mutations = {
-    setBackground(state, backgroundLayer) {
-        state.currentBackgroundLayer = backgroundLayer
+    setBackground(state, { bgLayer }) {
+        state.currentBackgroundLayer = bgLayer
         // forcing its visibility (if not void layer), as 3D layers have their visible flag set to false somehow
         if (state.currentBackgroundLayer) {
             state.currentBackgroundLayer.visible = true
         }
     },
-    setLayerConfig(state, config) {
+    setLayerConfig(state, { config }) {
         state.config = config
     },
-    addLayer(state, layer) {
+    addLayer(state, { layer }) {
         // first, remove it if already present to avoid duplicate layers
         state.activeLayers = removeActiveLayerById(state, layer.getID())
         state.activeLayers.push(layer)
+    },
+    setLayers(state, { layers }) {
+        state.activeLayers = layers
     },
     updateLayer(state, layer) {
         const layer2Update = getActiveLayerById(state, layer.getID())
@@ -524,7 +533,7 @@ const mutations = {
             )
         }
     },
-    removeLayerWithId(state, layerId) {
+    removeLayerWithId(state, { layerId }) {
         state.activeLayers = removeActiveLayerById(state, layerId)
     },
     clearLayers(state) {
@@ -542,7 +551,7 @@ const mutations = {
     setLayerOpacity(state, { layerId, opacity }) {
         const layerMatchingId = getActiveLayerById(state, layerId)
         if (layerMatchingId) {
-            layerMatchingId.opacity = opacity
+            layerMatchingId.opacity = Number(opacity)
         }
     },
     setLayerYear(state, { layerId, year }) {

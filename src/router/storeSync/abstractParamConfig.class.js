@@ -1,3 +1,7 @@
+// NOTE: This is exported but should only be used in this module, if the value is needed outside
+// of this module we should use the string directly to avoid module dependencies.
+export const STORE_DISPATCHER_ROUTER_PLUGIN = 'storeSync.routerPlugin'
+
 /**
  * A description of one URL param that needs synchronization with the app {@link Vuex.Store} with
  * some helper functions.

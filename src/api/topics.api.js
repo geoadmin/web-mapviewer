@@ -71,14 +71,14 @@ const readTopicTreeRecursive = (node, availableLayers) => {
  * Loads the topic tree for a topic. This will be used to create the UI of the topic in the menu.
  *
  * @param {String} lang The lang in which to load the topic tree
- * @param {Topic} topic The topic we want to load the topic tree
+ * @param {String} topicId The topic we want to load the topic tree
  * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
  * @returns {Promise<{ layers: GeoAdminLayer[]; itemIdToOpen: String[] }>} A list of topic's layers
  */
-export const loadTopicTreeForTopic = (lang, topic, layersConfig) => {
+export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
     return new Promise((resolve, reject) => {
         axios
-            .get(`${API_BASE_URL}rest/services/${topic.id}/CatalogServer?lang=${lang}`)
+            .get(`${API_BASE_URL}rest/services/${topicId}/CatalogServer?lang=${lang}`)
             .then((response) => {
                 const treeItems = []
                 const topicRoot = response.data.results.root
@@ -86,10 +86,7 @@ export const loadTopicTreeForTopic = (lang, topic, layersConfig) => {
                     try {
                         treeItems.push(readTopicTreeRecursive(child, layersConfig))
                     } catch (err) {
-                        log.error(
-                            `Error while loading Layer ${child.id} for Topic ${topic.id}`,
-                            err
-                        )
+                        log.error(`Error while loading Layer ${child.id} for Topic ${topicId}`, err)
                     }
                 })
                 const itemIdToOpen = gatherItemIdThatShouldBeOpened(topicRoot)
@@ -152,29 +149,34 @@ const loadTopicsFromBackend = (layersConfig) => {
                                     params.get('layers_timestamp')
                                 ),
                             ]
-                            if (
-                                Array.isArray(rawTopic.activatedLayers) &&
-                                rawTopic.activatedLayers.length > 0
-                            ) {
-                                rawTopic.activatedLayers.forEach((layerId) => {
-                                    let layer = layersConfig.find(
-                                        (layer) => layer.getID() === layerId
-                                    )
-                                    if (layer) {
-                                        // deep copy so that we can reassign values later on
-                                        // (layers come from the Vuex store so it can't be modified directly)
-                                        layer = Object.assign(
-                                            Object.create(Object.getPrototypeOf(layer)),
-                                            layer
-                                        )
-                                        // checking if the layer should be also visible
-                                        layer.visible =
-                                            Array.isArray(rawTopic.selectedLayers) &&
-                                            rawTopic.selectedLayers.indexOf(layerId) !== -1
-                                        layersToActivate.push(layer)
-                                    }
-                                })
-                            }
+                            const activatedLayers = [
+                                ...new Set([
+                                    ...(rawTopic.activatedLayers ?? []),
+                                    ...(rawTopic.selectedLayers ?? []),
+                                ]),
+                            ]
+                                // Filter out layers that have been already added by the infamous
+                                // plConfig topic config that has priority, this avoid duplicate
+                                // layers
+                                .filter(
+                                    (layerId) =>
+                                        !layersToActivate.some((layer) => layer.getID() === layerId)
+                                )
+                            activatedLayers.forEach((layerId) => {
+                                let layer = layersConfig.find((layer) => layer.getID() === layerId)
+                                if (layer) {
+                                    // deep copy so that we can reassign values later on
+                                    // (layers come from the Vuex store so it can't be modified directly)
+                                    layer = layer.clone()
+                                    // checking if the layer should be also visible
+                                    layer.visible =
+                                        rawTopic.selectedLayers?.indexOf(layerId) !== -1 ?? false
+                                    // In the backend the layers are in the wrong order
+                                    // so we need to reverse the order here by simply adding
+                                    // the layer at the beginning of the array
+                                    layersToActivate.unshift(layer)
+                                }
+                            })
                             topics.push(
                                 new Topic(
                                     topicId,

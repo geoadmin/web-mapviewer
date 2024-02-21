@@ -1,7 +1,5 @@
 import log from '@/utils/logging'
 
-export const CHANGE_TOPIC_MUTATION = 'changeTopic'
-
 const state = {
     /**
      * List of all available topics
@@ -10,12 +8,12 @@ const state = {
      */
     config: [],
     /**
-     * Current topic (either default 'ech' at app startup, or another from the config later chosen
-     * by the user)
+     * Current topic ID (either default 'ech' at app startup, or another from the config later
+     * chosen by the user)
      *
-     * @type {Topic}
+     * @type {String}
      */
-    current: null,
+    current: 'ech',
     /**
      * Current topic's layers tree (that will help the user select layers belonging to this topic)
      *
@@ -32,56 +30,53 @@ const state = {
 
 const getters = {
     isDefaultTopic: (state) => {
-        return state.current && state.current.id === 'ech'
+        return state.current === 'ech'
     },
     /** Returns the current topic's id, or `ech` if no topic is selected */
     currentTopicId: (state) => {
-        if (state.current) {
-            return state.current.id
-        }
-        return 'ech'
+        return state.current
+    },
+    currentTopic: (state) => {
+        return state.config.find((topic) => topic.id === state.current)
     },
 }
 
 const actions = {
-    setTopics: ({ commit }, topics) => {
-        if (Array.isArray(topics)) {
-            commit('setTopicConfig', topics)
-        }
+    setTopics: ({ commit }, { topics, dispatcher }) => {
+        commit('setTopics', { topics, dispatcher })
     },
-    setTopicTree: ({ commit }, tree) => {
-        if (Array.isArray(tree)) {
-            commit('setTopicTree', tree)
-        }
+    setTopicTree: ({ commit }, { layers, dispatcher }) => {
+        commit('setTopicTree', { layers: layers.map((layer) => layer.clone()), dispatcher })
     },
-    changeTopic: ({ commit }, topic) => {
-        commit(CHANGE_TOPIC_MUTATION, topic)
-    },
-    setTopicById: ({ commit, state }, topicId) => {
-        const topic = state.config.find((topic) => topic.id === topicId)
-        if (topic) {
-            commit(CHANGE_TOPIC_MUTATION, topic)
+    changeTopic: ({ commit, state }, { topicId, dispatcher }) => {
+        if (
+            state.config.some((topic) => topic.id === topicId) ||
+            // during appLoadingManagement.routerPlugin the topics are not yet set
+            // therefore we cannot validate the topic ID
+            dispatcher === 'appLoadingManagement.routerPlugin'
+        ) {
+            commit('changeTopic', { topicId, dispatcher })
         } else {
-            log.error('No topic found with ID', topicId)
+            log.error(`Invalid topic ID ${topicId}`)
         }
     },
-    setTopicTreeOpenedThemesIds: ({ commit }, themes) => {
-        if (typeof themes === 'string') {
-            commit(
-                'setTopicTreeOpenedThemesIds',
-                themes.indexOf(',') !== -1 ? themes.split(',') : [themes]
-            )
-        } else if (Array.isArray(themes)) {
-            commit('setTopicTreeOpenedThemesIds', themes)
+    setTopicTreeOpenedThemesIds: ({ commit }, { catalogNodes, dispatcher }) => {
+        if (typeof catalogNodes === 'string') {
+            commit('setTopicTreeOpenedThemesIds', {
+                themes: catalogNodes.split(','),
+                dispatcher,
+            })
+        } else if (Array.isArray(catalogNodes)) {
+            commit('setTopicTreeOpenedThemesIds', { themes: catalogNodes.slice(), dispatcher })
         }
     },
 }
 const mutations = {
-    setTopicConfig: (state, topics) => (state.config = [...topics]),
-    setTopicTree: (state, tree) => (state.tree = [...tree]),
-    setTopicTreeOpenedThemesIds: (state, themesIds) => (state.openedTreeThemesIds = [...themesIds]),
+    setTopics: (state, { topics }) => (state.config = topics),
+    setTopicTree: (state, { layers }) => (state.tree = layers),
+    setTopicTreeOpenedThemesIds: (state, { themes }) => (state.openedTreeThemesIds = themes),
+    changeTopic: (state, { topicId }) => (state.current = topicId),
 }
-mutations[CHANGE_TOPIC_MUTATION] = (state, topic) => (state.current = topic)
 
 export default {
     state,

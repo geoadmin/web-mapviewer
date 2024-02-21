@@ -41,7 +41,7 @@ export default {
         ...mapActions(['setLang']),
         changeLang() {
             log.debug('switching locale', this.lang)
-            this.setLang(this.lang)
+            this.setLang({ lang: this.lang, dispatcher: 'LangButton.vue' })
         },
     },
 }

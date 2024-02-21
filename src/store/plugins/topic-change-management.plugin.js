@@ -1,7 +1,8 @@
 import { loadTopicTreeForTopic } from '@/api/topics.api'
-import { CHANGE_TOPIC_MUTATION } from '@/store/modules/topics.store'
+import log from '@/utils/logging'
+import { getUrlQuery } from '@/utils/utils'
 
-let isFirstSetTopic = true
+const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
 
 /**
  * Vuex plugins that will manage topic switching.
@@ -24,47 +25,80 @@ let isFirstSetTopic = true
  * @param store
  */
 const topicChangeManagementPlugin = (store) => {
-    store.subscribe((mutation, state) => {
+    store.subscribe((mutation) => {
         // we listen to the "change topic" mutation
-        if (mutation.type === CHANGE_TOPIC_MUTATION) {
-            const currentTopic = state.topics.current
-            // we only set background (from topic) after app startup
-            // otherwise, the URL param bgLayer is ignored/overwritten by the setTopic
-            // we set it anyway if the URL doesn't contain a bgLayer URL param
-            if (!isFirstSetTopic || window.location.href.indexOf('bgLayer=') === -1) {
+        if (
+            // During application startup we trigger a changeTopic before the topics are loaded
+            // therefore in this case we ignore the changeTopic event
+            (mutation.type === 'changeTopic' && store.state.topics.config.length > 0) ||
+            mutation.type === 'setTopics'
+        ) {
+            log.debug(`Topic change management plugin: topic changed to`, mutation.payload)
+
+            const currentTopic = store.getters.currentTopic
+            const rawQueryParams = getUrlQuery()
+
+            // we only set background (from topic) when the user changed the topic from the menu.
+            // If the topic changed via the URL router plugin or when changing the language
+            // (topics are translated), we ignore the background from topics unless there is no
+            // bgLayers query parameter in URL. This allow a user to change the default topic
+            // background and create a permalink with a different background and layers.
+            // On the otherhand at startup if no bgLayers query parameter is found in URL we need
+            // to setup the default background based on topic.
+            if (
+                mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
+                !rawQueryParams.has('bgLayer')
+            ) {
                 if (currentTopic.defaultBackgroundLayer) {
-                    store.dispatch('setBackground', currentTopic.defaultBackgroundLayer.getID())
+                    store.dispatch('setBackground', {
+                        bgLayer: currentTopic.defaultBackgroundLayer.getID(),
+                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                    })
                 } else {
-                    store.dispatch('setBackground', null)
+                    store.dispatch('setBackground', {
+                        bgLayer: null,
+                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                    })
                 }
             }
-            // we only set/clear layers after the first setTopic has occurred (after app init)
-            if (!isFirstSetTopic) {
-                store.dispatch('clearLayers')
+
+            // we only set the default topic active layers when the user changed the topic from the
+            // menu. If the topic changed via the URL router plugin or when changing the language
+            // (topics are translated), we ignore the default active layers from topics. This allow
+            // a user to change the default topic active layers and to create a permalink with
+            // different layers.
+            if (
+                mutation.payload.dispatcher === 'MenuTopicSection.vue' ||
+                !rawQueryParams.has('layers')
+            ) {
+                store.dispatch('setLayers', {
+                    layers: currentTopic.layersToActivate,
+                    dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                })
             }
-            // at init, if there is no active layer yet, but the topic has some, we add them
-            // after init we always add all layers from topic
-            if (!isFirstSetTopic || state.layers.activeLayers.length === 0) {
-                // somehow topic layers are stored in reverse (top to bottom) so we swap the order before adding them
-                currentTopic.layersToActivate
-                    .slice()
-                    .reverse()
-                    .forEach((layer) => {
-                        store.dispatch('addLayer', layer)
-                    })
-            }
+
             // loading topic tree
             loadTopicTreeForTopic(
                 store.state.i18n.lang,
-                currentTopic,
+                currentTopic.id,
                 store.state.layers.config
             ).then((topicTree) => {
-                store.dispatch('setTopicTree', topicTree.layers)
-                // checking that no values were set in the URL at app startup, otherwise we might overwrite them here
-                if (!isFirstSetTopic || store.state.topics.openedTreeThemesIds.length === 0) {
-                    store.dispatch('setTopicTreeOpenedThemesIds', topicTree.itemIdToOpen)
+                store.dispatch('setTopicTree', {
+                    layers: topicTree.layers,
+                    dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                })
+                // checking that no values were set in the URL at app startup, otherwise we might
+                // overwrite them here
+                if (store.state.topics.openedTreeThemesIds.length === 0) {
+                    store.dispatch('setTopicTreeOpenedThemesIds', {
+                        catalogNodes: topicTree.itemIdToOpen,
+                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                    })
                 }
-                isFirstSetTopic = false
+
+                log.debug(
+                    `Finished Topic change management plugin: topic changed to ${mutation.payload}`
+                )
             })
         }
     })

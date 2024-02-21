@@ -174,3 +174,17 @@ export function geometryInfo(type, coordinates, epsg) {
 export function formatAngle(value, digits = 2) {
     return `${value.toFixed(digits)}°`
 }
+
+/**
+ * Returns the URL raw query parameters.
+ *
+ * @returns {URLSearchParams} Parsed URL query parameters
+ * @WARNING This method should be used with care and should only be
+ * used to get URL query parameter that are identical in legacy URL paramenters !
+ */
+export function getUrlQuery() {
+    return new URLSearchParams(
+        // The legacy link uses the query, while new permalink are behind the hash
+        window.location.search || window.location.hash.replace('#/map?', '')
+    )
+}

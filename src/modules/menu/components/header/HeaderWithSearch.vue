@@ -64,8 +64,9 @@ export default {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
             currentLang: (state) => state.i18n.lang,
+            currentTopicId: (state) => state.topics.current,
         }),
-        ...mapGetters(['currentTopicId', 'isPhoneMode', 'hasDevSiteWarning']),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
     },
     mounted() {
         this.$nextTick(() => {
