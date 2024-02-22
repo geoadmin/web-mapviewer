@@ -79,6 +79,7 @@
         "vuex": "^4.1.0"
     },
     "devDependencies": {
+        "@4tw/cypress-drag-drop": "^2.2.5",
         "@cypress/vite-dev-server": "^5.0.7",
         "@cypress/vue": "^6.0.0",
         "@nuintun/qrcode": "^3.4.0",

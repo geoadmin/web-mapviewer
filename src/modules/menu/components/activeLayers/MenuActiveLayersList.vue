@@ -35,8 +35,6 @@ let sortable
 onMounted(() => {
     sortable = Sortable.create(activeLayersList.value, {
         animation: 150,
-        delay: 200,
-        delayOnTouchOnly: true,
         onStart: function () {
             aLayerIsDragged.value = true
         },
