@@ -102,7 +102,6 @@ const storeSyncConfig = [
         ''
     ),
     new CrossHairParamConfig(),
-
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(

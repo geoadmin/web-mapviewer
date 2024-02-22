@@ -14,7 +14,7 @@ const watchedMutations = [
 ]
 
 const mutationNotTriggeredByModule = (mutation) =>
-    pendingMutationTriggeredByThisModule.indexOf(mutation.type) === -1
+    mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN
 const mutationWatched = (mutation) => watchedMutations.includes(mutation.type)
 
 /**
@@ -39,7 +39,6 @@ const isRoutePushNeeded = (store, currentRoute) => {
 }
 
 // flag to distinguish URL change originated by this module or by another source
-const pendingMutationTriggeredByThisModule = []
 let routeChangeIsTriggeredByThisModule = false
 
 /**
@@ -50,7 +49,12 @@ let routeChangeIsTriggeredByThisModule = false
  * @param {Router} router
  */
 function storeMutationWatcher(store, mutation, router) {
-    log.debug('Store mutation', mutation, 'Current route', router.currentRoute.value)
+    log.debug(
+        '[store sync router] store mutation',
+        mutation,
+        'Current route',
+        router.currentRoute.value
+    )
 
     // Ignore mutation that has been triggered by the router.beforeEach below.
     if (mutationNotTriggeredByModule(mutation) && mutationWatched(mutation)) {
@@ -61,7 +65,7 @@ function storeMutationWatcher(store, mutation, router) {
             storeSyncConfig.forEach((paramConfig) =>
                 paramConfig.populateQueryWithStoreValue(query, store)
             )
-            log.info('Store has changed, rerouting app to query', query)
+            log.info('[store sync router] Store has changed, rerouting app to query', query)
             routeChangeIsTriggeredByThisModule = true
             router
                 .push({
@@ -115,16 +119,7 @@ function urlQueryWatcher(store, to) {
         const storeValue = paramConfig.readValueFromStore(store)
 
         const setValueInStore = async (paramConfig, store, value) => {
-            // Preventing store.subscribe above to change what is in the URL, while dispatching this change.
-            // If we don't ignore this next mutation, all other param than the one treated here could go back
-            // to default/store value even though they could be defined differently in the URL.
-            pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
             await paramConfig.populateStoreWithQueryValue(store, value)
-            // removing mutation name from the pending ones
-            pendingMutationTriggeredByThisModule.splice(
-                pendingMutationTriggeredByThisModule.indexOf(paramConfig.mutationsToWatch),
-                1
-            )
         }
 
         if (queryValue && queryValue !== storeValue) {
