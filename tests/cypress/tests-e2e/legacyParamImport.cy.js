@@ -296,7 +296,7 @@ describe('Test on legacy param import', () => {
                     layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
                     layers_opacity: '1,1',
                     layers_visibility: 'false,true',
-                    layers_timestam: ',',
+                    layers_timestamp: '18641231,',
                 },
                 false
             )
@@ -311,7 +311,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.be.false
             })
-            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
