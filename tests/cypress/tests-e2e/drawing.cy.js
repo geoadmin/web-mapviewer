@@ -64,6 +64,12 @@ describe('Drawing module tests', () => {
 
             cy.wait('@post-kml')
 
+            cy.get('[data-cy="drawing-style-copy-button"]').focus()
+            cy.get('[data-cy="drawing-style-copy-button"]').realClick()
+            cy.get('[data-cy="drawing-style-copy-icon"]').should('have.class', 'fa-check')
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.be.equal("2'660'013.50, 1'185'172.00")
+            })
             // it should show the default icon set by default with the red color in the icon style popup
             cy.wait('@icon-default')
                 .its('request.url')
@@ -244,6 +250,14 @@ describe('Drawing module tests', () => {
                 ])
             })
 
+            cy.get('[data-cy="drawing-style-copy-button"]').focus()
+            cy.get('[data-cy="drawing-style-copy-button"]').click()
+            cy.get('[data-cy="drawing-style-copy-button"]').realClick()
+            cy.get('[data-cy="drawing-style-copy-icon"]').should('have.class', 'fa-check')
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.be.equal("2'660'013.50, 1'185'172.00")
+            })
+
             testTitleEdit()
 
             // Opening text style edit popup
@@ -315,6 +329,7 @@ describe('Drawing module tests', () => {
                 ])
                 kmlId = interception.response.body.id
             })
+            cy.get('[data-cy="drawing-style-copy-button"]').should('not.exist')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .then((features) => {

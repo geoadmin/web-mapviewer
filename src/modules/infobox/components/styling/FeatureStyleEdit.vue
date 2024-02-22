@@ -211,7 +211,13 @@ function onDelete() {
                 <sup>2</sup>
             </div>
         </div>
-        <div :class="readOnly ? 'd-flex justify-content-end' : 'd-flex justify-content-between'">
+        <div
+            :class="
+                readOnly
+                    ? 'd-flex justify-content-end align-items-center'
+                    : 'd-flex justify-content-between align-items-center'
+            "
+        >
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
@@ -262,7 +268,7 @@ function onDelete() {
                 </DrawingStylePopoverButton>
 
                 <button
-                    class="btn btn-sm btn-light d-flex"
+                    class="btn btn-sm btn-light d-flex mb-auto"
                     data-cy="drawing-style-delete-button"
                     @click="onDelete"
                 >

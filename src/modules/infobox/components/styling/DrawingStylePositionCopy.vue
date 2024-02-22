@@ -6,8 +6,12 @@
                 {{ formatCoordinates(coordinates.slice(0, 2)) }}
             </div>
         </div>
-        <button class="btn btn-sm btn-light d-flex" @click="copyValue">
-            <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+        <button
+            class="btn btn-sm btn-light d-flex"
+            data-cy="drawing-style-copy-button"
+            @click="copyValue"
+        >
+            <FontAwesomeIcon data-cy="drawing-style-copy-icon" class="icon" :icon="buttonIcon" />
         </button>
     </div>
 </template>
