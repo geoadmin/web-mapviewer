@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex">
-        <div class="small d-flex">
-            <FontAwesomeIcon icon="fas fa-map-marker-alt" />
+        <div class="small d-flex align-items-center">
+            <FontAwesomeIcon class="small" icon="fas fa-map-marker-alt" />
             &nbsp;
             {{ formatCoordinates(coordinates.slice(0, 2)) }}
         </div>
@@ -13,8 +13,6 @@
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import tippy from 'tippy.js'
-import { computed, ref, toRefs } from 'vue'
 
 import { LV03Format } from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'

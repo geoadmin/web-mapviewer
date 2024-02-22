@@ -11,6 +11,7 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
+import DrawingStylePositionCopy from '@/modules/infobox/components/styling/DrawingStylePositionCopy.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
@@ -142,10 +143,6 @@ const isFeaturePolygon = computed(() => {
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
-function formatCoordinates(coordinates) {
-    return LV03Format.format(coordinates)
-}
-
 function roundValueIfGreaterThan(value, threshold, divider) {
     if (value > threshold) {
         return `${round(value / divider, 2)}`
@@ -169,21 +166,6 @@ function onIconSizeChange(iconSize) {
 }
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
-}
-
-async function copyValue() {
-    try {
-        await navigator.clipboard.writeText(
-            formatCoordinates(feature.value.coordinates.slice(0, 2)).toString()
-        )
-        copied.value = true
-        // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
-        setTimeout(() => {
-            copied.value = false
-        }, 1000)
-    } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
-    }
 }
 </script>
 
@@ -229,7 +211,7 @@ async function copyValue() {
                 <sup>2</sup>
             </div>
         </div>
-        <div class="d-flex">
+        <div :class="readOnly ? 'd-flex justify-content-end' : 'd-flex justify-content-between'">
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
@@ -240,7 +222,7 @@ async function copyValue() {
                 >
                     <div data-cy="drawing-style-text-popup">
                         <DrawingStyleSizeSelector
-                            class="mb-3"
+                            class=""
                             :current-size="feature.textSize"
                             @change="onTextSizeChange"
                         />
@@ -286,18 +268,13 @@ async function copyValue() {
                 >
                     <FontAwesomeIcon icon="far fa-trash-alt" />
                 </button>
-
-                <div v-if="isFeatureMarker || isFeatureText" class="d-flex">
-                    <div class="small d-flex">
-                        <FontAwesomeIcon icon="fas fa-map-marker-alt" />
-                        &nbsp;
-                        {{ formatCoordinates(feature.coordinates.slice(0, 2)) }}
-                    </div>
-                    <button class="btn btn-sm btn-light d-flex" @click="copyValue">
-                        <FontAwesomeIcon class="icon" :icon="buttonIcon" />
-                    </button>
-                </div>
             </div>
+
+            <DrawingStylePositionCopy
+                v-if="isFeatureMarker || isFeatureText"
+                class="gap-1"
+                :coordinates="feature.coordinates"
+            />
         </div>
     </div>
 </template>
