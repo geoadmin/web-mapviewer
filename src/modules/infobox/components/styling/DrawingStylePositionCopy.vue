@@ -1,9 +1,10 @@
 <template>
-    <div class="d-flex">
-        <div class="small d-flex align-items-center">
-            <FontAwesomeIcon class="small" icon="fas fa-map-marker-alt" />
-            &nbsp;
-            {{ formatCoordinates(coordinates.slice(0, 2)) }}
+    <div class="d-flex align-items-center">
+        <div class="small d-flex align-items-center text-end">
+            <div>
+                <FontAwesomeIcon class="small" icon="fas fa-map-marker-alt" />
+                {{ formatCoordinates(coordinates.slice(0, 2)) }}
+            </div>
         </div>
         <button class="btn btn-sm btn-light d-flex" @click="copyValue">
             <FontAwesomeIcon class="icon" :icon="buttonIcon" />

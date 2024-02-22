@@ -262,7 +262,7 @@ function onDelete() {
                 </DrawingStylePopoverButton>
 
                 <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
+                    class="btn btn-sm btn-light d-flex"
                     data-cy="drawing-style-delete-button"
                     @click="onDelete"
                 >
@@ -273,7 +273,7 @@ function onDelete() {
             <DrawingStylePositionCopy
                 v-if="isFeatureMarker || isFeatureText"
                 class="gap-1"
-                :coordinates="feature.coordinates"
+                :coordinates="feature.coordinates[0]"
             />
         </div>
     </div>
