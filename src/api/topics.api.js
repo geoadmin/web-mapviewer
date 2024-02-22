@@ -99,105 +99,92 @@ export const loadTopicTreeForTopic = (lang, topicId, layersConfig) => {
 }
 
 /**
- * Loads all topics (without their tree) from the backend. Those topics will already by filled with
- * the correct layer object, coming from the `layersConfig` param)
+ * Loads all topics (without their tree) from the backend.
  *
- * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
- * @returns {Promise<Topic[]>} All topics available for this app
+ * @returns {Promise<{ topics: [] }>} Raw topics from backend
  */
-const loadTopicsFromBackend = (layersConfig) => {
-    return new Promise((resolve, reject) => {
-        if (!API_BASE_URL) {
-            // this could happen if we are testing the app in unit tests, we simply reject and do nothing
-            reject(new Error('API base URL is undefined'))
-        } else {
-            const topics = []
-            axios
-                .get(`${API_BASE_URL}rest/services`)
-                .then(({ data: rawTopics }) => {
-                    if ('topics' in rawTopics) {
-                        rawTopics.topics.forEach((rawTopic) => {
-                            const {
-                                id: topicId,
-                                backgroundLayers: backgroundLayersId,
-                                defaultBackground: defaultBackgroundLayerId,
-                                plConfig: legacyUrlParams,
-                            } = rawTopic
-                            const backgroundLayers = layersConfig.filter(
-                                (layer) => backgroundLayersId.indexOf(layer.getID()) !== -1
-                            )
-                            const backgroundLayerFromUrlParam =
-                                getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams)
-                            // first we get the background from the "plConfig" of the API response
-                            let defaultBackground = backgroundLayerFromUrlParam
-                            // checking if there was something in the "plConfig"
-                            // null is a valid background as it is the void layer in our app
-                            // so we have to exclude only the "undefined" value and fill this variable
-                            // with what is in "defaultBackground" in this case
-                            if (backgroundLayerFromUrlParam === undefined) {
-                                defaultBackground = backgroundLayers.find(
-                                    (layer) => layer.getID() === defaultBackgroundLayerId
-                                )
-                            }
-                            const params = new URLSearchParams(legacyUrlParams)
-                            const layersToActivate = [
-                                ...getLayersFromLegacyUrlParams(
-                                    layersConfig,
-                                    params.get('layers'),
-                                    params.get('layers_visibility'),
-                                    params.get('layers_opacity'),
-                                    params.get('layers_timestamp')
-                                ),
-                            ]
-                            const activatedLayers = [
-                                ...new Set([
-                                    ...(rawTopic.activatedLayers ?? []),
-                                    ...(rawTopic.selectedLayers ?? []),
-                                ]),
-                            ]
-                                // Filter out layers that have been already added by the infamous
-                                // plConfig topic config that has priority, this avoid duplicate
-                                // layers
-                                .filter(
-                                    (layerId) =>
-                                        !layersToActivate.some((layer) => layer.getID() === layerId)
-                                )
-                            activatedLayers.forEach((layerId) => {
-                                let layer = layersConfig.find((layer) => layer.getID() === layerId)
-                                if (layer) {
-                                    // deep copy so that we can reassign values later on
-                                    // (layers come from the Vuex store so it can't be modified directly)
-                                    layer = layer.clone()
-                                    // checking if the layer should be also visible
-                                    layer.visible =
-                                        rawTopic.selectedLayers?.indexOf(layerId) !== -1 ?? false
-                                    // In the backend the layers are in the wrong order
-                                    // so we need to reverse the order here by simply adding
-                                    // the layer at the beginning of the array
-                                    layersToActivate.unshift(layer)
-                                }
-                            })
-                            topics.push(
-                                new Topic(
-                                    topicId,
-                                    backgroundLayers,
-                                    defaultBackground,
-                                    layersToActivate
-                                )
-                            )
-                        })
-                    } else {
-                        reject(new Error('Wrong API output structure'))
-                    }
-                    resolve(topics)
-                })
-                .catch((error) => {
-                    const message = 'Error while loading topics config from backend'
-                    log.error(message, error)
-                    reject(message)
-                })
-        }
-    })
+export async function loadTopics() {
+    try {
+        const response = await axios.get(`${API_BASE_URL}rest/services`)
+        return response.data
+    } catch (error) {
+        log.error(`Failed to load topics from backend`, error)
+        return {}
+    }
 }
 
-export default loadTopicsFromBackend
+/**
+ * Parse topics from backend response.
+ *
+ * The topics will already by filled with the correct layer object, coming from the `layersConfig`
+ * param
+ *
+ * @param {GeoAdminLayer[]} layersConfig All available layers for this app (the "layers config")
+ * @returns {Topic[]} All topics available for this app
+ */
+export function parseTopics(layersConfig, rawTopics) {
+    if (!rawTopics.topics) {
+        log.error(`Invalid topics input`, rawTopics)
+        throw new Error('Invalid topics input')
+    }
+    const topics = []
+    rawTopics.topics.forEach((rawTopic) => {
+        const {
+            id: topicId,
+            backgroundLayers: backgroundLayersId,
+            defaultBackground: defaultBackgroundLayerId,
+            plConfig: legacyUrlParams,
+        } = rawTopic
+        const backgroundLayers = layersConfig.filter(
+            (layer) => backgroundLayersId.indexOf(layer.getID()) !== -1
+        )
+        const backgroundLayerFromUrlParam = getBackgroundLayerFromLegacyUrlParams(
+            layersConfig,
+            legacyUrlParams
+        )
+        // first we get the background from the "plConfig" of the API response
+        let defaultBackground = backgroundLayerFromUrlParam
+        // checking if there was something in the "plConfig"
+        // null is a valid background as it is the void layer in our app
+        // so we have to exclude only the "undefined" value and fill this variable
+        // with what is in "defaultBackground" in this case
+        if (backgroundLayerFromUrlParam === undefined) {
+            defaultBackground = backgroundLayers.find(
+                (layer) => layer.getID() === defaultBackgroundLayerId
+            )
+        }
+        const params = new URLSearchParams(legacyUrlParams)
+        const layersToActivate = [
+            ...getLayersFromLegacyUrlParams(
+                layersConfig,
+                params.get('layers'),
+                params.get('layers_visibility'),
+                params.get('layers_opacity'),
+                params.get('layers_timestamp')
+            ),
+        ]
+        const activatedLayers = [
+            ...new Set([...(rawTopic.activatedLayers ?? []), ...(rawTopic.selectedLayers ?? [])]),
+        ]
+            // Filter out layers that have been already added by the infamous
+            // plConfig topic config that has priority, this avoid duplicate
+            // layers
+            .filter((layerId) => !layersToActivate.some((layer) => layer.getID() === layerId))
+        activatedLayers.forEach((layerId) => {
+            let layer = layersConfig.find((layer) => layer.getID() === layerId)
+            if (layer) {
+                // deep copy so that we can reassign values later on
+                // (layers come from the Vuex store so it can't be modified directly)
+                layer = layer.clone()
+                // checking if the layer should be also visible
+                layer.visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1 ?? false
+                // In the backend the layers are in the wrong order
+                // so we need to reverse the order here by simply adding
+                // the layer at the beginning of the array
+                layersToActivate.unshift(layer)
+            }
+        })
+        topics.push(new Topic(topicId, backgroundLayers, defaultBackground, layersToActivate))
+    })
+    return topics
+}

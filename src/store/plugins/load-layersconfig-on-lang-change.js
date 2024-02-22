@@ -1,6 +1,6 @@
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import { loadLayersConfigFromBackend } from '@/api/layers/layers.api'
-import loadTopicsFromBackend from '@/api/topics.api'
+import { loadTopics, parseTopics } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
@@ -38,9 +38,8 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         log.debug(
             `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher}`
         )
-        const layersConfig = [...(await loadLayersConfig(lang))]
-        const topicsConfig = await loadTopicsFromBackend(layersConfig)
-        log.debug(`Finished loading layers config and topics`)
+        const [layersConfig, rawTopics] = await Promise.all([loadLayersConfig(lang), loadTopics()])
+        const topics = parseTopics(layersConfig, rawTopics)
 
         // adding SWISSIMAGE as a possible background for 3D
         const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
@@ -65,7 +64,7 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         }
 
         store.dispatch('setLayerConfig', { config: layersConfig, dispatcher })
-        store.dispatch('setTopics', { topics: topicsConfig, dispatcher })
+        store.dispatch('setTopics', { topics, dispatcher })
         log.debug(`layers config and topics dispatched`)
     } catch (error) {
         log.error(error)
