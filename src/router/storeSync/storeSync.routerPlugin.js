@@ -98,13 +98,14 @@ function storeMutationWatcher(store, mutation, router) {
  *   parameter.
  */
 function urlQueryWatcher(store, to) {
-    log.debug('Url query watcher', routeChangeIsTriggeredByThisModule, to)
     if (routeChangeIsTriggeredByThisModule) {
+        log.debug(`Url query watcher triggered by itself ignore it`, to)
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
         routeChangeIsTriggeredByThisModule = false
         return undefined
     }
+    log.debug(`Url query watcher `, to)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
@@ -129,9 +130,9 @@ function urlQueryWatcher(store, to) {
         if (queryValue && queryValue !== storeValue) {
             // dispatching URL value to the store
             log.debug(
-                'dispatching URL param',
+                '  URL param ',
                 paramConfig.urlParamName,
-                'to store with value',
+                ': dispatching to store with value',
                 queryValue
             )
             pendingStoreDispatch.push(setValueInStore(paramConfig, store, queryValue))
@@ -139,9 +140,9 @@ function urlQueryWatcher(store, to) {
             if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
                 log.debug(
-                    'URL param',
+                    '  URL param',
                     paramConfig.urlParamName,
-                    'was not present in URL, setting it back with value',
+                    ': was not present in URL, setting it back with value',
                     storeValue
                 )
                 newQuery[paramConfig.urlParamName] = storeValue
@@ -149,9 +150,9 @@ function urlQueryWatcher(store, to) {
                 // if the query value has been removed (or set to false for a Boolean) and is meant to disappear from
                 // the URL with this value, we set it to a falsy value in the store and remove it from the URL
                 log.debug(
-                    'URL param',
+                    '  URL param',
                     paramConfig.urlParamName,
-                    'has been removed from the URL, setting it to falsy value in the store'
+                    ': has been removed from the URL, setting it to falsy value in the store'
                 )
                 pendingStoreDispatch.push(
                     setValueInStore(

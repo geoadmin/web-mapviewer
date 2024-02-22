@@ -146,12 +146,9 @@ describe('Test of layer handling', () => {
                     }
                 ).as('externalWMTS')
 
-                cy.goToMapView(
-                    {
-                        layers: fakeLayerUrlId,
-                    },
-                    true
-                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                cy.goToMapView({
+                    layers: fakeLayerUrlId,
+                })
                 cy.wait('@externalWMTSGetCap')
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(1)
@@ -165,12 +162,13 @@ describe('Test of layer handling', () => {
                 cy.checkOlLayer(fakeLayerId)
 
                 // reads and sets non default layer config; visible and opacity
-                cy.goToMapView(
-                    {
-                        layers: `${fakeLayerUrlId},f,0.5`,
-                    },
-                    true
-                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                cy.goToMapView({
+                    layers: `${fakeLayerUrlId},f,0.5`,
+                })
+                // TODO due to a non ideal startup procedure the GetCapabilities is called 3 times
+                // therefore we need to wait for all three otherwise the later wait will not be
+                // sufficient for the last test.
+                cy.wait(Array(3).fill('@externalWMTSGetCap'))
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                     expect(layers).to.be.an('Array').length(1)

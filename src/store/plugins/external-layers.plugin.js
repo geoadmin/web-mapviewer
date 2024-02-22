@@ -19,18 +19,20 @@ import log from '@/utils/logging'
  * @param {Vuex.Store} store
  */
 export default function loadExternalLayerAttributes(store) {
+    const addLayerSubscriber = (layer, state) => {
+        if (layer instanceof ExternalLayer && layer?.isLoading) {
+            log.debug(`Loading state external layer added, trigger attribute updated`, state)
+            updateExternalLayer(store, layer, state.position.projection)
+        }
+    }
     store.subscribe((mutation, state) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload.layer instanceof ExternalLayer &&
-            mutation.payload.layer?.isLoading
-        ) {
-            log.debug(
-                `Loading state external layer added, trigger attribute updated`,
-                mutation,
-                state
-            )
-            updateExternalLayer(store, mutation.payload.layer, state.position.projection)
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer, state)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer, state)
+            })
         }
     })
 }

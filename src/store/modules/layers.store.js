@@ -4,12 +4,34 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
 import { getGpxExtent } from '@/utils/gpxUtils.js'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const getActiveLayerById = (state, layerId) =>
     state.activeLayers.find((layer) => layer.getID() === layerId)
 const removeActiveLayerById = (state, layerId) =>
     state.activeLayers.filter((layer) => layer.getID() !== layerId)
+
+const cloneActiveLayerConfig = (getters, layer) => {
+    const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
+    if (clone) {
+        if (layer.visible != undefined) {
+            clone.visible = layer.visible
+        }
+        if (layer.opacity != undefined) {
+            clone.opacity = layer.opacity
+        }
+        if (layer.customAttributes.year && clone.timeConfig) {
+            const timeConfigEntry = clone.timeConfig.getTimeEntryForYear(
+                layer.customAttributes.year
+            )
+            if (timeConfigEntry) {
+                clone.timeConfig.updateCurrentTimeEntry(timeConfigEntry)
+            }
+        }
+    }
+    return clone
+}
 
 const state = {
     /**
@@ -255,17 +277,7 @@ const actions = {
             clone = layer.clone()
         } else if (layerConfig) {
             // Get the AbstractLayer Config object, we need to clone it in order
-            // to update the config (opacity/visible) if needed.
-            clone = getters.getLayerConfigById(layerConfig.id)?.clone() ?? null
-
-            if (clone) {
-                if (layerConfig.visible !== undefined) {
-                    clone.visible = layerConfig.visible
-                }
-                if (layerConfig.opacity !== undefined) {
-                    clone.opacity = layerConfig.opacity
-                }
-            }
+            clone = cloneActiveLayerConfig(getters, layerConfig)
         } else if (layerId) {
             clone = getters.getLayerConfigById(layerId)?.clone() ?? null
         }
@@ -280,10 +292,24 @@ const actions = {
      *
      * NOTE: the layers array is automatically deep cloned
      *
-     * @param {[AbstractLayer]} layers List of active layers
+     * @param {[AbstractLayer | ActiveLayerConfig | String]} layers List of active layers
      */
-    setLayers({ commit }, { layers, dispatcher }) {
-        commit('setLayers', { layers: layers.map((layer) => layer.clone()), dispatcher })
+    setLayers({ commit, getters }, { layers, dispatcher }) {
+        const clones = layers
+            .map((layer) => {
+                let clone = null
+                if (layer instanceof AbstractLayer) {
+                    clone = layer.clone()
+                } else if (layer instanceof ActiveLayerConfig) {
+                    clone = cloneActiveLayerConfig(getters, layer)
+                } else if (layer instanceof String || typeof layer === 'string') {
+                    // should be string
+                    clone = getters.getLayerConfigById(layer)?.clone() ?? null
+                }
+                return clone
+            })
+            .filter((layer) => layer != null)
+        commit('setLayers', { layers: clones, dispatcher })
     },
     removeLayer({ commit }, { layer = null, layerId = null, dispatcher }) {
         if (layerId) {
