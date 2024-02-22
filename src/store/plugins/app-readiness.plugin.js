@@ -18,7 +18,9 @@ const appReadinessPlugin = (store) => {
     const unsubscribe = store.subscribe((mutation, state) => {
         // Log all mutations for debugging
         log.debug(
-            `[store mutation]: type=${mutation.type} dispatcher=${mutation.payload?.dispatcher ?? null} payload=`,
+            `[store mutation]: type=${mutation.type} dispatcher=${
+                mutation.payload?.dispatcher ?? null
+            } payload=`,
             mutation.payload
         )
 
@@ -46,7 +48,9 @@ const appReadinessPlugin = (store) => {
     if (ENVIRONMENT !== 'production') {
         store.subscribeAction((action, _state) => {
             log.debug(
-                `[store action]: type=${action.type} dispatcher=${action.payload?.dispatcher ?? null} payload=`,
+                `[store action]: type=${action.type} dispatcher=${
+                    action.payload?.dispatcher ?? null
+                } payload=`,
                 action.payload
             )
         })

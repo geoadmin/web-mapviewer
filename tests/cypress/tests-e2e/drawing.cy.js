@@ -134,7 +134,9 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml').then((interception) => {
                 cy.checkKMLRequest(interception, [
                     new RegExp(
-                        `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`
+                        `<IconStyle><scale>${
+                            LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR
+                        }</scale>`
                     ),
                     new RegExp(`<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`),
                     new RegExp(`<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`),

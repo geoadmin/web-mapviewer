@@ -1,4 +1,4 @@
-import getFeature from '@/api/features.api'
+import getFeature from '@/api/features/features.api'
 import log from '@/utils/logging'
 
 import storeSyncConfig from './storeSync/storeSync.config'
