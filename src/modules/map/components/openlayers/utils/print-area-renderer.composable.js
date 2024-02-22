@@ -10,6 +10,7 @@ import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import i18n from '@/modules/i18n'
 import store from '@/store'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
@@ -68,7 +69,7 @@ function encodeGraticule(dpi, projection) {
     }
 }
 
-async function encodeLegend() {
+function encodeLegend() {
     const icons = []
     const visibleLayers = store.getters.visibleLayers
     log.info('visible layers', visibleLayers)
@@ -85,7 +86,7 @@ async function encodeLegend() {
         name: '',
         classes: [
             {
-                name: 'Legend', // TODO(IS): translate this?
+                name: i18n.global.t('legend'),
                 icons: icons,
             },
         ],
@@ -149,8 +150,8 @@ export default function usePrintAreaRenderer(map) {
         await store.dispatch('generateShortLinks', false)
         const shortLink = store.state.share.shortLink
         const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
-        const legend = await encodeLegend()
-        const spec = await encoder.createSpec({
+
+        const mapSpec = {
             map,
             scale: selectedScale.value,
             printResolution: 96,
@@ -163,10 +164,16 @@ export default function usePrintAreaRenderer(map) {
                 url: 'https://map.geo.admin.ch',
                 printLegend: 0,
                 qrimage: qrCodeUrl,
-                legend: legend,
             },
             customizer: customizer,
-        })
+        }
+        if (store.getters.useGraticule) {
+            const legend = encodeLegend()
+            mapSpec.customAttributes.legend = legend
+        } else {
+            mapSpec.customAttributes.printLegend = 0
+        }
+        const spec = await encoder.createSpec(mapSpec)
         log.info('Print spec: ', spec)
         log.info('visible layers', store.getters.visibleLayers)
         window.visibleLayers = store.getters.visibleLayers
