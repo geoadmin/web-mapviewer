@@ -353,22 +353,27 @@ const actions = {
     clearLayers({ commit }, args) {
         commit('clearLayers', args)
     },
-    toggleLayerVisibility({ commit, state }, layerIdOrObject) {
-        let layer = null
-        if (typeof layerIdOrObject === 'string') {
-            layer = getActiveLayerById(state, layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
+    toggleLayerVisibility({ commit, state }, { layerId = null, layer = null, dispatcher }) {
+        let matchingActiveLayer
+        if (layerId) {
+            matchingActiveLayer = getActiveLayerById(state, layerId)
+        } else if (layer instanceof AbstractLayer) {
             // here we are not 100% sure that the instance we have received matches the one stored
             // in activate layers, as the addLayer action creates clones of the config when a layer
             // is added. So we search for the matching instance in the currently active layers.
-            layer = state.activeLayers.find(
-                (activeLayer) => activeLayer.getID() === layerIdOrObject.getID()
+            matchingActiveLayer = state.activeLayers.find(
+                (activeLayer) => activeLayer.getID() === layer.getID()
             )
-        }
-        if (layer) {
-            commit('toggleLayerVisibility', layer)
         } else {
-            log.error('Cannot toggle layer visibility, layer not found', layerIdOrObject)
+            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
+        }
+        if (matchingActiveLayer) {
+            commit('toggleLayerVisibility', {
+                layer: matchingActiveLayer,
+                dispatcher,
+            })
+        } else {
+            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
         }
     },
     setLayerVisibility({ commit }, payload) {
@@ -407,7 +412,7 @@ const actions = {
             log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
-    moveActiveLayerBack({ commit, state, getters }, layerId) {
+    moveActiveLayerBack({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {
             // checking if the layer can be put one step back
@@ -416,12 +421,13 @@ const actions = {
                 commit('moveActiveLayerFromIndexToIndex', {
                     layer: activeLayer,
                     startingIndex: currentIndex,
-                    endingIndex: currentIndex - 1,
+                    endingIndex: Math.max(0, currentIndex - amount),
+                    dispatcher,
                 })
             }
         }
     },
-    moveActiveLayerFront({ commit, state, getters }, layerId) {
+    moveActiveLayerFront({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {
             // checking if the layer can be put one step front
@@ -430,7 +436,8 @@ const actions = {
                 commit('moveActiveLayerFromIndexToIndex', {
                     layer: activeLayer,
                     startingIndex: currentIndex,
-                    endingIndex: currentIndex + 1,
+                    endingIndex: Math.min(state.activeLayers.length - 1, currentIndex + amount),
+                    dispatcher,
                 })
             }
         }
@@ -565,7 +572,7 @@ const mutations = {
     clearLayers(state) {
         state.activeLayers = []
     },
-    toggleLayerVisibility(state, layer) {
+    toggleLayerVisibility(state, { layer }) {
         layer.visible = !layer.visible
     },
     setLayerVisibility(state, { layerId, visible }) {

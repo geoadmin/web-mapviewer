@@ -138,7 +138,10 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
         store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
-        await store.dispatch('toggleLayerVisibility', firstLayer)
+        await store.dispatch('toggleLayerVisibility', {
+            layer: firstLayer,
+            dispatcher: 'unit-test',
+        })
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not adds a layer to the visible layers if its visible flag is set to false when added', async () => {

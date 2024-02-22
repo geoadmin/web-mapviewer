@@ -3,7 +3,8 @@
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
-import { computed, ref, toRefs } from 'vue'
+import Sortable from 'sortablejs'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
@@ -19,14 +20,51 @@ const props = defineProps({
 })
 const { compact } = toRefs(props)
 
+const activeLayersList = ref(null)
+// used to deactivate the hover change of color on layer whenever one of them is dragged
+const aLayerIsDragged = ref(false)
 const showLayerLegendForLayer = ref(null)
 const showLayerDetailsForId = ref(null)
 
 const store = useStore()
-
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
 // So here we swap the order of this array to match the desired order on the UI
 const activeLayers = computed(() => store.state.layers.activeLayers.slice().reverse())
+
+let sortable
+onMounted(() => {
+    sortable = Sortable.create(activeLayersList.value, {
+        animation: 150,
+        delay: 200,
+        delayOnTouchOnly: true,
+        onStart: function () {
+            aLayerIsDragged.value = true
+        },
+        onEnd: function (event) {
+            aLayerIsDragged.value = false
+            const { newIndex, oldIndex, item } = event
+            const layerId = item.dataset.layerId
+            if (newIndex !== oldIndex) {
+                if (newIndex > oldIndex) {
+                    store.dispatch('moveActiveLayerBack', {
+                        layerId,
+                        amount: newIndex - oldIndex,
+                        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+                    })
+                } else {
+                    store.dispatch('moveActiveLayerFront', {
+                        layerId,
+                        amount: oldIndex - newIndex,
+                        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+                    })
+                }
+            }
+        },
+    })
+})
+onBeforeUnmount(() => {
+    sortable?.destroy()
+})
 
 function onToggleLayerDetails(layerId) {
     if (showLayerDetailsForId.value === layerId) {
@@ -77,6 +115,7 @@ function isLastLayer(layerId) {
     <div>
         <div
             v-show="activeLayers.length > 0"
+            ref="activeLayersList"
             data-cy="menu-section-active-layers"
             class="menu-layer-list"
         >
@@ -88,6 +127,8 @@ function isLastLayer(layerId) {
                 :is-first-layer="isFirstLayer(layer.getID())"
                 :is-last-layer="isLastLayer(layer.getID())"
                 :compact="compact"
+                :data-layer-id="layer.getID()"
+                :class="{ 'drag-in-progress': aLayerIsDragged }"
                 @remove-layer="onRemoveLayer"
                 @toggle-layer-visibility="onToggleLayerVisibility"
                 @toggle-layer-details="onToggleLayerDetails"
