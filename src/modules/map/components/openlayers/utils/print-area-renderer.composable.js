@@ -10,6 +10,7 @@ import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { API_SERVICES_BASE_URL } from '@/config'
+import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'print-area-renderer.composable' }
@@ -45,13 +46,18 @@ function createWorldPolygon() {
     return vectorLayer
 }
 
-function encodeGraticule(dpi) {
+function encodeGraticule(dpi, projection) {
+    log.info('Encode graticule for projection:', projection)
+    var gridLayer = 'org.epsg.grid_2056'
+    if (projection.value instanceof CustomCoordinateSystem) {
+        gridLayer = 'org.epsg.grid_2056'
+    }
     return {
         baseURL: 'https://wms.geo.admin.ch/',
         opacity: 1,
         singleTile: true,
         type: 'WMS',
-        layers: ['org.epsg.grid_2056'],
+        layers: [gridLayer],
         format: 'image/png',
         styles: [''],
         customParams: {
@@ -140,7 +146,7 @@ export default function usePrintAreaRenderer(map) {
         if (store.state.print.useGraticule) {
             log.info('Graticule is enabled')
             // Put the graticule in the first layer so it's drawn at the top
-            spec.attributes.map.layers.unshift(encodeGraticule(96))
+            spec.attributes.map.layers.unshift(encodeGraticule(96, store.state.position.projection))
             log.info('Print spec after graticule: ', spec)
         }
 

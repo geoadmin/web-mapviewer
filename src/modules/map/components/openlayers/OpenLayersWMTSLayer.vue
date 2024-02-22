@@ -1,4 +1,5 @@
 <script setup>
+import { getTopLeft, getWidth } from 'ol/extent'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
@@ -78,22 +79,38 @@ function getWMTSUrl(xyzUrl) {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
-    let tileGrid = null
+    let resolutions = []
+    let origin = null
+    let extent = null
+
     if (projection.value instanceof CustomCoordinateSystem) {
-        const matrixIds = []
-
-        for (let z = 0; z < projection.value.getResolutions().length; ++z) {
-            // generate resolutions and matrixIds arrays for this WMTS
-            matrixIds[z] = z
+        resolutions = projection.value.getResolutions()
+        origin = projection.value.getTileOrigin()
+        extent = projection.value.bounds.flatten
+    } else {
+        // TODO(IS): move this to the projection class?
+        extent = projection.value.bounds.flatten
+        origin = getTopLeft(extent)
+        const size = getWidth(extent) / 256
+        resolutions = []
+        for (let z = 0; z < 19; ++z) {
+            resolutions[z] = size / Math.pow(2, z)
         }
-
-        tileGrid = new WMTSTileGrid({
-            resolutions: projection.value.getResolutions(),
-            origin: projection.value.getTileOrigin(),
-            matrixIds: matrixIds,
-            extent: projection.value.bounds.flatten,
-        })
     }
+
+    const matrixIds = []
+
+    for (let z = 0; z < resolutions.length; ++z) {
+        // generate resolutions and matrixIds arrays for this WMTS
+        matrixIds[z] = z
+    }
+
+    const tileGrid = new WMTSTileGrid({
+        resolutions: resolutions,
+        origin: origin,
+        matrixIds: matrixIds,
+        extent: extent,
+    })
 
     const wmtsSource = new WMTSSource({
         layer: layerId.value,
