@@ -638,48 +638,62 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
             }
-            it('Disable the "move front" arrow on the top layer', () => {
-                const layerId = visibleLayerIds[0]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, true, false)
+            it('Disable/enable the "move" arrow correctly', () => {
+                const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
+                cy.openLayerSettings(bottomLayerId)
+                checkOrderButtons(bottomLayerId, true, false)
+                cy.openLayerSettings(topLayerId)
+                checkOrderButtons(topLayerId, false, true)
+                cy.openLayerSettings(middleLayerId)
+                checkOrderButtons(middleLayerId, false, false)
+
+                cy.log('testing disabling of arrow button when order is changing')
+                // moving the middle layer back
+                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                checkOrderButtons(middleLayerId, true, false)
+                // back to the middle
+                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                checkOrderButtons(middleLayerId, false, false)
+                // now moving it to the top
+                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                checkOrderButtons(middleLayerId, false, true)
+                // and back to the middle
+                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                checkOrderButtons(middleLayerId, false, false)
             })
-            it('Disable the "move back" arrow on the bottom layer', () => {
-                const layerId = visibleLayerIds[2]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, true)
-            })
-            it('enables both button for any other layer', () => {
-                const layerId = visibleLayerIds[1]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
-            })
-            it('disable the "move front" arrow on a layer which gets to the top layer', () => {
-                const layerId = visibleLayerIds[1]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, true, false)
-            })
-            it('disable the "move back" arrow on a layer which gets to the bottom layer', () => {
-                const layerId = visibleLayerIds[1]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, false)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, true)
-            })
-            it('enable the "move back" arrow on a layer which is raised from the bottom', () => {
-                const layerId = visibleLayerIds[2]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, false, true)
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, false)
-            })
-            it('enable the "move front" arrow on a layer which is lowered from the top', () => {
-                const layerId = visibleLayerIds[0]
-                cy.openLayerSettings(layerId)
-                checkOrderButtons(layerId, true, false)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`).click()
-                checkOrderButtons(layerId, false, false)
+            it('reorder layers when they are drag and dropped', () => {
+                const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
+                cy.get(`[data-cy="menu-active-layer-${bottomLayerId}"]`)
+                    .should('be.visible')
+                    .drag(`[data-cy="menu-active-layer-${topLayerId}"]`)
+                const checkLayerOrder = (
+                    expectedBottomLayerId,
+                    expectedMiddleLayerId,
+                    expectedTopLayerId
+                ) => {
+                    cy.location('hash').should((hash) => {
+                        const layersParam = new URLSearchParams(hash).get('layers')
+                        const layers = layersParam.split(';')
+                        expect(layers).to.be.an('Array').lengthOf(3)
+                        const [firstUrlLayer, secondUrlLayer, thirdUrlLayer] = layers
+                        expect(firstUrlLayer).to.contains(expectedBottomLayerId)
+                        expect(secondUrlLayer).to.contains(expectedMiddleLayerId)
+                        expect(thirdUrlLayer).to.contains(expectedTopLayerId)
+                    })
+                }
+                // the bottom layer should now be on top, so the order is now
+                // - bottomLayer
+                // - topLayer
+                // - middleLayer
+                checkLayerOrder(middleLayerId, topLayerId, bottomLayerId)
+                cy.get(`[data-cy="menu-active-layer-${middleLayerId}"]`)
+                    .should('be.visible')
+                    .drag(`[data-cy="menu-active-layer-${topLayerId}"]`)
+                // new state is
+                // - bottomLayer
+                // - middleLayer
+                // - topLayer
+                checkLayerOrder(topLayerId, middleLayerId, bottomLayerId)
             })
         })
         context('External layers', () => {
