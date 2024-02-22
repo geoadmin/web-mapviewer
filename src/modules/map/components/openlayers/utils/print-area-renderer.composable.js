@@ -9,7 +9,8 @@ import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import { API_SERVICES_BASE_URL } from '@/config'
+import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
+import store from '@/store'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import log from '@/utils/logging'
 
@@ -53,7 +54,7 @@ function encodeGraticule(dpi, projection) {
         gridLayer = 'org.epsg.grid_2056'
     }
     return {
-        baseURL: 'https://wms.geo.admin.ch/',
+        baseURL: WMS_BASE_URL,
         opacity: 1,
         singleTile: true,
         type: 'WMS',
@@ -64,6 +65,30 @@ function encodeGraticule(dpi, projection) {
             TRANSPARENT: true,
             MAP_RESOLUTION: dpi,
         },
+    }
+}
+
+async function encodeLegend() {
+    const icons = []
+    const visibleLayers = store.getters.visibleLayers
+    log.info('visible layers', visibleLayers)
+
+    for (const layer of visibleLayers) {
+        log.info('Layer:', layer, layer.hasLegend)
+        if (layer.hasLegend) {
+            icons.push(
+                `${API_BASE_URL}/static/images/legends/${layer.getID()}_${store.state.i18n.lang}.png`
+            )
+        }
+    }
+    return {
+        name: '',
+        classes: [
+            {
+                name: 'Legend', // TODO(IS): translate this?
+                icons: icons,
+            },
+        ],
     }
 }
 
@@ -124,7 +149,7 @@ export default function usePrintAreaRenderer(map) {
         await store.dispatch('generateShortLinks', false)
         const shortLink = store.state.share.shortLink
         const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
-
+        const legend = await encodeLegend()
         const spec = await encoder.createSpec({
             map,
             scale: selectedScale.value,
@@ -138,10 +163,13 @@ export default function usePrintAreaRenderer(map) {
                 url: 'https://map.geo.admin.ch',
                 printLegend: 0,
                 qrimage: qrCodeUrl,
+                legend: legend,
             },
             customizer: customizer,
         })
         log.info('Print spec: ', spec)
+        log.info('visible layers', store.getters.visibleLayers)
+        window.visibleLayers = store.getters.visibleLayers
 
         if (store.state.print.useGraticule) {
             log.info('Graticule is enabled')
@@ -156,7 +184,7 @@ export default function usePrintAreaRenderer(map) {
             .then(
                 (url) => {
                     log.info('PDF map url', url)
-                    document.location = url
+                    // document.location = url
                     return url
                 },
                 (err) => {
