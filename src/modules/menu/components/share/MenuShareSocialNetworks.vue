@@ -48,6 +48,10 @@ export default {
                     id: 'twitter',
                     icons: ['fa-brands', 'x-twitter'],
                 },
+                {
+                    id: 'whatsapp',
+                    icons: ['fa-brands', 'whatsapp'],
+                },
             ],
             // while waiting for official app.use support from vue-social-share
             // we can define the network options here instead
