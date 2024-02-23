@@ -140,6 +140,12 @@ describe('Testing the share menu', () => {
                 `https://twitter.com/intent/tweet?text=&url=${encodeURIComponent(dummyShortLink)}`
             )
         })
+        it('opens a whatsapp popup with the short link as content', () => {
+            checkSocialNetworkType(
+                'whatsapp',
+                `https://api.whatsapp.com/send?text=%0D%0A${encodeURIComponent(dummyShortLink)}`
+            )
+        })
     })
     context(
         'iFrame snippet generation',
