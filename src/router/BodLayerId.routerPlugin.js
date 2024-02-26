@@ -1,4 +1,5 @@
 import getFeature from '@/api/features/features.api'
+import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 import storeSyncConfig from './storeSync/storeSync.config'
@@ -84,9 +85,11 @@ function handleBodIdParams(bodIdParams, store, to) {
     store.state.layers.activeLayers.forEach((layer) => {
         activeLayersIds.push(layer.getID())
     })
+
     if (!activeLayersIds.includes(bodIdParams.layer.getID())) {
+        const layerConfig = new ActiveLayerConfig(bodIdParams.layer.getID(), true)
         store.dispatch('addLayer', {
-            layer: bodIdParams.layer,
+            layerConfig: layerConfig,
             dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN,
         })
     }
