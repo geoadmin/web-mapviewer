@@ -4,6 +4,8 @@ import { useStore } from 'vuex'
 
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 
+const dispatcher = { dispatcher: 'FeatureList.vue' }
+
 const props = defineProps({
     direction: {
         type: String,
@@ -28,13 +30,13 @@ function generateFeatureIdForList(feature, indexInList) {
 function highlightFeature(feature) {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: feature?.id,
-        dispatcher: 'FeatureList.vue',
+        ...dispatcher,
     })
 }
 function clearHighlightedFeature() {
     store.dispatch('setHighlightedFeatureId', {
         highlightedFeatureId: null,
-        dispatcher: 'FeatureList.vue',
+        ...dispatcher,
     })
 }
 </script>

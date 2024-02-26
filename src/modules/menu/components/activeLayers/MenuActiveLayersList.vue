@@ -10,7 +10,7 @@ import { useStore } from 'vuex'
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
 import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
 
-const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST = 'MenuActiveLayersList.vue'
+const dispatcher = { dispatcher: 'MenuActiveLayersList.vue' }
 
 const props = defineProps({
     compact: {
@@ -47,13 +47,13 @@ onMounted(() => {
                     store.dispatch('moveActiveLayerBack', {
                         layerId,
                         amount: newIndex - oldIndex,
-                        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+                        ...dispatcher,
                     })
                 } else {
                     store.dispatch('moveActiveLayerFront', {
                         layerId,
                         amount: oldIndex - newIndex,
-                        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+                        ...dispatcher,
                     })
                 }
             }
@@ -72,12 +72,12 @@ function onToggleLayerDetails(layerId) {
     }
 }
 function onRemoveLayer(layerId) {
-    store.dispatch('removeLayer', { layerId, dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST })
+    store.dispatch('removeLayer', { layerId, ...dispatcher })
 }
 function onToggleLayerVisibility(layerId) {
     store.dispatch('toggleLayerVisibility', {
         layerId,
-        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+        ...dispatcher,
     })
 }
 function onOrderChange(layerId, delta) {
@@ -85,12 +85,12 @@ function onOrderChange(layerId, delta) {
     if (delta === 1) {
         store.dispatch('moveActiveLayerFront', {
             layerId,
-            dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+            ...dispatcher,
         })
     } else if (delta === -1) {
         store.dispatch('moveActiveLayerBack', {
             layerId,
-            dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+            ...dispatcher,
         })
     }
 }
@@ -98,7 +98,7 @@ function onOpacityChange(layerId, opacity) {
     store.dispatch('setLayerOpacity', {
         layerId,
         opacity,
-        dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST,
+        ...dispatcher,
     })
 }
 function isFirstLayer(layerId) {

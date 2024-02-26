@@ -29,18 +29,18 @@ const actions = {
      * @param {Object} payload
      * @param {String} payload.query
      */
-    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '' }) => {
+    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '', dispatcher }) => {
         let results = new CombinedSearchResults()
-        commit('setSearchQuery', query)
+        commit('setSearchQuery', { query, dispatcher })
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
-            const coordinate = coordinateFromString(query, currentProjection)
-            if (coordinate) {
-                const dispatcherCoordinate = 'search.store/setSearchQuery/coordinate'
+            const coordinates = coordinateFromString(query, currentProjection)
+            if (coordinates) {
+                const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
                 dispatch('setCenter', {
-                    center: coordinate,
+                    center: coordinates,
                     dispatcher: dispatcherCoordinate,
                 })
                 if (currentProjection instanceof CustomCoordinateSystem) {
@@ -56,10 +56,10 @@ const actions = {
                         dispatcher: dispatcherCoordinate,
                     })
                 }
-                dispatch('setPinnedLocation', coordinate)
+                dispatch('setPinnedLocation', { coordinates, dispatcher: dispatcherCoordinate })
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
-                    const dispatcherWhat3words = 'search.store/setSearchQuery/what3words'
+                    const dispatcherWhat3words = `${dispatcher}/search.store/setSearchQuery/what3words`
                     dispatch('setCenter', {
                         center: what3wordLocation,
                         dispatcher: dispatcherWhat3words,
@@ -77,7 +77,10 @@ const actions = {
                             dispatcher: dispatcherWhat3words,
                         })
                     }
-                    dispatch('setPinnedLocation', what3wordLocation)
+                    dispatch('setPinnedLocation', {
+                        coordinates: what3wordLocation,
+                        dispatcher: dispatcherWhat3words,
+                    })
                 })
             } else {
                 try {
@@ -87,18 +90,19 @@ const actions = {
                 }
             }
         } else if (query.length === 0) {
-            dispatch('clearPinnedLocation')
+            dispatch('clearPinnedLocation', { dispatcher: `${dispatcher}/setSearchQuery` })
         }
-        commit('setSearchResults', results)
+        commit('setSearchResults', { results, dispatcher: `${dispatcher}/setSearchQuery` })
     },
-    setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
+    setSearchResults: ({ commit }, { results, dispatcher }) =>
+        commit('setSearchResults', { results, dispatcher }),
     /**
      * @param commit
      * @param dispatch
      * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
      */
-    selectResultEntry: ({ dispatch }, entry) => {
-        const dipsatcherSelectResultEntry = 'search.store/selectResultEntry'
+    selectResultEntry: ({ dispatch }, { entry, dispatcher }) => {
+        const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
                 dispatch('addLayer', {
@@ -119,16 +123,22 @@ const actions = {
                         dispatcher: dipsatcherSelectResultEntry,
                     })
                 }
-                dispatch('setPinnedLocation', entry.coordinates)
+                dispatch('setPinnedLocation', {
+                    coordinates: entry.coordinates,
+                    dispatcher: dipsatcherSelectResultEntry,
+                })
                 break
         }
-        dispatch('setSearchQuery', { query: entry.getSimpleTitle() })
+        dispatch('setSearchQuery', {
+            query: entry.getSimpleTitle(),
+            dispatcher: dipsatcherSelectResultEntry,
+        })
     },
 }
 
 const mutations = {
-    setSearchQuery: (state, query) => (state.query = query),
-    setSearchResults: (state, results) =>
+    setSearchQuery: (state, { query }) => (state.query = query),
+    setSearchResults: (state, { results }) =>
         (state.results = results ? results : new CombinedSearchResults()),
 }
 

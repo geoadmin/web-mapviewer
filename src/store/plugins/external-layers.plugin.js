@@ -13,6 +13,8 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'external-layers.plugin' }
+
 /**
  * Load External layers attributes (title, abstract, extent, attributions, ...) on layer added
  *
@@ -52,12 +54,16 @@ async function updateExternalLayer(store, externalLayer, projection) {
         }
 
         updatedExternalLayer.isLoading = false
-        store.dispatch('updateLayer', updatedExternalLayer)
+        store.dispatch('updateLayer', {
+            layer: updatedExternalLayer,
+            ...dispatcher,
+        })
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
         store.dispatch('setLayerErrorKey', {
             layerId: externalLayer.getID(),
             errorKey: error.key ? error.key : 'error',
+            ...dispatcher,
         })
     }
 }

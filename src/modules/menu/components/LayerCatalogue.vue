@@ -31,7 +31,7 @@ const showSearchBar = computed(() => withSearchBar.value && layerCatalogue.value
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
-        store.dispatch('clearPreviewLayer')
+        store.dispatch('clearPreviewLayer', { dispatcher: 'LayerCatalogue.vue' })
     }
 }
 

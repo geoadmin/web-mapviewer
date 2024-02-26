@@ -4,7 +4,7 @@
         data-cy="menu-button"
         class="btn menu-button"
         :class="{ 'menu-button-active': isOpen }"
-        @click="toggleMenu"
+        @click="toggleMenu({ dispatcher: 'HeaderMenuButton.vue' })"
     >
         {{ $t(menuButtonText) }}
     </button>

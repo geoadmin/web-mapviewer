@@ -58,7 +58,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="toggleFloatingTooltip"
+                    @click="toggleFloatingTooltip(dispatcher)"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -138,6 +138,8 @@ import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
+
+const dispatcher = { dispatcher: 'CesiumMap.vue' }
 
 export default {
     components: {
@@ -397,7 +399,7 @@ export default {
                 // reduce screen space error to downgrade visual quality but speed up tests
                 globe.maximumScreenSpaceError = 30
             }
-            this.mapModuleReady({ dispatcher: 'CesiumMap.vue' })
+            this.mapModuleReady(dispatcher)
         },
         highlightSelectedFeatures() {
             const [firstFeature] = this.selectedFeatures
@@ -543,29 +545,31 @@ export default {
                     : features[0].coordinates
                 coordinates = proj4(this.projection.epsg, WEBMERCATOR.epsg, featureCoords)
             }
-            this.click(
-                new ClickInfo(
+            this.click({
+                clickInfo: new ClickInfo(
                     coordinates,
                     [event.position.x, event.position.y],
                     features,
                     ClickType.LEFT_SINGLECLICK
-                )
-            )
+                ),
+                ...dispatcher,
+            })
         },
         onContextMenu(event) {
             const coordinates = this.getCoordinateAtScreenCoordinate(event.clientX, event.clientY)
-            this.click(
-                new ClickInfo(
+            this.click({
+                clickInfo: new ClickInfo(
                     coordinates,
                     [event.clientX, event.clientY],
                     [],
                     ClickType.CONTEXTMENU
-                )
-            )
+                ),
+                ...dispatcher,
+            })
         },
         onPopupClose() {
             unhighlightGroup(this.viewer)
-            this.clearAllSelectedFeatures()
+            this.clearAllSelectedFeatures(dispatcher)
         },
         onTouchStart(event) {
             this.clearLongPressTimer()
@@ -594,7 +598,7 @@ export default {
                 const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
                 this.setCenter({
                     center: proj4(WGS84.epsg, this.projection.epsg, [lon, lat]),
-                    dispatcher: 'CesiumMap.vue',
+                    ...dispatcher,
                 })
             }
         },

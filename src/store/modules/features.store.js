@@ -26,37 +26,37 @@ export default {
          * @param {SelectableFeature[]} features A list of feature we want to highlight/select on
          *   the map
          */
-        setSelectedFeatures({ commit }, features) {
+        setSelectedFeatures({ commit }, { features, dispatcher }) {
             commit('setHighlightedFeatureId', {
                 highlightedFeatureId: null,
-                dispatcher: 'setSelectedFeatures',
+                dispatcher,
             })
             if (Array.isArray(features)) {
-                commit('setSelectedFeatures', features)
+                commit('setSelectedFeatures', { features, dispatcher })
             }
         },
         /** Removes all selected features from the map */
-        clearAllSelectedFeatures({ commit }) {
-            commit('setSelectedFeatures', [])
+        clearAllSelectedFeatures({ commit }, { dispatcher }) {
+            commit('setSelectedFeatures', { features: [], dispatcher })
             commit('setHighlightedFeatureId', {
                 highlightedFeatureId: null,
-                dispatcher: 'clearAllSelectedFeatures',
+                dispatcher,
             })
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
             commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
         },
         /** Removes a specific feature from the selected features list. Is not used in drawing mode. */
-        removeSelectedFeature({ commit, state }, feature) {
+        removeSelectedFeature({ commit, state }, { feature, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature) {
-                commit(
-                    'setSelectedFeatures',
-                    state.selectedFeatures.splice(
+                commit('setSelectedFeatures', {
+                    features: state.selectedFeatures.splice(
                         state.selectedFeatures.indexOf(selectedFeature),
                         1
-                    )
-                )
+                    ),
+                    dispatcher,
+                })
             }
         },
         /**
@@ -92,10 +92,10 @@ export default {
          * @param {EditableFeature} feature
          * @param {String} title
          */
-        changeFeatureTitle({ commit, state }, { feature, title }) {
+        changeFeatureTitle({ commit, state }, { feature, title, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
-                commit('changeFeatureTitle', { feature: selectedFeature, title })
+                commit('changeFeatureTitle', { feature: selectedFeature, title, dispatcher })
             }
         },
         /**
@@ -107,10 +107,14 @@ export default {
          * @param {EditableFeature} feature
          * @param {String} description
          */
-        changeFeatureDescription({ commit, state }, { feature, description }) {
+        changeFeatureDescription({ commit, state }, { feature, description, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
-                commit('changeFeatureDescription', { feature: selectedFeature, description })
+                commit('changeFeatureDescription', {
+                    feature: selectedFeature,
+                    description,
+                    dispatcher,
+                })
             }
         },
         /**
@@ -123,13 +127,17 @@ export default {
          * @param {EditableFeature} feature
          * @param {FeatureStyleColor} color
          */
-        changeFeatureColor({ commit, state }, { feature, color }) {
+        changeFeatureColor({ commit, state }, { feature, color, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             const wantedColor = allStylingColors.find(
                 (styleColor) => styleColor.name === color.name
             )
             if (wantedColor && selectedFeature && selectedFeature.isEditable) {
-                commit('changeFeatureColor', { feature: selectedFeature, color: wantedColor })
+                commit('changeFeatureColor', {
+                    feature: selectedFeature,
+                    color: wantedColor,
+                    dispatcher,
+                })
             }
         },
         /**
@@ -142,11 +150,15 @@ export default {
          * @param {EditableFeature} feature
          * @param {FeatureStyleSize} textSize
          */
-        changeFeatureTextSize({ commit, state }, { feature, textSize }) {
+        changeFeatureTextSize({ commit, state }, { feature, textSize, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             const wantedSize = allStylingSizes.find((size) => size.textScale === textSize.textScale)
             if (wantedSize && selectedFeature && selectedFeature.isEditable) {
-                commit('changeFeatureTextSize', { feature: selectedFeature, textSize: wantedSize })
+                commit('changeFeatureTextSize', {
+                    feature: selectedFeature,
+                    textSize: wantedSize,
+                    dispatcher,
+                })
             }
         },
         /**
@@ -159,7 +171,7 @@ export default {
          * @param {EditableFeature} feature
          * @param {FeatureStyleColor} textColor
          */
-        changeFeatureTextColor({ commit, state }, { feature, textColor }) {
+        changeFeatureTextColor({ commit, state }, { feature, textColor, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             const wantedColor = allStylingColors.find(
                 (styleColor) => styleColor.name === textColor.name
@@ -168,6 +180,7 @@ export default {
                 commit('changeFeatureTextColor', {
                     feature: selectedFeature,
                     textColor: wantedColor,
+                    dispatcher,
                 })
             }
         },
@@ -181,7 +194,7 @@ export default {
          * @param {EditableFeature} feature
          * @param {Icon} icon
          */
-        changeFeatureIcon({ commit, state }, { feature, icon }) {
+        changeFeatureIcon({ commit, state }, { feature, icon, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (
                 icon &&
@@ -189,7 +202,7 @@ export default {
                 selectedFeature.isEditable &&
                 selectedFeature.featureType === EditableFeatureTypes.MARKER
             ) {
-                commit('changeFeatureIcon', { feature: selectedFeature, icon })
+                commit('changeFeatureIcon', { feature: selectedFeature, icon, dispatcher })
             }
         },
         /**
@@ -202,7 +215,7 @@ export default {
          * @param {EditableFeature} feature
          * @param {FeatureStyleSize} iconSize
          */
-        changeFeatureIconSize({ commit, state }, { feature, iconSize }) {
+        changeFeatureIconSize({ commit, state }, { feature, iconSize, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             const wantedSize = allStylingSizes.find((size) => size.textScale === iconSize.textScale)
             if (
@@ -211,7 +224,11 @@ export default {
                 selectedFeature.isEditable &&
                 selectedFeature.featureType === EditableFeatureTypes.MARKER
             ) {
-                commit('changeFeatureIconSize', { feature: selectedFeature, iconSize: wantedSize })
+                commit('changeFeatureIconSize', {
+                    feature: selectedFeature,
+                    iconSize: wantedSize,
+                    dispatcher,
+                })
             }
         },
 
@@ -221,18 +238,19 @@ export default {
          * @param {EditableFeature} feature
          * @param {Boolean} isDragged
          */
-        changeFeatureIsDragged({ commit, state }, { feature, isDragged }) {
+        changeFeatureIsDragged({ commit, state }, { feature, isDragged, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
             if (selectedFeature && selectedFeature.isEditable) {
                 commit('changeFeatureIsDragged', {
                     feature: selectedFeature,
                     isDragged: !!isDragged,
+                    dispatcher,
                 })
             }
         },
     },
     mutations: {
-        setSelectedFeatures(state, features) {
+        setSelectedFeatures(state, { features }) {
             state.selectedFeatures = [...features]
         },
         setHighlightedFeatureId(state, { highlightedFeatureId }) {

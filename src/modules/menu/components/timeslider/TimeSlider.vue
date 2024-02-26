@@ -267,13 +267,13 @@ export default {
         this.setCurrentYearAndDispatchToStore(initialYear)
     },
     beforeUnmount() {
-        this.clearPreviewYear()
+        this.clearPreviewYear({ dispatcher: 'TimeSlider.vue' })
     },
     methods: {
         ...mapActions(['setPreviewYear', 'clearPreviewYear']),
         setCurrentYearAndDispatchToStore(year) {
             this.currentYear = year
-            this.setPreviewYear(this.currentYear)
+            this.setPreviewYear({ year: this.currentYear, dispatcher: 'TimeSlider.vue' })
         },
         setSliderWidth() {
             // 19px of padding (7.5 on both side of the container with p-2 class and 4 with px-1)
@@ -346,7 +346,7 @@ export default {
             window.removeEventListener('touchmove', this.listenToMouseMove)
             window.removeEventListener('mouseup', this.releaseCursor)
             window.removeEventListener('touchend', this.releaseCursor)
-            this.setPreviewYear(this.currentYear)
+            this.setPreviewYear({ year: this.currentYear, dispatcher: 'TimeSlider.vue' })
         },
         togglePlayYearsWithData() {
             this.playYearsWithData = !this.playYearsWithData

@@ -7,7 +7,7 @@ const store = useStore()
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 
 function toggleFullScreen() {
-    store.dispatch('toggleFullscreenMode')
+    store.dispatch('toggleFullscreenMode', { dispatcher: 'FullScreenButton.vue' })
 }
 </script>
 

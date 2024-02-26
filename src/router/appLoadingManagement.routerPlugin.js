@@ -1,7 +1,7 @@
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
 
-const STORE_DISPATCHER_APP_ROUTER_PLUGIN = 'appLoadingManagement.routerPlugin'
+const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
 
 /**
  * Listen to the store and wait for a certain set of conditions to be fulfilled. It then triggers
@@ -30,11 +30,11 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             const topic = queryParams.get('topic') ?? store.state.topics.current
             store.dispatch('changeTopic', {
                 topicId: topic,
-                dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
+                ...dispatcher,
             })
             store.dispatch('setLang', {
                 lang: lang,
-                dispatcher: STORE_DISPATCHER_APP_ROUTER_PLUGIN,
+                ...dispatcher,
             })
             log.debug(`App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
             return { name: 'LoadingView', query: { redirect: to.fullPath }, replace: true }

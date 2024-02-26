@@ -15,6 +15,8 @@ import { featureStyleFunction } from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'useDrawingModeIntercation.composable' }
+
 export default function useDrawingModeInteraction({
     geometryType = 'Point',
     editingStyle = editingFeatureStyleFunction,
@@ -172,8 +174,8 @@ export default function useDrawingModeInteraction({
         feature.setStyle(featureStyleFunction)
         // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
         interaction.finishDrawing()
-        store.dispatch('addDrawingFeature', feature.getId())
-        store.dispatch('setDrawingMode', null)
+        store.dispatch('addDrawingFeature', { featureId: feature.getId(), ...dispatcher })
+        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
         if (drawEndCallback) {
             drawEndCallback(feature)
         }

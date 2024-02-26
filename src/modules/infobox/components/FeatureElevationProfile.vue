@@ -45,6 +45,8 @@ import { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 import { generateFilename } from '@/utils/utils'
 
+const dispatcher = { dispatcher: 'FeatureElevationProfile.vue' }
+
 export default {
     components: {
         FontAwesomeIcon,
@@ -113,7 +115,7 @@ export default {
         ...mapActions(['deleteDrawingFeature']),
         onDelete() {
             const id = this.feature.id
-            this.deleteDrawingFeature(id)
+            this.deleteDrawingFeature({ featureId: id, ...dispatcher })
         },
         onCSVDownload() {
             if (this.elevationProfileHasData) {

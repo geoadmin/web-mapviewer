@@ -148,7 +148,7 @@ async function copyShareLink() {
 }
 
 function clearClick() {
-    store.dispatch('clearClick')
+    store.dispatch('clearClick', { dispatcher: 'LocationPopup.vue' })
     requestClipboard.value = false
 }
 </script>

@@ -192,7 +192,9 @@ describe.skip('Correct handling of geodesic geometries', () => {
             it('Check that the line feature is also geodesic', () => {
                 // To avoid repositioning of the map when selecting the line
                 cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) => tooltip && cy.writeStoreValue('toggleFloatingTooltip')
+                    (tooltip) =>
+                        tooltip &&
+                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })
@@ -259,7 +261,9 @@ describe.skip('Correct handling of geodesic geometries', () => {
             })
             it('Check that the line feature is also geodesic', () => {
                 cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) => tooltip && cy.writeStoreValue('toggleFloatingTooltip')
+                    (tooltip) =>
+                        tooltip &&
+                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })

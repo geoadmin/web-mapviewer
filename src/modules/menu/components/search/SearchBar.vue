@@ -4,6 +4,8 @@ import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
 
+const dispatcher = { dispatcher: 'SearchBar' }
+
 const store = useStore()
 
 const showResults = ref(false)
@@ -26,7 +28,7 @@ watch(hasResults, (newValue) => {
 
 watch(showResults, (newValue) => {
     if (newValue && isPhoneMode.value && store.state.ui.showMenu) {
-        store.dispatch('toggleMenu')
+        store.dispatch('toggleMenu', dispatcher)
     }
 })
 
@@ -46,7 +48,7 @@ const updateSearchQuery = (event) => {
 
     clearTimeout(debounceSearch)
     debounceSearch = setTimeout(() => {
-        store.dispatch('setSearchQuery', { query: event.target.value })
+        store.dispatch('setSearchQuery', { query: event.target.value, ...dispatcher })
     }, 100)
 }
 
@@ -60,7 +62,7 @@ const clearSearchQuery = () => {
     showResults.value = false
     selectedEntry.value = null
     searchValue.value = ''
-    store.dispatch('setSearchQuery', { query: '' })
+    store.dispatch('setSearchQuery', { query: '', ...dispatcher })
     searchInput.value.focus()
 }
 

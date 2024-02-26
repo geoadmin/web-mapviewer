@@ -25,6 +25,7 @@ async function loadGpx(store, gpxLayer) {
             layerId: gpxLayer.getID(),
             metadata,
             data: gpxContent,
+            dispatcher: 'load-gpx-data.plugin',
         })
     } catch (error) {
         log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.getID()}`)

@@ -100,10 +100,15 @@ export function useMouseOnMap() {
                     )
                 )
             })
-            store.dispatch(
-                'click',
-                new ClickInfo(coordinate, screenPosition, features, ClickType.LEFT_SINGLECLICK)
-            )
+            store.dispatch('click', {
+                clickInfo: new ClickInfo(
+                    coordinate,
+                    screenPosition,
+                    features,
+                    ClickType.LEFT_SINGLECLICK
+                ),
+                dispatcher: 'mouse-click.composable',
+            })
         }
         // reset of all flags
         isPointerDown = false
@@ -117,15 +122,18 @@ export function useMouseOnMap() {
         }
         if (isCurrentlyTrackingGeoLocation.value) {
             // stop tracking the user geolocation to the center of the view as soon as the map is dragged
-            store.dispatch('setGeolocationTracking', false)
+            store.dispatch('setGeolocationTracking', {
+                tracking: false,
+                dispatcher: 'mouse-click.composable',
+            })
         }
     }
 
     function onRightClick(screenPosition, coordinate) {
-        store.dispatch(
-            'click',
-            new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU)
-        )
+        store.dispatch('click', {
+            clickInfo: new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU),
+            dispatcher: 'mouse-click.composable',
+        })
     }
 
     return {

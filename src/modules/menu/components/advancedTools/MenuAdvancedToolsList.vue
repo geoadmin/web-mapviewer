@@ -8,7 +8,7 @@ import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/Impor
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
-const STORE_DISPATCHER_MENU_ADVANCED_TOOL = 'MenuAdvancedToolsList.vue'
+const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
 
 const props = defineProps({
     compact: {
@@ -27,28 +27,28 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const is3dActive = computed(() => store.state.cesium.active)
 
 function onToggleImportCatalogue() {
-    store.dispatch('toggleImportCatalogue')
+    store.dispatch('toggleImportCatalogue', dispatcher)
 }
 function onToggleCompareSlider() {
     if (storeCompareRatio.value === null) {
         // this allows us to set a value to the compare ratio, in case there was none
         store.dispatch('setCompareRatio', {
             compareRatio: 0.5,
-            dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
+            ...dispatcher,
         })
     }
     store.dispatch('setCompareSliderActive', {
         compareSliderActive: !isCompareSliderActive.value,
-        dispatcher: STORE_DISPATCHER_MENU_ADVANCED_TOOL,
+        ...dispatcher,
     })
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {
         // To avoid the menu overlapping the import overlay after open we automatically
         // close the menu
-        store.dispatch('toggleMenu')
+        store.dispatch('toggleMenu', dispatcher)
     }
-    store.dispatch('toggleImportFile')
+    store.dispatch('toggleImportFile', dispatcher)
 }
 </script>
 

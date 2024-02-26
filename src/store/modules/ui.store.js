@@ -202,26 +202,27 @@ export default {
         },
     },
     actions: {
-        setSize({ commit }, { width, height }) {
+        setSize({ commit }, { width, height, dispatcher }) {
             commit('setSize', {
                 height,
                 width,
+                dispatcher,
             })
         },
-        toggleMenu({ commit, state }) {
-            commit('setShowMenu', !state.showMenu)
+        toggleMenu({ commit, state }, { dispatcher }) {
+            commit('setShowMenu', { show: !state.showMenu, dispatcher })
         },
-        toggleFullscreenMode({ commit, state }) {
-            commit('setFullscreenMode', !state.fullscreenMode)
+        toggleFullscreenMode({ commit, state }, { dispatcher }) {
+            commit('setFullscreenMode', { mode: !state.fullscreenMode, dispatcher })
         },
         setEmbeddedMode({ commit }, { embed, dispatcher }) {
             commit('setEmbeddedMode', { embed: !!embed, dispatcher })
         },
-        setShowLoadingBar({ commit }, value) {
-            commit('setShowLoadingBar', !!value)
+        setShowLoadingBar({ commit }, { loading, dispatcher }) {
+            commit('setShowLoadingBar', { loading, dispatcher })
         },
-        toggleLoadingBar({ commit, state }) {
-            commit('setShowLoadingBar', !state.showLoadingBar)
+        toggleLoadingBar({ commit, state }, { dispatcher }) {
+            commit('setShowLoadingBar', { loading: !state.showLoadingBar, dispatcher })
         },
         toggleDrawingOverlay({ commit, state }, { dispatcher }) {
             commit('setShowDrawingOverlay', {
@@ -235,29 +236,29 @@ export default {
                 dispatcher,
             })
         },
-        toggleFloatingTooltip({ commit, state }) {
-            commit('setFloatingTooltip', !state.floatingTooltip)
+        toggleFloatingTooltip({ commit, state }, { dispatcher }) {
+            commit('setFloatingTooltip', { floatingTooltip: !state.floatingTooltip, dispatcher })
         },
-        setUiMode({ commit, state }, mode) {
+        setUiMode({ commit, state }, { mode, dispatcher }) {
             if (mode in UIModes) {
-                commit('setUiMode', mode)
+                commit('setUiMode', { mode, dispatcher })
                 // As there is no possibility to trigger the fullscreen mode in desktop mode for now
                 if (state.fullscreenMode && mode === UIModes.DESKTOP) {
-                    commit('setFullscreenMode', false)
+                    commit('setFullscreenMode', { mode: false, dispatcher })
                 }
             }
         },
-        toggleImportCatalogue({ commit, state }) {
-            commit('setImportCatalogue', !state.importCatalogue)
+        toggleImportCatalogue({ commit, state }, { dispatcher }) {
+            commit('setImportCatalogue', { importCatalogue: !state.importCatalogue, dispatcher })
         },
-        toggleImportFile({ commit, state }) {
-            commit('setImportFile', !state.importFile)
+        toggleImportFile({ commit, state }, { dispatcher }) {
+            commit('setImportFile', { importFile: !state.importFile, dispatcher })
         },
-        setHeaderHeight({ commit }, height) {
-            commit('setHeaderHeight', parseFloat(height))
+        setHeaderHeight({ commit }, { height, dispatcher }) {
+            commit('setHeaderHeight', { height: parseFloat(height), dispatcher })
         },
-        setMenuTrayWidth({ commit }, width) {
-            commit('setMenuTrayWidth', parseFloat(width))
+        setMenuTrayWidth({ commit }, { width, dispatcher }) {
+            commit('setMenuTrayWidth', { width: parseFloat(width), dispatcher })
         },
         setCompareRatio({ commit }, { compareRatio, dispatcher }) {
             /*
@@ -281,37 +282,37 @@ export default {
             state.height = height
             state.width = width
         },
-        setShowMenu(state, flagValue) {
-            state.showMenu = flagValue
+        setShowMenu(state, { show }) {
+            state.showMenu = show
         },
-        setFullscreenMode(state, flagValue) {
-            state.fullscreenMode = flagValue
+        setFullscreenMode(state, { mode }) {
+            state.fullscreenMode = mode
         },
         setEmbeddedMode(state, { embed }) {
             state.embeddedMode = embed
         },
-        setShowLoadingBar(state, flagValue) {
-            state.showLoadingBar = flagValue
+        setShowLoadingBar(state, { loading }) {
+            state.showLoadingBar = loading
         },
         setShowDrawingOverlay(state, { showDrawingOverlay }) {
             state.showDrawingOverlay = showDrawingOverlay
         },
-        setFloatingTooltip(state, flagValue) {
-            state.floatingTooltip = flagValue
+        setFloatingTooltip(state, { floatingTooltip }) {
+            state.floatingTooltip = floatingTooltip
         },
-        setUiMode(state, mode) {
+        setUiMode(state, { mode }) {
             state.mode = mode
         },
-        setImportCatalogue(state, flagValue) {
-            state.importCatalogue = flagValue
+        setImportCatalogue(state, { importCatalogue }) {
+            state.importCatalogue = importCatalogue
         },
-        setImportFile(state, flagValue) {
-            state.importFile = flagValue
+        setImportFile(state, { importFile }) {
+            state.importFile = importFile
         },
-        setHeaderHeight(state, height) {
+        setHeaderHeight(state, { height }) {
             state.headerHeight = height
         },
-        setMenuTrayWidth(state, width) {
+        setMenuTrayWidth(state, { width }) {
             state.menuTrayWidth = width
         },
         setCompareRatio(state, { compareRatio }) {

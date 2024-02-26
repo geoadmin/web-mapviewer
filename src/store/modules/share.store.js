@@ -26,53 +26,53 @@ export default {
     },
     getters: {},
     actions: {
-        async generateShortLinks({ commit }, withBalloonMarker = false) {
+        async generateShortLinks({ commit }, { withCrosshair = false, dispatcher }) {
             const urlWithoutGeolocation =
                 // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
                 window.location.href.replace('&geolocation', '') +
                 // if the geolocation was being tracked by the user generating the link, we place a balloon (dropped pin) marker at his position (center of the screen, so no need to change any x/y position)
-                (withBalloonMarker ? '&crosshair=marker' : '')
+                (withCrosshair ? '&crosshair=marker' : '')
             try {
                 const shortLink = await createShortLink(urlWithoutGeolocation)
                 if (shortLink) {
-                    commit('setShortLink', shortLink)
+                    commit('setShortLink', { shortLink, dispatcher })
                 }
             } catch (err) {
                 log.error('Error while creating short link for', urlWithoutGeolocation, err)
-                commit('setShortLink', urlWithoutGeolocation)
+                commit('setShortLink', { shortLink: urlWithoutGeolocation, dispatcher })
             }
             const urlWithEmbed = urlWithoutGeolocation + '&embed'
             try {
                 const embeddedShortLink = await createShortLink(urlWithEmbed)
                 if (embeddedShortLink) {
-                    commit('setEmbeddedShortLink', embeddedShortLink)
+                    commit('setEmbeddedShortLink', { shortLink: embeddedShortLink, dispatcher })
                 }
             } catch (err) {
                 log.error('Error while creating embedded short link for', urlWithEmbed, err)
-                commit('setEmbeddedShortLink', urlWithEmbed)
+                commit('setEmbeddedShortLink', { shortLink: urlWithEmbed, dispatcher })
             }
         },
-        closeShareMenuAndRemoveShortLinks({ commit, dispatch }) {
-            commit('setIsMenuSectionShown', false)
-            dispatch('clearShortLinks')
+        closeShareMenuAndRemoveShortLinks({ commit, dispatch }, { dispatcher }) {
+            commit('setIsMenuSectionShown', { show: false, dispatcher })
+            dispatch('clearShortLinks', { dispatcher })
         },
-        toggleShareMenuSection({ commit, state }) {
-            commit('setIsMenuSectionShown', !state.isMenuSectionShown)
+        toggleShareMenuSection({ commit, state }, { dispatcher }) {
+            commit('setIsMenuSectionShown', { show: !state.isMenuSectionShown, dispatcher })
         },
-        clearShortLinks({ commit }) {
-            commit('setShortLink', null)
-            commit('setEmbeddedShortLink', null)
+        clearShortLinks({ commit }, { dispatcher }) {
+            commit('setShortLink', { shortLink: null, dispatcher })
+            commit('setEmbeddedShortLink', { shortLink: null, dispatcher })
         },
     },
     mutations: {
-        setShortLink(state, shortLink) {
+        setShortLink(state, { shortLink }) {
             state.shortLink = shortLink
         },
-        setEmbeddedShortLink(state, shortLink) {
+        setEmbeddedShortLink(state, { shortLink }) {
             state.embeddedShortLink = shortLink
         },
-        setIsMenuSectionShown(state, flag) {
-            state.isMenuSectionShown = flag
+        setIsMenuSectionShown(state, { show }) {
+            state.isMenuSectionShown = show
         },
     },
 }

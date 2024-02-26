@@ -14,6 +14,8 @@ import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 import DrawingHeader from './DrawingHeader.vue'
 
+const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
+
 const drawingLayer = inject('drawingLayer')
 
 const { saveState, debounceSaveDrawing } = useSaveKmlOnChange()
@@ -59,18 +61,18 @@ const drawingStateMessage = computed(() => {
 function onCloseClearConfirmation(confirmed) {
     showClearConfirmationModal.value = false
     if (confirmed) {
-        store.dispatch('clearDrawingFeatures')
-        store.dispatch('clearAllSelectedFeatures')
+        store.dispatch('clearDrawingFeatures', dispatcher)
+        store.dispatch('clearAllSelectedFeatures', dispatcher)
         drawingLayer.getSource().clear()
         debounceSaveDrawing()
-        store.dispatch('setDrawingMode', null)
+        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     }
 }
 function closeDrawing() {
     emits('closeDrawing')
 }
 function selectDrawingMode(drawingMode) {
-    store.dispatch('setDrawingMode', drawingMode)
+    store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
 }
 
 function onDeleteLastPoint() {

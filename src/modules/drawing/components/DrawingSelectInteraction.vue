@@ -14,6 +14,8 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 
+const dispatcher = { dispatcher: 'DrawingSelectInteraction.vue' }
+
 const drawingLayer = inject('drawingLayer')
 const olMap = inject('olMap')
 
@@ -52,9 +54,9 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         // so that we can update the style of the OL features as soon
         // as the store feature is edited
         editableFeature.on('change:style', onFeatureChange)
-        store.dispatch('setSelectedFeatures', [editableFeature])
+        store.dispatch('setSelectedFeatures', { features: [editableFeature], ...dispatcher })
     } else {
-        store.dispatch('clearAllSelectedFeatures')
+        store.dispatch('clearAllSelectedFeatures', dispatcher)
     }
     if (oldFeature) {
         // editableFeature was removed from the state just before, so we can edit it directly again.

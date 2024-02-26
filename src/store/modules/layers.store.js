@@ -328,9 +328,9 @@ const actions = {
      *   update or an object with the layer ID to update and any property to update (partial
      *   update)
      */
-    updateLayer({ commit, getters }, layer) {
+    updateLayer({ commit, getters }, { layer, dispatcher }) {
         if (layer instanceof AbstractLayer) {
-            commit('updateLayer', layer)
+            commit('updateLayer', { layer, dispatcher })
         } else if (layer instanceof Object && layer.id) {
             // Partial update of a layer
             const currentLayer = getters.getActiveLayerById(layer.id)
@@ -345,7 +345,7 @@ const actions = {
                     updatedLayer[entry[0]] = entry[1]
                 }
             })
-            commit('updateLayer', updatedLayer)
+            commit('updateLayer', { layer: updatedLayer, dispatcher })
         } else {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
@@ -446,39 +446,37 @@ const actions = {
      * @param {AbstractLayer | String} layerIdOrObject
      * @returns {Number}
      */
-    setPreviewLayer({ commit, getters }, layerIdOrObject) {
-        let layer = null
-        if (layerIdOrObject instanceof AbstractLayer) {
-            layer = layerIdOrObject.clone()
+    setPreviewLayer({ commit, getters }, { layer, dispatcher }) {
+        let clone = null
+        if (layer instanceof AbstractLayer) {
+            clone = layer.clone()
         } else {
-            layer = getters.getLayerConfigById(layerIdOrObject)
+            clone = getters.getLayerConfigById(layer)?.clone()
         }
-        if (layer) {
-            const cloned = layer.clone()
-            cloned.visible = true
-            commit('setPreviewLayer', cloned)
+        if (clone) {
+            clone.visible = true
+            commit('setPreviewLayer', { layer: clone, dispatcher })
         } else {
-            log.error(`Layer "${layerIdOrObject}" not found in configs.`)
+            log.error(`Layer "${layer}" not found in configs.`)
         }
     },
-    clearPreviewLayer({ commit }) {
-        commit('setPreviewLayer', null)
+    clearPreviewLayer({ commit }, { dispatcher }) {
+        commit('setPreviewLayer', { layer: null, dispatcher })
     },
-    setPreviewYear({ commit, getters }, year) {
+    setPreviewYear({ commit, getters }, { year, dispatcher }) {
         const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
             (layer) => layer.timeConfig.years
         )
         if (possibleYears.includes(year)) {
-            commit('setPreviewYear', year)
+            commit('setPreviewYear', { year, dispatcher })
         } else {
             log.error('year not found in active layers, ignoring', year)
         }
     },
-    clearPreviewYear({ commit }) {
-        commit('setPreviewYear', null)
+    clearPreviewYear({ commit }, { dispatcher }) {
+        commit('setPreviewYear', { year: null, dispatcher })
     },
-    setLayerErrorKey({ commit, getters }, payload) {
-        const { layerId, errorKey } = payload
+    setLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
         const currentLayer = getters.getActiveLayerById(layerId)
         if (!currentLayer) {
             throw new Error(
@@ -491,10 +489,9 @@ const actions = {
         if (updatedLayer.isLoading) {
             updatedLayer.isLoading = false
         }
-        commit('updateLayer', updatedLayer)
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
     },
-    updateKmlGpxLayer({ commit, getters, rootState }, payload) {
-        const { layerId, data, metadata } = payload
+    updateKmlGpxLayer({ commit, getters, rootState }, { layerId, data, metadata, dispatcher }) {
         const currentLayer = getters.getActiveLayerById(layerId)
         if (!currentLayer) {
             throw new Error(
@@ -533,7 +530,7 @@ const actions = {
                 updatedLayer.name = metadata.name ?? 'GPX'
             }
         }
-        commit('updateLayer', updatedLayer)
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
     },
 }
 
@@ -556,7 +553,7 @@ const mutations = {
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
-    updateLayer(state, layer) {
+    updateLayer(state, { layer }) {
         const layer2Update = getActiveLayerById(state, layer.getID())
         if (layer2Update) {
             Object.assign(layer2Update, layer)
@@ -597,10 +594,10 @@ const mutations = {
         state.activeLayers.splice(startingIndex, 1)
         state.activeLayers.splice(endingIndex, 0, layer)
     },
-    setPreviewLayer(state, layer) {
+    setPreviewLayer(state, { layer }) {
         state.previewLayer = layer
     },
-    setPreviewYear(state, year) {
+    setPreviewYear(state, { year }) {
         state.previewYear = year
     },
 }

@@ -17,6 +17,8 @@ import SelectedFeatureProfile from '@/modules/infobox/components/styling/Selecte
 import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
+const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
+
 const props = defineProps({
     feature: {
         type: EditableFeature,
@@ -65,13 +67,18 @@ const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
 const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 
 function updateFeatureTitle() {
-    store.dispatch('changeFeatureTitle', { feature: feature.value, title: title.value })
+    store.dispatch('changeFeatureTitle', {
+        feature: feature.value,
+        title: title.value,
+        ...dispatcher,
+    })
 }
 
 function updateFeatureDescription() {
     store.dispatch('changeFeatureDescription', {
         feature: feature.value,
         description: description.value,
+        ...dispatcher,
     })
 }
 
@@ -142,22 +149,22 @@ function roundValueIfGreaterThan(value, threshold, divider) {
     return `${round(value, 2)}`
 }
 function onTextSizeChange(textSize) {
-    store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize })
+    store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
 }
 function onTextColorChange(textColor) {
-    store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor })
+    store.dispatch('changeFeatureTextColor', { feature: feature.value, textColor, ...dispatcher })
 }
 function onColorChange(color) {
-    store.dispatch('changeFeatureColor', { feature: feature.value, color })
+    store.dispatch('changeFeatureColor', { feature: feature.value, color, ...dispatcher })
 }
 function onIconChange(icon) {
-    store.dispatch('changeFeatureIcon', { feature: feature.value, icon })
+    store.dispatch('changeFeatureIcon', { feature: feature.value, icon, ...dispatcher })
 }
 function onIconSizeChange(iconSize) {
-    store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize })
+    store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize, ...dispatcher })
 }
 function onDelete() {
-    store.dispatch('deleteDrawingFeature', feature.value.id)
+    store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })
 }
 </script>
 

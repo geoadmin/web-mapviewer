@@ -32,7 +32,10 @@ async function loadDataAndStyle(store, geoJsonLayer) {
         layerCopy.geoJsonData = data
         layerCopy.geoJsonStyle = style
         layerCopy.isLoading = false
-        store.dispatch('updateLayer', layerCopy)
+        store.dispatch('updateLayer', {
+            layer: layerCopy,
+            dispatcher: 'load-geojson-style-and-data.plugin',
+        })
     } catch (error) {
         log.error(
             `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.getID()}`,
