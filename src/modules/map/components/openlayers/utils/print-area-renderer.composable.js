@@ -151,30 +151,36 @@ export default function usePrintAreaRenderer(map) {
         const shortLink = store.state.share.shortLink
         const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
 
-        const mapSpec = {
+        const mapConfig = {
             map,
             scale: selectedScale.value,
             printResolution: 96,
             dpi: 96,
             layout: layout,
             format: 'pdf',
-            customAttributes: {
+            customizer: customizer,
+        }
+
+        const mapSpec = await encoder.encodeMap(mapConfig)
+        log.info('Print spec: ', mapSpec)
+
+        const spec = {
+            attributes: {
+                map: mapSpec,
                 // TODO (IS): Remove this Fake values
                 copyright: '© swisstopo, swisstopo + FGS',
                 url: 'https://map.geo.admin.ch',
-                printLegend: 0,
                 qrimage: qrCodeUrl,
             },
-            customizer: customizer,
+            format: 'pdf',
+            layout: layout,
         }
         if (store.getters.useGraticule) {
             const legend = encodeLegend()
-            mapSpec.customAttributes.legend = legend
+            spec.attributes.legend = legend
         } else {
-            mapSpec.customAttributes.printLegend = 0
+            spec.attributes.printLegend = 0
         }
-        const spec = await encoder.createSpec(mapSpec)
-        log.info('Print spec: ', spec)
         log.info('visible layers', store.getters.visibleLayers)
         window.visibleLayers = store.getters.visibleLayers
 
@@ -191,7 +197,7 @@ export default function usePrintAreaRenderer(map) {
             .then(
                 (url) => {
                     log.info('PDF map url', url)
-                    // document.location = url
+                    document.location = url
                     return url
                 },
                 (err) => {
@@ -199,7 +205,7 @@ export default function usePrintAreaRenderer(map) {
                     return err
                 }
             )
-            .then(() => {
+            .finally(() => {
                 store.dispatch('setPrintingStatus', false)
             })
     }
