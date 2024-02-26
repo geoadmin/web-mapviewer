@@ -103,42 +103,46 @@ describe('Testing the share menu', () => {
         )
     })
     context('Social networks', () => {
-        beforeEach(() => {
+        const checkSocialNetworkType = (type, matchingUrl) => {
+            cy.get(`[data-cy="share-shortlink-${type}"]`).should('be.visible').click()
+            cy.get('@open').should('have.been.calledWith', Cypress.sinon.match(matchingUrl))
+        }
+        it('opens different social networks to share short link ', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             cy.wait('@shortLink')
             // stubbing window.open so that the app doesn't open new tab but let us see what URL was used to do so
             cy.window().then((win) => {
                 cy.stub(win, 'open').as('open')
             })
-        })
-        const checkSocialNetworkType = (type, matchingUrl) => {
-            cy.get(`[data-cy="share-shortlink-${type}"]`).should('be.visible').click()
-            cy.get('@open').should('have.been.calledOnceWith', Cypress.sinon.match(matchingUrl))
-        }
-        it('opens an email containing a short link', () => {
             checkSocialNetworkType(
                 'email',
                 `mailto:?subject=&body=${encodeURIComponent(dummyShortLink + '\r\n')}`
             )
-        })
-        it('opens service-qrcode with the short link as url', () => {
+            cy.log('opens an email containing a short link')
             cy.intercept('**/qrcode').as('qrCode')
             checkSocialNetworkType(
                 'qrcode',
                 `/qrcode/generate?url=${encodeURIComponent(dummyShortLink)}`
             )
-        })
-        it('opens a facebook popup with the short link as content', () => {
+            cy.log('opens service-qrcode with the short link as url')
             checkSocialNetworkType(
                 'facebook',
                 `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(dummyShortLink)}`
             )
-        })
-        it('opens a twitter popup with the short link as content', () => {
+            cy.log('opens a facebook popup with the short link as content')
             checkSocialNetworkType(
                 'twitter',
                 `https://twitter.com/intent/tweet?text=&url=${encodeURIComponent(dummyShortLink)}`
             )
+            cy.log('opens a twitter popup with the short link as content')
+            checkSocialNetworkType(
+                'whatsapp',
+                `https://api.whatsapp.com/send?text=%0D%0A${encodeURIComponent(dummyShortLink)}`
+            )
+            cy.log('opens a whatsapp popup with the short link as content')
+            // count total calls to check for duplicates since we can only have one stub
+            cy.get('@open').should('have.callCount', 5)
+            cy.log('opens everything exactly once')
         })
     })
     context(
