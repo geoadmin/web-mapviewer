@@ -5,11 +5,16 @@ import { point } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
+const store = useStore()
+
+const iconSize = computed(() => store.state.features.iconSize)
 
 const pixelToleranceForIdentify = 10
 
@@ -45,6 +50,7 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
         // only keeping feature with geometry (required to run Turf below)
         .filter((feature) => feature.geometry)
         .filter((feature) => {
+            //console.log('debug: ', JSON.stringify(feature, null, 4))
             const { geometry } = transformIntoTurfEquivalent(feature.geometry)
             // calculating distance with point coordinate, depending on the geometry type
             switch (geometry?.type) {
@@ -59,6 +65,10 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
                         }) <= distanceThreshold
                     )
                 case 'Point':
+                    return (
+                        distance(coordinateWGS84, geometry, { units: 'meters' }) <=
+                        distanceThreshold
+                    )
                 case 'MultiPoint':
                     return (
                         distance(coordinateWGS84, geometry, { units: 'meters' }) <=
@@ -143,6 +153,7 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
     if (kmlLayer?.kmlData) {
         const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
         const convertedKml = kmlToGeoJSON(parseKml)
+        console.log('debug: kml', convertedKml)
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
                 return new LayerFeature(
