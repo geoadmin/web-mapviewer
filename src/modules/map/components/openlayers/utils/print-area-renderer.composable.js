@@ -78,10 +78,8 @@ function encodeGraticule(dpi, projection) {
 function encodeLegend() {
     const icons = []
     const visibleLayers = store.getters.visibleLayers
-    log.info('visible layers', visibleLayers)
 
     for (const layer of visibleLayers) {
-        log.info('Layer:', layer, layer.hasLegend)
         if (layer.hasLegend) {
             icons.push(
                 `${API_BASE_URL}/static/images/legends/${layer.getID()}_${store.state.i18n.lang}.png`
@@ -142,18 +140,17 @@ export default function usePrintAreaRenderer(map) {
     })
 
     async function startPrinting() {
-        log.info('Printing is started ...')
         const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
-        log.info('Print URL: ', mapFishPrintUrl)
 
         const layout = store.state.print.selectedLayout.name
 
         const encoder = new MFPEncoder(mapFishPrintUrl)
         const customizer = new BaseCustomizer([0, 0, 10000, 10000])
-        const layers = map.getLayers().getArray()
-        log.info('Layers: ', layers)
         // Generate QR code url from current shortlink
-        await store.dispatch('generateShortLinks', false)
+        await store.dispatch('generateShortLinks', {
+            withCrosshair: this.isTrackingGeolocation,
+            ...dispatcher,
+        })
         const shortLink = store.state.share.shortLink
         const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
 
@@ -168,7 +165,6 @@ export default function usePrintAreaRenderer(map) {
         }
 
         const mapSpec = await encoder.encodeMap(mapConfig)
-        log.info('Print spec: ', mapSpec)
 
         const spec = {
             attributes: {
@@ -187,20 +183,15 @@ export default function usePrintAreaRenderer(map) {
         } else {
             spec.attributes.printLegend = 0
         }
-        log.info('visible layers', store.getters.visibleLayers)
-        window.visibleLayers = store.getters.visibleLayers
 
         if (store.state.print.useGraticule) {
-            log.info('Graticule is enabled')
             // Put the graticule in the first layer so it's drawn at the top
             spec.attributes.map.layers.unshift(encodeGraticule(96, store.state.position.projection))
-            log.info('Print spec after graticule: ', spec)
         }
 
         const report = await requestReport(mapFishPrintUrl, spec)
         store.dispatch('setCurrentPrintReference', { reference: report.ref, ...dispatcher })
 
-        log.info('Report: ', report)
         await getDownloadUrl(mapFishPrintUrl, report, 1000)
             .then(
                 (url) => {
@@ -208,31 +199,27 @@ export default function usePrintAreaRenderer(map) {
                     return url
                 },
                 (err) => {
-                    log.info('result', 'error', err)
+                    log.error('result', 'error', err)
                     return err
                 }
             )
             .finally(() => {
-                store.dispatch('setPrintingStatus', false)
+                store.dispatch('setPrintingStatus', { isPrinting: false, ...dispatcher })
                 store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
             })
     }
 
     async function abortPrinting() {
-        log.info('Aborting printing ...')
         if (store.getters.currentPrintReference) {
             const printReference = store.getters.currentPrintReference
             const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
-            const cancelRespond = cancelPrint(mapFishPrintUrl, printReference)
+            cancelPrint(mapFishPrintUrl, printReference)
 
-            log.info('Cancel respond', cancelRespond)
-            log.info(`Print reference ${printReference} is aborted ...`)
             store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
         }
     }
 
     function downloadUrl(url) {
-        log.info('PDF map url', url)
         if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
             window.open(url)
         } else {
