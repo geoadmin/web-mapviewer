@@ -17,27 +17,32 @@ const standardsParams = storeSyncConfig.map((param) => {
 // other case.
 standardsParams.push('showtooltip')
 
+const STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN = 'BodLayerId.routerPlugin.js'
+
 /**
  * Check the query for potential layers ids parameters.
  *
  * @param {Object} query The to.query object
  * @param {layersConfig} layersConfig The store layers configuration
- * @returns {Object | undefined} Either an object with the layer, its highlighted features IDS and
- *   the showtooltip parameter if it was set
+ * @returns {Object | null} Either an object with the layer, its highlighted features IDS and the
+ *   showtooltip parameter if it was set
  */
 function parseBodLayerParamsFromQuery(query, layersConfig) {
     if (!query) {
-        return undefined
+        return null
     }
     const nonStandardParamsPresence = Array.from(Object.keys(query)).some(
         (param) => !standardsParams.includes(param)
     )
     // if all parameters are standard, we do not need to be here
     if (!nonStandardParamsPresence) {
-        return undefined
+        return null
     }
     const val = {}
-    Object.entries(query).forEach(([key, value]) => {
+    const queryItems = Object.entries(query)
+    for (let i = 0; i < queryItems.length; i++) {
+        const key = queryItems[i][0]
+        const value = queryItems[i][1]
         let layer = null
         if (!standardsParams.includes(key)) {
             layer = layersConfig.find((layer) => layer.getID() === key)
@@ -49,11 +54,12 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
             val.features = value.split(',')
             // for the showToolTip parameter : it should be false only when specified as false
             val.showToolTip = !(query.showtooltip === 'false' || query.showtooltip === false)
-            return null // we get out at the first instance of a bod layer id found
+            break
         }
-    })
-    // if we found no layer, we return undefined
-    return val?.layer ? val : undefined
+    }
+
+    // if we found no layer, we return null
+    return val?.layer ? val : null
 }
 /**
  * Checks the layers param in the URL and either ensure an already activated layer is visible, or
@@ -67,43 +73,46 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
  * @param {any} to
  * @param {any} next
  */
-function handleBodIdParams(bodIdParams, store, to, next) {
+function handleBodIdParams(bodIdParams, store, to) {
     const newQuery = { ...to.query }
-    // QUESTION TO pascal : do we allow the bod layer id param to have the same parameters as the other layers ?
-    // in my opinion : no, because it's simpler, but it might be done
 
-    if (newQuery.layers?.includes(bodIdParams.layer.getID())) {
-        const regex = new RegExp(bodIdParams.layer.getID() + ',[a-zA-Z]+')
-        // this will replace the `{layer-id},{visibility}` parameter by `{layer-id},`
-        // forcing the layer to be visible
-        newQuery.layers = newQuery.layers.replace(regex, `${bodIdParams.layer.getID()},`)
-    } else {
-        // the parameter given was not part of the layers, or there was no active layers
-        newQuery.layers = `${
-            newQuery.layers ? newQuery.layers + ';' : ''
-        }${bodIdParams.layer.getID()}`
+    const activeLayersIds = []
+    if (!to.query.layers) {
+        // ensuring the default layers have not been populated if the parameter is not set
+        store.dispatch('clearLayers', { dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN })
+    }
+    store.state.layers.activeLayers.forEach((layer) => {
+        activeLayersIds.push(layer.getID())
+    })
+    if (!activeLayersIds.includes(bodIdParams.layer.getID())) {
+        store.dispatch('addLayer', {
+            layer: bodIdParams.layer,
+            dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN,
+        })
     }
     delete newQuery[bodIdParams.layer.getID()]
     delete newQuery.showtooltip
-    // the center parameter is always overwritten
     delete newQuery.center
 
     retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.z, store)
-
-    next({
+    return {
         name: 'MapView',
-        query: newQuery,
-    })
+        query: { redirect: newQuery },
+    }
 }
 
 /**
+ * Add the features to the selected features. Finally, center the camera and adjust the zoom if
+ * needed.
+ *
  * @param {Object} bodIdParams Object containing the layer, its highlighted features and a boolean
  *   telling us wether we should show their tooltip or not
  * @param {Store} store The store
  */
 async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store) {
+    // Step 1 : adding the features to the selected features
     const featureRequests = []
-    await bodIdParams.features.forEach((featureID) => {
+    bodIdParams.features.forEach((featureID) => {
         featureRequests.push(
             getFeature(
                 bodIdParams.layer,
@@ -114,79 +123,50 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
             )
         )
     })
-    const features = []
-    await Promise.all(featureRequests)
-        .then((values) => {
-            values.forEach((value) => {
-                features.push(value)
+    try {
+        const features = await Promise.all(featureRequests)
+        if (features.length > 0) {
+            store.dispatch('setSelectedFeatures', features)
+            const coordinatesX = []
+            const coordinatesY = []
+            // Step 2 : centering on all features and calculating the zoom level if necessary
+            features.forEach((feature) => {
+                coordinatesX.push(feature.coordinates[0][0])
+                coordinatesY.push(feature.coordinates[0][1])
             })
-        })
-        .catch((error) => {
-            log.error("Wasn't able to get features", error)
-        })
-    if (features.length > 0) {
-        store.dispatch('setSelectedFeatures', features)
-        const coordinatesX = []
-        const coordinatesY = []
-        features.forEach((feature) => {
-            coordinatesX.push(feature.coordinates[0][0])
-            coordinatesY.push(feature.coordinates[0][1])
-        })
-        const extent = []
-        extent[0] = [Math.min(...coordinatesX), Math.min(...coordinatesY)]
-        extent[1] = [Math.max(...coordinatesX), Math.max(...coordinatesY)]
+            const extent = []
+            extent[0] = [Math.min(...coordinatesX), Math.min(...coordinatesY)]
+            extent[1] = [Math.max(...coordinatesX), Math.max(...coordinatesY)]
 
-        const center = [
-            Math.round([(extent[0][0] + extent[1][0]) / 2]),
-            Math.round([(extent[0][1] + extent[1][1]) / 2]),
-        ]
+            const center = [
+                coordinatesX.reduce((a, b) => a + b, 0) / coordinatesX.length,
+                coordinatesX.reduce((a, b) => a + b, 0) / coordinatesX.length,
+            ]
 
-        if (needToZoom) {
-            // In old mapviewer, when there was only one feature we set the zoom level to 8
-            // some icons don't have content at certain zoom level
-            // so rather than use the zoomToExtent function, we get its logic and
-            // use it to calculate the max zoom, and we get 8 if it would zoom further
-            const zoom = Math.min(getZoomFromExtent(extent, center, store), 8)
-
-            store.dispatch('setZoom', { zoom: zoom, source: 'Bod Layer Id router' })
+            if (needToZoom) {
+                // In old mapviewer, when there was only one feature we set the zoom level to 8
+                // some icons don't have content at certain zoom level
+                store.dispatch('zoomToExtent', {
+                    extent: extent,
+                    maxZoomLevel: 8,
+                    dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN,
+                })
+            } else {
+                store.dispatch('setCenter', {
+                    center: center,
+                    source: 'Bod Layer Id router',
+                    dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN,
+                })
+            }
         }
-        store.dispatch('setCenter', {
-            center: center,
-            source: 'Bod Layer Id router',
-        })
+    } catch (error) {
+        log.error(`Error while processing features in bod-layer-id router. error is ${error}`)
     }
+    // Step 3 : hide the tooltip if needed
     if (!bodIdParams.showToolTip) {
-        // we'll need to see how to do this better, as this doesn't  work
-        store.dispatch('hideToolTip') // this is apparently not the right thing to show
+        // TO DO : discuss with pascal, brice, maybe Jürge / Stefan / Chris to see what showtooltip is supposed to do
+        store.dispatch('hideToolTip', STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN)
     }
-}
-
-/**
- * @param {[Number[], Number[]]} extent An array of two coordinates
- * @param {Number[]} center The coordinates to the center of the extent. We could calculate it
- *   inside, but it's already done
- * @param {Store} store
- * @returns {Number} The zoom level at which we can see the whole extent
- */
-export function getZoomFromExtent(extent, center, store) {
-    const extentSize = {
-        width: Math.abs(extent[1][0] - extent[0][0]),
-        height: Math.abs(extent[1][1] - extent[0][1]),
-    }
-    let targetResolution
-    // if the extent's height is greater than width, we base our resolution calculation on that
-    if (extentSize.height > extentSize.width) {
-        targetResolution = extentSize.height / (store.state.ui.height - 96) /* header height */
-    } else {
-        targetResolution = extentSize.width / store.state.ui.width
-    }
-
-    const zoomForResolution = store.state.position.projection.getZoomForResolutionAndCenter(
-        targetResolution,
-        center
-    )
-
-    return Math.max(zoomForResolution - 1, 0)
 }
 
 /**
@@ -203,33 +183,17 @@ export function getZoomFromExtent(extent, center, store) {
  */
 
 const bodLayerIdRouterPlugin = (router, store) => {
-    let changesMadeByThisPlugin = false
-    router.beforeEach((to, from, next) => {
-        /**
-         * We need to ensure the startup is finished to handle the bod layer Id, as we need some
-         * data to be defined (most importantly : the layers config)
-         */
-
+    router.beforeEach((to) => {
         if (to.name === 'MapView') {
-            if (!changesMadeByThisPlugin) {
-                // maybe use to.query instead of window.location.hash
-                const bodIdParams = window.location?.hash
-                    ? parseBodLayerParamsFromQuery(to.query, store.state.layers.config)
-                    : null
-                if (bodIdParams?.layer) {
-                    changesMadeByThisPlugin = true
-                    handleBodIdParams(bodIdParams, store, to, next)
-                } else {
-                    next()
-                }
-            } else {
-                changesMadeByThisPlugin = false
-                next()
+            const bodIdParams = window.location?.hash
+                ? parseBodLayerParamsFromQuery(to.query, store.state.layers.config)
+                : null
+            if (bodIdParams?.layer) {
+                return handleBodIdParams(bodIdParams, store, to)
             }
-        } else {
-            changesMadeByThisPlugin = false
-            next()
+            return undefined
         }
+        return undefined
     })
 }
 

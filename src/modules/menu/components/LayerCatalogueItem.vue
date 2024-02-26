@@ -182,9 +182,15 @@ function zoomToLayer() {
             transformExtentIntoPolygon(item.value.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', item.value.extent)
+        store.dispatch('zoomToExtent', {
+            extent: item.value.extent,
+            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+        })
     } else {
-        store.dispatch('zoomToExtent', lv95Extent)
+        store.dispatch('zoomToExtent', {
+            extent: lv95Extent,
+            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+        })
     }
     if (isPhoneMode.value) {
         // On mobile phone we close the menu so that the user can see the zoom to extent
