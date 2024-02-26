@@ -188,9 +188,7 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
 const bodLayerIdRouterPlugin = (router, store) => {
     router.beforeEach((to) => {
         if (to.name === 'MapView') {
-            const bodIdParams = window.location?.hash
-                ? parseBodLayerParamsFromQuery(to.query, store.state.layers.config)
-                : null
+            const bodIdParams = parseBodLayerParamsFromQuery(to.query, store.state.layers.config)
             if (bodIdParams?.layer) {
                 return handleBodIdParams(bodIdParams, store, to)
             }
