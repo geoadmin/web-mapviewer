@@ -311,10 +311,17 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.be.false
             })
-            const expectedHash = `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
-            cy.location().should((location) => {
-                expect(location.hash).to.eq(expectedHash)
-                expect(location.search).to.eq('')
+
+            const expectedQuery = new URLSearchParams(
+                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
+            )
+            expectedQuery.sort()
+            cy.location('search').should('be.empty')
+            cy.location('hash').should('contain', '/map?')
+            cy.location('hash').then((hash) => {
+                const query = new URLSearchParams(hash.replace('#/map?', ''))
+                query.sort()
+                expect(query.toString()).to.equal(expectedQuery.toString())
             })
         })
     })
