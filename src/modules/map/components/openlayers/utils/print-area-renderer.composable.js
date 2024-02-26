@@ -1,4 +1,10 @@
-import { BaseCustomizer, getDownloadUrl, MFPEncoder, requestReport } from '@geoblocks/mapfishprint'
+import {
+    BaseCustomizer,
+    cancelPrint,
+    getDownloadUrl,
+    MFPEncoder,
+    requestReport,
+} from '@geoblocks/mapfishprint'
 import { Feature } from 'ol'
 import { Polygon } from 'ol/geom'
 import * as olHas from 'ol/has'
@@ -50,7 +56,7 @@ function createWorldPolygon() {
 
 function encodeGraticule(dpi, projection) {
     log.info('Encode graticule for projection:', projection)
-    var gridLayer = 'org.epsg.grid_2056'
+    let gridLayer = 'org.epsg.grid_2056'
     if (projection.value instanceof CustomCoordinateSystem) {
         gridLayer = 'org.epsg.grid_2056'
     }
@@ -127,11 +133,11 @@ export default function usePrintAreaRenderer(map) {
         }
     })
 
-    watch(printingStatus, (newValue) => {
+    watch(printingStatus, async (newValue) => {
         if (newValue) {
             startPrinting()
         } else {
-            abortPrinting()
+            await abortPrinting()
         }
     })
 
@@ -192,12 +198,13 @@ export default function usePrintAreaRenderer(map) {
         }
 
         const report = await requestReport(mapFishPrintUrl, spec)
+        store.dispatch('setCurrentPrintReference', { reference: report.ref, ...dispatcher })
+
         log.info('Report: ', report)
         await getDownloadUrl(mapFishPrintUrl, report, 1000)
             .then(
                 (url) => {
-                    log.info('PDF map url', url)
-                    document.location = url
+                    downloadUrl(url)
                     return url
                 },
                 (err) => {
@@ -207,10 +214,30 @@ export default function usePrintAreaRenderer(map) {
             )
             .finally(() => {
                 store.dispatch('setPrintingStatus', false)
+                store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
             })
     }
-    function abortPrinting() {
-        log.info('Printing is aborted')
+
+    async function abortPrinting() {
+        log.info('Aborting printing ...')
+        if (store.getters.currentPrintReference) {
+            const printReference = store.getters.currentPrintReference
+            const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
+            const cancelRespond = cancelPrint(mapFishPrintUrl, printReference)
+
+            log.info('Cancel respond', cancelRespond)
+            log.info(`Print reference ${printReference} is aborted ...`)
+            store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
+        }
+    }
+
+    function downloadUrl(url) {
+        log.info('PDF map url', url)
+        if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
+            window.open(url)
+        } else {
+            window.location = url
+        }
     }
 
     function activatePrintArea() {

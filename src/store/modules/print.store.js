@@ -10,6 +10,7 @@ export default {
         printingStatus: false,
         useGraticule: false,
         useLegend: false,
+        currentPrintReference: null,
     },
     getters: {
         mapSize(state) {
@@ -28,6 +29,9 @@ export default {
         },
         useLegend(state) {
             return state.useLegend
+        },
+        currentPrintReference(state) {
+            return state.currentPrintReference
         },
     },
     actions: {
@@ -57,6 +61,9 @@ export default {
         setUseLegend({ commit }, { useLegend, dispatcher }) {
             commit('setUseLegend', { useLegend, dispatcher })
         },
+        setCurrentPrintReference({ commit }, { reference, dispatcher }) {
+            commit('setCurrentPrintReference', { reference, dispatcher })
+        },
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
@@ -66,5 +73,7 @@ export default {
         setPrintingStatus: (state, { isPrinting }) => (state.printingStatus = isPrinting),
         setUseGraticule: (state, { useGraticule }) => (state.useGraticule = useGraticule),
         setUseLegend: (state, { useLegend }) => (state.useLegend = useLegend),
+        setCurrentPrintReference: (state, { reference }) =>
+            (state.currentPrintReference = reference),
     },
 }
