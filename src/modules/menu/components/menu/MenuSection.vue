@@ -25,9 +25,10 @@
 
             <slot name="extra-button" />
         </div>
+
         <CollapseTransition :duration="200">
             <div
-                v-show="showBody"
+                v-show="showBody && isMapReady"
                 ref="sectionBody"
                 class="menu-section-body"
                 data-cy="menu-section-body"
@@ -41,6 +42,7 @@
 <script>
 // importing directly the vue component, see https://github.com/ivanvermeyen/vue-collapse-transition/issues/5
 import CollapseTransition from '@ivanv/vue-collapse-transition/src/CollapseTransition.vue'
+import { mapState } from 'vuex'
 
 export default {
     components: {
@@ -82,6 +84,9 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            isMapReady: (state) => state.app.isMapReady,
+        }),
         titleCaretIcon() {
             if (this.showBody) {
                 return 'caret-down'
