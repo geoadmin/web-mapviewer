@@ -171,13 +171,13 @@ describe('Test of layer handling', () => {
                 cy.wait(Array(3).fill('@externalWMTSGetCap'))
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    expect(layers).to.be.an('Array').length(1)
+                    cy.wrap(layers).should('have.length', 1)
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer).to.be.an('Object')
-                    expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(externalWmtsLayer.visible).to.eq(false)
-                    expect(externalWmtsLayer.opacity).to.eq(0.5)
-                    expect(externalWmtsLayer.isLoading).to.be.false
+                    cy.wrap(externalWmtsLayer.getID()).should('be.eq', fakeLayerUrlId)
+                    cy.wrap(externalWmtsLayer.visible).should('be.eq', false)
+                    cy.wrap(externalWmtsLayer.opacity).should('be.eq', 0.5)
+                    cy.wrap(externalWmtsLayer.isLoading).should('be.false')
                 })
 
                 // shows a red icon to signify a layer is from an external source
