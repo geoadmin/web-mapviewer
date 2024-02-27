@@ -6,7 +6,6 @@ import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { useMouseOnMap } from '@/modules/map/components/common/mouse-click.composable'
-import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
 export default function useMapInteractions(map) {
@@ -14,12 +13,10 @@ export default function useMapInteractions(map) {
     const store = useStore()
 
     const isCurrentlyDrawing = computed(() => store.getters.isCurrentlyDrawing)
-    const projection = computed(() => store.state.position.projection)
 
+    // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os
     const freeMouseWheelInteraction = new MouseWheelZoom()
-    const constrainedMouseWheelInteraction = new MouseWheelZoom({
-        constrainResolution: true,
-    })
+
     // Make it possible to rotate the map with ctrl+drag (in addition to OpenLayers default Alt+Shift+Drag).
     // This is probably more intuitive. Also, Windows and some Linux distros use alt+shift to switch the
     // keyboard layout, so using alt+shift may have unintended side effects or not work at all.
@@ -50,29 +47,17 @@ export default function useMapInteractions(map) {
             mapElement.addEventListener('pointerup', onPointerUp)
         }
     })
-    watch(projection, setInteractionAccordingToProjection)
-
-    function setInteractionAccordingToProjection() {
-        const projectionIsLV95 = projection.value.epsg === LV95.epsg
-        if (projectionIsLV95) {
-            map.removeInteraction(freeMouseWheelInteraction)
-            map.addInteraction(constrainedMouseWheelInteraction)
-        } else {
-            map.removeInteraction(constrainedMouseWheelInteraction)
-            map.addInteraction(freeMouseWheelInteraction)
-        }
-    }
 
     const mapElement = map.getTargetElement()
     if (mapElement) {
         mapElement.addEventListener('pointerdown', onPointerDown)
         mapElement.addEventListener('pointerup', onPointerUp)
         mapElement.addEventListener('pointermove', onMouseMove)
-        log.info('setup map pointer events')
+        log.debug('setup map pointer events')
     } else {
         log.warn('failed to setup map pointer events')
     }
-    setInteractionAccordingToProjection()
+    map.addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         const mapElement = map.getTargetElement()
