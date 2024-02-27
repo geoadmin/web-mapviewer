@@ -11,12 +11,15 @@ import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFe
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
-import DrawingStylePositionCopy from '@/modules/infobox/components/styling/DrawingStylePositionCopy.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
 import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
+import {
+    LV95Format,
+} from '@/utils/coordinates/coordinateFormat'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
@@ -211,12 +214,17 @@ function onDelete() {
                 <sup>2</sup>
             </div>
         </div>
+        <div v-if="isFeatureMarker || isFeatureText" class="d-flex small gap-1 justify-content-start align-items-center">
+        <CoordinateCopySlot
+                class="d-flex"
+                identifier="lv95"
+                :value="LV95Format.format(feature.coordinates[0].slice(0,2))"
+            >
+            <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+        </CoordinateCopySlot>
+        </div>
         <div
-            :class="
-                readOnly
-                    ? 'd-flex justify-content-end align-items-center'
-                    : 'd-flex justify-content-between align-items-center'
-            "
+            class="d-flex justify-content-end align-items-center"
         >
             <SelectedFeatureProfile :feature="feature" />
 
@@ -275,12 +283,6 @@ function onDelete() {
                     <FontAwesomeIcon icon="far fa-trash-alt" />
                 </button>
             </div>
-
-            <DrawingStylePositionCopy
-                v-if="isFeatureMarker || isFeatureText"
-                class="gap-1"
-                :coordinates="feature.coordinates[0]"
-            />
         </div>
     </div>
 </template>

@@ -170,7 +170,7 @@ describe('Test mouse position and interactions', () => {
             )
             cy.log('it shows correct plain WGS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-extra-value-wgs84"]').contains(
+            cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
                 WGS84Format.format(center, DEFAULT_PROJECTION)
             )
             cy.log(

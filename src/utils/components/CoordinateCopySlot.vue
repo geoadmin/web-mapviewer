@@ -90,10 +90,10 @@ async function copyValue() {
     </div>
     <div class="location-popup-data">
         <div>
-            <div :data-cy="`location-popup-${identifier}`">
+            <div :data-cy="`${identifier}`">
                 {{ value }}
             </div>
-            <div v-if="extraValue" :data-cy="`location-popup-extra-value-${identifier}`">
+            <div v-if="extraValue" :data-cy="`${identifier}-extra-value`">
                 {{ extraValue }}
             </div>
         </div>

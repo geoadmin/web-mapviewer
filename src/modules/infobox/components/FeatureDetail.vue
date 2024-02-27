@@ -4,6 +4,8 @@ import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const props = defineProps({
     feature: {
@@ -48,6 +50,18 @@ function sanitizeHtml(htmlText) {
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}
             </div>
+        </div>
+        <div
+            v-if="feature.geometry.type == 'Point'"
+            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
+        >
+            <CoordinateCopySlot
+                class="d-flex"
+                identifier="lv95"
+                :value="LV95Format.format(feature.geometry.coordinates.slice(0, 2))"
+            >
+                <FontAwesomeIcon class="d-flex" icon="fas fa-map-marker-alt" />
+            </CoordinateCopySlot>
         </div>
     </div>
 </template>
