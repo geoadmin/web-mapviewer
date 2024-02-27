@@ -34,7 +34,7 @@ const router = createRouter({
             name: 'MapView',
             component: MapView,
             meta: {
-                requiresAppReady: true,
+                requireAppConfig: true,
             },
         },
     ],

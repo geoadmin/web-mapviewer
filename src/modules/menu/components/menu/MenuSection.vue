@@ -28,7 +28,7 @@
 
         <CollapseTransition :duration="200">
             <div
-                v-show="showBody && isMapReady"
+                v-show="showBody && isAppReady"
                 ref="sectionBody"
                 class="menu-section-body"
                 data-cy="menu-section-body"
@@ -85,7 +85,7 @@ export default {
     },
     computed: {
         ...mapState({
-            isMapReady: (state) => state.app.isMapReady,
+            isAppReady: (state) => state.app.isReady,
         }),
         titleCaretIcon() {
             if (this.showBody) {

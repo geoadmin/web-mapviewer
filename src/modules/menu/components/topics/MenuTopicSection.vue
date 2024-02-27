@@ -25,7 +25,7 @@
             />
         </template>
         <LayerCatalogue
-            v-if="isMapReady"
+            v-if="isAppReady"
             data-cy="menu-topic-tree"
             :layer-catalogue="currentTopicTree"
             :compact="compact"
@@ -69,7 +69,7 @@ export default {
             currentTopicTree: (state) => state.topics.tree,
             allTopics: (state) => state.topics.config,
             openThemesIds: (state) => state.topics.openedTreeThemesIds,
-            isMapReady: (state) => state.app.isMapReady,
+            isAppReady: (state) => state.app.isReady,
         }),
         ...mapGetters(['getActiveLayerById', 'isDefaultTopic']),
         showTopicTree() {

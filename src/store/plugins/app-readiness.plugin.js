@@ -24,19 +24,29 @@ const appReadinessPlugin = (store) => {
             mutation.payload
         )
 
-        // if app is not ready yet, we go through the checklist
-        if (!state.app.isReady) {
+        // if app config is not ready yet, we go through the checklist
+        if (!state.app.isConfigReady) {
             if (
                 state.ui.width > 0 &&
                 state.ui.height > 0 &&
                 Object.keys(state.layers.config).length > 0 &&
                 state.topics.config.length > 0
             ) {
+                store.dispatch('setConfigIsReady', dispatcher)
+            }
+        }
+        // if app is not yet ready, go through the checklist
+        if (!state.app.isReady) {
+            if (
+                state.app.isConfigReady &&
+                state.app.initialQueryParsed &&
+                state.topics.tree.length > 0
+            ) {
                 store.dispatch('setAppIsReady', dispatcher)
 
-                // In production build we are not interested anymore in the mutation logs
-                // therefore unsubscribe here
                 if (ENVIRONMENT === 'production') {
+                    // In production build we are not interested anymore in the mutation logs
+                    // therefore unsubscribe here
                     unsubscribe()
                 }
             }

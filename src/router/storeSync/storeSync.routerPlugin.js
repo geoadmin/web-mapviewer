@@ -161,14 +161,20 @@ function urlQueryWatcher(store, to) {
             requireQueryUpdate = true
         }
     })
-    // Fake call to a URL so that Cypress can wait for route changes without waiting for arbitrary length of time
-    if (IS_TESTING_WITH_CYPRESS) {
-        Promise.all(pendingStoreDispatch).then(() => {
+    Promise.all(pendingStoreDispatch).then(() => {
+        if (!store.state.app.initialQueryParsed) {
+            store.dispatch('setInitialQueryParsed', {
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
+        }
+        // Fake call to a URL so that Cypress can wait for route changes without waiting for arbitrary length of time
+        if (IS_TESTING_WITH_CYPRESS) {
             axios({
                 url: FAKE_URL_CALLED_AFTER_ROUTE_CHANGE,
             })
-        })
-    }
+        }
+    })
+
     if (requireQueryUpdate) {
         log.debug('Update URL query to', newQuery)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`

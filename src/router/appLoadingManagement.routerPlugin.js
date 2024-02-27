@@ -20,7 +20,7 @@ const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
     const unRegisterRouterHook = router.beforeEach((to) => {
-        if (to.meta.requiresAppReady && !store.state.app.isReady) {
+        if (to.meta.requireAppConfig && !store.state.app.isConfigReady) {
             // Upon application startup we need to first get the language and
             // topic from the URL in order to quickly load the layers config and
             // topics. We do this as early as possible as we need topics and config to define
@@ -44,7 +44,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
 
     const unSubscribeStore = store.subscribe((mutation) => {
         // listening to the store for the "Go" when the app is ready
-        if (mutation.type === 'setAppIsReady') {
+        if (mutation.type === 'setConfigIsReady') {
             unRegisterRouterHook()
             unSubscribeStore()
             const redirect = router.currentRoute.value.query.redirect || '/map'
