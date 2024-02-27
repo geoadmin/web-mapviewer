@@ -17,6 +17,8 @@ import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButto
 import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
+const dispatcher = { dispatcher: 'MenuModule.vue' }
+
 const showTimeSlider = ref(false)
 
 const i18n = useI18n()
@@ -61,21 +63,24 @@ onBeforeUnmount(() => {
 
 const updateMenuTrayWidth = () => {
     if (menuTray.value) {
-        store.dispatch('setMenuTrayWidth', menuTray.value.offsetWidth)
+        store.dispatch('setMenuTrayWidth', {
+            width: menuTray.value.offsetWidth,
+            ...dispatcher,
+        })
     }
 }
 
 function toggleGeolocation() {
-    store.dispatch('toggleGeolocation')
+    store.dispatch('toggleGeolocation', dispatcher)
 }
 function increaseZoom() {
-    store.dispatch('increaseZoom')
+    store.dispatch('increaseZoom', dispatcher)
 }
 function decreaseZoom() {
-    store.dispatch('decreaseZoom')
+    store.dispatch('decreaseZoom', dispatcher)
 }
 function toggleMenu() {
-    store.dispatch('toggleMenu')
+    store.dispatch('toggleMenu', dispatcher)
 }
 </script>
 

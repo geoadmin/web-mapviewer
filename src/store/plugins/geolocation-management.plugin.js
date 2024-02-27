@@ -7,7 +7,7 @@ import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.c
 import { STANDARD_ZOOM_LEVEL_1_25000_MAP } from '@/utils/coordinates/SwissCoordinateSystem.class.js'
 import log from '@/utils/logging'
 
-const STORE_DISPATCHER_GEOLOCATION_PLUGIN = 'geolocation-management.plugin'
+const dispatcher = { dispatcher: 'geolocation-management.plugin' }
 
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
@@ -19,13 +19,19 @@ const readPosition = (position, projection) => {
 
 const handlePositionAndDispatchToStore = (position, store) => {
     const positionProjected = readPosition(position, store.state.position.projection)
-    store.dispatch('setGeolocationPosition', positionProjected)
-    store.dispatch('setGeolocationAccuracy', position.coords.accuracy)
+    store.dispatch('setGeolocationPosition', {
+        position: positionProjected,
+        ...dispatcher,
+    })
+    store.dispatch('setGeolocationAccuracy', {
+        accuracy: position.coords.accuracy,
+        ...dispatcher,
+    })
     // if tracking is active, we center the view of the map on the position received
     if (store.state.geolocation.tracking) {
         store.dispatch('setCenter', {
             center: positionProjected,
-            dispatcher: STORE_DISPATCHER_GEOLOCATION_PLUGIN,
+            ...dispatcher,
         })
     }
 }
@@ -40,7 +46,10 @@ const handlePositionError = (error, store) => {
     log.error('Geolocation activation failed', error)
     switch (error.code) {
         case error.PERMISSION_DENIED:
-            store.dispatch('setGeolocationDenied', true)
+            store.dispatch('setGeolocationDenied', {
+                denied: true,
+                ...dispatcher,
+            })
             alert(i18n.global.t('geoloc_permission_denied'))
             break
         default:
@@ -71,7 +80,10 @@ const geolocationManagementPlugin = (store) => {
                     (position) => {
                         // if geoloc was previously denied, we clear the flag
                         if (state.geolocation.denied) {
-                            store.dispatch('setGeolocationDenied', false)
+                            store.dispatch('setGeolocationDenied', {
+                                denied: false,
+                                ...dispatcher,
+                            })
                         }
                         handlePositionAndDispatchToStore(position, store)
                         if (firstTimeActivatingGeolocation) {
@@ -85,7 +97,7 @@ const geolocationManagementPlugin = (store) => {
                             }
                             store.dispatch('setZoom', {
                                 zoom: zoomLevel,
-                                dispatcher: STORE_DISPATCHER_GEOLOCATION_PLUGIN,
+                                ...dispatcher,
                             })
                         }
                         geolocationWatcher = navigator.geolocation.watchPosition(

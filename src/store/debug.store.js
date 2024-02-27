@@ -6,15 +6,20 @@ export default {
     },
     getters: {},
     actions: {
-        toggleShowTileDebugInfo({ commit, state }) {
-            commit('setShowTileDebugInfo', !state.showTileDebugInfo)
+        toggleShowTileDebugInfo({ commit, state }, { dispatcher }) {
+            commit('setShowTileDebugInfo', {
+                showTileDebugInfo: !state.showTileDebugInfo,
+                dispatcher,
+            })
         },
-        toggleShowLayerExtents({ commit, state }) {
-            commit('setShowLayerExtents', !state.showLayerExtents)
+        toggleShowLayerExtents({ commit, state }, { dispatcher }) {
+            commit('setShowLayerExtents', { showLayerExtents: !state.showLayerExtents, dispatcher })
         },
     },
     mutations: {
-        setShowTileDebugInfo: (state, flagValue) => (state.showTileDebugInfo = flagValue),
-        setShowLayerExtents: (state, flagValue) => (state.showLayerExtents = flagValue),
+        setShowTileDebugInfo: (state, { showTileDebugInfo }) =>
+            (state.showTileDebugInfo = showTileDebugInfo),
+        setShowLayerExtents: (state, { showLayerExtents }) =>
+            (state.showLayerExtents = showLayerExtents),
     },
 }

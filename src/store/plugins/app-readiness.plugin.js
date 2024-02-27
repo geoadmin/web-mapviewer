@@ -1,6 +1,8 @@
 import { ENVIRONMENT } from '@/config'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'app-readiness-plugin' }
+
 /**
  * Plugin that will listen to most mutation as long as a certain state of readiness is not reached.
  * When the state has loaded enough data / is ready, this plugin will trigger the mutation that will
@@ -30,7 +32,7 @@ const appReadinessPlugin = (store) => {
                 Object.keys(state.layers.config).length > 0 &&
                 state.topics.config.length > 0
             ) {
-                store.dispatch('setAppIsReady', 'app-readiness-plugin')
+                store.dispatch('setAppIsReady', dispatcher)
 
                 // In production build we are not interested anymore in the mutation logs
                 // therefore unsubscribe here

@@ -19,6 +19,7 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
         await store.dispatch('setSize', {
             width: screenSize,
             height: screenSize,
+            dispatcher: 'unit-test',
         })
         // we now then center the view on wanted coordinates
         await store.dispatch('setCenter', {

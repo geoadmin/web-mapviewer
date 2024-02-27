@@ -58,7 +58,8 @@ const storeSyncConfig = [
         (store) => store.state.geolocation.active,
         false,
         Boolean,
-        false
+        false,
+        'active'
     ),
     new SimpleUrlParamConfig(
         'bgLayer',

@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 
+const dispatcher = { dispatcher: 'DrawingToolboxButton.vue' }
+
 const i18n = useI18n()
 const store = useStore()
 
@@ -36,9 +38,9 @@ const buttonIcon = computed(() => {
 
 function setDrawingMode() {
     if (isActive.value) {
-        store.dispatch('setDrawingMode', null)
+        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
     } else {
-        store.dispatch('setDrawingMode', drawingMode.value)
+        store.dispatch('setDrawingMode', { mode: drawingMode.value, ...dispatcher })
     }
 }
 </script>

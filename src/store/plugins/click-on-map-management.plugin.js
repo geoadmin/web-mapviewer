@@ -3,6 +3,8 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'click-on-map-management.plugin' }
+
 /**
  * Identifies feature under the mouse cursor
  *
@@ -58,12 +60,12 @@ const clickOnMapManagementPlugin = (store) => {
             state.map.displayLocationPopup
         ) {
             // when entering the drawing menu we need to clear the location popup
-            store.dispatch('hideLocationPopup')
+            store.dispatch('hideLocationPopup', dispatcher)
         }
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
         else if (mutation.type === 'setClickInfo' && !state.ui.showDrawingOverlay) {
-            const clickInfo = mutation.payload
+            const clickInfo = mutation.payload.clickInfo
             const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
 
@@ -76,14 +78,17 @@ const clickOnMapManagementPlugin = (store) => {
                     store.state.i18n.lang,
                     state.position.projection
                 ).then((newSelectedFeatures) => {
-                    store.dispatch('setSelectedFeatures', newSelectedFeatures)
+                    store.dispatch('setSelectedFeatures', {
+                        features: newSelectedFeatures,
+                        ...dispatcher,
+                    })
                 })
             }
             if (isContextMenuClick) {
-                store.dispatch('clearAllSelectedFeatures')
-                store.dispatch('displayLocationPopup')
+                store.dispatch('clearAllSelectedFeatures', dispatcher)
+                store.dispatch('displayLocationPopup', dispatcher)
             } else {
-                store.dispatch('hideLocationPopup')
+                store.dispatch('hideLocationPopup', dispatcher)
             }
         }
     })

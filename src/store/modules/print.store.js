@@ -22,28 +22,28 @@ export default {
         },
     },
     actions: {
-        async loadPrintLayouts({ commit }) {
+        async loadPrintLayouts({ commit }, { dispatcher }) {
             try {
                 const layouts = await readPrintCapabilities()
-                commit('setPrintLayouts', [...layouts])
+                commit('setPrintLayouts', { layouts, dispatcher })
             } catch (error) {
                 log.error('Error while loading print layouts', error)
             }
         },
-        setSelectedScale({ commit }, scale) {
-            commit('setSelectedScale', scale)
+        setSelectedScale({ commit }, { scale, dispatcher }) {
+            commit('setSelectedScale', { scale, dispatcher })
         },
-        setSelectedLayout({ commit }, layout) {
-            commit('setSelectedLayout', layout)
+        setSelectedLayout({ commit }, { layout, dispatcher }) {
+            commit('setSelectedLayout', { layout, dispatcher })
         },
-        setPrintSectionShown({ commit }, isShown) {
-            commit('setPrintSectionShown', isShown)
+        setPrintSectionShown({ commit }, { show, dispatcher }) {
+            commit('setPrintSectionShown', { show, dispatcher })
         },
     },
     mutations: {
-        setPrintLayouts: (state, layouts) => (state.layouts = layouts),
-        setSelectedLayout: (state, layout) => (state.selectedLayout = layout),
-        setSelectedScale: (state, scale) => (state.selectedScale = scale),
-        setPrintSectionShown: (state, isShown) => (state.printSectionShown = isShown),
+        setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),
+        setSelectedLayout: (state, { layout }) => (state.selectedLayout = layout),
+        setSelectedScale: (state, { scale }) => (state.selectedScale = scale),
+        setPrintSectionShown: (state, { show }) => (state.printSectionShown = show),
     },
 }

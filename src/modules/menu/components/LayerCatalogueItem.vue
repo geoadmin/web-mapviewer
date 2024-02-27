@@ -21,7 +21,7 @@ import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
-const STORE_DISPATCHER_LAYER_CATALOGUE_ITEM = 'LayerCatalogueItem.vue'
+const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
 
 const props = defineProps({
     item: {
@@ -112,7 +112,10 @@ onMounted(() => {
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
-        store.dispatch('setPreviewLayer', item.value)
+        store.dispatch('setPreviewLayer', {
+            layer: item.value,
+            ...dispatcher,
+        })
     }
 }
 
@@ -122,17 +125,17 @@ function addRemoveLayer() {
     if (matchingActiveLayer) {
         store.dispatch('removeLayer', {
             layer: matchingActiveLayer,
-            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+            ...dispatcher,
         })
     } else if (item.value.isExternal) {
         store.dispatch('addLayer', {
             layer: item.value,
-            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+            ...dispatcher,
         })
     } else {
         store.dispatch('addLayer', {
             layerConfig: new ActiveLayerConfig(item.value.getID(), true),
-            dispatcher: STORE_DISPATCHER_LAYER_CATALOGUE_ITEM,
+            ...dispatcher,
         })
     }
 }
@@ -182,13 +185,13 @@ function zoomToLayer() {
             transformExtentIntoPolygon(item.value.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', item.value.extent)
+        store.dispatch('zoomToExtent', { extent: item.value.extent, ...dispatcher })
     } else {
-        store.dispatch('zoomToExtent', lv95Extent)
+        store.dispatch('zoomToExtent', { extent: lv95Extent, ...dispatcher })
     }
     if (isPhoneMode.value) {
         // On mobile phone we close the menu so that the user can see the zoom to extent
-        store.dispatch('toggleMenu')
+        store.dispatch('toggleMenu', dispatcher)
     }
 }
 

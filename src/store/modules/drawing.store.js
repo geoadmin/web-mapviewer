@@ -40,37 +40,37 @@ export default {
         },
     },
     actions: {
-        setDrawingMode({ commit }, mode) {
+        setDrawingMode({ commit }, { mode, dispatcher }) {
             if (mode in EditableFeatureTypes || mode === null) {
-                commit('setDrawingMode', mode)
+                commit('setDrawingMode', { mode, dispatcher })
             }
         },
-        async loadAvailableIconSets({ commit }) {
+        async loadAvailableIconSets({ commit }, { dispatcher }) {
             const iconSets = await loadAllIconSetsFromBackend()
             if (iconSets?.length > 0) {
-                commit('setIconSets', iconSets)
+                commit('setIconSets', { iconSets, dispatcher })
             }
         },
-        addDrawingFeature({ commit }, featureId) {
-            commit('addDrawingFeature', featureId)
+        addDrawingFeature({ commit }, { featureId, dispatcher }) {
+            commit('addDrawingFeature', { featureId, dispatcher })
         },
-        deleteDrawingFeature({ commit, dispatch }, featureId) {
-            dispatch('clearAllSelectedFeatures')
-            commit('deleteDrawingFeature', featureId)
+        deleteDrawingFeature({ commit, dispatch }, { featureId, dispatcher }) {
+            dispatch('clearAllSelectedFeatures', { dispatcher: dispatcher })
+            commit('deleteDrawingFeature', { featureId })
         },
-        clearDrawingFeatures({ commit }) {
-            commit('setDrawingFeatures', [])
+        clearDrawingFeatures({ commit }, { dispatcher }) {
+            commit('setDrawingFeatures', { featureIds: [], dispatcher })
         },
-        setDrawingFeatures({ commit }, featureIds) {
-            commit('setDrawingFeatures', featureIds)
+        setDrawingFeatures({ commit }, { featureIds, dispatcher }) {
+            commit('setDrawingFeatures', { featureIds, dispatcher })
         },
     },
     mutations: {
-        setDrawingMode: (state, mode) => (state.mode = mode),
-        setIconSets: (state, iconSets) => (state.iconSets = iconSets),
-        addDrawingFeature: (state, featureId) => state.featureIds.push(featureId),
-        deleteDrawingFeature: (state, featureId) =>
+        setDrawingMode: (state, { mode }) => (state.mode = mode),
+        setIconSets: (state, { iconSets }) => (state.iconSets = iconSets),
+        addDrawingFeature: (state, { featureId }) => state.featureIds.push(featureId),
+        deleteDrawingFeature: (state, { featureId }) =>
             (state.featureIds = state.featureIds.filter((featId) => featId !== featureId)),
-        setDrawingFeatures: (state, featureIds) => (state.featureIds = featureIds),
+        setDrawingFeatures: (state, { featureIds }) => (state.featureIds = featureIds),
     },
 }

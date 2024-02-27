@@ -8,6 +8,8 @@ import axios from 'axios'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'load-geojson-style-and-data.plugin' }
+
 async function load(url) {
     try {
         return await axios.get(url)
@@ -32,7 +34,10 @@ async function loadDataAndStyle(store, geoJsonLayer) {
         layerCopy.geoJsonData = data
         layerCopy.geoJsonStyle = style
         layerCopy.isLoading = false
-        store.dispatch('updateLayer', layerCopy)
+        store.dispatch('updateLayer', {
+            layer: layerCopy,
+            ...dispatcher,
+        })
     } catch (error) {
         log.error(
             `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.getID()}`,

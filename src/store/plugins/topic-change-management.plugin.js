@@ -2,7 +2,7 @@ import { loadTopicTreeForTopic } from '@/api/topics.api'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
 
-const STORE_DISPATCHER_TOPIC_PLUGIN = 'topic-change-management.plugin'
+const dispatcher = { dispatcher: 'topic-change-management.plugin' }
 
 /**
  * Vuex plugins that will manage topic switching.
@@ -52,12 +52,12 @@ const topicChangeManagementPlugin = (store) => {
                 if (currentTopic.defaultBackgroundLayer) {
                     store.dispatch('setBackground', {
                         bgLayer: currentTopic.defaultBackgroundLayer.getID(),
-                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                        ...dispatcher,
                     })
                 } else {
                     store.dispatch('setBackground', {
                         bgLayer: null,
-                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                        ...dispatcher,
                     })
                 }
             }
@@ -73,7 +73,7 @@ const topicChangeManagementPlugin = (store) => {
             ) {
                 store.dispatch('setLayers', {
                     layers: currentTopic.layersToActivate,
-                    dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                    ...dispatcher,
                 })
             }
 
@@ -85,14 +85,14 @@ const topicChangeManagementPlugin = (store) => {
             ).then((topicTree) => {
                 store.dispatch('setTopicTree', {
                     layers: topicTree.layers,
-                    dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                    ...dispatcher,
                 })
                 // checking that no values were set in the URL at app startup, otherwise we might
                 // overwrite them here
                 if (store.state.topics.openedTreeThemesIds.length === 0) {
                     store.dispatch('setTopicTreeOpenedThemesIds', {
                         catalogNodes: topicTree.itemIdToOpen,
-                        dispatcher: STORE_DISPATCHER_TOPIC_PLUGIN,
+                        ...dispatcher,
                     })
                 }
 

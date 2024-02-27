@@ -50,6 +50,8 @@ import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToo
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 
+const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
+
 export default {
     components: {
         SearchBar,
@@ -87,7 +89,10 @@ export default {
         },
 
         updateHeaderHeight() {
-            this.$store.dispatch('setHeaderHeight', this.$refs.header.clientHeight)
+            this.$store.dispatch('setHeaderHeight', {
+                height: this.$refs.header.clientHeight,
+                ...dispatcher,
+            })
         },
     },
 }

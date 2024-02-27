@@ -12,6 +12,8 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-laye
 import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
+
 const props = defineProps({
     kmlLayerConfig: {
         type: KMLLayer,
@@ -61,7 +63,7 @@ useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {
-        store.dispatch('loadAvailableIconSets')
+        store.dispatch('loadAvailableIconSets', dispatcher)
     }
 
     // exposing things for Cypress testing

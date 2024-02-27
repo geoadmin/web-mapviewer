@@ -13,6 +13,8 @@ import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composa
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'DrawingModule.vue' }
+
 const olMap = inject('olMap')
 
 const drawingInteractions = ref(null)
@@ -81,12 +83,12 @@ watch(availableIconSets, () => {
 onMounted(() => {
     // if icons have not yet been loaded, we do so
     if (availableIconSets.value.length === 0) {
-        store.dispatch('loadAvailableIconSets')
+        store.dispatch('loadAvailableIconSets', dispatcher)
     }
 
     // We need to make sure that no drawing features are selected when entering the drawing
     // mode otherwise we cannot edit the selected features.
-    store.dispatch('clearAllSelectedFeatures')
+    store.dispatch('clearAllSelectedFeatures', dispatcher)
     isNewDrawing.value = true
 
     // if a KML was previously created with the drawing module
@@ -106,9 +108,9 @@ onMounted(() => {
         window.drawingLayer = drawingLayer
     }
 })
-onBeforeUnmount(async () => {
-    await store.dispatch('clearAllSelectedFeatures')
-    await store.dispatch('setDrawingMode', null)
+onBeforeUnmount(() => {
+    store.dispatch('clearAllSelectedFeatures', dispatcher)
+    store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
 
     drawingLayer.getSource().clear()
     olMap.removeLayer(drawingLayer)
@@ -140,7 +142,7 @@ function removeLastPointOnDeleteKeyUp(event) {
 }
 
 async function closeDrawing() {
-    await store.dispatch('setShowLoadingBar', true)
+    store.dispatch('setShowLoadingBar', { loading: true, ...dispatcher })
 
     log.debug(
         `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
@@ -156,8 +158,8 @@ async function closeDrawing() {
         await saveDrawing(false)
     }
 
-    await store.dispatch('toggleDrawingOverlay', { dispatcher: 'DrawingModule.vue' })
-    await store.dispatch('setShowLoadingBar', false)
+    await store.dispatch('toggleDrawingOverlay', dispatcher)
+    store.dispatch('setShowLoadingBar', { loading: false, ...dispatcher })
 }
 </script>
 

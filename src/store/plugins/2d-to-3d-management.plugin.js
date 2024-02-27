@@ -7,7 +7,7 @@ export const backgroundMatriceBetween2dAnd3d = {
     'ch.swisstopo.swissimage': 'ch.swisstopo.swissimage_3d',
 }
 
-const STORE_DISPATCHER_2D_3D_PLUGIN = '2d-to-3d-management.plugin'
+const dispatcher = { dispatcher: '2d-to-3d-management.plugin' }
 
 /**
  * Plugin to switch to WebMercator coordinate system when we go 3D, and swap back to the default
@@ -29,7 +29,7 @@ export default function from2Dto3Dplugin(store) {
                     if (matching2dBackgroundId?.length > 0) {
                         store.dispatch('setBackground', {
                             bgLayer: matching2dBackgroundId[0],
-                            dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
+                            ...dispatcher,
                         })
                     }
                 } else if (state.layers.currentBackgroundLayer) {
@@ -39,7 +39,7 @@ export default function from2Dto3Dplugin(store) {
                     if (matching3dBackgroundId) {
                         store.dispatch('setBackground', {
                             bgLayer: matching3dBackgroundId,
-                            dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
+                            ...dispatcher,
                         })
                     }
                 }
@@ -51,12 +51,12 @@ export default function from2Dto3Dplugin(store) {
                     if (state.cesium.active) {
                         store.dispatch('setProjection', {
                             projection: WEBMERCATOR,
-                            dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
+                            ...dispatcher,
                         })
                     } else {
                         store.dispatch('setProjection', {
                             projection: DEFAULT_PROJECTION,
-                            dispatcher: STORE_DISPATCHER_2D_3D_PLUGIN,
+                            ...dispatcher,
                         })
                     }
                 }

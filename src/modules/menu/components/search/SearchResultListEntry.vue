@@ -41,6 +41,8 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import { SearchResult } from '@/api/search.api'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
+const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
+
 /** Component showing one search result entry (and dispatching its selection to the store) */
 export default {
     components: { TextSearchMarker },
@@ -76,7 +78,7 @@ export default {
         ]),
         selectItem() {
             this.$emit('entrySelected')
-            this.selectResultEntry(this.entry)
+            this.selectResultEntry({ entry: this.entry, ...dispatcher })
         },
         showLayerLegendPopup() {
             this.$emit('showLayerLegendPopup', this.entry)
@@ -108,16 +110,22 @@ export default {
         },
         startResultPreview() {
             if (this.resultType === 'layer') {
-                this.setPreviewLayer(this.entry.layerId)
+                this.setPreviewLayer({
+                    layer: this.entry.layerId,
+                    ...dispatcher,
+                })
             } else {
-                this.setPreviewedPinnedLocation(this.entry.coordinates)
+                this.setPreviewedPinnedLocation({
+                    coordinates: this.entry.coordinates,
+                    ...dispatcher,
+                })
             }
         },
         stopResultPreview() {
             if (this.resultType === 'layer') {
-                this.clearPreviewLayer()
+                this.clearPreviewLayer(dispatcher)
             } else {
-                this.setPreviewedPinnedLocation(null)
+                this.setPreviewedPinnedLocation({ coordinates: null, ...dispatcher })
             }
         },
     },

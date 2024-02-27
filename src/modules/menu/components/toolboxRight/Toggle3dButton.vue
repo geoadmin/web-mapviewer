@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import tippy from 'tippy.js'
 import { mapActions, mapState } from 'vuex'
 
+const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
+
 /**
  * Returns true if WebGL is supported by the browser / hardware.
  *
@@ -79,7 +81,7 @@ export default {
         ...mapActions(['set3dActive']),
         toggle3d() {
             if (this.webGlIsSupported && !this.showDrawingOverlay) {
-                this.set3dActive({ active: !this.isActive, dispatcher: 'Toggle3dButton.vue' })
+                this.set3dActive({ active: !this.isActive, ...dispatcher })
             }
         },
         updateTooltipContent() {

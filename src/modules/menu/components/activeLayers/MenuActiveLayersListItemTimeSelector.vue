@@ -50,7 +50,7 @@ import {
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/api/layers/LayerTimeConfigEntry.class'
 
-const STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST_TIME = 'MenuActiveLayersListItemTimeSelector.vue'
+const dispatcher = { dispatcher: 'MenuActiveLayersListItemTimeSelector.vue' }
 
 export default {
     props: {
@@ -116,12 +116,12 @@ export default {
             // clearing preview year if one was selected, as a change on this time selector is incompatible with
             // the time slider being shown and active
             if (this.previewYear) {
-                this.clearPreviewYear()
+                this.clearPreviewYear(dispatcher)
             }
             this.setTimedLayerCurrentYear({
                 layerId: this.layerId,
                 year,
-                dispatcher: STORE_DISPATCHER_MENU_ACTIVE_LAYERS_LIST_TIME,
+                ...dispatcher,
             })
         },
         hidePopover() {

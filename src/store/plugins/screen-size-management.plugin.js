@@ -1,6 +1,8 @@
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config'
 import { UIModes } from '@/store/modules/ui.store'
 
+const dispatcher = { dispatcher: 'screen-size-management.plugin' }
+
 /** @param store */
 const screenSizeManagementPlugin = (store) => {
     store.subscribe((mutation, state) => {
@@ -17,12 +19,12 @@ const screenSizeManagementPlugin = (store) => {
                 wantedUiMode = UIModes.DESKTOP
             }
             if (wantedUiMode !== state.ui.mode) {
-                store.dispatch('setUiMode', wantedUiMode)
+                store.dispatch('setUiMode', { mode: wantedUiMode, ...dispatcher })
                 if (
                     (wantedUiMode === UIModes.PHONE && state.ui.floatingTooltip) ||
                     (wantedUiMode === UIModes.DESKTOP && !state.ui.floatingTooltip)
                 ) {
-                    store.dispatch('toggleFloatingTooltip')
+                    store.dispatch('toggleFloatingTooltip', dispatcher)
                 }
             }
         }

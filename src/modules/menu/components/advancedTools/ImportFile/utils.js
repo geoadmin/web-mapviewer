@@ -6,6 +6,8 @@ import GPX from '@/utils/GPX'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
 
+const dispatcher = { dispatcher: 'ImportFile/utils' }
+
 /**
  * Checks if file is KML
  *
@@ -47,8 +49,8 @@ export function handleFileContent(store, content, source) {
         if (!projectedExtent) {
             throw new OutOfBoundsError(`KML out of projection bounds: ${extent}`)
         }
-        store.dispatch('zoomToExtent', projectedExtent)
-        store.dispatch('addLayer', { layer, dispatcher: 'ImportFile.vue/kml' })
+        store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
+        store.dispatch('addLayer', { layer, ...dispatcher })
     } else if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)
@@ -61,8 +63,8 @@ export function handleFileContent(store, content, source) {
         if (!projectedExtent) {
             throw new OutOfBoundsError(`GPX out of projection bounds: ${extent}`)
         }
-        store.dispatch('zoomToExtent', projectedExtent)
-        store.dispatch('addLayer', { layer, dispacther: 'ImportFile.vue/gpx' })
+        store.dispatch('zoomToExtent', { extent: projectedExtent, ...dispatcher })
+        store.dispatch('addLayer', { layer, ...dispatcher })
     } else {
         throw new Error(`Unsupported file ${source} content`)
     }

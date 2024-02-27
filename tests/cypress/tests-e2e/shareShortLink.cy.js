@@ -89,7 +89,10 @@ describe('Testing the share menu', () => {
                     // closing the menu
                     cy.get('[data-cy="menu-button"]').click()
                     // faking a move of the app, so that the GPS is still active, but the tracking is off
-                    cy.writeStoreValue('setGeolocationTracking', false)
+                    cy.writeStoreValue('setGeolocationTracking', {
+                        tracking: false,
+                        dispatcher: 'e2e-test',
+                    })
                     // opening the menu once again
                     cy.get('[data-cy="menu-button"]').click()
                     // opening the share menu, and checking that the link generated does not have a crosshair URL param
