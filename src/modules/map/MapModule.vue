@@ -9,11 +9,14 @@ import { UIModes } from '@/store/modules/ui.store'
 
 import CompareSlider from './components/CompareSlider.vue'
 import LocationPopup from './components/LocationPopup.vue'
+import OpenLayersMap from './components/openlayers/OpenLayersMap.vue'
 import WarningRibbon from './components/WarningRibbon.vue'
+
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
-const OpenLayersMap = defineAsyncComponent(
-    () => import('./components/openlayers/OpenLayersMap.vue')
-)
+
+// const OpenLayersMap = defineAsyncComponent(
+//     () => import('./components/openlayers/OpenLayersMap.vue')
+// )
 
 const store = useStore()
 

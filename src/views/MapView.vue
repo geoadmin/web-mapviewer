@@ -17,6 +17,7 @@ const embedded = computed(() => store.state.ui.embeddedMode)
 const is3DActive = computed(() => store.state.cesium.active)
 const isDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const isAppReady = computed(() => store.state.app.isReady)
 
 const loadDrawingModule = computed(() => {
     return (
@@ -42,7 +43,7 @@ onMounted(() => {
             <InfoboxModule />
         </MapModule>
         <MapFooter v-show="!embedded" />
-        <MenuModule v-show="!embedded" />
+        <MenuModule v-if="!embedded && isAppReady" />
         <I18nModule />
     </div>
 </template>
