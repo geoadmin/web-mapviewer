@@ -168,7 +168,6 @@ export default {
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
             isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
-            showToolTip: (state) => state.ui.showTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
@@ -197,11 +196,7 @@ export default {
             )
         },
         showFeaturesPopover() {
-            return (
-                this.showToolTip &&
-                !this.isFeatureTooltipInFooter &&
-                this.selectedFeatures.length > 0
-            )
+            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)

@@ -11,6 +11,7 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
+
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -84,13 +85,6 @@ export default {
          */
         floatingTooltip: false, // Configured in screen-size-management.plugin.js
 
-        /**
-         * Flag telling if the tooltip should be displayed at all. Only false when using a
-         * bod-layer-id parameter, and only until any new feature is selected
-         *
-         * @type Boolean
-         */
-        showToolTip: true,
         /**
          * Hostname on which the application is running (use to display warnings to the user on
          * 'non-production' hosts)
@@ -283,14 +277,6 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
-        showToolTip({ commit, state }) {
-            if (!state.showToolTip) {
-                commit('setShowToolTip', true)
-            }
-        },
-        hideToolTip({ commit }) {
-            commit('setShowToolTip', false)
-        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -335,9 +321,6 @@ export default {
         },
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
-        },
-        setShowToolTip(state, value) {
-            state.showToolTip = value
         },
     },
 }

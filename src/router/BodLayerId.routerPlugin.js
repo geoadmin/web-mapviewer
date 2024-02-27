@@ -13,10 +13,8 @@ const standardsParams = storeSyncConfig.map((param) => {
 // parameters. A comment explaining why it's not a standard URL parameter could
 // be a good idea.
 
-// showtooltip is only used in conjunction with the bod-layer-id params, which
-// means we handle it here with the bod-layer-id params and ignore it in any
-// other case.
-standardsParams.push('showtooltip')
+// Redirections are a parameter in themselves, and we are not processing them here.
+standardsParams.push('redirect')
 
 const STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN = 'BodLayerId.routerPlugin.js'
 
@@ -44,6 +42,7 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
     for (let i = 0; i < queryItems.length; i++) {
         const key = queryItems[i][0]
         const value = queryItems[i][1]
+
         let layer = null
         if (!standardsParams.includes(key)) {
             layer = layersConfig.find((layer) => layer.getID() === key)
@@ -53,12 +52,9 @@ function parseBodLayerParamsFromQuery(query, layersConfig) {
             clonedLayer.visibility = true
             val.layer = clonedLayer
             val.features = value.split(',')
-            // for the showToolTip parameter : it should be false only when specified as false
-            val.showToolTip = !(query.showtooltip === 'false' || query.showtooltip === false)
             break
         }
     }
-
     // if we found no layer, we return null
     return val?.layer ? val : null
 }
@@ -78,7 +74,7 @@ function handleBodIdParams(bodIdParams, store, to) {
     const newQuery = { ...to.query }
 
     const activeLayersIds = []
-    if (!to.query.layers) {
+    if (!to.query.layers && !to.query.topics) {
         // ensuring the default layers have not been populated if the parameter is not set
         store.dispatch('clearLayers', { dispatcher: STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN })
     }
@@ -94,9 +90,7 @@ function handleBodIdParams(bodIdParams, store, to) {
         })
     }
     delete newQuery[bodIdParams.layer.getID()]
-    delete newQuery.showtooltip
     delete newQuery.center
-
     retrieveAndDispatchFeaturesToStore(bodIdParams, !newQuery.z, store)
     return {
         name: 'MapView',
@@ -121,8 +115,7 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
                 bodIdParams.layer,
                 featureID,
                 store.state.position.projection,
-                store.state.i18n.lang,
-                bodIdParams.showToolTip
+                store.state.i18n.lang
             )
         )
     })
@@ -143,7 +136,7 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
 
             const center = [
                 coordinatesX.reduce((a, b) => a + b, 0) / coordinatesX.length,
-                coordinatesX.reduce((a, b) => a + b, 0) / coordinatesX.length,
+                coordinatesY.reduce((a, b) => a + b, 0) / coordinatesY.length,
             ]
 
             if (needToZoom) {
@@ -165,16 +158,11 @@ async function retrieveAndDispatchFeaturesToStore(bodIdParams, needToZoom, store
     } catch (error) {
         log.error(`Error while processing features in bod-layer-id router. error is ${error}`)
     }
-    // Step 3 : hide the tooltip if needed
-    if (!bodIdParams.showToolTip) {
-        // TO DO : discuss with pascal, brice, maybe Jürge / Stefan / Chris to see what showtooltip is supposed to do
-        store.dispatch('hideToolTip', STORE_DISPATCHER_BOD_LAYER_ID_ROUTER_PLUGIN)
-    }
 }
 
 /**
- * Parse the URL for bod-layer-id parameters (with or without the showToolTip parameter), remove the
- * parameter for the URL while dispatching what is needed to the store
+ * Parse the URL for bod-layer-id parameters , remove the parameter for the URL while dispatching
+ * what is needed to the store
  *
  * Example:
  *

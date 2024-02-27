@@ -216,7 +216,7 @@ Cypress.Commands.add(
         cy.waitUntilState(
             (state, getters) => {
                 const active = state.layers.activeLayers.length
-                // The required layers can be set via topic or manually.
+                // The required layers can be set via topic or manually, or through a BOD ID parameter.
                 const targetTopic = getters.currentTopic?.layersToActivate.length
                 const targetLayers =
                     'layers' in queryParams
@@ -225,11 +225,34 @@ Cypress.Commands.add(
                             ? queryParams.layers.split(',').length
                             : queryParams.layers.split(';').length
                         : 0
-                // There are situations where neither value is falsy.
-                // But the higher value seems to always be the right one.
+                // if the layer given as a parameter is already present in the layers or activated by the
+                // topic, we would not count it
+                const targetBodIdParameter = state.layers.activeLayers.some((layer) => {
+                    console.log('-----------')
+                    console.log(layer.geoAdminID in queryParams)
+                    console.log(!queryParams.layers?.includes(layer.geoAdminID))
+                    console.log(queryParams.layers) // this is a string
+                    console.log(!getters.currentTopic?.layersToActivate.includes(layer.geoAdminID))
+                    return (
+                        layer.geoAdminID in queryParams &&
+                        !queryParams.layers?.includes(layer.geoAdminID) &&
+                        !getters.currentTopic?.layersToActivate.includes(layer.geoAdminID)
+                    )
+                })
+                    ? 1
+                    : 0
+                console.log(targetBodIdParameter)
+                console.log('_____________________________')
                 let target = Math.max(targetTopic, targetLayers)
+                console.log(target)
+                // If a layer has been set via a BodId Parameter, we just increment by one
+                target += Boolean(targetBodIdParameter)
                 // If a layer has been set via adminId we just increment by one.
                 target += Boolean(queryParams.adminId)
+                console.log('- - - - - - - -')
+                console.log(target)
+                console.log(state.layers.activeLayers)
+                console.log(active)
                 return active === target
             },
             {

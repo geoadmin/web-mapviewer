@@ -202,5 +202,24 @@
         "styleUrl": "//sys-api3.dev.bgdi.ch/static/vectorStyles/test.geojson.layer.json",
         "geojsonUrl": "https://data.geo.admin.ch/test.geojson.layer.json",
         "attributionUrl": "test.geojson.layer.url"
+    },
+    "ch.babs.kulturgueter": {
+        "opacity": 0.75,
+        "wmsLayers": "test.wms.layer",
+        "attribution": "attribution.test.wms.layer",
+        "background": false,
+        "searchable": false,
+        "format": "png",
+        "topics": "ech,test-topic-standard",
+        "wmsUrl": "https://wms.geo.admin.ch",
+        "tooltip": true,
+        "timeEnabled": false,
+        "singleTile": false,
+        "highlightable": true,
+        "chargeable": false,
+        "hasLegend": true,
+        "label": "WMS test layer",
+        "type": "wms",
+        "serverLayerName": "ch.babs.kulturgueter"
     }
 }
