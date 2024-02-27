@@ -50,11 +50,18 @@ describe('Drawing module tests', () => {
             )
             cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
         }
-
+        function readCoordinateClipboard(name) {
+            cy.get(`[data-cy="${name}-button"]`).focus()
+            cy.get(`[data-cy="${name}-button"]`).realClick()
+            cy.get(`[data-cy="${name}-icon"]`).should('have.class', 'fa-check')
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.be.equal("2'660'013.50, 1'185'172.00")
+            })
+        }
         beforeEach(() => {
             cy.goToDrawing()
         })
-        it.only('can create marker/icons and edit them', () => {
+        it('can create marker/icons and edit them', () => {
             // it should load all icon sets as soon as we enter the drawing module
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
@@ -64,13 +71,15 @@ describe('Drawing module tests', () => {
 
             cy.wait('@post-kml')
 
-            cy.viewport(640, 568)
-            cy.get('[data-cy="drawing-style-copy-button"]').focus()
-            cy.get('[data-cy="drawing-style-copy-button"]').realClick()
-            cy.get('[data-cy="drawing-style-copy-icon"]').should('have.class', 'fa-check')
-            cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.be.equal("2'660'013.50, 1'185'172.00")
-            })
+            readCoordinateClipboard('feature-style-edit-coordinate-copy')
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click('center')
+            readCoordinateClipboard('feature-detail-coordinate-copy')
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.goToDrawing()
+
             // it should show the default icon set by default with the red color in the icon style popup
             cy.wait('@icon-default')
                 .its('request.url')
@@ -251,13 +260,14 @@ describe('Drawing module tests', () => {
                 ])
             })
 
-            cy.get('[data-cy="drawing-style-copy-button"]').focus()
-            cy.get('[data-cy="drawing-style-copy-button"]').click()
-            cy.get('[data-cy="drawing-style-copy-button"]').realClick()
-            cy.get('[data-cy="drawing-style-copy-icon"]').should('have.class', 'fa-check')
-            cy.readClipboardValue().then((clipboardText) => {
-                expect(clipboardText).to.be.equal("2'660'013.50, 1'185'172.00")
-            })
+            readCoordinateClipboard('feature-style-edit-coordinate-copy')
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click('center')
+            readCoordinateClipboard('feature-detail-coordinate-copy')
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.goToDrawing()
 
             testTitleEdit()
 
@@ -330,7 +340,7 @@ describe('Drawing module tests', () => {
                 ])
                 kmlId = interception.response.body.id
             })
-            cy.get('[data-cy="drawing-style-copy-button"]').should('not.exist')
+            cy.get('[data-cy="feature-style-edit-coordinate-copy-button"]').should('not.exist')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .then((features) => {

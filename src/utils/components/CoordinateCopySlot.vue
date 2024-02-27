@@ -99,11 +99,12 @@ async function copyValue() {
         </div>
         <button
             ref="copyButton"
+            :data-cy="`${identifier}-button`"
             class="location-popup-copy-button btn btn-light text-black-50"
             type="button"
             @click="copyValue"
         >
-            <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+            <FontAwesomeIcon class="icon" :icon="buttonIcon" :data-cy="`${identifier}-icon`" />
         </button>
     </div>
 </template>

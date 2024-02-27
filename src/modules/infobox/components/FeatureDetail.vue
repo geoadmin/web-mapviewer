@@ -57,7 +57,7 @@ function sanitizeHtml(htmlText) {
         >
             <CoordinateCopySlot
                 class="d-flex"
-                identifier="lv95"
+                identifier="feature-detail-coordinate-copy"
                 :value="LV95Format.format(feature.geometry.coordinates.slice(0, 2))"
             >
                 <FontAwesomeIcon class="d-flex" icon="fas fa-map-marker-alt" />
