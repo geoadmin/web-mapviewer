@@ -17,7 +17,7 @@ const embedded = computed(() => store.state.ui.embeddedMode)
 const is3DActive = computed(() => store.state.cesium.active)
 const isDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const isAppReady = computed(() => store.state.app.isReady)
+const isAppReady = computed(() => store.state.app.mapModuleReady)
 
 const loadDrawingModule = computed(() => {
     return (
