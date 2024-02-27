@@ -58,6 +58,10 @@ setupChartJS()
 
 const app = createApp(App)
 
+if (ENVIRONMENT !== 'production') {
+    app.config.performance = true
+}
+
 app.use(router)
 app.use(i18n)
 app.use(store)
