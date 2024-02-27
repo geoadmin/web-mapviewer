@@ -99,7 +99,7 @@ async function copyValue() {
         </div>
         <button
             ref="copyButton"
-            class="location-popup-copy-button btn btn-light text-black-50 d-none d-md-block"
+            class="location-popup-copy-button btn btn-light text-black-50"
             type="button"
             @click="copyValue"
         >

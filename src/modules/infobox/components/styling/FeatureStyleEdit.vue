@@ -236,7 +236,7 @@ function onDelete() {
                 >
                     <div data-cy="drawing-style-text-popup">
                         <DrawingStyleSizeSelector
-                            class=""
+                            class="mb-3"
                             :current-size="feature.textSize"
                             @change="onTextSizeChange"
                         />
@@ -276,7 +276,7 @@ function onDelete() {
                 </DrawingStylePopoverButton>
 
                 <button
-                    class="btn btn-sm btn-light d-flex mb-auto"
+                    class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="drawing-style-delete-button"
                     @click="onDelete"
                 >

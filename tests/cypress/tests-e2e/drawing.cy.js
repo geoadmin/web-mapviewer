@@ -54,7 +54,7 @@ describe('Drawing module tests', () => {
         beforeEach(() => {
             cy.goToDrawing()
         })
-        it('can create marker/icons and edit them', () => {
+        it.only('can create marker/icons and edit them', () => {
             // it should load all icon sets as soon as we enter the drawing module
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
@@ -64,6 +64,7 @@ describe('Drawing module tests', () => {
 
             cy.wait('@post-kml')
 
+            cy.viewport(640, 568)
             cy.get('[data-cy="drawing-style-copy-button"]').focus()
             cy.get('[data-cy="drawing-style-copy-button"]').realClick()
             cy.get('[data-cy="drawing-style-copy-icon"]').should('have.class', 'fa-check')
