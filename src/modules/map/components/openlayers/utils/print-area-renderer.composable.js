@@ -97,6 +97,19 @@ function encodeLegend() {
     }
 }
 
+function encodeAttributions() {
+    const visibleLayers = store.getters.visibleLayers
+    const attributions = new Set()
+
+    for (const layer of visibleLayers) {
+        const layerAttributions = layer.attributions
+        for (const layerAttribution of layerAttributions) {
+            attributions.add(layerAttribution.name)
+        }
+    }
+    return Array.from(attributions).join(', ')
+}
+
 export default function usePrintAreaRenderer(map) {
     const store = useStore()
 
@@ -159,8 +172,6 @@ export default function usePrintAreaRenderer(map) {
             scale: selectedScale.value,
             printResolution: 96,
             dpi: 96,
-            layout: layout,
-            format: 'pdf',
             customizer: customizer,
         }
 
@@ -169,9 +180,8 @@ export default function usePrintAreaRenderer(map) {
         const spec = {
             attributes: {
                 map: mapSpec,
-                // TODO (IS): Remove this Fake values
-                copyright: '© swisstopo, swisstopo + FGS',
-                url: 'https://map.geo.admin.ch',
+                copyright: `© ${encodeAttributions()}`,
+                url: store.state.ui.hostname,
                 qrimage: qrCodeUrl,
             },
             format: 'pdf',
