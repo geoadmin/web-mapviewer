@@ -79,6 +79,8 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/api/layers/LayerTimeConfigEntry.class'
 import { round } from '@/utils/numberUtils'
 
+const dispatcher = { dispatcher: 'TimeSlider.vue' }
+
 /**
  * The oldest year in our system is from the layer Journey Through Time (ch.swisstopo.zeitreihen)
  * which has data from the year 1844
@@ -267,13 +269,13 @@ export default {
         this.setCurrentYearAndDispatchToStore(initialYear)
     },
     beforeUnmount() {
-        this.clearPreviewYear({ dispatcher: 'TimeSlider.vue' })
+        this.clearPreviewYear(dispatcher)
     },
     methods: {
         ...mapActions(['setPreviewYear', 'clearPreviewYear']),
         setCurrentYearAndDispatchToStore(year) {
             this.currentYear = year
-            this.setPreviewYear({ year: this.currentYear, dispatcher: 'TimeSlider.vue' })
+            this.setPreviewYear({ year: this.currentYear, ...dispatcher })
         },
         setSliderWidth() {
             // 19px of padding (7.5 on both side of the container with p-2 class and 4 with px-1)
@@ -346,7 +348,7 @@ export default {
             window.removeEventListener('touchmove', this.listenToMouseMove)
             window.removeEventListener('mouseup', this.releaseCursor)
             window.removeEventListener('touchend', this.releaseCursor)
-            this.setPreviewYear({ year: this.currentYear, dispatcher: 'TimeSlider.vue' })
+            this.setPreviewYear({ year: this.currentYear, ...dispatcher })
         },
         togglePlayYearsWithData() {
             this.playYearsWithData = !this.playYearsWithData

@@ -8,6 +8,8 @@ import { LV95_RESOLUTIONS } from '@/utils/coordinates/SwissCoordinateSystem.clas
 import log from '@/utils/logging'
 import { round } from '@/utils/numberUtils'
 
+const dispatcher = { dispatcher: 'map-views.composable' }
+
 let animationDuration = 200
 if (IS_TESTING_WITH_CYPRESS) {
     animationDuration = 0
@@ -80,11 +82,11 @@ export default function useViewBasedOnProjection(map) {
         if (currentView) {
             const [x, y] = currentView.getCenter()
             if (x !== center.value[0] || y !== center.value[1]) {
-                store.dispatch('setCenter', { center: { x, y }, dispatcher: 'OpenLayers.vue' })
+                store.dispatch('setCenter', { center: { x, y }, ...dispatcher })
             }
             const currentZoom = round(currentView.getZoom(), 3)
             if (currentZoom && currentZoom !== zoom.value) {
-                store.dispatch('setZoom', { zoom: currentZoom, dispatcher: 'OpenLayers.vue' })
+                store.dispatch('setZoom', { zoom: currentZoom, ...dispatcher })
             }
             const currentRotation = currentView.getRotation()
             if (currentRotation !== rotation.value) {

@@ -3,6 +3,8 @@ import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+const dispatcher = { dispatcher: 'LayerCatalogue.vue' }
+
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
 
 const props = defineProps({
@@ -31,7 +33,7 @@ const showSearchBar = computed(() => withSearchBar.value && layerCatalogue.value
 
 function clearPreviewLayer() {
     if (store.state.layers.previewLayer) {
-        store.dispatch('clearPreviewLayer', { dispatcher: 'LayerCatalogue.vue' })
+        store.dispatch('clearPreviewLayer', dispatcher)
     }
 }
 

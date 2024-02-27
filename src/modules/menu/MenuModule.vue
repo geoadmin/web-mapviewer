@@ -65,7 +65,7 @@ const updateMenuTrayWidth = () => {
     if (menuTray.value) {
         store.dispatch('setMenuTrayWidth', {
             width: menuTray.value.offsetWidth,
-            dispatcher: 'MenuModule.vue',
+            ...dispatcher,
         })
     }
 }

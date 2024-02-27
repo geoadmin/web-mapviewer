@@ -5,6 +5,8 @@ import { useStore } from 'vuex'
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
 import BackgroundSelectorWheelRounded from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorWheelRounded.vue'
 
+const dispatcher = { dispatcher: 'BackgroundSelector.vue' }
+
 const store = useStore()
 const backgroundLayers = computed(() => store.getters.backgroundLayers)
 const currentBackgroundLayer = computed(() => store.state.layers.currentBackgroundLayer)
@@ -46,7 +48,7 @@ const sortedBackgroundLayersWithVoid = computed(() =>
 function selectBackground(backgroundLayer) {
     store.dispatch('setBackground', {
         bgLayer: backgroundLayer,
-        dispatcher: 'BackgroundSelector.vue',
+        ...dispatcher,
     })
 }
 </script>

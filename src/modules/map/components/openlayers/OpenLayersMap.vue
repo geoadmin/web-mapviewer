@@ -22,6 +22,8 @@ import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/prin
 import allCoordinateSystems, { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'OpenLayersMap.vue' }
+
 // register any custom projection in OpenLayers
 register(proj4)
 
@@ -53,7 +55,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 map.once('rendercomplete', () => {
     // This is needed for cypress in order to start the tests only
     // when openlayer is rendered otherwise some tests will fail.
-    store.dispatch('mapModuleReady', { dispatcher: 'OpenLayersMap.vue' })
+    store.dispatch('mapModuleReady', dispatcher)
     log.info('Openlayer map rendered')
 })
 

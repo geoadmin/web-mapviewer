@@ -15,6 +15,8 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import log from '@/utils/logging'
 import { stringifyQuery } from '@/utils/url-router'
 
+const dispatcher = { dispatcher: 'LocationPopup.vue' }
+
 const i18n = useI18n()
 const store = useStore()
 const route = useRoute()
@@ -148,7 +150,7 @@ async function copyShareLink() {
 }
 
 function clearClick() {
-    store.dispatch('clearClick', { dispatcher: 'LocationPopup.vue' })
+    store.dispatch('clearClick', dispatcher)
     requestClipboard.value = false
 }
 </script>

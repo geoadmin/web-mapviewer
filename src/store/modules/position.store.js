@@ -215,7 +215,7 @@ const actions = {
             commit('setCenter', { x, y, dispatcher })
         }
     },
-    zoomToExtent: ({ commit, state, rootState }, extent) => {
+    zoomToExtent: ({ commit, state, rootState }, { extent, dispatcher }) => {
         if (extent && Array.isArray(extent) && extent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [
@@ -233,7 +233,7 @@ const actions = {
                 commit('setCenter', {
                     x: centerOfExtent[0],
                     y: centerOfExtent[1],
-                    dispatcher: 'position.store/zoomToExtent',
+                    dispatcher: `${dispatcher}/zoomToExtent`,
                 })
             }
             const extentSize = {
@@ -259,7 +259,7 @@ const actions = {
             // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
             commit('setZoom', {
                 zoom: Math.max(zoomForResolution - 1, 0),
-                dispatcher: 'position.store/zoomToExtent',
+                dispatcher: `${dispatcher}/zoomToExtent`,
             })
         }
     },

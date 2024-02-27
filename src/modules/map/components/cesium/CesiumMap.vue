@@ -283,7 +283,7 @@ export default {
         }
     },
     unmounted() {
-        this.setCameraPosition({ position: null, dispatcher: 'CesiumMap.vue/unmount' })
+        this.setCameraPosition({ position: null, ...dispatcher })
         this.viewer.destroy()
         delete this.viewer
     },
@@ -474,7 +474,7 @@ export default {
                     pitch: parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0)),
                     roll: parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0)),
                 },
-                dispatcher: 'CesiumMap.vue/onCameraMoveEnd',
+                ...dispatcher,
             })
         },
         getCoordinateAtScreenCoordinate(x, y) {

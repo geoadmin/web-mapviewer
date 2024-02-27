@@ -3,11 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
+const dispatcher = { dispatcher: 'FullScreenButton.vue' }
+
 const store = useStore()
 const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
 
 function toggleFullScreen() {
-    store.dispatch('toggleFullscreenMode', { dispatcher: 'FullScreenButton.vue' })
+    store.dispatch('toggleFullscreenMode', dispatcher)
 }
 </script>
 

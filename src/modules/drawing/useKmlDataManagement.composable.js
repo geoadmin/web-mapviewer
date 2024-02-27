@@ -75,12 +75,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 if (activeKmlLayer.value) {
                     await store.dispatch('removeLayer', {
                         layer: activeKmlLayer.value,
-                        dispatcher: 'useKmlDataManagement.composable/saveDrawing',
+                        ...dispatcher,
                     })
                 }
                 await store.dispatch('addLayer', {
                     layer: kmlLayer,
-                    dispatcher: 'useKmlDataManagement.composable/saveDrawing',
+                    ...dispatcher,
                 })
                 saveState.value = DrawingState.SAVED
             } else {
@@ -94,7 +94,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     layerId: activeKmlLayer.value.getID(),
                     data: kmlData,
                     metadata: kmlMetadata,
-                    dispatcher: 'useKmlDataManagement.composable/saveDrawing',
+                    ...dispatcher,
                 })
                 saveState.value = DrawingState.SAVED
             }

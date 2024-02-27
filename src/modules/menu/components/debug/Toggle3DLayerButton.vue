@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
+const dispatcher = { dispatcher: 'Toggle3DLayerButton.vue' }
+
 const store = useStore()
 const showBuildings = computed(() => store.state.cesium.showBuildings)
 const showVegetation = computed(() => store.state.cesium.showVegetation)
 
-const toggleShow3dVegetation = () =>
-    store.dispatch('toggleShow3dVegetation', { dispatcher: 'Toggle3DLayerButton.vue' })
-const toggleShow3dBuildings = () =>
-    store.dispatch('toggleShow3dBuildings', { dispatcher: 'Toggle3DLayerButton.vue' })
+const toggleShow3dVegetation = () => store.dispatch('toggleShow3dVegetation', dispatcher)
+const toggleShow3dBuildings = () => store.dispatch('toggleShow3dBuildings', dispatcher)
 </script>
 
 <template>

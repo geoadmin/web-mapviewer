@@ -112,7 +112,7 @@ const actions = {
                 break
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {
-                    dispatch('zoomToExtent', entry.extent)
+                    dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
                     dispatch('setCenter', {
                         center: entry.coordinates,

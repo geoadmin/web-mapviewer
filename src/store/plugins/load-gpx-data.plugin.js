@@ -9,6 +9,8 @@ import GPXLayer from '@/api/layers/GPXLayer.class'
 import GPX from '@/utils/GPX'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
+
 /**
  * @param {Vuex.Store} store
  * @param {GPXLayer} gpxLayer
@@ -25,7 +27,7 @@ async function loadGpx(store, gpxLayer) {
             layerId: gpxLayer.getID(),
             metadata,
             data: gpxContent,
-            dispatcher: 'load-gpx-data.plugin',
+            ...dispatcher,
         })
     } catch (error) {
         log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.getID()}`)

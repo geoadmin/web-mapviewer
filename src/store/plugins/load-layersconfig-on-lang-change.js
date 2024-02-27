@@ -4,6 +4,8 @@ import { loadTopics, parseTopics } from '@/api/topics.api'
 import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'load-layersconfig-on-lang-change' }
+
 /**
  * Local storage of layers config, so that if a language has already been loaded, we don't reload it
  * from the backend the second time (will disappear on page reload)
@@ -81,7 +83,7 @@ const loadLayersConfigOnLangChange = (store) => {
                 store,
                 mutation.payload.lang,
                 store.state.topics.current,
-                'load-layersconfig-on-lang-change'
+                dispatcher.dispatcher
             )
                 .then(() => {
                     log.debug('Layers config for new lang loaded with success')

@@ -39,6 +39,8 @@ import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 
+const dispatcher = { dispatcher: 'MenuTopicSection.vue' }
+
 /** Menu section for topics, responsible to communicate user interactions on topics with the store */
 export default {
     components: {
@@ -81,7 +83,7 @@ export default {
             this.showTopicSelectionPopup = true
         },
         selectTopic(topic) {
-            this.changeTopic({ topicId: topic.id, dispatcher: 'MenuTopicSection.vue' })
+            this.changeTopic({ topicId: topic.id, ...dispatcher })
             this.showTopicSelectionPopup = false
         },
         close() {
