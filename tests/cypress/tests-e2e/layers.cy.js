@@ -674,11 +674,11 @@ describe('Test of layer handling', () => {
                     cy.location('hash').then((hash) => {
                         const layersParam = new URLSearchParams(hash).get('layers')
                         const layers = layersParam.split(';')
-                        expect(layers).to.be.an('Array').lengthOf(3)
+                        cy.wrap(layers).should('have.lengthOf', 3)
                         const [firstUrlLayer, secondUrlLayer, thirdUrlLayer] = layers
-                        expect(firstUrlLayer).to.contains(expectedBottomLayerId)
-                        expect(secondUrlLayer).to.contains(expectedMiddleLayerId)
-                        expect(thirdUrlLayer).to.contains(expectedTopLayerId)
+                        cy.wrap(firstUrlLayer).should('contain', expectedBottomLayerId)
+                        cy.wrap(secondUrlLayer).should('contain', expectedMiddleLayerId)
+                        cy.wrap(thirdUrlLayer).should('contain', expectedTopLayerId)
                     })
                 }
                 // the bottom layer should now be on top, so the order is now
