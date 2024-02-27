@@ -671,7 +671,7 @@ describe('Test of layer handling', () => {
                     expectedMiddleLayerId,
                     expectedTopLayerId
                 ) => {
-                    cy.location('hash').should((hash) => {
+                    cy.location('hash').then((hash) => {
                         const layersParam = new URLSearchParams(hash).get('layers')
                         const layers = layersParam.split(';')
                         expect(layers).to.be.an('Array').lengthOf(3)
