@@ -52,6 +52,13 @@ export function normalizeAngle(rotation) {
 
 const state = {
     /**
+     * The display format selected for the mousetracker
+     *
+     * @type String
+     */
+    displayedFormatId: 'WebMercator',
+
+    /**
      * The map zoom level, which define the resolution of the view
      *
      * @type Number
@@ -169,6 +176,9 @@ const getters = {
 }
 
 const actions = {
+    setDisplayedFormatId({ commit }, displayedFormatId) {
+        commit('setDisplayedFormatId', displayedFormatId)
+    },
     /**
      * @param commit
      * @param state
@@ -390,6 +400,8 @@ const actions = {
 }
 
 const mutations = {
+    setDisplayedFormatId: (state, { displayedFormatId }) =>
+        (state.displayedFormatId = displayedFormatId),
     setZoom: (state, { zoom }) => (state.zoom = zoom),
     setRotation: (state, rotation) => (state.rotation = rotation),
     setCenter: (state, { x, y }) => (state.center = [x, y]),
@@ -399,7 +411,6 @@ const mutations = {
     setCameraPosition: (state, { position }) => (state.camera = position),
     setProjection: (state, { projection }) => (state.projection = projection),
 }
-
 export default {
     state,
     getters,

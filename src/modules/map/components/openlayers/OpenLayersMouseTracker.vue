@@ -40,6 +40,9 @@ function showCoordinateLabel(displayedFormat) {
     return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
 }
 function setDisplayedFormatWithId() {
+    store.dispatch('setDisplayedFormatId', {
+        displayedFormatId: displayedFormatId.value,
+    })
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
