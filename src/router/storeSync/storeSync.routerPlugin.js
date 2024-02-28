@@ -49,15 +49,15 @@ let routeChangeIsTriggeredByThisModule = false
  * @param {Router} router
  */
 function storeMutationWatcher(store, mutation, router) {
-    log.debug(
-        '[store sync router] store mutation',
-        mutation,
-        'Current route',
-        router.currentRoute.value
-    )
-
     // Ignore mutation that has been triggered by the router.beforeEach below.
     if (mutationNotTriggeredByModule(mutation) && mutationWatched(mutation)) {
+        log.debug(
+            '[store sync router] store mutation',
+            mutation,
+            'Current route',
+            router.currentRoute.value
+        )
+
         // if the value in the store differs from the one in the URL
         if (isRoutePushNeeded(store, router.currentRoute.value)) {
             const query = {}
@@ -73,7 +73,7 @@ function storeMutationWatcher(store, mutation, router) {
                     query,
                 })
                 .catch((error) => {
-                    log.info('Error while routing to', query, error)
+                    log.error('Error while routing to', query, error)
                 })
                 .finally(() => {
                     routeChangeIsTriggeredByThisModule = false
