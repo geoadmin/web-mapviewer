@@ -49,7 +49,8 @@
                 </div>
             </div>
             <div class="my-3">
-                <!-- <ImportFile /> -->
+                <span>{{ $t('feedback_attachment') }}</span>
+                <ImportFileLocal :active="true" />
             </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
@@ -110,6 +111,7 @@ import { mapGetters } from 'vuex'
 import sendFeedback from '@/api/feedback.api'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
+import ImportFileLocal from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocal.vue'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import log from '@/utils/logging'
@@ -119,7 +121,13 @@ const EMAIL_REGEX =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 export default {
-    components: { ModalWithBackdrop, HeaderLink, DrawingInteractions },
+    components: {
+        ModalWithBackdrop,
+        HeaderLink,
+        DrawingInteractions,
+        ImportFile,
+        ImportFileLocal,
+    },
     props: {
         showAsLink: {
             type: Boolean,
