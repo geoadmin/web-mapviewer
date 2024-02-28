@@ -149,7 +149,11 @@ async function updateHeight() {
                 MGRS
             </CoordinateCopySlot>
 
-            <CoordinateCopySlot v-if="what3Words" identifier="location-popup-w3w" :value="what3Words">
+            <CoordinateCopySlot
+                v-if="what3Words"
+                identifier="location-popup-w3w"
+                :value="what3Words"
+            >
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </CoordinateCopySlot>
 

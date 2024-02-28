@@ -2,10 +2,10 @@
 import DOMPurify from 'dompurify'
 import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const props = defineProps({
     feature: {
@@ -16,8 +16,10 @@ const props = defineProps({
 
 const { feature } = toRefs(props)
 
+const store = useStore()
 const i18n = useI18n()
 
+const projection = computed(() => store.state.position.projection)
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
@@ -58,7 +60,8 @@ function sanitizeHtml(htmlText) {
             <CoordinateCopySlot
                 class="d-flex"
                 identifier="feature-detail-coordinate-copy"
-                :value="LV95Format.format(feature.geometry.coordinates.slice(0, 2))"
+                :value="feature.geometry.coordinates.slice(0, 2)"
+                :projection="projection"
             >
                 <FontAwesomeIcon class="d-flex" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>

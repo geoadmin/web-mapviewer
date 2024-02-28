@@ -56,7 +56,7 @@ const state = {
      *
      * @type String
      */
-    displayedFormatId: 'WebMercator',
+    displayedFormatId: 'LV95',
 
     /**
      * The map zoom level, which define the resolution of the view

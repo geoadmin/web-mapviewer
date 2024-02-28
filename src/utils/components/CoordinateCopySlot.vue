@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import allFormats from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -32,6 +33,8 @@ const copied = ref(false)
 const i18n = useI18n()
 
 const store = useStore()
+const projection = computed(() => store.state.position.projection)
+const displayedFormatId = computed(() => store.state.position.displayedFormatId)
 const lang = computed(() => store.state.i18n.lang)
 
 const buttonIcon = computed(() => {
@@ -70,9 +73,14 @@ function setTooltipContent() {
         copyTooltip.setContent(i18n.t('copy_cta'))
     }
 }
+
+function display(coordinates) {
+    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+    return displayedFormat.format(coordinates, projection.value, true)
+}
 async function copyValue() {
     try {
-        await navigator.clipboard.writeText(value.value)
+        await navigator.clipboard.writeText(display(value.value))
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
@@ -91,7 +99,7 @@ async function copyValue() {
     <div class="location-popup-data">
         <div>
             <div :data-cy="`${identifier}`">
-                {{ value }}
+                {{ display(value) }}
             </div>
             <div v-if="extraValue" :data-cy="`${identifier}-extra-value`">
                 {{ extraValue }}

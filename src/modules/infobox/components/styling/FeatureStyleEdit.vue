@@ -14,12 +14,9 @@ import DrawingStylePopoverButton from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
-import {
-    LV95Format,
-} from '@/utils/coordinates/coordinateFormat'
-import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
@@ -37,6 +34,7 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
+const projection = computed(() => store.state.position.projection)
 
 // Update the UI when the feature changes
 watch(
@@ -214,18 +212,20 @@ function onDelete() {
                 <sup>2</sup>
             </div>
         </div>
-        <div v-if="isFeatureMarker || isFeatureText" class="d-flex small gap-1 justify-content-start align-items-center">
-        <CoordinateCopySlot
+        <div
+            v-if="isFeatureMarker || isFeatureText"
+            class="d-flex small gap-1 justify-content-start align-items-center"
+        >
+            <CoordinateCopySlot
                 class="d-flex"
                 identifier="feature-style-edit-coordinate-copy"
-                :value="LV95Format.format(feature.coordinates[0].slice(0,2))"
+                :value="feature.coordinates[0].slice(0, 2)"
+                :projection="projection"
             >
-            <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
-        </CoordinateCopySlot>
+                <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+            </CoordinateCopySlot>
         </div>
-        <div
-            class="d-flex justify-content-end align-items-center"
-        >
+        <div class="d-flex justify-content-end align-items-center">
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
