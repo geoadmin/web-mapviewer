@@ -75,24 +75,23 @@ function encodeGraticule(dpi, projection) {
 }
 
 function encodeLegend() {
-    const icons = []
+    // const icons = []
     const visibleLayers = store.getters.visibleLayers
+    const classes = []
 
     for (const layer of visibleLayers) {
         if (layer.hasLegend) {
-            icons.push(
-                `${API_BASE_URL}/static/images/legends/${layer.getID()}_${store.state.i18n.lang}.png`
-            )
+            classes.push({
+                name: layer.name,
+                icons: [
+                    `${API_BASE_URL}static/images/legends/${layer.getID()}_${store.state.i18n.lang}.png`,
+                ],
+            })
         }
     }
     return {
-        name: '',
-        classes: [
-            {
-                name: i18n.global.t('legend'),
-                icons: icons,
-            },
-        ],
+        name: i18n.global.t('legend'),
+        classes: classes,
     }
 }
 
