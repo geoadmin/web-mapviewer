@@ -411,6 +411,7 @@ const mutations = {
     setCameraPosition: (state, { position }) => (state.camera = position),
     setProjection: (state, { projection }) => (state.projection = projection),
 }
+
 export default {
     state,
     getters,

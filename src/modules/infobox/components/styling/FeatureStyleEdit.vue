@@ -34,7 +34,6 @@ const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
-const projection = computed(() => store.state.position.projection)
 
 // Update the UI when the feature changes
 watch(
@@ -220,7 +219,6 @@ function onDelete() {
                 class="d-flex"
                 identifier="feature-style-edit-coordinate-copy"
                 :value="feature.coordinates[0].slice(0, 2)"
-                :projection="projection"
             >
                 <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>

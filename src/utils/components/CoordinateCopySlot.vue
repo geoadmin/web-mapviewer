@@ -24,8 +24,12 @@ const props = defineProps({
         type: Number,
         default: 1000,
     },
+    coordinateFormat: {
+        type: String,
+        default: null,
+    },
 })
-const { identifier, value, extraValue, resetDelay } = toRefs(props)
+const { identifier, value, extraValue, resetDelay, coordinateFormat } = toRefs(props)
 
 const copyButton = ref(null)
 const copied = ref(false)
@@ -75,7 +79,15 @@ function setTooltipContent() {
 }
 
 function display(coordinates) {
-    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+    let displayedFormat
+    if (coordinateFormat.value === 'None') {
+        return coordinates
+    }
+    if (coordinateFormat.value) {
+        displayedFormat = allFormats.find((format) => format.id == coordinateFormat.value)
+    } else {
+        displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+    }
     return displayedFormat.format(coordinates, projection.value, true)
 }
 async function copyValue() {
