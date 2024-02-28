@@ -161,12 +161,17 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
     }
 
     /**
-     * Rounding to the closest Swisstopo zoom level
+     * Rounding to the zoom level
      *
      * @param {Number} customZoomLevel A zoom level, that could be a floating number
+     * @param {Boolean} normalize Normalize the zoom level to the closest swisstopo zoom level, by
+     *   default it only round the zoom level to 3 decimal
      * @returns {Number} A zoom level matching one of our national maps
      */
-    roundZoomLevel(customZoomLevel) {
-        return closest(customZoomLevel, swisstopoZoomLevels)
+    roundZoomLevel(customZoomLevel, normalize = false) {
+        if (normalize) {
+            return closest(customZoomLevel, swisstopoZoomLevels)
+        }
+        return super.roundZoomLevel(customZoomLevel)
     }
 }
