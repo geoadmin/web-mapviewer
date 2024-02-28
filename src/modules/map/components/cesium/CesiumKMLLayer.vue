@@ -11,6 +11,8 @@ import { parseKml } from '@/utils/kmlUtils'
 
 import addPrimitiveFromOLLayerMixins from './utils/addPrimitiveFromOLLayer.mixins'
 
+const dispatcher = { dispatcher: 'CesiumKMLLayer.vue' }
+
 /** Renders a KML file to the Cesium viewer */
 export default {
     mixins: [addPrimitiveFromOLLayerMixins],
@@ -45,7 +47,7 @@ export default {
     },
     mounted() {
         if (!this.iconsArePresent) {
-            this.loadAvailableIconSets()
+            this.loadAvailableIconSets(dispatcher)
         }
     },
     methods: {

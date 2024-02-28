@@ -86,7 +86,12 @@ const handleLegacyParam = (
                 params.get('layers_opacity'),
                 params.get('layers_timestamp')
             )
-                .map((layer) => transformLayerIntoUrlString(layer))
+                .map((layer) =>
+                    transformLayerIntoUrlString(
+                        layer,
+                        store.getters.getLayerConfigById(layer.getID())
+                    )
+                )
                 .join(';')
             log.debug('Importing legacy layers as', newValue)
 

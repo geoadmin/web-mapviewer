@@ -14,11 +14,12 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
     const getResolution = () => store.getters.resolution
 
     beforeEach(async () => {
-        await store.dispatch('setProjection', WEBMERCATOR)
+        await store.dispatch('setProjection', { projection: WEBMERCATOR, dispatcher: 'unit-test' })
         // first we setup a fake screen of 100px by 100px
         await store.dispatch('setSize', {
             width: screenSize,
             height: screenSize,
+            dispatcher: 'unit-test',
         })
         // we now then center the view on wanted coordinates
         await store.dispatch('setCenter', {
@@ -29,27 +30,30 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
     it("Doesn't allow negative zoom level, or non numerical value as a zoom level", async () => {
         // setting the zoom at a valid value, and then setting it at an invalid value => the valid value should persist
         const validZoomLevel = 10
-        await store.dispatch('setZoom', { zoom: validZoomLevel })
-        await store.dispatch('setZoom', { zoom: -1 })
+        await store.dispatch('setZoom', { zoom: validZoomLevel, dispatcher: 'unit-test' })
+        await store.dispatch('setZoom', { zoom: -1, dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(validZoomLevel, 'Should not accept negative zoom level')
         // checking with non numerical (but representing a number)
-        await store.dispatch('setZoom', { zoom: '' + (validZoomLevel - 1) })
+        await store.dispatch('setZoom', {
+            zoom: '' + (validZoomLevel - 1),
+            dispatcher: 'unit-test',
+        })
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept non numerical values as zoom level'
         )
-        await store.dispatch('setZoom', { zoom: 'test' })
+        await store.dispatch('setZoom', { zoom: 'test', dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept non numerical values as zoom level'
         )
         // checking with undefined or null
-        await store.dispatch('setZoom', { zoom: undefined })
+        await store.dispatch('setZoom', { zoom: undefined, dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept undefined or null value as zoom level'
         )
-        await store.dispatch('setZoom', { zoom: null })
+        await store.dispatch('setZoom', { zoom: null, dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept undefined or null value as zoom level'
@@ -58,20 +62,20 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
     it('Set zoom level correctly from what is given in "setZoom"', async () => {
         // checking zoom level 0 to 24
         for (let zoom = 0; zoom < 24; zoom += 1) {
-            await store.dispatch('setZoom', { zoom })
+            await store.dispatch('setZoom', { zoom, dispatcher: 'unit-test' })
             expect(getZoom()).to.eq(zoom)
         }
     })
     it('Rounds zoom level to the third decimal if more are given', async () => {
         // flooring check
-        await store.dispatch('setZoom', { zoom: 5.4321 })
+        await store.dispatch('setZoom', { zoom: 5.4321, dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(5.432)
         // ceiling check
-        await store.dispatch('setZoom', { zoom: 5.6789 })
+        await store.dispatch('setZoom', { zoom: 5.6789, dispatcher: 'unit-test' })
         expect(getZoom()).to.eq(5.679)
     })
     it('Calculate resolution from zoom levels according to OGC standard (with 0.1% error margin)', async () => {
-        await store.dispatch('setZoom', { zoom: 10 })
+        await store.dispatch('setZoom', { zoom: 10, dispatcher: 'unit-test' })
         // see https://wiki.openstreetmap.org/wiki/Zoom_levels
         // at zoom level 10, resolution should be of about 152.746 meter per pixel adjusted to latitude
         const resolutionAtZoom10 = 152.746
@@ -86,7 +90,7 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
         await store.dispatch('setCenter', { center: proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, 0]) })
         expect(getResolution()).to.approximately(resolutionAtZoom10, toleratedDelta)
 
-        await store.dispatch('setZoom', { zoom: 2 })
+        await store.dispatch('setZoom', { zoom: 2, dispatcher: 'unit-test' })
         const resolutionAtZoom2 = 39103
         // we tolerate a 0.1% error margin
         toleratedDelta = resolutionAtZoom2 / 1000.0

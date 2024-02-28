@@ -1,3 +1,5 @@
+const dispatcher = { dispatcher: 'loading-bar-management.plugin' }
+
 /**
  * Plugin setting in the store when the loading bar should be visible
  *
@@ -10,7 +12,7 @@ const loadingBarManagementPlugin = (store) => {
         // TODO: any pending request to the backend should trigger the loading bar
         const shouldLoadingBarBeVisible = !state.app.isReady
         if (isLoadingBarVisible !== shouldLoadingBarBeVisible) {
-            store.dispatch('toggleLoadingBar')
+            store.dispatch('toggleLoadingBar', dispatcher)
         }
     })
 }

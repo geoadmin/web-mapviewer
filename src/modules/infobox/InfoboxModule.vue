@@ -87,6 +87,8 @@ import FeatureEdit from './components/FeatureEdit.vue'
 import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
 import FeatureList from './components/FeatureList.vue'
 
+const dispatcher = { dispatcher: 'InfoboxModule.vue' }
+
 export default {
     components: {
         FontAwesomeIcon,
@@ -163,13 +165,13 @@ export default {
             this.showContent = !this.showContent
         },
         onToggleFloating() {
-            this.toggleFloatingTooltip()
+            this.toggleFloatingTooltip(dispatcher)
         },
         onPrint() {
             promptUserToPrintHtmlContent(this.$refs.content)
         },
         onClose() {
-            this.clearAllSelectedFeatures()
+            this.clearAllSelectedFeatures(dispatcher)
         },
     },
 }

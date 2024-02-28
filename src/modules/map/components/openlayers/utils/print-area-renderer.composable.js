@@ -7,6 +7,8 @@ import { Fill, Style } from 'ol/style'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
+const dispatcher = { dispatcher: 'print-area-renderer.composable' }
+
 function createWorldPolygon() {
     // Create a polygon feature covering the whole world in EPSG:4326
     const worldPolygon = new Feature({
@@ -89,7 +91,7 @@ export default function usePrintAreaRenderer(map) {
                 updatePrintRectanglePixels(selectedScale)
             }),
         ]
-        store.dispatch('setSelectedScale', getOptimalScale())
+        store.dispatch('setSelectedScale', { scale: getOptimalScale(), ...dispatcher })
         refreshComp()
     }
 

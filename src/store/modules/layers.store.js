@@ -12,6 +12,27 @@ const getActiveLayerById = (state, layerId) =>
 const removeActiveLayerById = (state, layerId) =>
     state.activeLayers.filter((layer) => layer.getID() !== layerId)
 
+const cloneActiveLayerConfig = (getters, layer) => {
+    const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
+    if (clone) {
+        if (layer.visible != undefined) {
+            clone.visible = layer.visible
+        }
+        if (layer.opacity != undefined) {
+            clone.opacity = layer.opacity
+        }
+        if (layer.customAttributes.year && clone.timeConfig) {
+            const timeConfigEntry = clone.timeConfig.getTimeEntryForYear(
+                layer.customAttributes.year
+            )
+            if (timeConfigEntry) {
+                clone.timeConfig.updateCurrentTimeEntry(timeConfigEntry)
+            }
+        }
+    }
+    return clone
+}
+
 const state = {
     /**
      * Current background layer
@@ -189,7 +210,8 @@ const actions = {
      *
      * @param {String | AbstractLayer} layerIdOrObject
      */
-    setBackground({ commit, getters }, layerIdOrObject) {
+    setBackground({ commit, getters }, { bgLayer, dispatcher }) {
+        const layerIdOrObject = bgLayer
         let futureBackground
         if (typeof layerIdOrObject === 'string') {
             futureBackground = getters.getLayerConfigById(layerIdOrObject)
@@ -197,9 +219,9 @@ const actions = {
             futureBackground = getters.getLayerConfigById(layerIdOrObject.getID())
         }
         if (futureBackground?.isBackground) {
-            commit('setBackground', futureBackground)
+            commit('setBackground', { bgLayer: futureBackground, dispatcher })
         } else {
-            commit('setBackground', null)
+            commit('setBackground', { bgLayer: null, dispatcher })
         }
     },
     /**
@@ -209,30 +231,27 @@ const actions = {
      *
      * @param {AbstractLayer[]} config
      */
-    setLayerConfig({ commit, state, getters }, config) {
+    setLayerConfig({ commit, state, getters }, { config, dispatcher }) {
         const activeLayerBeforeConfigChange = [...state.activeLayers]
-        commit('clearLayers')
-        commit('setLayerConfig', [...config])
-        activeLayerBeforeConfigChange.forEach((layer) => {
+        commit('setLayerConfig', { config, dispatcher })
+        const layers = activeLayerBeforeConfigChange.map((layer) => {
             const layerConfig = getters.getLayerConfigById(layer.getID())
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerConfig.clone()
                 clone.visible = layer.visible
                 clone.opacity = layer.opacity
-                commit('addLayer', clone)
                 if (layer.timeConfig) {
-                    commit('setLayerYear', {
-                        layerId: clone.getID(),
-                        year: layer.timeConfig.currentYear,
-                    })
+                    clone.timeConfig.currentYear = layer.timeConfig.currentYear
                 }
+                return clone
             } else {
                 // if no config is found, then it is a layer that is not managed, like for example
                 // the KML layers, in this case we take the old active configuration as fallback.
-                commit('addLayer', layer.clone())
+                return layer.clone()
             }
         })
+        commit('setLayers', { layers: layers, dispatcher })
     },
     /**
      * Add a layer to the active layers.
@@ -242,44 +261,63 @@ const actions = {
      * layers list (for instance having a time enabled layer added multiple time with a different
      * timestamp)
      *
-     * @param {String | AbstractLayer | ActiveLayerConfig} layerIdOrObject
+     * @param {AbstractLayer} layer
+     * @param {String} layerId
+     * @param {ActiveLayerConfig} layerConfig
      */
-    async addLayer({ commit, getters }, layerIdOrObject) {
+    addLayer(
+        { commit, getters },
+        { layer = null, layerId = null, layerConfig = null, dispatcher }
+    ) {
         // creating a clone of the config, so that we do not modify the initial config of the app
         // (it is possible to add one layer many times, so we want to always have the correct
         // default values when we add it, not the settings from the layer already added)
-        let layer = null
-        if (layerIdOrObject instanceof AbstractLayer) {
-            layer = layerIdOrObject.clone()
-        } else if (layerIdOrObject instanceof ActiveLayerConfig) {
-            // Get the AbstractLayer Config object, we need to clone it in order
-            // to update the config (opacity/visible) if needed.
-            layer = getters.getLayerConfigById(layerIdOrObject.id)?.clone()
-
-            if (layer) {
-                if (layerIdOrObject.visible !== undefined) {
-                    layer.visible = layerIdOrObject.visible
-                }
-                if (layerIdOrObject.opacity !== undefined) {
-                    layer.opacity = layerIdOrObject.opacity
-                }
-            }
-        } else if (typeof layerIdOrObject === 'string') {
-            layer = getters.getLayerConfigById(layerIdOrObject)?.clone()
-        }
+        let clone = null
         if (layer) {
-            commit('addLayer', layer)
+            clone = layer.clone()
+        } else if (layerConfig) {
+            // Get the AbstractLayer Config object, we need to clone it in order
+            clone = cloneActiveLayerConfig(getters, layerConfig)
+        } else if (layerId) {
+            clone = getters.getLayerConfigById(layerId)?.clone() ?? null
+        }
+        if (clone) {
+            commit('addLayer', { layer: clone, dispatcher })
         } else {
-            log.error('no layer found for payload:', layerIdOrObject)
+            log.error('no layer found for payload:', layer, layerId, layerConfig, dispatcher)
         }
     },
-    removeLayer({ commit }, layerIdOrObject) {
-        if (typeof layerIdOrObject === 'string') {
-            commit('removeLayerWithId', layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
-            commit('removeLayerWithId', layerIdOrObject.getID())
+    /**
+     * Sets the list of active layers. This replace the existing list.
+     *
+     * NOTE: the layers array is automatically deep cloned
+     *
+     * @param {[AbstractLayer | ActiveLayerConfig | String]} layers List of active layers
+     */
+    setLayers({ commit, getters }, { layers, dispatcher }) {
+        const clones = layers
+            .map((layer) => {
+                let clone = null
+                if (layer instanceof AbstractLayer) {
+                    clone = layer.clone()
+                } else if (layer instanceof ActiveLayerConfig) {
+                    clone = cloneActiveLayerConfig(getters, layer)
+                } else if (layer instanceof String || typeof layer === 'string') {
+                    // should be string
+                    clone = getters.getLayerConfigById(layer)?.clone() ?? null
+                }
+                return clone
+            })
+            .filter((layer) => layer != null)
+        commit('setLayers', { layers: clones, dispatcher })
+    },
+    removeLayer({ commit }, { layer = null, layerId = null, dispatcher }) {
+        if (layerId) {
+            commit('removeLayerWithId', { layerId, dispatcher })
+        } else if (layer) {
+            commit('removeLayerWithId', { layerId: layer.getID(), dispatcher })
         } else {
-            log.error('Can not remove layer that is not yet added', layerIdOrObject)
+            log.error('Can not remove layer that is not yet added', layer, layerId, dispatcher)
         }
     },
     /**
@@ -290,9 +328,9 @@ const actions = {
      *   update or an object with the layer ID to update and any property to update (partial
      *   update)
      */
-    updateLayer({ commit, getters }, layer) {
+    updateLayer({ commit, getters }, { layer, dispatcher }) {
         if (layer instanceof AbstractLayer) {
-            commit('updateLayer', layer)
+            commit('updateLayer', { layer, dispatcher })
         } else if (layer instanceof Object && layer.id) {
             // Partial update of a layer
             const currentLayer = getters.getActiveLayerById(layer.id)
@@ -307,30 +345,35 @@ const actions = {
                     updatedLayer[entry[0]] = entry[1]
                 }
             })
-            commit('updateLayer', updatedLayer)
+            commit('updateLayer', { layer: updatedLayer, dispatcher })
         } else {
             throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
         }
     },
-    clearLayers({ commit }) {
-        commit('clearLayers')
+    clearLayers({ commit }, args) {
+        commit('clearLayers', args)
     },
-    toggleLayerVisibility({ commit, state }, layerIdOrObject) {
-        let layer = null
-        if (typeof layerIdOrObject === 'string') {
-            layer = getActiveLayerById(state, layerIdOrObject)
-        } else if (layerIdOrObject instanceof AbstractLayer) {
+    toggleLayerVisibility({ commit, state }, { layerId = null, layer = null, dispatcher }) {
+        let matchingActiveLayer
+        if (layerId) {
+            matchingActiveLayer = getActiveLayerById(state, layerId)
+        } else if (layer instanceof AbstractLayer) {
             // here we are not 100% sure that the instance we have received matches the one stored
             // in activate layers, as the addLayer action creates clones of the config when a layer
             // is added. So we search for the matching instance in the currently active layers.
-            layer = state.activeLayers.find(
-                (activeLayer) => activeLayer.getID() === layerIdOrObject.getID()
+            matchingActiveLayer = state.activeLayers.find(
+                (activeLayer) => activeLayer.getID() === layer.getID()
             )
-        }
-        if (layer) {
-            commit('toggleLayerVisibility', layer)
         } else {
-            log.error('Cannot toggle layer visibility, layer not found', layerIdOrObject)
+            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
+        }
+        if (matchingActiveLayer) {
+            commit('toggleLayerVisibility', {
+                layer: matchingActiveLayer,
+                dispatcher,
+            })
+        } else {
+            log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
         }
     },
     setLayerVisibility({ commit }, payload) {
@@ -341,16 +384,9 @@ const actions = {
         }
     },
     setLayerOpacity({ commit }, payload) {
-        if ('opacity' in payload && 'layerId' in payload) {
-            commit('setLayerOpacity', {
-                layerId: payload.layerId,
-                opacity: Number(payload.opacity),
-            })
-        } else {
-            log.error('Cannot set layer opacity invalid payload', payload)
-        }
+        commit('setLayerOpacity', payload)
     },
-    setTimedLayerCurrentYear({ commit, getters }, { layerId, year }) {
+    setTimedLayerCurrentYear({ commit, getters }, { layerId, year, dispatcher }) {
         if (layerId && year) {
             const layer = getters.getActiveLayerById(layerId)
             if (layer && layer.timeConfig) {
@@ -360,6 +396,7 @@ const actions = {
                     commit('setLayerYear', {
                         layerId,
                         year: year,
+                        dispatcher,
                     })
                 } else {
                     log.error('timestamp for year not found, ignoring change', layer, year)
@@ -375,7 +412,7 @@ const actions = {
             log.error('Failed to set layer year, invalid payload', layerId, year)
         }
     },
-    moveActiveLayerBack({ commit, state, getters }, layerId) {
+    moveActiveLayerBack({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {
             // checking if the layer can be put one step back
@@ -384,12 +421,13 @@ const actions = {
                 commit('moveActiveLayerFromIndexToIndex', {
                     layer: activeLayer,
                     startingIndex: currentIndex,
-                    endingIndex: currentIndex - 1,
+                    endingIndex: Math.max(0, currentIndex - amount),
+                    dispatcher,
                 })
             }
         }
     },
-    moveActiveLayerFront({ commit, state, getters }, layerId) {
+    moveActiveLayerFront({ commit, state, getters }, { layerId, amount = 1, dispatcher }) {
         const activeLayer = getters.getActiveLayerById(layerId)
         if (activeLayer) {
             // checking if the layer can be put one step front
@@ -398,7 +436,8 @@ const actions = {
                 commit('moveActiveLayerFromIndexToIndex', {
                     layer: activeLayer,
                     startingIndex: currentIndex,
-                    endingIndex: currentIndex + 1,
+                    endingIndex: Math.min(state.activeLayers.length - 1, currentIndex + amount),
+                    dispatcher,
                 })
             }
         }
@@ -407,39 +446,37 @@ const actions = {
      * @param {AbstractLayer | String} layerIdOrObject
      * @returns {Number}
      */
-    setPreviewLayer({ commit, getters }, layerIdOrObject) {
-        let layer = null
-        if (layerIdOrObject instanceof AbstractLayer) {
-            layer = layerIdOrObject.clone()
+    setPreviewLayer({ commit, getters }, { layer, dispatcher }) {
+        let clone = null
+        if (layer instanceof AbstractLayer) {
+            clone = layer.clone()
         } else {
-            layer = getters.getLayerConfigById(layerIdOrObject)
+            clone = getters.getLayerConfigById(layer)?.clone()
         }
-        if (layer) {
-            const cloned = layer.clone()
-            cloned.visible = true
-            commit('setPreviewLayer', cloned)
+        if (clone) {
+            clone.visible = true
+            commit('setPreviewLayer', { layer: clone, dispatcher })
         } else {
-            log.error(`Layer "${layerIdOrObject}" not found in configs.`)
+            log.error(`Layer "${layer}" not found in configs.`)
         }
     },
-    clearPreviewLayer({ commit }) {
-        commit('setPreviewLayer', null)
+    clearPreviewLayer({ commit }, { dispatcher }) {
+        commit('setPreviewLayer', { layer: null, dispatcher })
     },
-    setPreviewYear({ commit, getters }, year) {
+    setPreviewYear({ commit, getters }, { year, dispatcher }) {
         const possibleYears = getters.visibleLayersWithTimeConfig.flatMap(
             (layer) => layer.timeConfig.years
         )
         if (possibleYears.includes(year)) {
-            commit('setPreviewYear', year)
+            commit('setPreviewYear', { year, dispatcher })
         } else {
             log.error('year not found in active layers, ignoring', year)
         }
     },
-    clearPreviewYear({ commit }) {
-        commit('setPreviewYear', null)
+    clearPreviewYear({ commit }, { dispatcher }) {
+        commit('setPreviewYear', { year: null, dispatcher })
     },
-    setLayerErrorKey({ commit, getters }, payload) {
-        const { layerId, errorKey } = payload
+    setLayerErrorKey({ commit, getters }, { layerId, errorKey, dispatcher }) {
         const currentLayer = getters.getActiveLayerById(layerId)
         if (!currentLayer) {
             throw new Error(
@@ -452,10 +489,9 @@ const actions = {
         if (updatedLayer.isLoading) {
             updatedLayer.isLoading = false
         }
-        commit('updateLayer', updatedLayer)
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
     },
-    updateKmlGpxLayer({ commit, getters, rootState }, payload) {
-        const { layerId, data, metadata } = payload
+    updateKmlGpxLayer({ commit, getters, rootState }, { layerId, data, metadata, dispatcher }) {
         const currentLayer = getters.getActiveLayerById(layerId)
         if (!currentLayer) {
             throw new Error(
@@ -494,27 +530,30 @@ const actions = {
                 updatedLayer.name = metadata.name ?? 'GPX'
             }
         }
-        commit('updateLayer', updatedLayer)
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
     },
 }
 
 const mutations = {
-    setBackground(state, backgroundLayer) {
-        state.currentBackgroundLayer = backgroundLayer
+    setBackground(state, { bgLayer }) {
+        state.currentBackgroundLayer = bgLayer
         // forcing its visibility (if not void layer), as 3D layers have their visible flag set to false somehow
         if (state.currentBackgroundLayer) {
             state.currentBackgroundLayer.visible = true
         }
     },
-    setLayerConfig(state, config) {
+    setLayerConfig(state, { config }) {
         state.config = config
     },
-    addLayer(state, layer) {
+    addLayer(state, { layer }) {
         // first, remove it if already present to avoid duplicate layers
         state.activeLayers = removeActiveLayerById(state, layer.getID())
         state.activeLayers.push(layer)
     },
-    updateLayer(state, layer) {
+    setLayers(state, { layers }) {
+        state.activeLayers = layers
+    },
+    updateLayer(state, { layer }) {
         const layer2Update = getActiveLayerById(state, layer.getID())
         if (layer2Update) {
             Object.assign(layer2Update, layer)
@@ -524,13 +563,13 @@ const mutations = {
             )
         }
     },
-    removeLayerWithId(state, layerId) {
+    removeLayerWithId(state, { layerId }) {
         state.activeLayers = removeActiveLayerById(state, layerId)
     },
     clearLayers(state) {
         state.activeLayers = []
     },
-    toggleLayerVisibility(state, layer) {
+    toggleLayerVisibility(state, { layer }) {
         layer.visible = !layer.visible
     },
     setLayerVisibility(state, { layerId, visible }) {
@@ -542,7 +581,7 @@ const mutations = {
     setLayerOpacity(state, { layerId, opacity }) {
         const layerMatchingId = getActiveLayerById(state, layerId)
         if (layerMatchingId) {
-            layerMatchingId.opacity = opacity
+            layerMatchingId.opacity = Number(opacity)
         }
     },
     setLayerYear(state, { layerId, year }) {
@@ -555,10 +594,10 @@ const mutations = {
         state.activeLayers.splice(startingIndex, 1)
         state.activeLayers.splice(endingIndex, 0, layer)
     },
-    setPreviewLayer(state, layer) {
+    setPreviewLayer(state, { layer }) {
         state.previewLayer = layer
     },
-    setPreviewYear(state, year) {
+    setPreviewYear(state, { year }) {
         state.previewYear = year
     },
 }

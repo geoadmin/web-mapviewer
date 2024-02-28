@@ -36,41 +36,44 @@ const state = {
 const getters = {}
 
 const actions = {
-    toggleGeolocation: ({ commit, state }) => {
+    setGeolocation: ({ commit }, args) => {
+        commit('setGeolocationActive', args)
+    },
+    toggleGeolocation: ({ commit, state }, { dispatcher }) => {
         const willBeActive = !state.active
         if (willBeActive) {
-            commit('setGeolocationTracking', true)
+            commit('setGeolocationTracking', { tracking: true, dispatcher })
         }
-        commit('setGeolocationActive', willBeActive)
+        commit('setGeolocationActive', { active: willBeActive, dispatcher })
     },
-    setGeolocationTracking: ({ commit }, tracking) => commit('setGeolocationTracking', tracking),
-    setGeolocationDenied: ({ commit }, denied) => {
-        commit('setGeolocationDenied', denied)
+    setGeolocationTracking: ({ commit }, args) => commit('setGeolocationTracking', args),
+    setGeolocationDenied: ({ commit }, { denied, dispatcher }) => {
+        commit('setGeolocationDenied', { denied, dispatcher })
         if (denied) {
-            commit('setGeolocationActive', false)
-            commit('setGeolocationTracking', false)
+            commit('setGeolocationActive', { active: false, dispatcher })
+            commit('setGeolocationTracking', { tracking: false, dispatcher })
         }
     },
-    setGeolocationPosition: ({ commit }, position) => {
+    setGeolocationPosition: ({ commit }, { position, dispatcher }) => {
         if (Array.isArray(position) && position.length === 2) {
-            commit('setGeolocationPosition', position)
+            commit('setGeolocationPosition', { position, dispatcher })
         } else {
             log.debug('Invalid geolocation position received, ignoring', position)
         }
     },
-    setGeolocationAccuracy: ({ commit }, accuracy) => {
+    setGeolocationAccuracy: ({ commit }, { accuracy, dispatcher }) => {
         if (Number.isInteger(accuracy)) {
-            commit('setGeolocationAccuracy', Number(accuracy))
+            commit('setGeolocationAccuracy', { accuracy: Number(accuracy), dispatcher })
         }
     },
 }
 
 const mutations = {
-    setGeolocationActive: (state, active) => (state.active = active),
-    setGeolocationDenied: (state, denied) => (state.denied = denied),
-    setGeolocationTracking: (state, tracking) => (state.tracking = tracking),
-    setGeolocationAccuracy: (state, accuracy) => (state.accuracy = accuracy),
-    setGeolocationPosition: (state, position) => (state.position = position),
+    setGeolocationActive: (state, { active }) => (state.active = active),
+    setGeolocationDenied: (state, { denied }) => (state.denied = denied),
+    setGeolocationTracking: (state, { tracking }) => (state.tracking = tracking),
+    setGeolocationAccuracy: (state, { accuracy }) => (state.accuracy = accuracy),
+    setGeolocationPosition: (state, { position }) => (state.position = position),
 }
 
 export default {

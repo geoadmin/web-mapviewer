@@ -23,6 +23,8 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
 
+const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
+
 // mapping relevant store values
 const store = useStore()
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
@@ -107,10 +109,10 @@ useVectorLayer(
 )
 
 function clearAllSelectedFeatures() {
-    store.dispatch('clearAllSelectedFeatures')
+    store.dispatch('clearAllSelectedFeatures', dispatcher)
 }
 function toggleFloatingTooltip() {
-    store.dispatch('toggleFloatingTooltip')
+    store.dispatch('toggleFloatingTooltip', dispatcher)
 }
 </script>
 

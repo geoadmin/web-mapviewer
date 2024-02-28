@@ -413,63 +413,110 @@ describe('Drawing module tests', () => {
         })
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
             cy.goToDrawing()
+            cy.log('Create a simple drawing with a marker')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click()
 
-            let kmlId
             cy.wait('@post-kml').then((interception) => {
-                kmlId = interception.response.body.id
-            })
-            cy.waitUntilState((state) => {
-                return state.layers.activeLayers.find(
-                    (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                const kmlId = interception.response.body.id
+
+                cy.get('[data-cy="drawing-toolbox-close-button"]:visible').click()
+                cy.wait('@update-kml')
+
+                cy.log('Check that the drawings has been added to the active layers')
+                cy.get(
+                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
                 )
-            })
+                    .should('be.visible')
+                    .contains('Drawing')
+                cy.waitUntilState((state) => {
+                    return state.layers.activeLayers.find(
+                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                    )
+                })
 
-            cy.reload()
-            cy.wait('@get-kml')
-            cy.waitUntilState((state) => {
-                return state.layers.activeLayers.find(
-                    (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                cy.log('Reload the page')
+                cy.reload()
+                cy.waitMapIsReady()
+                cy.wait('@get-kml')
+                cy.clickOnMenuButtonIfMobile()
+
+                cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
+                cy.get(
+                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
                 )
-            })
-            // checking that the KML is correctly loaded in the drawing module, even though it doesn't carry an adminId
-            cy.openDrawingMode()
+                    .should('be.visible')
+                    .contains('Drawing')
+                cy.waitUntilState((state) => {
+                    return state.layers.activeLayers.find(
+                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                    )
+                })
 
-            // if closing the drawing module without changing anything, no copy must be made
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-            cy.readStoreValue('getters.activeKmlLayer').then((activeKmlLayer) => {
-                expect(activeKmlLayer).to.haveOwnProperty('fileId')
-                expect(activeKmlLayer.fileId).to.eq(kmlId)
-            })
+                cy.log('Open and close the drawing mode and check that the KML is not altered')
+                // checking that the KML is correctly loaded in the drawing module, even though it doesn't carry an adminId
+                cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
-            // re-opening the drawing module
-            cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
-
-            // deleting all features (clearing/emptying the KML)
-            cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
-            cy.get('[data-cy="modal-confirm-button"]').click()
-            // checking that it creates a copy of the KML, and doesn't edit/clear the existing one (no adminId)
-            let newKmlId
-            cy.wait('@post-kml').then((interception) => {
-                newKmlId = interception.response.body.id
-                expect(newKmlId).to.not.eq(kmlId)
-            })
-            // there should be only one KML layer left in the layers, and it's the one just saved
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers.filter((layer) => layer.type === LayerTypes.KML).length).to.eq(
-                    1,
-                    'There should only be one KMl layer left in the layers'
+                // if closing the drawing module without changing anything, no copy must be made
+                cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+                cy.get(
+                    `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
                 )
-                const kmlLayer = activeLayers.find((layer) => layer.type === LayerTypes.KML)
-                expect(kmlLayer.fileId).to.eq(newKmlId)
-            })
+                    .should('be.visible')
+                    .contains('Drawing')
+                cy.readStoreValue('getters.activeKmlLayer').then((activeKmlLayer) => {
+                    expect(activeKmlLayer).to.haveOwnProperty('fileId')
+                    expect(activeKmlLayer.fileId).to.eq(kmlId)
+                })
 
-            // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
-            cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
-            cy.get('[data-cy="ol-map"]').click('center')
-            cy.wait('@update-kml').then((interception) => {
-                expect(interception.response.body.id).to.eq(newKmlId)
+                cy.log('Open again the drawing mode and edit the kml')
+                // re-opening the drawing module
+                cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
+
+                cy.log('deleting all features (clearing/emptying the KML)')
+                // deleting all features (clearing/emptying the KML)
+                cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
+                cy.get('[data-cy="modal-confirm-button"]').click()
+                // checking that it creates a copy of the KML, and doesn't edit/clear the existing one (no adminId)
+
+                cy.log('Check that a new kml has been saved')
+                cy.wait('@post-kml').then((interception) => {
+                    const newKmlId = interception.response.body.id
+                    expect(newKmlId).to.not.eq(kmlId)
+
+                    // there should be only one KML layer left in the layers, and it's the one just saved
+                    cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+                        cy.wrap(
+                            activeLayers.filter((layer) => layer.type === LayerTypes.KML)
+                        ).should('have.length', 1)
+                        cy.wrap(
+                            activeLayers.find((layer) => layer.type === LayerTypes.KML).fileId
+                        ).should('be.eq', newKmlId)
+                    })
+
+                    cy.log(`Check that adding a new feature update the new kml ${newKmlId}`)
+                    // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
+                    cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+                    cy.get('[data-cy="ol-map"]').click('center')
+                    cy.wait('@update-kml').then((interception) => {
+                        expect(interception.response.body.id).to.eq(newKmlId)
+                    })
+
+                    cy.log('Check the active layer list making sure that there is only the new')
+                    cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+
+                    cy.log(
+                        `Check that the old kml has been removed from the active layer and that the new one has been added`
+                    )
+                    cy.get(
+                        `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${kmlId}"]`
+                    ).should('not.exist')
+                    cy.get(
+                        `[data-cy="active-layer-name-KML|https://sys-public.dev.bgdi.ch/api/kml/files/${newKmlId}"]`
+                    )
+                        .should('be.visible')
+                        .contains('Drawing')
+                })
             })
         })
         it('manages the KML layer correctly if it comes attached with an adminId at startup', () => {

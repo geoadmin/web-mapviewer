@@ -8,6 +8,7 @@ describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
     let mockupTopics = {}
     const selectTopicWithId = (topicId) => {
+        cy.log(`Select topic ${topicId}`)
         cy.readStoreValue('state.ui').then((ui) => {
             // only click on the menu button if the menu is not opened yet
             if (!ui.showMenu) {
@@ -53,8 +54,7 @@ describe('Topics', () => {
         })
         // checking the default topic at app startup (must be ech)
         cy.readStoreValue('state.topics.current').then((currentTopic) => {
-            expect(currentTopic).to.be.an('Object')
-            expect(currentTopic.id).to.eq('ech')
+            expect(currentTopic).to.eq('ech')
         })
         cy.url().should('contain', 'topic=ech')
         // checking that it keeps the topic tree closed at app startup (with default topic)
@@ -122,7 +122,7 @@ describe('Topics', () => {
         const complexTopic = mockupTopics.topics[4]
         selectTopicWithId(complexTopic.id)
         // from the mocked up response above
-        const expectedActiveLayers = ['test.wms.layer', 'test.wmts.layer']
+        const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
         const expectedVisibleLayers = ['test.wmts.layer']
         const expectedOpacity = {
             'test.wmts.layer': 0.6,
@@ -225,8 +225,7 @@ describe('Topics', () => {
             topic: topicWithActiveLayers.id,
         })
         cy.readStoreValue('state.topics.current').then((currentTopic) => {
-            expect(currentTopic).to.be.an('Object')
-            expect(currentTopic.id).to.eq(topicWithActiveLayers.id)
+            expect(currentTopic).to.eq(topicWithActiveLayers.id)
         })
         cy.url().should('contain', `topic=${topicWithActiveLayers.id}`)
     })
@@ -250,6 +249,6 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
         cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.visible')
         cy.url().should('contain', 'catalogNodes=2')
-        cy.url().should('not.contain', 'catalogNodes=2,3')
+        cy.url().should('not.contain', 'catalogNodes=2,')
     })
 })

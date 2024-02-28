@@ -10,6 +10,7 @@ import {
 } from '@/utils/identifyOnVectorLayer'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'mouse-click.composable' }
 const msBeforeTriggeringLocationPopup = 700
 
 export function useMouseOnMap() {
@@ -100,10 +101,15 @@ export function useMouseOnMap() {
                     )
                 )
             })
-            store.dispatch(
-                'click',
-                new ClickInfo(coordinate, screenPosition, features, ClickType.LEFT_SINGLECLICK)
-            )
+            store.dispatch('click', {
+                clickInfo: new ClickInfo(
+                    coordinate,
+                    screenPosition,
+                    features,
+                    ClickType.LEFT_SINGLECLICK
+                ),
+                ...dispatcher,
+            })
         }
         // reset of all flags
         isPointerDown = false
@@ -117,15 +123,18 @@ export function useMouseOnMap() {
         }
         if (isCurrentlyTrackingGeoLocation.value) {
             // stop tracking the user geolocation to the center of the view as soon as the map is dragged
-            store.dispatch('setGeolocationTracking', false)
+            store.dispatch('setGeolocationTracking', {
+                tracking: false,
+                ...dispatcher,
+            })
         }
     }
 
     function onRightClick(screenPosition, coordinate) {
-        store.dispatch(
-            'click',
-            new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU)
-        )
+        store.dispatch('click', {
+            clickInfo: new ClickInfo(coordinate, screenPosition, [], ClickType.CONTEXTMENU),
+            ...dispatcher,
+        })
     }
 
     return {

@@ -193,6 +193,7 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
             cy.get('[data-cy="map"]').rightclick()
 
             shortUrl = 'https://s.geo.admin.ch/1111111'
@@ -251,12 +252,13 @@ describe('Test mouse position and interactions', () => {
             cy.get(`[data-cy="share-shortlink-qrcode"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-facebook"]`).should('be.visible')
             cy.get(`[data-cy="share-shortlink-twitter"]`).should('be.visible')
+            cy.get(`[data-cy="share-shortlink-whatsapp"]`).should('be.visible')
 
             shortUrl = 'https://s.geo.admin.ch/4444444'
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink-bg-void')
-            cy.writeStoreValue('setBackground', null)
+            cy.writeStoreValue('setBackground', { bgLayer: null, dispatcher: 'e2e-test' })
             cy.wait('@shortlink-bg-void').then((interception) => {
                 expect(interception.request.body.url).be.a('string')
                 const query = interception.request.body.url.split('?')[1]

@@ -3,6 +3,8 @@ import { computed, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+const dispatcher = { dispatcher: 'ImportFileButtons.vue' }
+
 const i18n = useI18n()
 const store = useStore()
 const emit = defineEmits(['loadFile'])
@@ -23,7 +25,7 @@ const props = defineProps({
 const buttonState = toRef(props, 'buttonState')
 
 // Store mapping (input)
-const toggleImportFile = () => store.dispatch('toggleImportFile')
+const toggleImportFile = () => store.dispatch('toggleImportFile', dispatcher)
 
 // Computed properties
 const buttonI18nKey = computed(() => {

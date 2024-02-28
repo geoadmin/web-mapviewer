@@ -6,6 +6,8 @@ import { useStore } from 'vuex'
 import Toggle3DLayerButton from '@/modules/menu/components/debug/Toggle3DLayerButton.vue'
 import { LV95, WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
 
+const dispatcher = { dispatcher: 'DebugToolbar.vue' }
+
 const store = useStore()
 
 const showDebugTool = ref(false)
@@ -21,16 +23,19 @@ const isMercatorTheCurrentProjection = computed(
 
 function toggleProjection() {
     if (isMercatorTheCurrentProjection.value) {
-        store.dispatch('setProjection', LV95)
+        store.dispatch('setProjection', { projection: LV95, ...dispatcher })
     } else {
-        store.dispatch('setProjection', WEBMERCATOR)
+        store.dispatch('setProjection', {
+            projection: WEBMERCATOR,
+            ...dispatcher,
+        })
     }
 }
 function toggleShowTileDebugInfo() {
-    store.dispatch('toggleShowTileDebugInfo')
+    store.dispatch('toggleShowTileDebugInfo', dispatcher)
 }
 function toggleShowLayerExtents() {
-    store.dispatch('toggleShowLayerExtents')
+    store.dispatch('toggleShowLayerExtents', dispatcher)
 }
 </script>
 

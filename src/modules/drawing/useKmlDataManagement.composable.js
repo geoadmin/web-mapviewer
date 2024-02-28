@@ -8,6 +8,8 @@ import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-ut
 import { parseKml } from '@/utils/kmlUtils'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'useKmlDataManagement.composable' }
+
 // ref/variables outside useSaveKmlOnChange function so that they may be shared between all usages of the usaSaveKmlOnChange
 let differSaveDrawingTimeout = null
 const saveState = ref(DrawingState.INITIAL)
@@ -31,10 +33,10 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             const features = parseKml(layer.kmlData, projection.value, availableIconSets.value)
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
-            store.dispatch(
-                'setDrawingFeatures',
-                features.map((feature) => feature.getId())
-            )
+            store.dispatch('setDrawingFeatures', {
+                featureIds: features.map((feature) => feature.getId()),
+                ...dispatcher,
+            })
             saveState.value = DrawingState.LOADED
         } catch (error) {
             log.error(`Failed to load KML ${layer.fileId}`, error, layer)
@@ -71,9 +73,15 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 // Meaning we must remove the old one from the layers; it will otherwise be there twice
                 // (once the pristine "old" KML, and once the new copy)
                 if (activeKmlLayer.value) {
-                    await store.dispatch('removeLayer', activeKmlLayer.value)
+                    await store.dispatch('removeLayer', {
+                        layer: activeKmlLayer.value,
+                        ...dispatcher,
+                    })
                 }
-                await store.dispatch('addLayer', kmlLayer)
+                await store.dispatch('addLayer', {
+                    layer: kmlLayer,
+                    ...dispatcher,
+                })
                 saveState.value = DrawingState.SAVED
             } else {
                 // if a KMLLayer is already defined, we update it
@@ -86,6 +94,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     layerId: activeKmlLayer.value.getID(),
                     data: kmlData,
                     metadata: kmlMetadata,
+                    ...dispatcher,
                 })
                 saveState.value = DrawingState.SAVED
             }

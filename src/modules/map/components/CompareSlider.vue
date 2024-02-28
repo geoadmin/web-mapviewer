@@ -5,6 +5,9 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from '
 import { useStore } from 'vuex'
 
 import { round } from '@/utils/numberUtils'
+
+const dispatcher = { dispatcher: 'CompareSlider.vue' }
+
 const olMap = inject('olMap')
 
 const preRenderKey = ref(null)
@@ -117,7 +120,10 @@ function releaseSlider() {
     window.removeEventListener('mouseup', releaseSlider)
     window.removeEventListener('touchend', releaseSlider)
     compareSliderOffset.value = 0
-    store.dispatch('setCompareRatio', compareRatio.value)
+    store.dispatch('setCompareRatio', {
+        compareRatio: compareRatio.value,
+        ...dispatcher,
+    })
 }
 </script>
 

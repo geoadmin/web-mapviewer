@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
 
@@ -13,7 +14,7 @@ const watchedMutations = [
 ]
 
 const mutationNotTriggeredByModule = (mutation) =>
-    pendingMutationTriggeredByThisModule.indexOf(mutation.type) === -1
+    mutation.payload.dispatcher !== STORE_DISPATCHER_ROUTER_PLUGIN
 const mutationWatched = (mutation) => watchedMutations.includes(mutation.type)
 
 /**
@@ -38,7 +39,6 @@ const isRoutePushNeeded = (store, currentRoute) => {
 }
 
 // flag to distinguish URL change originated by this module or by another source
-const pendingMutationTriggeredByThisModule = []
 let routeChangeIsTriggeredByThisModule = false
 
 /**
@@ -49,10 +49,15 @@ let routeChangeIsTriggeredByThisModule = false
  * @param {Router} router
  */
 function storeMutationWatcher(store, mutation, router) {
-    log.debug('Store mutation', mutation, 'Current route', router.currentRoute.value)
-
     // Ignore mutation that has been triggered by the router.beforeEach below.
     if (mutationNotTriggeredByModule(mutation) && mutationWatched(mutation)) {
+        log.debug(
+            '[store sync router] store mutation',
+            mutation,
+            'Current route',
+            router.currentRoute.value
+        )
+
         // if the value in the store differs from the one in the URL
         if (isRoutePushNeeded(store, router.currentRoute.value)) {
             const query = {}
@@ -60,7 +65,7 @@ function storeMutationWatcher(store, mutation, router) {
             storeSyncConfig.forEach((paramConfig) =>
                 paramConfig.populateQueryWithStoreValue(query, store)
             )
-            log.info('Store has changed, rerouting app to query', query)
+            log.info('[store sync router] Store has changed, rerouting app to query', query)
             routeChangeIsTriggeredByThisModule = true
             router
                 .push({
@@ -68,7 +73,7 @@ function storeMutationWatcher(store, mutation, router) {
                     query,
                 })
                 .catch((error) => {
-                    log.info('Error while routing to', query, error)
+                    log.error('Error while routing to', query, error)
                 })
                 .finally(() => {
                     routeChangeIsTriggeredByThisModule = false
@@ -77,7 +82,9 @@ function storeMutationWatcher(store, mutation, router) {
             // and the share menu opened, we must close the share menu and
             // reset the shortlink
             if (store.state.share.shortLink) {
-                store.dispatch('closeShareMenuAndRemoveShortLinks')
+                store.dispatch('closeShareMenuAndRemoveShortLinks', {
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
             }
         }
     }
@@ -95,13 +102,14 @@ function storeMutationWatcher(store, mutation, router) {
  *   parameter.
  */
 function urlQueryWatcher(store, to) {
-    log.debug('Url query watcher', routeChangeIsTriggeredByThisModule, to)
     if (routeChangeIsTriggeredByThisModule) {
+        log.debug(`Url query watcher triggered by itself ignore it`, to)
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
         routeChangeIsTriggeredByThisModule = false
         return undefined
     }
+    log.debug(`Url query watcher `, to)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
@@ -111,24 +119,15 @@ function urlQueryWatcher(store, to) {
         const storeValue = paramConfig.readValueFromStore(store)
 
         const setValueInStore = async (paramConfig, store, value) => {
-            // Preventing store.subscribe above to change what is in the URL, while dispatching this change.
-            // If we don't ignore this next mutation, all other param than the one treated here could go back
-            // to default/store value even though they could be defined differently in the URL.
-            pendingMutationTriggeredByThisModule.push(paramConfig.mutationsToWatch)
             await paramConfig.populateStoreWithQueryValue(store, value)
-            // removing mutation name from the pending ones
-            pendingMutationTriggeredByThisModule.splice(
-                pendingMutationTriggeredByThisModule.indexOf(paramConfig.mutationsToWatch),
-                1
-            )
         }
 
         if (queryValue && queryValue !== storeValue) {
             // dispatching URL value to the store
             log.debug(
-                'dispatching URL param',
+                '  URL param ',
                 paramConfig.urlParamName,
-                'to store with value',
+                ': dispatching to store with value',
                 queryValue
             )
             pendingStoreDispatch.push(setValueInStore(paramConfig, store, queryValue))
@@ -136,9 +135,9 @@ function urlQueryWatcher(store, to) {
             if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
                 log.debug(
-                    'URL param',
+                    '  URL param',
                     paramConfig.urlParamName,
-                    'was not present in URL, setting it back with value',
+                    ': was not present in URL, setting it back with value',
                     storeValue
                 )
                 newQuery[paramConfig.urlParamName] = storeValue
@@ -146,9 +145,9 @@ function urlQueryWatcher(store, to) {
                 // if the query value has been removed (or set to false for a Boolean) and is meant to disappear from
                 // the URL with this value, we set it to a falsy value in the store and remove it from the URL
                 log.debug(
-                    'URL param',
+                    '  URL param',
                     paramConfig.urlParamName,
-                    'has been removed from the URL, setting it to falsy value in the store'
+                    ': has been removed from the URL, setting it to falsy value in the store'
                 )
                 pendingStoreDispatch.push(
                     setValueInStore(

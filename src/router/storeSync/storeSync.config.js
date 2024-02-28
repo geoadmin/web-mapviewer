@@ -1,4 +1,5 @@
 import { DEFAULT_PROJECTION } from '@/config'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
@@ -31,7 +32,8 @@ const storeSyncConfig = [
         (store) => store.state.position.projection.epsgNumber,
         false,
         Number,
-        DEFAULT_PROJECTION.epsgNumber
+        DEFAULT_PROJECTION.epsgNumber,
+        'projection'
     ),
     // Position must be processed after the projection param,
     // otherwise the position might be wrongly reprojected at app startup when SR is not equal
@@ -46,16 +48,18 @@ const storeSyncConfig = [
         (store) => store.state.cesium.active,
         false,
         Boolean,
-        false
+        false,
+        'active'
     ),
     new SimpleUrlParamConfig(
         'geolocation',
         'setGeolocationActive',
-        'toggleGeolocation',
+        'setGeolocation',
         (store) => store.state.geolocation.active,
         false,
         Boolean,
-        false
+        false,
+        'active'
     ),
     new SimpleUrlParamConfig(
         'bgLayer',
@@ -75,10 +79,12 @@ const storeSyncConfig = [
     new SimpleUrlParamConfig(
         'topic',
         'changeTopic',
-        'setTopicById',
-        (store) => store.getters.currentTopicId,
+        'changeTopic',
+        (store) => store.state.topics.current,
         true,
-        String
+        String,
+        null,
+        'topicId'
     ),
     // as the setSearchQuery action requires an object as payload, we need
     // to customize a bit the dispatch to this action (in order to build a correct payload)
@@ -88,6 +94,7 @@ const storeSyncConfig = [
         (store, urlValue) =>
             store.dispatch('setSearchQuery', {
                 query: urlValue,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             }),
         (store) => store.state.search.query,
         false,
@@ -95,7 +102,6 @@ const storeSyncConfig = [
         ''
     ),
     new CrossHairParamConfig(),
-
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(

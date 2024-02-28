@@ -15,13 +15,13 @@ describe('Test on legacy param import', () => {
                 {
                     lat,
                     lon,
-                    z: zoom,
+                    zoom: zoom,
                 },
                 false
             )
 
             // checking in the store that the position has not changed from what was in the URL
-            cy.readStoreValue('state.position.zoom').should('eq', 10) // zoom should be rounded to the closest Swisstopo zoom level
+            cy.readStoreValue('state.position.zoom').should('eq', zoom)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                 expect(center[0]).to.eq(lon)
                 expect(center[1]).to.eq(lat)
@@ -296,7 +296,7 @@ describe('Test on legacy param import', () => {
                     layers: `test.wmts.layer,WMTS||${layerId}||${url}`,
                     layers_opacity: '1,1',
                     layers_visibility: 'false,true',
-                    layers_timestam: ',',
+                    layers_timestamp: '18641231,',
                 },
                 false
             )
@@ -311,10 +311,17 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.be.false
             })
-            const expectedHash = `#/map?layers=test.wmts.layer,f,1;WMTS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
-            cy.location().should((location) => {
-                expect(location.hash).to.eq(expectedHash)
-                expect(location.search).to.eq('')
+
+            const expectedQuery = new URLSearchParams(
+                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
+            )
+            expectedQuery.sort()
+            cy.location('search').should('be.empty')
+            cy.location('hash').should('contain', '/map?')
+            cy.location('hash').then((hash) => {
+                const query = new URLSearchParams(hash.replace('#/map?', ''))
+                query.sort()
+                expect(query.toString()).to.equal(expectedQuery.toString())
             })
         })
     })

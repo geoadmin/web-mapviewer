@@ -12,6 +12,7 @@ import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 
+const dispatcher = { dispatcher: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
 
 /**
@@ -70,6 +71,7 @@ export default function useModifyInteraction(features) {
             store.dispatch('changeFeatureIsDragged', {
                 feature: feature.get('editableFeature'),
                 isDragged: true,
+                ...dispatcher,
             })
             olMap.getTarget().classList.add(cursorGrabbingClass)
             willModify()
@@ -87,11 +89,13 @@ export default function useModifyInteraction(features) {
             store.dispatch('changeFeatureIsDragged', {
                 feature: storeFeature,
                 isDragged: false,
+                ...dispatcher,
             })
             store.dispatch('changeFeatureCoordinates', {
                 feature: storeFeature,
                 coordinates: extractOlFeatureCoordinates(feature),
                 geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
+                ...dispatcher,
             })
             olMap.getTarget().classList.remove(cursorGrabbingClass)
             debounceSaveDrawing()

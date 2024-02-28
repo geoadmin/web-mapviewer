@@ -72,47 +72,49 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, clickInfo) => commit('setClickInfo', clickInfo),
-        clearClick: ({ commit }) => commit('setClickInfo', null),
+        click: ({ commit }, { clickInfo, dispatcher }) =>
+            commit('setClickInfo', { clickInfo, dispatcher }),
+        clearClick: ({ commit }, { dispatcher }) =>
+            commit('setClickInfo', { clickInfo: null, dispatcher }),
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
          *
          * @param commit
          * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
          */
-        setPinnedLocation: ({ commit }, coordinates) => {
+        setPinnedLocation: ({ commit }, { coordinates, dispatcher }) => {
             if (Array.isArray(coordinates) && coordinates.length === 2) {
-                commit('setPinnedLocation', coordinates)
+                commit('setPinnedLocation', { coordinates, dispatcher })
             } else {
-                commit('setPinnedLocation', null)
+                commit('setPinnedLocation', { coordinates: null, dispatcher })
             }
         },
         /**
          * @param commit
          * @param {Number[]} coordinates Dropped pin location expressed in EPSG:3857
          */
-        setPreviewedPinnedLocation({ commit }, coordinates) {
+        setPreviewedPinnedLocation({ commit }, { coordinates, dispatcher }) {
             if (Array.isArray(coordinates) && coordinates.length === 2) {
-                commit('setPreviewedPinnedLocation', coordinates)
+                commit('setPreviewedPinnedLocation', { coordinates, dispatcher })
             } else {
-                commit('setPreviewedPinnedLocation', null)
+                commit('setPreviewedPinnedLocation', { coordinates: null, dispatcher })
             }
         },
-        clearPinnedLocation({ commit }) {
-            commit('setPinnedLocation', null)
+        clearPinnedLocation({ commit }, { dispatcher }) {
+            commit('setPinnedLocation', { coordinates: null, dispatcher })
         },
-        displayLocationPopup({ commit }) {
-            commit('setDisplayLocationPopup', true)
+        displayLocationPopup({ commit }, { dispatcher }) {
+            commit('setDisplayLocationPopup', { display: true, dispatcher })
         },
-        hideLocationPopup({ commit }) {
-            commit('setDisplayLocationPopup', false)
+        hideLocationPopup({ commit }, { dispatcher }) {
+            commit('setDisplayLocationPopup', { display: false, dispatcher })
         },
     },
     mutations: {
-        setClickInfo: (state, clickInfo) => (state.clickInfo = clickInfo),
-        setPinnedLocation: (state, coordinates) => (state.pinnedLocation = coordinates),
-        setPreviewedPinnedLocation: (state, coordinate) =>
-            (state.previewedPinnedLocation = coordinate),
-        setDisplayLocationPopup: (state, display) => (state.displayLocationPopup = display),
+        setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
+        setPinnedLocation: (state, { coordinates }) => (state.pinnedLocation = coordinates),
+        setPreviewedPinnedLocation: (state, { coordinates }) =>
+            (state.previewedPinnedLocation = coordinates),
+        setDisplayLocationPopup: (state, { display }) => (state.displayLocationPopup = display),
     },
 }

@@ -1,12 +1,24 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 
 function dispatchCompareSliderFromUrlParam(store, urlParamValue) {
     const promisesForAllDispatch = []
     if (urlParamValue) {
-        promisesForAllDispatch.push(store.dispatch('setCompareRatio', urlParamValue))
+        promisesForAllDispatch.push(
+            store.dispatch('setCompareRatio', {
+                compareRatio: urlParamValue,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
+        )
         // small check here: if the user is inserting a non valid value, we won't activate the slider
         if (urlParamValue > 0.0 && urlParamValue < 1.0) {
-            promisesForAllDispatch.push(store.dispatch('setCompareSliderActive', true))
+            promisesForAllDispatch.push(
+                store.dispatch('setCompareSliderActive', {
+                    compareSliderActive: true,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            )
         }
     }
     return Promise.all(promisesForAllDispatch)

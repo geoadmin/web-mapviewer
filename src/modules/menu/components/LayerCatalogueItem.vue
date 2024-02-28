@@ -21,6 +21,8 @@ import { LV95 } from '@/utils/coordinates/coordinateSystems'
 import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
+
 const props = defineProps({
     item: {
         type: AbstractLayer,
@@ -110,7 +112,10 @@ onMounted(() => {
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
-        store.dispatch('setPreviewLayer', item.value)
+        store.dispatch('setPreviewLayer', {
+            layer: item.value,
+            ...dispatcher,
+        })
     }
 }
 
@@ -118,11 +123,20 @@ function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
     const matchingActiveLayer = store.getters.getActiveLayerById(item.value.getID())
     if (matchingActiveLayer) {
-        store.dispatch('removeLayer', matchingActiveLayer)
+        store.dispatch('removeLayer', {
+            layer: matchingActiveLayer,
+            ...dispatcher,
+        })
     } else if (item.value.isExternal) {
-        store.dispatch('addLayer', item.value)
+        store.dispatch('addLayer', {
+            layer: item.value,
+            ...dispatcher,
+        })
     } else {
-        store.dispatch('addLayer', new ActiveLayerConfig(item.value.getID(), true))
+        store.dispatch('addLayer', {
+            layerConfig: new ActiveLayerConfig(item.value.getID(), true),
+            ...dispatcher,
+        })
     }
 }
 
@@ -171,13 +185,13 @@ function zoomToLayer() {
             transformExtentIntoPolygon(item.value.extent.flat())
         )
     ) {
-        store.dispatch('zoomToExtent', item.value.extent)
+        store.dispatch('zoomToExtent', { extent: item.value.extent, ...dispatcher })
     } else {
-        store.dispatch('zoomToExtent', lv95Extent)
+        store.dispatch('zoomToExtent', { extent: lv95Extent, ...dispatcher })
     }
     if (isPhoneMode.value) {
         // On mobile phone we close the menu so that the user can see the zoom to extent
-        store.dispatch('toggleMenu')
+        store.dispatch('toggleMenu', dispatcher)
     }
 }
 

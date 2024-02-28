@@ -1,4 +1,6 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 
 export function readZoomFromUrlParam(urlParamValue) {
     if (urlParamValue) {
@@ -12,7 +14,10 @@ function dispatchZoomFromUrlIntoStore(store, urlParamValue) {
     const zoom = readZoomFromUrlParam(urlParamValue)
     if (zoom) {
         promisesForAllDispatch.push(
-            store.dispatch('setZoom', { zoom, source: 'URL param parsing' })
+            store.dispatch('setZoom', {
+                zoom,
+                dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+            })
         )
     }
     return Promise.all(promisesForAllDispatch)

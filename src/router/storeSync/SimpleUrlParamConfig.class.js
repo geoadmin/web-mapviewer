@@ -1,4 +1,6 @@
-import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
+import AbstractParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/router/storeSync/abstractParamConfig.class'
 
 /**
  * Definition of a URL param that needs to be synced with the store.
@@ -19,6 +21,8 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
      *   added to the URL even though its value is set to the default value of the param.
      * @param {NumberConstructor | StringConstructor | BooleanConstructor} valueType
      * @param {Boolean | Number | String | null} defaultValue
+     * @param {String} dispatchValueName Name to use in the dispatch object for the value (default
+     *   to UrlParamName)
      */
     constructor(
         urlParamName,
@@ -27,12 +31,17 @@ export default class SimpleUrlParamConfig extends AbstractParamConfig {
         extractValueFromStore,
         keepInUrlWhenDefault = false,
         valueType = String,
-        defaultValue = null
+        defaultValue = null,
+        dispatchValueName = urlParamName
     ) {
         super(
             urlParamName,
             mutationsToWatch,
-            (store, urlParamValue) => store.dispatch(dispatchChangeTo, urlParamValue),
+            (store, urlParamValue) =>
+                store.dispatch(dispatchChangeTo, {
+                    [dispatchValueName]: urlParamValue,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                }),
             extractValueFromStore,
             keepInUrlWhenDefault,
             valueType,

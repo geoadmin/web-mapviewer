@@ -30,6 +30,8 @@ import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 
+const dispatcher = { dispatcher: 'MenuShareSection.vue' }
+
 /** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 export default {
     components: {
@@ -57,15 +59,18 @@ export default {
             'closeShareMenuAndRemoveShortLinks',
         ]),
         toggleShareMenu() {
-            this.toggleShareMenuSection()
+            this.toggleShareMenuSection(dispatcher)
             if (!this.shortLink) {
-                this.generateShortLinks(this.isTrackingGeolocation)
+                this.generateShortLinks({
+                    withCrosshair: this.isTrackingGeolocation,
+                    ...dispatcher,
+                })
             } else {
-                this.clearShortLinks()
+                this.clearShortLinks(dispatcher)
             }
         },
         close() {
-            this.closeShareMenuAndRemoveShortLinks()
+            this.closeShareMenuAndRemoveShortLinks(dispatcher)
         },
     },
 }

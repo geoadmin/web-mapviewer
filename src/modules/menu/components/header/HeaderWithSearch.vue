@@ -50,6 +50,8 @@ import FeedbackToolbar from '@/modules/menu/components/menu/feedback/FeedbackToo
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 
+const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
+
 export default {
     components: {
         SearchBar,
@@ -64,8 +66,9 @@ export default {
         ...mapState({
             showLoadingBar: (state) => state.ui.showLoadingBar,
             currentLang: (state) => state.i18n.lang,
+            currentTopicId: (state) => state.topics.current,
         }),
-        ...mapGetters(['currentTopicId', 'isPhoneMode', 'hasDevSiteWarning']),
+        ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
     },
     mounted() {
         this.$nextTick(() => {
@@ -86,7 +89,10 @@ export default {
         },
 
         updateHeaderHeight() {
-            this.$store.dispatch('setHeaderHeight', this.$refs.header.clientHeight)
+            this.$store.dispatch('setHeaderHeight', {
+                height: this.$refs.header.clientHeight,
+                ...dispatcher,
+            })
         },
     },
 }

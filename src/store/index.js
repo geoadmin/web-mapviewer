@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 
+import { ENVIRONMENT } from '@/config'
 import debug from '@/store/debug.store'
 import app from '@/store/modules/app.store'
 import cesium from '@/store/modules/cesium.store'
@@ -32,7 +33,8 @@ import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
 
 const store = createStore({
-    strict: true,
+    // Do not run strict mode on production has it has performance cost
+    strict: ENVIRONMENT !== 'production',
     state: {},
     plugins: [
         loadLayersConfigOnLangChange,

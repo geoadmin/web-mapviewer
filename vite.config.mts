@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             vue({
+                isProduction: mode === 'production',
                 template: {
                     compilerOptions: {
                         isCustomElement: (tag) => tag === 'cesium-compass',

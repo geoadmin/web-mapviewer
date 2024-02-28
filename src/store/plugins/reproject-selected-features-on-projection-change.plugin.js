@@ -5,6 +5,8 @@ import LayerFeature from '@/api/features/LayerFeature.class'
 import { projExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'reproject-selected-features-on-projection-change.plugin' }
+
 let oldProjection = null
 /**
  * Plugin that will reproject selected features after it detects that the projection was changed
@@ -70,7 +72,10 @@ const reprojectSelectedFeaturesOnProjectionChangePlugin = (store) => {
                     }
                 })
                 if (reprojectedSelectedFeatures.length > 0) {
-                    store.dispatch('setSelectedFeatures', reprojectedSelectedFeatures)
+                    store.dispatch('setSelectedFeatures', {
+                        features: reprojectedSelectedFeatures,
+                        ...dispatcher,
+                    })
                 }
             }
         },

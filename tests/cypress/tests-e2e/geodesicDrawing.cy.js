@@ -9,7 +9,7 @@ const olSelector = '.ol-viewport'
 const acceptableDelta = 0.01
 
 function moveMapPos(newCenter) {
-    cy.writeStoreValue('setCenter', { center: newCenter, source: 'Cypress geodesic tests' })
+    cy.writeStoreValue('setCenter', { center: newCenter, dispatcher: 'e2e-test' })
     /* In headed mode, the tests work perfectly fine even without these waits. In headless mode
     hovewer, they are needed, as else, the mouse click event following may not be registered
     correctly by the Draw and Modify interactions. The reasons for that are still unclear. */
@@ -192,7 +192,9 @@ describe.skip('Correct handling of geodesic geometries', () => {
             it('Check that the line feature is also geodesic', () => {
                 // To avoid repositioning of the map when selecting the line
                 cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) => tooltip && cy.writeStoreValue('toggleFloatingTooltip')
+                    (tooltip) =>
+                        tooltip &&
+                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })
@@ -259,7 +261,9 @@ describe.skip('Correct handling of geodesic geometries', () => {
             })
             it('Check that the line feature is also geodesic', () => {
                 cy.readStoreValue('state.ui.floatingTooltip').then(
-                    (tooltip) => tooltip && cy.writeStoreValue('toggleFloatingTooltip')
+                    (tooltip) =>
+                        tooltip &&
+                        cy.writeStoreValue('toggleFloatingTooltip', { dispatcher: 'e2e-test' })
                 )
                 testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
             })

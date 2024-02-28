@@ -7,6 +7,8 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import log from '@/utils/logging'
 import { formatThousand } from '@/utils/numberUtils.js'
 
+const dispatcher = { dispatcher: 'MapPrintSection.vue' }
+
 const emits = defineEmits(['openMenuSection'])
 
 const isSectionShown = ref(false)
@@ -27,16 +29,16 @@ const selectedScale = computed({
         return store.getters.getSelectedScale
     },
     set(value) {
-        store.dispatch('setSelectedScale', value)
+        store.dispatch('setSelectedScale', { scale: value, ...dispatcher })
     },
 })
 
 watch(selectedLayout, () => {
-    store.dispatch('setSelectedLayout', selectedLayout.value)
+    store.dispatch('setSelectedLayout', { layout: selectedLayout.value, ...dispatcher })
 })
 
 watch(isSectionShown, () => {
-    store.dispatch('setPrintSectionShown', isSectionShown.value)
+    store.dispatch('setPrintSectionShown', { show: isSectionShown.value, ...dispatcher })
 })
 
 watch(printLayouts, () => {
@@ -49,7 +51,7 @@ watch(printLayouts, () => {
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (printLayouts.value.length === 0) {
-        store.dispatch('loadPrintLayouts').then(() => {
+        store.dispatch('loadPrintLayouts', dispatcher).then(() => {
             isSectionShown.value = !isSectionShown.value
         })
     } else {

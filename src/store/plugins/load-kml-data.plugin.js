@@ -7,6 +7,8 @@ import { loadKmlData, loadKmlMetadata } from '@/api/files.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'load-kml-data.plugin' }
+
 /**
  * @param {Vuex.Store} store
  * @param {KMLLayer} kmlLayer
@@ -16,7 +18,11 @@ async function loadMetadata(store, kmlLayer) {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
-        store.dispatch('updateKmlGpxLayer', { layerId: kmlLayer?.getID(), metadata })
+        store.dispatch('updateKmlGpxLayer', {
+            layerId: kmlLayer?.getID(),
+            metadata,
+            ...dispatcher,
+        })
     } catch (error) {
         log.error(`Error while fetching KML metadata for layer ${kmlLayer?.getID()}`)
     }
@@ -31,12 +37,17 @@ async function loadData(store, kmlLayer) {
     log.debug(`Loading data for added KML layer`, kmlLayer)
     try {
         const data = await loadKmlData(kmlLayer)
-        store.dispatch('updateKmlGpxLayer', { layerId: kmlLayer?.getID(), data })
+        store.dispatch('updateKmlGpxLayer', {
+            layerId: kmlLayer?.getID(),
+            data,
+            ...dispatcher,
+        })
     } catch (error) {
         log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}: ${error}`)
         store.dispatch('setLayerErrorKey', {
             layerId: kmlLayer.getID(),
             errorKey: `loading_error_network_failure`,
+            ...dispatcher,
         })
     }
 }
@@ -48,20 +59,24 @@ async function loadData(store, kmlLayer) {
  * @param {Vuex.Store} store
  */
 export default function loadKmlDataAndMetadata(store) {
+    const addLayerSubscriber = (layer) => {
+        if (layer instanceof KMLLayer && (!layer.kmlData || !layer.kmlMetadata)) {
+            if (!layer.kmlData) {
+                loadData(store, layer)
+            }
+            if (!layer.kmlMetadata && !layer.isExternal) {
+                loadMetadata(store, layer)
+            }
+        }
+    }
     store.subscribe((mutation) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload instanceof KMLLayer &&
-            (!mutation.payload.kmlData || !mutation.payload.kmlMetadata)
-        ) {
-            const kmlLayer = mutation.payload
-
-            if (!kmlLayer.kmlData) {
-                loadData(store, kmlLayer)
-            }
-            if (!kmlLayer.kmlMetadata && !kmlLayer.isExternal) {
-                loadMetadata(store, kmlLayer)
-            }
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer)
+            })
         }
     })
 }

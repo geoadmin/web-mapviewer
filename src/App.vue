@@ -16,6 +16,8 @@ const withOutline = ref(false)
 const store = useStore()
 const i18n = useI18n()
 
+const dispatcher = { dispatcher: 'App.vue' }
+
 let debouncedOnResize
 
 onMounted(() => {
@@ -33,6 +35,7 @@ function setScreenSizeFromWindowSize() {
     store.dispatch('setSize', {
         width: window.innerWidth,
         height: window.innerHeight,
+        ...dispatcher,
     })
 }
 function refreshPageTitle() {

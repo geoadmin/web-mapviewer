@@ -13,24 +13,28 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'external-layers.plugin' }
+
 /**
  * Load External layers attributes (title, abstract, extent, attributions, ...) on layer added
  *
  * @param {Vuex.Store} store
  */
 export default function loadExternalLayerAttributes(store) {
+    const addLayerSubscriber = (layer, state) => {
+        if (layer instanceof ExternalLayer && layer?.isLoading) {
+            log.debug(`Loading state external layer added, trigger attribute updated`, state)
+            updateExternalLayer(store, layer, state.position.projection)
+        }
+    }
     store.subscribe((mutation, state) => {
-        if (
-            mutation.type === 'addLayer' &&
-            mutation.payload instanceof ExternalLayer &&
-            mutation.payload.isLoading
-        ) {
-            log.debug(
-                `Loading state external layer added, trigger attribute updated`,
-                mutation,
-                state
-            )
-            updateExternalLayer(store, mutation.payload, state.position.projection)
+        if (mutation.type === 'addLayer') {
+            addLayerSubscriber(mutation.payload.layer, state)
+        }
+        if (mutation.type === 'setLayers') {
+            mutation.payload.layers?.forEach((layer) => {
+                addLayerSubscriber(layer, state)
+            })
         }
     })
 }
@@ -50,12 +54,16 @@ async function updateExternalLayer(store, externalLayer, projection) {
         }
 
         updatedExternalLayer.isLoading = false
-        store.dispatch('updateLayer', updatedExternalLayer)
+        store.dispatch('updateLayer', {
+            layer: updatedExternalLayer,
+            ...dispatcher,
+        })
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
         store.dispatch('setLayerErrorKey', {
             layerId: externalLayer.getID(),
             errorKey: error.key ? error.key : 'error',
+            ...dispatcher,
         })
     }
 }

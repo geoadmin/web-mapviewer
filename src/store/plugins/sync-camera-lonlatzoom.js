@@ -14,13 +14,13 @@ import { WGS84 } from '@/utils/coordinates/coordinateSystems'
  * @param {Vuex.Store} store
  */
 export default function syncCameraLonLatZoom(store) {
-    const self = 'sync 3D camera'
+    const self = 'sync-camera-lonlatzoom.plugin'
     store.subscribe((mutation, state) => {
         // only reacting to mutation when the camera is set (when 3D is active and loaded)
         if (state.position.camera === null) {
             return
         }
-        if (mutation.type === 'setCameraPosition' && mutation.payload.source !== self) {
+        if (mutation.type === 'setCameraPosition' && mutation.payload.dispatcher !== self) {
             const lon = state.position.camera.x
             const lat = state.position.camera.y
             const height = state.position.camera.z
@@ -39,13 +39,13 @@ export default function syncCameraLonLatZoom(store) {
                 centerExpressedInWantedProjection
             )
             store.dispatch('setCenter', {
-                center: proj4(WGS84.epsg, state.position.projection.epsg, centerWGS84),
-                source: self,
+                center: centerExpressedInWantedProjection,
+                dispatcher: self,
             })
-            store.dispatch('setZoom', { zoom, source: self })
+            store.dispatch('setZoom', { zoom, dispatcher: self })
             store.dispatch('setRotation', normalizeAngle((rotation * Math.PI) / 180))
         }
-        if (mutation.type === 'setCenter' && mutation.payload.source !== self) {
+        if (mutation.type === 'setCenter' && mutation.payload.dispatcher !== self) {
             store.dispatch('setCameraPosition', {
                 position: {
                     x: store.getters.centerEpsg4326[0],
@@ -55,10 +55,10 @@ export default function syncCameraLonLatZoom(store) {
                     pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
                     roll: 0,
                 },
-                source: self,
+                dispatcher: self,
             })
         }
-        if (mutation.type === 'setZoom' && mutation.payload.source !== self) {
+        if (mutation.type === 'setZoom' && mutation.payload.dispatcher !== self) {
             const newHeight = calculateHeight(store.getters.resolution, state.ui.width)
             store.dispatch('setCameraPosition', {
                 position: {
@@ -69,7 +69,7 @@ export default function syncCameraLonLatZoom(store) {
                     pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
                     roll: 0,
                 },
-                source: self,
+                dispatcher: self,
             })
         }
     })

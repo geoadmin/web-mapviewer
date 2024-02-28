@@ -20,14 +20,14 @@ const state = {
 const getters = {}
 
 const actions = {
-    setLang({ commit }, lang) {
-        commit(SET_LANG_MUTATION_KEY, lang)
+    setLang({ commit }, args) {
+        commit(SET_LANG_MUTATION_KEY, args)
     },
 }
 
 const mutations = {}
 
-mutations[SET_LANG_MUTATION_KEY] = function (state, lang) {
+mutations[SET_LANG_MUTATION_KEY] = function (state, { lang }) {
     state.lang = lang
     i18n.global.locale = lang
 }

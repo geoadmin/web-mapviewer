@@ -29,50 +29,58 @@ const actions = {
      * @param {Object} payload
      * @param {String} payload.query
      */
-    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '' }) => {
+    setSearchQuery: async ({ commit, rootState, dispatch }, { query = '', dispatcher }) => {
         let results = new CombinedSearchResults()
-        commit('setSearchQuery', query)
+        commit('setSearchQuery', { query, dispatcher })
         // only firing search if query is longer than or equal to 2 chars
         if (query.length >= 2) {
             const currentProjection = rootState.position.projection
             // checking first if this corresponds to a set of coordinates (or a what3words)
-            const coordinate = coordinateFromString(query, currentProjection)
-            if (coordinate) {
-                dispatch('setCenter', { center: coordinate, source: 'search coordinates' })
+            const coordinates = coordinateFromString(query, currentProjection)
+            if (coordinates) {
+                const dispatcherCoordinate = `${dispatcher}/search.store/setSearchQuery/coordinate`
+                dispatch('setCenter', {
+                    center: coordinates,
+                    dispatcher: dispatcherCoordinate,
+                })
                 if (currentProjection instanceof CustomCoordinateSystem) {
                     dispatch('setZoom', {
                         zoom: currentProjection.transformStandardZoomLevelToCustom(
                             STANDARD_ZOOM_LEVEL_1_25000_MAP
                         ),
-                        source: 'search coordinates',
+                        dispatcher: dispatcherCoordinate,
                     })
                 } else {
                     dispatch('setZoom', {
                         zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
-                        source: 'search coordinates',
+                        dispatcher: dispatcherCoordinate,
                     })
                 }
-                dispatch('setPinnedLocation', coordinate)
+                dispatch('setPinnedLocation', { coordinates, dispatcher: dispatcherCoordinate })
             } else if (isWhat3WordsString(query)) {
                 retrieveWhat3WordsLocation(query, currentProjection).then((what3wordLocation) => {
+                    const dispatcherWhat3words = `${dispatcher}/search.store/setSearchQuery/what3words`
                     dispatch('setCenter', {
                         center: what3wordLocation,
-                        source: 'search what3words',
+                        dispatcher: dispatcherWhat3words,
                     })
                     if (currentProjection instanceof CustomCoordinateSystem) {
                         dispatch('setZoom', {
                             zoom: currentProjection.transformStandardZoomLevelToCustom(
                                 STANDARD_ZOOM_LEVEL_1_25000_MAP
                             ),
-                            source: 'search what3words',
+                            dispatcher: dispatcherWhat3words,
                         })
                     } else {
                         dispatch('setZoom', {
                             zoom: STANDARD_ZOOM_LEVEL_1_25000_MAP,
-                            source: 'search what3words',
+                            dispatcher: dispatcherWhat3words,
                         })
                     }
-                    dispatch('setPinnedLocation', what3wordLocation)
+                    dispatch('setPinnedLocation', {
+                        coordinates: what3wordLocation,
+                        dispatcher: dispatcherWhat3words,
+                    })
                 })
             } else {
                 try {
@@ -82,41 +90,55 @@ const actions = {
                 }
             }
         } else if (query.length === 0) {
-            dispatch('clearPinnedLocation')
+            dispatch('clearPinnedLocation', { dispatcher: `${dispatcher}/setSearchQuery` })
         }
-        commit('setSearchResults', results)
+        commit('setSearchResults', { results, dispatcher: `${dispatcher}/setSearchQuery` })
     },
-    setSearchResults: ({ commit }, results) => commit('setSearchResults', results),
+    setSearchResults: ({ commit }, { results, dispatcher }) =>
+        commit('setSearchResults', { results, dispatcher }),
     /**
      * @param commit
      * @param dispatch
      * @param {SearchResult | LayerSearchResult | FeatureSearchResult} entry
      */
-    selectResultEntry: ({ dispatch }, entry) => {
+    selectResultEntry: ({ dispatch }, { entry, dispatcher }) => {
+        const dipsatcherSelectResultEntry = `${dispatcher}/search.store/selectResultEntry`
         switch (entry.resultType) {
             case RESULT_TYPE.LAYER:
-                dispatch('addLayer', new ActiveLayerConfig(entry.layerId, true))
+                dispatch('addLayer', {
+                    layerConfig: new ActiveLayerConfig(entry.layerId, true),
+                    dispatcher: dipsatcherSelectResultEntry,
+                })
                 break
             case RESULT_TYPE.LOCATION:
                 if (entry.extent.length === 2) {
-                    dispatch('zoomToExtent', entry.extent)
+                    dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
                 } else if (entry.zoom) {
                     dispatch('setCenter', {
                         center: entry.coordinates,
-                        source: 'search select entry',
+                        dispatcher: dipsatcherSelectResultEntry,
                     })
-                    dispatch('setZoom', { zoom: entry.zoom, source: 'search select entry' })
+                    dispatch('setZoom', {
+                        zoom: entry.zoom,
+                        dispatcher: dipsatcherSelectResultEntry,
+                    })
                 }
-                dispatch('setPinnedLocation', entry.coordinates)
+                dispatch('setPinnedLocation', {
+                    coordinates: entry.coordinates,
+                    dispatcher: dipsatcherSelectResultEntry,
+                })
                 break
         }
-        dispatch('setSearchQuery', { query: entry.getSimpleTitle() })
+        dispatch('setSearchQuery', {
+            query: entry.getSimpleTitle(),
+            dispatcher: dipsatcherSelectResultEntry,
+        })
     },
 }
 
 const mutations = {
-    setSearchQuery: (state, query) => (state.query = query),
-    setSearchResults: (state, results) =>
+    setSearchQuery: (state, { query }) => (state.query = query),
+    setSearchResults: (state, { results }) =>
         (state.results = results ? results : new CombinedSearchResults()),
 }
 

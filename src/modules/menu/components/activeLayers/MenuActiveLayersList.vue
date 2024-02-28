@@ -1,7 +1,119 @@
+<script setup>
+/**
+ * Component that maps the active layers from the state to the menu (and also forwards user
+ * interactions to the state)
+ */
+import Sortable from 'sortablejs'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
+
+import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
+import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
+
+const dispatcher = { dispatcher: 'MenuActiveLayersList.vue' }
+
+const props = defineProps({
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { compact } = toRefs(props)
+
+const activeLayersList = ref(null)
+// used to deactivate the hover change of color on layer whenever one of them is dragged
+const aLayerIsDragged = ref(false)
+const showLayerLegendForLayer = ref(null)
+const showLayerDetailsForId = ref(null)
+
+const store = useStore()
+// Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
+// So here we swap the order of this array to match the desired order on the UI
+const activeLayers = computed(() => store.state.layers.activeLayers.slice().reverse())
+
+let sortable
+onMounted(() => {
+    sortable = Sortable.create(activeLayersList.value, {
+        animation: 150,
+        onStart: function () {
+            aLayerIsDragged.value = true
+        },
+        onEnd: function (event) {
+            aLayerIsDragged.value = false
+            const { newIndex, oldIndex, item } = event
+            const layerId = item.dataset.layerId
+            if (newIndex !== oldIndex) {
+                if (newIndex > oldIndex) {
+                    store.dispatch('moveActiveLayerBack', {
+                        layerId,
+                        amount: newIndex - oldIndex,
+                        ...dispatcher,
+                    })
+                } else {
+                    store.dispatch('moveActiveLayerFront', {
+                        layerId,
+                        amount: oldIndex - newIndex,
+                        ...dispatcher,
+                    })
+                }
+            }
+        },
+    })
+})
+onBeforeUnmount(() => {
+    sortable?.destroy()
+})
+
+function onToggleLayerDetails(layerId) {
+    if (showLayerDetailsForId.value === layerId) {
+        showLayerDetailsForId.value = null
+    } else {
+        showLayerDetailsForId.value = layerId
+    }
+}
+function onRemoveLayer(layerId) {
+    store.dispatch('removeLayer', { layerId, ...dispatcher })
+}
+function onToggleLayerVisibility(layerId) {
+    store.dispatch('toggleLayerVisibility', {
+        layerId,
+        ...dispatcher,
+    })
+}
+function onOrderChange(layerId, delta) {
+    // raising the layer in the stack means the user wants the layer put front
+    if (delta === 1) {
+        store.dispatch('moveActiveLayerFront', {
+            layerId,
+            ...dispatcher,
+        })
+    } else if (delta === -1) {
+        store.dispatch('moveActiveLayerBack', {
+            layerId,
+            ...dispatcher,
+        })
+    }
+}
+function onOpacityChange(layerId, opacity) {
+    store.dispatch('setLayerOpacity', {
+        layerId,
+        opacity,
+        ...dispatcher,
+    })
+}
+function isFirstLayer(layerId) {
+    return activeLayers.value[0].getID() === layerId
+}
+function isLastLayer(layerId) {
+    return activeLayers.value.slice(-1)[0].getID() === layerId
+}
+</script>
+
 <template>
     <div>
         <div
             v-show="activeLayers.length > 0"
+            ref="activeLayersList"
             data-cy="menu-section-active-layers"
             class="menu-layer-list"
         >
@@ -13,6 +125,8 @@
                 :is-first-layer="isFirstLayer(layer.getID())"
                 :is-last-layer="isLastLayer(layer.getID())"
                 :compact="compact"
+                :data-layer-id="layer.getID()"
+                :class="{ 'drag-in-progress': aLayerIsDragged }"
                 @remove-layer="onRemoveLayer"
                 @toggle-layer-visibility="onToggleLayerVisibility"
                 @toggle-layer-details="onToggleLayerDetails"
@@ -31,79 +145,3 @@
         </div>
     </div>
 </template>
-
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import LayerLegendPopup from '@/modules/menu/components/LayerLegendPopup.vue'
-
-import MenuActiveLayersListItem from './MenuActiveLayersListItem.vue'
-
-/**
- * Component that maps the active layers from the state to the menu (and also forwards user
- * interactions to the state)
- */
-export default {
-    components: { LayerLegendPopup, MenuActiveLayersListItem },
-    props: {
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    data() {
-        return {
-            showLayerLegendForLayer: null,
-            showLayerDetailsForId: null,
-        }
-    },
-    computed: {
-        ...mapState({
-            // users are used to have layers ordered top to bottom (first layer is on top) but we store them in the
-            // opposite order. So here we swap the order of this array to match the desired order on the UI
-            activeLayers: (state) => state.layers.activeLayers.slice().reverse(),
-        }),
-    },
-    methods: {
-        onToggleLayerDetails(layerId) {
-            if (this.showLayerDetailsForId === layerId) {
-                this.showLayerDetailsForId = null
-            } else {
-                this.showLayerDetailsForId = layerId
-            }
-        },
-        ...mapActions([
-            'setLayerOpacity',
-            'moveActiveLayerBack',
-            'moveActiveLayerFront',
-            'toggleLayerVisibility',
-            'removeLayer',
-            'showOverlay',
-            'setOverlayShouldBeFront',
-        ]),
-        onRemoveLayer(layerId) {
-            this.removeLayer(layerId)
-        },
-        onToggleLayerVisibility(layerId) {
-            this.toggleLayerVisibility(layerId)
-        },
-        onOrderChange(layerId, delta) {
-            // raising the layer in the stack means the user wants the layer put front
-            if (delta === 1) {
-                this.moveActiveLayerFront(layerId)
-            } else if (delta === -1) {
-                this.moveActiveLayerBack(layerId)
-            }
-        },
-        onOpacityChange(layerId, opacity) {
-            this.setLayerOpacity({ layerId, opacity })
-        },
-        isFirstLayer(layerId) {
-            return this.activeLayers[0].getID() === layerId
-        },
-        isLastLayer(layerId) {
-            return this.activeLayers[this.activeLayers.length - 1].getID() === layerId
-        },
-    },
-}
-</script>

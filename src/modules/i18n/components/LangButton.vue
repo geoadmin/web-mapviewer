@@ -23,6 +23,8 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'LangButton.vue' }
+
 export default {
     components: { HeaderLink },
     props: {
@@ -41,7 +43,7 @@ export default {
         ...mapActions(['setLang']),
         changeLang() {
             log.debug('switching locale', this.lang)
-            this.setLang(this.lang)
+            this.setLang({ lang: this.lang, ...dispatcher })
         },
     },
 }
