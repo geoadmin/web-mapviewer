@@ -55,8 +55,7 @@ function createWorldPolygon() {
 }
 
 function encodeGraticule(dpi, projection) {
-    log.info('Encode graticule for projection:', projection)
-    let gridLayer = 'org.epsg.grid_2056'
+    let gridLayer = 'org.epsg.grid_4326'
     if (projection.value instanceof CustomCoordinateSystem) {
         gridLayer = 'org.epsg.grid_2056'
     }
@@ -161,7 +160,7 @@ export default function usePrintAreaRenderer(map) {
         const customizer = new BaseCustomizer([0, 0, 10000, 10000])
         // Generate QR code url from current shortlink
         await store.dispatch('generateShortLinks', {
-            withCrosshair: this.isTrackingGeolocation,
+            withCrosshair: false,
             ...dispatcher,
         })
         const shortLink = store.state.share.shortLink
