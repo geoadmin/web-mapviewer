@@ -21,7 +21,7 @@ function readUrlParamValue(url, paramName) {
  * @returns {Boolean} True if the query starts with ? or /?
  */
 export const isLegacyParams = (search) => {
-    return !!search?.match(/^(\?|\/\?).*$/g) ?? false
+    return !!search?.match(/^(\?|\/\?).+$/g) ?? false
 }
 
 /**

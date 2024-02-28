@@ -1,3 +1,6 @@
+import { START_LOCATION } from 'vue-router'
+
+import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
 
@@ -19,37 +22,43 @@ const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
  * @param {Store} store
  */
 const appLoadingManagementRouterPlugin = (router, store) => {
-    const unRegisterRouterHook = router.beforeEach((to) => {
-        if (to.meta.requiresAppReady && !store.state.app.isReady) {
-            // Upon application startup we need to first get the language and
-            // topic from the URL in order to quickly load the layers config and
-            // topics. We do this as early as possible as we need topics and config to define
-            // the default application state.
-            const queryParams = getUrlQuery()
-            const lang = queryParams.get('lang') ?? store.state.i18n.lang
-            const topic = queryParams.get('topic') ?? store.state.topics.current
-            log.info(`App is not ready dispatching lang=${lang} and topic=${topic}`)
-            store.dispatch('changeTopic', {
-                topicId: topic,
-                ...dispatcher,
-            })
-            store.dispatch('setLang', {
-                lang: lang,
-                ...dispatcher,
-            })
-            return
-        }
-        return
-    })
+    if (!store.state.app.isReady) {
+        const isLegacyUrl = isLegacyParams(window?.location?.search)
 
-    const unSubscribeStore = store.subscribe((mutation) => {
-        // listening to the store for the "Go" when the app is ready
-        if (mutation.type === 'setAppIsReady') {
-            unRegisterRouterHook()
-            unSubscribeStore()
-            log.info('App is ready, unregister app loading management plugin')
-        }
-    })
+        const unRegisterRouterHook = router.beforeEach((to, from) => {
+            if (from === START_LOCATION && to.name === 'MapView' && to.meta.requiresAppReady) {
+                // Upon application startup we need to first get the language and
+                // topic from the URL in order to quickly load the layers config and
+                // topics. We do this as early as possible as we need topics and config to define
+                // the default application state.
+                const queryParams = getUrlQuery()
+                const lang = queryParams.get('lang') ?? store.state.i18n.lang
+                const topic = queryParams.get('topic') ?? store.state.topics.current
+                log.info(
+                    `App is not ready dispatching lang=${lang} and topic=${topic} (isLegacy=${isLegacyUrl})`,
+                    to,
+                    from
+                )
+                store.dispatch('changeTopic', {
+                    topicId: topic,
+                    ...dispatcher,
+                })
+                store.dispatch('setLang', {
+                    lang: lang,
+                    isLegacyUrl,
+                    ...dispatcher,
+                })
+            }
+        })
+        const unSubscribeStore = store.subscribe((mutation) => {
+            // listening to the store for the "Go" when the app is ready
+            if (mutation.type === 'setAppIsReady') {
+                unRegisterRouterHook()
+                unSubscribeStore()
+                log.info('App is ready, unregister app loading management plugin')
+            }
+        })
+    }
 }
 
 export default appLoadingManagementRouterPlugin
