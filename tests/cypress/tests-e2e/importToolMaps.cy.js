@@ -349,6 +349,7 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Reload should keep the layers')
         cy.reload()
+        cy.waitMapIsReady()
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
         cy.get(`[data-cy="active-layer-name-${singleLayerFullId}"]`).should('be.visible')
