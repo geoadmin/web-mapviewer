@@ -128,7 +128,7 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(
-                3,
+                4,
                 'should have 1 primitive (GeoJSON) on top of labels and buildings primitives'
             )
             // test layer added correctly
@@ -155,12 +155,12 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(3) // labels + buildings + GeoJSON layer
+            expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
         })
         cy.clickOnMenuButtonIfMobile()
         cy.get(`[data-cy="button-remove-layer-${visibleLayerIds[3]}"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(2) // labels anb buildings are still present
+            expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
         })
     })
     // TODO: PB-284 This test is flaky and not always pass on the CI (but is working locally).

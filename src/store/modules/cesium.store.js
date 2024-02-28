@@ -3,6 +3,11 @@ import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
 const labelLayer = new GeoAdmin3DLayer('ch.swisstopo.swissnames3d.3d', '20180716', true)
 const vegetationLayer = new GeoAdmin3DLayer('ch.swisstopo.vegetation.3d', '20190313', true)
 const buildingsLayer = new GeoAdmin3DLayer(
+    'ch.swisstopo.swissbuildings3d.3d',
+    'v1',
+    false // buildings JSON has already been migrated to the new URL nomenclature
+)
+const constructionsLayer = new GeoAdmin3DLayer(
     'ch.swisstopo.swisstlm3d.3d',
     'v1',
     false // buildings JSON has already been migrated to the new URL nomenclature
@@ -29,12 +34,19 @@ export default {
          */
         showVegetation: false,
         /**
-         * Flag telling if the 3D viewer should show buildings (ch.swisstopo.swisstlm3d.3d). As this
+         * Flag telling if the 3D viewer should show buildings (ch.swisstopo.swisstlbuildings3d.3d). As this
          * layer has already been updated for the latest Cesium stack, we activate it by default.
          *
          * @type Boolean
          */
         showBuildings: true,
+        /**
+         * Flag telling if the 3D viewer should show buildings (ch.swisstopo.swisstlm3d.3d). As this
+         * layer has already been updated for the latest Cesium stack, we activate it by default.
+         *
+         * @type Boolean
+         */
+        showConstructions: true,
     },
     getters: {
         backgroundLayersFor3D(state, _, rootState) {
@@ -47,6 +59,9 @@ export default {
             bgLayers.push(labelLayer)
             if (state.showBuildings) {
                 bgLayers.push(buildingsLayer)
+            }
+            if (state.showConstructions) {
+                bgLayers.push(constructionsLayer)
             }
             if (state.showVegetation) {
                 bgLayers.push(vegetationLayer)
@@ -61,6 +76,12 @@ export default {
         toggleShow3dBuildings({ commit, state }, { dispatcher }) {
             commit('setShowBuildings', { showBuildings: !state.showBuildings, dispatcher })
         },
+        toggleShow3dConstructions({ commit, state }, { dispatcher }) {
+            commit('setShowConstructions', {
+                showConstructions: !state.showConstructions,
+                dispatcher,
+            })
+        },
         toggleShow3dVegetation({ commit, state }, { dispatcher }) {
             commit('setShowVegetation', { showVegetation: !state.showVegetation, dispatcher })
         },
@@ -68,6 +89,8 @@ export default {
     mutations: {
         set3dActive: (state, { active }) => (state.active = active),
         setShowBuildings: (state, { showBuildings }) => (state.showBuildings = showBuildings),
+        setShowConstructions: (state, { showConstructions }) =>
+            (state.showConstructions = showConstructions),
         setShowVegetation: (state, { showVegetation }) => (state.showVegetation = showVegetation),
     },
 }
