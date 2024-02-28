@@ -80,6 +80,8 @@ function encodeLegend() {
     const classes = []
 
     for (const layer of visibleLayers) {
+        // There are some layers that do not have legend but the hasLegend is set to True
+        // It might give a blank legend in the print
         if (layer.hasLegend) {
             classes.push({
                 name: layer.name,
