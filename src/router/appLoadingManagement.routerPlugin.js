@@ -28,6 +28,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
             const queryParams = getUrlQuery()
             const lang = queryParams.get('lang') ?? store.state.i18n.lang
             const topic = queryParams.get('topic') ?? store.state.topics.current
+            log.info(`App is not ready dispatching lang=${lang} and topic=${topic}`)
             store.dispatch('changeTopic', {
                 topicId: topic,
                 ...dispatcher,
@@ -36,8 +37,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
                 lang: lang,
                 ...dispatcher,
             })
-            log.debug(`App is not ready redirect to /#/startup?redirect=${to.fullPath}`)
-            return { name: 'LoadingView', query: { redirect: to.fullPath }, replace: true }
+            return
         }
         return
     })
@@ -47,9 +47,7 @@ const appLoadingManagementRouterPlugin = (router, store) => {
         if (mutation.type === 'setAppIsReady') {
             unRegisterRouterHook()
             unSubscribeStore()
-            const redirect = router.currentRoute.value.query.redirect || '/map'
-            log.info('App is ready redirect to ', redirect)
-            router.replace(redirect)
+            log.info('App is ready, unregister app loading management plugin')
         }
     })
 }
