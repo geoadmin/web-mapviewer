@@ -253,6 +253,14 @@ Cypress.Commands.add(
 )
 
 /**
+ * Wait until the map has been rendered and is ready. This is useful and needed during the
+ * application startup phase
+ */
+Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000 } = {}) => {
+    cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
+})
+
+/**
  * Changes a URL parameter without reloading the app.
  *
  * Help when you want to change a value in the URL but don't want the whole app be reloaded from

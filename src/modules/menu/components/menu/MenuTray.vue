@@ -49,12 +49,14 @@
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
         />
+        <!-- Here below we MUST wait that the map has been rendered before displaying any menu
+             content, otherwise this would slow down the application startup -->
         <MenuSection
             id="activeLayersSection"
             ref="activeLayersSection"
             :title="$t('layers_displayed')"
             light
-            show-content
+            :show-content="mapModuleReady"
             data-cy="menu-active-layers"
             @open-menu-section="onOpenMenuSection"
         >
@@ -121,6 +123,7 @@ export default {
             is3dMode: (state) => state.cesium.active,
             showImportFile: (state) => state.ui.importFile,
             showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
+            mapModuleReady: (state) => state.app.isMapReady,
         }),
         ...mapGetters(['isPhoneMode', 'hasDevSiteWarning']),
     },

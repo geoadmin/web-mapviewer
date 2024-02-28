@@ -205,6 +205,7 @@ describe('The Import File Tool', () => {
         // Test reloading the page
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
+        cy.waitMapIsReady()
         cy.clickOnMenuButtonIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
         cy.get(`[data-cy="active-layer-name-KML|${secondValidOnlineUrl}"]`).should('be.visible')
@@ -536,6 +537,7 @@ describe('The Import File Tool', () => {
         // Test reloading the page
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
+        cy.waitMapIsReady()
         cy.wait('@getGpxFile')
         // only the URL GPX should be kept while reloading
         cy.checkOlLayer(gpxOnlineLayerId)
