@@ -1,12 +1,66 @@
+<script setup>
+import { computed, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
+import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
+
+const dispatcher = { dispatcher: 'MenuTopicSection.vue' }
+
+const props = defineProps({
+    compact: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { compact } = toRefs(props)
+
+const emit = defineEmits(['openMenuSection'])
+const store = useStore()
+const i18n = useI18n()
+
+const menuTopicSection = ref(null)
+const showTopicSelectionPopup = ref(false)
+
+const currentTopic = computed(() => store.state.topics.current)
+const currentTopicTree = computed(() => store.state.topics.tree)
+const allTopics = computed(() => store.state.topics.config)
+const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
+const isDefaultTopic = computed(() => store.getters.isDefaultTopic)
+const showTopicTree = computed(() => {
+    // We only want the topic tree open whenever the user has chosen a different topic
+    // than the default one (it can be opened by the user by a click on it, but by default it's closed)
+    // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
+    return !isDefaultTopic.value || openThemesIds.value.length > 0
+})
+
+function setShowTopicSelectionPopup() {
+    showTopicSelectionPopup.value = true
+}
+
+function selectTopic(topic) {
+    store.dispatch('changeTopic', { topicId: topic.id, ...dispatcher })
+    showTopicSelectionPopup.value = false
+}
+
+function close() {
+    menuTopicSection.value.close()
+}
+
+defineExpose({ close })
+</script>
+
 <template>
     <MenuSection
         id="menu-topic-section"
         ref="menuTopicSection"
-        :title="$t(currentTopic)"
+        :title="i18n.t(currentTopic)"
         :show-content="showTopicTree"
         light
         data-cy="menu-topic-section"
-        @open-menu-section="(id) => $emit('openMenuSection', id)"
+        @open-menu-section="(id) => emit('openMenuSection', id)"
     >
         <template #extra-button>
             <button
@@ -14,7 +68,7 @@
                 data-cy="change-topic-button"
                 @click.stop="setShowTopicSelectionPopup"
             >
-                {{ $t('choose_theme') }}
+                {{ i18n.t('choose_theme') }}
             </button>
             <MenuTopicSelectionPopup
                 v-if="showTopicSelectionPopup"
@@ -31,67 +85,6 @@
         />
     </MenuSection>
 </template>
-
-<script>
-import { mapActions, mapGetters, mapState } from 'vuex'
-
-import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
-import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
-
-const dispatcher = { dispatcher: 'MenuTopicSection.vue' }
-
-/** Menu section for topics, responsible to communicate user interactions on topics with the store */
-export default {
-    components: {
-        MenuTopicSelectionPopup,
-        LayerCatalogue,
-        MenuSection,
-    },
-    props: {
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['openMenuSection'],
-    expose: ['close'],
-    data() {
-        return {
-            showLayerInfoFor: null,
-            showTopicSelectionPopup: false,
-        }
-    },
-    computed: {
-        ...mapState({
-            currentTopic: (state) => state.topics.current,
-            currentTopicTree: (state) => state.topics.tree,
-            allTopics: (state) => state.topics.config,
-            openThemesIds: (state) => state.topics.openedTreeThemesIds,
-        }),
-        ...mapGetters(['getActiveLayerById', 'isDefaultTopic']),
-        showTopicTree() {
-            // We only want the topic tree open whenever the user has chosen a different topic
-            // than the default one (it can be opened by the user by a click on it, but by default it's closed)
-            // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
-            return !this.isDefaultTopic || this.openThemesIds.length > 0
-        },
-    },
-    methods: {
-        ...mapActions(['changeTopic']),
-        setShowTopicSelectionPopup() {
-            this.showTopicSelectionPopup = true
-        },
-        selectTopic(topic) {
-            this.changeTopic({ topicId: topic.id, ...dispatcher })
-            this.showTopicSelectionPopup = false
-        },
-        close() {
-            this.$refs.menuTopicSection.close()
-        },
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/modules/menu/scss/menu-items';
