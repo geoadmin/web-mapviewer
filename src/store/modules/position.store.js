@@ -265,12 +265,12 @@ const actions = {
     },
     increaseZoom: ({ dispatch, state }) =>
         dispatch('setZoom', {
-            zoom: Number(state.zoom) + 1,
+            zoom: state.projection.roundZoomLevel(state.zoom, true) + 1,
             dispatcher: 'position.store/increaseZoom',
         }),
     decreaseZoom: ({ dispatch, state }) =>
         dispatch('setZoom', {
-            zoom: Number(state.zoom) - 1,
+            zoom: state.projection.roundZoomLevel(state.zoom, true) - 1,
             dispatcher: 'position.store/decreaseZoom',
         }),
     /**
