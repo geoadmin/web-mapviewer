@@ -35,6 +35,7 @@ const showTopicTree = computed(() => {
     // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
     return !isDefaultTopic.value || openThemesIds.value.length > 0
 })
+const mapModuleReady = computed(() => store.state.app.isMapReady)
 
 function setShowTopicSelectionPopup() {
     showTopicSelectionPopup.value = true
@@ -78,7 +79,10 @@ defineExpose({ close })
                 @close="showTopicSelectionPopup = false"
             />
         </template>
+        <!-- The topic menu is very performance costly and should only be rendered once the
+             map has been rendered, otherwise it would slow down the application startup -->
         <LayerCatalogue
+            v-if="mapModuleReady"
             data-cy="menu-topic-tree"
             :layer-catalogue="currentTopicTree"
             :compact="compact"
