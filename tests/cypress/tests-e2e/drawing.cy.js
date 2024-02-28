@@ -71,15 +71,6 @@ describe('Drawing module tests', () => {
 
             cy.wait('@post-kml')
 
-            readCoordinateClipboard('feature-style-edit-coordinate-copy')
-            cy.log('Coordinates for marker can be copied in drawing mode')
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-            cy.get('[data-cy="menu-button"]').click()
-            cy.get('[data-cy="ol-map"]').click('center')
-            readCoordinateClipboard('feature-detail-coordinate-copy')
-            cy.log('Coordinates for marker can be copied while not in drawing mode')
-            cy.goToDrawing()
-
             // it should show the default icon set by default with the red color in the icon style popup
             cy.wait('@icon-default')
                 .its('request.url')
@@ -246,6 +237,17 @@ describe('Drawing module tests', () => {
                     })
                 })
             })
+
+            cy.get('[data-cy="drawing-style-delete-button"]').click({ force: true })
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]:visible').click()
+            readCoordinateClipboard('feature-style-edit-coordinate-copy')
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click('center')
+            readCoordinateClipboard('feature-detail-coordinate-copy')
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
         })
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
@@ -259,15 +261,6 @@ describe('Drawing module tests', () => {
                     new RegExp('<name>New text</name>'),
                 ])
             })
-
-            readCoordinateClipboard('feature-style-edit-coordinate-copy')
-            cy.log('Coordinates for marker can be copied in drawing mode')
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-            cy.get('[data-cy="menu-button"]').click()
-            cy.get('[data-cy="ol-map"]').click('center')
-            readCoordinateClipboard('feature-detail-coordinate-copy')
-            cy.log('Coordinates for marker can be copied while not in drawing mode')
-            cy.goToDrawing()
 
             testTitleEdit()
 
@@ -309,6 +302,17 @@ describe('Drawing module tests', () => {
                     new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                 ])
             })
+
+            cy.get('[data-cy="drawing-style-delete-button"]').click({ force: true })
+            cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+            cy.get('[data-cy="ol-map"]:visible').click()
+            readCoordinateClipboard('feature-style-edit-coordinate-copy')
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click('center')
+            readCoordinateClipboard('feature-detail-coordinate-copy')
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
