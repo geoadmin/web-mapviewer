@@ -22,7 +22,7 @@ export default class GeoAdminGroupOfLayers extends GeoAdminLayer {
      * @param {GeoAdminLayer[]} layers Description of the layers being part of this group
      */
     constructor(id, name, layers) {
-        super(name, LayerTypes.GROUP, id, id)
+        super({ name, type: LayerTypes.GROUP, geoAdminId: id, serverLayerId: id })
         this.layers = [...layers]
     }
 

@@ -18,7 +18,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
      * @param {boolean} visible If the layer should be shown on the map
      * @param {String} baseURL Base URL to build WMS requests (no endpoint / URL param defined)
-     * @param {String} layerId Layer ID to use when requesting the tiles on the server
+     * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
      * @param {String} wmsVersion WMS protocol version to be used when querying this server, default
      *   is 1.3.0
      * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
@@ -30,24 +30,24 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
-    constructor(
-        name,
-        opacity,
-        visible,
-        baseURL,
-        layerId,
+    constructor({
+        name = null,
+        opacity = 1.0,
+        visible = true,
+        baseURL = null,
+        externalLayerId = null,
         attributions = null,
         wmsVersion = '1.3.0',
         format = 'png',
         abstract = '',
         extent = null,
         legends = [],
-        isLoading = true
-    ) {
-        super(
+        isLoading = true,
+    }) {
+        super({
             name,
-            LayerTypes.WMS,
-            layerId,
+            type: LayerTypes.WMS,
+            externalLayerId,
             baseURL,
             opacity,
             visible,
@@ -55,8 +55,8 @@ export default class ExternalWMSLayer extends ExternalLayer {
             abstract,
             extent,
             legends,
-            isLoading
-        )
+            isLoading,
+        })
         this.wmsVersion = wmsVersion
         this.format = format
     }

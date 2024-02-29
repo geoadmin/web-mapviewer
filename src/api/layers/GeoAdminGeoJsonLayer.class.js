@@ -22,15 +22,35 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      * @param geoJsonUrl The URL to use when requesting the GeoJSON data (the true GeoJSON per
      *   se...)
      * @param styleUrl The URL to use to request the styling to apply to the data
+     * @param {Number | null} updateDelay Delay after which the data of this layer should be
+     *   re-requested (if null is given, no further data reload will be triggered)
      */
-    constructor(name, id, opacity, visible, attributions, geoJsonUrl, styleUrl) {
-        super(name, LayerTypes.GEOJSON, id, id, opacity, visible, attributions)
+    constructor({
+        name = null,
+        id = null,
+        opacity = 1.0,
+        visible = true,
+        attributions = [],
+        geoJsonUrl = null,
+        styleUrl = null,
+        updateDelay = null,
+    }) {
+        super({
+            name,
+            type: LayerTypes.GEOJSON,
+            geoAdminId: id,
+            serverLayerId: id,
+            opacity,
+            visible,
+            attributions,
+            isLoading: true,
+        })
         this.geoJsonUrl = geoJsonUrl
         this.styleUrl = styleUrl
 
-        this.isLoading = true
         this.geoJsonData = null
         this.geoJsonStyle = null
+        this.updateDelay = updateDelay
     }
 
     getURL(_epsgNumber, _timestamp) {

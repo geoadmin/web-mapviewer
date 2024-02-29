@@ -24,16 +24,18 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
      *   the S3 bucket
      */
     constructor(layerId, urlTimestampToUse = null, use3dTileSubFolder = true) {
-        super(
-            layerId,
-            LayerTypes.VECTOR,
-            layerId,
-            layerId,
-            1.0,
-            true,
-            [new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html')],
-            false
-        )
+        super({
+            name: layerId,
+            type: LayerTypes.VECTOR,
+            serverLayerId: layerId,
+            geoAdminId: layerId,
+            opacity: 1.0,
+            visible: true,
+            attributions: [
+                new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),
+            ],
+            hasTooltip: false,
+        })
         this.use3dTileSubFolder = use3dTileSubFolder
         this.urlTimestampToUse = urlTimestampToUse
     }
@@ -47,6 +49,6 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
         if (this.urlTimestampToUse) {
             timeFolder = `/${this.urlTimestampToUse}`
         }
-        return `${BASE_URL_3D_TILES}${rootFolder}${this.geoAdminID}${timeFolder}/tileset.json`
+        return `${BASE_URL_3D_TILES}${rootFolder}${this.geoAdminId}${timeFolder}/tileset.json`
     }
 }

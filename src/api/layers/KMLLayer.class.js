@@ -28,26 +28,25 @@ export default class KMLLayer extends AbstractLayer {
      * @param {object | null} [kmlMetadata=null] Metadata of the KML drawing. This object contains
      *   all the metadata returned by the backend. Default is `null`
      */
-    constructor(
-        kmlFileUrl,
-        visible = null,
-        opacity = null,
+    constructor({
+        kmlFileUrl = null,
+        visible = true,
+        opacity = 1.0,
         adminId = null,
         kmlData = null,
-        kmlMetadata = null
-    ) {
+        kmlMetadata = null,
+    }) {
         const isLocalFile = !kmlFileUrl.startsWith('http')
         const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
         const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
-        super(
-            'KML',
-            LayerTypes.KML,
-            opacity ?? 1.0,
-            visible ?? true,
-            [new LayerAttribution(attributionName)],
-            false,
-            isExternal
-        )
+        super({
+            name: 'KML',
+            type: LayerTypes.KML,
+            opacity: opacity ?? 1.0,
+            visible: visible ?? true,
+            attributions: [new LayerAttribution(attributionName)],
+            isExternal,
+        })
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
         this.fileId = null

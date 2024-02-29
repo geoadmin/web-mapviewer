@@ -16,7 +16,7 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
      * @param {String} name Layer name (internationalized)
-     * @param {String} id Unique layer ID
+     * @param {String} geoAdminId Unique layer ID
      * @param {String} serverLayerId ID to be used in our backend (can be different from the id)
      * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
      * @param {boolean} visible If the layer should be shown on the map
@@ -34,10 +34,10 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
      * @param {String[]} topics All the topics in which belongs this layer
      */
-    constructor(
-        name = '',
-        id = '',
-        serverLayerId = '',
+    constructor({
+        name = null,
+        geoAdminId = null,
+        serverLayerId = null,
         opacity = 1.0,
         visible = false,
         attributions = [],
@@ -47,12 +47,12 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
         baseURL = null,
         isHighlightable = false,
         hasTooltip = false,
-        topics = []
-    ) {
-        super(
+        topics = [],
+    }) {
+        super({
             name,
-            LayerTypes.WMTS,
-            id,
+            type: LayerTypes.WMTS,
+            geoAdminId,
             serverLayerId,
             opacity,
             visible,
@@ -61,8 +61,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             baseURL,
             isHighlightable,
             hasTooltip,
-            topics
-        )
+            topics,
+        })
         this.format = format
         this.timeConfig = timeConfig
         this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1

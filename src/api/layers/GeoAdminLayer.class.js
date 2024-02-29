@@ -17,10 +17,10 @@ export default class GeoAdminLayer extends AbstractLayer {
     /**
      * @param {String} name Name of this layer in the current lang
      * @param {LayerTypes} type See {@link LayerTypes}
-     * @param {String} geoAdminID The unique ID of this layer that will be used to identify this
+     * @param {String} geoAdminId The unique ID of this layer that will be used to identify this
      *   layer
      * @param {String} serverLayerId The ID to use when requesting the WMS/WMTS backend, this might
-     *   be different than geoAdminID, and many layers (with different geoAdminID) can in fact
+     *   be different than geoAdminId, and many layers (with different geoAdminId) can in fact
      *   request the same serverLayerId in the end)
      * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
      *   shown on the map
@@ -41,11 +41,13 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   trailing slash. It might be sometime the case that this is unwanted (i.e. for an external
      *   WMS URL already built past the point of URL params, a trailing slash would render this URL
      *   invalid)
+     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
+     *   loading
      */
-    constructor(
+    constructor({
         name = '',
         type = null,
-        geoAdminID = '',
+        geoAdminId = '',
         serverLayerId = '',
         opacity = 1.0,
         visible = false,
@@ -55,10 +57,11 @@ export default class GeoAdminLayer extends AbstractLayer {
         isHighlightable = false,
         hasTooltip = false,
         topics = [],
-        ensureTrailingSlashInBaseUrl = true
-    ) {
-        super(name, type, opacity, visible, attributions, hasTooltip, false)
-        this.geoAdminID = geoAdminID
+        ensureTrailingSlashInBaseUrl = true,
+        isLoading = false,
+    }) {
+        super({ name, type, opacity, visible, attributions, hasTooltip, isLoading })
+        this.geoAdminId = geoAdminId
         this.serverLayerId = serverLayerId
         this.isBackground = isBackground
         this.baseURL = baseURL
@@ -67,11 +70,11 @@ export default class GeoAdminLayer extends AbstractLayer {
         }
         this.isHighlightable = isHighlightable
         this.topics = topics
-        this.isSpecificFor3D = geoAdminID.toLowerCase().endsWith('_3d')
+        this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
     }
 
     getID() {
-        return this.geoAdminID
+        return this.geoAdminId
     }
 
     /**

@@ -23,7 +23,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
      * @param {boolean} visible If the layer should be shown on the map
      * @param {String} baseUrl GetCapabilities base URL
-     * @param {String} layerId Layer ID of the group to be found in GetCapabilities
+     * @param {String} externalLayerId Layer ID of the group to be found in GetCapabilities
      * @param {ExternalLayer[]} layers Description of the layers being part of this group (they will
      *   all be displayed at the same time, in contrast to an aggregate layer)
      * @param {String} abstract Abstract of this layer to be shown to the user
@@ -35,23 +35,23 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
-    constructor(
-        name,
-        opacity,
-        visible,
-        baseUrl,
-        layerId,
+    constructor({
+        name = null,
+        opacity = 1.0,
+        visible = true,
+        baseUrl = null,
+        externalLayerId = null,
         layers = [],
         attributions = null,
         abstract = '',
         extent = null,
         legends = [],
-        isLoading = true
-    ) {
-        super(
+        isLoading = true,
+    }) {
+        super({
             name,
-            LayerTypes.GROUP,
-            layerId,
+            type: LayerTypes.GROUP,
+            externalLayerId,
             baseUrl,
             opacity,
             visible,
@@ -59,8 +59,8 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             abstract,
             extent,
             legends,
-            isLoading
-        )
+            isLoading,
+        })
         this.layers = [...layers]
     }
 

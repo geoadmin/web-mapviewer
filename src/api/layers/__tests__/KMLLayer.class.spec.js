@@ -7,7 +7,7 @@ describe('KMLLayer', () => {
     it('should create a KMLlayer instance with default values', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
-        const layer = new KMLLayer(kmlFileUrl)
+        const layer = new KMLLayer({ kmlFileUrl })
         expect(layer.kmlFileUrl).toBe(kmlFileUrl)
         expect(layer.visible).to.be.true
         expect(layer.opacity).toBe(1.0)
@@ -31,7 +31,11 @@ describe('KMLLayer', () => {
 
         const customOpacity = 0.8
         const customVisible = false
-        const kmlLayer = new KMLLayer(kmlFileUrl, customVisible, customOpacity)
+        const kmlLayer = new KMLLayer({
+            kmlFileUrl,
+            visible: customVisible,
+            opacity: customOpacity,
+        })
 
         expect(kmlLayer.opacity).toBe(customOpacity)
         expect(kmlLayer.visible).toBe(customVisible)
@@ -40,7 +44,7 @@ describe('KMLLayer', () => {
     it('should have correct ID format', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
-        const kmlLayer = new KMLLayer(kmlFileUrl)
+        const kmlLayer = new KMLLayer({ kmlFileUrl })
         const expectedID = `KML|${kmlFileUrl}`
         expect(kmlLayer.getID()).toBe(expectedID)
     })
@@ -48,11 +52,17 @@ describe('KMLLayer', () => {
     it('should identify legacy KML', () => {
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
-        const legacyKMLLayer = new KMLLayer(kmlFileUrl, null, null, null, null, {
-            author: 'legacy-author',
+        const legacyKMLLayer = new KMLLayer({
+            kmlFileUrl,
+            kmlMetadata: {
+                author: 'legacy-author',
+            },
         })
-        const modernKMLLayer = new KMLLayer(kmlFileUrl, null, null, null, null, {
-            author: 'web-mapviewer',
+        const modernKMLLayer = new KMLLayer({
+            kmlFileUrl,
+            kmlMetadata: {
+                author: 'web-mapviewer',
+            },
         })
 
         expect(legacyKMLLayer.isLegacy()).toBe(true)
@@ -63,7 +73,12 @@ describe('KMLLayer', () => {
         const mockKmlMetadata = { author: 'web-mapviewer', otherInfo: 'additional metadata' }
         const fileId = '-uQyFMtTSCWC_9rZE3EJ6B'
         const kmlFileUrl = `https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`
-        const originalKMLLayer = new KMLLayer(kmlFileUrl, false, 0.8, null, null, mockKmlMetadata)
+        const originalKMLLayer = new KMLLayer({
+            kmlFileUrl,
+            visible: false,
+            opacity: 0.8,
+            kmlMetadata: mockKmlMetadata,
+        })
         const clonedKMLLayer = originalKMLLayer.clone()
 
         expect(clonedKMLLayer).not.toBe(originalKMLLayer) // Different instances
@@ -81,13 +96,12 @@ describe('KMLLayer', () => {
     it('should create a KMLLayer instance with local file name', () => {
         const localKMLFile = 'local-file.kml'
         const kmlName = 'Test KML'
-        const kmlLayer = new KMLLayer(
-            localKMLFile,
-            false,
-            0.5,
-            null,
-            `<kml><Document><name>${kmlName}</name></Document></kml>`
-        )
+        const kmlLayer = new KMLLayer({
+            kmlFileUrl: localKMLFile,
+            visible: false,
+            opacity: 0.5,
+            kmlData: `<kml><Document><name>${kmlName}</name></Document></kml>`,
+        })
 
         expect(kmlLayer).toBeInstanceOf(KMLLayer)
         expect(kmlLayer.name).toBe(kmlName)

@@ -61,14 +61,14 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             if (!activeKmlLayer.value?.adminId) {
                 // creation of the new KML (copy or new)
                 const kmlMetadata = await createKml(kmlData)
-                const kmlLayer = new KMLLayer(
-                    getKmlUrl(kmlMetadata.id),
-                    true, // visible
-                    activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
-                    kmlMetadata.adminId,
-                    kmlData,
-                    kmlMetadata
-                )
+                const kmlLayer = new KMLLayer({
+                    kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                    visible: true,
+                    opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
+                    adminId: kmlMetadata.adminId,
+                    kmlData: kmlData,
+                    kmlMetadata: kmlMetadata,
+                })
                 // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
                 // Meaning we must remove the old one from the layers; it will otherwise be there twice
                 // (once the pristine "old" KML, and once the new copy)

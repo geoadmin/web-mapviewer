@@ -132,34 +132,34 @@ export default class WMSCapabilitiesParser {
                     ignoreError
                 )
             ).filter((layer) => !!layer)
-            return new ExternalGroupOfLayers(
-                title,
+            return new ExternalGroupOfLayers({
+                name: title,
                 opacity,
                 visible,
-                url,
-                layerId,
+                baseUrl: url,
+                externalLayerId: layerId,
                 layers,
                 attributions,
                 abstract,
                 extent,
                 legends,
-                false
-            )
+                isLoading: false,
+            })
         }
-        return new ExternalWMSLayer(
-            title,
+        return new ExternalWMSLayer({
+            name: title,
             opacity,
             visible,
-            url,
-            layerId,
+            baseURL: url,
+            externalLayerId: layerId,
             attributions,
-            version,
-            'png',
+            wmsVersion: version,
+            format: 'png',
             abstract,
             extent,
             legends,
-            false
-        )
+            isLoading: false,
+        })
     }
 
     _getLayerAttributes(layer, parents, projection, ignoreError = true) {
@@ -194,7 +194,7 @@ export default class WMSCapabilitiesParser {
         }
 
         return {
-            layerId: layerId,
+            layerId,
             title: layer.Title,
             url:
                 this.Capability?.Request?.GetMap?.DCPType[0]?.HTTP?.Get?.OnlineResource ||
