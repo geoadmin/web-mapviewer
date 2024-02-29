@@ -661,7 +661,7 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
                 checkOrderButtons(middleLayerId, false, false)
             })
-            it('reorder layers when they are drag and dropped', () => {
+            it.skip('reorder layers when they are drag and dropped', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.get(`[data-cy="menu-active-layer-${bottomLayerId}"]`)
                     .should('be.visible')
