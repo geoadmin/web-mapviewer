@@ -158,7 +158,6 @@ function urlQueryWatcher(store, to) {
                 )
                 delete newQuery[paramConfig.urlParamName]
             }
-            store.state.app.isReady
             requireQueryUpdate = true
         }
     })

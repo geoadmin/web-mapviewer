@@ -269,7 +269,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                     expect(isLegacyParams('/?test=true')).to.equal(true)
                     expect(isLegacyParams('/?test')).to.equal(true)
                 })
-                it("Makes sure the isLegacyParams function don' matche new URL", () => {
+                it("Makes sure the isLegacyParams function don't match new URL", () => {
                     expect(isLegacyParams(undefined)).to.equal(false)
                     expect(isLegacyParams(null)).to.equal(false)
                     expect(isLegacyParams('')).to.equal(false)
