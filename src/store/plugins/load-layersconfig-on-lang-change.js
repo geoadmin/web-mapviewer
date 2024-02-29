@@ -45,21 +45,20 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
         if (swissimage) {
             layersConfig.push(
-                new GeoAdminWMTSLayer(
-                    swissimage.name,
-                    `${swissimage.getID()}_3d`,
-                    swissimage.serverLayerId,
-                    1.0,
-                    false,
-                    swissimage.attributions,
-                    swissimage.format,
-                    swissimage.timeConfig,
-                    true,
-                    swissimage.baseURL,
-                    false,
-                    false,
-                    swissimage.topics
-                )
+                new GeoAdminWMTSLayer({
+                    name: swissimage.name,
+                    geoAdminId: `${swissimage.getID()}_3d`,
+                    serverLayerId: swissimage.serverLayerId,
+                    visible: false,
+                    attributions: swissimage.attributions,
+                    format: swissimage.format,
+                    timeConfig: swissimage.timeConfig,
+                    isBackground: true,
+                    baseURL: swissimage.baseURL,
+                    hasTooltip: false,
+                    isHighlightable: false,
+                    topics: swissimage.topics,
+                })
             )
         }
 

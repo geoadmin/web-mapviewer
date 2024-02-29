@@ -68,51 +68,52 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                 log.info('Vector layer format is TBD in our backends')
                 break
             case 'wmts':
-                layer = new GeoAdminWMTSLayer(
+                layer = new GeoAdminWMTSLayer({
                     name,
-                    id,
-                    serverLayerName,
+                    geoAdminId: id,
+                    serverLayerId: serverLayerName,
                     opacity,
-                    false,
+                    visible: false,
                     attributions,
                     format,
                     timeConfig,
-                    !!background,
-                    WMTS_BASE_URL,
+                    isBackground: !!background,
+                    baseURL: WMTS_BASE_URL,
                     isHighlightable,
                     hasTooltip,
-                    topics
-                )
+                    topics,
+                })
                 break
             case 'wms':
-                layer = new GeoAdminWMSLayer(
+                layer = new GeoAdminWMSLayer({
                     name,
-                    id,
-                    serverLayerName,
+                    geoAdminId: id,
+                    serverLayerId: serverLayerName,
                     opacity,
-                    false,
+                    visible: false,
                     attributions,
-                    layerConfig.wmsUrl,
+                    baseURL: layerConfig.wmsUrl,
                     format,
                     timeConfig,
-                    '1.3.0',
+                    wmsVersion: '1.3.0',
                     lang,
-                    layerConfig.gutter,
+                    gutter: layerConfig.gutter,
                     isHighlightable,
                     hasTooltip,
-                    topics
-                )
+                    topics,
+                })
                 break
             case 'geojson':
-                layer = new GeoAdminGeoJsonLayer(
+                layer = new GeoAdminGeoJsonLayer({
                     name,
                     id,
                     opacity,
-                    false,
+                    visible: false,
                     attributions,
-                    layerConfig.geojsonUrl,
-                    layerConfig.styleUrl
-                )
+                    geoJsonUrl: layerConfig.geojsonUrl,
+                    styleUrl: layerConfig.styleUrl,
+                    updateDelay: layerConfig.updateDelay,
+                })
                 break
             case 'aggregate': {
                 // here it's a bit tricky, the aggregate layer has a main entry in the layers config (with everything as usual)
@@ -158,17 +159,17 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                         )
                     }
                 })
-                layer = new GeoAdminAggregateLayer(
+                layer = new GeoAdminAggregateLayer({
                     name,
                     id,
                     opacity,
-                    false,
+                    visible: false,
                     attributions,
                     timeConfig,
                     isHighlightable,
                     hasTooltip,
-                    topics
-                )
+                    topics,
+                })
 
                 break
             }

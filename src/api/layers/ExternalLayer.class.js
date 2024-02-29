@@ -8,7 +8,10 @@ import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
  * @returns {LayerAttribution[]} Default list of layer attributions
  */
 export function getDefaultAttribution(baseUrl) {
-    return [new LayerAttribution(new URL(baseUrl).hostname)]
+    if (baseUrl) {
+        return [new LayerAttribution(new URL(baseUrl).hostname)]
+    }
+    return []
 }
 
 /**
@@ -69,34 +72,34 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
-    constructor(
-        name,
-        layerType,
-        externalLayerId,
-        baseURL,
-        opacity,
-        visible,
+    constructor({
+        name = null,
+        layerType = null,
+        externalLayerId = null,
+        baseURL = null,
+        opacity = 1.0,
+        visible = true,
         attributions = null,
         abstract = '',
         extent = null,
         legends = [],
-        isLoading = true
-    ) {
-        super(
+        isLoading = true,
+    }) {
+        super({
             name,
             layerType,
             opacity,
             visible,
-            attributions || getDefaultAttribution(baseURL),
-            false,
-            true
-        )
+            attributions: attributions || getDefaultAttribution(baseURL),
+            hasTooltip: false,
+            isExternal: true,
+            isLoading,
+        })
         this.externalLayerId = externalLayerId
         this.baseURL = baseURL
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
-        this.isLoading = isLoading
         this.hasLegend = !!this.abstract || this.legends?.length > 0
     }
 

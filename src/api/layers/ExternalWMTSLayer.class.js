@@ -29,21 +29,21 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
-    constructor(
-        name,
-        opacity,
-        visible,
-        baseURL,
-        externalLayerId,
+    constructor({
+        name = null,
+        opacity = 1.0,
+        visible = true,
+        baseURL = null,
+        externalLayerId = null,
         attributions = null,
         abstract = '',
         extent = null,
         legends = [],
-        isLoading = true
-    ) {
-        super(
+        isLoading = true,
+    }) {
+        super({
             name,
-            LayerTypes.WMTS,
+            type: LayerTypes.WMTS,
             externalLayerId,
             baseURL,
             opacity,
@@ -52,8 +52,8 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             abstract,
             extent,
             legends,
-            isLoading
-        )
+            isLoading,
+        })
     }
 
     getID() {

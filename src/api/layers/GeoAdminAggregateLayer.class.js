@@ -70,33 +70,31 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
      * @param {String[]} topics All the topics in which belongs this layer
      * @param {[AggregateSubLayer]} subLayers
      */
-    constructor(
-        name,
-        id,
-        opacity,
-        visible,
-        attributions,
-        timeConfig,
+    constructor({
+        name = null,
+        id = null,
+        opacity = 1.0,
+        visible = true,
+        attributions = [],
+        timeConfig = null,
         isHighlightable = false,
         hasTooltip = false,
         topics = [],
-        subLayers = []
-    ) {
-        super(
+        subLayers = [],
+    }) {
+        super({
             name,
-            LayerTypes.AGGREGATE,
-            id,
+            type: LayerTypes.AGGREGATE,
+            geoAdminId: id,
             // no serverLayerId for aggregate, as they are made of 2 layers
-            null,
+            serverLayerId: null,
             opacity,
             visible,
             attributions,
-            false,
-            null,
             isHighlightable,
             hasTooltip,
-            topics
-        )
+            topics,
+        })
         this.timeConfig = timeConfig
         this.subLayers = subLayers
     }

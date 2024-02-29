@@ -13,18 +13,18 @@ export default class GPXLayer extends AbstractLayer {
      * @param {object | null} [gpxMetadata=null] Metadata of the GPX file. This object contains all
      *   the metadata found in the file itself within the <metadata> tag. Default is `null`
      */
-    constructor(gpxFileUrl, visible = null, opacity = null, gpxData = null, gpxMetadata = null) {
+    constructor({ gpxFileUrl, visible = true, opacity = 1.0, gpxData = null, gpxMetadata = null }) {
         const isLocalFile = !gpxFileUrl.startsWith('http')
         const attributionName = isLocalFile ? gpxFileUrl : new URL(gpxFileUrl).hostname
-        super(
-            gpxMetadata?.name ?? 'GPX',
-            LayerTypes.GPX,
-            opacity ?? 1.0,
-            visible ?? true,
-            [new LayerAttribution(attributionName)],
-            false, //hasTooltip
-            true // isExternal
-        )
+        super({
+            name: gpxMetadata?.name ?? 'GPX',
+            type: LayerTypes.GPX,
+            opacity: opacity ?? 1.0,
+            visible: visible ?? true,
+            attributions: [new LayerAttribution(attributionName)],
+            hasTooltip: false,
+            isExternal: true,
+        })
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
         this.gpxMetadata = gpxMetadata

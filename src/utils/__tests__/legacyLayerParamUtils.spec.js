@@ -17,32 +17,29 @@ import {
 describe('Test parsing of legacy URL param into new params', () => {
     describe('test getLayersFromLegacyUrlParams', () => {
         const fakeLayerConfig = [
-            new GeoAdminWMSLayer(
-                'Test layer WMS',
-                'test.wms.layer',
-                'test.wms.layer',
-                0.8,
-                true,
-                [new LayerAttribution('attribution.test.wms.layer')],
-                'https://base-url/',
-                'png',
-                new LayerTimeConfig()
-            ),
-            new GeoAdminWMTSLayer('Test layer WMTS', 'test.wmts.layer'),
-            new GeoAdminWMTSLayer(
-                'Test timed layer WMTS',
-                'test.timed.wmts.layer',
-                'test.timed.wmts.layer',
-                0.8,
-                true,
-                [new LayerAttribution('attribution.test.timed.wmts.layer')],
-                'png',
-                new LayerTimeConfig('123', [
+            new GeoAdminWMSLayer({
+                name: 'Test layer WMS',
+                geoAdminId: 'test.wms.layer',
+                serverLayerId: 'test.wms.layer',
+                opacity: 0.8,
+                attributions: [new LayerAttribution('attribution.test.wms.layer')],
+                baseURL: 'https://base-url/',
+                format: 'png',
+                timeConfig: new LayerTimeConfig(),
+            }),
+            new GeoAdminWMTSLayer({ name: 'Test layer WMTS', geoAdminId: 'test.wmts.layer' }),
+            new GeoAdminWMTSLayer({
+                name: 'Test timed layer WMTS',
+                serverLayerId: 'test.timed.wmts.layer',
+                geoAdminId: 'test.timed.wmts.layer',
+                opacity: 0.8,
+                attributions: [new LayerAttribution('attribution.test.timed.wmts.layer')],
+                timeConfig: new LayerTimeConfig('123', [
                     new LayerTimeConfigEntry('123'),
                     new LayerTimeConfigEntry('456'),
                     new LayerTimeConfigEntry('789'),
-                ])
-            ),
+                ]),
+            }),
         ]
         it('Parses layers IDs and pass them along', () => {
             const result = getLayersFromLegacyUrlParams(

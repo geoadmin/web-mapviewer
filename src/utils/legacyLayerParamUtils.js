@@ -89,19 +89,24 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer(url, true /* visible */)
+            layer = new KMLLayer({ kmlFileUrl: url, visible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
-                layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
+                layer = new ExternalWMTSLayer({ name: id, baseURL: url, externalLayerId: id })
             }
         }
         if (layerId.startsWith('WMS||')) {
             const [_layerType, name, url, id, version] = layerId.split('||')
             // we only decode if we have enough material
             if (url && id) {
-                layer = new ExternalWMSLayer(name ? name : id, 1.0, true, url, id, null, version)
+                layer = new ExternalWMSLayer({
+                    name: name ? name : id,
+                    baseURL: url,
+                    externalLayerId: id,
+                    wmsVersion: version,
+                })
             }
         }
         if (layer) {
@@ -162,12 +167,10 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     const kmlMetaData = await getKmlMetadataByAdminId(adminId)
 
-    return new KMLLayer(
-        kmlMetaData.links.kml,
-        true, // visible
-        null, // opacity, null := use default
-        kmlMetaData.adminId,
-        null, // kml data
-        kmlMetaData
-    )
+    return new KMLLayer({
+        name: kmlMetaData.links.kml,
+        visible: true,
+        adminId: kmlMetaData.adminId,
+        kmlMetaData,
+    })
 }

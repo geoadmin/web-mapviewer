@@ -17,7 +17,7 @@ import { WMS_BASE_URL } from '@/config'
 export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * @param {String} name The name of this layer (lang specific)
-     * @param {String} id The unique ID of this layer
+     * @param {String} geoAdminId The unique ID of this layer
      * @param {String} serverLayerId The ID of this layer in the GeoAdmin backends (can be the same,
      *   or different from the id)
      * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
@@ -39,39 +39,43 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      * @param {String[]} topics All the topics in which belongs this layer
      * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this
      *   layer
+     * @param {Number | null} updateDelay Delay after which the data of this layer should be
+     *   re-requested (if null is given, no reload will be triggered)
      */
-    constructor(
-        name,
-        id,
-        serverLayerId,
-        opacity,
-        visible,
-        attributions,
-        baseURL,
-        format,
-        timeConfig,
+    constructor({
+        name = null,
+        geoAdminId = null,
+        serverLayerId = null,
+        opacity = 1.0,
+        visible = true,
+        attributions = [],
+        baseURL = null,
+        format = null,
+        timeConfig = null,
         wmsVersion = '1.3.0',
         lang = 'en',
         gutter = -1,
         isHighlightable = false,
         hasTooltip = false,
-        topics = []
-    ) {
-        super(
+        topics = [],
+        updateDelay = null,
+    }) {
+        super({
             name,
-            LayerTypes.WMS,
-            id,
+            type: LayerTypes.WMS,
+            geoAdminId,
             serverLayerId,
             opacity,
             visible,
             attributions,
-            false,
             baseURL,
             isHighlightable,
             hasTooltip,
             topics,
-            false // for WMS we do not want a trailing slash in the base URL in case the URL is already defined past the ? portion
-        )
+            // for WMS we do not want a trailing slash in the base URL in case the URL is already defined past the ? portion
+            ensureTrailingSlashInBaseUrl: false,
+            updateDelay,
+        })
         this.format = format
         this.timeConfig = timeConfig
         this.lang = lang

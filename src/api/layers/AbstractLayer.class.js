@@ -54,7 +54,7 @@ export default class AbstractLayer {
      * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
      *   loading
      */
-    constructor(
+    constructor({
         name = '',
         type = null,
         opacity = 1.0,
@@ -62,8 +62,8 @@ export default class AbstractLayer {
         attributions = [],
         hasTooltip = false,
         isExternal = false,
-        isLoading = false
-    ) {
+        isLoading = false,
+    }) {
         this.name = name
         this.type = type
         this.opacity = opacity

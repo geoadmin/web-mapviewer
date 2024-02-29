@@ -89,7 +89,7 @@ export default {
                     url: url,
                     parameters: this.wmsUrlParams,
                     subdomains: '0123',
-                    layers: this.wmsLayerConfig.geoAdminID,
+                    layers: this.wmsLayerConfig.geoAdminId,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
                     rectangle: Rectangle.fromDegrees(
                         ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten

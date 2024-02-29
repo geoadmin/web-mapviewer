@@ -9,29 +9,27 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import store from '@/store'
 
-const bgLayer = new GeoAdminWMTSLayer(
-    'background',
-    'bg.layer',
-    'bg.layer',
-    1.0,
-    true,
-    [],
-    'jpeg',
-    null,
-    true
-)
-const firstLayer = new GeoAdminWMTSLayer('First layer', 'first.layer', 1.0, 'first.layer', true, [])
-const secondLayer = new GeoAdminWMSLayer(
-    'Second layer',
-    'second.layer',
-    'second.layer',
-    1.0,
-    true,
-    [],
-    '',
-    'png',
-    new LayerTimeConfig()
-)
+const bgLayer = new GeoAdminWMTSLayer({
+    name: 'background',
+    geoAdminId: 'bg.layer',
+    serverLayerId: 'bg.layer',
+    visible: true,
+    format: 'jpeg',
+    isBackground: true,
+})
+const firstLayer = new GeoAdminWMTSLayer({
+    name: 'First layer',
+    geoAdminId: 'first.layer',
+    serverLayerId: 'first.layer',
+    visible: true,
+})
+const secondLayer = new GeoAdminWMSLayer({
+    name: 'Second layer',
+    geoAdminId: 'second.layer',
+    serverLayerId: 'second.layer',
+    visible: true,
+    timeConfig: new LayerTimeConfig(),
+})
 
 const resetStore = async () => {
     await store.dispatch('clearLayers', { dispatcher: 'unit-test' })
@@ -188,22 +186,20 @@ describe('Layer z-index are calculated correctly in the store', () => {
     })
 
     it('counts a group layers correctly', async () => {
-        const groupLayer = new ExternalGroupOfLayers(
-            'group',
-            1.0,
-            true,
-            'https://wms.com',
-            'group',
-            [
-                new ExternalWMSLayer('Layer 1', 1.0, true, '...', 'layer1', [], ''),
-                new ExternalWMSLayer('Layer 2', 1.0, true, '...', 'layer2', [], ''),
-                new ExternalWMSLayer('Layer 3', 1.0, true, '...', 'layer3', [], ''),
-                new ExternalWMSLayer('Layer 4', 1.0, true, '...', 'layer4', [], ''),
-            ]
-        )
-        store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
-        store.dispatch('addLayer', { layer: groupLayer, dispatcher: 'unit-test' })
-        store.dispatch('addLayer', { layer: secondLayer, dispatcher: 'unit-test' })
+        const groupLayer = new ExternalGroupOfLayers({
+            name: 'group',
+            baseUrl: 'https://wms.com',
+            externalLayerId: 'group',
+            layers: [
+                new ExternalWMSLayer({ name: 'Layer 1', externalLayerId: 'layer1' }),
+                new ExternalWMSLayer({ name: 'Layer 2', externalLayerId: 'layer2' }),
+                new ExternalWMSLayer({ name: 'Layer 3', externalLayerId: 'layer3' }),
+                new ExternalWMSLayer({ name: 'Layer 4', externalLayerId: 'layer4' }),
+            ],
+        })
+        await store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
+        await store.dispatch('addLayer', { layer: groupLayer, dispatcher: 'unit-test' })
+        await store.dispatch('addLayer', { layer: secondLayer, dispatcher: 'unit-test' })
         expect(getZIndex(firstLayer)).to.eq(1)
         expect(getZIndex(groupLayer)).to.eq(2)
         expect(getZIndex(secondLayer)).to.eq(6)

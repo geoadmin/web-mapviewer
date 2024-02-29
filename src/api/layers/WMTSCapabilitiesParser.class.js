@@ -102,18 +102,18 @@ export default class WMTSCapabilitiesParser {
             return null
         }
 
-        return new ExternalWMTSLayer(
-            attributes.title,
+        return new ExternalWMTSLayer({
+            name: attributes.title,
             opacity,
             visible,
-            attributes.url,
-            attributes.layerId,
-            attributes.attributions,
-            attributes.abstract,
-            attributes.extent,
-            attributes.legends,
-            false
-        )
+            baseURL: attributes.url,
+            externalLayerId: attributes.layerId,
+            attributions: attributes.attributions,
+            abstract: attributes.abstract,
+            extent: attributes.extent,
+            legends: attributes.legends,
+            isLoading: false,
+        })
     }
 
     _getLayerAttributes(layer, projection, ignoreError = true) {
@@ -137,7 +137,7 @@ export default class WMTSCapabilitiesParser {
             this.originUrl.toString()
 
         return {
-            layerId: layerId,
+            layerId,
             title: title,
             url: getCapUrl,
             version: this.version,
