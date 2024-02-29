@@ -39,15 +39,26 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  * Parse layers such as described in
  * https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md#layerid
  *
- * @param {ActiveLayerConfig} parsedLayer
+ * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
+ * @param {AbstractLayer | null} currentLayer Current layer if it is found in active layers
  * @returns {KMLLayer | ExternalWMTSLayer | ExternalWMSLayer | null} Will return an instance of the
  *   corresponding layer if the given layer is an external one, otherwise returns `null`
  */
-export function createLayerObject(parsedLayer) {
+export function createLayerObject(parsedLayer, currentLayer) {
     let layer = parsedLayer
     const [layerType, url, id] = parsedLayer.id.split('|')
-    // format is KML|FILE_URL
-    if (layerType === 'KML') {
+    if (['KML', 'GPX', 'WMTS', 'WMS'].includes(layerType) && currentLayer) {
+        // the layer is already present in the active layers, so simply update it instead of
+        // replacing it. This allow to avoid reloading the data of the layer (e.g. KML name, external
+        // layer display name) when using the browser history navigation.
+        layer = currentLayer.clone()
+        layer.visible = parsedLayer.visible
+        layer.opacity = parsedLayer.opacity
+        if (parsedLayer.customAttributes?.adminId) {
+            layer.adminId = parsedLayer.customAttributes.adminId
+        }
+    } else if (layerType === 'KML') {
+        // format is KML|FILE_URL
         if (url.startsWith('http')) {
             layer = new KMLLayer(
                 url,
@@ -93,7 +104,9 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
     )
 
     const layers = parsedLayers.map((parsedLayer) => {
-        const layerObject = createLayerObject(parsedLayer)
+        // First check if we already have the layer in the active layers
+        const currentLayer = store.getters.getActiveLayerById(parsedLayer.id)
+        const layerObject = createLayerObject(parsedLayer, currentLayer)
         if (layerObject) {
             if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                 promisesForAllDispatch.push(

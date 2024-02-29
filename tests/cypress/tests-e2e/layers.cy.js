@@ -168,7 +168,6 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: `${fakeLayerUrlId},f,0.5`,
                 })
-                cy.wait('@externalWMTSGetCap')
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                     cy.wrap(layers).should('have.length', 1)
