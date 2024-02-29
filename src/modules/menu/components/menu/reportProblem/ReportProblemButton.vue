@@ -71,6 +71,7 @@
                 <!-- eslint-disable vue/no-v-html-->
                 <small v-html="$t('feedback_permalink')" />
                 <!-- eslint-enable vue/no-v-html-->
+                <a :href="shortLink">{{ $t('permalink') }}</a>
             </div>
             <div class="my-4">
                 <!-- eslint-disable vue/no-v-html-->
@@ -125,6 +126,7 @@ import { mapGetters } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import sendFeedback from '@/api/feedback.api'
+import { createShortLink } from '@/api/shortlink.api'
 // import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 // import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
@@ -155,12 +157,12 @@ export default {
     data() {
         return {
             showFeedbackForm: false,
-            maxRating: 5,
             userIsTypingEmail: false,
             feedback: {
-                rating: 0,
                 message: null,
+                kml: null,
                 email: null,
+                file: null,
             },
             request: {
                 pending: false,
@@ -169,21 +171,23 @@ export default {
             },
             drawingInteractions: null,
             EditableFeatureTypes,
+            shortLink: '',
         }
     },
     computed: {
         ...mapGetters(['activeKmlLayer']),
         feedbackCanBeSent() {
-            return this.feedback.rating !== 0 && !this.request.pending && this.isEmailValid
+            return !this.request.pending && this.isEmailValid
         },
         isEmailValid() {
             return !this.feedback.email || EMAIL_REGEX.test(this.feedback.email)
         },
     },
+    async mounted() {
+        // this.drawingInteractions = this.$refs.drawingInteractions
+        this.shortLink = await createShortLink(window.location.href)
+    },
     methods: {
-        ratingChange(newRating) {
-            this.feedback.rating = newRating
-        },
         async sendFeedback() {
             // if the request was already sent, we don't allow the user to double send
             if (this.request.completed) {
@@ -195,8 +199,8 @@ export default {
             try {
                 const feedbackSentSuccessfully = await sendFeedback(
                     this.feedback.message,
-                    this.feedback.rating,
-                    this.maxRating,
+                    undefined,
+                    undefined,
                     this.activeKmlLayer?.kmlFileUrl,
                     this.feedback.email
                 )
@@ -214,7 +218,7 @@ export default {
         },
         closeAndCleanForm() {
             this.showFeedbackForm = false
-            this.feedback.rating = 0
+            // this.feedback.rating = 0
             this.feedback.message = null
             this.feedback.email = null
             // reset also the completed/failed state, so that the user can send another feedback later on
