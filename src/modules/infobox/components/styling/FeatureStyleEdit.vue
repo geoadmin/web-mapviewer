@@ -31,8 +31,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isCombo: {
+        type: Boolean,
+        default: false,
+    },
 })
-const { feature, readOnly } = toRefs(props)
+const { feature, readOnly, isCombo } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
@@ -217,7 +221,7 @@ function onDelete() {
             ></textarea>
         </div>
         <div class="d-flex justify-content-between">
-            <div class="d-flex gap-1 py-1">
+            <div v-if="!isCombo" class="d-flex gap-1 py-1">
                 <div v-if="isFeatureLineString || isFeaturePolygon">
                     <font-awesome-icon :icon="['fa', 'arrows-alt-h']" />
                     {{ length }}

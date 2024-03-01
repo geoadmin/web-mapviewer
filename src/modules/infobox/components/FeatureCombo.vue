@@ -22,7 +22,7 @@ const { feature, readOnly } = toRefs(props)
 <template>
     <div class="feature-combo" data-infobox="height-reference">
         <div class="edit-feature-form">
-            <FeatureStyleEdit :feature="feature" :read-only="readOnly" />
+            <FeatureStyleEdit :feature="feature" :read-only="readOnly" :is-combo="true"/>
         </div>
         <FeatureProfile class="edit-feature-plot" :feature="feature" :read-only="readOnly" />
     </div>
