@@ -8,6 +8,7 @@ import {
     isNumber,
     randomIntBetween,
     round,
+    wrapDegrees,
 } from '@/utils/numberUtils'
 
 describe('Unit test functions from numberUtils.js', () => {
@@ -137,6 +138,26 @@ describe('Unit test functions from numberUtils.js', () => {
             expect(formatThousand(2123.345)).to.eq("2'123.345")
             expect(formatThousand(1.23456)).to.eq('1.23456')
             expect(formatThousand(2000, ' ')).to.eq('2 000')
+        })
+    })
+
+    describe('wrapDegrees(angle)', () => {
+        it('returns the angle untouched if already in range', () => {
+            expect(wrapDegrees(-359.99)).to.eq(-359.99)
+            expect(wrapDegrees(0)).to.eq(0)
+            expect(wrapDegrees(359.99)).to.eq(359.99)
+        })
+        it('wraps an angle that are greater than 0 to the 0...360 range', () => {
+            expect(wrapDegrees(360)).to.eq(0)
+            expect(wrapDegrees(361)).to.eq(1)
+            expect(wrapDegrees(540)).to.eq(180)
+            expect(wrapDegrees(720)).to.eq(0)
+        })
+        it('wraps an angle that are smaller than zero to match the -360...0 range', () => {
+            expect(wrapDegrees(-360)).to.eq(0)
+            expect(wrapDegrees(-361)).to.eq(-1)
+            expect(wrapDegrees(-540)).to.eq(-180)
+            expect(wrapDegrees(-720)).to.eq(0)
         })
     })
 })

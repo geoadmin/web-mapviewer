@@ -6,6 +6,7 @@ import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinat
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import StandardCoordinateSystem from '@/utils/coordinates/StandardCoordinateSystem.class'
 import log from '@/utils/logging'
+import { wrapDegrees } from '@/utils/numberUtils.js'
 
 /** @enum */
 export const CrossHairs = {
@@ -300,7 +301,16 @@ const actions = {
      *   of the debug console)
      */
     setCameraPosition({ commit }, { position, dispatcher }) {
-        commit('setCameraPosition', { position, dispatcher })
+        const wrappedPosition = {
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            // wrapping all angle-based values so that they do not exceed a full-circle value
+            roll: wrapDegrees(position.roll),
+            pitch: wrapDegrees(position.pitch),
+            heading: wrapDegrees(position.heading),
+        }
+        commit('setCameraPosition', { position: wrappedPosition, dispatcher })
     },
     setProjection({ commit, state }, { projection, dispatcher }) {
         let matchingProjection

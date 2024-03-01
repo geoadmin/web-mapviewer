@@ -354,7 +354,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.z').should('eq', elevation)
             cy.readStoreValue('state.position.camera.heading').should('eq', heading)
             cy.readStoreValue('state.position.camera.pitch').should('eq', pitch)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 360)
+            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
@@ -379,7 +379,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.z').should('eq', 0)
             cy.readStoreValue('state.position.camera.heading').should('eq', heading)
             cy.readStoreValue('state.position.camera.pitch').should('eq', 0)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 360)
+            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
@@ -403,7 +403,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.x').should('not.be.null')
             cy.readStoreValue('state.position.camera.y').should('not.be.null')
             cy.readStoreValue('state.position.camera.z').should('not.be.null')
-            cy.readStoreValue('state.position.camera.heading').should('eq', 360)
+            cy.readStoreValue('state.position.camera.heading').should('eq', 0)
             cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
             cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
