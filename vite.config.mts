@@ -18,6 +18,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const cesiumSource = `${__dirname}/node_modules/cesium/Source`
 const cesiumWorkers = '../Build/Cesium/Workers'
 
+function manualChunks(id) {
+    if (id.includes('/src/utils/')) {
+        return 'utils'
+    }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
     return {
@@ -26,6 +32,11 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: true,
             assetsDir: `${appVersion}/assets`,
             outDir: `./dist/${mode}`,
+            rollupOptions: {
+                output: {
+                    manualChunks,
+                },
+            },
         },
         plugins: [
             vue({
@@ -76,6 +87,6 @@ export default defineConfig(({ mode }) => {
             reporter: ['default', 'junit'],
             outputFile: 'tests/results/unit/unit-test-report.xml',
             silent: true,
-        }
+        },
     }
 })
