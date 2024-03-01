@@ -2,8 +2,6 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { Polygon } from 'ol/geom'
-import { getLength } from 'ol/sphere'
 import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -19,7 +17,6 @@ import SelectedFeatureProfile from '@/modules/infobox/components/styling/Selecte
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { round } from '@/utils/numberUtils'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 
@@ -102,40 +99,6 @@ const coordinateFormat = computed(() => {
 })
 
 /**
- * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
- * is to hold the coordinates, which are in an array themselves. We don't have rings in this case,
- * so we need to create an ol geometry
- *
- * @type {ComputedRef<Polygon>}
- */
-const geometry = computed(() => new Polygon([feature.value.coordinates]))
-/** @type {ComputedRef<Number>} */
-const length = computed(() => {
-    const calculatedLength = getLength(geometry.value)
-    let result = `${roundValueIfGreaterThan(calculatedLength, 100, 1000)}`
-    if (calculatedLength > 100) {
-        result += 'km'
-    } else {
-        result += 'm'
-    }
-    return result
-})
-/** @type {ComputedRef<Number>} */
-const area = computed(() => {
-    const calculatedArea = geometry.value.getArea()
-    let result = ''
-    if (calculatedArea) {
-        result += roundValueIfGreaterThan(calculatedArea, 1000, 100000)
-        if (calculatedArea > 10000) {
-            result += 'km'
-        } else {
-            result += 'm'
-        }
-    }
-    return result
-})
-
-/**
  * The length parameter must be greater than 3, because the polygon has one point twice : the first
  * and last point are both existing in the same exact space. A point would be length 2, a line would
  * be length 3. We do not consider the case where there are more than 3 points, but all in a single
@@ -154,12 +117,6 @@ const isFeaturePolygon = computed(() => {
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
 
-function roundValueIfGreaterThan(value, threshold, divider) {
-    if (value > threshold) {
-        return `${round(value / divider, 2)}`
-    }
-    return `${round(value, 2)}`
-}
 function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature.value, textSize, ...dispatcher })
 }

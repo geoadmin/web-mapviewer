@@ -66,13 +66,17 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </script>
 
 <template>
-    <div v-if="hasDistance">
-        <font-awesome-icon :icon="['fa', 'arrows-alt-h']" />
-        {{ length }}
+    <div :title="$t('profile_distance')">
+        <div v-if="hasDistance">
+            <font-awesome-icon :icon="['fa', 'arrows-alt-h']" />
+            {{ length }}
+        </div>
     </div>
-    <div v-if="hasArea">
-        <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
-        {{ area }}
-        <sup>2</sup>
+    <div :title="$t('area')">
+        <div v-if="hasArea">
+            <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
+            {{ area }}
+            <sup>2</sup>
+        </div>
     </div>
 </template>

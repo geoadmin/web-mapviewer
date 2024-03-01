@@ -94,6 +94,11 @@ export default {
                         value: this.formatDistance(this.profile.slopeDistance),
                     },
                     {
+                        title: 'area',
+                        icons: [['fa', 'arrows-up-down-left-right']],
+                        value: 'TODO',
+                    },
+                    {
                         title: 'profile_hike_time',
                         icons: [['far', 'clock']],
                         value: formatMinutesTime(this.profile.hikingTime),
