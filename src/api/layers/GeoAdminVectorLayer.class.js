@@ -24,8 +24,9 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
         super({
             name: layerId,
             type: LayerTypes.VECTOR,
+            baseUrl: VECTOR_TILE_BASE_URL,
             geoAdminId: layerId,
-            serverLayerId: layerId,
+            technicalName: layerId,
             attributions: [
                 ...extraAttributions,
                 new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),

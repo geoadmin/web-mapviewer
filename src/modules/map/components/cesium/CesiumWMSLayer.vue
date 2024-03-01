@@ -42,7 +42,7 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         layerId() {
-            return this.wmsLayerConfig.serverLayerId || this.wmsLayerConfig.externalLayerId
+            return this.wmsLayerConfig.technicalName || this.wmsLayerConfig.externalLayerId
         },
         opacity() {
             return this.wmsLayerConfig.opacity || 1.0
