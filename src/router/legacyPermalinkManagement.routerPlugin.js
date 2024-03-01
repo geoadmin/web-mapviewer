@@ -201,6 +201,8 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
         newQuery['center'] = legacyCoordinates.join(',')
     }
 
+    handleBodLayerIdParam(legacyParams, store, newQuery)
+
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)

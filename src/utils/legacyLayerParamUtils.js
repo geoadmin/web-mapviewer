@@ -1,3 +1,4 @@
+import getFeature from '@/api/features/features.api'
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
@@ -170,4 +171,48 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
         adminId: kmlMetadata.adminId,
         kmlMetadata,
     })
+}
+
+export function handleBodLayerIdParam(params, store, newQuery) {
+    let layer = null
+    const featuresRequests = []
+
+    params.forEach((param_value, param_key) => {
+        layer = store.state.layers.config.find((layer) => layer.getID() === param_key)
+        if (layer) {
+            const featuresIds = param_value.split(',').joins(':')
+            if (newQuery['layers'].includes(param_key)) {
+                //if the feature already exist, we insert the features id parameter
+                const [layerIdWithCustomParams, visible, opacity] = newQuery['layers'].split(',')
+                newQuery['layers'] =
+                    `${layerIdWithCustomParams}@features=${featuresIds},${visible},${opacity}`
+            } else {
+                newQuery['layers'] = newQuery['layers'] + `;${param_key}@features=${featuresIds}`
+            }
+            param_value
+                .toString()
+                .split(',')
+                .forEach((featureId) => {
+                    featuresRequests.push(
+                        getFeature(
+                            store.getters.getLayerConfigById(param_key),
+                            featureId,
+                            store.state.position.projection,
+                            store.state.i18n.lang
+                        )
+                    )
+                })
+        }
+    })
+    if (featuresRequests.length > 0) {
+        Promise.all(featuresRequests).then((features) => {
+            const extent = getExtentOfFeatures(features)
+            const center = `${(extent[0][0] + extent[1][0]) / 2},${(extent[0][1] + extent[1][1]) / 2}`
+            if (!newQuery['z']) {
+                newQuery['z'] = store.state.projection.getZoomForResolutionAndCenter(extent, center)
+            }
+            // in the old viewer, the position was always overriden
+            newQuery['center'] = center
+        })
+    }
 }
