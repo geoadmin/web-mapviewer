@@ -6,7 +6,7 @@ import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManag
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
 import store from '@/store'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
-import LoadingView from '@/views/LoadingView.vue'
+import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
 
 const history = createWebHashHistory()
@@ -25,14 +25,17 @@ const router = createRouter({
             redirect: { name: 'MapView' },
         },
         {
-            path: '/startup',
-            name: 'LoadingView',
-            component: LoadingView,
-        },
-        {
             path: '/map',
             name: 'MapView',
             component: MapView,
+            meta: {
+                requiresAppReady: true,
+            },
+        },
+        {
+            path: '/legacy',
+            name: 'LegacyParamsView',
+            component: LegacyParamsView,
             meta: {
                 requiresAppReady: true,
             },

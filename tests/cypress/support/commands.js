@@ -219,18 +219,16 @@ Cypress.Commands.add(
                 const active = state.layers.activeLayers.length
                 // The required layers can be set via topic or manually.
                 const targetTopic = getters.currentTopic?.layersToActivate.length
-                const targetLayers =
-                    'layers' in queryParams
-                        ? // Legacy layers come with an additional param. At least in our tests.
-                          'layers_opacity' in queryParams || 'layers_visibility' in queryParams
-                            ? queryParams.layers.split(',').length
-                            : queryParams.layers.split(';').length
-                        : 0
-                // There are situations where neither value is falsy.
-                // But the higher value seems to always be the right one.
-                let target = Math.max(targetTopic, targetLayers)
-                // If a layer has been set via adminId we just increment by one.
-                target += Boolean(queryParams.adminId)
+                let target = targetTopic
+                if ('layers' in queryParams) {
+                    target = withHash
+                        ? queryParams.layers.split(';').length
+                        : queryParams.layers.split(',').length // Legacy layers separates layers with `,`
+                }
+                if (!withHash && 'adminId' in queryParams) {
+                    // In legacy drawing with adminId the layer is not added to the layers parameter
+                    target += 1
+                }
                 return active === target
             },
             {
