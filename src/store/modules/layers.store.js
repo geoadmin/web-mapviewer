@@ -33,6 +33,38 @@ const cloneActiveLayerConfig = (getters, layer) => {
     return clone
 }
 
+const updateLayerCommit = (state, layer) => {
+    const layer2Update = getActiveLayerById(state, layer.id)
+    if (layer2Update) {
+        Object.assign(layer2Update, layer)
+    } else {
+        throw new Error(`Failed to update layer ${layer.id}: layer not found in active layers`)
+    }
+}
+
+const updateLayerAction = ({ commit, getters }, { layer, dispatcher }) => {
+    if (layer instanceof AbstractLayer) {
+        commit('updateLayer', { layer, dispatcher })
+    } else if (layer instanceof Object && layer.id) {
+        // Partial update of a layer
+        const currentLayer = getters.getActiveLayerById(layer.id)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update layer "${layer.id}", layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+        Object.entries(layer).forEach((entry) => {
+            if (entry[0] !== 'id') {
+                updatedLayer[entry[0]] = entry[1]
+            }
+        })
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
+    } else {
+        throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
+    }
+}
+
 const state = {
     /**
      * Current background layer
@@ -329,26 +361,18 @@ const actions = {
      *   update)
      */
     updateLayer({ commit, getters }, { layer, dispatcher }) {
-        if (layer instanceof AbstractLayer) {
-            commit('updateLayer', { layer, dispatcher })
-        } else if (layer instanceof Object && layer.id) {
-            // Partial update of a layer
-            const currentLayer = getters.getActiveLayerById(layer.id)
-            if (!currentLayer) {
-                throw new Error(
-                    `Failed to update layer "${layer.id}", layer not found in active layers`
-                )
-            }
-            const updatedLayer = currentLayer.clone()
-            Object.entries(layer).forEach((entry) => {
-                if (entry[0] !== 'id') {
-                    updatedLayer[entry[0]] = entry[1]
-                }
-            })
-            commit('updateLayer', { layer: updatedLayer, dispatcher })
-        } else {
-            throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
-        }
+        updateLayerAction({ commit, getters }, { layer, dispatcher })
+    },
+    /**
+     * Full or partial update of layers in the active layer list
+     *
+     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
+     * @param {[AbstractLayer | { id: String; any: any }]} layers List of full layer object
+     *   (AbstractLayer) to update or an object with the layer ID to update and any property to
+     *   update (partial update)
+     */
+    updateLayers({ commit, getters }, { layers, dispatcher }) {
+        layers.forEach((layer) => updateLayerAction({ commit, getters }, { layer, dispatcher }))
     },
     clearLayers({ commit }, args) {
         commit('clearLayers', args)
@@ -554,12 +578,12 @@ const mutations = {
         state.activeLayers = layers
     },
     updateLayer(state, { layer }) {
-        const layer2Update = getActiveLayerById(state, layer.id)
-        if (layer2Update) {
-            Object.assign(layer2Update, layer)
-        } else {
-            throw new Error(`Failed to update layer ${layer.id}: layer not found in active layers`)
-        }
+        updateLayerCommit(state, layer)
+    },
+    updateLayers(state, { layers }) {
+        layers.forEach((layer) => {
+            updateLayerCommit(state, layer)
+        })
     },
     removeLayerWithId(state, { layerId }) {
         state.activeLayers = removeActiveLayerById(state, layerId)

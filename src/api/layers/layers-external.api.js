@@ -54,6 +54,7 @@ export function setWmsGetCapParams(url, language) {
  */
 export async function readWmsCapabilities(baseUrl, language = null) {
     const url = setWmsGetCapParams(new URL(baseUrl), language).toString()
+    log.debug(`Read WMTS Get Capabilities: ${url}`)
     let response = null
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
@@ -117,6 +118,7 @@ export function setWmtsGetCapParams(url, language) {
  */
 export async function readWmtsCapabilities(baseUrl, language = null) {
     const url = setWmtsGetCapParams(new URL(baseUrl), language).toString()
+    log.debug(`Read WMTS Get Capabilities: ${url}`)
 
     let response = null
     try {
