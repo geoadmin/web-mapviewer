@@ -214,14 +214,17 @@ function onDelete() {
                     'form-control-plaintext': readOnly,
                 }"
             ></textarea>
-            <div v-if="isFeatureLine">
-                <font-awesome-icon :icon="['far', 'square']" />
-                {{ length }}
-            </div>
-            <div v-if="isFeaturePolygon">
-                <font-awesome-icon :icon="['far', 'square']" class="bg-secondary text-secondary" />
-                {{ area }}
-                <sup>2</sup>
+            <div>{{ feature.featureType }}</div>
+            <div class="d-flex gap-2 py-2">
+                <div v-if="isFeatureLine">
+                    <font-awesome-icon :icon="['fa', 'ruler']" />
+                    {{ length }}
+                </div>
+                <div v-if="isFeaturePolygon || isFeaturePolygonMeasure">
+                    <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
+                    {{ area }}
+                    <sup>2</sup>
+                </div>
             </div>
         </div>
         <div v-if="isFeatureMarker || isFeatureText" class="d-flex small justify-content-start">
