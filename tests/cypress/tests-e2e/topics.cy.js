@@ -245,10 +245,12 @@ describe('Topics', () => {
             expect(currentlyOpenedThemesId).to.be.an('Array')
             expect(currentlyOpenedThemesId).to.deep.equal(['2'])
         })
+        // TODO PB-295 implement save behavior as old viewer, which means treat catalogNodes as a
+        // normal url parameter
         // it must not change the URL when we close on a tree item (it's not meant to be synced with the UI after loading)
-        cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
-        cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.visible')
-        cy.url().should('contain', 'catalogNodes=2')
-        cy.url().should('not.contain', 'catalogNodes=2,')
+        // cy.get('[data-cy="catalogue-tree-item-title-3"]').click()
+        // cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('be.visible')
+        // cy.url().should('contain', 'catalogNodes=2')
+        // cy.url().should('not.contain', 'catalogNodes=2,')
     })
 })

@@ -34,6 +34,9 @@ const activeLayers = computed(() => store.state.layers.activeLayers.slice().reve
 let sortable
 onMounted(() => {
     sortable = Sortable.create(activeLayersList.value, {
+        delay: 250,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 3,
         animation: 150,
         onStart: function () {
             aLayerIsDragged.value = true

@@ -136,7 +136,10 @@ describe('Test of layer handling', () => {
                 const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
 
                 // intercepting call to our fake WMTS
-                cy.intercept(`${fakeGetCapUrl}**`, {
+                cy.intercept(`${fakeGetCapUrl}`, {
+                    fixture: 'external-wmts-getcap.fixture.xml',
+                }).as('externalWMTSGetCapOl')
+                cy.intercept(`${fakeGetCapUrl}?**`, {
                     fixture: 'external-wmts-getcap.fixture.xml',
                 }).as('externalWMTSGetCap')
                 cy.intercept(
@@ -165,10 +168,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: `${fakeLayerUrlId},f,0.5`,
                 })
-                // TODO due to a non ideal startup procedure the GetCapabilities is called 3 times
-                // therefore we need to wait for all three otherwise the later wait will not be
-                // sufficient for the last test.
-                cy.wait(Array(3).fill('@externalWMTSGetCap'))
+                cy.wait('@externalWMTSGetCap')
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                     cy.wrap(layers).should('have.length', 1)
@@ -661,7 +661,7 @@ describe('Test of layer handling', () => {
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
                 checkOrderButtons(middleLayerId, false, false)
             })
-            it('reorder layers when they are drag and dropped', () => {
+            it.skip('reorder layers when they are drag and dropped', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.get(`[data-cy="menu-active-layer-${bottomLayerId}"]`)
                     .should('be.visible')

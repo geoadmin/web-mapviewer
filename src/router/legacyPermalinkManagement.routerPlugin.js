@@ -1,4 +1,5 @@
 import proj4 from 'proj4'
+import { START_LOCATION } from 'vue-router'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
@@ -24,8 +25,6 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
 
     // remove the legacy param from the newQuery
     delete newQuery.adminId
-
-    return newQuery
 }
 
 const handleLegacyParam = (
@@ -144,11 +143,10 @@ const handleLegacyParam = (
     }
 }
 
-const handleLegacyParams = (legacyParams, store, to, next) => {
-    log.info(`Legacy permalink with param=`, legacyParams)
+const handleLegacyParams = async (legacyParams, store) => {
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
-    const newQuery = { ...to.query }
+    const newQuery = {}
     const { projection } = store.state.position
     let legacyCoordinates = []
     let latlongCoordinates = []
@@ -204,27 +202,23 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
     if (legacyParams.get('adminId')) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
-        handleLegacyKmlAdminIdParam(legacyParams, newQuery)
-            .then((updatedQuery) => {
-                next({
-                    name: 'MapView',
-                    query: updatedQuery,
-                })
-            })
-            .catch((error) => {
-                log.error(`Failed to retrieve KML from admin_id: ${error}`)
-                // make sure to remove the adminId from the query
-                delete newQuery.adminId
-                next({
-                    name: 'MapView',
-                    query: newQuery,
-                })
-            })
-    } else {
-        next({
+        try {
+            await handleLegacyKmlAdminIdParam(legacyParams, newQuery)
+        } catch (error) {
+            log.error(`Failed to retrieve KML from admin_id: ${error}`)
+            // make sure to remove the adminId from the query
+            delete newQuery.adminId
+        }
+        return {
             name: 'MapView',
             query: newQuery,
-        })
+            replace: true,
+        }
+    }
+    return {
+        name: 'MapView',
+        query: newQuery,
+        replace: true,
     }
 }
 
@@ -252,30 +246,50 @@ const handleLegacyParams = (legacyParams, store, to, next) => {
  * @param {Store} store
  */
 const legacyPermalinkManagementRouterPlugin = (router, store) => {
-    let isFirstRequest = true
     // We need to take the legacy params from the window.location.search, because the Vue Router
     // to.query only parse the query after the /#? and legacy params are at the root /?
-    const legacyParams =
-        window.location && window.location.search && isLegacyParams(window.location.search)
-            ? new URLSearchParams(window.location.search)
-            : null
-    router.beforeEach((to, from, next) => {
-        // Waiting for the app to enter the MapView before dealing with legacy param, otherwise
-        // the storeSync plugin might overwrite some parameters. To handle legacy param we also
-        // need the app to be ready because some data are required (e.g. the layer config)
-        if (isFirstRequest && to.name === 'MapView') {
-            // before the first request, we check out if we need to manage any legacy params
-            // (from the old viewer)
-            isFirstRequest = false
-            if (legacyParams) {
-                handleLegacyParams(legacyParams, store, to, next)
-            } else {
-                next()
+    const legacyParams = isLegacyParams(window?.location?.search)
+        ? new URLSearchParams(window?.location?.search)
+        : null
+    if (legacyParams) {
+        log.debug(
+            `[Legacy URL] starts legacy url param plugin params=${legacyParams.toString()}`,
+            legacyParams
+        )
+        let unSubscribeStoreMutation = null
+        const unsubscribeRouter = router.beforeEach(async (to, from) => {
+            if (to.name === 'MapView' && from === START_LOCATION) {
+                // Redirect to the LegacyParamsView until the app is ready and that the legacy
+                // params have been parsed and converted. This is needed in order to postpone the
+                // storeSync until the legacy params have been converted.
+                log.info(
+                    `[Legacy URL] redirect to LegacyParamsView params=${legacyParams.toString()}`,
+                    legacyParams
+                )
+
+                unSubscribeStoreMutation = store.subscribe(async (mutation) => {
+                    // Wait until the app is ready before dealing with legacy params. To handle
+                    // legacy params some data are required (e.g. the layer config)
+                    if (mutation.type === 'setAppIsReady') {
+                        log.debug(
+                            '[Legacy URL] app is ready, handle legacy params=${legacyParams.toString()}',
+                            legacyParams
+                        )
+                        const newRoute = await handleLegacyParams(legacyParams, store)
+                        log.info(`[Legacy URL] redirect to the converted params`, newRoute)
+                        router.replace(newRoute)
+                    }
+                })
+                return { name: 'LegacyParamsView', replace: true }
             }
-        } else {
-            next()
-        }
-    })
+
+            if (to.name === 'MapView' && from.name === 'LegacyParamsView') {
+                log.debug('[Legacy URL] leaving the legacy URL plugin')
+                unsubscribeRouter()
+                unSubscribeStoreMutation()
+            }
+        })
+    }
 }
 
 export default legacyPermalinkManagementRouterPlugin
