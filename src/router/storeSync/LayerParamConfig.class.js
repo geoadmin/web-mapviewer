@@ -91,7 +91,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
             name: id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible,
-            baseURL: url,
+            baseUrl: url,
             externalLayerId: id,
         })
     }
@@ -103,7 +103,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
             name: id,
             opacity: parsedLayer.opacity,
             visible: parsedLayer.visible,
-            baseURL: url,
+            baseUrl: url,
             externalLayerId: id,
         })
     }

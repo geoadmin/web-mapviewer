@@ -106,7 +106,7 @@ export default class WMTSCapabilitiesParser {
             name: attributes.title,
             opacity,
             visible,
-            baseURL: attributes.url,
+            baseUrl: attributes.url,
             externalLayerId: attributes.layerId,
             attributions: attributes.attributions,
             abstract: attributes.abstract,

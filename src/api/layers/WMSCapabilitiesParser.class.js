@@ -150,7 +150,7 @@ export default class WMSCapabilitiesParser {
             name: title,
             opacity,
             visible,
-            baseURL: url,
+            baseUrl: url,
             externalLayerId: layerId,
             attributions,
             wmsVersion: version,

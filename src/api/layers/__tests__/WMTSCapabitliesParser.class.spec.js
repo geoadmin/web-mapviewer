@@ -33,14 +33,14 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer.externalLayerId).toBe('BlueMarbleSecondGenerationAG')
         expect(layer.name).toBe('Blue Marble Second Generation - AG')
         expect(layer.abstract).toBe('Blue Marble Second Generation Canton Aargau Product')
-        expect(layer.baseURL).toBe('http://maps.example.com/cgi-bin/map.cgi?')
+        expect(layer.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
 
         // Layer without .Identifier
         layer = capabilities.getExternalLayerObject('BlueMarbleThirdGenerationZH', WGS84)
         expect(layer.externalLayerId).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.name).toBe('BlueMarbleThirdGenerationZH')
         expect(layer.abstract).toBe('Blue Marble Third Generation Canton Zürich Product')
-        expect(layer.baseURL).toBe('http://maps.example.com/cgi-bin/map.cgi?')
+        expect(layer.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
     })
     it('Parse layer attribution', () => {
         // General layer
