@@ -49,6 +49,26 @@ export function extractOlFeatureGeodesicCoordinates(feature) {
 }
 
 /**
+ * Calculate the extent which encompass all features in an array
+ *
+ * @param {Features[]} features An Array of features
+ * @returns {[[lat, lon], [lat, lon]]} Return the extent which encompass all features
+ */
+export function getExtentOfFeatures(features) {
+    const coordinatesX = []
+    const coordinatesY = []
+    features.forEach((feature) => {
+        coordinatesX.push(feature.coordinates[0][0])
+        coordinatesY.push(feature.coordinates[0][1])
+    })
+    const extent = [
+        [Math.min(...coordinatesX), Math.min(...coordinatesY)],
+        [Math.max(...coordinatesX), Math.max(...coordinatesY)],
+    ]
+    return extent
+}
+
+/**
  * Asks the backend for identification of features at the coordinates for the given layer using
  * http://api3.geo.admin.ch/services/sdiservices.html#identify-features
  *
