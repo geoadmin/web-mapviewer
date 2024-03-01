@@ -27,8 +27,9 @@ export default class GeoAdmin3DLayer extends GeoAdminLayer {
         super({
             name: layerId,
             type: LayerTypes.VECTOR,
-            serverLayerId: layerId,
+            technicalName: layerId,
             geoAdminId: layerId,
+            baseUrl: BASE_URL_3D_TILES,
             opacity: 1.0,
             visible: true,
             attributions: [

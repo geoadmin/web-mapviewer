@@ -12,7 +12,7 @@ import store from '@/store'
 const bgLayer = new GeoAdminWMTSLayer({
     name: 'background',
     geoAdminId: 'bg.layer',
-    serverLayerId: 'bg.layer',
+    technicalName: 'bg.layer',
     visible: true,
     format: 'jpeg',
     isBackground: true,
@@ -20,13 +20,13 @@ const bgLayer = new GeoAdminWMTSLayer({
 const firstLayer = new GeoAdminWMTSLayer({
     name: 'First layer',
     geoAdminId: 'first.layer',
-    serverLayerId: 'first.layer',
+    technicalName: 'first.layer',
     visible: true,
 })
 const secondLayer = new GeoAdminWMSLayer({
     name: 'Second layer',
     geoAdminId: 'second.layer',
-    serverLayerId: 'second.layer',
+    technicalName: 'second.layer',
     visible: true,
     timeConfig: new LayerTimeConfig(),
 })

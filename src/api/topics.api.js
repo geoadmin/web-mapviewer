@@ -57,7 +57,7 @@ const readTopicTreeRecursive = (node, availableLayers) => {
         return new GeoAdminGroupOfLayers(`${node.id}`, node.label, children)
     } else if (node.category === 'layer') {
         const matchingLayer = availableLayers.find(
-            (layer) => layer.serverLayerId === node.layerBodId || layer.id === node.layerBodId
+            (layer) => layer.technicalName === node.layerBodId || layer.id === node.layerBodId
         )
         if (matchingLayer) {
             return matchingLayer
