@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
@@ -22,6 +23,10 @@ const i18n = useI18n()
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
+const isFeaturePolygon = computed(() => {
+    return feature.value.geometry.type === 'Polygon'
+})
+const isFeatureLineString = computed(() => feature.value.geometry.type === 'LineString')
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
@@ -67,6 +72,18 @@ function sanitizeHtml(htmlText) {
             >
                 <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
+        </div>
+        <div
+            v-if="isFeatureLineString || isFeaturePolygon"
+            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
+        >
+            <div class="d-flex gap-1 py-1">
+                <FeatureAreaInfo
+                    :feature="feature"
+                    :has-distance="true"
+                    :has-area="isFeaturePolygon"
+                />
+            </div>
         </div>
     </div>
 </template>

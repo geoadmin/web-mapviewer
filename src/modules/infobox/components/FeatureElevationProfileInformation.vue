@@ -75,7 +75,7 @@ export default {
                             ['far', 'eye'],
                             ['fa', 'arrows-alt-h'],
                         ],
-                        value: this.formatDistance(this.profile.maxDist),
+                        value: 'TODO',
                     },
                     {
                         title: 'profile_distance_air',

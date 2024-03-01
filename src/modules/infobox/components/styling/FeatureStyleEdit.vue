@@ -9,6 +9,7 @@ import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
@@ -142,14 +143,6 @@ const area = computed(() => {
  *
  * @type {ComputedRef<Boolean>}
  */
-const isFeatureClosed = computed(() => {
-    const { coordinates } = feature.value
-    return (
-        coordinates.length > 3 &&
-        coordinates[0][0] === coordinates[coordinates.length - 1][0] &&
-        coordinates[0][1] === coordinates[coordinates.length - 1][1]
-    )
-})
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
@@ -222,17 +215,12 @@ function onDelete() {
         </div>
         <div class="d-flex justify-content-between">
             <div v-if="!isCombo" class="d-flex gap-1 py-1">
-                <div v-if="isFeatureLineString || isFeaturePolygon">
-                    <font-awesome-icon :icon="['fa', 'arrows-alt-h']" />
-                    {{ length }}
-                </div>
-                <div v-if="isFeaturePolygon">
-                    <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
-                    {{ area }}
-                    <sup>2</sup>
-                </div>
+                <FeatureAreaInfo
+                    :feature="feature"
+                    :has-distance="isFeatureLineString || isFeaturePolygon"
+                    :has-area="isFeaturePolygon"
+                />
             </div>
-<<<<<<< HEAD
         </div>
         <div v-if="isFeatureMarker || isFeatureText" class="d-flex small justify-content-start">
             <CoordinateCopySlot
@@ -247,9 +235,6 @@ function onDelete() {
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
-=======
-            <div v-if="!readOnly" class="d-flex gap-1 mb-auto feature-style-edit-control">
->>>>>>> 8f4ea5dd (PB-74: Update measure to use same logic as line)
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
