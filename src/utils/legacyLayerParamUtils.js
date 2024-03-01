@@ -94,7 +94,7 @@ export function getLayersFromLegacyUrlParams(
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
-                layer = new ExternalWMTSLayer({ name: id, baseURL: url, externalLayerId: id })
+                layer = new ExternalWMTSLayer({ name: id, baseUrl: url, externalLayerId: id })
             }
         }
         if (layerId.startsWith('WMS||')) {
@@ -103,7 +103,7 @@ export function getLayersFromLegacyUrlParams(
             if (url && id) {
                 layer = new ExternalWMSLayer({
                     name: name ? name : id,
-                    baseURL: url,
+                    baseUrl: url,
                     externalLayerId: id,
                     wmsVersion: version,
                 })

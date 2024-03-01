@@ -186,15 +186,32 @@ describe('Layer z-index are calculated correctly in the store', () => {
     })
 
     it('counts a group layers correctly', async () => {
+        const baseUrl = 'https://wms.com'
         const groupLayer = new ExternalGroupOfLayers({
             name: 'group',
-            baseUrl: 'https://wms.com',
+            baseUrl,
             externalLayerId: 'group',
             layers: [
-                new ExternalWMSLayer({ name: 'Layer 1', externalLayerId: 'layer1' }),
-                new ExternalWMSLayer({ name: 'Layer 2', externalLayerId: 'layer2' }),
-                new ExternalWMSLayer({ name: 'Layer 3', externalLayerId: 'layer3' }),
-                new ExternalWMSLayer({ name: 'Layer 4', externalLayerId: 'layer4' }),
+                new ExternalWMSLayer({
+                    name: 'Layer 1',
+                    externalLayerId: 'layer1',
+                    baseUrl,
+                }),
+                new ExternalWMSLayer({
+                    name: 'Layer 2',
+                    externalLayerId: 'layer2',
+                    baseUrl,
+                }),
+                new ExternalWMSLayer({
+                    name: 'Layer 3',
+                    externalLayerId: 'layer3',
+                    baseUrl,
+                }),
+                new ExternalWMSLayer({
+                    name: 'Layer 4',
+                    externalLayerId: 'layer4',
+                    baseUrl,
+                }),
             ],
         })
         await store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })

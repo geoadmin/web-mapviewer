@@ -23,7 +23,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 serverLayerId: 'test.wms.layer',
                 opacity: 0.8,
                 attributions: [new LayerAttribution('attribution.test.wms.layer')],
-                baseURL: 'https://base-url/',
+                baseUrl: 'https://base-url/',
                 format: 'png',
                 timeConfig: new LayerTimeConfig(),
             }),
@@ -201,7 +201,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmsLayer.wmsVersion).to.eq(wmsVersion)
                 expect(externalWmsLayer.externalLayerId).to.eq(wmsLayerId)
                 expect(externalWmsLayer.name).to.eq(wmsLayerName)
-                expect(externalWmsLayer.baseURL).to.eq(wmsBaseUrl)
+                expect(externalWmsLayer.baseUrl).to.eq(wmsBaseUrl)
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // base URL must be encoded so that no & sign is present, otherwise it would break the URL param parsing
                 expect(externalWmsLayer.id).to.eq(`WMS|${wmsBaseUrl}|${wmsLayerId}`)
@@ -225,7 +225,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(externalWmtsLayer.opacity).to.eq(0.77)
                 expect(externalWmtsLayer.visible).to.be.false
                 expect(externalWmtsLayer.externalLayerId).to.eq(wmtsLayerId)
-                expect(externalWmtsLayer.baseURL).to.eq(wmtsGetCapabilitesUrl)
+                expect(externalWmtsLayer.baseUrl).to.eq(wmtsGetCapabilitesUrl)
                 // see ID format in adr/2021_03_16_url_param_structure.md
                 // as there was no definition of the layer name in the URL with the old external layer URL structure, we end up with the layer ID as name too
                 expect(externalWmtsLayer.id).to.eq(`WMTS|${wmtsGetCapabilitesUrl}|${wmtsLayerId}`)
