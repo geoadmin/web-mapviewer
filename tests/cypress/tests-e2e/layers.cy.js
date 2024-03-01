@@ -115,7 +115,7 @@ describe('Test of layer handling', () => {
                     const [externalWmsLayer] = layers
                     expect(externalWmsLayer.wmsVersion).to.eq('1.3.0')
                     expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
-                    expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
+                    expect(externalWmsLayer.baseUrl).to.eq(fakeWmsBaseUrl)
                     expect(externalWmsLayer.id).to.eq(fakeLayerUrlId)
                     expect(externalWmsLayer.name).to.eq('OpenData-AV')
                     expect(externalWmsLayer.isLoading).to.be.false
@@ -157,7 +157,7 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer.id).to.eq(fakeLayerUrlId)
-                    expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
+                    expect(externalWmtsLayer.baseUrl).to.eq(fakeGetCapUrl)
                     expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
                     expect(externalWmtsLayer.name).to.eq('Test External WMTS')
                     expect(externalWmtsLayer.isLoading).to.be.false
@@ -250,7 +250,7 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[0]
                     expect(externaLayer.id).to.eq(wmtsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsUnreachableUrl)
+                    expect(externaLayer.baseUrl).to.eq(wmtsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -272,7 +272,7 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[1]
                     expect(externaLayer.id).to.eq(wmtsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsInvalidContentUrl)
+                    expect(externaLayer.baseUrl).to.eq(wmtsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -294,7 +294,7 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[2]
                     expect(externaLayer.id).to.eq(wmsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsUnreachableUrl)
+                    expect(externaLayer.baseUrl).to.eq(wmsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -316,7 +316,7 @@ describe('Test of layer handling', () => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[3]
                     expect(externaLayer.id).to.eq(wmsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsInvalidContentUrl)
+                    expect(externaLayer.baseUrl).to.eq(wmsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -406,7 +406,7 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length - 1)
                     activeLayers.forEach((layer) => {
-                        expect(layer.getID).to.be.not.equal(layerId)
+                        expect(layer.id).to.be.not.equal(layerId)
                     })
                 })
             })

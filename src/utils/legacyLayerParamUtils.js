@@ -162,15 +162,14 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
  * Returns a KML Layer from the legacy adminId url param.
  *
  * @param {String} adminId KML admin ID
- * @returns {Promise<AbstractLayer>} KML Layer
+ * @returns {Promise<KMLLayer>} KML Layer
  */
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
-    const kmlMetaData = await getKmlMetadataByAdminId(adminId)
-
+    const kmlMetadata = await getKmlMetadataByAdminId(adminId)
     return new KMLLayer({
-        name: kmlMetaData.links.kml,
+        kmlFileUrl: kmlMetadata.links.kml,
         visible: true,
-        adminId: kmlMetaData.adminId,
-        kmlMetaData,
+        adminId: kmlMetadata.adminId,
+        kmlMetadata,
     })
 }

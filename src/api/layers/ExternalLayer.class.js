@@ -65,7 +65,7 @@ export default class ExternalLayer extends AbstractLayer {
      *   GeoJson, etc...)
      * @param {String} externalLayerData.externalLayerId Layer ID to use when requesting the tiles
      *   on the server
-     * @param {String} externalLayerData.baseURL Base URL to build the request to the data
+     * @param {String} externalLayerData.baseUrl Base URL to build the request to the data
      * @param {number} [externalLayerData.opacity=1.0] The opacity of this layer, between 0.0
      *   (transparent) and 1.0 (opaque). Default is `1.0`
      * @param {boolean} [externalLayerData.visible=true] If the layer should be visible on the map.

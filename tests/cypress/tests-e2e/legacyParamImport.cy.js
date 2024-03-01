@@ -267,7 +267,7 @@ describe('Test on legacy param import', () => {
                 const externalLayer = activeLayers[1]
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.baseUrl).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
@@ -306,7 +306,7 @@ describe('Test on legacy param import', () => {
                 const externalLayer = activeLayers[1]
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.baseUrl).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.be.false

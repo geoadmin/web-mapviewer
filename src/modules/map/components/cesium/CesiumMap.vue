@@ -521,13 +521,13 @@ export default {
                         .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.id)
                         .forEach((obj) => {
                             const feature = obj.primitive.olFeature
-                            if (!kmlFeatures[feature.id]) {
+                            if (!kmlFeatures[feature.getId()]) {
                                 const editableFeature = feature.get('editableFeature')
                                 if (editableFeature) {
                                     editableFeature.geodesicCoordinates =
                                         extractOlFeatureGeodesicCoordinates(feature)
                                     editableFeature.geometry = feature.getGeometry()
-                                    kmlFeatures[feature.id] = editableFeature
+                                    kmlFeatures[feature.getId()] = editableFeature
                                 } else {
                                     // TODO
                                     log.debug(

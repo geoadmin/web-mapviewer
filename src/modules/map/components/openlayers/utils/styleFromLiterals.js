@@ -285,7 +285,7 @@ OlStyleForPropertyValue.prototype.getOlStyle_ = function (feature, resolution, p
         olStyles = this.findOlStyleInRange_(value, geomType)
     }
     if (!olStyles) {
-        this.log_(value, feature.id)
+        this.log_(value, feature.getId())
         return this.defaultStyle
     }
     const styleSpec = this.getOlStyleForResolution_(olStyles, resolution)

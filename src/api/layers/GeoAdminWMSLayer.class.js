@@ -100,6 +100,6 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
     }
 
     getURL() {
-        return this.baseURL ?? WMS_BASE_URL
+        return this.baseUrl ?? WMS_BASE_URL
     }
 }

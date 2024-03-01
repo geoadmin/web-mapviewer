@@ -34,7 +34,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
             store.dispatch('setDrawingFeatures', {
-                featureIds: features.map((feature) => feature.id),
+                featureIds: features.map((feature) => feature.getId()),
                 ...dispatcher,
             })
             saveState.value = DrawingState.LOADED
