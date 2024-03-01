@@ -149,8 +149,9 @@ const isFeatureClosed = computed(() => {
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureLineString = computed(() => feature.value.geometry.type === 'LineString')
 const isFeaturePolygon = computed(() => {
-    return feature.value.featureType === EditableFeatureTypes.LINEPOLYGON && isFeatureClosed.value
+    return feature.value.geometry.type === 'Polygon'
 })
 
 const store = useStore()
@@ -214,18 +215,20 @@ function onDelete() {
                     'form-control-plaintext': readOnly,
                 }"
             ></textarea>
-            <div>{{ feature.featureType }}</div>
-            <div class="d-flex gap-2 py-2">
-                <div v-if="isFeatureLine">
-                    <font-awesome-icon :icon="['fa', 'ruler']" />
+        </div>
+        <div class="d-flex justify-content-between">
+            <div class="d-flex gap-1 py-1">
+                <div v-if="isFeatureLineString || isFeaturePolygon">
+                    <font-awesome-icon :icon="['fa', 'arrows-alt-h']" />
                     {{ length }}
                 </div>
-                <div v-if="isFeaturePolygon || isFeaturePolygonMeasure">
+                <div v-if="isFeaturePolygon">
                     <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
                     {{ area }}
                     <sup>2</sup>
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
         <div v-if="isFeatureMarker || isFeatureText" class="d-flex small justify-content-start">
             <CoordinateCopySlot
@@ -240,6 +243,9 @@ function onDelete() {
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
+=======
+            <div v-if="!readOnly" class="d-flex gap-1 mb-auto feature-style-edit-control">
+>>>>>>> 8f4ea5dd (PB-74: Update measure to use same logic as line)
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
