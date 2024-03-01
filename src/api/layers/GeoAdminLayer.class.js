@@ -1,4 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 
 /**
  * @abstract
@@ -15,67 +16,100 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
  */
 export default class GeoAdminLayer extends AbstractLayer {
     /**
-     * @param {String} name Name of this layer in the current lang
-     * @param {LayerTypes} type See {@link LayerTypes}
-     * @param {String} geoAdminId The unique ID of this layer that will be used to identify this
+     * @param {String} layerData.name Name of this layer in the current lang
+     * @param {LayerTypes} layerData.type See {@link LayerTypes} geoAdminLayerData. * @param {String}
+     *   geoAdminLayerData.geoAdminId The unique ID of this layer that will be used to identify this
      *   layer
-     * @param {String} serverLayerId The ID to use when requesting the WMS/WMTS backend, this might
-     *   be different than geoAdminId, and many layers (with different geoAdminId) can in fact
-     *   request the same serverLayerId in the end)
-     * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
-     *   shown on the map
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     * @param {Boolean} isBackground If this layer is to be used as a background layer or not
-     *   (background layer are stored in the background wheel on the side of the UI)
-     * @param {String} baseURL What's the backend base URL to use when requesting tiles/image for
-     *   this layer, will be used to construct the URL of this layer later on (if null, the default
-     *   WMS/WMTS backend URL will be used)
-     * @param {Boolean} isHighlightable Tells if this layer possess features that should be
-     *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
-     *   endpoint)
-     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
-     * @param {String[]} topics All the topics in which belongs this layer
-     * @param {boolean} ensureTrailingSlashInBaseUrl Flag telling if the base URL must always have a
-     *   trailing slash. It might be sometime the case that this is unwanted (i.e. for an external
-     *   WMS URL already built past the point of URL params, a trailing slash would render this URL
-     *   invalid)
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
+     * @param {String} layerData.technicalName The ID/name to use when requesting the WMS/WMTS
+     *   backend, this might be different than geoAdminId, and many layers (with different
+     *   geoAdminId) can in fact request the same layer, through the same technical name, in the
+     *   end)
+     * @param {Number} [layerData.opacity=1.0] Value from 0.0 to 1.0 telling with which opacity this
+     *   layer should be shown on the map. Default is `1.0`
+     * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
+     *   `true`
+     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
+     *   this layer. Default is `[]`
+     * @param {Boolean} [layerData.isBackground=false] If this layer is to be used as a background
+     *   layer or not (background layer are stored in the background wheel on the side of the UI).
+     *   Default is `false`
+     * @param {String} layerData.baseUrl What's the backend base URL to use when requesting
+     *   tiles/image for this layer, will be used to construct the URL of this layer later on (if
+     *   null, the default WMS/WMTS backend URL will be used)
+     * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
+     *   should be highlighted on the map after a click (and if the backend will provide valuable
+     *   information on the
+     *   {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
+     *   geoAdminLayerData. * endpoint). Default is `false`
+     * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
+     *   on. Default is `false`
+     * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
+     *   is `[]`
+     * @param {boolean} [layerData.ensureTrailingSlashInBaseUrl=true] Flag telling if the base URL
+     *   must always have a trailing slash. It might be sometime the case that this is unwanted
+     *   (i.e. for an external WMS URL already built past the point of URL params, a trailing slash
+     *   would render this URL invalid). Default is `true`
+     * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
+     *   metadata) are still loading. Default is `false`
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
+     * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
+     *   shown to users to explain its content. Default is `false`
+     * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor({
-        name = '',
-        type = null,
-        geoAdminId = '',
-        serverLayerId = '',
-        opacity = 1.0,
-        visible = false,
-        attributions = [],
-        isBackground = false,
-        baseURL = null,
-        isHighlightable = false,
-        hasTooltip = false,
-        topics = [],
-        ensureTrailingSlashInBaseUrl = true,
-        isLoading = false,
-    }) {
-        super({ name, type, opacity, visible, attributions, hasTooltip, isLoading })
-        super({ name, id: geoAdminId, type, opacity, visible, attributions, hasTooltip, isLoading })
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing geoadmin layer data', layerData)
+        }
+        const {
+            name = null,
+            type = null,
+            geoAdminId = null,
+            technicalName = null,
+            opacity = 1.0,
+            visible = true,
+            attributions = [],
+            isBackground = false,
+            baseUrl = null,
+            isHighlightable = false,
+            hasTooltip = false,
+            topics = [],
+            ensureTrailingSlashInBaseUrl = true,
+            isLoading = false,
+            timeConfig = null,
+            hasLegend = false,
+        } = layerData
+        if (geoAdminId === null) {
+            throw new InvalidLayerDataError('Missing geoadmin layer ID', layerData)
+        }
+        if (technicalName === null) {
+            throw new InvalidLayerDataError('Missing geoadmin layer technical name', layerData)
+        }
+        if (baseUrl === null) {
+            throw new InvalidLayerDataError('Missing geoadmin layer base URL', layerData)
+        }
+        super({
+            name,
+            id: geoAdminId,
+            type,
+            opacity,
+            visible,
+            attributions,
+            hasTooltip,
+            isLoading,
+            hasLegend,
+        })
         this.geoAdminId = geoAdminId
-        this.serverLayerId = serverLayerId
+        this.technicalName = technicalName
         this.isBackground = isBackground
-        this.baseURL = baseURL
-        if (ensureTrailingSlashInBaseUrl && this.baseURL && !this.baseURL.endsWith('/')) {
-            this.baseURL = this.baseURL + '/'
+        this.baseUrl = baseUrl
+        if (ensureTrailingSlashInBaseUrl && this.baseUrl && !this.baseUrl.endsWith('/')) {
+            this.baseUrl = this.baseUrl + '/'
         }
         this.isHighlightable = isHighlightable
         this.topics = topics
         this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
-    }
-
-    getID() {
-        return this.geoAdminId
+        this.timeConfig = timeConfig
     }
 
     /**
@@ -93,5 +127,11 @@ export default class GeoAdminLayer extends AbstractLayer {
         }
         // otherwise we return the first topic to make our backend requests for identify and htmlPopup
         return this.topics[0]
+    }
+
+    clone() {
+        let clone = super.clone()
+        clone.timeConfig = this.timeConfig?.clone()
+        return clone
     }
 }

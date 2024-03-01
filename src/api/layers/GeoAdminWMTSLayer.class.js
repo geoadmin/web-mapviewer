@@ -1,6 +1,8 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { WMTS_BASE_URL } from '@/config.js'
 
 /**
  * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
@@ -15,40 +17,57 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class GeoAdminWMTSLayer extends GeoAdminLayer {
     /**
-     * @param {String} name Layer name (internationalized)
-     * @param {String} geoAdminId Unique layer ID
-     * @param {String} serverLayerId ID to be used in our backend (can be different from the id)
-     * @param {Number} opacity Opacity value between 0.0 (transparent) and 1.0 (visible)
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     * @param {String} format Image format for this WMTS layer (jpeg or png)
-     * @param {LayerTimeConfig} timeConfig Settings telling which timestamp has to be used when
-     *   request tiles to the backend
-     * @param {Boolean} isBackground If this layer should be treated as a background layer
-     * @param {String} baseURL The base URL to be used to request tiles (can use the {0-9} notation
-     *   to describe many available backends)
-     * @param {Boolean} isHighlightable Tells if this layer possess features that should be
-     *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
-     *   endpoint)
-     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
-     * @param {String[]} topics All the topics in which belongs this layer
+     * @param {String} layerData.name Layer name (internationalized)
+     * @param {String} layerData.geoAdminId Unique layer ID
+     * @param {String} layerData.technicalName ID to be used in our backend (can be different from
+     *   the id)
+     * @param {Number} [layerData.opacity=1.0] Opacity value between 0.0 (transparent) and 1.0
+     *   (visible). Default is `1.0`
+     * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
+     *   `true`
+     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
+     *   this layer. Default is `[]`
+     * @param {String} [layerData.format='png'] Image format for this WMTS layer (jpeg or png).
+     *   Default is `'png'`
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Settings telling which timestamp
+     *   has to be used when request tiles to the backend. Default is `null`
+     * @param {Boolean} [layerData.isBackground=false] If this layer should be treated as a
+     *   background layer. Default is `false`
+     * @param {String} layerData.baseUrl The base URL to be used to request tiles (can use the {0-9}
+     *   layerData.notation to describe many available backends)
+     * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
+     *   should be highlighted on the map after a click (and if the backend will provide valuable
+     *   information on the
+     *   {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint).
+     *   Default is `false`
+     * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
+     *   on. Default is `false`
+     * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
+     *   is `[]`
+     * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
+     *   shown to users to explain its content. Default is `false`
+     * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor({
-        name = null,
-        geoAdminId = null,
-        serverLayerId = null,
-        opacity = 1.0,
-        visible = false,
-        attributions = [],
-        format = 'png',
-        timeConfig = null,
-        isBackground = false,
-        baseURL = null,
-        isHighlightable = false,
-        hasTooltip = false,
-        topics = [],
-    }) {
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing geoadmin WMTS layer data', layerData)
+        }
+        const {
+            name = null,
+            geoAdminId = null,
+            technicalName = null,
+            opacity = 1.0,
+            visible = true,
+            attributions = [],
+            format = 'png',
+            timeConfig = null,
+            isBackground = false,
+            baseUrl = WMTS_BASE_URL,
+            isHighlightable = false,
+            hasTooltip = false,
+            topics = [],
+            hasLegend = false,
+        } = layerData
         super({
             name,
             type: LayerTypes.WMTS,
@@ -62,6 +81,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             isHighlightable,
             hasTooltip,
             topics,
+            hasLegend,
         })
         this.format = format
         this.timeConfig = timeConfig
@@ -96,6 +116,6 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             // if no timestamp was found (no time config or preview year) we fall back to 'current' as the default WMTS timestamp
             timestampToUse = CURRENT_YEAR_WMTS_TIMESTAMP
         }
-        return `${this.baseURL}1.0.0/${this.serverLayerId}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
+        return `${this.baseUrl}1.0.0/${this.technicalName}/default/${timestampToUse}/${epsgNumber}/{z}/{x}/{y}.${this.format}`
     }
 }

@@ -1,5 +1,6 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 
 /**
  * Get the default layer attributions based on URL for an external layer
@@ -56,54 +57,72 @@ export class LayerLegend {
  */
 export default class ExternalLayer extends AbstractLayer {
     /**
-     * @param {String} name Name of this layer to be shown to the user
-     * @param {LayerTypes} layerType The type of layer in GeoAdmin sense (WMTS, WMS, GeoJson,
-     *   etc...)
-     * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
-     * @param {String} baseURL Base URL to build the request to the data
-     * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
-     * @param {boolean} visible If the layer should be visible on the map
-     * @param {LayerAttribution[] | null} attributions Description of the data owner(s) for this
-     *   layer. When `null` is given it uses the default attribution which is based on the hostname
-     *   of the GetCapabilities server.
-     * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {[[number, number], [number, number]] | null} extent Layer extent
-     * @param {[LayerLegend]} legends Layer legends.
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
+     * @param {String} externalLayerData.name Name of this layer to be shown to the user
+     * @param {String} externalLayerData.id The unique ID of this layer that will be used in the URL
+     *   to identify it. It should typically contain the type of external layer we are dealing with,
+     *   with the URL to get the capabilites or data of this layer.
+     * @param {LayerTypes} externalLayerData.type The type of layer in GeoAdmin sense (WMTS, WMS,
+     *   GeoJson, etc...)
+     * @param {String} externalLayerData.externalLayerId Layer ID to use when requesting the tiles
+     *   on the server
+     * @param {String} externalLayerData.baseURL Base URL to build the request to the data
+     * @param {number} [externalLayerData.opacity=1.0] The opacity of this layer, between 0.0
+     *   (transparent) and 1.0 (opaque). Default is `1.0`
+     * @param {boolean} [externalLayerData.visible=true] If the layer should be visible on the map.
+     *   Default is `true`
+     * @param {LayerAttribution[]} [externalLayerData.attributions=[]] Description of the data
+     *   owner(s) for this layer. When `null` is given it uses the default attribution which is
+     *   based on the hostname of the GetCapabilities server. Default is `[]`
+     * @param {String} [externalLayerData.abstract=''] Abstract of this layer to be shown to the
+     *   user. Default is `''`
+     * @param {[[number, number], [number, number]] | null} [externalLayerData.extent=null] Layer
+     *   extent. Default is `null`
+     * @param {[LayerLegend]} [externalLayerData.legends=[]] Layer legends. Default is `[]`
+     * @param {boolean} [externalLayerData.isLoading=true] Set to true if some parts of the layer
+     *   (e.g. metadata) are still loading. Default is `true`
+     * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
-    constructor({
-        name = null,
-        layerType = null,
-        externalLayerId = null,
-        baseURL = null,
-        opacity = 1.0,
-        visible = true,
-        attributions = null,
-        abstract = '',
-        extent = null,
-        legends = [],
-        isLoading = true,
-    }) {
+    constructor(externalLayerData) {
+        if (!externalLayerData) {
+            throw new InvalidLayerDataError('Missing external layer data', externalLayerData)
+        }
+        const {
+            name = null,
+            id = null,
+            type = null,
+            externalLayerId = null,
+            baseUrl = null,
+            opacity = 1.0,
+            visible = true,
+            attributions = [],
+            abstract = '',
+            extent = null,
+            legends = [],
+            isLoading = true,
+        } = externalLayerData
+        if (baseUrl === null) {
+            throw new InvalidLayerDataError('Missing external layer base URL', externalLayerData)
+        }
         super({
             name,
-            layerType,
+            id,
+            type,
             opacity,
             visible,
-            attributions: attributions || getDefaultAttribution(baseURL),
+            attributions: attributions ?? getDefaultAttribution(baseUrl),
             hasTooltip: false,
             isExternal: true,
             isLoading,
         })
         this.externalLayerId = externalLayerId
-        this.baseURL = baseURL
+        this.baseUrl = baseUrl
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
-        this.hasLegend = !!this.abstract || this.legends?.length > 0
+        this.hasLegend = this.abstract?.length > 0 || this.legends?.length > 0
     }
 
     getURL() {
-        return this.baseURL
+        return this.baseUrl
     }
 }

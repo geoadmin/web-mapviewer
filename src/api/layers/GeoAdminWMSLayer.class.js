@@ -1,4 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { WMS_BASE_URL } from '@/config'
 
@@ -16,50 +17,65 @@ import { WMS_BASE_URL } from '@/config'
  */
 export default class GeoAdminWMSLayer extends GeoAdminLayer {
     /**
-     * @param {String} name The name of this layer (lang specific)
-     * @param {String} geoAdminId The unique ID of this layer
-     * @param {String} serverLayerId The ID of this layer in the GeoAdmin backends (can be the same,
-     *   or different from the id)
-     * @param {Number} opacity The opacity to apply to this layer (between 0.0 and 1.0)
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     * @param {String} baseURL The backend to call for tiles
-     * @param {String} format In which image format the backend must be requested
-     * @param {LayerTimeConfig} timeConfig Settings telling which year has to be used when request
-     *   tiles to the backend
-     * @param {String} lang The lang ISO code to use when requesting the backend (WMS images can
-     *   have text that are language dependent)
-     * @param {Number} gutter How much of a gutter (extra pixels around the image) we want. This is
-     *   specific for tiled WMS, if unset this layer will be a considered a single tile WMS.
-     * @param {Boolean} isHighlightable Tells if this layer possess features that should be
-     *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
-     *   endpoint)
-     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
-     * @param {String[]} topics All the topics in which belongs this layer
-     * @param {String} wmsVersion Version of the WMS protocol to use while requesting images on this
-     *   layer
-     * @param {Number | null} updateDelay Delay after which the data of this layer should be
-     *   re-requested (if null is given, no reload will be triggered)
+     * @param {String} layerData.name The name of this layer (lang specific)
+     * @param {String} layerData.geoAdminId The unique ID of this layer
+     * @param {String} layerData.technicalName The ID/name to use when requesting the WMS backend,
+     *   this might be different than geoAdminId, and many layers (with different geoAdminId) can in
+     *   fact request the same layer, through the same technical name, in the end)
+     * @param {Number} [layerData.opacity=1.0] The opacity to apply to this layer (between 0.0 and
+     *   1.0). Default is `1.0`
+     * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
+     *   `true`
+     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
+     *   this layer. Default is `[]`
+     * @param {String} [layerData.baseUrl=WMS_BASE_URL] The backend to call for tiles. Default is
+     *   `WMS_BASE_URL`
+     * @param {String} [layerData.format='png'] In which image format the backend must be requested.
+     *   Default is `'png'`
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Settings telling which year has
+     *   to be used when request tiles to the backend. Default is `null`
+     * @param {String} [layerData.lang='en'] The lang ISO code to use when requesting the backend
+     *   (WMS images can have text that are language dependent). Default is `'en'`
+     * @param {Number} [layerData.gutter=0] How much of a gutter (extra pixels around the image) we
+     *   want. This is specific for tiled WMS, if unset this layer will be a considered a single
+     *   tile WMS. Default is `0`
+     * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
+     *   should be highlighted on the map after a click (and if the backend will provide valuable
+     *   information on the
+     *   {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} endpoint).
+     *   Default is `false`
+     * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
+     *   on. Default is `false`
+     * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
+     *   is `[]`
+     * @param {String} [layerData.wmsVersion='1.3.0'] Version of the WMS protocol to use while
+     *   requesting images on this layer. Default is `'1.3.0'`
+     * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
+     *   shown to users to explain its content. Default is `false`
+     * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor({
-        name = null,
-        geoAdminId = null,
-        serverLayerId = null,
-        opacity = 1.0,
-        visible = true,
-        attributions = [],
-        baseURL = null,
-        format = null,
-        timeConfig = null,
-        wmsVersion = '1.3.0',
-        lang = 'en',
-        gutter = -1,
-        isHighlightable = false,
-        hasTooltip = false,
-        topics = [],
-        updateDelay = null,
-    }) {
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing geoadmin WMS layer data', layerData)
+        }
+        const {
+            name = null,
+            geoAdminId = null,
+            technicalName = null,
+            opacity = 1.0,
+            visible = true,
+            attributions = [],
+            baseUrl = WMS_BASE_URL,
+            format = 'png',
+            timeConfig = null,
+            wmsVersion = '1.3.0',
+            lang = 'en',
+            gutter = 0,
+            isHighlightable = false,
+            hasTooltip = false,
+            topics = [],
+            hasLegend = false,
+        } = layerData
         super({
             name,
             type: LayerTypes.WMS,
@@ -74,19 +90,13 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             topics,
             // for WMS we do not want a trailing slash in the base URL in case the URL is already defined past the ? portion
             ensureTrailingSlashInBaseUrl: false,
-            updateDelay,
+            timeConfig,
+            hasLegend,
         })
         this.format = format
-        this.timeConfig = timeConfig
         this.lang = lang
         this.gutter = gutter
         this.wmsVersion = wmsVersion
-    }
-
-    clone() {
-        const clone = super.clone()
-        clone.timeConfig = this.timeConfig?.clone() ?? null
-        return clone
     }
 
     getURL() {
