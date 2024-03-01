@@ -32,6 +32,7 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
                 new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),
             ],
             isBackground: true,
+            hasLegend: false,
         })
     }
 

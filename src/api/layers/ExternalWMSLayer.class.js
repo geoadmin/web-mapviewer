@@ -1,4 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -14,36 +15,44 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class ExternalWMSLayer extends ExternalLayer {
     /**
-     * @param {String} name Name of this layer to be shown to the user
-     * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {String} baseURL Base URL to build WMS requests (no endpoint / URL param defined)
-     * @param {String} externalLayerId Layer ID to use when requesting the tiles on the server
-     * @param {String} wmsVersion WMS protocol version to be used when querying this server, default
-     *   is 1.3.0
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     *   holder (it typically is the hostname of the server for this layer)
-     * @param {String} format Image format for this layer, default is PNG
-     * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {[[number, number], [number, number]] | null} extent Layer extent
-     * @param {[LayerLegend]} legends Layer legends.
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
+     * @param {String} externalWmsData.name Name of this layer to be shown to the user
+     * @param {number} externalWmsData.opacity The opacity of this layer, between 0.0 (transparent)
+     *   and 1.0 (opaque)
+     * @param {boolean} externalWmsData.visible If the layer should be shown on the map
+     * @param {String} externalWmsData.baseUrl Base URL to build WMS requests (no endpoint / URL
+     *   param defined)
+     * @param {String} externalWmsData.externalLayerId Layer ID to use when requesting the tiles on
+     *   the server
+     * @param {String} externalWmsData.wmsVersion WMS protocol version to be used when querying this
+     *   server, default is 1.3.0
+     * @param {LayerAttribution[]} externalWmsData.attributions Description of the data owner(s) for
+     *   this layer holder (it typically is the hostname of the server for this layer)
+     * @param {String} externalWmsData.format Image format for this layer, default is PNG
+     * @param {String} externalWmsData.abstract Abstract of this layer to be shown to the user
+     * @param {[[number, number], [number, number]] | null} externalWmsData.extent Layer extent
+     * @param {[LayerLegend]} externalWmsData.legends Layer legends.
+     * @param {boolean} externalWmsData.isLoading Set to true if some parts of the layer (e.g.
+     *   metadata) are still loading
+     * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
-    constructor({
-        name = null,
-        opacity = 1.0,
-        visible = true,
-        baseURL = null,
-        externalLayerId = null,
-        attributions = null,
-        wmsVersion = '1.3.0',
-        format = 'png',
-        abstract = '',
-        extent = null,
-        legends = [],
-        isLoading = true,
-    }) {
+    constructor(externalWmsData) {
+        if (!externalWmsData) {
+            throw new InvalidLayerDataError('Missing external WMS layer data', externalWmsData)
+        }
+        const {
+            name = null,
+            opacity = 1.0,
+            visible = true,
+            baseUrl = null,
+            externalLayerId = null,
+            attributions = null,
+            wmsVersion = '1.3.0',
+            format = 'png',
+            abstract = '',
+            extent = null,
+            legends = [],
+            isLoading = true,
+        } = externalWmsData
         super({
             name,
             // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
@@ -51,7 +60,7 @@ export default class ExternalWMSLayer extends ExternalLayer {
             id: `WMS|${baseUrl}|${externalLayerId}`,
             type: LayerTypes.WMS,
             externalLayerId,
-            baseURL,
+            baseUrl,
             opacity,
             visible,
             attributions,

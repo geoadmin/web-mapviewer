@@ -32,18 +32,15 @@ export default class CoordinateSystem {
      */
     constructor(epsgNumber, label, proj4transformationMatrix, bounds = null) {
         this.epsgNumber = epsgNumber
+        /**
+         * Full EPSG identifier used by most libraries (such as proj4, or OpenLayers)
+         *
+         * @type {`EPSG:${Number}`}
+         */
+        this.epsg = `EPSG:${epsgNumber}`
         this.label = label
         this.proj4transformationMatrix = proj4transformationMatrix
         this.bounds = bounds
-    }
-
-    /**
-     * Full EPSG identifier used by most libraries (such as proj4, or OpenLayers)
-     *
-     * @returns {String}
-     */
-    get epsg() {
-        return `EPSG:${this.epsgNumber}`
     }
 
     /**

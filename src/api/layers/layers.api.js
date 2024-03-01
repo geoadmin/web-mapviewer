@@ -35,11 +35,12 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
             type,
             opacity,
             format,
-            background,
+            background: isBackground,
             highlightable: isHighlightable,
             tooltip: hasTooltip,
             attribution: attributionName,
             attributionUrl: potentialAttributionUrl,
+            hasLegend,
         } = layerConfig
         // checking if attributionUrl is a well-formed URL, otherwise we drop it
         let attributionUrl = null
@@ -77,11 +78,12 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     attributions,
                     format,
                     timeConfig,
-                    isBackground: !!background,
+                    isBackground: !!isBackground,
                     baseUrl: WMTS_BASE_URL,
                     isHighlightable,
                     hasTooltip,
                     topics,
+                    hasLegend: !!hasLegend,
                 })
                 break
             case 'wms':
@@ -101,6 +103,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     isHighlightable,
                     hasTooltip,
                     topics,
+                    hasLegend: !!hasLegend,
                 })
                 break
             case 'geojson':
@@ -113,6 +116,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     geoJsonUrl: layerConfig.geojsonUrl,
                     styleUrl: layerConfig.styleUrl,
                     updateDelay: layerConfig.updateDelay,
+                    hasLegend: !!hasLegend,
                 })
                 break
             case 'aggregate': {
@@ -169,6 +173,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     isHighlightable,
                     hasTooltip,
                     topics,
+                    hasLegend: !!hasLegend,
                 })
 
                 break

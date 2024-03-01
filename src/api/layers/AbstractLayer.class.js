@@ -1,4 +1,4 @@
-import LayerTypes from './LayerTypes.enum'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
 
 /**
  * Name (or description) of a data holder for a layer, with the possibility to define a URL
@@ -42,28 +42,52 @@ export class LayerAttribution {
  */
 export default class AbstractLayer {
     /**
-     * @param {String} name Name of this layer in the current lang
-     * @param {LayerTypes} type See {@link LayerTypes}
-     * @param {Number} opacity Value from 0.0 to 1.0 telling with which opacity this layer should be
-     *   shown on the map
-     * @param {boolean} visible If the layer should be visible on the map or hidden
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
-     * @param {Boolean} isExternal Define if this layer comes from our backend, or is from another
-     *   (external) source
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
+     * @param {String} layerData.name Name of this layer in the current lang
+     * @param {String} layerData.id The unique ID of this layer that will be used in the URL to
+     *   identify it (and also in subsequent backend services for GeoAdmin layers)
+     * @param {LayerTypes} layerData.type See {@link LayerTypes}
+     * @param {Number} [layerData.opacity=1.0] Value from 0.0 to 1.0 telling with which opacity this
+     *   layer should be shown on the map. Default is `1.0`
+     * @param {boolean} [layerData.visible=false] If the layer should be visible on the map or
+     *   hidden. Default is `false`
+     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
+     *   this layer. Default is `[]`
+     * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
+     *   on. Default is `false`
+     * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
+     *   shown to users to explain its content. Default is `false`
+     * @param {Boolean} [layerData.isExternal=false] Define if this layer comes from our backend, or
+     *   is from another (external) source. Default is `false`
+     * @param {boolean} [layerData.isLoading=false] Set to true if some parts of the layer (e.g.
+     *   metadata) are still loading. Default is `false`
+     * @throws InvalidLayerDataError if no `layerData` is given, or if `layerData.name` or
+     *   `layerData.type` aren't valid
      */
-    constructor({
-        name = '',
-        type = null,
-        opacity = 1.0,
-        visible = false,
-        attributions = [],
-        hasTooltip = false,
-        isExternal = false,
-        isLoading = false,
-    }) {
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing layer data', layerData)
+        }
+        const {
+            name = null,
+            id = null,
+            type = null,
+            opacity = 1.0,
+            visible = false,
+            attributions = [],
+            hasTooltip = false,
+            hasLegend = false,
+            isExternal = false,
+            isLoading = false,
+        } = layerData
+        if (name === null) {
+            throw new InvalidLayerDataError('Missing layer name', layerData)
+        }
+        if (id === null) {
+            throw new InvalidLayerDataError('Missing layer ID', layerData)
+        }
+        if (type === null) {
+            throw new InvalidLayerDataError('Missing layer type', layerData)
+        }
         this.name = name
         this.id = id
         this.type = type
@@ -73,11 +97,7 @@ export default class AbstractLayer {
         this.hasTooltip = hasTooltip
         this.isExternal = isExternal
         this.isLoading = isLoading
-        if ([LayerTypes.KML, LayerTypes.GPX].includes(this.type)) {
-            this.hasLegend = false
-        } else {
-            this.hasLegend = true
-        }
+        this.hasLegend = hasLegend
         this.errorKey = null
         this.hasError = false
     }
