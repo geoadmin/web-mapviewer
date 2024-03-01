@@ -78,8 +78,19 @@ export default {
                         value: this.formatDistance(this.profile.maxDist),
                     },
                     {
+                        title: 'profile_distance_air',
+                        icons: [
+                            ['fa', 'globe'],
+                            ['fa', 'arrows-alt-h'],
+                        ],
+                        value: this.formatDistance(this.profile.maxDist),
+                    },
+                    {
                         title: 'profile_slope_distance',
-                        icons: [['fa', 'arrows-alt-h']],
+                        icons: [
+                            ['fa', 'mountain-sun'],
+                            ['fa', 'arrows-alt-h'],
+                        ],
                         value: this.formatDistance(this.profile.slopeDistance),
                     },
                     {

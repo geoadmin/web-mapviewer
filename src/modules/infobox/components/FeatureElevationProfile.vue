@@ -17,7 +17,7 @@
                 data-cy="profile-popup-csv-download-button"
                 @click="onCSVDownload"
             >
-                <FontAwesomeIcon icon="download" />
+                <FontAwesomeIcon icon="fa fa-plane" rotation="45" />
             </button>
             <button
                 v-if="showDeleteButton"
