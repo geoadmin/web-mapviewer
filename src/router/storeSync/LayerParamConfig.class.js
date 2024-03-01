@@ -18,8 +18,8 @@ import log from '@/utils/logging'
  * @returns {string}
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
-    let layerUrlString = layer.getID()
-    if (layer.timeConfig && layer.timeConfig.timeEntries.length > 1) {
+    let layerUrlString = layer.id
+    if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }
     if (!layer.visible) {
@@ -135,7 +135,7 @@ function generateLayerUrlParamFromStoreValues(store) {
         .map((layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config) => config.getID() === layer.getID())
+                store.state.layers.config.find((config) => config.id === layer.id)
             )
         )
         .join(';')

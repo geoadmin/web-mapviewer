@@ -61,6 +61,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         isLoading = false,
     }) {
         super({ name, type, opacity, visible, attributions, hasTooltip, isLoading })
+        super({ name, id: geoAdminId, type, opacity, visible, attributions, hasTooltip, isLoading })
         this.geoAdminId = geoAdminId
         this.serverLayerId = serverLayerId
         this.isBackground = isBackground

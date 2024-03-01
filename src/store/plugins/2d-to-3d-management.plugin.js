@@ -24,7 +24,7 @@ export default function from2Dto3Dplugin(store) {
                     const matching2dBackgroundId = Object.entries(
                         backgroundMatriceBetween2dAnd3d
                     ).find(([_, layerId3d]) => {
-                        return layerId3d === state.layers.currentBackgroundLayer?.getID()
+                        return layerId3d === state.layers.currentBackgroundLayer?.id
                     })
                     if (matching2dBackgroundId?.length > 0) {
                         store.dispatch('setBackground', {
@@ -35,7 +35,7 @@ export default function from2Dto3Dplugin(store) {
                 } else if (state.layers.currentBackgroundLayer) {
                     // when going 3D, as we are before the action
                     const matching3dBackgroundId =
-                        backgroundMatriceBetween2dAnd3d[state.layers.currentBackgroundLayer.getID()]
+                        backgroundMatriceBetween2dAnd3d[state.layers.currentBackgroundLayer.id]
                     if (matching3dBackgroundId) {
                         store.dispatch('setBackground', {
                             bgLayer: matching3dBackgroundId,

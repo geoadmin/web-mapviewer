@@ -39,7 +39,7 @@ export default {
     },
     computed: {
         layerId() {
-            return this.wmtsLayerConfig.getID()
+            return this.wmtsLayerConfig.id
         },
         opacity() {
             return this.wmtsLayerConfig.opacity || 1.0

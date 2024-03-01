@@ -42,12 +42,12 @@ const loadLayersAndTopicsConfigAndDispatchToStore = async (store, lang, topicId,
         const topics = parseTopics(layersConfig, rawTopics)
 
         // adding SWISSIMAGE as a possible background for 3D
-        const swissimage = layersConfig.find((layer) => layer.getID() === 'ch.swisstopo.swissimage')
+        const swissimage = layersConfig.find((layer) => layer.id === 'ch.swisstopo.swissimage')
         if (swissimage) {
             layersConfig.push(
                 new GeoAdminWMTSLayer({
                     name: swissimage.name,
-                    geoAdminId: `${swissimage.getID()}_3d`,
+                    geoAdminId: `${swissimage.id}_3d`,
                     serverLayerId: swissimage.serverLayerId,
                     visible: false,
                     attributions: swissimage.attributions,

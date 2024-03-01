@@ -39,10 +39,7 @@ async function loadDataAndStyle(store, geoJsonLayer) {
             ...dispatcher,
         })
     } catch (error) {
-        log.error(
-            `Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.getID()}`,
-            error
-        )
+        log.error(`Error while fetching GeoJSON data/style for layer ${geoJsonLayer?.id}`, error)
         throw error
     }
 }

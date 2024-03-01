@@ -90,7 +90,7 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         <div v-if="layerConfig.type === LayerTypes.GROUP">
             <OpenLayersInternalLayer
                 v-for="(layer, index) in layerConfig.layers"
-                :key="`${layer.getID()}-${index}`"
+                :key="`${layer.id}-${index}`"
                 :layer-config="layer"
                 :parent-layer-opacity="layerConfig.opacity"
                 :z-index="zIndex + index"
