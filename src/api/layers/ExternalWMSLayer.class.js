@@ -46,6 +46,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
     }) {
         super({
             name,
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
+            id: `WMS|${baseUrl}|${externalLayerId}`,
             type: LayerTypes.WMS,
             externalLayerId,
             baseURL,
@@ -59,11 +62,5 @@ export default class ExternalWMSLayer extends ExternalLayer {
         })
         this.wmsVersion = wmsVersion
         this.format = format
-    }
-
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        // base URL and name must be URL encoded (no & signs or other reserved URL chars must pass, or it could break URL param parsing)
-        return `WMS|${this.baseURL}|${this.externalLayerId}`
     }
 }

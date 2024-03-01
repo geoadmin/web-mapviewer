@@ -50,6 +50,10 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
     }) {
         super({
             name,
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
+            // done the legacy parameter and is not required.
+            id: `WMS|${baseUrl}|${externalLayerId}`,
             type: LayerTypes.GROUP,
             externalLayerId,
             baseUrl,
@@ -64,12 +68,6 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
         this.layers = [...layers]
     }
 
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
-        // done the legacy parameter and is not required.
-        return `WMS|${this.baseURL}|${this.externalLayerId}`
-    }
     clone() {
         let clone = super.clone()
         clone.layers = this.layers.map((layer) => layer.clone())

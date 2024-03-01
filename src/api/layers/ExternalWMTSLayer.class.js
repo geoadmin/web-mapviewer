@@ -43,6 +43,8 @@ export default class ExternalWMTSLayer extends ExternalLayer {
     }) {
         super({
             name,
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            id: `WMTS|${baseUrl}|${externalLayerId}`,
             type: LayerTypes.WMTS,
             externalLayerId,
             baseURL,
@@ -54,10 +56,5 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             legends,
             isLoading,
         })
-    }
-
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `WMTS|${this.baseURL}|${this.externalLayerId}`
     }
 }

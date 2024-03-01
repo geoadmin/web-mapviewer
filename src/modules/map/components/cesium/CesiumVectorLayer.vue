@@ -31,7 +31,7 @@ export default {
         this.layer = this.getViewer().scene.primitives.add(
             await loadTileSetAndApplyStyle(
                 this.layerConfig.getURL(),
-                this.layerConfig.getID() === 'ch.swisstopo.swissnames3d.3d'
+                this.layerConfig.id === 'ch.swisstopo.swissnames3d.3d'
             )
         )
     },

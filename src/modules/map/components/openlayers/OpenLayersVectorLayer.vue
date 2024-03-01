@@ -35,7 +35,7 @@ const props = defineProps({
 const { vectorLayerConfig, parentLayerOpacity, zIndex } = toRefs(props)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => vectorLayerConfig.value.getID())
+const layerId = computed(() => vectorLayerConfig.value.id)
 const opacity = computed(() => parentLayerOpacity.value, vectorLayerConfig.value.opacity)
 const styleUrl = computed(() => vectorLayerConfig.value.getURL())
 

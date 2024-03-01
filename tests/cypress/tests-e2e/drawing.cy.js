@@ -401,7 +401,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.getID()).to.include('KML|')
+                expect(drawingLayer.id).to.include('KML|')
                 expect(drawingLayer.visible).to.be.true
             })
             // checks that it clears the drawing when the drawing layer is removed

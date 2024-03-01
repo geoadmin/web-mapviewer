@@ -19,7 +19,7 @@
             -->
             <CesiumInternalLayer
                 v-for="bgLayer in backgroundLayersFor3D"
-                :key="bgLayer.getID()"
+                :key="bgLayer.id"
                 :layer-config="bgLayer"
                 :projection="projection"
                 :z-index="0"
@@ -32,7 +32,7 @@
             -->
             <CesiumInternalLayer
                 v-for="(layer, index) in visibleImageryLayers"
-                :key="layer.getID()"
+                :key="layer.id"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
@@ -40,7 +40,7 @@
             />
             <CesiumInternalLayer
                 v-for="layer in visiblePrimitiveLayers"
-                :key="layer.getID()"
+                :key="layer.id"
                 :layer-config="layer"
                 :preview-year="previewYear"
                 :projection="projection"
@@ -518,16 +518,16 @@ export default {
                 .filter((l) => l instanceof KMLLayer)
                 .forEach((KMLLayer) => {
                     objects
-                        .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.getID())
+                        .filter((obj) => obj.primitive?.olLayer?.get('id') === KMLLayer.id)
                         .forEach((obj) => {
                             const feature = obj.primitive.olFeature
-                            if (!kmlFeatures[feature.getId()]) {
+                            if (!kmlFeatures[feature.id]) {
                                 const editableFeature = feature.get('editableFeature')
                                 if (editableFeature) {
                                     editableFeature.geodesicCoordinates =
                                         extractOlFeatureGeodesicCoordinates(feature)
                                     editableFeature.geometry = feature.getGeometry()
-                                    kmlFeatures[feature.getId()] = editableFeature
+                                    kmlFeatures[feature.id] = editableFeature
                                 } else {
                                     // TODO
                                     log.debug(

@@ -57,7 +57,7 @@ const readTopicTreeRecursive = (node, availableLayers) => {
         return new GeoAdminGroupOfLayers(`${node.id}`, node.label, children)
     } else if (node.category === 'layer') {
         const matchingLayer = availableLayers.find(
-            (layer) => layer.serverLayerId === node.layerBodId || layer.getID() === node.layerBodId
+            (layer) => layer.serverLayerId === node.layerBodId || layer.id === node.layerBodId
         )
         if (matchingLayer) {
             return matchingLayer
@@ -136,7 +136,7 @@ export function parseTopics(layersConfig, rawTopics) {
             plConfig: legacyUrlParams,
         } = rawTopic
         const backgroundLayers = layersConfig.filter(
-            (layer) => backgroundLayersId.indexOf(layer.getID()) !== -1
+            (layer) => backgroundLayersId.indexOf(layer.id) !== -1
         )
         const backgroundLayerFromUrlParam = getBackgroundLayerFromLegacyUrlParams(
             layersConfig,
@@ -150,7 +150,7 @@ export function parseTopics(layersConfig, rawTopics) {
         // with what is in "defaultBackground" in this case
         if (backgroundLayerFromUrlParam === undefined) {
             defaultBackground = backgroundLayers.find(
-                (layer) => layer.getID() === defaultBackgroundLayerId
+                (layer) => layer.id === defaultBackgroundLayerId
             )
         }
         const params = new URLSearchParams(legacyUrlParams)
@@ -169,9 +169,9 @@ export function parseTopics(layersConfig, rawTopics) {
             // Filter out layers that have been already added by the infamous
             // plConfig topic config that has priority, this avoid duplicate
             // layers
-            .filter((layerId) => !layersToActivate.some((layer) => layer.getID() === layerId))
+            .filter((layerId) => !layersToActivate.some((layer) => layer.id === layerId))
         activatedLayers.forEach((layerId) => {
-            let layer = layersConfig.find((layer) => layer.getID() === layerId)
+            let layer = layersConfig.find((layer) => layer.id === layerId)
             if (layer) {
                 // deep copy so that we can reassign values later on
                 // (layers come from the Vuex store so it can't be modified directly)

@@ -48,19 +48,19 @@ describe('Background layer is correctly set', () => {
         expect(getBackgroundLayer()).to.be.null
     })
     it('does not select a background if the one given is not present in the config', async () => {
-        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.id, dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.null
     })
     it('does select the background if it is present in the config', async () => {
         await store.dispatch('setLayerConfig', { config: [bgLayer], dispatcher: 'unit-test' })
-        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.id, dispatcher: 'unit-test' })
         expect(getBackgroundLayer()).to.be.an.instanceof(AbstractLayer)
-        expect(getBackgroundLayer().getID()).to.eq(bgLayer.getID())
+        expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
     it('does not permit to select a background that has not the flag isBackground set to true', async () => {
         await store.dispatch('setLayerConfig', { config: [firstLayer], dispatcher: 'unit-test' })
         await store.dispatch('setBackground', {
-            bgLayer: firstLayer.getID(),
+            bgLayer: firstLayer.id,
             dispatcher: 'unit-test',
         })
         expect(getBackgroundLayer()).to.be.null
@@ -81,16 +81,16 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         })
     })
     it('creates a copy of the layers config when adding a layer through its ID', async () => {
-        store.dispatch('addLayer', { layerId: firstLayer.getID(), dispatcher: 'unit-test' })
-        checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.getID()))
+        store.dispatch('addLayer', { layerId: firstLayer.id, dispatcher: 'unit-test' })
+        checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.id))
     })
     it('creates a copy of the layers config when adding with the config directly', async () => {
         store.dispatch('addLayer', { layer: firstLayer, dispatcher: 'unit-test' })
-        checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.getID()))
+        checkRefNotEqButDeepEq(firstLayer, store.getters.getActiveLayerById(firstLayer.id))
         // now the same test, but by grabbing the first layer's config directly from the store's config
         checkRefNotEqButDeepEq(
-            store.state.layers.config.find((layer) => layer.getID() === firstLayer.getID()),
-            store.getters.getActiveLayerById(firstLayer.getID())
+            store.state.layers.config.find((layer) => layer.id === firstLayer.id),
+            store.getters.getActiveLayerById(firstLayer.id)
         )
     })
     it('does not force the visibility of the layer to true when adding it', async () => {
@@ -101,7 +101,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
             dispatcher: 'unit-test',
         })
         store.dispatch('addLayer', { layer: invisibleLayer, dispatcher: 'unit-test' })
-        const addedLayer = store.getters.getActiveLayerById(invisibleLayer.getID())
+        const addedLayer = store.getters.getActiveLayerById(invisibleLayer.id)
         expect(addedLayer).to.be.an.instanceof(AbstractLayer)
         expect(addedLayer.visible).to.be.false
     })
@@ -122,7 +122,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('does not give background layers with the visible layers', async () => {
-        await store.dispatch('setBackground', { bgLayer: bgLayer.getID(), dispatcher: 'unit-test' })
+        await store.dispatch('setBackground', { bgLayer: bgLayer.id, dispatcher: 'unit-test' })
         expect(getVisibleLayers()).to.be.an('Array').empty
     })
     it('adds correctly a layer to the visible layers after it is added to the map', async () => {
@@ -130,7 +130,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         const [layer] = getVisibleLayers()
         expect(layer).to.be.an.instanceof(AbstractLayer)
-        expect(layer.getID()).to.eq(firstLayer.getID())
+        expect(layer.id).to.eq(firstLayer.id)
     })
     it('removes a layer from the visible layers as soon as its visibility is toggled', async () => {
         expect(getVisibleLayers()).to.be.an('Array').empty

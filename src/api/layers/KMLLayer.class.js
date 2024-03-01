@@ -41,6 +41,8 @@ export default class KMLLayer extends AbstractLayer {
         const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
         super({
             name: 'KML',
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            id: `KML|${kmlFileUrl}`,
             type: LayerTypes.KML,
             opacity: opacity ?? 1.0,
             visible: visible ?? true,
@@ -65,11 +67,6 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
-    }
-
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `KML|${this.kmlFileUrl}`
     }
 
     getURL(_epsgNumber, _timestamp) {

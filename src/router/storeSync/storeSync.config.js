@@ -71,7 +71,7 @@ const storeSyncConfig = [
             if (backgroundLayer === null) {
                 return 'void'
             }
-            return backgroundLayer.getID()
+            return backgroundLayer.id
         },
         true,
         String

@@ -34,7 +34,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             log.debug('Add features to drawing layer', features, drawingLayer)
             drawingLayer.getSource().addFeatures(features)
             store.dispatch('setDrawingFeatures', {
-                featureIds: features.map((feature) => feature.getId()),
+                featureIds: features.map((feature) => feature.id),
                 ...dispatcher,
             })
             saveState.value = DrawingState.LOADED
@@ -91,7 +91,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     kmlData
                 )
                 await store.dispatch('updateKmlGpxLayer', {
-                    layerId: activeKmlLayer.value.getID(),
+                    layerId: activeKmlLayer.value.id,
                     data: kmlData,
                     metadata: kmlMetadata,
                     ...dispatcher,

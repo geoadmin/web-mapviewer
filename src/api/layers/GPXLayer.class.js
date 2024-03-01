@@ -18,6 +18,7 @@ export default class GPXLayer extends AbstractLayer {
         const attributionName = isLocalFile ? gpxFileUrl : new URL(gpxFileUrl).hostname
         super({
             name: gpxMetadata?.name ?? 'GPX',
+            id: `GPX|${gpxFileUrl}`,
             type: LayerTypes.GPX,
             opacity: opacity ?? 1.0,
             visible: visible ?? true,
@@ -28,9 +29,6 @@ export default class GPXLayer extends AbstractLayer {
         this.gpxFileUrl = gpxFileUrl
         this.gpxData = gpxData
         this.gpxMetadata = gpxMetadata
-    }
-    getID() {
-        return `GPX|${this.gpxFileUrl}`
     }
 
     getURL(_epsgNumber, _timestamp) {

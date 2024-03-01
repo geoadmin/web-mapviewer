@@ -18,9 +18,9 @@ const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(legacyParams.get('adminId'))
     log.debug('Adding KML layer from legacy kml adminId')
     if (newQuery.layers) {
-        newQuery.layers = `${newQuery.layers};${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${newQuery.layers};${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     } else {
-        newQuery.layers = `${kmlLayer.getID()}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     }
 
     // remove the legacy param from the newQuery
@@ -86,10 +86,7 @@ const handleLegacyParam = (
                 params.get('layers_timestamp')
             )
                 .map((layer) =>
-                    transformLayerIntoUrlString(
-                        layer,
-                        store.getters.getLayerConfigById(layer.getID())
-                    )
+                    transformLayerIntoUrlString(layer, store.getters.getLayerConfigById(layer.id))
                 )
                 .join(';')
             log.debug('Importing legacy layers as', newValue)

@@ -105,10 +105,10 @@ function onOpacityChange(layerId, opacity) {
     })
 }
 function isFirstLayer(layerId) {
-    return activeLayers.value[0].getID() === layerId
+    return activeLayers.value[0].id === layerId
 }
 function isLastLayer(layerId) {
-    return activeLayers.value.slice(-1)[0].getID() === layerId
+    return activeLayers.value.slice(-1)[0].id === layerId
 }
 </script>
 
@@ -122,13 +122,13 @@ function isLastLayer(layerId) {
         >
             <MenuActiveLayersListItem
                 v-for="layer in activeLayers"
-                :key="layer.getID()"
+                :key="layer.id"
                 :layer="layer"
-                :show-details="showLayerDetailsForId === layer.getID()"
-                :is-first-layer="isFirstLayer(layer.getID())"
-                :is-last-layer="isLastLayer(layer.getID())"
+                :show-details="showLayerDetailsForId === layer.id"
+                :is-first-layer="isFirstLayer(layer.id)"
+                :is-last-layer="isLastLayer(layer.id)"
                 :compact="compact"
-                :data-layer-id="layer.getID()"
+                :data-layer-id="layer.id"
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
                 @remove-layer="onRemoveLayer"
                 @toggle-layer-visibility="onToggleLayerVisibility"

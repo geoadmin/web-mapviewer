@@ -76,7 +76,7 @@ export function generateKmlString(projection, features = []) {
     let exportFeatures = []
     features.forEach((f) => {
         const clone = f.clone()
-        clone.setId(f.getId())
+        clone.setId(f.id)
         clone.getGeometry().setProperties(f.getGeometry().getProperties())
         const styles = featureStyleFunction(clone)
         const newStyle = {

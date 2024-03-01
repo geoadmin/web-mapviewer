@@ -105,7 +105,7 @@ export function useLayerZIndexCalculation() {
         }
         // trying to find a match among the visible layers
         const matchingLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.find(
-            (visibleLayer) => visibleLayer?.getID() === layer.getID()
+            (visibleLayer) => visibleLayer?.id === layer.id
         )
         if (!matchingLayerInVisibleLayers) {
             return -1

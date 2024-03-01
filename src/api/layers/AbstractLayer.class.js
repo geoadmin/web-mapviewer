@@ -65,6 +65,7 @@ export default class AbstractLayer {
         isLoading = false,
     }) {
         this.name = name
+        this.id = id
         this.type = type
         this.opacity = opacity
         this.visible = visible
@@ -92,15 +93,6 @@ export default class AbstractLayer {
      */
     getURL(_epsgNumber = null, _timestamp = null) {
         throw new Error('You have to implement the method getURL!')
-    }
-
-    /**
-     * @abstract
-     * @returns {String} The unique ID of this layer that will be used in the URL to identify it
-     *   (and also in subsequent backend services for GeoAdmin layers)
-     */
-    getID() {
-        throw new Error('You have to implement the method getID!')
     }
 
     clone() {

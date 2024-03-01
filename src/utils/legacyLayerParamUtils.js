@@ -79,7 +79,7 @@ export function getLayersFromLegacyUrlParams(
     const layerVisibilities = legacyVisibilities?.split(',') ?? []
     const layerTimestamps = legacyTimestamp?.split(',') ?? []
     layersIds.forEach((layerId, index) => {
-        let layer = layersConfig.find((layer) => layer.getID() === layerId)
+        let layer = layersConfig.find((layer) => layer.id === layerId)
         // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
         // to add it to the map
         if (layer) {
@@ -152,7 +152,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
             return null
         }
         if (bgLayerId) {
-            return layersConfig.find((layer) => layer.getID() === bgLayerId)
+            return layersConfig.find((layer) => layer.id === bgLayerId)
         }
     }
     return undefined

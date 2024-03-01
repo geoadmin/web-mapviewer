@@ -93,12 +93,12 @@ const canBeAddedToTheMap = computed(() => {
     return item.value && !(item.value instanceof GeoAdminGroupOfLayers)
 })
 const isPresentInActiveLayers = computed(() =>
-    activeLayers.value.find((layer) => layer.getID() === item.value.getID())
+    activeLayers.value.find((layer) => layer.id === item.value.id)
 )
 
 // reacting to topic changes (some categories might need some auto-opening)
 watch(openThemesIds, (newValue) => {
-    showChildren.value = showChildren.value || newValue.indexOf(item.value.getID()) !== -1
+    showChildren.value = showChildren.value || newValue.indexOf(item.value.id) !== -1
 })
 // When search text is entered, update the children collapsing if needed.
 watch(hasChildrenMatchSearch, (newValue) => {
@@ -107,7 +107,7 @@ watch(hasChildrenMatchSearch, (newValue) => {
 
 // reading the current topic at startup and opening any required category
 onMounted(() => {
-    showChildren.value = openThemesIds.value.indexOf(item.value.getID()) !== -1
+    showChildren.value = openThemesIds.value.indexOf(item.value.id) !== -1
 })
 
 function startLayerPreview() {
@@ -121,7 +121,7 @@ function startLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.getID())
+    const matchingActiveLayer = store.getters.getActiveLayerById(item.value.id)
     if (matchingActiveLayer) {
         store.dispatch('removeLayer', {
             layer: matchingActiveLayer,
@@ -134,7 +134,7 @@ function addRemoveLayer() {
         })
     } else {
         store.dispatch('addLayer', {
-            layerConfig: new ActiveLayerConfig(item.value.getID(), true),
+            layerConfig: new ActiveLayerConfig(item.value.id, true),
             ...dispatcher,
         })
     }
@@ -218,15 +218,11 @@ function containsLayer(layers, searchText) {
 </script>
 
 <template>
-    <div
-        v-show="showItem"
-        class="menu-catalogue-item"
-        :data-cy="`catalogue-tree-item-${item.getID()}`"
-    >
+    <div v-show="showItem" class="menu-catalogue-item" :data-cy="`catalogue-tree-item-${item.id}`">
         <div
             class="menu-catalogue-item-title ps-2"
             :class="{ group: hasChildren }"
-            :data-cy="`catalogue-tree-item-title-${item.getID()}`"
+            :data-cy="`catalogue-tree-item-title-${item.id}`"
             @click="onItemClick"
             @mouseenter="startLayerPreview"
         >
@@ -237,7 +233,7 @@ function containsLayer(layers, searchText) {
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
-                :data-cy="`catalogue-add-layer-button-${item.getID()}`"
+                :data-cy="`catalogue-add-layer-button-${item.id}`"
                 @click.stop="addRemoveLayer()"
             >
                 <FontAwesomeIcon
@@ -251,7 +247,7 @@ function containsLayer(layers, searchText) {
                     'text-primary': isPresentInActiveLayers,
                     'btn-lg': !compact,
                 }"
-                :data-cy="`catalogue-collapse-layer-button-${item.getID()}`"
+                :data-cy="`catalogue-collapse-layer-button-${item.id}`"
                 @click.stop="onCollapseClick"
             >
                 <!-- TODO change to the regular icons once we have bought fontawesome fonts -->
@@ -262,7 +258,7 @@ function containsLayer(layers, searchText) {
                 :text="item.name"
                 class="menu-catalogue-item-name"
                 :class="{ 'text-primary': isPresentInActiveLayers }"
-                :data-cy="`catalogue-tree-item-name-${item.getID()}`"
+                :data-cy="`catalogue-tree-item-name-${item.id}`"
             >
                 <TextSearchMarker :text="item.name" :search="search" />
             </TextTruncate>
@@ -270,7 +266,7 @@ function containsLayer(layers, searchText) {
                 v-if="item.extent?.length"
                 class="btn"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`catalogue-zoom-extent-button-${item.getID()}`"
+                :data-cy="`catalogue-zoom-extent-button-${item.id}`"
                 @click.stop="zoomToLayer"
             >
                 <FontAwesomeIcon icon="fa fa-search-plus" />
@@ -279,7 +275,7 @@ function containsLayer(layers, searchText) {
                 v-if="hasLegend"
                 class="btn"
                 :class="{ 'btn-lg': !compact }"
-                :data-cy="`catalogue-tree-item-info-${item.getID()}`"
+                :data-cy="`catalogue-tree-item-info-${item.id}`"
                 @click.stop="showLayerLegend = true"
             >
                 <FontAwesomeIcon icon="info-circle" />
@@ -293,7 +289,7 @@ function containsLayer(layers, searchText) {
             >
                 <LayerCatalogueItem
                     v-for="child in item.layers"
-                    :key="`${child.getID()}`"
+                    :key="`${child.id}`"
                     :item="child"
                     :search="search"
                     :depth="depth + 1"

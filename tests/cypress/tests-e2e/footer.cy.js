@@ -42,8 +42,7 @@ describe('Testing the footer content / tools', () => {
                         // checking that clicking on the wheel buttons changes the bgLayer of the app accordingly
                         cy.waitUntilState(
                             (state) =>
-                                state.layers.currentBackgroundLayer?.getID() ===
-                                bgLayer.serverLayerName
+                                state.layers.currentBackgroundLayer?.id === bgLayer.serverLayerName
                         )
                         // reopening the BG wheel
                         cy.get('[data-cy="background-selector-open-wheel-button"]').click()
