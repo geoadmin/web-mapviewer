@@ -17,6 +17,7 @@ import SwissCoordinateSystem from '@/utils/coordinates/SwissCoordinateSystem.cla
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
+    handleBodLayerIdParam,
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'

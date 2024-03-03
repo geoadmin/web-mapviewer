@@ -324,6 +324,18 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
                 // In legacy drawing with adminId the layer is not added to the layers parameter
                 target += 1
             }
+            // When handling a legacy parameter, the bod Layer Id might add extra
+            // layers, thus the need to check if those extra layers have been added
+            if (legacy && active !== target) {
+                let targetBodIdParameter = 0
+                state.layers.activeLayers.forEach((layer) => {
+                    targetBodIdParameter += Boolean(
+                        layer.geoAdminID in queryParams &&
+                            !queryParams.layers?.includes(layer.geoAdminID)
+                    )
+                })
+                target += targetBodIdParameter
+            }
             return active === target
         },
         {
