@@ -6,10 +6,10 @@ import I18nModule from '@/modules/i18n/I18nModule.vue'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapModule from '@/modules/map/MapModule.vue'
+import MenuModule from '@/modules/menu/MenuModule.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 import log from '@/utils/logging'
 
-const MenuModule = defineAsyncComponent(() => import('@/modules/menu/MenuModule.vue'))
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
 const store = useStore()
