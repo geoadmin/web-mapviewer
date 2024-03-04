@@ -280,7 +280,7 @@ describe('Test on legacy param import', () => {
         })
         it('External WMTS layer', () => {
             cy.intercept('http://wmts-test.url/**', {
-                fixture: 'external-wmts-getcap.fixture.xml',
+                fixture: 'external-wmts-getcap-1.fixture.xml',
             }).as('externalWMTSGetCap')
             cy.intercept(
                 'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
@@ -288,8 +288,8 @@ describe('Test on legacy param import', () => {
                     fixture: '256.png',
                 }
             )
-            const layerId = 'TestExternalWMTS'
-            const layerName = 'Test External WMTS'
+            const layerId = 'TestExternalWMTS-1'
+            const layerName = 'Test External WMTS 1'
             const url = 'http://wmts-test.url/'
             cy.goToMapView(
                 {

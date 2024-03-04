@@ -35,13 +35,13 @@
     </ows:ServiceProvider>
     <Contents>
         <Layer>
-            <ows:Title>Test External WMTS</ows:Title>
+            <ows:Title>Test External WMTS 1</ows:Title>
             <ows:Abstract></ows:Abstract>
             <ows:WGS84BoundingBox>
                 <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
                 <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
             </ows:WGS84BoundingBox>
-            <ows:Identifier>TestExternalWMTS</ows:Identifier>
+            <ows:Identifier>TestExternalWMTS-1</ows:Identifier>
             <Style>
                 <ows:Identifier>default</ows:Identifier>
             </Style>
@@ -50,7 +50,25 @@
                 <TileMatrixSet>ktzh</TileMatrixSet>
             </TileMatrixSetLink>
             <ResourceURL format="image/png" resourceType="tile"
-                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-1/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+        </Layer>
+        <Layer>
+            <ows:Title>Test External WMTS 2</ows:Title>
+            <ows:Abstract></ows:Abstract>
+            <ows:WGS84BoundingBox>
+                <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
+                <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
+            </ows:WGS84BoundingBox>
+            <ows:Identifier>TestExternalWMTS-2</ows:Identifier>
+            <Style>
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>ktzh</TileMatrixSet>
+            </TileMatrixSetLink>
+            <ResourceURL format="image/png" resourceType="tile"
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-2/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
         </Layer>
         <TileMatrixSet>
             <ows:Identifier>ktzh</ows:Identifier>
@@ -66,5 +84,5 @@
             </TileMatrix>
         </TileMatrixSet>
     </Contents>
-    <ServiceMetadataURL xlink:href="http://test.wmts.url/mapproxy/wmts/1.0.0/WMTSCapabilities.xml" />
+    <ServiceMetadataURL xlink:href="https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml" />
 </Capabilities>
