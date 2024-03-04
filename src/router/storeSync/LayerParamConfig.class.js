@@ -1,4 +1,4 @@
-import getFeature from '@/api/features/features.api'
+import getFeature, { getExtentOfFeatures } from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
@@ -149,6 +149,27 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
                 features: features,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
+
+            const extent = getExtentOfFeatures(features)
+            // If the zoom level has been specifically set to a level, we don't want to override that.
+            // otherwise, we go to the zoom level which encompass all features
+            const query = getUrlQuery()
+            if (!query.z) {
+                store.dispatch('zoomToExtent', {
+                    extent: extent,
+                    maxZoom: 8,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            } else {
+                const center = [
+                    [(extent[0][0] + extent[1][0]) / 2],
+                    [(extent[0][1] + extent[1][1]) / 2],
+                ]
+                store.dispatch('setCenter', {
+                    center: center,
+                    dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
+                })
+            }
         }
     } catch (error) {
         log.error(`Error while processing features in feature preselection. error is ${error}`)
