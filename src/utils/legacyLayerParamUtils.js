@@ -74,7 +74,7 @@ export function getLayersFromLegacyUrlParams(
     // In the case these parameters are not defined, we ensure we have empty arrays rather than
     // 'undefined' elements. Since the function is also called in `topics.api.js`, it can be called
     // with a completely empty string.
-    const layersIds = layers?.split(',').map(decodeURIComponent) ?? []
+    const layersIds = layers?.split(/,(?![^|]* )/g).map(decodeURIComponent) ?? []
     const layerOpacities = legacyOpacities?.split(',').map(parseOpacity) ?? []
     const layerVisibilities = legacyVisibilities?.split(',') ?? []
     const layerTimestamps = legacyTimestamp?.split(',') ?? []

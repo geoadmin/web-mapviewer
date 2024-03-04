@@ -186,7 +186,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(kmlLayer.visible).to.be.true
             })
             it('parses a legacy external WMS layer correctly', () => {
-                const wmsLayerName = 'Name of the WMS layer'
+                const wmsLayerName = 'Name of the WMS layer, with a comma'
                 const wmsBaseUrl = 'https://fake.url?SERVICE=GetMap&'
                 const wmsLayerId = 'fake.layer.id'
                 const wmsVersion = '9.9.9'
@@ -238,7 +238,7 @@ describe('Test parsing of legacy URL param into new params', () => {
             it('does not parse an external layer if it is in the current format', () => {
                 const wmtsResult = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    'WMTS|https://url.to.wmts.server|layer.id|LayerName',
+                    'WMTS|https://url.to.wmts.server|layer.id',
                     undefined,
                     undefined,
                     undefined
@@ -246,7 +246,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(wmtsResult).to.be.an('Array').empty
                 const wmsResult = getLayersFromLegacyUrlParams(
                     fakeLayerConfig,
-                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id|5.4.3|LayerName`,
+                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id`,
                     undefined,
                     undefined,
                     undefined
