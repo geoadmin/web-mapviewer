@@ -1,8 +1,9 @@
+import GPX from 'ol/format/GPX'
+
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { OutOfBoundsError } from '@/utils/coordinates/coordinateUtils'
 import { getExtentForProjection } from '@/utils/extentUtils.js'
-import GPX from '@/utils/GPX'
 import { EmptyGPXError, getGpxExtent } from '@/utils/gpxUtils.js'
 import { EmptyKMLError, getKmlExtent } from '@/utils/kmlUtils'
 

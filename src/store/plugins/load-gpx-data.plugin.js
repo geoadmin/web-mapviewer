@@ -4,9 +4,9 @@
  */
 
 import axios from 'axios'
+import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import GPX from '@/utils/GPX'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
