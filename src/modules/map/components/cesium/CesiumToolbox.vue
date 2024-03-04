@@ -74,14 +74,14 @@ function moveBackward() {
     display: flex;
 
     $compass-size: 95px;
-    $button-size: $compass-size / 2;
+    $button-size: calc($compass-size / 2);
     &-button {
         width: $button-size;
         height: $button-size;
-        border-radius: $button-size / 2;
+        border-radius: calc($button-size / 2);
         border: 2px solid rgba(0, 0, 0, 0.4);
         background: rgb(224, 225, 226);
-        font-size: $button-size / 2.5;
+        font-size: calc($button-size / 2.5);
         color: rgba(0, 0, 0, 0.8);
     }
 
