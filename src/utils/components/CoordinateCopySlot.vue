@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
-import allFormats from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -39,7 +38,6 @@ const i18n = useI18n()
 
 const store = useStore()
 const projection = computed(() => store.state.position.projection)
-const displayedFormatId = computed(() => store.state.position.displayedFormatId)
 const lang = computed(() => store.state.i18n.lang)
 
 const buttonIcon = computed(() => {
