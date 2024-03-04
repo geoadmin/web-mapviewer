@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
+import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import allCoordinateSystems, { LV95, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -56,7 +57,7 @@ const state = {
      *
      * @type String
      */
-    displayedFormatId: 'LV95',
+    displayedFormatId: LV95Format.id,
 
     /**
      * The map zoom level, which define the resolution of the view
@@ -176,8 +177,8 @@ const getters = {
 }
 
 const actions = {
-    setDisplayedFormatId({ commit }, displayedFormatId) {
-        commit('setDisplayedFormatId', displayedFormatId)
+    setDisplayedFormatId({ commit }, { displayedFormatId, dispatcher }) {
+        commit('setDisplayedFormatId', { displayedFormatId, dispatcher })
     },
     /**
      * @param commit

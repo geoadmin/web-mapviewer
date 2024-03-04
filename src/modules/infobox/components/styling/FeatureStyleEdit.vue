@@ -15,6 +15,7 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
@@ -82,6 +83,10 @@ function updateFeatureDescription() {
         ...dispatcher,
     })
 }
+
+const coordinateFormat = computed(() => {
+    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+})
 
 /**
  * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
@@ -219,6 +224,7 @@ function onDelete() {
                 class="d-flex"
                 identifier="feature-style-edit-coordinate-copy"
                 :value="feature.coordinates[0].slice(0, 2)"
+                :coordinate-format="coordinateFormat"
             >
                 <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>

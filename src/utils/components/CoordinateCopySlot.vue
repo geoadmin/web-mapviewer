@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
@@ -25,7 +26,7 @@ const props = defineProps({
         default: 1000,
     },
     coordinateFormat: {
-        type: String,
+        type: CoordinateFormat,
         default: null,
     },
 })
@@ -79,16 +80,10 @@ function setTooltipContent() {
 }
 
 function display(coordinates) {
-    let displayedFormat
-    if (coordinateFormat.value === 'None') {
-        return coordinates
-    }
     if (coordinateFormat.value) {
-        displayedFormat = allFormats.find((format) => format.id == coordinateFormat.value)
-    } else {
-        displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+        return coordinateFormat.value.format(coordinates, projection.value, true)
     }
-    return displayedFormat.format(coordinates, projection.value, true)
+    return coordinates
 }
 async function copyValue() {
     try {
@@ -108,7 +103,7 @@ async function copyValue() {
     <div class="location-popup-label">
         <slot />
     </div>
-    <div class="location-popup-data">
+    <div class="location-popup-data gap-1">
         <div>
             <div :data-cy="`${identifier}`">
                 {{ display(value) }}

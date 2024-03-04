@@ -11,6 +11,7 @@ import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import {
     LV03Format,
     LV95Format,
+    MGRSFormat,
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
@@ -111,17 +112,16 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-lv95"
                 :value="coordinate"
-                coordinate-format="LV95"
+                :coordinate-format="LV95Format"
             >
                 <a :href="i18n.t('contextpopup_lv95_url')" target="_blank">
                     {{ LV95Format.label }}
                 </a>
             </CoordinateCopySlot>
-
             <CoordinateCopySlot
                 identifier="location-popup-lv03"
                 :value="coordinate"
-                coordinate-format="LV03"
+                :coordinate-format="LV03Format"
             >
                 <a :href="i18n.t('contextpopup_lv03_url')" target="_blank">
                     {{ LV03Format.label }}
@@ -131,7 +131,7 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-wgs84"
                 :value="coordinateWGS84Plain"
-                coordinate-format="None"
+                :coordinate-format="null"
                 :extra-value="WGS84Format.format(coordinate, projection)"
             >
                 <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
@@ -140,7 +140,7 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-utm"
                 :value="coordinate"
-                coordinate-format="UTM"
+                :coordinate-format="UTMFormat"
             >
                 <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
             </CoordinateCopySlot>
@@ -148,7 +148,7 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-mgrs"
                 :value="coordinate"
-                coordinate-format="MGRS"
+                :coordinate-format="MGRSFormat"
             >
                 MGRS
             </CoordinateCopySlot>
@@ -157,7 +157,7 @@ async function updateHeight() {
                 v-if="what3Words"
                 identifier="location-popup-w3w"
                 :value="what3Words"
-                coordinate-format="None"
+                :coordinate-format="null"
             >
                 <a href="http://what3words.com/" target="_blank">what3words</a>
             </CoordinateCopySlot>
@@ -166,7 +166,7 @@ async function updateHeight() {
                 v-if="height"
                 identifier="location-popup-height"
                 :value="heightInMeter"
-                coordinate-format="None"
+                :coordinate-format="null"
                 :extra-value="heightInFeet"
             >
                 <a :href="i18n.t('elevation_href')" target="_blank">{{ i18n.t('elevation') }}</a>
