@@ -20,6 +20,7 @@ import log from '@/utils/logging'
  *   corresponding layer if the given layer is an external one, otherwise returns `null`
  */
 export function createLayerObject(parsedLayer, currentLayer) {
+    const defaultOpacity = 1.0
     let layer = parsedLayer
     const [layerType, url, id] = parsedLayer.id.split('|').map(decodeExternalLayerParam)
     if (['KML', 'GPX', 'WMTS', 'WMS'].includes(layerType) && currentLayer) {
@@ -28,7 +29,8 @@ export function createLayerObject(parsedLayer, currentLayer) {
         // layer display name) when using the browser history navigation.
         layer = currentLayer.clone()
         layer.visible = parsedLayer.visible
-        layer.opacity = parsedLayer.opacity
+        // external layer have a default opacity of 1.0
+        layer.opacity = parsedLayer.opacity ?? defaultOpacity
         if (parsedLayer.customAttributes?.adminId) {
             layer.adminId = parsedLayer.customAttributes.adminId
         }
@@ -38,7 +40,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
             layer = new KMLLayer({
                 kmlFileUrl: url,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity,
+                opacity: parsedLayer.opacity ?? defaultOpacity,
                 adminId: parsedLayer.customAttributes.adminId,
             })
         } else {
@@ -53,7 +55,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
             layer = new GPXLayer({
                 gpxFileUrl: url,
                 visible: parsedLayer.visible,
-                opacity: parsedLayer.opacity,
+                opacity: parsedLayer.opacity ?? defaultOpacity,
             })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
@@ -65,7 +67,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
         layer = new ExternalWMTSLayer({
             name: id,
             opacity: parsedLayer.opacity,
-            visible: parsedLayer.visible,
+            visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: url,
             externalLayerId: id,
         })
@@ -77,7 +79,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
         layer = new ExternalWMSLayer({
             name: id,
             opacity: parsedLayer.opacity,
-            visible: parsedLayer.visible,
+            visible: parsedLayer.visible ?? defaultOpacity,
             baseUrl: url,
             externalLayerId: id,
         })

@@ -89,8 +89,11 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
     if (!layer.visible) {
         layerUrlString += `,f`
     }
-    // if no default layers config (e.g. external layers) or if the opacity is not the same as the default one
-    if (!defaultLayerConfig || layer.opacity !== defaultLayerConfig.opacity) {
+    if (
+        (defaultLayerConfig && layer.opacity !== defaultLayerConfig.opacity) ||
+        // for layer that don't have a default config (e.g. external layer) use 1.0 as default opacity
+        (!defaultLayerConfig && layer.opacity !== 1.0)
+    ) {
         if (layer.visible) {
             layerUrlString += ','
         }
