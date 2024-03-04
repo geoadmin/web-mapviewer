@@ -53,7 +53,7 @@ export default class WMSCapabilitiesParser {
      *   Capability layer node and its parents or an empty object if not found
      */
     findLayer(layerId) {
-        return findLayer(layerId, this.Capability?.Layer?.Layer, [this.Capability?.Layer])
+        return findLayer(layerId, [this.Capability.Layer], [this.Capability.Layer])
     }
 
     /**
