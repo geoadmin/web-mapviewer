@@ -149,8 +149,9 @@
         <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"
             InlineFeature="0" RemoteWCS="0" />
         <Layer>
+            <Name>wms-bgdi</Name>
             <Title>WMS BGDI</Title>
-            <Abstract>Öffentliche Daten der Bundes Geodaten-Infrastruktur (BGDI)</Abstract>
+            <Abstract>Public Federal Geo Infrastructure (BGDI)</Abstract>
             <KeywordList>
                 <Keyword>BGDI Geodaten</Keyword>
             </KeywordList>

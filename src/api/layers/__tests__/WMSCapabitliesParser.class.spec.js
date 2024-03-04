@@ -31,8 +31,15 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(capabilities.originUrl.toString()).toBe('https://wms.geo.admin.ch/')
     })
     it('Parse layer attributes', () => {
+        // Base layer
+        let layer = capabilities.getExternalLayerObject('wms-bgdi', WGS84)
+        expect(layer.externalLayerId).toBe('wms-bgdi')
+        expect(layer.name).toBe('WMS BGDI')
+        expect(layer.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+
         // General layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
         expect(layer.externalLayerId).toBe('ch.swisstopo-vd.official-survey')
         expect(layer.name).toBe('OpenData-AV')
         expect(layer.abstract).toBe('The official survey (AV).')
