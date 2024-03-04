@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { beforeEach, describe, it } from 'vitest'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
@@ -16,12 +16,14 @@ const bgLayer = new GeoAdminWMTSLayer({
     visible: true,
     format: 'jpeg',
     isBackground: true,
+    attributions: [new LayerAttribution('test')],
 })
 const firstLayer = new GeoAdminWMTSLayer({
     name: 'First layer',
     geoAdminId: 'first.layer',
     technicalName: 'first.layer',
     visible: true,
+    attributions: [new LayerAttribution('test')],
 })
 const secondLayer = new GeoAdminWMSLayer({
     name: 'Second layer',
@@ -29,6 +31,7 @@ const secondLayer = new GeoAdminWMSLayer({
     technicalName: 'second.layer',
     visible: true,
     timeConfig: new LayerTimeConfig(),
+    attributions: [new LayerAttribution('test')],
 })
 
 const resetStore = async () => {

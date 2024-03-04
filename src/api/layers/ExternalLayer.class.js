@@ -1,19 +1,5 @@
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
-
-/**
- * Get the default layer attributions based on URL for an external layer
- *
- * @param {string} baseUrl Get Capabilities base URL
- * @returns {LayerAttribution[]} Default list of layer attributions
- */
-export function getDefaultAttribution(baseUrl) {
-    if (baseUrl) {
-        return [new LayerAttribution(new URL(baseUrl).hostname)]
-    }
-    return []
-}
+import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
 /**
  * External Layer Legend
@@ -28,14 +14,25 @@ export function getDefaultAttribution(baseUrl) {
  */
 export class LayerLegend {
     /**
-     * @param {String} url Legend URL
-     * @param {String} format Legend MIME type
-     * @param {number | null} width Width of the legend image (in case the format is an image
-     *   format)
-     * @param {number | null} height Height of the legend image (in case the format is an image
-     *   format)
+     * @param {String} layerLegendData.url Legend URL
+     * @param {String} layerLegendData.format Legend MIME type
+     * @param {number | null} [layerLegendData.width=null] Width of the legend image (in case the
+     *   format is an image format). Default is `null`
+     * @param {number | null} [layerLegendData.height=null] Height of the legend image (in case the
+     *   format is an image format). Default is `null`
+     * @throws InvalidLayerDataError if no `layerLegendData` is given or if it is invalid
      */
-    constructor(url, format, width = null, height = null) {
+    constructor(layerLegendData) {
+        if (!layerLegendData) {
+            throw new InvalidLayerDataError('Missing legend data')
+        }
+        const { url, format, width = null, height = null } = layerLegendData
+        if (!url) {
+            throw new InvalidLayerDataError('Missing legend URL', layerLegendData)
+        }
+        if (!format) {
+            throw new InvalidLayerDataError('Missing legend format', layerLegendData)
+        }
         this.url = url
         this.format = format
         this.width = width
@@ -70,9 +67,9 @@ export default class ExternalLayer extends AbstractLayer {
      *   (transparent) and 1.0 (opaque). Default is `1.0`
      * @param {boolean} [externalLayerData.visible=true] If the layer should be visible on the map.
      *   Default is `true`
-     * @param {LayerAttribution[]} [externalLayerData.attributions=[]] Description of the data
+     * @param {LayerAttribution[]} [externalLayerData.attributions=null] Description of the data
      *   owner(s) for this layer. When `null` is given it uses the default attribution which is
-     *   based on the hostname of the GetCapabilities server. Default is `[]`
+     *   based on the hostname of the GetCapabilities server. Default is `null`
      * @param {String} [externalLayerData.abstract=''] Abstract of this layer to be shown to the
      *   user. Default is `''`
      * @param {[[number, number], [number, number]] | null} [externalLayerData.extent=null] Layer
@@ -94,7 +91,7 @@ export default class ExternalLayer extends AbstractLayer {
             baseUrl = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             abstract = '',
             extent = null,
             legends = [],
@@ -109,17 +106,17 @@ export default class ExternalLayer extends AbstractLayer {
             type,
             opacity,
             visible,
-            attributions: attributions ?? getDefaultAttribution(baseUrl),
+            attributions: attributions ?? [new LayerAttribution(new URL(baseUrl).hostname)],
             hasTooltip: false,
             isExternal: true,
             isLoading,
+            hasLegend: abstract?.length > 0 || legends?.length > 0,
         })
         this.externalLayerId = externalLayerId
         this.baseUrl = baseUrl
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
-        this.hasLegend = this.abstract?.length > 0 || this.legends?.length > 0
     }
 
     getURL() {

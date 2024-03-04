@@ -249,7 +249,9 @@ export default class WMTSCapabilitiesParser {
         const styles = layer.Style?.filter((s) => s.LegendURL?.length > 0) ?? []
         return styles
             .map((style) =>
-                style.LegendURL.map((legend) => new LayerLegend(legend.href, legend.format))
+                style.LegendURL.map(
+                    (legend) => new LayerLegend({ url: legend.href, format: legend.format })
+                )
             )
             .flat()
     }

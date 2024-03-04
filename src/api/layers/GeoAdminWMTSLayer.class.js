@@ -1,8 +1,8 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import { CURRENT_YEAR_WMTS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { WMTS_BASE_URL } from '@/config.js'
+import { WMTS_BASE_URL } from '@/config'
 
 /**
  * Metadata for a tiled image layers (WMTS stands for Web Map Tile Service)
@@ -25,8 +25,8 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
      *   (visible). Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
-     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
-     *   this layer. Default is `[]`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer.
      * @param {String} [layerData.format='png'] Image format for this WMTS layer (jpeg or png).
      *   Default is `'png'`
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Settings telling which timestamp
@@ -58,7 +58,7 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             technicalName = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             format = 'png',
             timeConfig = null,
             isBackground = false,
@@ -82,16 +82,9 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             hasTooltip,
             topics,
             hasLegend,
+            timeConfig,
         })
         this.format = format
-        this.timeConfig = timeConfig
-        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
-    }
-
-    clone() {
-        const clone = super.clone()
-        clone.timeConfig = this.timeConfig?.clone() ?? null
-        return clone
     }
 
     /**
@@ -107,10 +100,10 @@ export default class GeoAdminWMTSLayer extends GeoAdminLayer {
             throw Error('epsgNumber is required')
         }
         let timestampToUse = timestamp
-        if (!timestampToUse || !this.timeConfig.hasTimestamp(timestampToUse)) {
+        if (!timestampToUse || !this.timeConfig?.hasTimestamp(timestampToUse)) {
             // if no timestamp was given as param, or if the given timestamp is not part of the possible timestamps
             // we fall back to the timestamp in the time config
-            timestampToUse = this.timeConfig.currentTimestamp
+            timestampToUse = this.timeConfig?.currentTimestamp
         }
         if (!timestampToUse) {
             // if no timestamp was found (no time config or preview year) we fall back to 'current' as the default WMTS timestamp

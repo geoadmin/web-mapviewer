@@ -1,5 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -21,14 +21,14 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
      *   and 1.0 (opaque). Default is `1.0`
      * @param {Boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
-     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
-     *   this layer. Default is `[]`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer. Default is `[]`
      * @param {String} layerData.geoJsonUrl The URL to use when requesting the GeoJSON data (the
      *   true GeoJSON per se...)
      * @param {String} layerData.styleUrl The URL to use to request the styling to apply to the data
      * @param {Number | null} [layerData.updateDelay=null] Delay after which the data of this layer
-     *   should be re-requested (if null is given, no further data reload will be triggered).
-     *   Default is `null`
+     *   should be re-requested (if null is given, no further data reload will be triggered). A good
+     *   example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null`
      * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
     constructor(layerData) {
@@ -40,7 +40,7 @@ export default class GeoAdminGeoJsonLayer extends GeoAdminLayer {
             id = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             geoJsonUrl = null,
             styleUrl = null,
             updateDelay = null,

@@ -1,5 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { WMS_BASE_URL } from '@/config'
 
@@ -26,8 +26,8 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
      *   1.0). Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
-     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
-     *   this layer. Default is `[]`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer
      * @param {String} [layerData.baseUrl=WMS_BASE_URL] The backend to call for tiles. Default is
      *   `WMS_BASE_URL`
      * @param {String} [layerData.format='png'] In which image format the backend must be requested.
@@ -64,7 +64,7 @@ export default class GeoAdminWMSLayer extends GeoAdminLayer {
             technicalName = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             baseUrl = WMS_BASE_URL,
             format = 'png',
             timeConfig = null,

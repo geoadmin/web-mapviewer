@@ -54,7 +54,7 @@ const readTopicTreeRecursive = (node, availableLayers) => {
                 log.error(`Child ${topicChild.id} can't be loaded`, err)
             }
         })
-        return new GeoAdminGroupOfLayers(`${node.id}`, node.label, children)
+        return new GeoAdminGroupOfLayers({ id: `${node.id}`, name: node.label, layers: children })
     } else if (node.category === 'layer') {
         const matchingLayer = availableLayers.find(
             (layer) => layer.technicalName === node.layerBodId || layer.id === node.layerBodId

@@ -1,4 +1,4 @@
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
 /**
  * Name (or description) of a data holder for a layer, with the possibility to define a URL

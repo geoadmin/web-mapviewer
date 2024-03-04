@@ -31,6 +31,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 name: 'Test layer WMTS',
                 geoAdminId: 'test.wmts.layer',
                 technicalName: 'test.wmts.layer',
+                attributions: [new LayerAttribution('test')],
             }),
             new GeoAdminWMTSLayer({
                 name: 'Test timed layer WMTS',

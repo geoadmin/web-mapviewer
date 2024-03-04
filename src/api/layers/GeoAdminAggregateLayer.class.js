@@ -1,5 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -63,8 +63,8 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
      *   `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
-     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
-     *   this layer. Default is `[]`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer.
      * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
      *   available). Default is `null`
      * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
@@ -90,7 +90,7 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
             id = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             timeConfig = null,
             isHighlightable = false,
             hasTooltip = false,

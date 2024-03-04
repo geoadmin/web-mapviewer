@@ -294,7 +294,12 @@ export default class WMSCapabilitiesParser {
                 style.LegendURL.map((legend) => {
                     const width = legend.size?.length >= 2 ? legend.size[0] : null
                     const height = legend.size?.length >= 2 ? legend.size[1] : null
-                    return new LayerLegend(legend.OnlineResource, legend.Format, width, height)
+                    return new LayerLegend({
+                        url: legend.OnlineResource,
+                        format: legend.Format,
+                        width,
+                        height,
+                    })
                 })
             )
             .flat()

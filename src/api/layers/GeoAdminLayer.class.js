@@ -1,5 +1,5 @@
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 
 /**
  * @abstract
@@ -28,8 +28,8 @@ export default class GeoAdminLayer extends AbstractLayer {
      *   layer should be shown on the map. Default is `1.0`
      * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
      *   `true`
-     * @param {LayerAttribution[]} [layerData.attributions=[]] Description of the data owner(s) for
-     *   this layer. Default is `[]`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer.
      * @param {Boolean} [layerData.isBackground=false] If this layer is to be used as a background
      *   layer or not (background layer are stored in the background wheel on the side of the UI).
      *   Default is `false`
@@ -68,7 +68,7 @@ export default class GeoAdminLayer extends AbstractLayer {
             technicalName = null,
             opacity = 1.0,
             visible = true,
-            attributions = [],
+            attributions = null,
             isBackground = false,
             baseUrl = null,
             isHighlightable = false,
@@ -87,6 +87,12 @@ export default class GeoAdminLayer extends AbstractLayer {
         }
         if (baseUrl === null) {
             throw new InvalidLayerDataError('Missing geoadmin layer base URL', layerData)
+        }
+        if (attributions === null || attributions.length === 0) {
+            throw new InvalidLayerDataError(
+                'A layer attribution is mandatory for GeoAdmin layers',
+                layerData
+            )
         }
         super({
             name,
@@ -110,6 +116,7 @@ export default class GeoAdminLayer extends AbstractLayer {
         this.topics = topics
         this.isSpecificFor3D = geoAdminId.toLowerCase().endsWith('_3d')
         this.timeConfig = timeConfig
+        this.hasMultipleTimestamps = this.timeConfig?.timeEntries?.length > 1
     }
 
     /**
@@ -131,7 +138,7 @@ export default class GeoAdminLayer extends AbstractLayer {
 
     clone() {
         let clone = super.clone()
-        clone.timeConfig = this.timeConfig?.clone()
+        clone.timeConfig = this.timeConfig?.clone() ?? null
         return clone
     }
 }

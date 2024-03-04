@@ -1,5 +1,5 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { parseKmlName } from '@/utils/kmlUtils'

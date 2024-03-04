@@ -1,6 +1,6 @@
-import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class.js'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
-import LayerTypes from '@/api/layers/LayerTypes.enum.js'
+import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 export default class GPXLayer extends AbstractLayer {
     /**

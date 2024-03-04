@@ -1,5 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -33,9 +33,9 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      *   layer)
      * @param {String} [externalLayerData.abstract=''] Abstract of this layer to be shown to the
      *   user. Default is `''`
-     * @param {LayerAttribution[]} [externalLayerData.attributions=[]] Description of the data
+     * @param {LayerAttribution[]} [externalLayerData.attributions=null] Description of the data
      *   owner(s) for this layer. When `null` is given it uses the default attribution which is
-     *   based on the hostname of the GetCapabilities server. Default is `[]`
+     *   based on the hostname of the GetCapabilities server. Default is `null`
      * @param {[[number, number], [number, number]] | null} [externalLayerData.extent=null] Layer
      *   extent. Default is `null`
      * @param {[LayerLegend]} [externalLayerData.legends=[]] Layer legends. Default is `[]`
@@ -54,7 +54,7 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             baseUrl = null,
             externalLayerId = null,
             layers = [],
-            attributions = [],
+            attributions = null,
             abstract = '',
             extent = null,
             legends = [],

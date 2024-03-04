@@ -1,5 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -25,9 +25,9 @@ export default class ExternalWMTSLayer extends ExternalLayer {
      *   for this layer
      * @param {String} externalWmtsData.externalLayerId Layer ID to use when requesting the tiles on
      *   the server
-     * @param {LayerAttribution[]} [externalWmtsData.attributions=[]] Description of the data
+     * @param {LayerAttribution[]} [externalWmtsData.attributions=null] Description of the data
      *   owner(s) for this layer. When `null` is given it uses the default attribution which is
-     *   based on the hostname of the GetCapabilities server. Default is `[]`
+     *   based on the hostname of the GetCapabilities server. Default is `null`
      * @param {String} [externalWmtsData.abstract=''] Abstract of this layer to be shown to the
      *   user. Default is `''`
      * @param {[[number, number], [number, number]] | null} [externalWmtsData.extent=null] Layer
@@ -47,7 +47,7 @@ export default class ExternalWMTSLayer extends ExternalLayer {
             visible = true,
             baseUrl = null,
             externalLayerId = null,
-            attributions = [],
+            attributions = null,
             abstract = '',
             extent = null,
             legends = [],

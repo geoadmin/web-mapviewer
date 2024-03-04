@@ -1,5 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error.js'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -16,23 +16,29 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 export default class ExternalWMSLayer extends ExternalLayer {
     /**
      * @param {String} externalWmsData.name Name of this layer to be shown to the user
-     * @param {number} externalWmsData.opacity The opacity of this layer, between 0.0 (transparent)
-     *   and 1.0 (opaque)
-     * @param {boolean} externalWmsData.visible If the layer should be shown on the map
+     * @param {Number} [externalWmsData.opacity=1.0] The opacity of this layer, between 0.0
+     *   (transparent) and 1.0 (opaque). Default is `1.0`
+     * @param {Boolean} [externalWmsData.visible=true] If the layer should be shown on the map.
+     *   Default is `true`
      * @param {String} externalWmsData.baseUrl Base URL to build WMS requests (no endpoint / URL
      *   param defined)
      * @param {String} externalWmsData.externalLayerId Layer ID to use when requesting the tiles on
      *   the server
-     * @param {String} externalWmsData.wmsVersion WMS protocol version to be used when querying this
-     *   server, default is 1.3.0
-     * @param {LayerAttribution[]} externalWmsData.attributions Description of the data owner(s) for
-     *   this layer holder (it typically is the hostname of the server for this layer)
-     * @param {String} externalWmsData.format Image format for this layer, default is PNG
-     * @param {String} externalWmsData.abstract Abstract of this layer to be shown to the user
-     * @param {[[number, number], [number, number]] | null} externalWmsData.extent Layer extent
-     * @param {[LayerLegend]} externalWmsData.legends Layer legends.
-     * @param {boolean} externalWmsData.isLoading Set to true if some parts of the layer (e.g.
-     *   metadata) are still loading
+     * @param {String} [externalWmsData.wmsVersion='1.3.0'] WMS protocol version to be used when
+     *   querying this server. Default is `'1.3.0'`
+     * @param {LayerAttribution[]} [externalWmsData.attributions=null] Description of the data
+     *   owner(s) for this layer holder (it typically is the hostname of the server for this layer).
+     *   When `null` is given it uses the default attribution which is based on the hostname of the
+     *   GetCapabilities server. Default is `null`
+     * @param {String} [externalWmsData.format='png'] Image format for this layer. Default is
+     *   `'png'`
+     * @param {String} [externalWmsData.abstract=''] Abstract of this layer to be shown to the user.
+     *   Default is `''`
+     * @param {[[number, number], [number, number]] | null} [externalWmsData.extent=null] Layer
+     *   extent. Default is `null`
+     * @param {[LayerLegend]} [externalWmsData.legends=[]] Layer legends. Default is `[]`
+     * @param {Boolean} [externalWmsData.isLoading=true] Set to true if some parts of the layer
+     *   (e.g. metadata) are still loading. Default is `true`
      * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
     constructor(externalWmsData) {
