@@ -10,6 +10,7 @@ import AbstractParamConfig, {
 } from '@/router/storeSync/abstractParamConfig.class'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
+import { getUrlQuery } from '@/utils/utils'
 
 /**
  * @param {ActiveLayerConfig} parsedLayer Layer config parsed from URL
@@ -153,7 +154,8 @@ async function getAndDispatchFeatures(featuresPromise, store) {
             const extent = getExtentOfFeatures(features)
             // If the zoom level has been specifically set to a level, we don't want to override that.
             // otherwise, we go to the zoom level which encompass all features
-            if (store.state.position.zoom === store.state.position.projection.getDefaultZoom()) {
+            const query = getUrlQuery()
+            if (!query.z) {
                 store.dispatch('zoomToExtent', {
                     extent: extent,
                     maxZoom: 8,
