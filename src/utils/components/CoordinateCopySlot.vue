@@ -79,7 +79,7 @@ function setTooltipContent() {
 
 function display(coordinates) {
     if (coordinateFormat.value) {
-        return coordinateFormat.value.format(coordinates, projection.value, true)
+        return coordinateFormat.value.format(coordinates, projection.value)
     }
     return coordinates
 }

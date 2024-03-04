@@ -251,7 +251,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="menu-button"]').click()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
-            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.log('Coordinates for marker are updated when selecting new marker')
             cy.get('[data-cy="ol-map"]').click(200, 234)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'680'013.50, 1'210'172.00")
         })
@@ -309,19 +309,19 @@ describe('Drawing module tests', () => {
                 ])
             })
 
-            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.log('Coordinates for annotation can be copied while in drawing mode')
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
             cy.get('[data-cy="ol-map"]:visible').click(160, 200)
             readCoordinateClipboard(
                 'feature-style-edit-coordinate-copy',
                 "2'660'013.50, 1'227'172.00"
             )
-            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.log('Coordinates for annotation can be copied while not in drawing mode')
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
             cy.get('[data-cy="menu-button"]').click()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
-            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.log('Coordinates for annotation are updated when selecting new marker')
             cy.get('[data-cy="ol-map"]').click('center')
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
