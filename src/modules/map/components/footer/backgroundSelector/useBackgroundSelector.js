@@ -16,7 +16,7 @@ export default function (backgroundLayers, currentBackgroundLayer, emit) {
     const show = ref(false)
     const animate = ref(false)
     function getImageForBackgroundLayer(backgroundLayer) {
-        let backgroundId = backgroundLayer?.getID()
+        let backgroundId = backgroundLayer?.id
         if (!backgroundId) {
             backgroundId = 'void'
         }

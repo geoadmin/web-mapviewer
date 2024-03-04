@@ -1,4 +1,5 @@
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -56,49 +57,64 @@ export class AggregateSubLayer {
  */
 export default class GeoAdminAggregateLayer extends GeoAdminLayer {
     /**
-     * @param {String} name The name of this layer in the given lang
-     * @param {String} id The unique ID of this layer in GeoAdmin's backends
-     * @param {Number} opacity The opacity to be applied to this layer
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {LayerAttribution[]} attributions Description of the data owner(s) for this layer
-     * @param {LayerTimeConfig} timeConfig Time series config (if available)
-     * @param {Boolean} isHighlightable Tells if this layer possess features that should be
-     *   highlighted on the map after a click (and if the backend will provide valuable information
-     *   on the {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features}
-     *   endpoint)
-     * @param {Boolean} hasTooltip Define if this layer shows tooltip when clicked on
-     * @param {String[]} topics All the topics in which belongs this layer
-     * @param {[AggregateSubLayer]} subLayers
+     * @param {String} layerData.name The name of this layer in the given lang
+     * @param {String} layerData.id The unique ID of this layer in GeoAdmin's backends
+     * @param {Number} [layerData.opacity=1.0] The opacity to be applied to this layer. Default is
+     *   `1.0`
+     * @param {boolean} [layerData.visible=true] If the layer should be shown on the map. Default is
+     *   `true`
+     * @param {LayerAttribution[]} layerData.attributions Description of the data owner(s) for this
+     *   layer.
+     * @param {LayerTimeConfig | null} [layerData.timeConfig=null] Time series config (if
+     *   available). Default is `null`
+     * @param {Boolean} [layerData.isHighlightable=false] Tells if this layer possess features that
+     *   should be highlighted on the map after a click (and if the backend will provide valuable
+     *   information on the
+     *   {@link http://api3.geo.admin.ch/services/sdiservices.html#identify-features} layerData. *
+     *   endpoint). Default is `false`
+     * @param {Boolean} [layerData.hasTooltip=false] Define if this layer shows tooltip when clicked
+     *   on. Default is `false`
+     * @param {String[]} [layerData.topics=[]] All the topics in which belongs this layer. Default
+     *   is `[]`
+     * @param {Boolean} [layerData.hasLegend=false] Define if this layer has a legend that can be
+     *   shown to users to explain its content. Default is `false`
+     * @param {[AggregateSubLayer]} layerData.subLayers
+     * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor(
-        name,
-        id,
-        opacity,
-        visible,
-        attributions,
-        timeConfig,
-        isHighlightable = false,
-        hasTooltip = false,
-        topics = [],
-        subLayers = []
-    ) {
-        super(
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing geoadmin aggregate layer data', layerData)
+        }
+        const {
+            name = null,
+            id = null,
+            opacity = 1.0,
+            visible = true,
+            attributions = null,
+            timeConfig = null,
+            isHighlightable = false,
+            hasTooltip = false,
+            topics = [],
+            subLayers = [],
+            hasLegend = false,
+        } = layerData
+        super({
             name,
-            LayerTypes.AGGREGATE,
-            id,
-            // no serverLayerId for aggregate, as they are made of 2 layers
-            null,
+            type: LayerTypes.AGGREGATE,
+            // no base URL for aggregate layers, so giving an empty base URL to accommodate constraints
+            baseUrl: '',
+            geoAdminId: id,
+            technicalName: id,
             opacity,
             visible,
             attributions,
-            false,
-            null,
             isHighlightable,
             hasTooltip,
-            topics
-        )
-        this.timeConfig = timeConfig
-        this.subLayers = subLayers
+            topics,
+            timeConfig,
+            hasLegend,
+        })
+        this.subLayers = [...subLayers]
     }
 
     getURL() {
@@ -109,7 +125,6 @@ export default class GeoAdminAggregateLayer extends GeoAdminLayer {
 
     clone() {
         let clone = super.clone()
-        clone.timeConfig = this.timeConfig.clone()
         clone.subLayers = this.subLayers.map((subLayer) => subLayer.clone())
         return clone
     }

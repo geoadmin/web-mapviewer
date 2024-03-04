@@ -86,7 +86,7 @@ function clearSearchText() {
         </div>
         <LayerCatalogueItem
             v-for="item in layerCatalogue"
-            :key="item.getID()"
+            :key="item.id"
             :item="item"
             :search="searchText.toLowerCase()"
             :compact="compact"

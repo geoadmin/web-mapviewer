@@ -32,8 +32,7 @@ export function useMouseOnMap() {
                 (kmlLayer) =>
                     // No identification of feature on the active KML layer used in the drawing module
                     // as this module already does identification of drawn feature itself.
-                    !isCurrentlyDrawing.value ||
-                    kmlLayer.getID() !== currentKmlDrawingLayer.value?.getID()
+                    !isCurrentlyDrawing.value || kmlLayer.id !== currentKmlDrawingLayer.value?.id
             )
     )
     const visibleGPXLayers = computed(() =>

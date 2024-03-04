@@ -52,7 +52,7 @@
                 :compact="compact"
             />
             <ThirdPartDisclaimer
-                v-if="hasDataDisclaimer(layer.getID())"
+                v-if="hasDataDisclaimer(layer.id)"
                 :complete-disclaimer-on-click="true"
                 :source-name="attributionName"
             >
@@ -189,7 +189,7 @@ export default {
             lang: (state) => state.i18n.lang,
         }),
         id() {
-            return this.layer?.getID()
+            return this.layer?.id
         },
         attributionName() {
             return this.layer.attributions.map((attribution) => attribution.name).join(', ')

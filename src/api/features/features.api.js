@@ -72,7 +72,7 @@ export const identify = (
     projection
 ) => {
     return new Promise((resolve, reject) => {
-        if (!layer || !layer.getID()) {
+        if (!layer || !layer.id) {
             log.error('Invalid layer', layer)
             reject('Needs a valid layer with an ID')
         }
@@ -93,7 +93,7 @@ export const identify = (
                 `${API_BASE_URL}rest/services/${layer.getTopicForIdentifyAndTooltipRequests()}/MapServer/identify`,
                 {
                     params: {
-                        layers: `all:${layer.getID()}`,
+                        layers: `all:${layer.id}`,
                         sr: projection.epsgNumber,
                         geometry: coordinate.join(','),
                         geometryFormat: 'geojson',
@@ -144,7 +144,7 @@ export const identify = (
  */
 const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
     return new Promise((resolve, reject) => {
-        if (!layer || !layer.getID()) {
+        if (!layer || !layer.id) {
             reject('Needs a valid layer with an ID')
         }
         if (!featureID) {
@@ -152,7 +152,7 @@ const getFeature = (layer, featureID, outputProjection, lang = 'en') => {
         }
         // combining the two requests in one promise
         const topic = layer.getTopicForIdentifyAndTooltipRequests()
-        const featureUrl = `${API_BASE_URL}rest/services/${topic}/MapServer/${layer.getID()}/${featureID}`
+        const featureUrl = `${API_BASE_URL}rest/services/${topic}/MapServer/${layer.id}/${featureID}`
         axios
             .all([
                 axios.get(featureUrl, {

@@ -1,4 +1,6 @@
+import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -17,12 +19,27 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class GeoAdminGroupOfLayers extends GeoAdminLayer {
     /**
-     * @param {String} id Unique identifier of this group of layer
-     * @param {String} name Name of this layer group, in the current i18n lang
-     * @param {GeoAdminLayer[]} layers Description of the layers being part of this group
+     * @param {String} layerData.id Unique identifier of this group of layer
+     * @param {String} layerData.name Name of this layer group, in the current i18n lang
+     * @param {GeoAdminLayer[]} layerData.layers Description of the layers being part of this group
+     * @throws InvalidLayerDataError if no `layerData` is given or if it is invalid
      */
-    constructor(id, name, layers) {
-        super(name, LayerTypes.GROUP, id, id)
+    constructor(layerData) {
+        if (!layerData) {
+            throw new InvalidLayerDataError('Missing group of layer data')
+        }
+        const { id, name, layers } = layerData
+        if (!layers || layers.length === 0) {
+            throw new InvalidLayerDataError('Missing child layer in group of layers', layerData)
+        }
+        super({
+            name,
+            type: LayerTypes.GROUP,
+            geoAdminId: id,
+            technicalName: id,
+            baseUrl: '',
+            attributions: [new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/')],
+        })
         this.layers = [...layers]
     }
 

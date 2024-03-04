@@ -284,13 +284,13 @@ describe('Test the search bar result handling', () => {
         // Layer - Enter
         cy.get(layerSelector).first().trigger('mouseenter')
         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-            const visibleIds = visibleLayers.map((layer) => layer.getID())
+            const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).to.contain(expectedLayerId)
         })
         // Layer - Leave
         cy.get(layerSelector).first().trigger('mouseleave')
         cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-            const visibleIds = visibleLayers.map((layer) => layer.getID())
+            const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).not.to.contain(expectedLayerId)
         })
     })

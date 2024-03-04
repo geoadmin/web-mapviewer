@@ -25,11 +25,11 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 :key="index"
                 class="bg-selector-squared-wheel-button"
                 :class="[
-                    { active: backgroundLayer?.getID() === currentBackgroundLayer?.getID() },
+                    { active: backgroundLayer?.id === currentBackgroundLayer?.id },
                     `bg-selector-squared-wheel-button-${index}`,
                 ]"
                 type="button"
-                :data-cy="`background-selector-${backgroundLayer?.getID() || 'void'}`"
+                :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
                 @click="onSelectBackground(backgroundLayer)"
             >
                 <span class="bg-selector-squared-wheel-button-image-cropper">
@@ -42,7 +42,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 <span
                     class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75 show"
                 >
-                    {{ $t(backgroundLayer?.getID() || 'void_layer') }}
+                    {{ $t(backgroundLayer?.id || 'void_layer') }}
                 </span>
             </button>
         </div>

@@ -18,8 +18,8 @@ import log from '@/utils/logging'
  * @returns {string}
  */
 export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
-    let layerUrlString = layer.getID()
-    if (layer.timeConfig && layer.timeConfig.timeEntries.length > 1) {
+    let layerUrlString = layer.id
+    if (layer.timeConfig?.timeEntries.length > 1) {
         layerUrlString += `@year=${layer.timeConfig.currentYear}`
     }
     if (!layer.visible) {
@@ -60,12 +60,12 @@ export function createLayerObject(parsedLayer, currentLayer) {
     } else if (layerType === 'KML') {
         // format is KML|FILE_URL
         if (url.startsWith('http')) {
-            layer = new KMLLayer(
-                url,
-                parsedLayer.visible,
-                parsedLayer.opacity,
-                parsedLayer.customAttributes.adminId
-            )
+            layer = new KMLLayer({
+                kmlFileUrl: url,
+                visible: parsedLayer.visible,
+                opacity: parsedLayer.opacity,
+                adminId: parsedLayer.customAttributes.adminId,
+            })
         } else {
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.
@@ -75,7 +75,11 @@ export function createLayerObject(parsedLayer, currentLayer) {
     // format is GPX|FILE_URL
     else if (layerType === 'GPX') {
         if (url.startsWith('http')) {
-            layer = new GPXLayer(url, parsedLayer.visible, parsedLayer.opacity)
+            layer = new GPXLayer({
+                gpxFileUrl: url,
+                visible: parsedLayer.visible,
+                opacity: parsedLayer.opacity,
+            })
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
             layer = null
@@ -83,13 +87,25 @@ export function createLayerObject(parsedLayer, currentLayer) {
     }
     // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
     else if (layerType === 'WMTS') {
-        layer = new ExternalWMTSLayer(id, parsedLayer.opacity, parsedLayer.visible, url, id)
+        layer = new ExternalWMTSLayer({
+            name: id,
+            opacity: parsedLayer.opacity,
+            visible: parsedLayer.visible,
+            baseUrl: url,
+            externalLayerId: id,
+        })
     }
     // format is : WMS|BASE_URL|LAYER_ID
     else if (layerType === 'WMS') {
         // here we assume that is a regular WMS layer, upon parsing of the WMS get capabilities
         // the layer might be updated to an external group of layers if needed.
-        layer = new ExternalWMSLayer(id, parsedLayer.opacity, parsedLayer.visible, url, id)
+        layer = new ExternalWMSLayer({
+            name: id,
+            opacity: parsedLayer.opacity,
+            visible: parsedLayer.visible,
+            baseUrl: url,
+            externalLayerId: id,
+        })
     }
     return layer
 }
@@ -132,7 +148,7 @@ function generateLayerUrlParamFromStoreValues(store) {
         .map((layer) =>
             transformLayerIntoUrlString(
                 layer,
-                store.state.layers.config.find((config) => config.getID() === layer.getID())
+                store.state.layers.config.find((config) => config.id === layer.id)
             )
         )
         .join(';')

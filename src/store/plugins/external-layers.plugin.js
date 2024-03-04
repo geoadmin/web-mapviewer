@@ -61,7 +61,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
     } catch (error) {
         log.error(`Failed to update external layer: `, error)
         store.dispatch('setLayerErrorKey', {
-            layerId: externalLayer.getID(),
+            layerId: externalLayer.id,
             errorKey: error.key ? error.key : 'error',
             ...dispatcher,
         })
@@ -69,7 +69,7 @@ async function updateExternalLayer(store, externalLayer, projection) {
 }
 
 async function updatedWMSLayerAttributes(externalLayer, projection) {
-    const capabilities = await readWmsCapabilities(externalLayer.baseURL)
+    const capabilities = await readWmsCapabilities(externalLayer.baseUrl)
     const newObject = capabilities.getExternalLayerObject(
         externalLayer.externalLayerId,
         projection,
@@ -81,7 +81,7 @@ async function updatedWMSLayerAttributes(externalLayer, projection) {
 }
 
 async function updatedWMTSLayerAttributes(externalLayer, projection) {
-    const capabilities = await readWmtsCapabilities(externalLayer.baseURL)
+    const capabilities = await readWmtsCapabilities(externalLayer.baseUrl)
     const newObject = capabilities.getExternalLayerObject(
         externalLayer.externalLayerId,
         projection,

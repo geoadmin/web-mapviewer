@@ -24,13 +24,13 @@ async function loadGpx(store, gpxLayer) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(gpxContent)
         store.dispatch('updateKmlGpxLayer', {
-            layerId: gpxLayer.getID(),
+            layerId: gpxLayer.id,
             metadata,
             data: gpxContent,
             ...dispatcher,
         })
     } catch (error) {
-        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.getID()}`)
+        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.id}`)
     }
 }
 

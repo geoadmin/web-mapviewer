@@ -26,6 +26,6 @@ export default class LayerFeature extends SelectableFeature {
 
     // overwriting get ID so that we use the layer ID with the feature ID
     get id() {
-        return `${this.layer.getID()}-${this._id}`
+        return `${this.layer.id}-${this._id}`
     }
 }

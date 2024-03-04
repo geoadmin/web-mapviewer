@@ -14,8 +14,8 @@ const squaredDesign = computed(() => store.getters.isDesktopMode)
 
 function generateBackgroundCategories(bg) {
     return {
-        farbe: bg.getID().indexOf('farbe') !== -1,
-        grau: bg.getID().indexOf('grau') !== -1,
+        farbe: bg.id.indexOf('farbe') !== -1,
+        grau: bg.id.indexOf('grau') !== -1,
         get aerial() {
             return !this.farbe && !this.grau
         },

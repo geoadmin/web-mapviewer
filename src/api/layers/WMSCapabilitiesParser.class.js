@@ -132,34 +132,34 @@ export default class WMSCapabilitiesParser {
                     ignoreError
                 )
             ).filter((layer) => !!layer)
-            return new ExternalGroupOfLayers(
-                title,
+            return new ExternalGroupOfLayers({
+                name: title,
                 opacity,
                 visible,
-                url,
-                layerId,
+                baseUrl: url,
+                externalLayerId: layerId,
                 layers,
                 attributions,
                 abstract,
                 extent,
                 legends,
-                false
-            )
+                isLoading: false,
+            })
         }
-        return new ExternalWMSLayer(
-            title,
+        return new ExternalWMSLayer({
+            name: title,
             opacity,
             visible,
-            url,
-            layerId,
+            baseUrl: url,
+            externalLayerId: layerId,
             attributions,
-            version,
-            'png',
+            wmsVersion: version,
+            format: 'png',
             abstract,
             extent,
             legends,
-            false
-        )
+            isLoading: false,
+        })
     }
 
     _getLayerAttributes(layer, parents, projection, ignoreError = true) {
@@ -194,7 +194,7 @@ export default class WMSCapabilitiesParser {
         }
 
         return {
-            layerId: layerId,
+            layerId,
             title: layer.Title,
             url:
                 this.Capability?.Request?.GetMap?.DCPType[0]?.HTTP?.Get?.OnlineResource ||
@@ -294,7 +294,12 @@ export default class WMSCapabilitiesParser {
                 style.LegendURL.map((legend) => {
                     const width = legend.size?.length >= 2 ? legend.size[0] : null
                     const height = legend.size?.length >= 2 ? legend.size[1] : null
-                    return new LayerLegend(legend.OnlineResource, legend.Format, width, height)
+                    return new LayerLegend({
+                        url: legend.OnlineResource,
+                        format: legend.Format,
+                        width,
+                        height,
+                    })
                 })
             )
             .flat()

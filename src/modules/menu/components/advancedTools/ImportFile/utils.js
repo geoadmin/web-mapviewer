@@ -39,7 +39,13 @@ export function isGpx(fileContent) {
 export function handleFileContent(store, content, source) {
     let layer = null
     if (isKml(content)) {
-        layer = new KMLLayer(source, true, 1.0, null /* adminId */, content)
+        layer = new KMLLayer({
+            kmlFileUrl: source,
+            visible: true,
+            opacity: 1.0,
+            adminId: null,
+            kmlData: content,
+        })
         const extent = getKmlExtent(content)
         if (!extent) {
             throw new EmptyKMLError()
@@ -54,7 +60,13 @@ export function handleFileContent(store, content, source) {
     } else if (isGpx(content)) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(content)
-        layer = new GPXLayer(source, true, 1.0, content, metadata)
+        layer = new GPXLayer({
+            gpxFileUrl: source,
+            visible: true,
+            opacity: 1.0,
+            gpxData: content,
+            gpxMetadata: metadata,
+        })
         const extent = getGpxExtent(content)
         if (!extent) {
             throw new EmptyGPXError()

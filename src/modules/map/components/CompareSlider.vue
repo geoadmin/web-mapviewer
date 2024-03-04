@@ -54,7 +54,7 @@ function slice() {
         postRenderKey.value = null
     }
     const topVisibleLayer = olMap?.getAllLayers().find((layer) => {
-        return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.getID()
+        return visibleLayerOnTop.value && layer.get('id') === visibleLayerOnTop.value.id
     })
     if (topVisibleLayer && isCompareSliderActive.value) {
         preRenderKey.value = topVisibleLayer.on('prerender', onPreRender)

@@ -38,7 +38,7 @@ const isDrawingLineOrMeasure = computed(() =>
     )
 )
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const kmlLayerId = computed(() => activeKmlLayer.value?.getID())
+const kmlLayerId = computed(() => activeKmlLayer.value?.id)
 const kmlLayerAdminId = computed(() => activeKmlLayer.value?.adminId)
 
 const isDrawingStateError = computed(() => saveState.value < 0)

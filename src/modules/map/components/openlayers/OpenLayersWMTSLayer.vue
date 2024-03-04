@@ -32,7 +32,7 @@ const previewYear = computed(() => store.state.layers.previewYear)
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => wmtsLayerConfig.value.serverLayerId)
+const layerId = computed(() => wmtsLayerConfig.value.technicalName)
 const opacity = computed(() => parentLayerOpacity.value || wmtsLayerConfig.value.opacity)
 const url = computed(() => {
     return wmtsLayerConfig.value.getURL(

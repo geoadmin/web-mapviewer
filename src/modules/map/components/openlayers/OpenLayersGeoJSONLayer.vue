@@ -35,7 +35,7 @@ const store = useStore()
 const projection = computed(() => store.state.position.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => geoJsonConfig.value.serverLayerId)
+const layerId = computed(() => geoJsonConfig.value.technicalName)
 const opacity = computed(() => parentLayerOpacity.value || geoJsonConfig.value.opacity)
 const geoJsonData = computed(() => geoJsonConfig.value.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.value.geoJsonStyle)

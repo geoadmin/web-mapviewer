@@ -42,7 +42,7 @@ export default {
             currentLang: (state) => state.i18n.lang,
         }),
         layerId() {
-            return this.wmsLayerConfig.serverLayerId || this.wmsLayerConfig.externalLayerId
+            return this.wmsLayerConfig.technicalName || this.wmsLayerConfig.externalLayerId
         },
         opacity() {
             return this.wmsLayerConfig.opacity || 1.0
@@ -89,7 +89,7 @@ export default {
                     url: url,
                     parameters: this.wmsUrlParams,
                     subdomains: '0123',
-                    layers: this.wmsLayerConfig.geoAdminID,
+                    layers: this.wmsLayerConfig.geoAdminId,
                     maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
                     rectangle: Rectangle.fromDegrees(
                         ...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten

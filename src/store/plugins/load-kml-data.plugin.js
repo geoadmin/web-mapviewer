@@ -19,12 +19,12 @@ async function loadMetadata(store, kmlLayer) {
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
         store.dispatch('updateKmlGpxLayer', {
-            layerId: kmlLayer?.getID(),
+            layerId: kmlLayer?.id,
             metadata,
             ...dispatcher,
         })
     } catch (error) {
-        log.error(`Error while fetching KML metadata for layer ${kmlLayer?.getID()}`)
+        log.error(`Error while fetching KML metadata for layer ${kmlLayer?.id}`)
     }
 }
 
@@ -38,14 +38,14 @@ async function loadData(store, kmlLayer) {
     try {
         const data = await loadKmlData(kmlLayer)
         store.dispatch('updateKmlGpxLayer', {
-            layerId: kmlLayer?.getID(),
+            layerId: kmlLayer?.id,
             data,
             ...dispatcher,
         })
     } catch (error) {
-        log.error(`Error while fetching KML data for layer ${kmlLayer?.getID()}: ${error}`)
+        log.error(`Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`)
         store.dispatch('setLayerErrorKey', {
-            layerId: kmlLayer.getID(),
+            layerId: kmlLayer.id,
             errorKey: `loading_error_network_failure`,
             ...dispatcher,
         })

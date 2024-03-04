@@ -1,4 +1,5 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { API_SERVICE_KML_BASE_URL } from '@/config'
 import { parseKmlName } from '@/utils/kmlUtils'
@@ -16,38 +17,49 @@ import { parseKmlName } from '@/utils/kmlUtils'
  */
 export default class KMLLayer extends AbstractLayer {
     /**
-     * @param {string} kmlFileUrl The URL to access the KML data.
-     * @param {boolean} [visible=true] If the layer is visible on the map (or hidden). When `null`
-     *   is given, then it uses the default value. Default is `true`
-     * @param {number | null} [opacity=1.0] The opacity of this layer, between 0.0 (transparent) and
-     *   1.0 (opaque). When `null` is given, then it uses the default value. Default is `1.0`
-     * @param {string | null} [adminId=null] The admin id to allow editing. If null then the user is
-     *   not allowed to edit the file. Default is `null`
-     * @param {string | null} [kmlData=null] Data/content of the KML file, as a string. Default is
-     *   `null`
-     * @param {object | null} [kmlMetadata=null] Metadata of the KML drawing. This object contains
-     *   all the metadata returned by the backend. Default is `null`
+     * @param {String} kmlLayerData.kmlFileUrl The URL to access the KML data.
+     * @param {Boolean} [kmlLayerData.visible=true] If the layer is visible on the map (or hidden).
+     *   When `null` is given, then it uses the default value. Default is `true`
+     * @param {Number} [kmlLayerData.opacity=1.0] The opacity of this layer, between 0.0
+     *   (transparent) and 1.0 (opaque). When `null` is given, then it uses the default value.
+     *   Default is `1.0`
+     * @param {String | null} [kmlLayerData.adminId=null] The admin id to allow editing. If null
+     *   then the user is not allowed to edit the file. Default is `null`
+     * @param {String | null} [kmlLayerData.kmlData=null] Data/content of the KML file, as a string.
+     *   Default is `null`
+     * @param {KmlMetadata | null} [kmlLayerData.kmlMetadata=null] Metadata of the KML drawing. This
+     *   object contains all the metadata returned by the backend. Default is `null`
+     * @throws InvalidLayerDataError if no `gpxLayerData` is given or if it is invalid
      */
-    constructor(
-        kmlFileUrl,
-        visible = null,
-        opacity = null,
-        adminId = null,
-        kmlData = null,
-        kmlMetadata = null
-    ) {
+    constructor(kmlLayerData) {
+        if (!kmlLayerData) {
+            throw new InvalidLayerDataError('Missing KML layer data', kmlLayerData)
+        }
+        const {
+            kmlFileUrl = null,
+            visible = true,
+            opacity = 1.0,
+            adminId = null,
+            kmlData = null,
+            kmlMetadata = null,
+        } = kmlLayerData
+        if (kmlFileUrl === null) {
+            throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
+        }
         const isLocalFile = !kmlFileUrl.startsWith('http')
         const attributionName = isLocalFile ? kmlFileUrl : new URL(kmlFileUrl).hostname
         const isExternal = kmlFileUrl.indexOf(API_SERVICE_KML_BASE_URL) === -1
-        super(
-            'KML',
-            LayerTypes.KML,
-            opacity ?? 1.0,
-            visible ?? true,
-            [new LayerAttribution(attributionName)],
-            false,
-            isExternal
-        )
+        super({
+            name: 'KML',
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            id: `KML|${kmlFileUrl}`,
+            type: LayerTypes.KML,
+            opacity: opacity ?? 1.0,
+            visible: visible ?? true,
+            attributions: [new LayerAttribution(attributionName)],
+            isExternal,
+            hasLegend: false,
+        })
         this.kmlFileUrl = kmlFileUrl
         this.adminId = adminId
         this.fileId = null
@@ -66,11 +78,6 @@ export default class KMLLayer extends AbstractLayer {
             this.isLoading = true
         }
         this.kmlData = kmlData
-    }
-
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        return `KML|${this.kmlFileUrl}`
     }
 
     getURL(_epsgNumber, _timestamp) {

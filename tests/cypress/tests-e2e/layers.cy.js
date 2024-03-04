@@ -30,19 +30,19 @@ describe('Test of layer handling', () => {
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(3)
-                expect(layers[0].getID()).to.eq('test-1.wms.layer')
-                expect(layers[1].getID()).to.eq('test-2.wms.layer')
-                expect(layers[2].getID()).to.eq('test-4.wms.layer')
+                expect(layers[0].id).to.eq('test-1.wms.layer')
+                expect(layers[1].id).to.eq('test-2.wms.layer')
+                expect(layers[2].id).to.eq('test-4.wms.layer')
                 expect(layers[2].opacity).to.eq(0.4)
             })
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(5)
-                expect(layers[0].getID()).to.eq('test-1.wms.layer')
-                expect(layers[1].getID()).to.eq('test-2.wms.layer')
-                expect(layers[2].getID()).to.eq('test-3.wms.layer')
-                expect(layers[3].getID()).to.eq('test-4.wms.layer')
+                expect(layers[0].id).to.eq('test-1.wms.layer')
+                expect(layers[1].id).to.eq('test-2.wms.layer')
+                expect(layers[2].id).to.eq('test-3.wms.layer')
+                expect(layers[3].id).to.eq('test-4.wms.layer')
                 expect(layers[3].opacity).to.eq(0.4)
-                expect(layers[4].getID()).to.eq('test.wmts.layer')
+                expect(layers[4].id).to.eq('test.wmts.layer')
                 expect(layers[4].opacity).to.eq(0.5)
             })
         })
@@ -115,8 +115,8 @@ describe('Test of layer handling', () => {
                     const [externalWmsLayer] = layers
                     expect(externalWmsLayer.wmsVersion).to.eq('1.3.0')
                     expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
-                    expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
-                    expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
+                    expect(externalWmsLayer.baseUrl).to.eq(fakeWmsBaseUrl)
+                    expect(externalWmsLayer.id).to.eq(fakeLayerUrlId)
                     expect(externalWmsLayer.name).to.eq('OpenData-AV')
                     expect(externalWmsLayer.isLoading).to.be.false
                 })
@@ -156,8 +156,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(1)
                     const [externalWmtsLayer] = layers
-                    expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
+                    expect(externalWmtsLayer.id).to.eq(fakeLayerUrlId)
+                    expect(externalWmtsLayer.baseUrl).to.eq(fakeGetCapUrl)
                     expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
                     expect(externalWmtsLayer.name).to.eq('Test External WMTS')
                     expect(externalWmtsLayer.isLoading).to.be.false
@@ -173,7 +173,7 @@ describe('Test of layer handling', () => {
                     cy.wrap(layers).should('have.length', 1)
                     const [externalWmtsLayer] = layers
                     expect(externalWmtsLayer).to.be.an('Object')
-                    cy.wrap(externalWmtsLayer.getID()).should('be.eq', fakeLayerUrlId)
+                    cy.wrap(externalWmtsLayer.id).should('be.eq', fakeLayerUrlId)
                     cy.wrap(externalWmtsLayer.visible).should('be.eq', false)
                     cy.wrap(externalWmtsLayer.opacity).should('be.eq', 0.5)
                     cy.wrap(externalWmtsLayer.isLoading).should('be.false')
@@ -249,8 +249,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[0]
-                    expect(externaLayer.getID()).to.eq(wmtsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsUnreachableUrl)
+                    expect(externaLayer.id).to.eq(wmtsUnreachableUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmtsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -271,8 +271,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[1]
-                    expect(externaLayer.getID()).to.eq(wmtsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsInvalidContentUrl)
+                    expect(externaLayer.id).to.eq(wmtsInvalidContentUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmtsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -293,8 +293,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[2]
-                    expect(externaLayer.getID()).to.eq(wmsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsUnreachableUrl)
+                    expect(externaLayer.id).to.eq(wmsUnreachableUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -315,8 +315,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[3]
-                    expect(externaLayer.getID()).to.eq(wmsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsInvalidContentUrl)
+                    expect(externaLayer.id).to.eq(wmsInvalidContentUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -341,7 +341,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView()
                 cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
-                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                    expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
             })
         })
@@ -353,13 +353,13 @@ describe('Test of layer handling', () => {
                 })
                 cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
-                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                    expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')
                     expect(layers.length).to.eq(1)
                     expect(layers[0]).to.be.an('Object')
-                    expect(layers[0].getID()).to.eq('test.timeenabled.wmts.layer')
+                    expect(layers[0].id).to.eq('test.timeenabled.wmts.layer')
                 })
             })
         })
@@ -369,7 +369,7 @@ describe('Test of layer handling', () => {
             })
             cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                 expect(bgLayer).to.not.be.null
-                expect(bgLayer.getID()).to.eq('test.background.layer2')
+                expect(bgLayer.id).to.eq('test.background.layer2')
             })
         })
     })
@@ -399,14 +399,14 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array')
                     expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
-                    expect(visibleLayers[0].getID()).to.eq(visibleLayerIds[1])
+                    expect(visibleLayers[0].id).to.eq(visibleLayerIds[1])
                 })
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers)
                         .to.be.an('Array')
                         .length(visibleLayerIds.length - 1)
                     activeLayers.forEach((layer) => {
-                        expect(layer.getID).to.be.not.equal(layerId)
+                        expect(layer.id).to.be.not.equal(layerId)
                     })
                 })
             })
@@ -444,7 +444,7 @@ describe('Test of layer handling', () => {
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
-                    expect(visibleLayers[0].getID(), testLayerId)
+                    expect(visibleLayers[0].id, testLayerId)
                 })
             })
             it('add layer from search bar', () => {
@@ -482,7 +482,7 @@ describe('Test of layer handling', () => {
                 cy.get('[data-cy="menu-button"]').click()
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
-                    expect(visibleLayers[0].getID(), expectedLayerId)
+                    expect(visibleLayers[0].id, expectedLayerId)
                 })
             })
         })
@@ -502,14 +502,14 @@ describe('Test of layer handling', () => {
                 cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                    const visibleIds = visibleLayers.map((layer) => layer.getID())
+                    const visibleIds = visibleLayers.map((layer) => layer.id)
                     expect(visibleIds).to.not.contain(testLayerId)
                 })
                 // Toggle (show) the test layer.
                 cy.get(testLayerSelector).click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                    const visibleIds = visibleLayers.map((layer) => layer.getID())
+                    const visibleIds = visibleLayers.map((layer) => layer.id)
                     expect(visibleIds).to.contain(testLayerId)
                 })
             })
@@ -525,9 +525,7 @@ describe('Test of layer handling', () => {
                 // getting current layer opacity
                 let initialOpacity = 1.0
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    initialOpacity = visibleLayers.find(
-                        (layer) => layer.getID() === layerId
-                    ).opacity
+                    initialOpacity = visibleLayers.find((layer) => layer.id === layerId).opacity
                 })
                 // using the keyboard to change slider's value
                 const step = 5
@@ -538,7 +536,7 @@ describe('Test of layer handling', () => {
                     .type(command)
                 // checking that the opacity has changed accordingly
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    const layer = visibleLayers.find((layer) => layer.getID() === layerId)
+                    const layer = visibleLayers.find((layer) => layer.id === layerId)
                     expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
                 })
             })
@@ -551,8 +549,8 @@ describe('Test of layer handling', () => {
                     .click()
                 // checking that the order has changed
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    expect(visibleLayers[0].getID()).to.eq(secondLayerId)
-                    expect(visibleLayers[1].getID()).to.eq(firstLayerId)
+                    expect(visibleLayers[0].id).to.eq(secondLayerId)
+                    expect(visibleLayers[1].id).to.eq(firstLayerId)
                 })
                 // using the other button
                 cy.get(`[data-cy="button-lower-order-layer-${firstLayerId}"]`)
@@ -560,8 +558,8 @@ describe('Test of layer handling', () => {
                     .click()
                 // re-checking the order that should be back to the starting values
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    expect(visibleLayers[0].getID()).to.eq(firstLayerId)
-                    expect(visibleLayers[1].getID()).to.eq(secondLayerId)
+                    expect(visibleLayers[0].id).to.eq(firstLayerId)
+                    expect(visibleLayers[1].id).to.eq(secondLayerId)
                 })
             })
             it('shows a layer legend when the "i" button is clicked (in layer settings)', () => {
@@ -616,7 +614,7 @@ describe('Test of layer handling', () => {
                         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                             expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
                             activeLayers.forEach((layer) => {
-                                if (layer.getID() === timedLayerId) {
+                                if (layer.id === timedLayerId) {
                                     expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
                                 }
                             })
