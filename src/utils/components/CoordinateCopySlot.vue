@@ -135,4 +135,7 @@ async function copyValue() {
     padding: 0 0.2rem;
     font-size: inherit;
 }
+.location-popup-data {
+    @extend .clear-no-ios-long-press;
+}
 </style>
