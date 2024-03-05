@@ -97,7 +97,7 @@ watch(nonEditableFeature, () => {
     if (!isFixedTooltip.value && !containsOnlyPoints) {
         // we need to also go to 'FIXED' if we are on 'NONE', which is why we don't make a 'toggle' here
         store.dispatch('setTooltipPosition', {
-            position: TooltipPositions.FIXED,
+            tooltipposition: TooltipPositions.FIXED,
             dispatcher: dispatcher,
         })
     }

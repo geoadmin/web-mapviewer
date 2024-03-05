@@ -298,13 +298,16 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
-        setTooltipPosition({ commit, state }, { position, dispatcher }) {
-            const upCasePos = position.toUpperCase()
+        setTooltipPosition({ commit, state }, { tooltipposition, dispatcher }) {
+            const upCasePos = tooltipposition.toUpperCase()
             if (
                 TooltipPositions[upCasePos] &&
                 state.tooltipPosition !== TooltipPositions[upCasePos]
             ) {
-                commit('setTooltipPosition', { position: upCasePos, dispatcher: dispatcher })
+                commit('setTooltipPosition', {
+                    position: TooltipPositions[upCasePos],
+                    dispatcher: dispatcher,
+                })
             } else if (!TooltipPositions[upCasePos]) {
                 commit('setTooltipPosition', {
                     position: TooltipPositions.DEFAULT,
@@ -367,7 +370,6 @@ export default {
             state.isCompareSliderActive = compareSliderActive
         },
         setTooltipPosition(state, { position }) {
-            console.log(position)
             state.tooltipPosition = position
         },
     },
