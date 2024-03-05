@@ -157,9 +157,5 @@ function onClose() {
 
 .infobox {
     width: 100%;
-
-    &-header {
-        cursor: pointer;
-    }
 }
 </style>
