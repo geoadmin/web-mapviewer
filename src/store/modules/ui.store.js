@@ -11,7 +11,7 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
-export const TooltipPositions = {
+export const FeatureInfoPositions = {
     DEFAULT: 'default',
     FIXED: 'fixed',
     FLOATING: 'floating',
@@ -89,7 +89,7 @@ export default {
          *
          * @type String
          */
-        tooltipPosition: TooltipPositions.DEFAULT,
+        featureInfoPosition: FeatureInfoPositions.DEFAULT,
         /**
          * Hostname on which the application is running (use to display warnings to the user on
          * 'non-production' hosts)
@@ -212,18 +212,18 @@ export default {
         },
         floatingTooltip(state, getters) {
             return (
-                state.tooltipPosition === TooltipPositions.FLOATING ||
-                (state.tooltipPosition === TooltipPositions.DEFAULT && !getters.isPhoneMode)
+                state.featureInfoPosition === FeatureInfoPositions.FLOATING ||
+                (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && !getters.isPhoneMode)
             )
         },
-        fixedTooltip(state, getters) {
+        bottomPanelFeatureInfo(state, getters) {
             return (
-                state.tooltipPosition === TooltipPositions.FIXED ||
-                (state.tooltipPosition === TooltipPositions.DEFAULT && getters.isPhoneMode)
+                state.featureInfoPosition === FeatureInfoPositions.FIXED ||
+                (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && getters.isPhoneMode)
             )
         },
-        noTooltip(state) {
-            return state.tooltipPosition === TooltipPositions.NONE
+        noFeatureInfo(state) {
+            return state.featureInfoPosition === FeatureInfoPositions.NONE
         },
     },
     actions: {
@@ -298,33 +298,21 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
-        setTooltipPosition({ commit, state }, { tooltipposition, dispatcher }) {
-            const upCasePos = tooltipposition.toUpperCase()
+        setFeatureInfoPosition({ commit, state }, { featureInfo, dispatcher }) {
+            const upCasePos = featureInfo.toUpperCase()
             if (
-                TooltipPositions[upCasePos] &&
-                state.tooltipPosition !== TooltipPositions[upCasePos]
+                FeatureInfoPositions[upCasePos] &&
+                state.featureInfoPosition !== FeatureInfoPositions[upCasePos]
             ) {
-                commit('setTooltipPosition', {
-                    position: TooltipPositions[upCasePos],
+                commit('setFeatureInfoPosition', {
+                    position: FeatureInfoPositions[upCasePos],
                     dispatcher: dispatcher,
                 })
-            } else if (!TooltipPositions[upCasePos]) {
-                commit('setTooltipPosition', {
-                    position: TooltipPositions.DEFAULT,
+            } else if (!FeatureInfoPositions[upCasePos]) {
+                commit('setFeatureInfoPosition', {
+                    position: FeatureInfoPositions.DEFAULT,
                     dispatcher: dispatcher,
                 })
-            }
-        },
-        toggleTooltipPosition({ commit, getters }, { dispatcher }) {
-            if (getters.noTooltip) {
-                commit('setTooltipPosition', {
-                    position: TooltipPositions.DEFAULT,
-                    dispatcher,
-                })
-            } else if (getters.floatingTooltip) {
-                commit('setTooltipPosition', { position: TooltipPositions.FIXED, dispatcher })
-            } else {
-                commit('setTooltipPosition', { position: TooltipPositions.FLOATING, dispatcher })
             }
         },
     },
@@ -369,8 +357,8 @@ export default {
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
         },
-        setTooltipPosition(state, { position }) {
-            state.tooltipPosition = position
+        setFeatureInfoPosition(state, { position }) {
+            state.featureInfoPosition = position
         },
     },
 }

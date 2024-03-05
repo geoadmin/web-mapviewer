@@ -3,6 +3,8 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { ClickType } from '@/store/modules/map.store'
 import log from '@/utils/logging'
 
+import { FeatureInfoPositions } from '../modules/ui.store'
+
 const dispatcher = { dispatcher: 'click-on-map-management.plugin' }
 
 /**
@@ -82,6 +84,12 @@ const clickOnMapManagementPlugin = (store) => {
                         features: newSelectedFeatures,
                         ...dispatcher,
                     })
+                    if (store.getters.noFeatureInfo && newSelectedFeatures.length > 0) {
+                        store.dispatch('setFeatureInfoPosition', {
+                            featureInfo: FeatureInfoPositions.DEFAULT,
+                            ...dispatcher,
+                        })
+                    }
                 })
             }
             if (isContextMenuClick) {

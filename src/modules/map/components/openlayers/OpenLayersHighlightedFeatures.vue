@@ -12,13 +12,14 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
-import { TooltipPositions } from '@/store/modules/ui.store'
+
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/add-vector-layer-to-map.composable'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { randomIntBetween } from '@/utils/numberUtils'
@@ -31,8 +32,8 @@ const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-const isFloatingTooltip = computed(() => store.getters.floatingTooltip)
-const isFixedTooltip = computed(() => store.getters.fixedTooltip)
+const isFloatingTooltip = computed(() => store.getters.floatingPanelFeatureInfo)
+const isFixedTooltip = computed(() => store.getters.bottomPanelFeatureInfo)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -95,9 +96,9 @@ watch(nonEditableFeature, () => {
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
     if (!isFixedTooltip.value && !containsOnlyPoints) {
-        // we need to also go to 'FIXED' if we are on 'NONE', which is why we don't make a 'toggle' here
-        store.dispatch('setTooltipPosition', {
-            tooltipposition: TooltipPositions.FIXED,
+        // we need to also go to 'FIXED' if we are on 'NONE', here
+        store.dispatch('setFeatureInfoPosition', {
+            featureInfo: FeatureInfoPositions.FIXED,
             dispatcher: dispatcher,
         })
     }
@@ -115,8 +116,11 @@ useVectorLayer(
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
 }
-function toggleTooltipPosition() {
-    store.dispatch('toggleTooltipPosition', dispatcher)
+function changeFeatureInfoPosition() {
+    store.dispatch('setFeatureInfoPosition', {
+        featureInfo: FeatureInfoPositions.FIXED,
+        ...dispatcher,
+    })
 }
 </script>
 
@@ -132,7 +136,7 @@ function toggleTooltipPosition() {
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
-                @click="toggleTooltipPosition"
+                @click="changeFeatureInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-down" />
             </button>

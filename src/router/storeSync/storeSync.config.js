@@ -1,6 +1,5 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
-import { TooltipPositions } from '@/store/modules/ui.store'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
@@ -9,6 +8,7 @@ import PositionParamConfig from '@/router/storeSync/PositionParamConfig.class'
 import QueryToStoreOnlyParamConfig from '@/router/storeSync/QueryToStoreOnlyParamConfig.class'
 import SimpleUrlParamConfig from '@/router/storeSync/SimpleUrlParamConfig.class'
 import ZoomParamConfig from '@/router/storeSync/ZoomParamConfig.class.js'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 import CompareSliderParamConfig from './CompareSliderParamConfig.class'
 /**
@@ -106,13 +106,13 @@ const storeSyncConfig = [
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
     new SimpleUrlParamConfig(
-        'tooltipposition',
-        'setTooltipPosition',
-        'setTooltipPosition',
-        (store) => store.state.ui.tooltipPosition,
+        'featureInfo',
+        'setFeatureInfoPosition',
+        'setFeatureInfoPosition',
+        (store) => store.state.ui.featureInfoPosition,
         false,
         String,
-        TooltipPositions.DEFAULT
+        FeatureInfoPositions.DEFAULT
     ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',

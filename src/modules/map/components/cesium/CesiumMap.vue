@@ -58,7 +58,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="toggleTooltip"
+                    @click="changeFeatureInfoPosition()"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -133,7 +133,7 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { UIModes } from '@/store/modules/ui.store'
+import { FeatureInfoPositions, UIModes } from '@/store/modules/ui.store'
 import { WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
@@ -179,7 +179,7 @@ export default {
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
-            'floatingTooltip',
+            'floatingPanelFeatureInfo',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -193,7 +193,7 @@ export default {
             )
         },
         isFeatureTooltipInFooter() {
-            return !this.floatingTooltip
+            return !this.floatingPanelFeatureInfo
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -295,7 +295,7 @@ export default {
             'setCameraPosition',
             'clearAllSelectedFeatures',
             'click',
-            'toggleTooltipPosition',
+            'setFeatureInfoPosition',
             'setCenter',
             'mapModuleReady',
         ]),
@@ -608,8 +608,8 @@ export default {
                 })
             }
         },
-        toggleTooltip() {
-            this.toggleTooltipPosition(dispatcher)
+        changeFeatureInfoPosition() {
+            this.setFeatureInfoPosition({ featureInfo: FeatureInfoPositions.FIXED, ...dispatcher })
         },
     },
 }

@@ -4,6 +4,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import promptUserToPrintHtmlContent from '@/utils/print'
 
 import FeatureCombo from './components/FeatureCombo.vue'
@@ -17,8 +18,8 @@ const content = ref(null)
 const store = useStore()
 
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
-const fixedTooltip = computed(() => store.getters.fixedTooltip)
-const floatingTooltip = computed(() => store.getters.floatingTooltip)
+const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
+const floatingPanelFeatureInfo = computed(() => store.getters.floatingPanelFeatureInfo)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 
@@ -35,10 +36,11 @@ const showElevationProfile = computed(() =>
 const showContainer = computed(() => {
     return (
         selectedFeatures.value.length > 0 &&
-        (fixedTooltip.value || (showElevationProfile.value && floatingTooltip.value))
+        (bottomPanelFeatureInfo.value ||
+            (showElevationProfile.value && floatingPanelFeatureInfo.value))
     )
 })
-const showFloatingToggle = computed(() => fixedTooltip.value)
+const showFloatingToggle = computed(() => bottomPanelFeatureInfo.value)
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -53,8 +55,11 @@ watch(selectedFeatures, (features) => {
 function onToggleContent() {
     showContent.value = !showContent.value
 }
-function onToggleTooltipPosition() {
-    store.dispatch('toggleTooltipPosition', dispatcher)
+function changeFeatureInfoPosition() {
+    store.dispatch('setFeatureInfoPosition', {
+        featureInfo: FeatureInfoPositions.FLOATING,
+        ...dispatcher,
+    })
 }
 function onPrint() {
     promptUserToPrintHtmlContent(content.value)
@@ -65,13 +70,13 @@ function onClose() {
 </script>
 
 <template>
-    <div v-show="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
+    <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
         <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
             <button
                 v-if="showFloatingToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-toggle-floating"
-                @click.stop="onToggleTooltipPosition"
+                @click.stop="changeFeatureInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-up" />
             </button>
@@ -97,7 +102,7 @@ function onClose() {
 
         <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
             <FeatureElevationProfile
-                v-if="floatingTooltip && showElevationProfile"
+                v-if="floatingPanelFeatureInfo && showElevationProfile"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
