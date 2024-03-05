@@ -38,6 +38,8 @@ onMounted(() => {
         delayOnTouchOnly: true,
         touchStartThreshold: 3,
         animation: 150,
+        direction: 'vertical',
+        handle: '.menu-layer-item-title',
         onStart: function () {
             aLayerIsDragged.value = true
         },
