@@ -202,24 +202,18 @@ export default function usePrintAreaRenderer(map) {
         const report = await requestReport(mapFishPrintUrl, spec)
         store.dispatch('setCurrentPrintReference', { reference: report.ref, ...dispatcher })
 
-        await getDownloadUrl(mapFishPrintUrl, report, 1000)
-            .then(
-                (url) => {
-                    downloadUrl(url)
-                    return url
-                },
-                (err) => {
-                    log.error('result', 'error', err)
-                    return err
-                }
-            )
-            .finally(() => {
-                store.dispatch('setPrintStatusAndReference', {
-                    isPrinting: false,
-                    reference: null,
-                    ...dispatcher,
-                })
+        try {
+            const url = await getDownloadUrl(mapFishPrintUrl, report, 1000)
+            downloadUrl(url)
+        } catch (error) {
+            log.error('result', 'error', error)
+        } finally {
+            store.dispatch('setPrintStatusAndReference', {
+                isPrinting: false,
+                reference: null,
+                ...dispatcher,
             })
+        }
     }
 
     function abortPrinting() {
