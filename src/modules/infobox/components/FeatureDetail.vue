@@ -26,7 +26,6 @@ const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted
 const isFeaturePolygon = computed(() => {
     return feature.value.geometry.type === 'Polygon'
 })
-const isFeatureLineString = computed(() => feature.value.geometry.type === 'LineString')
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
@@ -74,15 +73,11 @@ function sanitizeHtml(htmlText) {
             </CoordinateCopySlot>
         </div>
         <div
-            v-if="isFeatureLineString || isFeaturePolygon"
+            v-if="isFeaturePolygon"
             class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
         >
             <div class="d-flex gap-1 py-1">
-                <FeatureAreaInfo
-                    :feature="feature"
-                    :has-distance="true"
-                    :has-area="isFeaturePolygon"
-                />
+                <FeatureAreaInfo :feature="feature" />
             </div>
         </div>
     </div>

@@ -1,5 +1,4 @@
 <script setup>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Polygon } from 'ol/geom'
 import { computed, toRefs } from 'vue'
 
@@ -11,16 +10,8 @@ const props = defineProps({
         type: EditableFeature,
         required: true,
     },
-    hasDistance: {
-        type: Boolean,
-        default: false,
-    },
-    hasArea: {
-        type: Boolean,
-        default: false,
-    },
 })
-const { feature, hasDistance, hasArea } = toRefs(props)
+const { feature } = toRefs(props)
 const geometry = computed(() => new Polygon([feature.value.coordinates]))
 
 /** @type {ComputedRef<Number>} */
@@ -47,11 +38,20 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </script>
 
 <template>
-    <div :title="$t('area')">
-        <div v-if="hasArea">
-            <font-awesome-icon :icon="['fa', 'arrows-up-down-left-right']" />
+    <div :title="$t('area')" class="d-flex">
+        <div class="rectangle"></div>
+        <div class="ps-2">
             {{ area }}
             <sup>2</sup>
         </div>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.rectangle {
+    height: 1.236rem;
+    width: 2rem;
+    border: 2px solid black;
+    background-color: #999;
+}
+</style>

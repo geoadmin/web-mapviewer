@@ -29,12 +29,8 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    isCombo: {
-        type: Boolean,
-        default: false,
-    },
 })
-const { feature, readOnly, isCombo } = toRefs(props)
+const { feature, readOnly } = toRefs(props)
 
 const title = ref(feature.value.title)
 const description = ref(feature.value.description)
@@ -109,7 +105,6 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
-const isFeatureLineString = computed(() => feature.value.geometry.type === 'LineString')
 const isFeaturePolygon = computed(() => {
     return feature.value.geometry.type === 'Polygon'
 })
@@ -171,26 +166,20 @@ function onDelete() {
             ></textarea>
         </div>
         <div class="d-flex justify-content-between">
-            <div v-if="!isCombo" class="d-flex gap-1 py-1">
-                <FeatureAreaInfo
-                    :feature="feature"
-                    :has-distance="isFeatureLineString || isFeaturePolygon"
-                    :has-area="isFeaturePolygon"
-                />
-            </div>
-        </div>
-        <div v-if="isFeatureMarker || isFeatureText" class="d-flex small justify-content-start">
-            <CoordinateCopySlot
-                identifier="feature-style-edit-coordinate-copy"
-                :value="feature.coordinates[0].slice(0, 2)"
-                :coordinate-format="coordinateFormat"
+            <div
+                v-if="isFeatureMarker || isFeatureText"
+                class="d-flex small gap-1 justify-content-start align-items-center"
             >
-                <FontAwesomeIcon class="small pe-2 align-text-top" icon="fas fa-map-marker-alt" />
-            </CoordinateCopySlot>
-        </div>
-        <div class="d-flex justify-content-end align-items-center">
-            <SelectedFeatureProfile :feature="feature" />
-
+                <CoordinateCopySlot
+                    class="d-flex"
+                    identifier="feature-style-edit-coordinate-copy"
+                    :value="feature.coordinates[0].slice(0, 2)"
+                    :coordinate-format="coordinateFormat"
+                >
+                    <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+                </CoordinateCopySlot>
+            </div>
+            <FeatureAreaInfo v-if="isFeaturePolygon" :feature="feature" />
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
