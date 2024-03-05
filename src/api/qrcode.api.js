@@ -3,8 +3,15 @@ import axios from 'axios'
 import { API_SERVICES_BASE_URL } from '@/config'
 import log from '@/utils/logging'
 
+/**
+ * Generates a URL to generate a QR Code for a URL
+ *
+ * @param {String} url The URL we want to QR-Codify
+ * @returns {String} The URL to generate the QR Code
+ */
 export function getGenerateQRCodeUrl(url) {
-    return `${API_SERVICES_BASE_URL}qrcode/generate?url=${url}`
+    const encodedUrl = encodeURIComponent(url)
+    return `${API_SERVICES_BASE_URL}qrcode/generate?url=${encodedUrl}`
 }
 
 /**

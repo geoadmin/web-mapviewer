@@ -15,6 +15,7 @@ import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
+import { createShortLink } from '@/api/shortlink.api'
 import { API_BASE_URL, API_SERVICES_BASE_URL, WMS_BASE_URL } from '@/config'
 import i18n from '@/modules/i18n'
 import store from '@/store'
@@ -159,12 +160,11 @@ export default function usePrintAreaRenderer(map) {
 
         const encoder = new MFPEncoder(mapFishPrintUrl)
         const customizer = new BaseCustomizer([0, 0, 10000, 10000])
-        // Generate QR code url from current shortlink
-        await store.dispatch('generateShortLinks', {
-            withCrosshair: false,
-            ...dispatcher,
-        })
-        const shortLink = store.state.share.shortLink
+        // Generate QR code url from current shortlink (similar as in share.store.js avoding dispatch)
+        const urlWithoutGeolocation =
+            // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
+            window.location.href.replace('&geolocation', '')
+        const shortLink = await createShortLink(urlWithoutGeolocation)
         const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
 
         const mapConfig = {
