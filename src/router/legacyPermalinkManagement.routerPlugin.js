@@ -1,7 +1,7 @@
 import proj4 from 'proj4'
 import { START_LOCATION } from 'vue-router'
 
-import { transformLayerIntoUrlString } from '@/router/storeSync/LayerParamConfig.class'
+import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'

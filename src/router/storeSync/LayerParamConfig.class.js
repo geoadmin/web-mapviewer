@@ -2,38 +2,13 @@ import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { decodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
-import layersParamParser from '@/router/storeSync/layersParamParser'
+import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import log from '@/utils/logging'
-
-/**
- * Transform a layer metadata into a string. This value can then be used in the URL to describe a
- * layer and its state (visibility, opacity, etc...)
- *
- * @param {AbstractLayer} layer
- * @param {GeoAdminLayer} [defaultLayerConfig]
- * @returns {string}
- */
-export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
-    let layerUrlString = layer.id
-    if (layer.timeConfig?.timeEntries.length > 1) {
-        layerUrlString += `@year=${layer.timeConfig.currentYear}`
-    }
-    if (!layer.visible) {
-        layerUrlString += `,f`
-    }
-    // if no default layers config (e.g. external layers) or if the opacity is not the same as the default one
-    if (!defaultLayerConfig || layer.opacity !== defaultLayerConfig.opacity) {
-        if (layer.visible) {
-            layerUrlString += ','
-        }
-        layerUrlString += `,${layer.opacity}`
-    }
-    return layerUrlString
-}
 
 /**
  * Parse layers such as described in
@@ -46,7 +21,7 @@ export function transformLayerIntoUrlString(layer, defaultLayerConfig) {
  */
 export function createLayerObject(parsedLayer, currentLayer) {
     let layer = parsedLayer
-    const [layerType, url, id] = parsedLayer.id.split('|')
+    const [layerType, url, id] = parsedLayer.id.split('|').map(decodeExternalLayerParam)
     if (['KML', 'GPX', 'WMTS', 'WMS'].includes(layerType) && currentLayer) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This allow to avoid reloading the data of the layer (e.g. KML name, external
@@ -111,7 +86,7 @@ export function createLayerObject(parsedLayer, currentLayer) {
 }
 
 function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
-    const parsedLayers = layersParamParser(urlParamValue)
+    const parsedLayers = parseLayersParam(urlParamValue)
     const promisesForAllDispatch = []
     log.debug(
         `Dispatch Layers from URL into store: ${urlParamValue}`,

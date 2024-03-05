@@ -1,5 +1,6 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 export default class GPXLayer extends AbstractLayer {
@@ -34,7 +35,8 @@ export default class GPXLayer extends AbstractLayer {
         const attributionName = isLocalFile ? gpxFileUrl : new URL(gpxFileUrl).hostname
         super({
             name: gpxMetadata?.name ?? 'GPX',
-            id: `GPX|${gpxFileUrl}`,
+            // NOTE the pipe character needs to be encoded in order to not break the parsing
+            id: `GPX|${encodeExternalLayerParam(gpxFileUrl)}`,
             type: LayerTypes.GPX,
             opacity: opacity,
             visible: visible,

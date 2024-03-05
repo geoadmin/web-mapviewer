@@ -157,3 +157,29 @@ export function parseWmtsCapabilities(content, originUrl) {
         )
     }
 }
+
+const ENC_PIPE = '%7C'
+
+/**
+ * Encode an external layer parameter.
+ *
+ * This percent encode the special character | used to separate external layer parameters.
+ *
+ * @param {string} param Parameter to encode
+ * @returns {string} Percent encoded parameter
+ */
+export function encodeExternalLayerParam(param) {
+    return param.replace('|', ENC_PIPE)
+}
+
+/**
+ * Decode an external layer parameter.
+ *
+ * This percent decode the special character | used to separate external layer parameters.
+ *
+ * @param {string} param Parameter to encode
+ * @returns {string} Percent encoded parameter
+ */
+export function decodeExternalLayerParam(param) {
+    return param.replace(ENC_PIPE, '|')
+}

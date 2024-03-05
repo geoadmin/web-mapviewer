@@ -71,7 +71,7 @@ export default class WMSCapabilitiesParser {
         const { layer, parents } = this.findLayer(layerId)
         if (!layer) {
             const msg = `No WMS layer ${layerId} found in Capabilities ${this.originUrl.toString()}`
-            log.error(msg)
+            log.error(msg, this)
             if (ignoreError) {
                 return null
             }
