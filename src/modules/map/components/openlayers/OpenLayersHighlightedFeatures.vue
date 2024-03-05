@@ -12,7 +12,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
-
+import { TooltipPositions } from '@/store/modules/ui.store'
 import FeatureEdit from '@/modules/infobox/components/FeatureEdit.vue'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -29,10 +29,10 @@ const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 const store = useStore()
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
-const isFloatingTooltip = computed(() => store.state.ui.floatingTooltip)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-
+const isFloatingTooltip = computed(() => store.getters.floatingTooltip)
+const isFixedTooltip = computed(() => store.getters.fixedTooltip)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -94,8 +94,12 @@ watch(nonEditableFeature, () => {
         nonEditableFeature.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
-    if (isFloatingTooltip.value && !containsOnlyPoints) {
-        toggleFloatingTooltip()
+    if (!isFixedTooltip.value && !containsOnlyPoints) {
+        // we need to also go to 'FIXED' if we are on 'NONE', which is why we don't make a 'toggle' here
+        store.dispatch('setTooltipPosition', {
+            position: TooltipPositions.FIXED,
+            dispatcher: dispatcher,
+        })
     }
 })
 
@@ -111,8 +115,8 @@ useVectorLayer(
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
 }
-function toggleFloatingTooltip() {
-    store.dispatch('toggleFloatingTooltip', dispatcher)
+function toggleTooltipPosition() {
+    store.dispatch('toggleTooltipPosition', dispatcher)
 }
 </script>
 
@@ -128,7 +132,7 @@ function toggleFloatingTooltip() {
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
-                @click="toggleFloatingTooltip"
+                @click="toggleTooltipPosition"
             >
                 <FontAwesomeIcon icon="caret-down" />
             </button>

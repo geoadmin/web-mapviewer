@@ -17,39 +17,28 @@ const content = ref(null)
 const store = useStore()
 
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
-const floatingTooltip = computed(() => store.state.ui.floatingTooltip)
+const fixedTooltip = computed(() => store.getters.fixedTooltip)
+const floatingTooltip = computed(() => store.getters.floatingTooltip)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 
 const selectedFeature = computed(() => selectedFeatures.value[0])
 
-const isEdit = computed(() => !floatingTooltip.value && selectedFeature.value?.isEditable)
-const isList = computed(
-    () => !floatingTooltip.value && !isEdit.value && selectedFeatures.value.length > 0
+const isEdit = computed(() => selectedFeature.value?.isEditable)
+
+const showElevationProfile = computed(() =>
+    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+        selectedFeature.value?.featureType
+    )
 )
-const showElevationProfile = computed(
-    () =>
-        selectedFeature.value &&
-        (selectedFeature.value.featureType === EditableFeatureTypes.MEASURE ||
-            (selectedFeature.value.featureType === EditableFeatureTypes.LINEPOLYGON &&
-                floatingTooltip.value))
-)
-const isCombo = computed(
-    () =>
-        isEdit.value &&
-        [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
-            selectedFeature.value.featureType
-        )
-)
-const showContainer = computed(
-    () => isList.value || isEdit.value || showElevationProfile.value || isCombo.value
-)
-const showFloatingToggle = computed(
-    () =>
-        isList.value ||
-        (isEdit.value && !showElevationProfile.value) ||
-        (isCombo.value && !floatingTooltip.value)
-)
+
+const showContainer = computed(() => {
+    return (
+        selectedFeatures.value.length > 0 &&
+        (fixedTooltip.value || (showElevationProfile.value && floatingTooltip.value))
+    )
+})
+const showFloatingToggle = computed(() => fixedTooltip.value)
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -64,8 +53,8 @@ watch(selectedFeatures, (features) => {
 function onToggleContent() {
     showContent.value = !showContent.value
 }
-function onToggleFloating() {
-    store.dispatch('toggleFloatingTooltip', dispatcher)
+function onToggleTooltipPosition() {
+    store.dispatch('toggleTooltipPosition', dispatcher)
 }
 function onPrint() {
     promptUserToPrintHtmlContent(content.value)
@@ -82,7 +71,7 @@ function onClose() {
                 v-if="showFloatingToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-toggle-floating"
-                @click.stop="onToggleFloating"
+                @click.stop="onToggleTooltipPosition"
             >
                 <FontAwesomeIcon icon="caret-up" />
             </button>
@@ -108,7 +97,7 @@ function onClose() {
 
         <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
             <FeatureElevationProfile
-                v-if="showElevationProfile && !isCombo"
+                v-if="floatingTooltip && showElevationProfile"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
@@ -116,7 +105,7 @@ function onClose() {
             />
 
             <FeatureCombo
-                v-else-if="isCombo"
+                v-else-if="showElevationProfile"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"
@@ -129,7 +118,7 @@ function onClose() {
                 :read-only="!showDrawingOverlay"
             />
 
-            <FeatureList v-else-if="isList" />
+            <FeatureList v-else />
         </div>
     </div>
 </template>

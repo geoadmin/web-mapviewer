@@ -11,6 +11,12 @@ export const UIModes = {
     DESKTOP: 'DESKTOP', // formerly called "MENU_ALWAYS_OPEN", also used for tablets
     PHONE: 'PHONE', //  formerly called "MENU_OPENED_THROUGH_BUTTON"
 }
+export const TooltipPositions = {
+    DEFAULT: 'default',
+    FIXED: 'fixed',
+    FLOATING: 'floating',
+    NONE: 'none',
+}
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
  * the header) should be visible right now or not. Most actions from this module will be
@@ -77,12 +83,13 @@ export default {
          */
         mode: UIModes.PHONE, // Configured in screen-size-management.plugin.js (or manually in the settings)
         /**
-         * Flag telling if the tooltip should be displayed over the map, floating and positioned at
-         * the feature's coordinates. If false, the tooltip will be displayed in the footer
+         * Expected position of the features tooltip position when selecting features.
          *
-         * @type Boolean
+         * The default position depends on the UI Modes and is checked on the fly
+         *
+         * @type String
          */
-        floatingTooltip: false, // Configured in screen-size-management.plugin.js
+        tooltipPosition: TooltipPositions.DEFAULT,
         /**
          * Hostname on which the application is running (use to display warnings to the user on
          * 'non-production' hosts)
@@ -203,6 +210,21 @@ export default {
         isProductionSite(state) {
             return state.hostname === 'map.geo.admin.ch'
         },
+        floatingTooltip(state, getters) {
+            return (
+                state.tooltipPosition === TooltipPositions.FLOATING ||
+                (state.tooltipPosition === TooltipPositions.DEFAULT && !getters.isPhoneMode)
+            )
+        },
+        fixedTooltip(state, getters) {
+            return (
+                state.tooltipPosition === TooltipPositions.FIXED ||
+                (state.tooltipPosition === TooltipPositions.DEFAULT && getters.isPhoneMode)
+            )
+        },
+        noTooltip(state) {
+            return state.tooltipPosition === TooltipPositions.NONE
+        },
     },
     actions: {
         setSize({ commit }, { width, height, dispatcher }) {
@@ -238,9 +260,6 @@ export default {
                 showDrawingOverlay: !!showDrawingOverlay,
                 dispatcher,
             })
-        },
-        toggleFloatingTooltip({ commit, state }, { dispatcher }) {
-            commit('setFloatingTooltip', { floatingTooltip: !state.floatingTooltip, dispatcher })
         },
         setUiMode({ commit, state }, { mode, dispatcher }) {
             if (mode in UIModes) {
@@ -279,6 +298,32 @@ export default {
         setCompareSliderActive({ commit }, args) {
             commit('setCompareSliderActive', args)
         },
+        setTooltipPosition({ commit, state }, { position, dispatcher }) {
+            const upCasePos = position.toUpperCase()
+            if (
+                TooltipPositions[upCasePos] &&
+                state.tooltipPosition !== TooltipPositions[upCasePos]
+            ) {
+                commit('setTooltipPosition', { position: upCasePos, dispatcher: dispatcher })
+            } else if (!TooltipPositions[upCasePos]) {
+                commit('setTooltipPosition', {
+                    position: TooltipPositions.DEFAULT,
+                    dispatcher: dispatcher,
+                })
+            }
+        },
+        toggleTooltipPosition({ commit, getters }, { dispatcher }) {
+            if (getters.noTooltip) {
+                commit('setTooltipPosition', {
+                    position: TooltipPositions.DEFAULT,
+                    dispatcher,
+                })
+            } else if (getters.floatingTooltip) {
+                commit('setTooltipPosition', { position: TooltipPositions.FIXED, dispatcher })
+            } else {
+                commit('setTooltipPosition', { position: TooltipPositions.FLOATING, dispatcher })
+            }
+        },
     },
     mutations: {
         setSize(state, { height, width }) {
@@ -300,9 +345,6 @@ export default {
         setShowDrawingOverlay(state, { showDrawingOverlay }) {
             state.showDrawingOverlay = showDrawingOverlay
         },
-        setFloatingTooltip(state, { floatingTooltip }) {
-            state.floatingTooltip = floatingTooltip
-        },
         setUiMode(state, { mode }) {
             state.mode = mode
         },
@@ -323,6 +365,10 @@ export default {
         },
         setCompareSliderActive(state, { compareSliderActive }) {
             state.isCompareSliderActive = compareSliderActive
+        },
+        setTooltipPosition(state, { position }) {
+            console.log(position)
+            state.tooltipPosition = position
         },
     },
 }

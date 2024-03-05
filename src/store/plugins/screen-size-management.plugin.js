@@ -20,12 +20,6 @@ const screenSizeManagementPlugin = (store) => {
             }
             if (wantedUiMode !== state.ui.mode) {
                 store.dispatch('setUiMode', { mode: wantedUiMode, ...dispatcher })
-                if (
-                    (wantedUiMode === UIModes.PHONE && state.ui.floatingTooltip) ||
-                    (wantedUiMode === UIModes.DESKTOP && !state.ui.floatingTooltip)
-                ) {
-                    store.dispatch('toggleFloatingTooltip', dispatcher)
-                }
             }
         }
     })

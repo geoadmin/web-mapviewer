@@ -1,5 +1,6 @@
 import { DEFAULT_PROJECTION } from '@/config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
+import { TooltipPositions } from '@/store/modules/ui.store'
 import CameraParamConfig from '@/router/storeSync/CameraParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'
 import CustomDispatchUrlParamConfig from '@/router/storeSync/CustomDispatchUrlParamConfig.class'
@@ -104,6 +105,15 @@ const storeSyncConfig = [
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
+    new SimpleUrlParamConfig(
+        'tooltipposition',
+        'setTooltipPosition',
+        'setTooltipPosition',
+        (store) => store.state.ui.tooltipPosition,
+        false,
+        String,
+        TooltipPositions.DEFAULT
+    ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',
         'catalogNodes',
