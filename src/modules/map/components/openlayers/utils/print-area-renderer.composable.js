@@ -118,6 +118,8 @@ export default function usePrintAreaRenderer(map) {
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
     const MM_PER_INCHES = 25.4
     const UNITS_RATIO = 39.37 // inches per meter
+    const POLL_INTERVAL = 2000 // interval for multi-page prints (ms)
+    const POLL_MAX_TIME = 600000 // ms (10 minutes)
     let worldPolygon = null
     let printRectangle = []
 
@@ -149,7 +151,7 @@ export default function usePrintAreaRenderer(map) {
         if (newValue) {
             startPrinting()
         } else {
-            await abortPrinting()
+            abortPrinting()
         }
     })
 
@@ -203,7 +205,7 @@ export default function usePrintAreaRenderer(map) {
         store.dispatch('setCurrentPrintReference', { reference: report.ref, ...dispatcher })
 
         try {
-            const url = await getDownloadUrl(mapFishPrintUrl, report, 1000)
+            const url = await getDownloadUrl(mapFishPrintUrl, report, POLL_INTERVAL, POLL_MAX_TIME)
             downloadUrl(url)
         } catch (error) {
             log.error('result', 'error', error)
