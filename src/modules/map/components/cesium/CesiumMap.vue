@@ -169,7 +169,6 @@ export default {
             cameraPosition: (state) => state.position.camera,
             uiMode: (state) => state.ui.mode,
             previewYear: (state) => state.layers.previewYear,
-            isFeatureTooltipInFooter: (state) => !state.ui.floatingTooltip,
             selectedFeatures: (state) => state.features.selectedFeatures,
             projection: (state) => state.position.projection,
             isFullScreenMode: (state) => state.ui.fullscreenMode,
@@ -180,6 +179,7 @@ export default {
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
+            'floatingTooltip',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -191,6 +191,9 @@ export default {
             return this.visibleLayers.filter(
                 (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
             )
+        },
+        isFeatureTooltipInFooter() {
+            return !this.floatingTooltip
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -292,7 +295,7 @@ export default {
             'setCameraPosition',
             'clearAllSelectedFeatures',
             'click',
-            'toggleFloatingTooltip',
+            'toggleTooltipPosition',
             'setCenter',
             'mapModuleReady',
         ]),
@@ -604,6 +607,9 @@ export default {
                     ...dispatcher,
                 })
             }
+        },
+        toggleTooltip() {
+            this.toggleTooltipPosition(dispatcher)
         },
     },
 }
