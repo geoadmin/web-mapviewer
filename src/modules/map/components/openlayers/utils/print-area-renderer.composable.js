@@ -187,7 +187,7 @@ export default function usePrintAreaRenderer(map) {
             format: 'pdf',
             layout: layout,
         }
-        if (store.getters.useGraticule) {
+        if (store.state.print.useGraticule) {
             const legend = encodeLegend()
             spec.attributes.legend = legend
         } else {
@@ -219,7 +219,7 @@ export default function usePrintAreaRenderer(map) {
             })
     }
 
-    async function abortPrinting() {
+    function abortPrinting() {
         if (store.getters.currentPrintReference) {
             const printReference = store.getters.currentPrintReference
             const mapFishPrintUrl = API_SERVICES_BASE_URL + 'print3/print/default'
