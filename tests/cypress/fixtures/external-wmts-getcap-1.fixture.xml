@@ -53,13 +53,13 @@
                 template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-1/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
         </Layer>
         <Layer>
-            <ows:Title>Test External WMTS 2</ows:Title>
+            <ows:Title>Test External WMTS 2;,|@special-chars-äö</ows:Title>
             <ows:Abstract></ows:Abstract>
             <ows:WGS84BoundingBox>
                 <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
                 <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
             </ows:WGS84BoundingBox>
-            <ows:Identifier>TestExternalWMTS-2</ows:Identifier>
+            <ows:Identifier>TestExternalWMTS-2;,|@special-chars-äö</ows:Identifier>
             <Style>
                 <ows:Identifier>default</ows:Identifier>
             </Style>

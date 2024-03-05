@@ -240,7 +240,7 @@ describe('Test on legacy param import', () => {
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
             const layerId = 'ch.swisstopo-vd.official-survey'
-            const url = 'https://fake.wms.base.url/?'
+            const url = 'https://fake.wms.base-1.url/?'
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetMap' } },
                 {
@@ -249,7 +249,7 @@ describe('Test on legacy param import', () => {
             ).as('externalWMSGetMap')
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap.fixture.xml' }
+                { fixture: 'external-wms-getcap-1.fixture.xml' }
             ).as('externalWMSGetCap')
 
             cy.goToMapView(
@@ -283,7 +283,7 @@ describe('Test on legacy param import', () => {
                 fixture: 'external-wmts-getcap-1.fixture.xml',
             }).as('externalWMTSGetCap')
             cy.intercept(
-                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
                 {
                     fixture: '256.png',
                 }
