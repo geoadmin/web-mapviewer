@@ -2,7 +2,7 @@
     <div class="d-flex p-1 profile-popup-info-buttons">
         <div
             v-if="profile && profile.hasElevationData"
-            class="flex-grow-1 profile-info-container d-flex border border-light ps-1 pe-4 py-1"
+            class="flex-grow-1 profile-info-container d-flex flex-wrap border border-light ps-1 pe-4 py-1"
             data-cy="profile-popup-info-container"
         >
             <small
