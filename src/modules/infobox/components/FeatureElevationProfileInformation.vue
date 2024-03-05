@@ -72,14 +72,6 @@ export default {
                     {
                         title: 'profile_distance',
                         icons: [
-                            ['far', 'eye'],
-                            ['fa', 'arrows-alt-h'],
-                        ],
-                        value: 'TODO',
-                    },
-                    {
-                        title: 'profile_distance_air',
-                        icons: [
                             ['fa', 'globe'],
                             ['fa', 'arrows-alt-h'],
                         ],
@@ -92,11 +84,6 @@ export default {
                             ['fa', 'arrows-alt-h'],
                         ],
                         value: this.formatDistance(this.profile.slopeDistance),
-                    },
-                    {
-                        title: 'area',
-                        icons: [['fa', 'arrows-up-down-left-right']],
-                        value: 'TODO',
                     },
                     {
                         title: 'profile_hike_time',
