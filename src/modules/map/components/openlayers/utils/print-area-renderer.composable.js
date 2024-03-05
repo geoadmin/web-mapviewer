@@ -57,7 +57,7 @@ function createWorldPolygon() {
 
 function encodeGraticule(dpi, projection) {
     let gridLayer = 'org.epsg.grid_4326'
-    if (projection.value instanceof CustomCoordinateSystem) {
+    if (projection instanceof CustomCoordinateSystem) {
         gridLayer = 'org.epsg.grid_2056'
     }
     return {
