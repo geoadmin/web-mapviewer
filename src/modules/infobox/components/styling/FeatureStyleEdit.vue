@@ -14,6 +14,8 @@ import DrawingStylePopoverButton from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import SelectedFeatureProfile from '@/modules/infobox/components/styling/SelectedFeatureProfile.vue'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
 import { round } from '@/utils/numberUtils'
 
@@ -81,6 +83,10 @@ function updateFeatureDescription() {
         ...dispatcher,
     })
 }
+
+const coordinateFormat = computed(() => {
+    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+})
 
 /**
  * OpenLayers polygons coordinates are in a triple array. The first array is the "ring", the second
@@ -210,7 +216,20 @@ function onDelete() {
                 <sup>2</sup>
             </div>
         </div>
-        <div class="d-flex">
+        <div
+            v-if="isFeatureMarker || isFeatureText"
+            class="d-flex small gap-1 justify-content-start align-items-center"
+        >
+            <CoordinateCopySlot
+                class="d-flex"
+                identifier="feature-style-edit-coordinate-copy"
+                :value="feature.coordinates[0].slice(0, 2)"
+                :coordinate-format="coordinateFormat"
+            >
+                <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+            </CoordinateCopySlot>
+        </div>
+        <div class="d-flex justify-content-end align-items-center">
             <SelectedFeatureProfile :feature="feature" />
 
             <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">

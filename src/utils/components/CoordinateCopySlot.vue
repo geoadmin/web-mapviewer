@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
 const props = defineProps({
@@ -23,8 +24,12 @@ const props = defineProps({
         type: Number,
         default: 1000,
     },
+    coordinateFormat: {
+        type: CoordinateFormat,
+        default: null,
+    },
 })
-const { identifier, value, extraValue, resetDelay } = toRefs(props)
+const { identifier, value, extraValue, resetDelay, coordinateFormat } = toRefs(props)
 
 const copyButton = ref(null)
 const copied = ref(false)
@@ -32,6 +37,7 @@ const copied = ref(false)
 const i18n = useI18n()
 
 const store = useStore()
+const projection = computed(() => store.state.position.projection)
 const lang = computed(() => store.state.i18n.lang)
 
 const buttonIcon = computed(() => {
@@ -70,9 +76,16 @@ function setTooltipContent() {
         copyTooltip.setContent(i18n.t('copy_cta'))
     }
 }
+
+function display(coordinates) {
+    if (coordinateFormat.value) {
+        return coordinateFormat.value.format(coordinates, projection.value)
+    }
+    return coordinates
+}
 async function copyValue() {
     try {
-        await navigator.clipboard.writeText(value.value)
+        await navigator.clipboard.writeText(display(value.value))
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
@@ -88,22 +101,23 @@ async function copyValue() {
     <div class="location-popup-label">
         <slot />
     </div>
-    <div class="location-popup-data">
+    <div class="location-popup-data gap-1">
         <div>
-            <div :data-cy="`location-popup-${identifier}`">
-                {{ value }}
+            <div :data-cy="`${identifier}`">
+                {{ display(value) }}
             </div>
-            <div v-if="extraValue" :data-cy="`location-popup-extra-value-${identifier}`">
+            <div v-if="extraValue" :data-cy="`${identifier}-extra-value`">
                 {{ extraValue }}
             </div>
         </div>
         <button
             ref="copyButton"
-            class="location-popup-copy-button btn btn-light text-black-50 d-none d-md-block"
+            :data-cy="`${identifier}-button`"
+            class="location-popup-copy-button btn btn-light text-black-50"
             type="button"
             @click="copyValue"
         >
-            <FontAwesomeIcon class="icon" :icon="buttonIcon" />
+            <FontAwesomeIcon class="icon" :icon="buttonIcon" :data-cy="`${identifier}-icon`" />
         </button>
     </div>
 </template>

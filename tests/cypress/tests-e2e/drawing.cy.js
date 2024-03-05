@@ -50,7 +50,15 @@ describe('Drawing module tests', () => {
             )
             cy.readStoreValue('state.features.selectedFeatures[0].title').should('eq', title)
         }
-
+        function readCoordinateClipboard(name, coordinate) {
+            cy.log(name)
+            cy.get(`[data-cy="${name}-button"]`).focus()
+            cy.get(`[data-cy="${name}-button"]`).realClick()
+            cy.get(`[data-cy="${name}-icon"]`).should('have.class', 'fa-check')
+            cy.readClipboardValue().then((clipboardText) => {
+                expect(clipboardText).to.be.equal(coordinate)
+            })
+        }
         beforeEach(() => {
             cy.goToDrawing()
         })
@@ -230,6 +238,22 @@ describe('Drawing module tests', () => {
                     })
                 })
             })
+
+            cy.log('Coordinates for marker can be copied in drawing mode')
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]:visible').click(160, 200)
+            readCoordinateClipboard(
+                'feature-style-edit-coordinate-copy',
+                "2'660'013.50, 1'227'172.00"
+            )
+            cy.log('Coordinates for marker can be copied while not in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(160, 200)
+            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
+            cy.log('Coordinates for marker are updated when selecting new marker')
+            cy.get('[data-cy="ol-map"]').click(200, 234)
+            readCoordinateClipboard('feature-detail-coordinate-copy', "2'680'013.50, 1'210'172.00")
         })
         it('can create annotation/text and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
@@ -284,6 +308,22 @@ describe('Drawing module tests', () => {
                     new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                 ])
             })
+
+            cy.log('Coordinates for annotation can be copied while in drawing mode')
+            cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+            cy.get('[data-cy="ol-map"]:visible').click(160, 200)
+            readCoordinateClipboard(
+                'feature-style-edit-coordinate-copy',
+                "2'660'013.50, 1'227'172.00"
+            )
+            cy.log('Coordinates for annotation can be copied while not in drawing mode')
+            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="menu-button"]').click()
+            cy.get('[data-cy="ol-map"]').click(160, 200)
+            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
+            cy.log('Coordinates for annotation are updated when selecting new marker')
+            cy.get('[data-cy="ol-map"]').click('center')
+            readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
@@ -315,6 +355,7 @@ describe('Drawing module tests', () => {
                 ])
                 kmlId = interception.response.body.id
             })
+            cy.get('[data-cy="feature-style-edit-coordinate-copy-button"]').should('not.exist')
             cy.readWindowValue('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .then((features) => {
