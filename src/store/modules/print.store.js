@@ -64,6 +64,10 @@ export default {
         setCurrentPrintReference({ commit }, { reference, dispatcher }) {
             commit('setCurrentPrintReference', { reference, dispatcher })
         },
+        setPrintStatusAndReference({ commit }, { isPrinting, reference, dispatcher }) {
+            commit('setPrintingStatus', { isPrinting, dispatcher })
+            commit('setCurrentPrintReference', { reference, dispatcher })
+        },
     },
     mutations: {
         setPrintLayouts: (state, { layouts }) => (state.layouts = layouts),

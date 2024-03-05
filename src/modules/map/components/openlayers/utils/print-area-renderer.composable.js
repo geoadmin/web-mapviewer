@@ -214,8 +214,11 @@ export default function usePrintAreaRenderer(map) {
                 }
             )
             .finally(() => {
-                store.dispatch('setPrintingStatus', { isPrinting: false, ...dispatcher })
-                store.dispatch('setCurrentPrintReference', { reference: null, ...dispatcher })
+                store.dispatch('setPrintStatusAndReference', {
+                    isPrinting: false,
+                    reference: null,
+                    ...dispatcher,
+                })
             })
     }
 
