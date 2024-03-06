@@ -464,6 +464,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
     it('Import GPX file', () => {
+        const bgLayer = 'test.background.layer2'
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
@@ -505,7 +506,7 @@ describe('The Import File Tool', () => {
             cy.wrap(center[0]).should('be.closeTo', 2604663.19, 1)
             cy.wrap(center[1]).should('be.closeTo', 1210998.57, 1)
         })
-        cy.checkOlLayer(gpxOnlineLayerId)
+        cy.checkOlLayer([bgLayer, gpxOnlineLayerId])
 
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
@@ -528,7 +529,7 @@ describe('The Import File Tool', () => {
 
         cy.log('Check that the GPX layer has been added to the map')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
-        cy.checkOlLayer([gpxOnlineLayerId, gpxFileLayerId])
+        cy.checkOlLayer([bgLayer, gpxOnlineLayerId, gpxFileLayerId])
 
         cy.get('[data-cy="import-file-close-button"]:visible').click()
         cy.get('[data-cy="import-file-content"]').should('not.exist')
@@ -540,7 +541,7 @@ describe('The Import File Tool', () => {
         cy.waitMapIsReady()
         cy.wait('@getGpxFile')
         // only the URL GPX should be kept while reloading
-        cy.checkOlLayer(gpxOnlineLayerId)
+        cy.checkOlLayer([bgLayer, gpxOnlineLayerId])
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
         cy.clickOnMenuButtonIfMobile()

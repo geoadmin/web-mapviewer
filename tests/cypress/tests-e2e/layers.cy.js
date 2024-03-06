@@ -13,6 +13,7 @@ const stringifyWithoutLangOrNull = (key, value) =>
     key === 'lang' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
+    const bgLayer = 'test.background.layer2'
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
@@ -127,7 +128,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
 
-                cy.checkOlLayer(fakeLayerId)
+                cy.checkOlLayer([bgLayer, fakeLayerId])
             })
             it('reads and adds an external WMTS correctly', () => {
                 const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
@@ -162,7 +163,7 @@ describe('Test of layer handling', () => {
                     expect(externalWmtsLayer.name).to.eq('Test External WMTS')
                     expect(externalWmtsLayer.isLoading).to.be.false
                 })
-                cy.checkOlLayer(fakeLayerId)
+                cy.checkOlLayer([bgLayer, fakeLayerId])
 
                 // reads and sets non default layer config; visible and opacity
                 cy.goToMapView({
@@ -185,7 +186,7 @@ describe('Test of layer handling', () => {
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
 
-                cy.checkOlLayer({ id: fakeLayerId, visible: false })
+                cy.checkOlLayer([bgLayer, { id: fakeLayerId, visible: false }])
             })
             it('handles errors correctly', () => {
                 const wmtsUnreachableUrl =
