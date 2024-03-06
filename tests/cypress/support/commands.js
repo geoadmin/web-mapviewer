@@ -483,10 +483,27 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
     )
 })
 
-Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {
+Cypress.Commands.add('openMenuIfMobile', () => {
     if (isMobile()) {
-        // mobile/tablet : clicking on the menu button
-        cy.get('[data-cy="menu-button"]').click()
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+            if (!isMenuCurrentlyOpen) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            // waiting on the animation to finish by grabbing the content of the menu and assessing its visibility
+            cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
+        })
+    }
+})
+
+Cypress.Commands.add('closeMenuIfMobile', () => {
+    if (isMobile()) {
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+            if (isMenuCurrentlyOpen) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            // waiting on the animation to finish by grabbing the content of the menu and assessing its (in)visibility
+            cy.get('[data-cy="menu-tray-inner"]').should('not.be.visible')
+        })
     }
 })
 
