@@ -18,7 +18,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
  * @param {Readonly<Ref<Number>>} zIndex
  */
 export default function useAddLayerToMap(layer, map, zIndex) {
-    const internalZIndex = ref(-1)
+    const internalZIndex = ref(zIndex.value)
 
     watch(zIndex, (newValue) => {
         internalZIndex.value = newValue
