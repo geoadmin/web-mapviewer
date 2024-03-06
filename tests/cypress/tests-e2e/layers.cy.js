@@ -628,36 +628,95 @@ describe('Test of layer handling', () => {
             beforeEach(() => {
                 goToMenuWithLayers()
             })
-            const checkOrderButtons = (layerId, lowerShouldBeDisabled, raiseShouldBeDisabled) => {
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
-                    .should('be.visible')
-                    .should(`${!lowerShouldBeDisabled ? 'not.' : ''}be.disabled`)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
-                    .should('be.visible')
-                    .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
+            const checkOrderButtons = (layerId, index) => {
+                cy.log(`Check that layer ${layerId} is at index ${index}`)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(index)
+                    .should('have.attr', 'data-layer-id', layerId)
+
+                cy.get('[data-cy^="menu-active-layer-"]').then(($el) => {
+                    const lastIndex = $el.length - 1
+                    const upArrowEnable = index !== 0
+                    const downArrowEnable = index < lastIndex
+                    cy.log(
+                        `Check that layer ${layerId} has correct move arrow depending on its index ${index}`
+                    )
+                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${downArrowEnable ? 'not.' : ''}be.disabled`)
+                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${upArrowEnable ? 'not.' : ''}be.disabled`)
+                })
             }
-            it('Disable/enable the "move" arrow correctly', () => {
+            it('Reorder layers using the "move" button', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.openLayerSettings(bottomLayerId)
-                checkOrderButtons(bottomLayerId, true, false)
-                cy.openLayerSettings(topLayerId)
-                checkOrderButtons(topLayerId, false, true)
+                checkOrderButtons(bottomLayerId, 2)
                 cy.openLayerSettings(middleLayerId)
-                checkOrderButtons(middleLayerId, false, false)
+                checkOrderButtons(middleLayerId, 1)
+                cy.openLayerSettings(topLayerId)
+                checkOrderButtons(topLayerId, 0)
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    middleLayerId,
+                    { id: topLayerId, opacity: 0.7 },
+                ])
 
-                cy.log('testing disabling of arrow button when order is changing')
-                // moving the middle layer back
+                cy.log('Moving the layers and test the arrow up/dow')
+
+                cy.log(`Moving the layer ${middleLayerId} down`)
+                cy.openLayerSettings(middleLayerId)
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, true, false)
-                // back to the middle
+                checkOrderButtons(middleLayerId, 2)
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    middleLayerId,
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                ])
+
+                cy.log(`Move ${middleLayerId} back to the middle`)
                 cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, false)
-                // now moving it to the top
+                checkOrderButtons(middleLayerId, 1)
+
+                cy.log(`Move ${middleLayerId} it to the top`)
                 cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, true)
-                // and back to the middle
+                checkOrderButtons(middleLayerId, 0)
+
+                cy.log(`Move ${middleLayerId} back to the middle`)
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, false)
+                checkOrderButtons(middleLayerId, 1)
+
+                cy.log('Moving the layers and toggling the visibility')
+                cy.log(`Moving ${middleLayerId} to the top and toggle it visibility`)
+                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                    { id: middleLayerId, visible: false },
+                ])
+                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                    { id: middleLayerId, visible: true, opacity: 1 },
+                ])
+
+                cy.log('Moving the layers and change the opacity')
+                cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
+                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy="slider-opacity-layer-${middleLayerId}"]`).realClick()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: middleLayerId, visible: true, opacity: 0.5 },
+                    { id: topLayerId, opacity: 0.7 },
+                ])
             })
             it.skip('reorder layers when they are drag and dropped', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
