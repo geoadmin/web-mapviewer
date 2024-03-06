@@ -100,19 +100,11 @@ export function useLayerZIndexCalculation() {
      * @returns {Number} The Z-Index for this layer
      */
     function getZIndexForLayer(layer) {
-        if (!layer) {
-            return -1
-        }
         // trying to find a match among the visible layers
-        const matchingLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.find(
-            (visibleLayer) => visibleLayer?.id === layer.id
-        )
-        if (!matchingLayerInVisibleLayers) {
+        const indexOfLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.indexOf(layer)
+        if (indexOfLayerInVisibleLayers === -1) {
             return -1
         }
-        const indexOfLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.indexOf(
-            matchingLayerInVisibleLayers
-        )
         // checking if there are some group of layers before, meaning more than one z-index for this entry
         const subLayersPresentUnderThisLayer = visibleLayersHoldingAZIndex.value
             // only keeping previous layers (if layer is first, an empty array will be returned by slice(0, 0))
