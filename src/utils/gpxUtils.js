@@ -1,10 +1,10 @@
 import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
 import bbox from '@turf/bbox'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
+import GPX from 'ol/format/GPX'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
-import GPX from '@/utils/GPX'
 import { gpxStyle } from '@/utils/styleUtils'
 
 /**
