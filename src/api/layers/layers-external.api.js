@@ -165,6 +165,10 @@ const ENC_PIPE = '%7C'
  *
  * This percent encode the special character | used to separate external layer parameters.
  *
+ * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
+ * encodeURIComponent() therefore by only encoding | we avoid to encode other special character
+ * twice. But we need to encode | twice to avoid layer parsing issue.
+ *
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
@@ -176,6 +180,10 @@ export function encodeExternalLayerParam(param) {
  * Decode an external layer parameter.
  *
  * This percent decode the special character | used to separate external layer parameters.
+ *
+ * NOTE: We don't use decodeURIComponent here because the Vue Router will anyway do the
+ * decodeURIComponent() therefore by only decoding | we avoid to decode other special character
+ * twice. But we need to decode | twice to avoid layer parsing issue.
  *
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter

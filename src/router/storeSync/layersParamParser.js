@@ -10,6 +10,10 @@ const ENC_AT = '%40'
  *
  * This percent encode the special character , ; and @ used to separate layer parameters.
  *
+ * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
+ * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
+ * other special character twice. But we need to encode them twice to avoid layer parsing issue.
+ *
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
  */
@@ -21,6 +25,10 @@ export function encodeLayerParam(param) {
  * Decode an layer parameter.
  *
  * This percent decode the special character , ; and @ used to separate layer parameters.
+ *
+ * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
+ * encodeURIComponent() therefore by only encoding the layer parameter separators we avoid to encode
+ * other special character twice. But we need to encode them twice to avoid layer parsing issue.
  *
  * @param {string} param Parameter to encode
  * @returns {string} Percent encoded parameter
