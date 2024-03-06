@@ -237,10 +237,10 @@ describe('Test of layer handling', () => {
 
                 cy.checkOlLayer([
                     bgLayer,
-                    { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
-                    { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
-                    { id: fakeWmsLayerId2, visible: true, opacity: 0.8 },
                     { id: fakeWmsLayerId1, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId2, visible: true, opacity: 0.8 },
+                    { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
+                    { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
                 ])
             })
             it('reads and adds an external WMTS correctly', () => {
