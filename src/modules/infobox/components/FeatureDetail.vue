@@ -60,25 +60,17 @@ function sanitizeHtml(htmlText) {
                 {{ i18n.t('no_more_information') }}
             </div>
         </div>
-        <div
-            v-if="feature.geometry.type === 'Point'"
-            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
-        >
+        <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
+            <FeatureAreaInfo v-if="isFeaturePolygon" :feature="feature" />
             <CoordinateCopySlot
+                v-if="feature.geometry.type === 'Point'"
+                class="d-flex"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
                 <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
-        </div>
-        <div
-            v-if="isFeaturePolygon"
-            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
-        >
-            <div v-if="isFeaturePolygon" class="pb-2 px-2">
-                <FeatureAreaInfo :feature="feature" />
-            </div>
         </div>
     </div>
 </template>

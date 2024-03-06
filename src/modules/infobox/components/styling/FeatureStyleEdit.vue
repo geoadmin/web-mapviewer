@@ -164,22 +164,20 @@ function onDelete() {
                 }"
             ></textarea>
         </div>
-        <div class="d-flex justify-content-between">
-            <div
+        <div class="d-flex small gap-1 justify-content-start align-items-center">
+            <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
-                class="d-flex small gap-1 justify-content-start align-items-center"
+                class="d-flex"
+                identifier="feature-style-edit-coordinate-copy"
+                :value="feature.coordinates[0].slice(0, 2)"
+                :coordinate-format="coordinateFormat"
             >
-                <CoordinateCopySlot
-                    class="d-flex"
-                    identifier="feature-style-edit-coordinate-copy"
-                    :value="feature.coordinates[0].slice(0, 2)"
-                    :coordinate-format="coordinateFormat"
-                >
-                    <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
-                </CoordinateCopySlot>
-            </div>
+                <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+            </CoordinateCopySlot>
             <FeatureAreaInfo v-if="isFeaturePolygon" :feature="feature" />
-            <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
+        </div>
+        <div class="d-flex justify-content-end">
+            <div v-if="!readOnly" class="d-flex gap-1 mb-auto feature-style-edit-control">
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
