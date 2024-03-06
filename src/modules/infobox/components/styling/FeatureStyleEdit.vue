@@ -8,6 +8,7 @@ import { computed, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIconSelector from '@/modules/infobox/components/styling/DrawingStyleIconSelector.vue'
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
@@ -64,9 +65,16 @@ watch(description, () => {
 // Here we need to declare the debounce method globally otherwise it does not work (it is based
 // on closure which will not work if the debounce mehtod is defined in a watcher)
 // The title debounce needs to be quick in order to be displayed on the map
-const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+// NOTE: to avoid race condition on cypress between the update of a feature and the closing of
+// the drawing we need to speed up the debouncing, otherwise the dispatch changeFeatureTitle
+// will trigger a save kml when the features have been already removed from the KML drawing layer
+// resulting in an empty drawing.
+const debounceTitleUpdate = debounce(updateFeatureTitle, IS_TESTING_WITH_CYPRESS ? 1 : 100)
 // The description don't need a quick debounce as it is not displayed on the map
-const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
+const debounceDescriptionUpdate = debounce(
+    updateFeatureDescription,
+    IS_TESTING_WITH_CYPRESS ? 1 : 300
+)
 
 function updateFeatureTitle() {
     store.dispatch('changeFeatureTitle', {
