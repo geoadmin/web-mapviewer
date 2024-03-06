@@ -33,8 +33,13 @@ const drawingLayer = new VectorLayer({
 })
 provide('drawingLayer', drawingLayer)
 
-const { addKmlLayerToDrawing, saveDrawing, saveState, savesInProgress } =
-    useKmlDataManagement(drawingLayer)
+const {
+    addKmlLayerToDrawing,
+    debounceSaveDrawing,
+    clearPendingSaveDrawing,
+    saveState,
+    savesInProgress,
+} = useKmlDataManagement(drawingLayer)
 const isDrawingModified = computed(() => {
     return ![DrawingState.INITIAL, DrawingState.LOADED, DrawingState.LOAD_ERROR].includes(
         saveState.value
@@ -54,7 +59,7 @@ watch(featureIds, (next, last) => {
             .getFeatures()
             .filter((feature) => removed.includes(feature.getId()))
             .forEach((feature) => source.removeFeature(feature))
-        saveDrawing()
+        debounceSaveDrawing()
     }
 })
 watch(availableIconSets, () => {
@@ -148,14 +153,16 @@ async function closeDrawing() {
         `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
     )
 
-    // waiting for any saves that is pending
+    // clearing any pending save not started
+    clearPendingSaveDrawing()
+    // waiting for any saves in progress
     await Promise.all(savesInProgress.value)
 
     // We only trigger a kml save onClose drawing menu when the drawing has been modified and that
     // it is either not empty or not a new drawing.
     // We don't want to save new empty drawing, but we want to allow clearing existing drawing.
     if (isDrawingModified.value && (!isNewDrawing.value || !isDrawingEmpty.value)) {
-        await saveDrawing(false)
+        await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
     }
 
     await store.dispatch('toggleDrawingOverlay', dispatcher)
