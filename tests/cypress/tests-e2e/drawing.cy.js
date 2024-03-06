@@ -249,7 +249,7 @@ describe('Drawing module tests', () => {
             )
             cy.log('Coordinates for marker can be copied while not in drawing mode')
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-            cy.clickOnMenuButtonIfMobile()
+            cy.closeMenuIfMobile()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
             cy.log('Coordinates for marker are updated when selecting new marker')
@@ -320,7 +320,7 @@ describe('Drawing module tests', () => {
             )
             cy.log('Coordinates for annotation can be copied while not in drawing mode')
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-            cy.clickOnMenuButtonIfMobile()
+            cy.closeMenuIfMobile()
             cy.get('[data-cy="ol-map"]').click(160, 200)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'227'172.00")
             cy.log('Coordinates for annotation are updated when selecting new marker')
@@ -482,7 +482,7 @@ describe('Drawing module tests', () => {
                 cy.reload()
                 cy.waitMapIsReady()
                 cy.wait('@get-kml')
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(

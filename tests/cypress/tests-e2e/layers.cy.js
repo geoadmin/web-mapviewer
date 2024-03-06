@@ -123,7 +123,7 @@ describe('Test of layer handling', () => {
                 })
 
                 // shows a red icon to signify a layer is from an external source
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
@@ -181,7 +181,7 @@ describe('Test of layer handling', () => {
                 })
 
                 // shows a red icon to signify a layer is from an external source
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
                     .get('[data-cy="menu-external-disclaimer-icon"]')
                     .should('be.visible')
@@ -243,7 +243,7 @@ describe('Test of layer handling', () => {
                 cy.wait('@external-wmts-invalid')
                 cy.wait('@external-wms-unreachable')
                 cy.wait('@external-wms-invalid')
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL unreachable')
@@ -383,7 +383,7 @@ describe('Test of layer handling', () => {
                 },
                 true
             ) // with hash, so that we can have external layer support
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
         }
         context('Adding/removing layers', () => {
             it('shows active layers in the menu', () => {
@@ -413,7 +413,7 @@ describe('Test of layer handling', () => {
             })
             it('shows a hyphen when no layer is selected', () => {
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
@@ -426,13 +426,13 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: visibleLayerIds.join(';'),
                 })
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
             })
             it('add layer from topic (should be visible)', () => {
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 const testLayerId = 'test.wmts.layer'
                 const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
                 cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
@@ -475,7 +475,7 @@ describe('Test of layer handling', () => {
                     'search-locations'
                 )
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.get('[data-cy="searchbar"]').paste('test')
                 cy.wait(['@search-locations', '@search-layers'])
@@ -800,7 +800,7 @@ describe('Test of layer handling', () => {
             })
 
             // Open the menu and change the language.
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
             cy.clickOnLanguage(langAfter)
 
             // Wait until the active layers are updated.

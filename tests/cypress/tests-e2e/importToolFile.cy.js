@@ -4,7 +4,7 @@ describe('The Import File Tool', () => {
     it('Import KML file', () => {
         cy.goToMapView({}, true)
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -145,7 +145,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Open the menu and check the layer list
         cy.log('Check that the external layers have been added to the active layers menu')
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
@@ -198,7 +198,7 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test the disclaimer in the footer
         cy.log('Test the external layer disclaimer in the footer')
-        cy.clickOnMenuButtonIfMobile()
+        cy.closeMenuIfMobile()
         cy.get('[data-cy="layer-copyright-example.com"]').should('be.visible')
 
         //---------------------------------------------------------------------
@@ -206,7 +206,7 @@ describe('The Import File Tool', () => {
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
         cy.waitMapIsReady()
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
         cy.get(`[data-cy="active-layer-name-KML|${secondValidOnlineUrl}"]`).should('be.visible')
         cy.get('[data-cy="button-loading-metadata-spinner"]').should('not.exist')
@@ -240,7 +240,7 @@ describe('The Import File Tool', () => {
             },
             true
         )
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
 
         //---------------------------------------------------------------------
         cy.log('Test invalid external KML file from url parameter')
@@ -459,7 +459,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-close-button"]:visible').click()
         cy.get('[data-cy="import-file-content"]').should('not.exist')
 
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]').should('not.be.visible')
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
@@ -470,7 +470,7 @@ describe('The Import File Tool', () => {
 
         cy.goToMapView({}, true)
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -544,7 +544,7 @@ describe('The Import File Tool', () => {
         cy.checkOlLayer([bgLayer, gpxOnlineLayerId])
         // Test removing a layer
         cy.log('Test removing an external GPX layer')
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get(`[data-cy="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
     })

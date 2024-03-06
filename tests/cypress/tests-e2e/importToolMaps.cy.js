@@ -6,7 +6,7 @@ describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {
         cy.goToMapView({}, true)
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
     })
     it('Import external wms layers', () => {
         cy.intercept(
@@ -361,7 +361,7 @@ describe('The Import Maps Tool', () => {
         cy.log('Reload should keep the layers')
         cy.reload()
         cy.waitMapIsReady()
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 3)
         cy.get(`[data-cy="active-layer-name-${singleLayerFullId}"]`).should('be.visible')
         cy.get(`[data-cy="button-loading-metadata-spinner-${singleLayerFullId}"]`).should(
