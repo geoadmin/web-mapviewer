@@ -236,6 +236,7 @@ describe('Test of layer handling', () => {
                 cy.get('[data-cy^="menu-active-layer-"]').eq(3).should('contain', fakeWmsLayerName1)
 
                 cy.checkOlLayer([
+                    bgLayer,
                     { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
                     { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
                     { id: fakeWmsLayerId2, visible: true, opacity: 0.8 },
