@@ -377,7 +377,7 @@
     "print_scale": "Scale",
     "print_underway_message": "We ask you for your patience. A multi-page print is underway, which can be time consuming.",
     "problem_announcement": "Report problem",
-    "profile_distance": "Distance",
+    "profile_distance": "Linear distance",
     "profile_elevation_difference": "Altitude difference start - end",
     "profile_elevation_down": "Descent",
     "profile_elevation_up": "Ascent",

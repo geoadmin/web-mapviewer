@@ -76,7 +76,7 @@ function sanitizeHtml(htmlText) {
             v-if="isFeaturePolygon"
             class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
         >
-            <div class="d-flex gap-1 py-1">
+            <div v-if="isFeaturePolygon" class="pb-2 px-2">
                 <FeatureAreaInfo :feature="feature" />
             </div>
         </div>

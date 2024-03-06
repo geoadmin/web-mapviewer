@@ -38,9 +38,9 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </script>
 
 <template>
-    <div :title="$t('area')" class="d-flex">
+    <div :title="$t('area')" class="d-flex align-items-center">
         <div class="rectangle"></div>
-        <div class="ps-2">
+        <div class="area-information ps-2" data-cy="feature-area-information">
             {{ area }}
             <sup>2</sup>
         </div>
@@ -48,10 +48,14 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 </template>
 
 <style lang="scss" scoped>
+@import 'src/scss/webmapviewer-bootstrap-theme';
 .rectangle {
-    height: 1.236rem;
-    width: 2rem;
+    height: 1rem;
+    width: 1.5rem;
     border: 2px solid black;
     background-color: #999;
+}
+.area-information {
+    @extend .clear-no-ios-long-press;
 }
 </style>

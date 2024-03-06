@@ -368,6 +368,7 @@ describe('Drawing module tests', () => {
                     const [polygonCoordinates] = polygon.getGeometry().getCoordinates()
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('1875km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()
@@ -392,6 +393,7 @@ describe('Drawing module tests', () => {
             )
 
             // Now creating a line, and finishing it by double-clicking the same spot
+            cy.get('[data-cy="close-popover-button"]').click()
             cy.get('[data-cy="infobox-close"]').click()
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(120, 220)
