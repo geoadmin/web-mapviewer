@@ -190,7 +190,7 @@ Cypress.Commands.add(
                 // for true boolean param, only the key is required
                 flattenedQueryParams += `${key}&`
             } else {
-                flattenedQueryParams += `${key}=${value}&`
+                flattenedQueryParams += `${key}=${encodeURIComponent(value)}&`
             }
         })
         // removing trailing &

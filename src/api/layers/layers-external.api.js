@@ -54,6 +54,7 @@ export function setWmsGetCapParams(url, language) {
  */
 export async function readWmsCapabilities(baseUrl, language = null) {
     const url = setWmsGetCapParams(new URL(baseUrl), language).toString()
+    log.debug(`Read WMTS Get Capabilities: ${url}`)
     let response = null
     try {
         response = await axios.get(url, { timeout: EXTERNAL_SERVER_TIMEOUT })
@@ -117,6 +118,7 @@ export function setWmtsGetCapParams(url, language) {
  */
 export async function readWmtsCapabilities(baseUrl, language = null) {
     const url = setWmtsGetCapParams(new URL(baseUrl), language).toString()
+    log.debug(`Read WMTS Get Capabilities: ${url}`)
 
     let response = null
     try {
@@ -154,4 +156,38 @@ export function parseWmtsCapabilities(content, originUrl) {
             'invalid_wmts_capabilities'
         )
     }
+}
+
+const ENC_PIPE = '%7C'
+
+/**
+ * Encode an external layer parameter.
+ *
+ * This percent encode the special character | used to separate external layer parameters.
+ *
+ * NOTE: We don't use encodeURIComponent here because the Vue Router will anyway do the
+ * encodeURIComponent() therefore by only encoding | we avoid to encode other special character
+ * twice. But we need to encode | twice to avoid layer parsing issue.
+ *
+ * @param {string} param Parameter to encode
+ * @returns {string} Percent encoded parameter
+ */
+export function encodeExternalLayerParam(param) {
+    return param.replace('|', ENC_PIPE)
+}
+
+/**
+ * Decode an external layer parameter.
+ *
+ * This percent decode the special character | used to separate external layer parameters.
+ *
+ * NOTE: We don't use decodeURIComponent here because the Vue Router will anyway do the
+ * decodeURIComponent() therefore by only decoding | we avoid to decode other special character
+ * twice. But we need to decode | twice to avoid layer parsing issue.
+ *
+ * @param {string} param Parameter to encode
+ * @returns {string} Percent encoded parameter
+ */
+export function decodeExternalLayerParam(param) {
+    return param.replace(ENC_PIPE, '|')
 }

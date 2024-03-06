@@ -240,7 +240,7 @@ describe('Test on legacy param import', () => {
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
             const layerId = 'ch.swisstopo-vd.official-survey'
-            const url = 'https://fake.wms.base.url/?'
+            const url = 'https://fake.wms.base-1.url/?'
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetMap' } },
                 {
@@ -249,7 +249,7 @@ describe('Test on legacy param import', () => {
             ).as('externalWMSGetMap')
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap.fixture.xml' }
+                { fixture: 'external-wms-getcap-1.fixture.xml' }
             ).as('externalWMSGetCap')
 
             cy.goToMapView(
@@ -272,7 +272,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -280,16 +280,16 @@ describe('Test on legacy param import', () => {
         })
         it('External WMTS layer', () => {
             cy.intercept('http://wmts-test.url/**', {
-                fixture: 'external-wmts-getcap.fixture.xml',
+                fixture: 'external-wmts-getcap-1.fixture.xml',
             }).as('externalWMTSGetCap')
             cy.intercept(
-                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
                 {
                     fixture: '256.png',
                 }
             )
-            const layerId = 'TestExternalWMTS'
-            const layerName = 'Test External WMTS'
+            const layerId = 'TestExternalWMTS-1'
+            const layerName = 'Test External WMTS 1'
             const url = 'http://wmts-test.url/'
             cy.goToMapView(
                 {
@@ -313,7 +313,7 @@ describe('Test on legacy param import', () => {
             })
 
             const expectedQuery = new URLSearchParams(
-                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
+                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId}`
             )
             expectedQuery.sort()
             cy.location('search').should('be.empty')

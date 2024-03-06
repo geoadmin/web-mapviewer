@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.opengis.net/ows/1.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:gml="http://www.opengis.net/gml"
+    xsi:schemaLocation="http://www.opengis.net/wmts/1.0 http://schemas.opengis.net/wmts/1.0/wmtsGetCapabilities_response.xsd"
+    version="1.0.0">
+    <ows:ServiceIdentification>
+        <ows:Title>WMTS GIS Stadt Zuerich</ows:Title>
+        <ows:Abstract>WMTS GIS Stadt Zuerich</ows:Abstract>
+        <ows:ServiceType>OGC WMTS</ows:ServiceType>
+        <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+        <ows:Fees>None</ows:Fees>
+        <ows:AccessConstraints>None</ows:AccessConstraints>
+    </ows:ServiceIdentification>
+    <ows:ServiceProvider>
+        <ows:ProviderName>GIS-Zentrum Stadt Zuerich</ows:ProviderName>
+        <ows:ProviderSite xlink:href="" />
+        <ows:ServiceContact>
+            <ows:IndividualName>Georg Andersson</ows:IndividualName>
+            <ows:PositionName></ows:PositionName>
+            <ows:ContactInfo>
+                <ows:Phone>
+                    <ows:Voice>+41(44)412 46 01</ows:Voice>
+                    <ows:Facsimile></ows:Facsimile>
+                </ows:Phone>
+                <ows:Address>
+                    <ows:DeliveryPoint>GIS-Zentrum Stadt Zuerich</ows:DeliveryPoint>
+                    <ows:City>Zuerich</ows:City>
+                    <ows:PostalCode>8004</ows:PostalCode>
+                    <ows:Country>Schweiz</ows:Country>
+                    <ows:ElectronicMailAddress>georg.andersson@zuerich.ch</ows:ElectronicMailAddress>
+                </ows:Address>
+            </ows:ContactInfo>
+        </ows:ServiceContact>
+    </ows:ServiceProvider>
+    <Contents>
+        <Layer>
+            <ows:Title>Test External WMTS 1</ows:Title>
+            <ows:Abstract></ows:Abstract>
+            <ows:WGS84BoundingBox>
+                <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
+                <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
+            </ows:WGS84BoundingBox>
+            <ows:Identifier>TestExternalWMTS-1</ows:Identifier>
+            <Style>
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>ktzh</TileMatrixSet>
+            </TileMatrixSetLink>
+            <ResourceURL format="image/png" resourceType="tile"
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-1/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+        </Layer>
+        <Layer>
+            <ows:Title>Test External WMTS 2;,|@special-chars-äö</ows:Title>
+            <ows:Abstract></ows:Abstract>
+            <ows:WGS84BoundingBox>
+                <ows:LowerCorner>8.320060826607648 47.12881677848421</ows:LowerCorner>
+                <ows:UpperCorner>9.033594243299833 47.717017745636404</ows:UpperCorner>
+            </ows:WGS84BoundingBox>
+            <ows:Identifier>TestExternalWMTS-2;,|@special-chars-äö</ows:Identifier>
+            <Style>
+                <ows:Identifier>default</ows:Identifier>
+            </Style>
+            <Format>image/png</Format>
+            <TileMatrixSetLink>
+                <TileMatrixSet>ktzh</TileMatrixSet>
+            </TileMatrixSetLink>
+            <ResourceURL format="image/png" resourceType="tile"
+                template="http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-2/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png" />
+        </Layer>
+        <TileMatrixSet>
+            <ows:Identifier>ktzh</ows:Identifier>
+            <ows:SupportedCRS>EPSG:2056</ows:SupportedCRS>
+            <TileMatrix>
+                <ows:Identifier>00</ows:Identifier>
+                <ScaleDenominator>241904.76190464283</ScaleDenominator>
+                <TopLeftCorner>2480237.0 1315832.0</TopLeftCorner>
+                <TileWidth>512</TileWidth>
+                <TileHeight>512</TileHeight>
+                <MatrixWidth>11</MatrixWidth>
+                <MatrixHeight>8</MatrixHeight>
+            </TileMatrix>
+        </TileMatrixSet>
+    </Contents>
+    <ServiceMetadataURL xlink:href="https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml" />
+</Capabilities>
