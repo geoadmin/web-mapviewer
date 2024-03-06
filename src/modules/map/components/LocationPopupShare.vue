@@ -6,7 +6,7 @@ import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSo
 
 const props = defineProps({
     shareLinkUrlShorten: {
-        type: String,
+        type: [String, null],
         required: true,
     },
 })

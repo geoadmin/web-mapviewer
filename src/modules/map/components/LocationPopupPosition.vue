@@ -20,7 +20,7 @@ import log from '@/utils/logging'
 
 const props = defineProps({
     coordinate: {
-        type: Boolean,
+        type: Array,
         required: true,
     },
     clickInfo: {
@@ -32,7 +32,7 @@ const props = defineProps({
         required: true,
     },
     currentLang: {
-        type: Object,
+        type: String,
         required: true,
     },
 })

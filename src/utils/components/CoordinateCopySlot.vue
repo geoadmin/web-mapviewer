@@ -13,7 +13,7 @@ const props = defineProps({
         required: true,
     },
     value: {
-        type: String,
+        type: [Array, String],
         required: true,
     },
     extraValue: {
