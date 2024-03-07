@@ -368,7 +368,7 @@ describe('Drawing module tests', () => {
                     const [polygonCoordinates] = polygon.getGeometry().getCoordinates()
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
-            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('1875 km')
+            cy.get('[data-cy="feature-area-information"]').should('be.visible').contains('187.5 km')
 
             // Changing the color of the polygon and checking that the KMl was updated accordingly
             cy.get('[data-cy="drawing-style-line-button"]').click()

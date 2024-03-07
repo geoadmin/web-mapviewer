@@ -19,7 +19,7 @@ const area = computed(() => {
     const calculatedArea = geometry.value.getArea()
     let result = ''
     if (calculatedArea) {
-        result += roundValueIfGreaterThan(calculatedArea, 1000, 100000)
+        result += roundValueIfGreaterThan(calculatedArea, 1000, 1000000)
         if (calculatedArea > 10000) {
             result += ' km'
         } else {
