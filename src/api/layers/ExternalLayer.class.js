@@ -1,5 +1,18 @@
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
+import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+
+/**
+ * Information required to create a GetFeatureInfo request to this external WM(T)S server. This
+ * enables us to identify features at a mouse click.
+ *
+ * @property {String} baseUrl Base WMS URL to use to create the GetFeatureInfo WM(T)S request
+ *   (adding a ? and all necessary query params after the base URL)
+ * @property {'GET' | 'POST'} method HTTP method to use when requesting this server
+ * @property {String[]} formats Available formats in which the server can respond
+ *
+ * @typedef ExternalLayerGetFeatureInfoCapability
+ */
 
 /**
  * External Layer Legend
@@ -77,6 +90,13 @@ export default class ExternalLayer extends AbstractLayer {
      * @param {[LayerLegend]} [externalLayerData.legends=[]] Layer legends. Default is `[]`
      * @param {boolean} [externalLayerData.isLoading=true] Set to true if some parts of the layer
      *   (e.g. metadata) are still loading. Default is `true`
+     * @param {CoordinateSystem[]} [externalLayerData.availableProjections=[]] All projection that
+     *   can be used to request this layer. Default is `[]`
+     * @param {boolean} [externalLayerData.hasTooltip=false] Flag telling if this layer can be used
+     *   in a GetFeatureInfo request. Default is `false`
+     * @param {ExternalLayerGetFeatureInfoCapability | null} [externalLayerData.getFeatureInfoCapability=null]
+     *   Configuration describing how to request this layer's server to get feature information.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -96,6 +116,9 @@ export default class ExternalLayer extends AbstractLayer {
             extent = null,
             legends = [],
             isLoading = true,
+            availableProjections = [],
+            hasTooltip = false,
+            getFeatureInfoCapability = null,
         } = externalLayerData
         // keeping this checks, even though it will be checked again by the super constructor, because we use the baseUrl
         // to build our call to the super constructor (with a URL construction, which could raise an error if baseUrl is
@@ -111,7 +134,7 @@ export default class ExternalLayer extends AbstractLayer {
             opacity,
             visible,
             attributions: attributions ?? [new LayerAttribution(new URL(baseUrl).hostname)],
-            hasTooltip: false,
+            hasTooltip,
             isExternal: true,
             isLoading,
             hasLegend: abstract?.length > 0 || legends?.length > 0,
@@ -120,5 +143,10 @@ export default class ExternalLayer extends AbstractLayer {
         this.abstract = abstract
         this.extent = extent
         this.legends = legends
+        this.availableProjections = [...availableProjections]
+        if (this.availableProjections.length === 0) {
+            this.availableProjections.push(WGS84)
+        }
+        this.getFeatureInfoCapability = getFeatureInfoCapability
     }
 }

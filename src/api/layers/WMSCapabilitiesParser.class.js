@@ -43,6 +43,43 @@ export default class WMSCapabilitiesParser {
     }
 
     /**
+     * Returns information about where feature identification can be accessed, or null if this WMS
+     * has no such capabilities
+     *
+     * @param {boolean} ignoreError
+     * @returns {null | ExternalLayerGetFeatureInfoCapability}
+     * @see https://www.mediamaps.ch/ogc/schemas-xsdoc/sld/1.2/capabilities_1_3_0_xsd.html#Capability
+     */
+    getFeatureInfoCapability(ignoreError = true) {
+        if (Array.isArray(this.Capability?.Request?.GetFeatureInfo?.DCPType)) {
+            const httpElement = this.Capability.Request.GetFeatureInfo?.DCPType[0].HTTP
+            let baseUrl = null
+            let method = 'GET'
+            if (httpElement?.Get) {
+                baseUrl = httpElement.Get.OnlineResource
+            } else if (httpElement?.Post) {
+                method = 'POST'
+                baseUrl = httpElement.Post.OnlineResource
+            } else {
+                log.error(
+                    "Couldn't parse GetFeatureInfo data",
+                    this.Capability.Request.GetFeatureInfo
+                )
+                if (ignoreError) {
+                    return null
+                }
+                throw new CapabilitiesError('Invalid GetFeatureInfo data')
+            }
+            return {
+                baseUrl,
+                method,
+                formats: [...this.Capability.Request.GetFeatureInfo.Format],
+            }
+        }
+        return null
+    }
+
+    /**
      * Find recursively in the capabilities the matching layer ID node
      *
      * @param {string} layerId Layer ID to search for
@@ -112,8 +149,18 @@ export default class WMSCapabilitiesParser {
     }
 
     _getExternalLayerObject(layer, parents, projection, opacity, visible, ignoreError) {
-        const { layerId, title, url, version, abstract, attributions, extent, legends } =
-            this._getLayerAttributes(layer, parents, projection, ignoreError)
+        const {
+            layerId,
+            title,
+            url,
+            version,
+            abstract,
+            attributions,
+            extent,
+            legends,
+            queryable,
+            availableProjections,
+        } = this._getLayerAttributes(layer, parents, projection, ignoreError)
 
         if (!layerId) {
             // without layerId we can do nothing
@@ -144,6 +191,8 @@ export default class WMSCapabilitiesParser {
                 extent,
                 legends,
                 isLoading: false,
+                availableProjections,
+                getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
             })
         }
         return new ExternalWMSLayer({
@@ -159,6 +208,9 @@ export default class WMSCapabilitiesParser {
             extent,
             legends,
             isLoading: false,
+            availableProjections,
+            hasTooltip: queryable,
+            getFeatureInfoCapability: this.getFeatureInfoCapability(ignoreError),
         })
     }
 
@@ -193,6 +245,18 @@ export default class WMSCapabilitiesParser {
             throw new CapabilitiesError(msg, 'no_wms_version_found')
         }
 
+        // by default, WGS84 must be supported
+        let availableProjections = [WGS84]
+        if (layer.CRS) {
+            availableProjections = layer.CRS.filter((crs) =>
+                allCoordinateSystems.some((projection) => projection.epsg === crs)
+            ).map((crs) => allCoordinateSystems.find((projection) => projection.epsg === crs))
+        }
+        // filtering out double inputs
+        availableProjections = availableProjections.filter(
+            (projection, index) => availableProjections.indexOf(projection) !== index
+        )
+
         return {
             layerId,
             title: layer.Title,
@@ -204,6 +268,8 @@ export default class WMSCapabilitiesParser {
             attributions: this._getLayerAttribution(layerId, layer),
             extent: this._getLayerExtent(layerId, layer, parents, projection),
             legends: this._getLayerLegends(layerId, layer),
+            queryable: layer.queryable,
+            availableProjections,
         }
     }
 
