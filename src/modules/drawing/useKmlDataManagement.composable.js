@@ -58,6 +58,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                 projection.value,
                 drawingLayer.getSource().getFeatures()
             )
+            console.log('debug: save', JSON.stringify(kmlData, null, 4))
             if (!activeKmlLayer.value?.adminId) {
                 // creation of the new KML (copy or new)
                 const kmlMetadata = await createKml(kmlData)
