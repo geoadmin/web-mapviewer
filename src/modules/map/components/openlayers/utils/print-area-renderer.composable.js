@@ -191,7 +191,11 @@ export default function usePrintAreaRenderer(map) {
         }
         if (store.state.print.useGraticule) {
             const legend = encodeLegend()
-            spec.attributes.legend = legend
+            if (legend.classes.length > 0) {
+                spec.attributes.legend = legend
+            } else {
+                spec.attributes.printLegend = 0
+            }
         } else {
             spec.attributes.printLegend = 0
         }

@@ -88,7 +88,9 @@ function createWMTSSourceForProjection() {
         matrixIds: matrixIds,
         extent: extent,
     })
-    // const timestamp = getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
+    let timestamp = getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
+    // Use "current" as the default timestamp if not defined in the layer config or
+    timestamp = timestamp || wmtsLayerConfig.value.timeConfig.currentTimestamp || 'current'
 
     // NOTE(IS): The following code is taken from the old geoadmin
     // For some obscure reasons, on iOS, displaying a base 64 image
@@ -101,9 +103,9 @@ function createWMTSSourceForProjection() {
         crossOrigin = undefined
     }
     const wmtsSource = new WMTSSource({
-        // dimensions: {
-        //     Time: timestamp,
-        // },
+        dimensions: {
+            Time: timestamp,
+        },
 
         // Workaround: Set a cache size of zero when layer is
         // timeEnabled see:
