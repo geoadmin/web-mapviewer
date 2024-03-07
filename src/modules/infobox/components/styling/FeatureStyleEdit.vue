@@ -224,16 +224,13 @@ function onDelete() {
                 <sup>2</sup>
             </div>
         </div>
-        <div
-            v-if="isFeatureMarker || isFeatureText"
-            class="d-flex small gap-1 justify-content-start align-items-center"
-        >
+        <div v-if="isFeatureMarker || isFeatureText" class="d-flex small justify-content-start">
             <CoordinateCopySlot
                 identifier="feature-style-edit-coordinate-copy"
                 :value="feature.coordinates[0].slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+                <FontAwesomeIcon class="small pe-2 align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
         </div>
         <div class="d-flex justify-content-end align-items-center">

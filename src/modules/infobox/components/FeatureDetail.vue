@@ -65,7 +65,7 @@ function sanitizeHtml(htmlText) {
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon class="d-flex" icon="fas fa-map-marker-alt" />
+                <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
         </div>
     </div>
