@@ -179,9 +179,11 @@ export function handleBodLayerIdParam(params, store, newQuery) {
         if (layer) {
             const featuresIds = param_value.split(',').join(':')
             if (newQuery.layers?.includes(param_key)) {
-                //if the layer already exist, we insert the features id parameter
-                const [layerIdWithCustomParams, visible, opacity] = newQuery.layers.split(',')
-                newQuery.layers = `${layerIdWithCustomParams}@features=${featuresIds},${visible},${opacity}`
+                newQuery.layers = createLayersParamForFeaturePreselection(
+                    param_key,
+                    param_value,
+                    newQuery.layers
+                )
             } else if (newQuery.layers) {
                 newQuery.layers = newQuery.layers + `;${param_key}@features=${featuresIds}`
             } else {
@@ -189,4 +191,53 @@ export function handleBodLayerIdParam(params, store, newQuery) {
             }
         }
     })
+}
+
+/**
+ * @param {String} layerId The layer Id for which we have features
+ * @param {String} featuresIds The features ids we need to add as a parameter. This a coma-separated
+ *   string
+ * @param {String} layers The new Query layers parameter, a semicolon separated string
+ * @returns
+ */
+function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
+    const featuresArray = featuresIds.split(',')
+    // we go through each layer
+    const layersArray = layers.split(';')
+    for (let layerIndex = 0; layerIndex < layersArray.length; layerIndex++) {
+        if (layersArray[layerIndex].includes(layerId)) {
+            // here, we manipulate the layer string for which we received a parameter
+            const [layerIdWithCustomParams, visible, opacity] = layersArray[layerIndex].split(',')
+            // we declare the string that will replace the current string
+            let layerString = layerIdWithCustomParams
+
+            if (layerIdWithCustomParams.includes('features')) {
+                // if there are features already declared, we need to do some extra work
+                const splittedLayer = layerIdWithCustomParams.split('@')
+                layerString = splittedLayer[0]
+                for (let i = 1; i < splittedLayer.length; i++) {
+                    if (splittedLayer[i].includes('features')) {
+                        // we mix the features and ensure the unicity of each feature id
+                        const featuresIds = splittedLayer[i].split('=')[1].split(':')
+                        featuresIds.split(',').forEach((feature_id) => {
+                            if (!featuresArray.includes(feature_id)) {
+                                featuresArray.push(feature_id)
+                            }
+                        })
+                    } else {
+                        // we add the extra param which is not a feature (example : time)
+                        layerString = `${layerString}@${splittedLayer[i]}`
+                    }
+                }
+            }
+            // we add the features ids to the layer
+            layerString = `${layerString}@features=${featuresArray.joins(':')}`
+            if (visible || opacity) {
+                // we add back the visibility and the opacity
+                layerString = `${layerString},${visible},${opacity}`
+            }
+            layersArray[layerIndex] = layerString
+        }
+    }
+    return layersArray.joins(';')
 }
