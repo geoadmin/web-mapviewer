@@ -213,6 +213,7 @@ Cypress.Commands.add(
         cy.visit(`/${withHash ? '#/' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
+
         // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
             'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams

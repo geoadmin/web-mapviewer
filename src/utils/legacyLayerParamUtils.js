@@ -174,9 +174,7 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
 
 export function handleBodLayerIdParam(params, store, newQuery) {
     params.forEach((param_value, param_key) => {
-        let layer = null
-        layer = store.state.layers.config.find((layer) => layer.getID() === param_key)
-        if (layer) {
+        if (store.state.layers.config.find((layer) => layer.id === param_key)) {
             const featuresIds = param_value.split(',').join(':')
             if (newQuery.layers?.includes(param_key)) {
                 newQuery.layers = createLayersParamForFeaturePreselection(
