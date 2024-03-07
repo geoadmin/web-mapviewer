@@ -1,4 +1,5 @@
 import { BREAKPOINT_TABLET, NO_WARNING_BANNER_HOSTNAMES, WARNING_RIBBON_HOSTNAMES } from '@/config'
+import log from '@/utils/logging'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
@@ -13,8 +14,8 @@ export const UIModes = {
 }
 export const FeatureInfoPositions = {
     DEFAULT: 'default',
-    FIXED: 'fixed',
-    FLOATING: 'floating',
+    BOTTOMPANEL: 'bottomPanel',
+    TOOLTIP: 'tooltip',
     NONE: 'none',
 }
 /**
@@ -212,13 +213,13 @@ export default {
         },
         floatingTooltip(state, getters) {
             return (
-                state.featureInfoPosition === FeatureInfoPositions.FLOATING ||
+                state.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
                 (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && !getters.isPhoneMode)
             )
         },
         bottomPanelFeatureInfo(state, getters) {
             return (
-                state.featureInfoPosition === FeatureInfoPositions.FIXED ||
+                state.featureInfoPosition === FeatureInfoPositions.BOTTOMPANEL ||
                 (state.featureInfoPosition === FeatureInfoPositions.DEFAULT && getters.isPhoneMode)
             )
         },
@@ -300,20 +301,20 @@ export default {
         },
         setFeatureInfoPosition({ commit, state }, { featureInfo, dispatcher }) {
             const upCasePos = featureInfo.toUpperCase()
-            if (
-                FeatureInfoPositions[upCasePos] &&
-                state.featureInfoPosition !== FeatureInfoPositions[upCasePos]
-            ) {
-                commit('setFeatureInfoPosition', {
-                    position: FeatureInfoPositions[upCasePos],
-                    dispatcher: dispatcher,
-                })
-            } else if (!FeatureInfoPositions[upCasePos]) {
-                commit('setFeatureInfoPosition', {
-                    position: FeatureInfoPositions.DEFAULT,
-                    dispatcher: dispatcher,
-                })
+            if (!FeatureInfoPositions[upCasePos]) {
+                log.error(
+                    `invalid feature Info Position given as parameter. ${upCasePos} is not a valid key`
+                )
+                return
             }
+            if (state.featureInfoPosition === FeatureInfoPositions[upCasePos]) {
+                // no need to commit anything if we're trying to switch to the current value
+                return
+            }
+            commit('setFeatureInfoPosition', {
+                position: FeatureInfoPositions[upCasePos],
+                dispatcher: dispatcher,
+            })
         },
     },
     mutations: {

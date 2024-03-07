@@ -85,6 +85,8 @@ const clickOnMapManagementPlugin = (store) => {
                         ...dispatcher,
                     })
                     if (store.getters.noFeatureInfo && newSelectedFeatures.length > 0) {
+                        // we only change the feature Info position when it's set to 'NONE', as
+                        // we want to keep the user's choice of position between clicks.
                         store.dispatch('setFeatureInfoPosition', {
                             featureInfo: FeatureInfoPositions.DEFAULT,
                             ...dispatcher,

@@ -19,7 +19,7 @@ const store = useStore()
 
 const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const bottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
-const floatingPanelFeatureInfo = computed(() => store.getters.floatingPanelFeatureInfo)
+const tooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
 const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 
@@ -36,11 +36,10 @@ const showElevationProfile = computed(() =>
 const showContainer = computed(() => {
     return (
         selectedFeatures.value.length > 0 &&
-        (bottomPanelFeatureInfo.value ||
-            (showElevationProfile.value && floatingPanelFeatureInfo.value))
+        (bottomPanelFeatureInfo.value || (showElevationProfile.value && tooltipFeatureInfo.value))
     )
 })
-const showFloatingToggle = computed(() => bottomPanelFeatureInfo.value)
+const showTooltipToggle = computed(() => bottomPanelFeatureInfo.value)
 
 watch(selectedFeatures, (features) => {
     if (features.length === 0) {
@@ -55,9 +54,9 @@ watch(selectedFeatures, (features) => {
 function onToggleContent() {
     showContent.value = !showContent.value
 }
-function changeFeatureInfoPosition() {
+function setTooltipInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
-        featureInfo: FeatureInfoPositions.FLOATING,
+        featureInfo: FeatureInfoPositions.TOOLTIP,
         ...dispatcher,
     })
 }
@@ -73,10 +72,10 @@ function onClose() {
     <div v-if="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
         <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
             <button
-                v-if="showFloatingToggle"
+                v-if="showTooltipToggle"
                 class="btn btn-light btn-sm d-flex align-items-center"
                 data-cy="infobox-toggle-floating"
-                @click.stop="changeFeatureInfoPosition"
+                @click.stop="setTooltipInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-up" />
             </button>
@@ -102,7 +101,7 @@ function onClose() {
 
         <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
             <FeatureElevationProfile
-                v-if="floatingPanelFeatureInfo && showElevationProfile"
+                v-if="showElevationProfile && tooltipFeatureInfo"
                 class="card-body"
                 :feature="selectedFeature"
                 :read-only="!showDrawingOverlay"

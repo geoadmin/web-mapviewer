@@ -58,7 +58,7 @@
                 <button
                     class="btn btn-sm btn-light d-flex align-items-center"
                     data-cy="toggle-floating-off"
-                    @click="changeFeatureInfoPosition()"
+                    @click="setBottomPanelFeatureInfoPosition()"
                 >
                     <FontAwesomeIcon icon="caret-down" />
                 </button>
@@ -179,7 +179,7 @@ export default {
             'hasDevSiteWarning',
             'visibleLayers',
             'backgroundLayersFor3D',
-            'floatingPanelFeatureInfo',
+            'tooltipFeatureInfo',
         ]),
         isProjectionWebMercator() {
             return this.projection.epsg === WEBMERCATOR.epsg
@@ -192,8 +192,8 @@ export default {
                 (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
             )
         },
-        isFeatureTooltipInFooter() {
-            return !this.floatingPanelFeatureInfo
+        isFeatureInfoInBottomPanel() {
+            return !this.tooltipFeatureInfo
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -201,7 +201,7 @@ export default {
             )
         },
         showFeaturesPopover() {
-            return !this.isFeatureTooltipInFooter && this.selectedFeatures.length > 0
+            return !this.isFeatureInfoInBottomPanel && this.selectedFeatures.length > 0
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)
@@ -608,8 +608,11 @@ export default {
                 })
             }
         },
-        changeFeatureInfoPosition() {
-            this.setFeatureInfoPosition({ featureInfo: FeatureInfoPositions.FIXED, ...dispatcher })
+        setBottomPanelFeatureInfoPosition() {
+            this.setFeatureInfoPosition({
+                featureInfo: FeatureInfoPositions.BOTTOMPANEL,
+                ...dispatcher,
+            })
         },
     },
 }

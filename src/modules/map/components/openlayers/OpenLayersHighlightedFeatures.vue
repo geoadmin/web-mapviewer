@@ -32,8 +32,8 @@ const selectedFeatures = computed(() => store.state.features.selectedFeatures)
 const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-const isFloatingTooltip = computed(() => store.getters.floatingPanelFeatureInfo)
-const isFixedTooltip = computed(() => store.getters.bottomPanelFeatureInfo)
+const isTooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
+const isBottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -95,10 +95,10 @@ watch(nonEditableFeature, () => {
         nonEditableFeature.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
-    if (!isFixedTooltip.value && !containsOnlyPoints) {
-        // we need to also go to 'FIXED' if we are on 'NONE', here
+    if (!isBottomPanelFeatureInfo.value && !containsOnlyPoints) {
+        // we need to also go to 'BOTTOMPANEL' if we are on 'NONE', here
         store.dispatch('setFeatureInfoPosition', {
-            featureInfo: FeatureInfoPositions.FIXED,
+            featureInfo: FeatureInfoPositions.BOTTOMPANEL,
             dispatcher: dispatcher,
         })
     }
@@ -116,9 +116,9 @@ useVectorLayer(
 function clearAllSelectedFeatures() {
     store.dispatch('clearAllSelectedFeatures', dispatcher)
 }
-function changeFeatureInfoPosition() {
+function setBottomPanelFeatureInfoPosition() {
     store.dispatch('setFeatureInfoPosition', {
-        featureInfo: FeatureInfoPositions.FIXED,
+        featureInfo: FeatureInfoPositions.BOTTOMPANEL,
         ...dispatcher,
     })
 }
@@ -126,7 +126,7 @@ function changeFeatureInfoPosition() {
 
 <template>
     <OpenLayersPopover
-        v-if="isFloatingTooltip && selectedFeatures.length > 0"
+        v-if="isTooltipFeatureInfo && selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         authorize-print
         :use-content-padding="editableFeatures.length > 0"
@@ -136,7 +136,7 @@ function changeFeatureInfoPosition() {
             <button
                 class="btn btn-sm btn-light d-flex align-items-center"
                 data-cy="toggle-floating-off"
-                @click="changeFeatureInfoPosition"
+                @click="setBottomPanelFeatureInfoPosition"
             >
                 <FontAwesomeIcon icon="caret-down" />
             </button>
