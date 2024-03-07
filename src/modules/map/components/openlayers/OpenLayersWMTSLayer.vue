@@ -1,5 +1,4 @@
 <script setup>
-import { getTopLeft, getWidth } from 'ol/extent'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
@@ -8,7 +7,6 @@ import { useStore } from 'vuex'
 
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/add-layers-to-map.composable'
-import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const props = defineProps({
@@ -79,31 +77,10 @@ function getWMTSUrl(xyzUrl) {
  * @returns {WMTSSource}
  */
 function createWMTSSourceForProjection() {
-    let resolutions = []
-    let origin = null
-    let extent = null
-
-    if (projection.value instanceof CustomCoordinateSystem) {
-        resolutions = projection.value.getResolutions()
-        origin = projection.value.getTileOrigin()
-        extent = projection.value.bounds.flatten
-    } else {
-        // TODO(IS): move this to the projection class?
-        extent = projection.value.bounds.flatten
-        origin = getTopLeft(extent)
-        const size = getWidth(extent) / 256
-        resolutions = []
-        for (let z = 0; z < 19; ++z) {
-            resolutions[z] = size / Math.pow(2, z)
-        }
-    }
-
-    const matrixIds = []
-
-    for (let z = 0; z < resolutions.length; ++z) {
-        // generate resolutions and matrixIds arrays for this WMTS
-        matrixIds[z] = z
-    }
+    const resolutions = projection.value.getResolutions()
+    const origin = projection.value.getTileOrigin()
+    const extent = projection.value.bounds.flatten
+    const matrixIds = projection.value.getMatrixIds()
 
     const tileGrid = new WMTSTileGrid({
         resolutions: resolutions,
