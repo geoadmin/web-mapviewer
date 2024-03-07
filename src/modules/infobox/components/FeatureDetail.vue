@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 
@@ -56,11 +57,10 @@ function sanitizeHtml(htmlText) {
                 {{ i18n.t('no_more_information') }}
             </div>
         </div>
-        <div
-            v-if="feature.geometry.type === 'Point'"
-            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
-        >
+        <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
+            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
             <CoordinateCopySlot
+                v-if="feature.geometry.type === 'Point'"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
