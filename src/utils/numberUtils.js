@@ -98,3 +98,21 @@ export function formatThousand(num, separator = "'") {
     parts[0] = parts[0].replace(thousandSeparatorRegex, separator)
     return parts.join(decimalSeparator)
 }
+
+/**
+ * Makes sure that the given angle stays between -359.99999 and 359.9999 degrees (will start over at
+ * 0 whenever a full-circle is present)
+ *
+ * @param {Number} angleInDegrees
+ */
+export function wrapDegrees(angleInDegrees) {
+    const sign = Math.sign(angleInDegrees)
+    const absoluteAngle = Math.abs(angleInDegrees)
+    if (absoluteAngle > 360) {
+        return sign * (absoluteAngle % 360)
+    }
+    if (absoluteAngle === 360) {
+        return 0
+    }
+    return angleInDegrees
+}

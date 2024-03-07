@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
 
+import { encodeExternalLayerParam } from '@/api/layers/layers-external.api'
+import { encodeLayerParam } from '@/router/storeSync/layersParamParser'
+
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
  * `lang`.
@@ -13,6 +16,7 @@ const stringifyWithoutLangOrNull = (key, value) =>
     key === 'lang' || value === null ? undefined : value
 
 describe('Test of layer handling', () => {
+    const bgLayer = 'test.background.layer2'
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
@@ -30,19 +34,19 @@ describe('Test of layer handling', () => {
             })
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(3)
-                expect(layers[0].getID()).to.eq('test-1.wms.layer')
-                expect(layers[1].getID()).to.eq('test-2.wms.layer')
-                expect(layers[2].getID()).to.eq('test-4.wms.layer')
+                expect(layers[0].id).to.eq('test-1.wms.layer')
+                expect(layers[1].id).to.eq('test-2.wms.layer')
+                expect(layers[2].id).to.eq('test-4.wms.layer')
                 expect(layers[2].opacity).to.eq(0.4)
             })
             cy.readStoreValue('state.layers.activeLayers').then((layers) => {
                 expect(layers).to.be.an('Array').length(5)
-                expect(layers[0].getID()).to.eq('test-1.wms.layer')
-                expect(layers[1].getID()).to.eq('test-2.wms.layer')
-                expect(layers[2].getID()).to.eq('test-3.wms.layer')
-                expect(layers[3].getID()).to.eq('test-4.wms.layer')
+                expect(layers[0].id).to.eq('test-1.wms.layer')
+                expect(layers[1].id).to.eq('test-2.wms.layer')
+                expect(layers[2].id).to.eq('test-3.wms.layer')
+                expect(layers[3].id).to.eq('test-4.wms.layer')
                 expect(layers[3].opacity).to.eq(0.4)
-                expect(layers[4].getID()).to.eq('test.wmts.layer')
+                expect(layers[4].id).to.eq('test.wmts.layer')
                 expect(layers[4].opacity).to.eq(0.5)
             })
         })
@@ -84,109 +88,275 @@ describe('Test of layer handling', () => {
             })
         })
         context('External layers', () => {
-            it('reads and adds an external WMS correctly', () => {
-                const fakeWmsBaseUrl = 'https://fake.wms.base.url/?'
-                const fakeLayerId = 'ch.swisstopo-vd.official-survey'
-                // format is WMS|BASE_URL|LAYER_IDS
-                const fakeLayerUrlId = `WMS|${fakeWmsBaseUrl}|${fakeLayerId}`
+            // Fake WMS
+            const fakeWmsBaseUrl1 = 'https://fake.wms.base-1.url/?'
+            const fakeWmsBaseUrl2 = 'https://fake.wms.base-2.url/?'
 
-                // intercepting call to our fake WMS
+            const fakeWmsLayerId1 = 'ch.swisstopo-vd.official-survey'
+            const fakeWmsLayerId2 = 'Periodic Tracking, with | comma & @ ; äö'
+            const fakeWmsLayerId3 = 'ch.swisstopo-vd.spannungsarme-gebiete-2'
+            const fakeWmsLayerId4 = 'ch.swisstopo-vd.stand-oerebkataster-2'
+
+            const fakeWmsLayerName1 = 'OpenData-AV'
+            const fakeWmsLayerName2 = 'Periodic Tracking, with | comma & @ ; äö'
+            const fakeWmsLayerName3 = 'Spannungsarme Gebiete 2'
+            const fakeWmsLayerName4 = 'Verfügbarkeit des ÖREB-Katasters 2'
+
+            // format is WMS|BASE_URL|LAYER_IDS
+            const fakeWmsLayerUrlId1 = `WMS|${fakeWmsBaseUrl1}|${fakeWmsLayerId1}`
+            const fakeWmsLayerUrlId2 = `WMS|${fakeWmsBaseUrl1}|${encodeExternalLayerParam(fakeWmsLayerId2)}`
+            const fakeWmsLayerUrlId3 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId3}`
+            const fakeWmsLayerUrlId4 = `WMS|${fakeWmsBaseUrl2}|${fakeWmsLayerId4}`
+
+            // Fake WMTS
+            const fakeWmtsGetCapUrl1 = 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml'
+            const fakeWmtsGetCapUrl2 = 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml'
+            const fakeWmtsLayerId1 = 'TestExternalWMTS-1'
+            const fakeWmtsLayerId2 = 'TestExternalWMTS-2;,|@special-chars-äö'
+            const fakeWmtsLayerId3 = 'TestExternalWMTS-3'
+            const fakeWmtsLayerId4 = 'TestExternalWMTS-4'
+            const fakeWmtsLayerName1 = 'Test External WMTS 1'
+            const fakeWmtsLayerName2 = 'Test External WMTS 2;,|@special-chars-äö'
+            const fakeWmtsLayerName3 = 'Test External WMTS 3'
+            const fakeWmtsLayerName4 = 'Test External WMTS 4'
+            // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+            const fakeWmtsLayerUrlId1 = `WMTS|${fakeWmtsGetCapUrl1}|${fakeWmtsLayerId1}`
+            const fakeWmtsLayerUrlId2 = `WMTS|${fakeWmtsGetCapUrl1}|${encodeExternalLayerParam(fakeWmtsLayerId2)}`
+            const fakeWmtsLayerUrlId3 = `WMTS|${fakeWmtsGetCapUrl2}|${fakeWmtsLayerId3}`
+            const fakeWmtsLayerUrlId4 = `WMTS|${fakeWmtsGetCapUrl2}|${fakeWmtsLayerId4}`
+
+            beforeEach(() => {
+                // WMS intercept URL 1
                 cy.intercept(
-                    { url: `${fakeWmsBaseUrl}**`, query: { REQUEST: 'GetMap' } },
+                    { url: `${fakeWmsBaseUrl1}**`, query: { REQUEST: 'GetMap' } },
                     {
                         fixture: '256.png',
                     }
-                ).as('externalWMSGetMap')
+                ).as('externalWMSGetMap-1')
                 cy.intercept(
-                    { url: `${fakeWmsBaseUrl}**`, query: { REQUEST: 'GetCapabilities' } },
-                    { fixture: 'external-wms-getcap.fixture.xml' }
-                ).as('externalWMSGetCap')
+                    { url: `${fakeWmsBaseUrl1}**`, query: { REQUEST: 'GetCapabilities' } },
+                    { fixture: 'external-wms-getcap-1.fixture.xml' }
+                ).as('externalWMSGetCap-1')
 
-                cy.goToMapView(
+                // WMS intercept URL 2
+                cy.intercept(
+                    { url: `${fakeWmsBaseUrl2}**`, query: { REQUEST: 'GetMap' } },
                     {
-                        layers: fakeLayerUrlId,
-                    },
-                    true
-                ) // with hash, otherwise the legacy parser kicks in and ruins the day
-                cy.wait('@externalWMSGetMap')
-                cy.wait('@externalWMSGetCap')
-                cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                    expect(layers).to.have.lengthOf(1)
-                    const [externalWmsLayer] = layers
-                    expect(externalWmsLayer.wmsVersion).to.eq('1.3.0')
-                    expect(externalWmsLayer.externalLayerId).to.eq(fakeLayerId)
-                    expect(externalWmsLayer.baseURL).to.eq(fakeWmsBaseUrl)
-                    expect(externalWmsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(externalWmsLayer.name).to.eq('OpenData-AV')
-                    expect(externalWmsLayer.isLoading).to.be.false
-                })
-
-                // shows a red icon to signify a layer is from an external source
-                cy.clickOnMenuButtonIfMobile()
-                cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
-                    .should('be.visible')
-
-                cy.checkOlLayer(fakeLayerId)
-            })
-            it('reads and adds an external WMTS correctly', () => {
-                const fakeGetCapUrl = 'https://fake.wmts.getcap.url/WMTSGetCapabilities.xml'
-                const fakeLayerId = 'TestExternalWMTS'
-                // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-                const fakeLayerUrlId = `WMTS|${fakeGetCapUrl}|${fakeLayerId}`
-
-                // intercepting call to our fake WMTS
-                cy.intercept(`${fakeGetCapUrl}`, {
-                    fixture: 'external-wmts-getcap.fixture.xml',
-                }).as('externalWMTSGetCapOl')
-                cy.intercept(`${fakeGetCapUrl}?**`, {
-                    fixture: 'external-wmts-getcap.fixture.xml',
-                }).as('externalWMTSGetCap')
+                        fixture: '256.png',
+                    }
+                ).as('externalWMSGetMap-2')
                 cy.intercept(
-                    'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                    { url: `${fakeWmsBaseUrl2}**`, query: { REQUEST: 'GetCapabilities' } },
+                    { fixture: 'external-wms-getcap-2.fixture.xml' }
+                ).as('externalWMSGetCap-2')
+
+                // WMTS intercept URL 1
+                cy.intercept(`${fakeWmtsGetCapUrl1}`, {
+                    fixture: 'external-wmts-getcap-1.fixture.xml',
+                }).as('externalWMTSGetCapOl-1')
+                cy.intercept(`${fakeWmtsGetCapUrl1}?**`, {
+                    fixture: 'external-wmts-getcap-1.fixture.xml',
+                }).as('externalWMTSGetCap-1')
+
+                // WMTS intercept URL 2
+                cy.intercept(`${fakeWmtsGetCapUrl2}`, {
+                    fixture: 'external-wmts-getcap-2.fixture.xml',
+                }).as('externalWMTSGetCapOl-2')
+                cy.intercept(`${fakeWmtsGetCapUrl2}?**`, {
+                    fixture: 'external-wmts-getcap-2.fixture.xml',
+                }).as('externalWMTSGetCap-2')
+
+                cy.intercept(
+                    'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
                     {
                         fixture: '256.png',
                     }
                 ).as('externalWMTS')
+            })
 
-                cy.goToMapView({
-                    layers: fakeLayerUrlId,
-                })
-                cy.wait('@externalWMTSGetCap')
-                cy.readStoreValue('getters.visibleLayers').then((layers) => {
-                    expect(layers).to.have.lengthOf(1)
-                    const [externalWmtsLayer] = layers
-                    expect(externalWmtsLayer.getID()).to.eq(fakeLayerUrlId)
-                    expect(externalWmtsLayer.baseURL).to.eq(fakeGetCapUrl)
-                    expect(externalWmtsLayer.externalLayerId).to.eq(fakeLayerId)
-                    expect(externalWmtsLayer.name).to.eq('Test External WMTS')
-                    expect(externalWmtsLayer.isLoading).to.be.false
-                })
-                cy.checkOlLayer(fakeLayerId)
+            it('reads and adds an external WMS correctly', () => {
+                const layers = [
+                    fakeWmsLayerUrlId1,
+                    `${encodeLayerParam(fakeWmsLayerUrlId2)},,0.8`,
+                    `${fakeWmsLayerUrlId3},f`,
+                    `${fakeWmsLayerUrlId4},f,0.4`,
+                ].join(';')
+                cy.goToMapView({ layers })
 
-                // reads and sets non default layer config; visible and opacity
-                cy.goToMapView({
-                    layers: `${fakeLayerUrlId},f,0.5`,
-                })
-                cy.wait('@externalWMTSGetCap')
-                cy.readStoreValue('getters.visibleLayers').should('be.empty')
+                cy.wait(['@externalWMSGetCap-1', '@externalWMSGetCap-2'])
                 cy.readStoreValue('state.layers.activeLayers').then((layers) => {
-                    cy.wrap(layers).should('have.length', 1)
-                    const [externalWmtsLayer] = layers
-                    expect(externalWmtsLayer).to.be.an('Object')
-                    cy.wrap(externalWmtsLayer.getID()).should('be.eq', fakeLayerUrlId)
-                    cy.wrap(externalWmtsLayer.visible).should('be.eq', false)
-                    cy.wrap(externalWmtsLayer.opacity).should('be.eq', 0.5)
-                    cy.wrap(externalWmtsLayer.isLoading).should('be.false')
+                    cy.wrap(layers).should('have.length', 4)
+                    layers.forEach((layer) => {
+                        cy.wrap(layer.isLoading).should('be.false')
+                        cy.wrap(layer.isExternal).should('be.true')
+                    })
+                    cy.wrap(layers[0].id).should('be.eq', fakeWmsLayerUrlId1)
+                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmsBaseUrl1)
+                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmsLayerId1)
+                    cy.wrap(layers[0].name).should('be.eq', fakeWmsLayerName1)
+                    cy.wrap(layers[0].wmsVersion).should('be.eq', '1.3.0')
+                    cy.wrap(layers[0].visible).should('be.true')
+                    cy.wrap(layers[0].opacity).should('be.eq', 1.0)
+
+                    cy.wrap(layers[1].id).should('be.eq', fakeWmsLayerUrlId2)
+                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmsBaseUrl1)
+                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmsLayerId2)
+                    cy.wrap(layers[1].name).should('be.eq', fakeWmsLayerName2)
+                    cy.wrap(layers[1].wmsVersion).should('be.eq', '1.3.0')
+                    cy.wrap(layers[1].visible).should('be.true')
+                    cy.wrap(layers[1].opacity).should('be.eq', 0.8)
+
+                    cy.wrap(layers[2].id).should('be.eq', fakeWmsLayerUrlId3)
+                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmsBaseUrl2)
+                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmsLayerId3)
+                    cy.wrap(layers[2].name).should('be.eq', fakeWmsLayerName3)
+                    cy.wrap(layers[2].wmsVersion).should('be.eq', '1.3.0')
+                    cy.wrap(layers[2].visible).should('be.false')
+                    cy.wrap(layers[2].opacity).should('be.eq', 1.0)
+
+                    cy.wrap(layers[3].id).should('be.eq', fakeWmsLayerUrlId4)
+                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmsBaseUrl2)
+                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmsLayerId4)
+                    cy.wrap(layers[3].name).should('be.eq', fakeWmsLayerName4)
+                    cy.wrap(layers[3].wmsVersion).should('be.eq', '1.3.0')
+                    cy.wrap(layers[3].visible).should('be.false')
+                    cy.wrap(layers[3].opacity).should('be.eq', 0.4)
                 })
 
                 // shows a red icon to signify a layer is from an external source
-                cy.clickOnMenuButtonIfMobile()
-                cy.get(`[data-cy="menu-active-layer-${fakeLayerUrlId}"]`)
-                    .get('[data-cy="menu-external-disclaimer-icon"]')
-                    .should('be.visible')
+                cy.openMenuIfMobile()
+                cy.get(`[data-cy^="menu-active-layer-"]`).each(($el) => {
+                    cy.wrap($el)
+                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .should('be.visible')
+                })
+                cy.get('[data-cy^="menu-active-layer-"]').eq(0).should('contain', fakeWmsLayerName4)
+                cy.get('[data-cy^="menu-active-layer-"]').eq(1).should('contain', fakeWmsLayerName3)
+                cy.get('[data-cy^="menu-active-layer-"]').eq(2).should('contain', fakeWmsLayerName2)
+                cy.get('[data-cy^="menu-active-layer-"]').eq(3).should('contain', fakeWmsLayerName1)
 
-                cy.checkOlLayer({ id: fakeLayerId, visible: false })
+                cy.checkOlLayer([
+                    bgLayer,
+                    { id: fakeWmsLayerId1, visible: true, opacity: 1.0 },
+                    { id: fakeWmsLayerId2, visible: true, opacity: 0.8 },
+                    { id: fakeWmsLayerId3, visible: false, opacity: 1.0 },
+                    { id: fakeWmsLayerId4, visible: false, opacity: 0.4 },
+                ])
+            })
+            it('reads and adds an external WMTS correctly', () => {
+                const layers = [
+                    fakeWmtsLayerUrlId1,
+                    encodeLayerParam(fakeWmtsLayerUrlId2),
+                    fakeWmtsLayerUrlId3,
+                    fakeWmtsLayerUrlId4,
+                ]
+
+                cy.goToMapView({
+                    layers: layers.join(';'),
+                })
+                cy.wait(['@externalWMTSGetCap-1', '@externalWMTSGetCap-2'])
+                cy.readStoreValue('getters.visibleLayers').then((layers) => {
+                    cy.wrap(layers).should('have.length', 4)
+                    layers.forEach((layer) => {
+                        cy.wrap(layer.isLoading).should('be.false')
+                        cy.wrap(layer.visible).should('be.true')
+                        cy.wrap(layer.opacity).should('be.eq', 1.0)
+                    })
+                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
+                    cy.wrap(layers[0].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
+                    cy.wrap(layers[0].externalLayerId).should('be.eq', fakeWmtsLayerId1)
+                    cy.wrap(layers[0].name).should('be.eq', fakeWmtsLayerName1)
+
+                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
+                    cy.wrap(layers[1].baseUrl).should('be.eq', fakeWmtsGetCapUrl1)
+                    cy.wrap(layers[1].externalLayerId).should('be.eq', fakeWmtsLayerId2)
+                    cy.wrap(layers[1].name).should('be.eq', fakeWmtsLayerName2)
+
+                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
+                    cy.wrap(layers[2].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
+                    cy.wrap(layers[2].externalLayerId).should('be.eq', fakeWmtsLayerId3)
+                    cy.wrap(layers[2].name).should('be.eq', fakeWmtsLayerName3)
+
+                    cy.wrap(layers[3].id).should('be.eq', fakeWmtsLayerUrlId4)
+                    cy.wrap(layers[3].baseUrl).should('be.eq', fakeWmtsGetCapUrl2)
+                    cy.wrap(layers[3].externalLayerId).should('be.eq', fakeWmtsLayerId4)
+                    cy.wrap(layers[3].name).should('be.eq', fakeWmtsLayerName4)
+                })
+                cy.checkOlLayer([
+                    bgLayer,
+                    fakeWmtsLayerId1,
+                    fakeWmtsLayerId2,
+                    fakeWmtsLayerId3,
+                    fakeWmtsLayerId4,
+                ])
+                cy.openMenuIfMobile()
+                cy.get('[data-cy^="menu-active-layer-"]').should('have.length', 4)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(0)
+                    .should('contain', fakeWmtsLayerName4)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(1)
+                    .should('contain', fakeWmtsLayerName3)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(2)
+                    .should('contain', fakeWmtsLayerName2)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(3)
+                    .should('contain', fakeWmtsLayerName1)
+                cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
+                    cy.wrap($layer)
+                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .should('be.visible')
+                })
+
+                // reads and sets non default layer config; visible and opacity
+                cy.goToMapView({
+                    layers: `${fakeWmtsLayerUrlId1},f,0.5;${encodeLayerParam(fakeWmtsLayerUrlId2)},f;${fakeWmtsLayerUrlId3},,0.8`,
+                })
+                cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
+                cy.readStoreValue('state.layers.activeLayers').then((layers) => {
+                    cy.wrap(layers).should('have.length', 3)
+
+                    cy.wrap(layers[0].id).should('be.eq', fakeWmtsLayerUrlId1)
+                    cy.wrap(layers[0].visible).should('be.false')
+                    cy.wrap(layers[0].opacity).should('be.eq', 0.5)
+
+                    cy.wrap(layers[1].id).should('be.eq', fakeWmtsLayerUrlId2)
+                    cy.wrap(layers[1].visible).should('be.false')
+                    cy.wrap(layers[1].opacity).should('be.eq', 1.0)
+
+                    cy.wrap(layers[2].id).should('be.eq', fakeWmtsLayerUrlId3)
+                    cy.wrap(layers[2].visible).should('be.true')
+                    cy.wrap(layers[2].opacity).should('be.eq', 0.8)
+                })
+
+                // shows a red icon to signify a layer is from an external source
+                cy.openMenuIfMobile()
+                cy.get('[data-cy^="menu-active-layer-"]').should('have.length', 3)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(0)
+                    .should('contain', fakeWmtsLayerName3)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(1)
+                    .should('contain', fakeWmtsLayerName2)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(2)
+                    .should('contain', fakeWmtsLayerName1)
+                cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
+                    cy.wrap($layer)
+                        .get('[data-cy="menu-external-disclaimer-icon"]')
+                        .should('be.visible')
+                })
+                cy.checkOlLayer([
+                    bgLayer,
+                    { id: fakeWmtsLayerId3, visible: true, opacity: 0.8 },
+                    { id: fakeWmtsLayerId2, visible: false, opacity: 1.0 },
+                    { id: fakeWmtsLayerId1, visible: false, opacity: 0.5 },
+                ])
+
+                cy.log(`Make sure that the external backend have not been called twice`)
+                cy.get('@externalWMTSGetCap-1.all').should('have.length', 1)
+                cy.get('@externalWMTSGetCap-2.all').should('have.length', 1)
             })
             it('handles errors correctly', () => {
                 const wmtsUnreachableUrl =
@@ -243,15 +413,15 @@ describe('Test of layer handling', () => {
                 cy.wait('@external-wmts-invalid')
                 cy.wait('@external-wms-unreachable')
                 cy.wait('@external-wms-invalid')
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL unreachable')
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[0]
-                    expect(externaLayer.getID()).to.eq(wmtsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsUnreachableUrl)
+                    expect(externaLayer.id).to.eq(wmtsUnreachableUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmtsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -272,8 +442,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[1]
-                    expect(externaLayer.getID()).to.eq(wmtsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmtsInvalidContentUrl)
+                    expect(externaLayer.id).to.eq(wmtsInvalidContentUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmtsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmtsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -294,8 +464,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[2]
-                    expect(externaLayer.getID()).to.eq(wmsUnreachableUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsUnreachableUrl)
+                    expect(externaLayer.id).to.eq(wmsUnreachableUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmsUnreachableUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsUnreachableLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -316,8 +486,8 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.have.lengthOf(4)
                     const externaLayer = layers[3]
-                    expect(externaLayer.getID()).to.eq(wmsInvalidContentUrlId)
-                    expect(externaLayer.baseURL).to.eq(wmsInvalidContentUrl)
+                    expect(externaLayer.id).to.eq(wmsInvalidContentUrlId)
+                    expect(externaLayer.baseUrl).to.eq(wmsInvalidContentUrl)
                     expect(externaLayer.externalLayerId).to.eq(wmsInvalidContentLayerId)
                     expect(externaLayer.isLoading).to.be.false
                 })
@@ -342,7 +512,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView()
                 cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
-                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                    expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
             })
         })
@@ -354,13 +524,13 @@ describe('Test of layer handling', () => {
                 })
                 cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
-                    expect(bgLayer.getID()).to.eq(defaultTopic.defaultBackground)
+                    expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
                 })
                 cy.readStoreValue('getters.visibleLayers').then((layers) => {
                     expect(layers).to.be.an('Array')
                     expect(layers.length).to.eq(1)
                     expect(layers[0]).to.be.an('Object')
-                    expect(layers[0].getID()).to.eq('test.timeenabled.wmts.layer')
+                    expect(layers[0].id).to.eq('test.timeenabled.wmts.layer')
                 })
             })
         })
@@ -370,7 +540,7 @@ describe('Test of layer handling', () => {
             })
             cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
                 expect(bgLayer).to.not.be.null
-                expect(bgLayer.getID()).to.eq('test.background.layer2')
+                expect(bgLayer.id).to.eq('test.background.layer2')
             })
         })
     })
@@ -383,7 +553,7 @@ describe('Test of layer handling', () => {
                 },
                 true
             ) // with hash, so that we can have external layer support
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
         }
         context('Adding/removing layers', () => {
             it('shows active layers in the menu', () => {
@@ -400,20 +570,20 @@ describe('Test of layer handling', () => {
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array')
                     expect(visibleLayers.length).to.eq(visibleLayerIds.length - 1)
-                    expect(visibleLayers[0].getID()).to.eq(visibleLayerIds[1])
+                    expect(visibleLayers[0].id).to.eq(visibleLayerIds[1])
                 })
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers)
                         .to.be.an('Array')
                         .length(visibleLayerIds.length - 1)
                     activeLayers.forEach((layer) => {
-                        expect(layer.getID).to.be.not.equal(layerId)
+                        expect(layer.id).to.be.not.equal(layerId)
                     })
                 })
             })
             it('shows a hyphen when no layer is selected', () => {
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
             })
@@ -426,13 +596,13 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({
                     layers: visibleLayerIds.join(';'),
                 })
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
             })
             it('add layer from topic (should be visible)', () => {
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 const testLayerId = 'test.wmts.layer'
                 const testLayerSelector = `[data-cy="catalogue-tree-item-${testLayerId}"]`
                 cy.get('[data-cy="menu-topic-section"]').should('be.visible').click()
@@ -445,7 +615,7 @@ describe('Test of layer handling', () => {
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
-                    expect(visibleLayers[0].getID(), testLayerId)
+                    expect(visibleLayers[0].id, testLayerId)
                 })
             })
             it('add layer from search bar', () => {
@@ -475,7 +645,7 @@ describe('Test of layer handling', () => {
                     'search-locations'
                 )
                 cy.goToMapView()
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')
                 cy.get('[data-cy="searchbar"]').paste('test')
                 cy.wait(['@search-locations', '@search-layers'])
@@ -483,7 +653,7 @@ describe('Test of layer handling', () => {
                 cy.get('[data-cy="menu-button"]').click()
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
                     expect(visibleLayers).to.be.an('Array').length(1)
-                    expect(visibleLayers[0].getID(), expectedLayerId)
+                    expect(visibleLayers[0].id, expectedLayerId)
                 })
             })
         })
@@ -503,14 +673,14 @@ describe('Test of layer handling', () => {
                 cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                    const visibleIds = visibleLayers.map((layer) => layer.getID())
+                    const visibleIds = visibleLayers.map((layer) => layer.id)
                     expect(visibleIds).to.not.contain(testLayerId)
                 })
                 // Toggle (show) the test layer.
                 cy.get(testLayerSelector).click()
                 cy.get(testLayerSelector).trigger('mouseleave')
                 cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                    const visibleIds = visibleLayers.map((layer) => layer.getID())
+                    const visibleIds = visibleLayers.map((layer) => layer.id)
                     expect(visibleIds).to.contain(testLayerId)
                 })
             })
@@ -526,9 +696,7 @@ describe('Test of layer handling', () => {
                 // getting current layer opacity
                 let initialOpacity = 1.0
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    initialOpacity = visibleLayers.find(
-                        (layer) => layer.getID() === layerId
-                    ).opacity
+                    initialOpacity = visibleLayers.find((layer) => layer.id === layerId).opacity
                 })
                 // using the keyboard to change slider's value
                 const step = 5
@@ -539,7 +707,7 @@ describe('Test of layer handling', () => {
                     .type(command)
                 // checking that the opacity has changed accordingly
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    const layer = visibleLayers.find((layer) => layer.getID() === layerId)
+                    const layer = visibleLayers.find((layer) => layer.id === layerId)
                     expect(layer.opacity).to.eq(initialOpacity - step * repetitions)
                 })
             })
@@ -552,8 +720,8 @@ describe('Test of layer handling', () => {
                     .click()
                 // checking that the order has changed
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    expect(visibleLayers[0].getID()).to.eq(secondLayerId)
-                    expect(visibleLayers[1].getID()).to.eq(firstLayerId)
+                    expect(visibleLayers[0].id).to.eq(secondLayerId)
+                    expect(visibleLayers[1].id).to.eq(firstLayerId)
                 })
                 // using the other button
                 cy.get(`[data-cy="button-lower-order-layer-${firstLayerId}"]`)
@@ -561,8 +729,8 @@ describe('Test of layer handling', () => {
                     .click()
                 // re-checking the order that should be back to the starting values
                 cy.readStoreValue('getters.visibleLayers', (visibleLayers) => {
-                    expect(visibleLayers[0].getID()).to.eq(firstLayerId)
-                    expect(visibleLayers[1].getID()).to.eq(secondLayerId)
+                    expect(visibleLayers[0].id).to.eq(firstLayerId)
+                    expect(visibleLayers[1].id).to.eq(secondLayerId)
                 })
             })
             it('shows a layer legend when the "i" button is clicked (in layer settings)', () => {
@@ -617,7 +785,7 @@ describe('Test of layer handling', () => {
                         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                             expect(activeLayers).to.be.an('Array').length(visibleLayerIds.length)
                             activeLayers.forEach((layer) => {
-                                if (layer.getID() === timedLayerId) {
+                                if (layer.id === timedLayerId) {
                                     expect(layer.timeConfig.currentTimestamp).to.eq(randomTimestamp)
                                 }
                             })
@@ -630,36 +798,95 @@ describe('Test of layer handling', () => {
             beforeEach(() => {
                 goToMenuWithLayers()
             })
-            const checkOrderButtons = (layerId, lowerShouldBeDisabled, raiseShouldBeDisabled) => {
-                cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
-                    .should('be.visible')
-                    .should(`${!lowerShouldBeDisabled ? 'not.' : ''}be.disabled`)
-                cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
-                    .should('be.visible')
-                    .should(`${!raiseShouldBeDisabled ? 'not.' : ''}be.disabled`)
+            const checkOrderButtons = (layerId, index) => {
+                cy.log(`Check that layer ${layerId} is at index ${index}`)
+                cy.get('[data-cy^="menu-active-layer-"]')
+                    .eq(index)
+                    .should('have.attr', 'data-layer-id', layerId)
+
+                cy.get('[data-cy^="menu-active-layer-"]').then(($el) => {
+                    const lastIndex = $el.length - 1
+                    const upArrowEnable = index !== 0
+                    const downArrowEnable = index < lastIndex
+                    cy.log(
+                        `Check that layer ${layerId} has correct move arrow depending on its index ${index}`
+                    )
+                    cy.get(`[data-cy="button-lower-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${downArrowEnable ? 'not.' : ''}be.disabled`)
+                    cy.get(`[data-cy="button-raise-order-layer-${layerId}"]`)
+                        .should('be.visible')
+                        .should(`${upArrowEnable ? 'not.' : ''}be.disabled`)
+                })
             }
-            it('Disable/enable the "move" arrow correctly', () => {
+            it('Reorder layers using the "move" button', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.openLayerSettings(bottomLayerId)
-                checkOrderButtons(bottomLayerId, true, false)
-                cy.openLayerSettings(topLayerId)
-                checkOrderButtons(topLayerId, false, true)
+                checkOrderButtons(bottomLayerId, 2)
                 cy.openLayerSettings(middleLayerId)
-                checkOrderButtons(middleLayerId, false, false)
+                checkOrderButtons(middleLayerId, 1)
+                cy.openLayerSettings(topLayerId)
+                checkOrderButtons(topLayerId, 0)
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    middleLayerId,
+                    { id: topLayerId, opacity: 0.7 },
+                ])
 
-                cy.log('testing disabling of arrow button when order is changing')
-                // moving the middle layer back
+                cy.log('Moving the layers and test the arrow up/dow')
+
+                cy.log(`Moving the layer ${middleLayerId} down`)
+                cy.openLayerSettings(middleLayerId)
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, true, false)
-                // back to the middle
+                checkOrderButtons(middleLayerId, 2)
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    middleLayerId,
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                ])
+
+                cy.log(`Move ${middleLayerId} back to the middle`)
                 cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, false)
-                // now moving it to the top
+                checkOrderButtons(middleLayerId, 1)
+
+                cy.log(`Move ${middleLayerId} it to the top`)
                 cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, true)
-                // and back to the middle
+                checkOrderButtons(middleLayerId, 0)
+
+                cy.log(`Move ${middleLayerId} back to the middle`)
                 cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
-                checkOrderButtons(middleLayerId, false, false)
+                checkOrderButtons(middleLayerId, 1)
+
+                cy.log('Moving the layers and toggling the visibility')
+                cy.log(`Moving ${middleLayerId} to the top and toggle it visibility`)
+                cy.get(`[data-cy="button-raise-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                    { id: middleLayerId, visible: false },
+                ])
+                cy.get(`[data-cy="button-toggle-visibility-layer-${middleLayerId}"]`).click()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: topLayerId, opacity: 0.7 },
+                    { id: middleLayerId, visible: true, opacity: 1 },
+                ])
+
+                cy.log('Moving the layers and change the opacity')
+                cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
+                cy.get(`[data-cy="button-lower-order-layer-${middleLayerId}"]`).click()
+                cy.get(`[data-cy="slider-opacity-layer-${middleLayerId}"]`).realClick()
+                cy.checkOlLayer([
+                    'test.background.layer2',
+                    { id: bottomLayerId, opacity: 0.75 },
+                    { id: middleLayerId, visible: true, opacity: 0.5 },
+                    { id: topLayerId, opacity: 0.7 },
+                ])
             })
             it.skip('reorder layers when they are drag and dropped', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
@@ -743,7 +970,7 @@ describe('Test of layer handling', () => {
             })
 
             // Open the menu and change the language.
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
             cy.clickOnLanguage(langAfter)
 
             // Wait until the active layers are updated.

@@ -1,3 +1,80 @@
+<script setup>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import promptUserToPrintHtmlContent from '@/utils/print'
+
+import FeatureCombo from './components/FeatureCombo.vue'
+import FeatureEdit from './components/FeatureEdit.vue'
+import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
+import FeatureList from './components/FeatureList.vue'
+
+const dispatcher = { dispatcher: 'InfoboxModule.vue' }
+const showContent = ref(true)
+const content = ref(null)
+const store = useStore()
+
+const selectedFeatures = computed(() => store.state.features.selectedFeatures)
+const floatingTooltip = computed(() => store.state.ui.floatingTooltip)
+const showDrawingOverlay = computed(() => store.state.ui.showDrawingOverlay)
+const projection = computed(() => store.state.position.projection)
+
+const selectedFeature = computed(() => selectedFeatures.value[0])
+
+const isEdit = computed(() => !floatingTooltip.value && selectedFeature.value?.isEditable)
+const isList = computed(
+    () => !floatingTooltip.value && !isEdit.value && selectedFeatures.value.length > 0
+)
+const showElevationProfile = computed(
+    () =>
+        selectedFeature.value &&
+        (selectedFeature.value.featureType === EditableFeatureTypes.MEASURE ||
+            (selectedFeature.value.featureType === EditableFeatureTypes.LINEPOLYGON &&
+                floatingTooltip.value))
+)
+const isCombo = computed(
+    () =>
+        isEdit.value &&
+        [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+            selectedFeature.value.featureType
+        )
+)
+const showContainer = computed(
+    () => isList.value || isEdit.value || showElevationProfile.value || isCombo.value
+)
+const showFloatingToggle = computed(
+    () =>
+        isList.value ||
+        (isEdit.value && !showElevationProfile.value) ||
+        (isCombo.value && !floatingTooltip.value)
+)
+
+watch(selectedFeatures, (features) => {
+    if (features.length === 0) {
+        return
+    }
+    showContent.value = true
+    nextTick(() => {
+        content.value.scrollTo(0, 0)
+    })
+})
+
+function onToggleContent() {
+    showContent.value = !showContent.value
+}
+function onToggleFloating() {
+    store.dispatch('toggleFloatingTooltip', dispatcher)
+}
+function onPrint() {
+    promptUserToPrintHtmlContent(content.value)
+}
+function onClose() {
+    store.dispatch('clearAllSelectedFeatures', dispatcher)
+}
+</script>
+
 <template>
     <teleport to="#map-footer-middle-0">
         <div
@@ -75,116 +152,10 @@
     </teleport>
 </template>
 
-<script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { mapActions, mapState } from 'vuex'
-
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import promptUserToPrintHtmlContent from '@/utils/print'
-
-import FeatureCombo from './components/FeatureCombo.vue'
-import FeatureEdit from './components/FeatureEdit.vue'
-import FeatureElevationProfile from './components/FeatureElevationProfile.vue'
-import FeatureList from './components/FeatureList.vue'
-
-const dispatcher = { dispatcher: 'InfoboxModule.vue' }
-
-export default {
-    components: {
-        FontAwesomeIcon,
-        FeatureCombo,
-        FeatureEdit,
-        FeatureElevationProfile,
-        FeatureList,
-    },
-    data() {
-        return {
-            /** Allows infobox to be "minimized". */
-            showContent: true,
-        }
-    },
-    computed: {
-        ...mapState({
-            selectedFeatures: (state) => state.features.selectedFeatures,
-            floatingTooltip: (state) => state.ui.floatingTooltip,
-            showDrawingOverlay: (state) => state.ui.showDrawingOverlay,
-            projection: (state) => state.position.projection,
-        }),
-        selectedFeature() {
-            return this.selectedFeatures[0]
-        },
-        isList() {
-            return !this.floatingTooltip && !this.isEdit && this.selectedFeatures.length > 0
-        },
-        isEdit() {
-            return !this.floatingTooltip && this.selectedFeature?.isEditable
-        },
-        showElevationProfile() {
-            return (
-                this.selectedFeature &&
-                (this.selectedFeature.featureType === EditableFeatureTypes.MEASURE ||
-                    (this.selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON &&
-                        this.floatingTooltip))
-            )
-        },
-        isCombo() {
-            return (
-                this.isEdit &&
-                [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
-                    this.selectedFeature.featureType
-                )
-            )
-        },
-        showContainer() {
-            return this.isList || this.isEdit || this.showElevationProfile || this.isCombo
-        },
-        showFloatingToggle() {
-            return (
-                this.isList ||
-                (this.isEdit && !this.showElevationProfile) ||
-                (this.isCombo && !this.floatingTooltip)
-            )
-        },
-    },
-    watch: {
-        selectedFeatures(features) {
-            if (features.length === 0) {
-                return
-            }
-            this.showContent = true
-
-            this.$nextTick(() => {
-                // Reset the container's scroll when the content changes.
-                this.$refs.content.scrollTo(0, 0)
-            })
-        },
-    },
-    methods: {
-        ...mapActions(['clearAllSelectedFeatures', 'toggleFloatingTooltip']),
-        onToggleContent() {
-            this.showContent = !this.showContent
-        },
-        onToggleFloating() {
-            this.toggleFloatingTooltip(dispatcher)
-        },
-        onPrint() {
-            promptUserToPrintHtmlContent(this.$refs.content)
-        },
-        onClose() {
-            this.clearAllSelectedFeatures(dispatcher)
-        },
-    },
-}
-</script>
-
 <style lang="scss" scoped>
 @import 'src/scss/variables';
 
 .infobox {
     width: 100%;
-
-    &-header {
-        cursor: pointer;
-    }
 }
 </style>

@@ -21,21 +21,22 @@ export default class GeoAdminVectorLayer extends GeoAdminLayer {
      *   a mix of many sources
      */
     constructor(layerId, extraAttributions = []) {
-        super(
-            layerId,
-            LayerTypes.VECTOR,
-            layerId,
-            1.0,
-            true,
-            [
+        super({
+            name: layerId,
+            type: LayerTypes.VECTOR,
+            baseUrl: VECTOR_TILE_BASE_URL,
+            geoAdminId: layerId,
+            technicalName: layerId,
+            attributions: [
                 ...extraAttributions,
                 new LayerAttribution('swisstopo', 'https://www.swisstopo.admin.ch/en/home.html'),
             ],
-            true
-        )
+            isBackground: true,
+            hasLegend: false,
+        })
     }
 
     getURL() {
-        return `${VECTOR_TILE_BASE_URL}styles/${this.geoAdminID}/style.json`
+        return `${VECTOR_TILE_BASE_URL}styles/${this.geoAdminId}/style.json`
     }
 }

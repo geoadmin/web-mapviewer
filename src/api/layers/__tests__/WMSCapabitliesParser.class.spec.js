@@ -31,19 +31,26 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(capabilities.originUrl.toString()).toBe('https://wms.geo.admin.ch/')
     })
     it('Parse layer attributes', () => {
+        // Base layer
+        let layer = capabilities.getExternalLayerObject('wms-bgdi', WGS84)
+        expect(layer.externalLayerId).toBe('wms-bgdi')
+        expect(layer.name).toBe('WMS BGDI')
+        expect(layer.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+
         // General layer
-        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
         expect(layer.externalLayerId).toBe('ch.swisstopo-vd.official-survey')
         expect(layer.name).toBe('OpenData-AV')
         expect(layer.abstract).toBe('The official survey (AV).')
-        expect(layer.baseURL).toBe('https://wms.geo.admin.ch/?')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
 
         // Layer without .Name
         layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
         expect(layer.externalLayerId).toBe('Periodic-Tracking')
         expect(layer.name).toBe('Periodic-Tracking')
         expect(layer.abstract).toBe('Layer without Name element should use the Title')
-        expect(layer.baseURL).toBe('https://wms.geo.admin.ch/?')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
     })
     it('Parse layer attribution', () => {
         // Attribution in root layer
@@ -136,7 +143,7 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
         `
         let capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.baseURL).toBe('https://wms.geo.admin.ch/')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/')
 
         // URL from Capability
         content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
@@ -167,7 +174,7 @@ describe('WMSCapabilitiesParser - layer attributes', () => {
         `
         capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
         layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
-        expect(layer.baseURL).toBe('https://wms.geo.admin.ch/map?')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/map?')
     })
 })
 

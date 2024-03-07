@@ -6,7 +6,6 @@ import { MapBrowserEvent } from 'ol'
 
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 import { WEBMERCATOR } from '@/utils/coordinates/coordinateSystems'
-import log from '@/utils/logging'
 import { randomIntBetween } from '@/utils/numberUtils'
 
 import { isMobile } from './utils'
@@ -191,7 +190,7 @@ Cypress.Commands.add(
                 // for true boolean param, only the key is required
                 flattenedQueryParams += `${key}&`
             } else {
-                flattenedQueryParams += `${key}=${value}&`
+                flattenedQueryParams += `${key}=${encodeURIComponent(value)}&`
             }
         })
         // removing trailing &
@@ -484,10 +483,27 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
     )
 })
 
-Cypress.Commands.add('clickOnMenuButtonIfMobile', () => {
+Cypress.Commands.add('openMenuIfMobile', () => {
     if (isMobile()) {
-        // mobile/tablet : clicking on the menu button
-        cy.get('[data-cy="menu-button"]').click()
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+            if (!isMenuCurrentlyOpen) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            // waiting on the animation to finish by grabbing the content of the menu and assessing its visibility
+            cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
+        })
+    }
+})
+
+Cypress.Commands.add('closeMenuIfMobile', () => {
+    if (isMobile()) {
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+            if (isMenuCurrentlyOpen) {
+                cy.get('[data-cy="menu-button"]').click()
+            }
+            // waiting on the animation to finish by grabbing the content of the menu and assessing its (in)visibility
+            cy.get('[data-cy="menu-tray-inner"]').should('not.be.visible')
+        })
     }
 })
 
@@ -540,7 +556,11 @@ Cypress.Commands.add(
 )
 
 /**
- * Check if the layer(s) have been successfully added and rendered on Open Layer Map
+ * Check if the layer(s) have been successfully added and rendered on Open Layer Map.
+ *
+ * It also checks that the layer are at the correct zIndex
+ *
+ * NOTE: don't forget to add the background layer in the layer list
  *
  * @param {String
  *     | { id: String; opacity?: Number; visible?: Boolean }
@@ -550,7 +570,6 @@ Cypress.Commands.add(
  *   Layer(s) to check
  */
 Cypress.Commands.add('checkOlLayer', (args = null) => {
-    cy.log(`Check if layer is in ol view`, args)
     let layers = []
     if (typeof args === 'string' || args instanceof String) {
         layers.push({ id: args, visible: true, opacity: 1 })
@@ -573,41 +592,54 @@ Cypress.Commands.add('checkOlLayer', (args = null) => {
             if (l.visible == undefined) {
                 l.visible = true
             }
-            if (!l.opacity == undefined) {
+            if (l.opacity == undefined) {
                 l.opacity = 1
             }
             return l
         }
     })
+    const visibleLayers = layers.filter((l) => l.visible)
+    const invisibleLayers = layers.filter((l) => !l.visible)
 
-    cy.readWindowValue('map').then((map) => {
-        const olLayers = map.getAllLayers()
+    cy.window().its('map').invoke('getAllLayers').as('olLayers')
 
-        layers.forEach((layer) => {
-            log.debug(
-                `Cypress test if layer is present in layers=${olLayers
-                    .map((l) => l.get('id'))
-                    .join(',')}`
+    cy.get('@olLayers').then((olLayers) => {
+        const layerIds = layers.map((l) => l.id).join(',')
+        const olLayerIds = olLayers
+            .toSorted((a, b) => a.get('zIndex') - b.get('zIndex'))
+            .map((l) => `[${l.get('zIndex')}]:${l.get('id')}`)
+            .join(',')
+        cy.log(`Check if layers [${layerIds}] are set correctly in openlayer [${olLayerIds}]`)
+    })
+
+    // Here in order to have the cy.log() working as expected we need to do the loop outside the
+    // cy.get('@olLayers')
+    visibleLayers.forEach((layer, index) => {
+        cy.get('@olLayers').then((olLayers) => {
+            cy.log(
+                `Check that visible layer ${layer.id} at zIndex ${index} is set correctly in openlayer`
             )
-            const olLayer = olLayers.find((l) => l.get('id') === layer.id)
-            if (layer.visible) {
-                expect(olLayer, `[${layer.id}] layer`).not.to.be.null
-                expect(olLayer, `[${layer.id}] layer`).not.to.be.undefined
-                expect(olLayer.get('id'), `[${layer.id}] layer.id`).to.be.equal(layer.id)
-                expect(olLayer.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(
-                    layer.visible
-                )
-                expect(olLayer.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(
-                    layer.opacity
-                )
-                // The rendered flag is set asynchronously therefore we need to do some retry here
-                cy.waitUntil(() => olLayer.rendered, {
-                    description: `[${layer.id}] waitUntil layer.rendered`,
-                    errorMsg: `[${layer.id}] layer.rendered is not true`,
-                })
-            } else {
-                expect(olLayer, `[${layer.id}] layer`).to.be.undefined
-            }
+            const olLayer = olLayers.find(
+                (l) => l.get('id') === layer.id && l.get('zIndex') === index
+            )
+            expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
+            expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.undefined
+            expect(olLayer.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
+            expect(olLayer.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
+            // The rendered flag is set asynchronously therefore we need to do some retry here
+            cy.waitUntil(() => olLayer.rendered, {
+                description: `[${layer.id}] waitUntil layer.rendered`,
+                errorMsg: `[${layer.id}] layer.rendered is not true`,
+            })
+        })
+    })
+    invisibleLayers.forEach((layer) => {
+        cy.get('@olLayers').then((olLayers) => {
+            cy.log(`Check that invisible layer ${layer.id} is not set in openlayer`)
+            expect(
+                olLayers.find((l) => l.get('id') === layer.id),
+                `[${layer.id}] layer found`
+            ).to.be.undefined
         })
     })
 })

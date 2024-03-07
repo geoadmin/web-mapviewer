@@ -8,9 +8,9 @@ import { ActiveLayerConfig } from '@/utils/layerUtils'
 import log from '@/utils/logging'
 
 const getActiveLayerById = (state, layerId) =>
-    state.activeLayers.find((layer) => layer.getID() === layerId)
+    state.activeLayers.find((layer) => layer.id === layerId)
 const removeActiveLayerById = (state, layerId) =>
-    state.activeLayers.filter((layer) => layer.getID() !== layerId)
+    state.activeLayers.filter((layer) => layer.id !== layerId)
 
 const cloneActiveLayerConfig = (getters, layer) => {
     const clone = getters.getLayerConfigById(layer.id)?.clone() ?? null
@@ -31,6 +31,38 @@ const cloneActiveLayerConfig = (getters, layer) => {
         }
     }
     return clone
+}
+
+const updateLayerCommit = (state, layer) => {
+    const layer2Update = getActiveLayerById(state, layer.id)
+    if (layer2Update) {
+        Object.assign(layer2Update, layer)
+    } else {
+        throw new Error(`Failed to update layer ${layer.id}: layer not found in active layers`)
+    }
+}
+
+const updateLayerAction = ({ commit, getters }, { layer, dispatcher }) => {
+    if (layer instanceof AbstractLayer) {
+        commit('updateLayer', { layer, dispatcher })
+    } else if (layer instanceof Object && layer.id) {
+        // Partial update of a layer
+        const currentLayer = getters.getActiveLayerById(layer.id)
+        if (!currentLayer) {
+            throw new Error(
+                `Failed to update layer "${layer.id}", layer not found in active layers`
+            )
+        }
+        const updatedLayer = currentLayer.clone()
+        Object.entries(layer).forEach((entry) => {
+            if (entry[0] !== 'id') {
+                updatedLayer[entry[0]] = entry[1]
+            }
+        })
+        commit('updateLayer', { layer: updatedLayer, dispatcher })
+    } else {
+        throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
+    }
 }
 
 const state = {
@@ -129,7 +161,7 @@ const getters = {
      * @returns {GeoAdminLayer}
      */
     getLayerConfigById: (state) => (geoAdminLayerId) =>
-        state.config.find((layer) => layer.getID() === geoAdminLayerId),
+        state.config.find((layer) => layer.id === geoAdminLayerId),
     /**
      * Retrieves an active layer metadata defined by its unique ID
      *
@@ -137,7 +169,7 @@ const getters = {
      * @returns {GeoAdminLayer}
      */
     getActiveLayerById: (state) => (geoAdminLayerId) =>
-        state.activeLayers.find((layer) => layer.getID() === geoAdminLayerId),
+        state.activeLayers.find((layer) => layer.id === geoAdminLayerId),
 
     /**
      * Get layers with time config
@@ -156,7 +188,7 @@ const getters = {
      * @returns {Boolean}
      */
     hasDataDisclaimer: (state) => (layerId) => {
-        const layer = state.activeLayers.find((layer) => layer.getID() === layerId)
+        const layer = state.activeLayers.find((layer) => layer.id === layerId)
         return layer?.isExternal || (layer?.type === LayerTypes.KML && !layer?.adminId)
     },
     /**
@@ -172,14 +204,14 @@ const getters = {
     zIndexForVisibleLayer: (state, getters) => (layerIdOrObject) => {
         let lookupId
         if (layerIdOrObject instanceof AbstractLayer) {
-            lookupId = layerIdOrObject.getID()
+            lookupId = layerIdOrObject.id
         } else if (typeof layerIdOrObject === 'string') {
             lookupId = layerIdOrObject
         } else {
             log.error("wrong type of layer definition, can't toggle visibility", layerIdOrObject)
             return -1
         }
-        const matchingLayer = getters.visibleLayers.find((layer) => layer.getID() === lookupId)
+        const matchingLayer = getters.visibleLayers.find((layer) => layer.id === lookupId)
         if (!matchingLayer) {
             return -1
         }
@@ -216,7 +248,7 @@ const actions = {
         if (typeof layerIdOrObject === 'string') {
             futureBackground = getters.getLayerConfigById(layerIdOrObject)
         } else if (layerIdOrObject instanceof AbstractLayer) {
-            futureBackground = getters.getLayerConfigById(layerIdOrObject.getID())
+            futureBackground = getters.getLayerConfigById(layerIdOrObject.id)
         }
         if (futureBackground?.isBackground) {
             commit('setBackground', { bgLayer: futureBackground, dispatcher })
@@ -235,7 +267,7 @@ const actions = {
         const activeLayerBeforeConfigChange = [...state.activeLayers]
         commit('setLayerConfig', { config, dispatcher })
         const layers = activeLayerBeforeConfigChange.map((layer) => {
-            const layerConfig = getters.getLayerConfigById(layer.getID())
+            const layerConfig = getters.getLayerConfigById(layer.id)
             if (layerConfig) {
                 // If we found a layer config we use as it might have changed the i18n translation
                 const clone = layerConfig.clone()
@@ -315,7 +347,7 @@ const actions = {
         if (layerId) {
             commit('removeLayerWithId', { layerId, dispatcher })
         } else if (layer) {
-            commit('removeLayerWithId', { layerId: layer.getID(), dispatcher })
+            commit('removeLayerWithId', { layerId: layer.id, dispatcher })
         } else {
             log.error('Can not remove layer that is not yet added', layer, layerId, dispatcher)
         }
@@ -329,26 +361,18 @@ const actions = {
      *   update)
      */
     updateLayer({ commit, getters }, { layer, dispatcher }) {
-        if (layer instanceof AbstractLayer) {
-            commit('updateLayer', { layer, dispatcher })
-        } else if (layer instanceof Object && layer.id) {
-            // Partial update of a layer
-            const currentLayer = getters.getActiveLayerById(layer.id)
-            if (!currentLayer) {
-                throw new Error(
-                    `Failed to update layer "${layer.id}", layer not found in active layers`
-                )
-            }
-            const updatedLayer = currentLayer.clone()
-            Object.entries(layer).forEach((entry) => {
-                if (entry[0] !== 'id') {
-                    updatedLayer[entry[0]] = entry[1]
-                }
-            })
-            commit('updateLayer', { layer: updatedLayer, dispatcher })
-        } else {
-            throw new Error(`Failed to update layer, invalid type ${typeof layer}`)
-        }
+        updateLayerAction({ commit, getters }, { layer, dispatcher })
+    },
+    /**
+     * Full or partial update of layers in the active layer list
+     *
+     * @param {Object} actionParams Regular action parameters (commit, state, getters, ...)
+     * @param {[AbstractLayer | { id: String; any: any }]} layers List of full layer object
+     *   (AbstractLayer) to update or an object with the layer ID to update and any property to
+     *   update (partial update)
+     */
+    updateLayers({ commit, getters }, { layers, dispatcher }) {
+        layers.forEach((layer) => updateLayerAction({ commit, getters }, { layer, dispatcher }))
     },
     clearLayers({ commit }, args) {
         commit('clearLayers', args)
@@ -362,7 +386,7 @@ const actions = {
             // in activate layers, as the addLayer action creates clones of the config when a layer
             // is added. So we search for the matching instance in the currently active layers.
             matchingActiveLayer = state.activeLayers.find(
-                (activeLayer) => activeLayer.getID() === layer.getID()
+                (activeLayer) => activeLayer.id === layer.id
             )
         } else {
             log.error('Cannot toggle layer visibility, layer not found', layerId, layer)
@@ -547,21 +571,19 @@ const mutations = {
     },
     addLayer(state, { layer }) {
         // first, remove it if already present to avoid duplicate layers
-        state.activeLayers = removeActiveLayerById(state, layer.getID())
+        state.activeLayers = removeActiveLayerById(state, layer.id)
         state.activeLayers.push(layer)
     },
     setLayers(state, { layers }) {
         state.activeLayers = layers
     },
     updateLayer(state, { layer }) {
-        const layer2Update = getActiveLayerById(state, layer.getID())
-        if (layer2Update) {
-            Object.assign(layer2Update, layer)
-        } else {
-            throw new Error(
-                `Failed to update layer ${layer.getID()}: layer not found in active layers`
-            )
-        }
+        updateLayerCommit(state, layer)
+    },
+    updateLayers(state, { layers }) {
+        layers.forEach((layer) => {
+            updateLayerCommit(state, layer)
+        })
     },
     removeLayerWithId(state, { layerId }) {
         state.activeLayers = removeActiveLayerById(state, layerId)

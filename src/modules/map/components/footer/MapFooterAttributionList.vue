@@ -62,7 +62,7 @@ export default {
                                 id: attribution.name.replace(/[._]/g, '-'),
                                 name: attribution.name,
                                 url: attribution.url,
-                                hasDataDisclaimer: this.hasDataDisclaimer(layer.getID()),
+                                hasDataDisclaimer: this.hasDataDisclaimer(layer.id),
                             }
                         })
                     })

@@ -237,7 +237,4 @@ function clearClick() {
 
 <style lang="scss" scoped>
 @import 'src/scss/webmapviewer-bootstrap-theme';
-.location-popup {
-    @extend .clear-no-ios-long-press;
-}
 </style>

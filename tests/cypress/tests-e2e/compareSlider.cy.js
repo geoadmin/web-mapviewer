@@ -181,21 +181,21 @@ describe('Testing of the compare slider', () => {
                 // in initial state, only feature 2 should be visible
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], false)
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="button-lower-order-layer-${layer1}"]`)
                     .should('be.visible')
                     .click()
-                cy.clickOnMenuButtonIfMobile()
+                cy.closeMenuIfMobile()
 
                 // We check here that feature 1 is present, but feature 2 is not
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
                 // making a clean state for the next parts of the tests
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="button-lower-order-layer-${layer2}"]`)
                     .should('be.visible')
                     .click()
-                cy.clickOnMenuButtonIfMobile()
+                cy.closeMenuIfMobile()
 
                 cy.log('Moving the slider around and see what is cut')
 
@@ -217,10 +217,11 @@ describe('Testing of the compare slider', () => {
                 cy.log(
                     'checking that if we remove a layer, the compare slider will cut the other layer'
                 )
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="button-toggle-visibility-layer-${layer1}"`)
                     .should('be.visible')
                     .click()
+                cy.closeMenuIfMobile()
 
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], false)
@@ -228,10 +229,11 @@ describe('Testing of the compare slider', () => {
                 console.log(
                     'checking that we remove the compare slider upon removing the last visible layer'
                 )
-                cy.clickOnMenuButtonIfMobile()
+                cy.openMenuIfMobile()
                 cy.get(`[data-cy="button-toggle-visibility-layer-${layer2}"`)
                     .should('be.visible')
                     .click()
+                cy.closeMenuIfMobile()
                 cy.get('[data-cy="compare_slider"]').should('not.exist')
             })
         })
@@ -246,7 +248,7 @@ describe('Testing of the compare slider', () => {
                     // see it's red, and still not see the compare slider.
                     // So we'll need to check that the button color switched to red / the activated value is true
                     cy.goToMapView({}, true)
-                    cy.clickOnMenuButtonIfMobile()
+                    cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
@@ -260,7 +262,7 @@ describe('Testing of the compare slider', () => {
                 })
                 it('stays "active" when we remove the last layer', () => {
                     cy.goToMapView({ layers: 'test-1.wms.layer', compare_ratio: '0.3' }, true)
-                    cy.clickOnMenuButtonIfMobile()
+                    cy.openMenuIfMobile()
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
                         expect(compareRatio).to.eq(0.3)
                     })
@@ -292,7 +294,7 @@ describe('Testing of the compare slider', () => {
                         true
                     )
                     cy.get('[data-cy="compare_slider"]').should('be.visible')
-                    cy.clickOnMenuButtonIfMobile()
+                    cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
                     cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
@@ -351,14 +353,14 @@ describe('The compare Slider and the menu elements should not be available in 3d
                 },
                 true
             )
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]').click()
             cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
-            cy.clickOnMenuButtonIfMobile()
+            cy.closeMenuIfMobile()
 
             cy.get('[data-cy="3d-button"]').click()
 
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
 
             cy.get('[data-cy="menu-advanced-tools-compare"]').should('not.exist')
         })

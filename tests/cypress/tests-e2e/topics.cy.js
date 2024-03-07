@@ -34,7 +34,7 @@ describe('Topics', () => {
                 .reverse()
                 .forEach((layerIdThatMustBeActive, index) => {
                     const activeLayer = activeLayers[index]
-                    expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                 })
         })
     }
@@ -74,7 +74,7 @@ describe('Topics', () => {
             expect(layers).to.be.an('Array')
             expect(layers.length).to.eq(1)
             expect(layers[0]).to.be.an('Object')
-            expect(layers[0].getID()).to.eq('test.wmts.layer')
+            expect(layers[0].id).to.eq('test.wmts.layer')
         })
         // it must clear all activated layers and change background layer on topic selection
         const topicStandard = mockupTopics.topics[1]
@@ -87,7 +87,7 @@ describe('Topics', () => {
         // we expect background layer to have switched to the one of the topic
         cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
             expect(bgLayer).to.not.be.null
-            expect(bgLayer.getID()).to.eq(topicStandard.defaultBackground)
+            expect(bgLayer.id).to.eq(topicStandard.defaultBackground)
         })
         // it must show the topic tree in the menu when a topic is selected (that is not the default topic)
         cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
@@ -113,7 +113,7 @@ describe('Topics', () => {
             expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
             topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible, index) => {
                 expect(visibleLayers[index]).to.be.an('Object')
-                expect(visibleLayers[index].getID()).to.eq(layerIdThatMustBeVisible)
+                expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
             })
         })
         checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
@@ -133,7 +133,7 @@ describe('Topics', () => {
             expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
             expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
                 expect(visibleLayers[index]).to.be.an('Object')
-                expect(visibleLayers[index].getID()).to.eq(layerIdThatMustBeVisible)
+                expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
             })
         })
         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -142,7 +142,7 @@ describe('Topics', () => {
             expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
                 const activeLayer = activeLayers[index]
                 expect(activeLayer).to.be.an('Object')
-                expect(activeLayer.getID()).to.eq(layerIdThatMustBeActive)
+                expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                 expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
             })
         })
@@ -181,7 +181,7 @@ describe('Topics', () => {
         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
             expect(activeLayers).to.be.an('Array').lengthOf(1)
             const [firstLayer] = activeLayers
-            expect(firstLayer.getID()).to.eq('test.wmts.layer')
+            expect(firstLayer.id).to.eq('test.wmts.layer')
         })
 
         // it opens the layer legend popup when clicking the info button
@@ -207,13 +207,13 @@ describe('Topics', () => {
 
             cy.get(layerSelector).trigger('mouseenter')
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                const visibleIds = visibleLayers.map((layer) => layer.getID())
+                const visibleIds = visibleLayers.map((layer) => layer.id)
                 expect(visibleIds).to.contain(expectedLayerId)
             })
 
             cy.get(layerSelector).trigger('mouseleave')
             cy.readStoreValue('getters.visibleLayers').then((visibleLayers) => {
-                const visibleIds = visibleLayers.map((layer) => layer.getID())
+                const visibleIds = visibleLayers.map((layer) => layer.id)
                 expect(visibleIds).not.to.contain(expectedLayerId)
             })
         })

@@ -61,14 +61,14 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             if (!activeKmlLayer.value?.adminId) {
                 // creation of the new KML (copy or new)
                 const kmlMetadata = await createKml(kmlData)
-                const kmlLayer = new KMLLayer(
-                    getKmlUrl(kmlMetadata.id),
-                    true, // visible
-                    activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
-                    kmlMetadata.adminId,
-                    kmlData,
-                    kmlMetadata
-                )
+                const kmlLayer = new KMLLayer({
+                    kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                    visible: true,
+                    opacity: activeKmlLayer.value?.opacity, // re-use current KML layer opacity, or null
+                    adminId: kmlMetadata.adminId,
+                    kmlData: kmlData,
+                    kmlMetadata: kmlMetadata,
+                })
                 // If there's already an activeKmlLayer, but without adminId, it means we are copying it and editing it.
                 // Meaning we must remove the old one from the layers; it will otherwise be there twice
                 // (once the pristine "old" KML, and once the new copy)
@@ -91,7 +91,7 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
                     kmlData
                 )
                 await store.dispatch('updateKmlGpxLayer', {
-                    layerId: activeKmlLayer.value.getID(),
+                    layerId: activeKmlLayer.value.id,
                     data: kmlData,
                     metadata: kmlMetadata,
                     ...dispatcher,
@@ -103,31 +103,35 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             saveState.value = DrawingState.SAVE_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 // Retry saving in 5 seconds
-                debounceSaveDrawing(5000, false)
+                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false })
             }
         }
     }
 
-    function debounceSaveDrawing(debounceTime = 2000, retryOnError = true) {
+    async function debounceSaveDrawing({ debounceTime = 2000, retryOnError = true } = {}) {
         clearTimeout(differSaveDrawingTimeout)
         willModify()
-        new Promise((resolve) => {
-            // when testing, speed up and avoid race conditions
-            // by only waiting for a small amount of time.
-            // WARNING: don't use 0 here otherwise on CYPRESS you will end up with more request
-            // than needed!
-            differSaveDrawingTimeout = setTimeout(
-                resolve,
-                IS_TESTING_WITH_CYPRESS ? 100 : debounceTime
-            )
-        }).then(() => {
-            const savePromise = saveDrawing(retryOnError)
-            savesInProgress.value.push(savePromise)
-            // removing this promise from the "in-progress" list when it's done
-            savePromise.then(() =>
-                savesInProgress.value.splice(savesInProgress.value.indexOf(savePromise), 1)
-            )
-        })
+        if (debounceTime > 0) {
+            await new Promise((resolve) => {
+                // when testing, speed up and avoid race conditions
+                // by only waiting for a small amount of time.
+                // WARNING: don't use 0 here otherwise on CYPRESS you will end up with more request
+                // than needed!
+                differSaveDrawingTimeout = setTimeout(
+                    resolve,
+                    IS_TESTING_WITH_CYPRESS ? Math.min(100, debounceTime) : debounceTime
+                )
+            })
+        }
+        const savePromise = saveDrawing(retryOnError)
+        savesInProgress.value.push(savePromise)
+        await savePromise
+        // removing this promise from the "in-progress" list when it's done
+        savesInProgress.value.splice(savesInProgress.value.indexOf(savePromise), 1)
+    }
+
+    function clearPendingSaveDrawing() {
+        clearTimeout(differSaveDrawingTimeout)
     }
 
     /**
@@ -142,8 +146,8 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
 
     return {
         addKmlLayerToDrawing,
-        saveDrawing,
         debounceSaveDrawing,
+        clearPendingSaveDrawing,
         willModify,
         saveState,
         savesInProgress,

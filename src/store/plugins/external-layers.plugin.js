@@ -7,7 +7,6 @@
  */
 
 import ExternalGroupOfLayers from '@/api/layers/ExternalGroupOfLayers.class'
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { readWmsCapabilities, readWmtsCapabilities } from '@/api/layers/layers-external.api'
@@ -21,73 +20,98 @@ const dispatcher = { dispatcher: 'external-layers.plugin' }
  * @param {Vuex.Store} store
  */
 export default function loadExternalLayerAttributes(store) {
-    const addLayerSubscriber = (layer, state) => {
-        if (layer instanceof ExternalLayer && layer?.isLoading) {
-            log.debug(`Loading state external layer added, trigger attribute updated`, state)
-            updateExternalLayer(store, layer, state.position.projection)
-        }
+    const layersSubscriber = async (layers, state) => {
+        const externalLayers = layers.filter(
+            (layer) =>
+                layer.isLoading &&
+                (layer instanceof ExternalWMSLayer ||
+                    layer instanceof ExternalGroupOfLayers ||
+                    layer instanceof ExternalWMTSLayer)
+        )
+        // We get first the capabilities
+        const wmsCapabilities = getWMSCababilitiesForLayers(externalLayers)
+        const wmtsCapabilities = getWMTSCababilitiesForLayers(externalLayers)
+        const updatedLayers = []
+        externalLayers.forEach(async (layer) => {
+            updatedLayers.push(
+                updateExternalLayer(
+                    store,
+                    layer instanceof ExternalWMTSLayer
+                        ? wmtsCapabilities[layer.baseUrl]
+                        : wmsCapabilities[layer.baseUrl],
+                    layer,
+                    state.position.projection
+                )
+            )
+        })
+        store.dispatch('updateLayers', {
+            layers: (await Promise.all(updatedLayers)).filter((layer) => !!layer),
+            ...dispatcher,
+        })
     }
     store.subscribe((mutation, state) => {
         if (mutation.type === 'addLayer') {
-            addLayerSubscriber(mutation.payload.layer, state)
+            layersSubscriber([mutation.payload.layer], state)
         }
         if (mutation.type === 'setLayers') {
-            mutation.payload.layers?.forEach((layer) => {
-                addLayerSubscriber(layer, state)
-            })
+            layersSubscriber(mutation.payload.layers, state)
         }
     })
 }
 
-async function updateExternalLayer(store, externalLayer, projection) {
-    try {
-        let updatedExternalLayer = null
-        if (
-            externalLayer instanceof ExternalWMSLayer ||
-            externalLayer instanceof ExternalGroupOfLayers
-        ) {
-            updatedExternalLayer = await updatedWMSLayerAttributes(externalLayer, projection)
-        } else if (externalLayer instanceof ExternalWMTSLayer) {
-            updatedExternalLayer = await updatedWMTSLayerAttributes(externalLayer, projection)
-        } else {
-            throw new Error(`Unsupported type of layer: ${typeof externalLayer}`)
-        }
+function getWMSCababilitiesForLayers(layers) {
+    const capabilities = {}
+    // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
+    // for example when adding several layers from the same source.
+    new Set(
+        layers
+            .filter(
+                (layer) =>
+                    layer instanceof ExternalWMSLayer || layer instanceof ExternalGroupOfLayers
+            )
+            .map((layer) => layer.baseUrl)
+    ).forEach((url) => {
+        capabilities[url] = readWmsCapabilities(url)
+    })
+    return capabilities
+}
 
-        updatedExternalLayer.isLoading = false
-        store.dispatch('updateLayer', {
-            layer: updatedExternalLayer,
-            ...dispatcher,
-        })
+function getWMTSCababilitiesForLayers(layers) {
+    const capabilities = {}
+    // here we use a Set to take the unique URL to avoid loading multiple times the get capabilities
+    // for example when adding several layers from the same source.
+    new Set(
+        layers.filter((layer) => layer instanceof ExternalWMTSLayer).map((layer) => layer.baseUrl)
+    ).forEach((url) => {
+        capabilities[url] = readWmtsCapabilities(url)
+    })
+    return capabilities
+}
+
+async function updateExternalLayer(store, capabilities, layer, projection) {
+    try {
+        const resolvedCapabilities = await capabilities
+        log.debug(
+            `Update External layer ${layer.id} with capabilities`,
+            layer,
+            resolvedCapabilities
+        )
+        const updated = resolvedCapabilities.getExternalLayerObject(
+            layer.externalLayerId,
+            projection,
+            layer.opacity,
+            layer.visible,
+            false /* throw Error in case of  error */
+        )
+        updated.isLoading = false
+        return updated
     } catch (error) {
-        log.error(`Failed to update external layer: `, error)
+        log.error(`Failed to update external layer ${layer.id}: `, error)
         store.dispatch('setLayerErrorKey', {
-            layerId: externalLayer.getID(),
+            layerId: layer.id,
             errorKey: error.key ? error.key : 'error',
             ...dispatcher,
         })
+        return null
     }
-}
-
-async function updatedWMSLayerAttributes(externalLayer, projection) {
-    const capabilities = await readWmsCapabilities(externalLayer.baseURL)
-    const newObject = capabilities.getExternalLayerObject(
-        externalLayer.externalLayerId,
-        projection,
-        externalLayer.opacity,
-        externalLayer.visible,
-        false /* throw Error in case of  error */
-    )
-    return newObject
-}
-
-async function updatedWMTSLayerAttributes(externalLayer, projection) {
-    const capabilities = await readWmtsCapabilities(externalLayer.baseURL)
-    const newObject = capabilities.getExternalLayerObject(
-        externalLayer.externalLayerId,
-        projection,
-        externalLayer.opacity,
-        externalLayer.visible,
-        false /* throw Error in case of  error */
-    )
-    return newObject
 }

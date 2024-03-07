@@ -269,7 +269,7 @@ export function loadKmlMetadata(kmlLayer) {
         if (!kmlLayer.fileId || kmlLayer.isExternal) {
             reject(
                 new Error(
-                    `This KML is not one managed by our infrastructure, metadata loading is not possible ${kmlLayer.getID()}`
+                    `This KML is not one managed by our infrastructure, metadata loading is not possible ${kmlLayer.id}`
                 )
             )
         }
@@ -283,13 +283,13 @@ export function loadKmlMetadata(kmlLayer) {
                     }
                     resolve(metadata)
                 } else {
-                    const msg = `Incorrect response while getting metadata for KML layer ${kmlLayer.getID()}`
+                    const msg = `Incorrect response while getting metadata for KML layer ${kmlLayer.id}`
                     log.error(msg, response)
                     reject(new Error(msg))
                 }
             })
             .catch((error) => {
-                log.error(`Error while getting metadata for KML layer ${kmlLayer.getID()}`, error)
+                log.error(`Error while getting metadata for KML layer ${kmlLayer.id}`, error)
                 reject(new Error(error))
             })
     })
@@ -308,9 +308,7 @@ export function loadKmlData(kmlLayer) {
         }
         if (!kmlLayer.kmlFileUrl) {
             reject(
-                new Error(
-                    `No file URL defined in this KML layer, cannot load data ${kmlLayer.getID()}`
-                )
+                new Error(`No file URL defined in this KML layer, cannot load data ${kmlLayer.id}`)
             )
         }
         axios
@@ -319,7 +317,7 @@ export function loadKmlData(kmlLayer) {
                 if (response.status === 200 && response.data) {
                     resolve(response.data)
                 } else {
-                    const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.getID()}`
+                    const msg = `Incorrect response while getting KML file data for layer ${kmlLayer.id}`
                     log.error(msg, response)
                     reject(new Error(msg))
                 }

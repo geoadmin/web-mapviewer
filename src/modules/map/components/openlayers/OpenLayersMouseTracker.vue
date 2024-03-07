@@ -7,6 +7,8 @@ import { useStore } from 'vuex'
 import allFormats, { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import log from '@/utils/logging'
 
+const dispatcher = { dispatcher: 'OpenLayersMouseTracker.vue' }
+
 const mousePosition = ref(null)
 const displayedFormatId = ref(LV95Format.id)
 
@@ -40,6 +42,10 @@ function showCoordinateLabel(displayedFormat) {
     return displayedFormat?.id === LV95Format.id || displayedFormat?.id === LV03Format.id
 }
 function setDisplayedFormatWithId() {
+    store.dispatch('setDisplayedFormatId', {
+        displayedFormatId: displayedFormatId.value,
+        ...dispatcher,
+    })
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
         mousePositionControl.setCoordinateFormat((coordinates) => {

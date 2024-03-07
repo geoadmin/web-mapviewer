@@ -1,4 +1,5 @@
 import ExternalLayer from '@/api/layers/ExternalLayer.class'
+import { InvalidLayerDataError } from '@/api/layers/InvalidLayerData.error'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 /**
@@ -19,39 +20,60 @@ import LayerTypes from '@/api/layers/LayerTypes.enum'
  */
 export default class ExternalGroupOfLayers extends ExternalLayer {
     /**
-     * @param {String} name Name of this layer to be shown to the user
-     * @param {number} opacity The opacity of this layer, between 0.0 (transparent) and 1.0 (opaque)
-     * @param {boolean} visible If the layer should be shown on the map
-     * @param {String} baseUrl GetCapabilities base URL
-     * @param {String} layerId Layer ID of the group to be found in GetCapabilities
-     * @param {ExternalLayer[]} layers Description of the layers being part of this group (they will
-     *   all be displayed at the same time, in contrast to an aggregate layer)
-     * @param {String} abstract Abstract of this layer to be shown to the user
-     * @param {LayerAttribution[] | null} attributions Description of the data owner(s) for this
-     *   layer. When `null` is given it uses the default attribution which is based on the hostname
-     *   of the GetCapabilities server.
-     * @param {[[number, number], [number, number]] | null} extent Layer extent
-     * @param {[LayerLegend]} legends Layer legends.
-     * @param {boolean} isLoading Set to true if some parts of the layer (e.g. metadata) are still
-     *   loading
+     * @param {String} externalLayerData.name Name of this layer to be shown to the user
+     * @param {number} [externalLayerData.opacity=1.0] The opacity of this layer, between 0.0
+     *   (transparent) and 1.0 (opaque). Default is `1.0`
+     * @param {boolean} [externalLayerData.visible=true] If the layer should be shown on the map.
+     *   Default is `true`
+     * @param {String} externalLayerData.baseUrl GetCapabilities base URL
+     * @param {String} externalLayerData.externalLayerId Layer ID of the group to be found in
+     *   GetCapabilities
+     * @param {ExternalLayer[]} externalLayerData.layers Description of the layers being part of
+     *   this group (they will all be displayed at the same time, in contrast to an aggregate
+     *   layer)
+     * @param {String} [externalLayerData.abstract=''] Abstract of this layer to be shown to the
+     *   user. Default is `''`
+     * @param {LayerAttribution[]} [externalLayerData.attributions=null] Description of the data
+     *   owner(s) for this layer. When `null` is given it uses the default attribution which is
+     *   based on the hostname of the GetCapabilities server. Default is `null`
+     * @param {[[number, number], [number, number]] | null} [externalLayerData.extent=null] Layer
+     *   extent. Default is `null`
+     * @param {[LayerLegend]} [externalLayerData.legends=[]] Layer legends. Default is `[]`
+     * @param {boolean} [externalLayerData.isLoading=true] Set to true if some parts of the layer
+     *   (e.g. metadata) are still loading. Default is `true`
+     * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
-    constructor(
-        name,
-        opacity,
-        visible,
-        baseUrl,
-        layerId,
-        layers = [],
-        attributions = null,
-        abstract = '',
-        extent = null,
-        legends = [],
-        isLoading = true
-    ) {
-        super(
+    constructor(externalLayerData) {
+        if (!externalLayerData) {
+            throw new InvalidLayerDataError('Missing external layer data', externalLayerData)
+        }
+        const {
+            name = null,
+            opacity = 1.0,
+            visible = true,
+            baseUrl = null,
+            externalLayerId = null,
+            layers = [],
+            attributions = null,
+            abstract = '',
+            extent = null,
+            legends = [],
+            isLoading = true,
+        } = externalLayerData
+        if (!layers?.length > 0) {
+            throw new InvalidLayerDataError(
+                'Missing sublayers in external group of layers',
+                externalLayerData
+            )
+        }
+        super({
             name,
-            LayerTypes.GROUP,
-            layerId,
+            // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
+            // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
+            // done the legacy parameter and is not required.
+            id: `WMS|${baseUrl}|${externalLayerId}`,
+            type: LayerTypes.GROUP,
+            externalLayerId,
             baseUrl,
             opacity,
             visible,
@@ -59,17 +81,11 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             abstract,
             extent,
             legends,
-            isLoading
-        )
+            isLoading,
+        })
         this.layers = [...layers]
     }
 
-    getID() {
-        // format coming from https://github.com/geoadmin/web-mapviewer/blob/develop/adr/2021_03_16_url_param_structure.md
-        // NOTE we don't differentiate between group of layers and regular WMS layer. This differentiation was not
-        // done the legacy parameter and is not required.
-        return `WMS|${this.baseURL}|${this.externalLayerId}`
-    }
     clone() {
         let clone = super.clone()
         clone.layers = this.layers.map((layer) => layer.clone())

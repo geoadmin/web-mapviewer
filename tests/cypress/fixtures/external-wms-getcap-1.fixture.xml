@@ -44,11 +44,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -64,11 +64,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -85,11 +85,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -100,11 +100,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -116,11 +116,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -131,11 +131,11 @@
                     <HTTP>
                         <Get>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Get>
                         <Post>
                             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
-                                xlink:href="https://fake.wms.base.url/?" />
+                                xlink:href="https://fake.wms.base-1.url/?" />
                         </Post>
                     </HTTP>
                 </DCPType>
@@ -221,7 +221,7 @@
             </Layer>
             <!-- Layer without .Name -->
             <Layer queryable="1" opaque="0" cascaded="0">
-                <Title>Periodic-Tracking</Title>
+                <Title>Periodic Tracking, with | comma &amp; @ ; äö</Title>
                 <Abstract>Layer without Name element should use the Title</Abstract>
                 <KeywordList>
                     <Keyword>ch.swisstopo-vd.geometa-periodische_nachfuehrung.wms_ows_keywordlist</Keyword>

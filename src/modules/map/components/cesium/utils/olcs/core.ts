@@ -4,6 +4,7 @@ import type { Coordinate } from 'ol/coordinate'
 import { get as getProjection } from 'ol/proj'
 import type { ProjectionLike } from 'ol/proj.js'
 import { Geometry } from 'ol/geom'
+import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
 
 /** Convert a 2D or 3D OpenLayers coordinate to Cesium. */
 export function ol4326CoordinateToCesiumCartesian(coordinate: Coordinate): Cartesian3 {
@@ -47,7 +48,7 @@ export function olGeometryCloneTo4326<T extends Geometry>(
 
 /** Convert an OpenLayers color to Cesium. */
 export function convertColorToCesium(
-    olColor: OLColor | CanvasGradient | CanvasPattern | string
+    olColor: ColorLike | OLColor | PatternDescriptor | CanvasGradient | CanvasPattern | string
 ): CesiumColor | ImageMaterialProperty {
     olColor = olColor || 'black'
     if (Array.isArray(olColor)) {

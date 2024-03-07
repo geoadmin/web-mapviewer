@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 
 import { requestHeight } from '@/api/height.api'
 import { registerWhat3WordsLocation } from '@/api/what3words.api'
-import LocationPopupCopySlot from '@/modules/map/components/LocationPopupCopySlot.vue'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import {
     LV03Format,
     LV95Format,
@@ -20,7 +20,7 @@ import log from '@/utils/logging'
 
 const props = defineProps({
     coordinate: {
-        type: Boolean,
+        type: Array,
         required: true,
     },
     clickInfo: {
@@ -32,7 +32,7 @@ const props = defineProps({
         required: true,
     },
     currentLang: {
-        type: Object,
+        type: String,
         required: true,
     },
 })
@@ -109,58 +109,68 @@ async function updateHeight() {
 <template>
     <div id="nav-local" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
         <div class="pb-2 location-popup-coordinates">
-            <LocationPopupCopySlot
-                identifier="lv95"
-                :value="LV95Format.format(coordinate, projection)"
+            <CoordinateCopySlot
+                identifier="location-popup-lv95"
+                :value="coordinate"
+                :coordinate-format="LV95Format"
             >
                 <a :href="i18n.t('contextpopup_lv95_url')" target="_blank">
                     {{ LV95Format.label }}
                 </a>
-            </LocationPopupCopySlot>
-
-            <LocationPopupCopySlot
-                identifier="lv03"
-                :value="LV03Format.format(coordinate, projection)"
+            </CoordinateCopySlot>
+            <CoordinateCopySlot
+                identifier="location-popup-lv03"
+                :value="coordinate"
+                :coordinate-format="LV03Format"
             >
                 <a :href="i18n.t('contextpopup_lv03_url')" target="_blank">
                     {{ LV03Format.label }}
                 </a>
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
 
-            <LocationPopupCopySlot
-                identifier="wgs84"
+            <CoordinateCopySlot
+                identifier="location-popup-wgs84"
                 :value="coordinateWGS84Plain"
+                :coordinate-format="null"
                 :extra-value="WGS84Format.format(coordinate, projection)"
             >
                 <a href="https://epsg.io/4326" target="_blank">{{ WGS84Format.label }}</a>
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
 
-            <LocationPopupCopySlot
-                identifier="utm"
-                :value="UTMFormat.format(coordinate, projection)"
+            <CoordinateCopySlot
+                identifier="location-popup-utm"
+                :value="coordinate"
+                :coordinate-format="UTMFormat"
             >
                 <a href="https://epsg.io/32632" target="_blank">{{ UTMFormat.label }}</a>
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
 
-            <LocationPopupCopySlot
-                identifier="mgrs"
-                :value="MGRSFormat.format(coordinate, projection)"
+            <CoordinateCopySlot
+                identifier="location-popup-mgrs"
+                :value="coordinate"
+                :coordinate-format="MGRSFormat"
             >
                 MGRS
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
 
-            <LocationPopupCopySlot v-if="what3Words" identifier="w3w" :value="what3Words">
+            <CoordinateCopySlot
+                v-if="what3Words"
+                identifier="location-popup-w3w"
+                :value="what3Words"
+                :coordinate-format="null"
+            >
                 <a href="http://what3words.com/" target="_blank">what3words</a>
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
 
-            <LocationPopupCopySlot
+            <CoordinateCopySlot
                 v-if="height"
-                identifier="height"
+                identifier="location-popup-height"
                 :value="heightInMeter"
+                :coordinate-format="null"
                 :extra-value="heightInFeet"
             >
                 <a :href="i18n.t('elevation_href')" target="_blank">{{ i18n.t('elevation') }}</a>
-            </LocationPopupCopySlot>
+            </CoordinateCopySlot>
         </div>
     </div>
 </template>

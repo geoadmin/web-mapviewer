@@ -74,12 +74,12 @@ export function getLayersFromLegacyUrlParams(
     // In the case these parameters are not defined, we ensure we have empty arrays rather than
     // 'undefined' elements. Since the function is also called in `topics.api.js`, it can be called
     // with a completely empty string.
-    const layersIds = layers?.split(',').map(decodeURIComponent) ?? []
+    const layersIds = layers?.split(/,(?![^|]* )/g).map(decodeURIComponent) ?? []
     const layerOpacities = legacyOpacities?.split(',').map(parseOpacity) ?? []
     const layerVisibilities = legacyVisibilities?.split(',') ?? []
     const layerTimestamps = legacyTimestamp?.split(',') ?? []
     layersIds.forEach((layerId, index) => {
-        let layer = layersConfig.find((layer) => layer.getID() === layerId)
+        let layer = layersConfig.find((layer) => layer.id === layerId)
         // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
         // to add it to the map
         if (layer) {
@@ -89,19 +89,24 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer(url, true /* visible */)
+            layer = new KMLLayer({ kmlFileUrl: url, visible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
-                layer = new ExternalWMTSLayer(id, 1.0, true, url, id)
+                layer = new ExternalWMTSLayer({ name: id, baseUrl: url, externalLayerId: id })
             }
         }
         if (layerId.startsWith('WMS||')) {
             const [_layerType, name, url, id, version] = layerId.split('||')
             // we only decode if we have enough material
             if (url && id) {
-                layer = new ExternalWMSLayer(name ? name : id, 1.0, true, url, id, null, version)
+                layer = new ExternalWMSLayer({
+                    name: name ? name : id,
+                    baseUrl: url,
+                    externalLayerId: id,
+                    wmsVersion: version,
+                })
             }
         }
         if (layer) {
@@ -147,7 +152,7 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
             return null
         }
         if (bgLayerId) {
-            return layersConfig.find((layer) => layer.getID() === bgLayerId)
+            return layersConfig.find((layer) => layer.id === bgLayerId)
         }
     }
     return undefined
@@ -157,17 +162,14 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
  * Returns a KML Layer from the legacy adminId url param.
  *
  * @param {String} adminId KML admin ID
- * @returns {Promise<AbstractLayer>} KML Layer
+ * @returns {Promise<KMLLayer>} KML Layer
  */
 export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
-    const kmlMetaData = await getKmlMetadataByAdminId(adminId)
-
-    return new KMLLayer(
-        kmlMetaData.links.kml,
-        true, // visible
-        null, // opacity, null := use default
-        kmlMetaData.adminId,
-        null, // kml data
-        kmlMetaData
-    )
+    const kmlMetadata = await getKmlMetadataByAdminId(adminId)
+    return new KMLLayer({
+        kmlFileUrl: kmlMetadata.links.kml,
+        visible: true,
+        adminId: kmlMetadata.adminId,
+        kmlMetadata,
+    })
 }

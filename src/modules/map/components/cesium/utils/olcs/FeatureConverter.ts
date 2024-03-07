@@ -1,8 +1,8 @@
-import OLStyleIcon from 'ol/style/Icon.js'
-import OLClusterSource from 'ol/source/Cluster.js'
-import { circular as olCreateCircularPolygon } from 'ol/geom/Polygon.js'
-import { boundingExtent, getCenter } from 'ol/extent.js'
-import olGeomSimpleGeometry from 'ol/geom/SimpleGeometry.js'
+import OLStyleIcon from 'ol/style/Icon'
+import OLClusterSource from 'ol/source/Cluster'
+import { circular as olCreateCircularPolygon } from 'ol/geom/Polygon'
+import { boundingExtent, getCenter } from 'ol/extent'
+import olGeomSimpleGeometry from 'ol/geom/SimpleGeometry'
 import {
     convertColorToCesium,
     ol4326CoordinateArrayToCsCartesians,
@@ -52,13 +52,13 @@ import {
     Scene,
     VerticalOrigin,
 } from 'cesium'
-import type VectorLayer from 'ol/layer/Vector.js'
-import type ImageLayer from 'ol/layer/Image.js'
+import type VectorLayer from 'ol/layer/Vector'
+import type ImageLayer from 'ol/layer/Image'
 import type { Feature, View } from 'ol'
-import type Text from 'ol/style/Text.js'
-import type { ColorLike as OLColorLike } from 'ol/colorlike.js'
-import type { Color as OLColor } from 'ol/color.js'
-import type { ProjectionLike } from 'ol/proj.js'
+import type Text from 'ol/style/Text'
+import type { ColorLike as OLColorLike, PatternDescriptor } from 'ol/colorlike'
+import type { Color as OLColor } from 'ol/color'
+import type { ProjectionLike } from 'ol/proj'
 import {
     type Circle,
     Geometry as OLGeometry,
@@ -69,11 +69,11 @@ import {
     type MultiPolygon,
     type Point,
     type Polygon,
-} from 'ol/geom.js'
-import type ImageStyle from 'ol/style/Image.js'
-import type { default as Style, StyleFunction } from 'ol/style/Style.js'
-import type { VectorSourceEvent } from 'ol/source/Vector.js'
-import VectorSource from 'ol/source/Vector.js'
+} from 'ol/geom'
+import type ImageStyle from 'ol/style/Image'
+import type { default as Style, StyleFunction } from 'ol/style/Style'
+import type { VectorSourceEvent } from 'ol/source/Vector'
+import VectorSource from 'ol/source/Vector'
 
 type ModelFromGltfOptions = Parameters<typeof Model.fromGltfAsync>[0]
 
@@ -305,10 +305,12 @@ export default class FeatureConverter {
      * @returns {!CesiumColor}
      */
     protected extractColorFromOlStyle(style: Style | Text, outline: boolean) {
-        const fillColor: OLColorLike | OLColor | null | undefined = style.getFill()?.getColor()
+        const fillColor: OLColorLike | OLColor | PatternDescriptor | null | undefined = style
+            .getFill()
+            ?.getColor()
         const strokeColor: OLColorLike | OLColor | undefined = style.getStroke()?.getColor()
 
-        let olColor: OLColorLike | OLColor = 'black'
+        let olColor: OLColorLike | OLColor | PatternDescriptor = 'black'
         if (strokeColor && outline) {
             olColor = strokeColor
         } else if (fillColor) {
@@ -610,8 +612,8 @@ export default class FeatureConverter {
             // Extract the average height of the vertices
             let maxHeight = 0.0
             if (coordinates[0].length == 3) {
-                for (let c = 0; c < coordinates.length; c++) {
-                    maxHeight = Math.max(maxHeight, coordinates[c][2])
+                for (const coordinate of coordinates) {
+                    maxHeight = Math.max(maxHeight, coordinate[2])
                 }
             }
 
@@ -671,8 +673,8 @@ export default class FeatureConverter {
                 if (width > 0) {
                     const positions: Cartesian3[][] = [hierarchy.positions]
                     if (hierarchy.holes) {
-                        for (let i = 0; i < hierarchy.holes.length; ++i) {
-                            positions.push(hierarchy.holes[i].positions)
+                        for (const hole of hierarchy.holes) {
+                            positions.push(hole.positions)
                         }
                     }
                     const appearance = new PolylineMaterialAppearance({
@@ -916,11 +918,10 @@ export default class FeatureConverter {
             if (olcsModelFunction) {
                 modelPrimitive = new PrimitiveCollection()
                 const olcsModel = olcsModelFunction()
-                const options: ModelFromGltfOptions = Object.assign(
-                    {},
-                    { scene: this.scene },
-                    olcsModel.cesiumOptions
-                )
+                const options: ModelFromGltfOptions = {
+                    scene: this.scene,
+                    ...olcsModel.cesiumOptions,
+                }
                 if ('fromGltf' in Model) {
                     // pre Cesium v107
                     // @ts-ignore
@@ -1175,7 +1176,14 @@ export default class FeatureConverter {
         const fill = style.getFill()
         const stroke = style.getStroke()
 
-        let olColor
+        let olColor:
+            | OLColorLike
+            | OLColor
+            | PatternDescriptor
+            | CanvasGradient
+            | CanvasPattern
+            | string
+            | null = null
 
         if (outline && stroke) {
             olColor = stroke.getColor()
@@ -1185,15 +1193,13 @@ export default class FeatureConverter {
         if (!olColor) {
             throw new Error('Could not find a matching color')
         }
+        const color: CesiumColor | ImageMaterialProperty = convertColorToCesium(olColor)
 
-        const color = convertColorToCesium(olColor)
-
-        if (outline && stroke?.getLineDash()) {
-            return Material.fromType('Stripe', {
-                horizontal: false,
-                repeat: 500, // TODO how to calculate this?
-                evenColor: color,
-                oddColor: new CesiumColor(0, 0, 0, 0), // transparent
+        const lineDash = stroke?.getLineDash()
+        if (outline && lineDash) {
+            return Material.fromType('PolylineDash', {
+                dashPattern: dashPattern(lineDash),
+                color,
             })
         } else {
             return Material.fromType('Color', {
@@ -1210,14 +1216,12 @@ export default class FeatureConverter {
     computePlainStyle(
         layer: PrimitiveLayer,
         feature: Feature,
-        fallbackStyleFunction: StyleFunction,
+        fallbackStyleFunction: StyleFunction | undefined,
         resolution: number
     ): Style[] | null {
-        /** @type {ol.FeatureStyleFunction | undefined} */
-        const featureStyleFunction = feature.getStyleFunction()
+        const featureStyleFunction: StyleFunction | undefined = feature.getStyleFunction()
 
-        /** @type {ol.style.Style | ol.style.Style[]} */
-        let style = null
+        let style: void | Style | Style[] | null = null
 
         if (featureStyleFunction) {
             style = featureStyleFunction(feature, resolution)
@@ -1402,38 +1406,34 @@ export default class FeatureConverter {
         if (source instanceof OLClusterSource) {
             source = source.getSource()
         }
-        if (!source) {
-            throw new Error('No source found')
-        }
 
         console.assert(source instanceof VectorSource)
-        const features = source.getFeatures()
+        const features: Feature<OLGeometry>[] | undefined = source?.getFeatures()
+        if (!features) {
+            throw new Error('Features missing')
+        }
         const counterpart = new VectorLayerCounterpart(proj, this.scene)
         const context = counterpart.context
-        for (let i = 0; i < features.length; ++i) {
-            const feature = features[i]
+        for (const feature of features) {
             if (!feature) {
                 continue
             }
             const layerStyle: StyleFunction | undefined = olLayer.getStyleFunction()
-            if (!layerStyle) {
-                continue
-            }
             const styles = this.computePlainStyle(olLayer, feature, layerStyle, resolution)
-            if (!styles || !styles.length) {
+            if (!styles?.length) {
                 // only 'render' features with a style
                 continue
             }
 
             let primitives: PrimitiveCollection | null = null
-            for (let i = 0; i < styles.length; i++) {
-                const prims = this.olFeatureToCesium(olLayer, feature, styles[i], context)
+            for (const style of styles) {
+                const prims = this.olFeatureToCesium(olLayer, feature, style, context)
                 if (prims) {
                     if (!primitives) {
                         primitives = prims
-                    } else if (prims) {
+                    } else {
                         let i = 0,
-                            prim
+                            prim: Primitive | void
                         while ((prim = prims.get(i))) {
                             primitives.add(prim)
                             i++
@@ -1469,12 +1469,8 @@ export default class FeatureConverter {
             return null
         }
 
-        /** @type {ol.StyleFunction | undefined} */
-        const layerStyle = layer.getStyleFunction()
+        const layerStyle: StyleFunction | undefined = layer.getStyleFunction()
 
-        if (!layerStyle) {
-            return null
-        }
         const styles = this.computePlainStyle(layer, feature, layerStyle, resolution)
 
         if (!styles || !styles.length) {
@@ -1500,4 +1496,47 @@ export default class FeatureConverter {
         }
         return primitives
     }
+}
+
+/**
+ * Transform a canvas line dash pattern to a Cesium dash pattern See
+ * https://com/learn/cesiumjs/ref-doc/PolylineDashMaterialProperty.html#dashPattern
+ *
+ * @param lineDash
+ */
+export function dashPattern(lineDash: number[]): number {
+    if (lineDash.length < 2) {
+        lineDash = [1, 1]
+    }
+    const segments = lineDash.length % 2 === 0 ? lineDash : [...lineDash, ...lineDash]
+    const total = segments.reduce((a, b) => a + b, 0)
+    const div = total / 16
+    // create a 16 bit binary string
+    let binaryString = segments
+        .map((segment, index) => {
+            // we alternate between 1 and 0
+            const digit = index % 2 === 0 ? '1' : '0'
+            // We scale the segment length to fit 16 slots.
+            let count = Math.round(segment / div)
+            if (index === 0 && count === 0) {
+                // We need to start with a 1
+                count = 1
+            }
+            return digit.repeat(count)
+        })
+        .join('')
+
+    // We rounded so it might be that the string is too short or too long.
+    // We try to fix it by padding or truncating the string.
+    if (binaryString.length < 16) {
+        binaryString = binaryString.padEnd(16, '0')
+    } else if (binaryString.length > 16) {
+        binaryString = binaryString.substring(0, 16)
+    }
+    if (binaryString[15] === '1') {
+        // We need to really finish with a 0
+        binaryString = binaryString.substring(0, 15) + '0'
+    }
+    console.assert(binaryString.length === 16)
+    return parseInt(binaryString, 2)
 }

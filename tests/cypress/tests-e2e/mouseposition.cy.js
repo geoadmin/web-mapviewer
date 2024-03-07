@@ -137,7 +137,7 @@ describe('Test mouse position and interactions', () => {
 
             cy.get('[data-cy="drawing-toolbox-close-button"]').click()
             // closing the menu if mobile
-            cy.clickOnMenuButtonIfMobile()
+            cy.closeMenuIfMobile()
             cy.get('[data-cy="map"]').rightclick()
 
             cy.wait('@convert-to-w3w')
@@ -170,7 +170,7 @@ describe('Test mouse position and interactions', () => {
             )
             cy.log('it shows correct plain WGS coordinates in the popup')
 
-            cy.get('[data-cy="location-popup-extra-value-wgs84"]').contains(
+            cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
                 WGS84Format.format(center, DEFAULT_PROJECTION)
             )
             cy.log(
@@ -212,9 +212,9 @@ describe('Test mouse position and interactions', () => {
             cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
                 body: { shorturl: shortUrl, success: true },
             }).as('shortlink')
-            cy.clickOnMenuButtonIfMobile()
+            cy.openMenuIfMobile()
             cy.clickOnLanguage('de')
-            cy.clickOnMenuButtonIfMobile()
+            cy.closeMenuIfMobile()
             cy.get('[data-cy="menu-share-input-copy-button"]').should(
                 'contain.value',
                 'https://s.geo.admin.ch/2222222'

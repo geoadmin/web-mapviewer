@@ -120,10 +120,10 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = activeLayers
-                expect(wmsLayer.getID()).to.eq('test.wms.layer')
+                expect(wmsLayer.id).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
                 expect(wmsLayer.visible).to.be.true
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
+                expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
             })
@@ -200,10 +200,10 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(3)
                 const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
-                expect(wmsLayer.getID()).to.eq('test.wms.layer')
+                expect(wmsLayer.id).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
                 expect(wmsLayer.visible).to.be.true
-                expect(wmtsLayer.getID()).to.eq('test.wmts.layer')
+                expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
                 expect(wmtsLayer.visible).to.be.false
                 expect(kmlLayer.getURL()).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
@@ -240,7 +240,7 @@ describe('Test on legacy param import', () => {
         it('External WMS layer', () => {
             const layerName = 'OpenData-AV'
             const layerId = 'ch.swisstopo-vd.official-survey'
-            const url = 'https://fake.wms.base.url/?'
+            const url = 'https://fake.wms.base-1.url/?'
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetMap' } },
                 {
@@ -249,7 +249,7 @@ describe('Test on legacy param import', () => {
             ).as('externalWMSGetMap')
             cy.intercept(
                 { url: `${url}**`, query: { REQUEST: 'GetCapabilities' } },
-                { fixture: 'external-wms-getcap.fixture.xml' }
+                { fixture: 'external-wms-getcap-1.fixture.xml' }
             ).as('externalWMSGetCap')
 
             cy.goToMapView(
@@ -267,12 +267,12 @@ describe('Test on legacy param import', () => {
                 const externalLayer = activeLayers[1]
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.baseUrl).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId},,1&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -280,16 +280,16 @@ describe('Test on legacy param import', () => {
         })
         it('External WMTS layer', () => {
             cy.intercept('http://wmts-test.url/**', {
-                fixture: 'external-wmts-getcap.fixture.xml',
+                fixture: 'external-wmts-getcap-1.fixture.xml',
             }).as('externalWMTSGetCap')
             cy.intercept(
-                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS/default/ktzh/**/*/*.png',
+                'http://test.wmts.png/wmts/1.0.0/TestExternalWMTS-*/default/ktzh/**/*/*.png',
                 {
                     fixture: '256.png',
                 }
             )
-            const layerId = 'TestExternalWMTS'
-            const layerName = 'Test External WMTS'
+            const layerId = 'TestExternalWMTS-1'
+            const layerName = 'Test External WMTS 1'
             const url = 'http://wmts-test.url/'
             cy.goToMapView(
                 {
@@ -306,14 +306,14 @@ describe('Test on legacy param import', () => {
                 const externalLayer = activeLayers[1]
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.visible).to.be.true
-                expect(externalLayer.baseURL).to.eq(url)
+                expect(externalLayer.baseUrl).to.eq(url)
                 expect(externalLayer.externalLayerId).to.eq(layerId)
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.be.false
             })
 
             const expectedQuery = new URLSearchParams(
-                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId},,1`
+                `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${url}%7C${layerId}`
             )
             expectedQuery.sort()
             cy.location('search').should('be.empty')
@@ -354,7 +354,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.z').should('eq', elevation)
             cy.readStoreValue('state.position.camera.heading').should('eq', heading)
             cy.readStoreValue('state.position.camera.pitch').should('eq', pitch)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 360)
+            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
@@ -379,7 +379,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.z').should('eq', 0)
             cy.readStoreValue('state.position.camera.heading').should('eq', heading)
             cy.readStoreValue('state.position.camera.pitch').should('eq', 0)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 360)
+            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
@@ -403,7 +403,7 @@ describe('Test on legacy param import', () => {
             cy.readStoreValue('state.position.camera.x').should('not.be.null')
             cy.readStoreValue('state.position.camera.y').should('not.be.null')
             cy.readStoreValue('state.position.camera.z').should('not.be.null')
-            cy.readStoreValue('state.position.camera.heading').should('eq', 360)
+            cy.readStoreValue('state.position.camera.heading').should('eq', 0)
             cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
             cy.readStoreValue('state.position.camera.roll').should('eq', 0)
 

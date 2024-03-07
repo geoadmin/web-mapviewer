@@ -23,11 +23,11 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 :key="index"
                 class="bg-selector-rounded-wheel-button"
                 :class="[
-                    { active: backgroundLayer?.getID() === currentBackgroundLayer?.getID() },
+                    { active: backgroundLayer?.id === currentBackgroundLayer?.id },
                     `bg-selector-rounded-wheel-button-${index}`,
                 ]"
                 type="button"
-                :data-cy="`background-selector-${backgroundLayer?.getID() || 'void'}`"
+                :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
                 @click="onSelectBackground(backgroundLayer)"
             >
                 <span class="bg-selector-rounded-wheel-button-image-cropper">

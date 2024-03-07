@@ -22,7 +22,7 @@
         />
         <CesiumGeoJSONLayer
             v-if="layerConfig.type === LayerTypes.GEOJSON"
-            :layer-id="layerConfig.getID()"
+            :layer-id="layerConfig.id"
             :opacity="layerConfig.opacity"
             :geojson-url="layerConfig.geoJsonUrl"
             :style-url="layerConfig.styleUrl"

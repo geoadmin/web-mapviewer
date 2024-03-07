@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import log from '@/utils/logging'
 
 /** Composable that gives utility function to calculate/get layers' and features' z-index */
 export function useLayerZIndexCalculation() {
@@ -20,13 +21,7 @@ export function useLayerZIndexCalculation() {
     const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
     const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
 
-    const startingZIndexForVisibleLayers = computed(() => {
-        if (backgroundLayers.value && backgroundLayers.value.length > 0) {
-            return backgroundLayers.value.length - 1
-        }
-        return 0
-    })
-    const visibleLayersHoldingAZIndex = computed(() => {
+    const visibleLayers = computed(() => {
         const visibleLayersWithZIndex = [...backgroundLayers.value]
         if (is3dActive.value) {
             // in 3D, GeoJSON and KML layers are not given a ZIndex as Cesium handles them differently
@@ -45,9 +40,16 @@ export function useLayerZIndexCalculation() {
 
     // from here: things that will be exported
 
-    const startingZIndexForThingsOnTopOfLayers = computed(
-        () => visibleLayersHoldingAZIndex.value.length
-    )
+    const startingZIndexForThingsOnTopOfLayers = computed(() => {
+        // Here we need to take into account the group of layers
+        const nbOfSubLayers = visibleLayers.value
+            .filter((l) => l?.type === LayerTypes.GROUP)
+            // counting how many layers they have inside each group, note the first layer of the
+            // group is already counted in the visibleLayers, therefore remove 1 from the total here
+            .map((l) => l.layers.length - 1)
+            .reduce((a, b) => a + b, 0)
+        return visibleLayers.value.length + nbOfSubLayers
+    })
     const zIndexHighlightedFeatures = computed(() => startingZIndexForThingsOnTopOfLayers.value)
     const zIndexDroppedPin = computed(() => {
         let zIndex = zIndexHighlightedFeatures.value
@@ -100,34 +102,26 @@ export function useLayerZIndexCalculation() {
      * @returns {Number} The Z-Index for this layer
      */
     function getZIndexForLayer(layer) {
-        if (!layer) {
-            return -1
-        }
         // trying to find a match among the visible layers
-        const matchingLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.find(
-            (visibleLayer) => visibleLayer?.getID() === layer.getID()
-        )
-        if (!matchingLayerInVisibleLayers) {
+        const layerIndex = visibleLayers.value.indexOf(layer)
+        if (layerIndex === -1) {
+            log.error(
+                `Layer ${layer.id} not found in visible layers, cannot return its zIndex, return -1`
+            )
             return -1
         }
-        const indexOfLayerInVisibleLayers = visibleLayersHoldingAZIndex.value.indexOf(
-            matchingLayerInVisibleLayers
-        )
         // checking if there are some group of layers before, meaning more than one z-index for this entry
-        const subLayersPresentUnderThisLayer = visibleLayersHoldingAZIndex.value
+        const subLayersPresentUnderThisLayer = visibleLayers.value
             // only keeping previous layers (if layer is first, an empty array will be returned by slice(0, 0))
-            .slice(0, Math.max(indexOfLayerInVisibleLayers - 1, 0))
+            .slice(0, layerIndex)
             // only keeping groups of layers
             .filter((previousLayer) => previousLayer?.type === LayerTypes.GROUP)
-            // counting how many layers they have inside each group
-            .map((previousGroup) => previousGroup.layers.length)
+            // counting how many layers they have inside each group, note the first layer of the
+            // group is already counted in the visibleLayers, therefore remove 1 from the total here
+            .map((previousGroup) => previousGroup.layers.length - 1)
             // sum
             .reduce((a, b) => a + b, 0)
-        return (
-            startingZIndexForVisibleLayers.value +
-            subLayersPresentUnderThisLayer +
-            indexOfLayerInVisibleLayers
-        )
+        return subLayersPresentUnderThisLayer + layerIndex
     }
 
     return {

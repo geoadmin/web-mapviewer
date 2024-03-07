@@ -4,9 +4,9 @@
  */
 
 import axios from 'axios'
+import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
-import GPX from '@/utils/GPX'
 import log from '@/utils/logging'
 
 const dispatcher = { dispatcher: 'load-gpx-data.plugin' }
@@ -24,13 +24,13 @@ async function loadGpx(store, gpxLayer) {
         const gpxParser = new GPX()
         const metadata = gpxParser.readMetadata(gpxContent)
         store.dispatch('updateKmlGpxLayer', {
-            layerId: gpxLayer.getID(),
+            layerId: gpxLayer.id,
             metadata,
             data: gpxContent,
             ...dispatcher,
         })
     } catch (error) {
-        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.getID()}`)
+        log.error(`Error while fetching GPX data/metadata for layer ${gpxLayer?.id}`)
     }
 }
 

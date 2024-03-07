@@ -14,9 +14,7 @@ const currentDrawingKmlLayer = computed(() => store.getters.activeKmlLayer)
 // it out in this case
 const filteredVisibleLayers = computed(() => {
     if (isCurrentlyDrawing.value && currentDrawingKmlLayer.value) {
-        return visibleLayers.value.filter(
-            (layer) => layer.getID() !== currentDrawingKmlLayer.value.getID()
-        )
+        return visibleLayers.value.filter((layer) => layer.id !== currentDrawingKmlLayer.value.id)
     }
     return visibleLayers.value
 })
@@ -27,7 +25,7 @@ const { getZIndexForLayer } = useLayerZIndexCalculation()
 <template>
     <OpenLayersInternalLayer
         v-for="layer in filteredVisibleLayers"
-        :key="layer.getID()"
+        :key="layer.id"
         :layer-config="layer"
         :z-index="getZIndexForLayer(layer)"
     />

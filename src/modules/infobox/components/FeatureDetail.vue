@@ -2,8 +2,11 @@
 import DOMPurify from 'dompurify'
 import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import allFormats from '@/utils/coordinates/coordinateFormat'
 
 const props = defineProps({
     feature: {
@@ -16,9 +19,13 @@ const { feature } = toRefs(props)
 
 const i18n = useI18n()
 
+const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
 
+const coordinateFormat = computed(() => {
+    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+})
 const sanitizedFeatureDataEntries = computed(() => {
     if (hasFeatureStringData.value) {
         return []
@@ -48,6 +55,18 @@ function sanitizeHtml(htmlText) {
             <div v-if="sanitizedFeatureDataEntries.length === 0">
                 {{ i18n.t('no_more_information') }}
             </div>
+        </div>
+        <div
+            v-if="feature.geometry.type === 'Point'"
+            class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
+        >
+            <CoordinateCopySlot
+                identifier="feature-detail-coordinate-copy"
+                :value="feature.geometry.coordinates.slice(0, 2)"
+                :coordinate-format="coordinateFormat"
+            >
+                <FontAwesomeIcon class="small align-text-top" icon="fas fa-map-marker-alt" />
+            </CoordinateCopySlot>
         </div>
     </div>
 </template>

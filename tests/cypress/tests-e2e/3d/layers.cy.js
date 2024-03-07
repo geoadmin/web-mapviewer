@@ -39,7 +39,7 @@ describe('Test of layer handling in 3D', () => {
             '3d': true,
         })
         cy.waitUntilCesiumTilesLoaded()
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get('[data-cy="searchbar"]').paste('test')
         cy.wait(['@search-locations', '@search-layers'])
         cy.get('[data-cy="search-result-entry-layer"]').first().click()
@@ -99,7 +99,7 @@ describe('Test of layer handling in 3D', () => {
             true
         ) // with hash, so that we can have external layer support
         cy.waitUntilCesiumTilesLoaded()
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         // lower the order of the first layer
         cy.openLayerSettings(firstLayerId)
         cy.get(`[data-cy="button-raise-order-layer-${firstLayerId}"]`).should('be.visible').click()
@@ -157,7 +157,7 @@ describe('Test of layer handling in 3D', () => {
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(4) // labels + buildings + constructions + GeoJSON layer
         })
-        cy.clickOnMenuButtonIfMobile()
+        cy.openMenuIfMobile()
         cy.get(`[data-cy="button-remove-layer-${visibleLayerIds[3]}"]`).should('be.visible').click()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(3) // labels, constructions and buildings are still present
@@ -183,7 +183,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
         cy.wait('@post-kml')
         cy.get('[data-cy="drawing-toolbox-close-button"]').click()
-        cy.clickOnMenuButtonIfMobile()
+        cy.closeMenuIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
         cy.readWindowValue('cesiumViewer').then((viewer) => {
