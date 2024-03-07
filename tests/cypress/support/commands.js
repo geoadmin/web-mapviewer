@@ -146,6 +146,19 @@ export function getDefaultFixturesAndIntercepts() {
 }
 
 /**
+ * Geolocation mockup
+ *
+ * @param {Cypress.AUTWindow} win A reference to the window object.
+ * @param {GeolocationCoordinates} coords The fake coordinates to pass along.
+ * @see https://github.com/cypress-io/cypress/issues/2671
+ */
+const mockGeolocation = (win, coords) => {
+    const handler = (callback) => callback({ coords })
+    cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
+    cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
+}
+
+/**
  * Command that visits the main view and waits for the map to be shown (for the app to be ready) All
  * parameters are optional. They can either be passed in order or inside a wrapper object.
  *
@@ -195,47 +208,14 @@ Cypress.Commands.add(
         })
         // removing trailing &
         flattenedQueryParams = flattenedQueryParams.slice(0, -1)
+        flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
 
-        /**
-         * Geolocation mockup
-         *
-         * @param {Cypress.AUTWindow} win A reference to the window object.
-         * @param {GeolocationCoordinates} coords The fake coordinates to pass along.
-         * @see https://github.com/cypress-io/cypress/issues/2671
-         */
-        const mockGeolocation = (win, coords) => {
-            const handler = (callback) => callback({ coords })
-            cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
-            cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
-        }
-        cy.visit(`/${withHash ? '#/' : ''}?${flattenedQueryParams}`, {
+        cy.visit(`/${withHash ? '#/' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
         // waiting for the app to load and layers to be configured.
-        cy.waitUntilState((state) => state.app.isMapReady, { timeout: 15000 })
-        cy.waitUntilState(
-            (state, getters) => {
-                const active = state.layers.activeLayers.length
-                // The required layers can be set via topic or manually.
-                const targetTopic = getters.currentTopic?.layersToActivate.length
-                let target = targetTopic
-                if ('layers' in queryParams) {
-                    target = withHash
-                        ? queryParams.layers.split(';').length
-                        : queryParams.layers.split(',').length // Legacy layers separates layers with `,`
-                }
-                if (!withHash && 'adminId' in queryParams) {
-                    // In legacy drawing with adminId the layer is not added to the layers parameter
-                    target += 1
-                }
-                return active === target
-            },
-            {
-                customMessage: 'all layers have been loaded',
-                errorMsg: 'Timeout waiting for all layers to be loaded',
-            }
-        )
-
+        cy.waitMapIsReady()
+        cy.waitAllLayersLoaded({ queryParams, legacy: !withHash })
         // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
             'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
@@ -250,11 +230,90 @@ Cypress.Commands.add(
 )
 
 /**
+ * Command that visits the embed view and waits for the map to be shown (for the app to be ready)
+ * All parameters are optional. They can either be passed in order or inside a wrapper object.
+ *
+ * @param {Object} queryParams URL parameters
+ * @param {Boolean} legacy Whether or not to use the new URL format (that has a hash)
+ * @param {Object} geolocationMockupOptions Latitude and Longitude of faked geolocation
+ * @param {Object} fixturesAndIntercepts Contains functions that overwrite the default interceptions
+ *   to the backend.
+ */
+Cypress.Commands.add(
+    'goToEmbedView',
+    ({
+        queryParams = {},
+        legacy = false,
+        geolocationMockupOptions = { latitude: 47, longitude: 7 },
+        fixturesAndIntercepts = {},
+    } = {}) => {
+        // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
+        // default intercept.
+        const defIntercepts = getDefaultFixturesAndIntercepts()
+        const intercepts = fixturesAndIntercepts
+        for (const intercept in defIntercepts) {
+            if (intercept in intercepts) {
+                intercepts[intercept]()
+            } else {
+                defIntercepts[intercept]()
+            }
+        }
+
+        let flattenedQueryParams = ''
+        Object.entries(queryParams).forEach(([key, value]) => {
+            if (typeof value === Boolean && value === true) {
+                // for true boolean param, only the key is required
+                flattenedQueryParams += `${key}&`
+            } else {
+                flattenedQueryParams += `${key}=${encodeURIComponent(value)}&`
+            }
+        })
+        // removing trailing &
+        flattenedQueryParams = flattenedQueryParams.slice(0, -1)
+        flattenedQueryParams = flattenedQueryParams.length ? `?${flattenedQueryParams}` : ''
+
+        cy.visit(`${legacy ? '/embed.html' : '/#/embed'}${flattenedQueryParams}`, {
+            onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
+        })
+        // waiting for the app to load and layers to be configured.
+        cy.waitMapIsReady()
+        cy.waitAllLayersLoaded({ queryParams, legacy })
+
+        cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
+    }
+)
+
+/**
  * Wait until the map has been rendered and is ready. This is useful and needed during the
  * application startup phase
  */
 Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000 } = {}) => {
     cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
+})
+
+Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false } = {}) => {
+    cy.waitUntilState(
+        (state, getters) => {
+            const active = state.layers.activeLayers.length
+            // The required layers can be set via topic or manually.
+            const targetTopic = getters.currentTopic?.layersToActivate.length
+            let target = targetTopic
+            if ('layers' in queryParams) {
+                target = legacy
+                    ? queryParams.layers.split(',').length // Legacy layers separates layers with `,`
+                    : queryParams.layers.split(';').length
+            }
+            if (legacy && 'adminId' in queryParams) {
+                // In legacy drawing with adminId the layer is not added to the layers parameter
+                target += 1
+            }
+            return active === target
+        },
+        {
+            customMessage: 'all layers have been loaded',
+            errorMsg: 'Timeout waiting for all layers to be loaded',
+        }
+    )
 })
 
 /**
