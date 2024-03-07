@@ -2,12 +2,12 @@
 import { Polygon } from 'ol/geom'
 import { computed, toRefs } from 'vue'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
+import SelectableFeature from '@/api/features/EditableFeature.class'
 import { round } from '@/utils/numberUtils'
 
 const props = defineProps({
     feature: {
-        type: EditableFeature,
+        type: SelectableFeature,
         required: true,
     },
 })
@@ -52,8 +52,8 @@ function roundValueIfGreaterThan(value, threshold, divider) {
 .rectangle {
     height: 1rem;
     width: 1.5rem;
-    border: 2px solid black;
-    background-color: #999;
+    border-radius: 0.2rem;
+    background-color: $gray-500;
 }
 .area-information {
     @extend .clear-no-ios-long-press;
