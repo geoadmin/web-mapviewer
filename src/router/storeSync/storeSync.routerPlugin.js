@@ -4,6 +4,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import log from '@/utils/logging'
+import { MAP_VIEWS } from '@/views/views'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 
@@ -69,7 +70,7 @@ function storeMutationWatcher(store, mutation, router) {
             routeChangeIsTriggeredByThisModule = true
             router
                 .push({
-                    name: 'MapView',
+                    name: router.currentRoute.name,
                     query,
                 })
                 .catch((error) => {
@@ -174,7 +175,7 @@ function urlQueryWatcher(store, to) {
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
         // stays on `/#/`. When manually chaning any query param it works though.
-        return { name: 'MapView', query: newQuery }
+        return { name: to.name, query: newQuery }
     }
     return undefined
 }
@@ -193,7 +194,7 @@ function urlQueryWatcher(store, to) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to) => {
-        if (to.name === 'MapView' && !unsubscribeStoreMutation) {
+        if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
             log.info('[Router store plugin] Entering MapView, register store mutation watcher')
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) => {
@@ -209,15 +210,17 @@ const storeSyncRouterPlugin = (router, store) => {
                     storeMutationWatcher(store, mutation, router)
                 }
             })
-        } else if (to.name !== 'MapView') {
+        } else if (!MAP_VIEWS.includes(to.name)) {
             // leaving MapView make sure to unsubscribe the store mutation
             if (unsubscribeStoreMutation) {
-                log.info('[Router store plugin] Leaving MapView, unregister store mutation watcher')
+                log.info(
+                    `[Router store plugin] Leaving ${to.name}, unregister store mutation watcher`
+                )
                 unsubscribeStoreMutation()
             }
         }
 
-        if (to.name === 'MapView' && store.state.app.isReady) {
+        if (MAP_VIEWS.includes(to.name) && store.state.app.isReady) {
             // Synchronize the store with the url query only on MapView and when the application
             // is ready
             return urlQueryWatcher(store, to)

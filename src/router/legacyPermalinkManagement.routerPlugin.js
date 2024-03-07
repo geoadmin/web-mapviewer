@@ -12,6 +12,7 @@ import {
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
+import { MAP_VIEWS } from '@/views/views'
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
@@ -140,7 +141,7 @@ const handleLegacyParam = (
     }
 }
 
-const handleLegacyParams = async (legacyParams, store) => {
+const handleLegacyParams = async (legacyParams, store, originView) => {
     // if so, we transfer all old param (stored before vue-router's /#) and transfer them to the MapView
     // we will also transform legacy zoom level here (see comment below)
     const newQuery = {}
@@ -207,13 +208,13 @@ const handleLegacyParams = async (legacyParams, store) => {
             delete newQuery.adminId
         }
         return {
-            name: 'MapView',
+            name: originView,
             query: newQuery,
             replace: true,
         }
     }
     return {
-        name: 'MapView',
+        name: originView,
         query: newQuery,
         replace: true,
     }
@@ -249,13 +250,14 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
         ? new URLSearchParams(window?.location?.search)
         : null
     if (legacyParams) {
+        const legacyEmbed = window?.location?.pathname === '/embed.html'
         log.debug(
-            `[Legacy URL] starts legacy url param plugin params=${legacyParams.toString()}`,
+            `[Legacy URL] starts legacy url param plugin params=${legacyParams.toString()}, legacyEmbed=${legacyEmbed}`,
             legacyParams
         )
         let unSubscribeStoreMutation = null
         const unsubscribeRouter = router.beforeEach(async (to, from) => {
-            if (to.name === 'MapView' && from === START_LOCATION) {
+            if (MAP_VIEWS.includes(to.name) && from === START_LOCATION) {
                 // Redirect to the LegacyParamsView until the app is ready and that the legacy
                 // params have been parsed and converted. This is needed in order to postpone the
                 // storeSync until the legacy params have been converted.
@@ -272,15 +274,25 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                             '[Legacy URL] app is ready, handle legacy params=${legacyParams.toString()}',
                             legacyParams
                         )
-                        const newRoute = await handleLegacyParams(legacyParams, store)
+                        const newRoute = await handleLegacyParams(
+                            legacyParams,
+                            store,
+                            legacyEmbed ? 'EmbedView' : 'MapView'
+                        )
                         log.info(`[Legacy URL] redirect to the converted params`, newRoute)
                         router.replace(newRoute)
                     }
                 })
-                return { name: 'LegacyParamsView', replace: true }
+                return {
+                    name: to.name === 'EmbedView' ? 'LegacyEmbedParamsView' : 'LegacyParamsView',
+                    replace: true,
+                }
             }
 
-            if (to.name === 'MapView' && from.name === 'LegacyParamsView') {
+            if (
+                MAP_VIEWS.includes(to.name) &&
+                ['LegacyParamsView', 'LegacyEmbedParamsView'].includes(from.name)
+            ) {
                 log.debug('[Legacy URL] leaving the legacy URL plugin')
                 unsubscribeRouter()
                 unSubscribeStoreMutation()

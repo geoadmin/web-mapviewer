@@ -1,5 +1,6 @@
 import { createShortLink } from '@/api/shortlink.api'
 import log from '@/utils/logging'
+import { transformUrlMapToEmbed } from '@/utils/utils'
 
 export default {
     state: {
@@ -41,15 +42,15 @@ export default {
                 log.error('Error while creating short link for', urlWithoutGeolocation, err)
                 commit('setShortLink', { shortLink: urlWithoutGeolocation, dispatcher })
             }
-            const urlWithEmbed = urlWithoutGeolocation + '&embed'
+            const embedUrl = transformUrlMapToEmbed(urlWithoutGeolocation)
             try {
-                const embeddedShortLink = await createShortLink(urlWithEmbed)
+                const embeddedShortLink = await createShortLink(embedUrl)
                 if (embeddedShortLink) {
                     commit('setEmbeddedShortLink', { shortLink: embeddedShortLink, dispatcher })
                 }
             } catch (err) {
-                log.error('Error while creating embedded short link for', urlWithEmbed, err)
-                commit('setEmbeddedShortLink', { shortLink: urlWithEmbed, dispatcher })
+                log.error('Error while creating embedded short link for', embedUrl, err)
+                commit('setEmbeddedShortLink', { shortLink: embedUrl, dispatcher })
             }
         },
         closeShareMenuAndRemoveShortLinks({ commit, dispatch }, { dispatcher }) {

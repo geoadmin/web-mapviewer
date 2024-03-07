@@ -6,6 +6,7 @@ import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManag
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
 import store from '@/store'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
+import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
 
@@ -33,9 +34,26 @@ const router = createRouter({
             },
         },
         {
+            path: '/embed',
+            name: 'EmbedView',
+            component: EmbedView,
+            meta: {
+                requiresAppReady: true,
+            },
+        },
+        {
             path: '/legacy',
             name: 'LegacyParamsView',
             component: LegacyParamsView,
+            meta: {
+                requiresAppReady: true,
+            },
+        },
+        {
+            path: '/legacy-embed',
+            name: 'LegacyEmbedParamsView',
+            component: LegacyParamsView,
+            props: { embed: true },
             meta: {
                 requiresAppReady: true,
             },

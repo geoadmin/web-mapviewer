@@ -55,7 +55,7 @@ export default {
          *
          * @type Boolean
          */
-        embeddedMode: false,
+        embedMode: false,
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *
@@ -169,7 +169,7 @@ export default {
          * @returns {boolean}
          */
         isHeaderShown(state) {
-            return !state.fullscreenMode && !state.showDrawingOverlay && !state.embeddedMode
+            return !state.fullscreenMode && !state.showDrawingOverlay
         },
 
         isPhoneMode(state) {
@@ -289,7 +289,7 @@ export default {
             state.fullscreenMode = mode
         },
         setEmbeddedMode(state, { embed }) {
-            state.embeddedMode = embed
+            state.embedMode = embed
         },
         setShowLoadingBar(state, { loading }) {
             state.showLoadingBar = loading

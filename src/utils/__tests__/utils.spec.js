@@ -1,7 +1,14 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { formatMeters, formatMinutesTime, formatPointCoordinates } from '@/utils/utils'
+import {
+    formatMeters,
+    formatMinutesTime,
+    formatPointCoordinates,
+    parseUrlHashQuery,
+    transformUrlEmbedToMap,
+    transformUrlMapToEmbed,
+} from '@/utils/utils'
 
 describe('utils', () => {
     describe('formatMinutesTime()', () => {
@@ -35,6 +42,116 @@ describe('utils', () => {
             expect(formatPointCoordinates([2533541.8057776038, 1151703.909974419])).to.eql(
                 "2'533'542, 1'151'704"
             )
+        })
+    })
+
+    describe('transformUrlMapToEmbed', () => {
+        it('transform #/map to #/embed', () => {
+            expect(transformUrlMapToEmbed('https://map.geo.admin.ch/#/map')).to.equal(
+                'https://map.geo.admin.ch/#/embed'
+            )
+            expect(transformUrlMapToEmbed('http://map.geo.admin.ch/#/map')).to.equal(
+                'http://map.geo.admin.ch/#/embed'
+            )
+            expect(transformUrlMapToEmbed('http://map.geo.admin.ch/#/map?')).to.equal(
+                'http://map.geo.admin.ch/#/embed?'
+            )
+            expect(transformUrlMapToEmbed('https://map.geo.admin.ch/#/map?lang=de')).to.equal(
+                'https://map.geo.admin.ch/#/embed?lang=de'
+            )
+            expect(
+                transformUrlMapToEmbed(
+                    'https://map.geo.admin.ch/#/map?lang=de&layers=https://test.com?hello=world'
+                )
+            ).to.equal(
+                'https://map.geo.admin.ch/#/embed?lang=de&layers=https://test.com?hello=world'
+            )
+        })
+        it('does not transform non #/map url', () => {
+            const urls = [
+                'https://map.geo.admin.ch/#/mapview',
+                'https://map.geo.admin.ch/#/map/view',
+                'https://map.geo.admin.ch/#/hello',
+                'https://map.geo.admin.ch/#/hello?lang=de',
+                'https://map.geo.admin.ch/map',
+                'https://map.geo.admin.ch/map?de',
+                'https://map.geo.admin.ch/test#/map',
+            ]
+            urls.forEach((url) => expect(transformUrlEmbedToMap(url)).to.equal(url))
+        })
+    })
+    describe('parseUrlHashQuery', () => {
+        it('parse correctly url', () => {
+            let result = parseUrlHashQuery('https://test.com/my-path/#test?hello')
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('#test')
+            expect(result.query).to.equal('?hello')
+
+            result = parseUrlHashQuery('https://test.com/#test/bla?hello')
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('#test/bla')
+            expect(result.query).to.equal('?hello')
+
+            result = parseUrlHashQuery('https://test.com/#/test/bla?')
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('#/test/bla')
+            expect(result.query).to.equal('?')
+
+            result = parseUrlHashQuery('https://test.com/#/test/bla?hello=my_value?test')
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('#/test/bla')
+            expect(result.query).to.equal('?hello=my_value?test')
+
+            result = parseUrlHashQuery(
+                'https://test.com/hello?key=value#/test/bla?hello=my_value?test'
+            )
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('#/test/bla')
+            expect(result.query).to.equal('?hello=my_value?test')
+
+            result = parseUrlHashQuery('https://test.com/hello?key=value')
+            expect(result.urlObj).not.to.be.undefined
+            expect(result.urlObj).not.to.be.null
+            expect(result.hash).to.equal('')
+            expect(result.query).to.equal('')
+        })
+    })
+    describe('transformUrlEmbedToMap', () => {
+        it('transform #/embed to #/map', () => {
+            expect(transformUrlEmbedToMap('https://map.geo.admin.ch/#/embed')).to.equal(
+                'https://map.geo.admin.ch/#/map'
+            )
+            expect(transformUrlEmbedToMap('http://map.geo.admin.ch/#/embed')).to.equal(
+                'http://map.geo.admin.ch/#/map'
+            )
+            expect(transformUrlEmbedToMap('http://map.geo.admin.ch/#/embed?')).to.equal(
+                'http://map.geo.admin.ch/#/map?'
+            )
+            expect(transformUrlEmbedToMap('https://map.geo.admin.ch/#/embed?lang=de')).to.equal(
+                'https://map.geo.admin.ch/#/map?lang=de'
+            )
+            expect(
+                transformUrlEmbedToMap(
+                    'https://map.geo.admin.ch/#/embed?lang=de&layers=https://test.com?hello=world'
+                )
+            ).to.equal('https://map.geo.admin.ch/#/map?lang=de&layers=https://test.com?hello=world')
+        })
+        it('does not transform non #/embed url', () => {
+            const urls = [
+                'https://map.geo.admin.ch/#/embedview',
+                'https://map.geo.admin.ch/#/embed/view',
+                'https://map.geo.admin.ch/#/hello',
+                'https://map.geo.admin.ch/#/hello?lang=de',
+                'https://map.geo.admin.ch/embed',
+                'https://map.geo.admin.ch/embed?de',
+                'https://map.geo.admin.ch/test#/embed',
+            ]
+            urls.forEach((url) => expect(transformUrlEmbedToMap(url)).to.equal(url))
         })
     })
 })

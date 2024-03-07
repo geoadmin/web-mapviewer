@@ -104,15 +104,6 @@ const storeSyncConfig = [
     new CrossHairParamConfig(),
     new CompareSliderParamConfig(),
     new LayerParamConfig(),
-    new SimpleUrlParamConfig(
-        'embed',
-        'setEmbeddedMode',
-        'setEmbeddedMode',
-        (store) => store.state.ui.embeddedMode,
-        false,
-        Boolean,
-        false
-    ),
     new QueryToStoreOnlyParamConfig(
         'catalogNodes',
         'catalogNodes',
