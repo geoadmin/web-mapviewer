@@ -88,18 +88,39 @@ function createWMTSSourceForProjection() {
         matrixIds: matrixIds,
         extent: extent,
     })
+    // const timestamp = getTimestampFromConfig(wmtsLayerConfig.value, previewYear.value)
 
+    // NOTE(IS): The following code is taken from the old geoadmin
+    // For some obscure reasons, on iOS, displaying a base 64 image
+    // in a tile with an existing crossOrigin attribute generates
+    // CORS errors.
+    // Currently crossOrigin definition is only used for mouse cursor
+    // detection on desktop in TooltipDirective.
+    let crossOrigin = 'anonymous'
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+        crossOrigin = undefined
+    }
     const wmtsSource = new WMTSSource({
+        // dimensions: {
+        //     Time: timestamp,
+        // },
+
+        // Workaround: Set a cache size of zero when layer is
+        // timeEnabled see:
+        // https://github.com/geoadmin/mf-geoadmin3/issues/3491
+        cacheSize: wmtsLayerConfig.value.timeEnabled ? 0 : 2048,
         layer: layerId.value,
         format: wmtsLayerConfig.value.format,
         projection: projection.value.epsg,
         requestEncoding: 'REST',
         tileGrid,
-        attributions: wmtsLayerConfig.value.attribution,
+        // tileLoadFunction: tileLoadFunction,
         url: getWMTSUrl(url.value),
-        style: 'default',
+        crossOrigin: crossOrigin,
         transition: 0,
+        style: 'default',
         matrixSet: projection.value.epsg,
+        attributions: wmtsLayerConfig.value.attribution,
     })
     return wmtsSource
 }
