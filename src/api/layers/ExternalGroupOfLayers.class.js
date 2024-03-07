@@ -41,6 +41,11 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
      * @param {[LayerLegend]} [externalLayerData.legends=[]] Layer legends. Default is `[]`
      * @param {boolean} [externalLayerData.isLoading=true] Set to true if some parts of the layer
      *   (e.g. metadata) are still loading. Default is `true`
+     * @param {ExternalLayerGetFeatureInfoCapability | null} [externalLayerData.getFeatureInfoCapability=null]
+     *   Configuration describing how to request this layer's server to get feature information.
+     *   Default is `null`
+     * @param {CoordinateSystem[]} [externalLayerData.availableProjections=[]] All projection that
+     *   can be used to request this layer. Default is `[]`
      * @throws InvalidLayerDataError if no `externalLayerData` is given or if it is invalid
      */
     constructor(externalLayerData) {
@@ -59,6 +64,8 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             extent = null,
             legends = [],
             isLoading = true,
+            availableProjections = [],
+            getFeatureInfoCapability = null,
         } = externalLayerData
         if (!layers?.length > 0) {
             throw new InvalidLayerDataError(
@@ -82,6 +89,10 @@ export default class ExternalGroupOfLayers extends ExternalLayer {
             extent,
             legends,
             isLoading,
+            availableProjections,
+            // if one of the sublayers is not queryable, this group is then not queryable/has no tooltip
+            hasTooltip: !layers.some((layer) => !layer.hasTooltip),
+            getFeatureInfoCapability,
         })
         this.layers = [...layers]
     }

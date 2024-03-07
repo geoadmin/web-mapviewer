@@ -40,6 +40,13 @@ export default class ExternalWMSLayer extends ExternalLayer {
      * @param {[LayerLegend]} [externalWmsData.legends=[]] Layer legends. Default is `[]`
      * @param {Boolean} [externalWmsData.isLoading=true] Set to true if some parts of the layer
      *   (e.g. metadata) are still loading. Default is `true`
+     * @param {CoordinateSystem[]} [externalWmsData.availableProjections=[]] All projection that can
+     *   be used to request this layer. Default is `[]`
+     * @param {boolean} [externalWmsData.hasTooltip=false] Flag telling if this layer can be used in
+     *   a GetFeatureInfo request. Default is `false`
+     * @param {ExternalLayerGetFeatureInfoCapability | null} [externalWmsData.getFeatureInfoCapability=null]
+     *   Configuration describing how to request this layer's server to get feature information.
+     *   Default is `null`
      * @throws InvalidLayerDataError if no `externalWmsData` is given or if it is invalid
      */
     constructor(externalWmsData) {
@@ -59,6 +66,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
             extent = null,
             legends = [],
             isLoading = true,
+            availableProjections = [],
+            hasTooltip = false,
+            getFeatureInfoCapability = null,
         } = externalWmsData
         super({
             name,
@@ -76,6 +86,9 @@ export default class ExternalWMSLayer extends ExternalLayer {
             extent,
             legends,
             isLoading,
+            availableProjections,
+            hasTooltip,
+            getFeatureInfoCapability,
         })
         this.wmsVersion = wmsVersion
         this.format = format
