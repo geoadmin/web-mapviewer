@@ -21,9 +21,9 @@ const area = computed(() => {
     if (calculatedArea) {
         result += roundValueIfGreaterThan(calculatedArea, 1000, 100000)
         if (calculatedArea > 10000) {
-            result += 'km'
+            result += ' km'
         } else {
-            result += 'm'
+            result += ' m'
         }
     }
     return result
