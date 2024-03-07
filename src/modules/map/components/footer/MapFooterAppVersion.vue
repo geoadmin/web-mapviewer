@@ -1,5 +1,5 @@
 <template>
-    <div class="app-version">{{ appVersion }}</div>
+    <div class="app-version" data-cy="app-version">{{ appVersion }}</div>
 </template>
 
 <script>

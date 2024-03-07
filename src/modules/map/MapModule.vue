@@ -18,14 +18,24 @@ const OpenLayersMap = defineAsyncComponent(
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
-const uiMode = computed(() => store.state.ui.mode)
+
 const displayLocationPopup = computed(
     () => store.state.map.displayLocationPopup && !store.state.ui.embed
 )
 const isCompareSliderActive = computed(() => {
     return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
 })
-const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
+const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
+const isEmbed = computed(() => store.state.ui.embedMode)
+const scaleTeleportId = computed(() => {
+    if (isEmbed.value) {
+        return '#map-footer-scale-line-embed'
+    }
+    if (isPhoneMode.value) {
+        return '#map-footer-scale-line-mobile'
+    }
+    return '#map-footer-scale-line'
+})
 </script>
 
 <template>
@@ -39,13 +49,13 @@ const isPhoneMode = computed(() => uiMode.value === UIModes.PHONE)
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
             <LocationPopup v-if="displayLocationPopup" />
-            <teleport :to="`#map-footer-${isPhoneMode ? 'mobile-' : ''}scale-line`">
+            <teleport :to="scaleTeleportId">
                 <OpenLayersScale />
             </teleport>
-            <teleport to="#map-footer-mouse-tracker">
+            <teleport v-if="!isEmbed" to="#map-footer-mouse-tracker">
                 <OpenLayersMouseTracker />
             </teleport>
-            <teleport to="#toolbox-compass-button">
+            <teleport v-if="!isEmbed" to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
             <CompareSlider v-if="isCompareSliderActive" />

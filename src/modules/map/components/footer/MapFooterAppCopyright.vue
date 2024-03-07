@@ -1,5 +1,11 @@
 <template>
-    <a v-for="(link, index) in links" :key="index" :href="link.url" target="_blank">
+    <a
+        v-for="(link, index) in links"
+        :key="index"
+        :href="link.url"
+        target="_blank"
+        :data-cy="`app-copyright-${index}`"
+    >
         {{ $t(link.label) }}
     </a>
 </template>

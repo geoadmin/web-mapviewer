@@ -8,7 +8,15 @@ describe('Testing the embed view', () => {
 
         cy.get('[data-cy="app-header"]').should('not.exist')
         cy.get('[data-cy="menu-tray"]').should('not.exist')
+        cy.get('[data-cy="mouse-position-select"]').should('not.exist')
+        cy.get('[data-cy="mouse-position"]').should('not.exist')
 
+        cy.get('[data-cy="app-version"]').should('not.exist')
+        cy.get('[data-cy^=app-copyright-]').should('not.exist')
+
+        cy.get('[data-cy="background-selector-open-wheel-button"]').should('not.exist')
+
+        cy.log(`Check for the scale line and copyright presence`)
         cy.get('[data-cy="scaleline"]').should('be.visible')
         cy.get('[data-cy="layers-copyrights"]').should('be.visible')
 

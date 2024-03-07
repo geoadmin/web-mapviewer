@@ -1,22 +1,39 @@
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
+import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
+
+import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
+import MapFooterAppVersion from './MapFooterAppVersion.vue'
+
+const store = useStore()
+
+const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
+const isEmbed = computed(() => store.state.ui.embedMode)
+</script>
+
 <template>
     <div
         class="map-footer"
         :class="{ 'map-footer-fullscreen': isFullscreenMode }"
         data-cy="app-footer"
     >
-        <div class="map-footer-top">
+        <div class="map-footer-top" :class="{ 'map-footer-top-embed': isEmbed }">
+            <div v-if="isEmbed" id="map-footer-scale-line-embed" class="p-1" />
             <MapFooterAttributionList />
-            <div>
+            <div v-if="!isEmbed">
                 <div class="map-background-selector">
                     <BackgroundSelector />
                 </div>
-                <div id="map-footer-mobile-scale-line" />
+                <div id="map-footer-scale-line-mobile" class="p-1" />
             </div>
         </div>
         <div id="map-footer-middle-0" class="map-footer-middle">
             <!-- teleport for: Infobox, Profile, ... -->
         </div>
-        <div class="map-footer-bottom">
+        <div v-if="!isEmbed" class="map-footer-bottom">
             <div id="map-footer-scale-line" />
             <div id="map-footer-mouse-tracker" class="d-flex gap-1 align-items-center" />
             <span class="map-footer-bottom-spacer" />
@@ -25,30 +42,6 @@
         </div>
     </div>
 </template>
-
-<script>
-import { mapState } from 'vuex'
-
-import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
-import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
-
-import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
-import MapFooterAppVersion from './MapFooterAppVersion.vue'
-
-export default {
-    components: {
-        BackgroundSelector,
-        MapFooterAttributionList,
-        MapFooterAppCopyright,
-        MapFooterAppVersion,
-    },
-    computed: {
-        ...mapState({
-            isFullscreenMode: (state) => state.ui.fullscreenMode,
-        }),
-    },
-}
-</script>
 
 <style lang="scss" scoped>
 @import 'src/scss/media-query.mixin';
@@ -85,6 +78,10 @@ $flex-gap: 1em;
         }
         @include respond-above(phone) {
             flex-direction: column-reverse;
+        }
+
+        &-embed {
+            flex-direction: row;
         }
     }
 
