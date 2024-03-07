@@ -23,9 +23,6 @@ const i18n = useI18n()
 const store = useStore()
 const hasFeatureStringData = computed(() => typeof feature.value?.data === 'string')
 const popupDataCanBeTrusted = computed(() => feature.value.popupDataCanBeTrusted)
-const isFeaturePolygon = computed(() => {
-    return feature.value.geometry.type === 'Polygon'
-})
 
 const coordinateFormat = computed(() => {
     return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
@@ -61,10 +58,9 @@ function sanitizeHtml(htmlText) {
             </div>
         </div>
         <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
-            <FeatureAreaInfo v-if="isFeaturePolygon" :feature="feature" />
+            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
             <CoordinateCopySlot
                 v-if="feature.geometry.type === 'Point'"
-                class="d-flex"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"

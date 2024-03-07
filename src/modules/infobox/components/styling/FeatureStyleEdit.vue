@@ -104,9 +104,6 @@ const coordinateFormat = computed(() => {
 const isFeatureMarker = computed(() => feature.value.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.value.featureType === EditableFeatureTypes.ANNOTATION)
 const isFeatureLine = computed(() => feature.value.featureType === EditableFeatureTypes.LINEPOLYGON)
-const isFeaturePolygon = computed(() => {
-    return feature.value.geometry.type === 'Polygon'
-})
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -167,17 +164,16 @@ function onDelete() {
         <div class="d-flex small gap-1 justify-content-start align-items-center">
             <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
-                class="d-flex"
                 identifier="feature-style-edit-coordinate-copy"
                 :value="feature.coordinates[0].slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
-                <FontAwesomeIcon class="d-flex small" icon="fas fa-map-marker-alt" />
+                <FontAwesomeIcon class="small pe-2 align-text-top" icon="fas fa-map-marker-alt" />
             </CoordinateCopySlot>
-            <FeatureAreaInfo v-if="isFeaturePolygon" :feature="feature" />
+            <FeatureAreaInfo v-if="feature.geometry.type === 'Polygon'" :feature="feature" />
         </div>
-        <div class="d-flex justify-content-end">
-            <div v-if="!readOnly" class="d-flex gap-1 mb-auto feature-style-edit-control">
+        <div class="d-flex justify-content-end align-items-center">
+            <div v-if="!readOnly" class="d-flex gap-1 feature-style-edit-control">
                 <DrawingStylePopoverButton
                     v-if="isFeatureMarker || isFeatureText"
                     data-cy="drawing-style-text-button"
