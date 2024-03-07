@@ -229,7 +229,6 @@ function onDelete() {
             class="d-flex small gap-1 justify-content-start align-items-center"
         >
             <CoordinateCopySlot
-                class="d-flex"
                 identifier="feature-style-edit-coordinate-copy"
                 :value="feature.coordinates[0].slice(0, 2)"
                 :coordinate-format="coordinateFormat"

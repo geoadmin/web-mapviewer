@@ -61,7 +61,6 @@ function sanitizeHtml(htmlText) {
             class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center"
         >
             <CoordinateCopySlot
-                class="d-flex"
                 identifier="feature-detail-coordinate-copy"
                 :value="feature.geometry.coordinates.slice(0, 2)"
                 :coordinate-format="coordinateFormat"
