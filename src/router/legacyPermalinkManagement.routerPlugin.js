@@ -2,6 +2,14 @@ import proj4 from 'proj4'
 import { START_LOCATION } from 'vue-router'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import {
+    EMBED_VIEW,
+    LEGACY_EMBED_PARAM_VIEW,
+    LEGACY_PARAM_VIEW,
+    LEGACY_VIEWS,
+    MAP_VIEW,
+    MAP_VIEWS,
+} from '@/router/viewNames'
 import { backgroundMatriceBetween2dAnd3d as backgroundMatriceBetweenLegacyAndNew } from '@/store/plugins/2d-to-3d-management.plugin'
 import { LV95, WEBMERCATOR, WGS84 } from '@/utils/coordinates/coordinateSystems'
 import CustomCoordinateSystem from '@/utils/coordinates/CustomCoordinateSystem.class'
@@ -12,7 +20,6 @@ import {
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
-import { MAP_VIEWS } from '@/views/views'
 
 const handleLegacyKmlAdminIdParam = async (legacyParams, newQuery) => {
     log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
@@ -277,22 +284,19 @@ const legacyPermalinkManagementRouterPlugin = (router, store) => {
                         const newRoute = await handleLegacyParams(
                             legacyParams,
                             store,
-                            legacyEmbed ? 'EmbedView' : 'MapView'
+                            legacyEmbed ? EMBED_VIEW : MAP_VIEW
                         )
                         log.info(`[Legacy URL] redirect to the converted params`, newRoute)
                         router.replace(newRoute)
                     }
                 })
                 return {
-                    name: to.name === 'EmbedView' ? 'LegacyEmbedParamsView' : 'LegacyParamsView',
+                    name: to.name === EMBED_VIEW ? LEGACY_EMBED_PARAM_VIEW : LEGACY_PARAM_VIEW,
                     replace: true,
                 }
             }
 
-            if (
-                MAP_VIEWS.includes(to.name) &&
-                ['LegacyParamsView', 'LegacyEmbedParamsView'].includes(from.name)
-            ) {
+            if (MAP_VIEWS.includes(to.name) && LEGACY_VIEWS.includes(from.name)) {
                 log.debug('[Legacy URL] leaving the legacy URL plugin')
                 unsubscribeRouter()
                 unSubscribeStoreMutation()

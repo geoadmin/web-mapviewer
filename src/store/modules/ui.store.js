@@ -55,7 +55,7 @@ export default {
          *
          * @type Boolean
          */
-        embedMode: false,
+        embed: false,
         /**
          * Flag telling if a loading bar should be shown to tell the user something is on going
          *
@@ -215,8 +215,8 @@ export default {
         toggleFullscreenMode({ commit, state }, { dispatcher }) {
             commit('setFullscreenMode', { mode: !state.fullscreenMode, dispatcher })
         },
-        setEmbeddedMode({ commit }, { embed, dispatcher }) {
-            commit('setEmbeddedMode', { embed: !!embed, dispatcher })
+        setEmbed({ commit }, { embed, dispatcher }) {
+            commit('setEmbed', { embed: !!embed, dispatcher })
         },
         setShowLoadingBar({ commit }, { loading, dispatcher }) {
             commit('setShowLoadingBar', { loading, dispatcher })
@@ -288,8 +288,8 @@ export default {
         setFullscreenMode(state, { mode }) {
             state.fullscreenMode = mode
         },
-        setEmbeddedMode(state, { embed }) {
-            state.embedMode = embed
+        setEmbed(state, { embed }) {
+            state.embed = embed
         },
         setShowLoadingBar(state, { loading }) {
             state.showLoadingBar = loading

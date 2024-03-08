@@ -14,7 +14,7 @@ const dispatcher = { dispatcher: 'EmbedView.vue' }
 const store = useStore()
 
 onBeforeMount(() => {
-    store.dispatch('setEmbeddedMode', { embed: true, ...dispatcher })
+    store.dispatch('setEmbed', { embed: true, ...dispatcher })
 })
 
 onMounted(() => {
@@ -32,13 +32,3 @@ onMounted(() => {
         <I18nModule />
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import 'src/scss/variables.scss';
-#map-view {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-</style>

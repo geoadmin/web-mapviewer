@@ -43,13 +43,3 @@ onMounted(() => {
         <I18nModule />
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import 'src/scss/variables.scss';
-#map-view {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-</style>

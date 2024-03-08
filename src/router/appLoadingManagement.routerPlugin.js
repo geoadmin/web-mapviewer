@@ -1,9 +1,9 @@
 import { START_LOCATION } from 'vue-router'
 
+import { MAP_VIEWS } from '@/router/viewNames'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
-import { MAP_VIEWS } from '@/views/views'
 
 const dispatcher = { dispatcher: 'appLoadingManagement.routerPlugin' }
 

@@ -4,6 +4,12 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import appLoadingManagementRouterPlugin from '@/router/appLoadingManagement.routerPlugin'
 import legacyPermalinkManagementRouterPlugin from '@/router/legacyPermalinkManagement.routerPlugin'
 import storeSyncRouterPlugin from '@/router/storeSync/storeSync.routerPlugin'
+import {
+    EMBED_VIEW,
+    LEGACY_EMBED_PARAM_VIEW,
+    LEGACY_PARAM_VIEW,
+    MAP_VIEW,
+} from '@/router/viewNames'
 import store from '@/store'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
@@ -23,11 +29,11 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: { name: 'MapView' },
+            redirect: { name: MAP_VIEW },
         },
         {
             path: '/map',
-            name: 'MapView',
+            name: MAP_VIEW,
             component: MapView,
             meta: {
                 requiresAppReady: true,
@@ -35,7 +41,7 @@ const router = createRouter({
         },
         {
             path: '/embed',
-            name: 'EmbedView',
+            name: EMBED_VIEW,
             component: EmbedView,
             meta: {
                 requiresAppReady: true,
@@ -43,7 +49,7 @@ const router = createRouter({
         },
         {
             path: '/legacy',
-            name: 'LegacyParamsView',
+            name: LEGACY_PARAM_VIEW,
             component: LegacyParamsView,
             meta: {
                 requiresAppReady: true,
@@ -51,7 +57,7 @@ const router = createRouter({
         },
         {
             path: '/legacy-embed',
-            name: 'LegacyEmbedParamsView',
+            name: LEGACY_EMBED_PARAM_VIEW,
             component: LegacyParamsView,
             props: { embed: true },
             meta: {
