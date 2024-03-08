@@ -4,9 +4,16 @@ describe('Testing the feature selection in the URL', () => {
     function checkFeatures(featuresIds) {
         cy.readStoreValue('state.features.selectedFeatures').then((features) => {
             cy.wrap(features.length).should('be.equal', featuresIds.length)
+
+            const modifiedFeaturesIds = featuresIds.map(
+                // feature.id returns a string in the form of `layer.id-feature.id`
+                // thus a small adaptation to check we get the correct result
+                (featureId) => `${features[0].layer.id}-${featureId}`
+            )
+            console.log(modifiedFeaturesIds)
             features.forEach((feature) => {
-                // We use ._id here because .id returns a string in the form {layerId}-{featureId}
-                cy.wrap(featuresIds.includes(feature._id)).should('be.true')
+                console.log(feature.id)
+                cy.wrap(modifiedFeaturesIds.includes(feature.id)).should('be.true')
             })
         })
     }
