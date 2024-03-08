@@ -151,10 +151,9 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
  */
 export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolution) {
     if (kmlLayer?.kmlData) {
-        console.log('debug: ', JSON.stringify(kmlLayer, null, 4))
         const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
         const convertedKml = kmlToGeoJSON(parseKml)
-        console.log('debug: kml', convertedKml)
+        console.log('debug: ', JSON.stringify(convertedKml, null, 4))
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
                 return new LayerFeature(
