@@ -12,7 +12,6 @@ describe('Testing the feature selection in the URL', () => {
             )
             console.log(modifiedFeaturesIds)
             features.forEach((feature) => {
-                console.log(feature.id)
                 cy.wrap(modifiedFeaturesIds.includes(feature.id)).should('be.true')
             })
         })

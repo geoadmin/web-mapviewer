@@ -133,7 +133,7 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
     )
     if (featuresRequests.length > 0) {
-        promisesForAllDispatch.push(getAndDispatchFeatures(featuresRequests, store)) // all features after promise
+        promisesForAllDispatch.push(getAndDispatchFeatures(featuresRequests, store))
     }
 
     return Promise.all(promisesForAllDispatch)

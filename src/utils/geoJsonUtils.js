@@ -12,9 +12,8 @@ import { reproject } from 'reproject'
 
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
+import { normalizeExtent } from '@/utils/coordinates/coordinateUtils'
 import log from '@/utils/logging'
-
-import { normalizeExtent } from './coordinates/coordinateUtils'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection
@@ -84,7 +83,8 @@ export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84)
 
 /**
  * @param {Object[]} geometries An array of all geometries in features.
- * @returns An extent which covers all geometries given as parameter
+ * @returns {[[Number, Number], [Number, Number]]} An extent which covers all geometries given as
+ *   parameter
  */
 export function getExtentOfGeometries(geometries) {
     return normalizeExtent(
