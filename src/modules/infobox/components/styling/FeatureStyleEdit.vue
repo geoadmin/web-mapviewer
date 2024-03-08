@@ -122,7 +122,6 @@ function onIconChange(icon) {
 }
 function onIconSizeChange(iconSize) {
     store.dispatch('changeFeatureIconSize', { feature: feature.value, iconSize, ...dispatcher })
-    console.log('debug: iconsize_change', feature.value)
 }
 function onDelete() {
     store.dispatch('deleteDrawingFeature', { featureId: feature.value.id, ...dispatcher })

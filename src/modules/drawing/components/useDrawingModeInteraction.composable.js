@@ -119,11 +119,9 @@ export default function useDrawingModeInteraction({
                 // For backward compatibility with the legacy mf-geoadmin3 viewer we need to add the
                 // feature type as proprietary property
                 type: args.featureType.toLowerCase(),
-                name: EditableFeature.newFeature(args).icon.name,
-                scale: EditableFeature.newFeature(args).iconSize.iconScale,
+                unique_string_name: EditableFeature.newFeature(args).icon.name,
+                unique_string_scale: EditableFeature.newFeature(args).iconSize.iconScale,
             })
-            //console.log('debug: ', JSON.stringify(EditableFeature.newFeature(args), null, 4))
-            //console.log('debug: ', EditableFeature.newFeature(args).iconSize.label)
             log.debug(`onAddFeature: feature ${feature.getId()} added`)
         }
     }

@@ -54,11 +54,14 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             log.debug(`Save drawing retryOnError ${retryOnError}`)
             clearTimeout(differSaveDrawingTimeout)
             saveState.value = DrawingState.SAVING
-            const kmlData = generateKmlString(
-                projection.value,
-                drawingLayer.getSource().getFeatures()
-            )
-            console.log('debug: save', JSON.stringify(kmlData, null, 4))
+            const features = drawingLayer.getSource().getFeatures()
+            for (let i = 0; i < features.length; i++) {
+                features[i].values_.unique_string_name =
+                    features[i].values_.editableFeature._icon._name
+                features[i].values_.unique_string_scale =
+                    features[i].values_.editableFeature._iconSize._iconScale
+            }
+            const kmlData = generateKmlString(projection.value, features)
             if (!activeKmlLayer.value?.adminId) {
                 // creation of the new KML (copy or new)
                 const kmlMetadata = await createKml(kmlData)

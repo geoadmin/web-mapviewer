@@ -50,7 +50,7 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
         // only keeping feature with geometry (required to run Turf below)
         .filter((feature) => feature.geometry)
         .filter((feature) => {
-            //console.log('debug: ', JSON.stringify(feature, null, 4))
+            console.log('debug: ', JSON.stringify(feature, null, 4))
             const { geometry } = transformIntoTurfEquivalent(feature.geometry)
             // calculating distance with point coordinate, depending on the geometry type
             switch (geometry?.type) {
@@ -153,7 +153,6 @@ export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolutio
     if (kmlLayer?.kmlData) {
         const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
         const convertedKml = kmlToGeoJSON(parseKml)
-        console.log('debug: ', JSON.stringify(convertedKml, null, 4))
         return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
             (feature) => {
                 return new LayerFeature(

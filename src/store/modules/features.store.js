@@ -217,8 +217,6 @@ export default {
          */
         changeFeatureIconSize({ commit, state }, { feature, iconSize, dispatcher }) {
             const selectedFeature = getSelectedFeatureWithId(state, feature.id)
-            console.log('debug: ', JSON.stringify(feature, null, 4))
-            console.log('debug: ', JSON.stringify(selectedFeature, null, 4))
             const wantedSize = allStylingSizes.find((size) => size.textScale === iconSize.textScale)
             if (
                 wantedSize &&
