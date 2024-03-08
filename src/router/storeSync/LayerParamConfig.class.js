@@ -1,4 +1,4 @@
-import getFeature, { getExtentOfFeatures } from '@/api/features/features.api'
+import getFeature from '@/api/features/features.api'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GPXLayer from '@/api/layers/GPXLayer.class.js'
@@ -9,6 +9,7 @@ import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/abstractParamConfig.class'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
 
@@ -132,31 +133,30 @@ function dispatchLayersFromUrlIntoStore(store, urlParamValue) {
         store.dispatch('setLayers', { layers: layers, dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN })
     )
     if (featuresRequests.length > 0) {
-        getAndDispatchFeatures(featuresRequests, store) // all features after promise
+        promisesForAllDispatch.push(getAndDispatchFeatures(featuresRequests, store)) // all features after promise
     }
 
     return Promise.all(promisesForAllDispatch)
 }
 
 async function getAndDispatchFeatures(featuresPromise, store) {
-    const features = []
     try {
-        const featuresReceived = await Promise.all(featuresPromise)
-        if (featuresReceived.length > 0) {
-            featuresReceived.forEach((feature) => {
-                features.push(feature)
-            })
-
-            store.dispatch('setSelectedFeatures', {
+        const responses = await Promise.allSettled(featuresPromise)
+        const features = responses
+            .filter((response) => response.status === 'fulfilled')
+            .map((response) => response.value)
+        if (features.length > 0) {
+            await store.dispatch('setSelectedFeatures', {
                 features: features,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
-            const extent = getExtentOfFeatures(features)
+
+            const extent = getExtentOfGeometries(features.map((feature) => feature.geometry))
             // If the zoom level has been specifically set to a level, we don't want to override that.
             // otherwise, we go to the zoom level which encompass all features
             const query = getUrlQuery()
             if (!query.z) {
-                store.dispatch('zoomToExtent', {
+                await store.dispatch('zoomToExtent', {
                     extent: extent,
                     maxZoom: 8,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -166,14 +166,14 @@ async function getAndDispatchFeatures(featuresPromise, store) {
                     [(extent[0][0] + extent[1][0]) / 2],
                     [(extent[0][1] + extent[1][1]) / 2],
                 ]
-                store.dispatch('setCenter', {
+                await store.dispatch('setCenter', {
                     center: center,
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
             }
         }
     } catch (error) {
-        log.error(`Error while processing features in bod-layer-id router. error is ${error}`)
+        log.error(`Error while processing features in feature preselection. error is ${error}`)
     }
 }
 

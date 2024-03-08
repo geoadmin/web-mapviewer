@@ -5,6 +5,7 @@ describe('Testing the feature selection in the URL', () => {
         cy.readStoreValue('state.features.selectedFeatures').then((features) => {
             cy.wrap(features.length).should('be.equal', featuresIds.length)
             features.forEach((feature) => {
+                // We use ._id here because .id returns a string in the form {layerId}-{featureId}
                 cy.wrap(featuresIds.includes(feature._id)).should('be.true')
             })
         })
@@ -24,26 +25,17 @@ describe('Testing the feature selection in the URL', () => {
     context('Startup', () => {
         describe('Checks that when given a parameter, we select the features', () => {
             it('Select a few features and shows the tooltip in its correct spot', () => {
-                const features = []
-                const nbFeatures = 4
-                cy.fixture('features.fixture.json').then((results) => {
-                    results['results'].forEach((feature) => {
-                        features.push(feature)
-                    })
-                    const layer = features[0].layerBodId
-                    for (let i = 0; i < nbFeatures; i++) {
-                        // we intercept every feature we want to retrieve
-                        cy.intercept(`**/MapServer/${layer}/${features[i].id}`, {
-                            results: [features[i]],
+                cy.fixture('features.fixture.json').then((jsonResult) => {
+                    const features = [...jsonResult.results]
+                    features.forEach((feature) => {
+                        cy.intercept(`**/MapServer/${feature.layerBodId}/${feature.id}`, {
+                            results: feature,
                         })
-                    }
-
-                    const featuresIds = []
-
-                    for (let i = 0; i < nbFeatures; i++) {
-                        featuresIds.push(features[i].id.toString())
-                    }
-                    cy.goToMapView({ layers: `${layer}@features=${featuresIds.join(':')}` })
+                    })
+                    const featuresIds = features.map((feature) => feature.id.toString())
+                    cy.goToMapView({
+                        layers: `${features[0].layerBodId}@features=${featuresIds.join(':')}`,
+                    })
                     checkFeatures(featuresIds)
                 })
             })

@@ -1,4 +1,6 @@
+import bbox from '@turf/bbox'
 import {
+    featureCollection,
     lineString,
     multiLineString,
     multiPoint,
@@ -11,6 +13,8 @@ import { reproject } from 'reproject'
 import CoordinateSystem from '@/utils/coordinates/CoordinateSystem.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import log from '@/utils/logging'
+
+import { normalizeExtent } from './coordinates/coordinateUtils'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection
@@ -76,4 +80,14 @@ export function transformIntoTurfEquivalent(geoJsonData, fromProjection = WGS84)
     }
     log.error('Unknown geometry type', geometryWGS84.type)
     return null
+}
+
+/**
+ * @param {Object[]} geometries An array of all geometries in features.
+ * @returns An extent which covers all geometries given as parameter
+ */
+export function getExtentOfGeometries(geometries) {
+    return normalizeExtent(
+        bbox(featureCollection(geometries.map((geometry) => transformIntoTurfEquivalent(geometry))))
+    )
 }
