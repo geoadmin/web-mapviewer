@@ -3,9 +3,6 @@ import { computed, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
-import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
-import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
-import { UIModes } from '@/store/modules/ui.store'
 
 import CompareSlider from './components/CompareSlider.vue'
 import LocationPopup from './components/LocationPopup.vue'
@@ -25,17 +22,7 @@ const displayLocationPopup = computed(
 const isCompareSliderActive = computed(() => {
     return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
 })
-const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 const isEmbed = computed(() => store.state.ui.embedMode)
-const scaleTeleportId = computed(() => {
-    if (isEmbed.value) {
-        return '#map-footer-scale-line-embed'
-    }
-    if (isPhoneMode.value) {
-        return '#map-footer-scale-line-mobile'
-    }
-    return '#map-footer-scale-line'
-})
 </script>
 
 <template>
@@ -44,21 +31,17 @@ const scaleTeleportId = computed(() => {
             <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />
             <LocationPopup v-if="displayLocationPopup" />
+            <slot name="footer" />
         </CesiumMap>
         <OpenLayersMap v-else>
             <!-- So that external modules can have access to the map instance through the provided 'getMap' -->
             <slot />
             <LocationPopup v-if="displayLocationPopup" />
-            <teleport :to="scaleTeleportId">
-                <OpenLayersScale />
-            </teleport>
-            <teleport v-if="!isEmbed" to="#map-footer-mouse-tracker">
-                <OpenLayersMouseTracker />
-            </teleport>
             <teleport v-if="!isEmbed" to="#toolbox-compass-button">
                 <OpenLayersCompassButton />
             </teleport>
             <CompareSlider v-if="isCompareSliderActive" />
+            <slot name="footer" />
         </OpenLayersMap>
 
         <WarningRibbon />

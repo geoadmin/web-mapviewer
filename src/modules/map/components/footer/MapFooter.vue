@@ -1,17 +1,23 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onUpdated, ref, useSlots } from 'vue'
 import { useStore } from 'vuex'
 
-import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
-import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
-
-import MapFooterAppCopyright from './MapFooterAppCopyright.vue'
-import MapFooterAppVersion from './MapFooterAppVersion.vue'
-
 const store = useStore()
+const slots = useSlots()
 
 const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
-const isEmbed = computed(() => store.state.ui.embedMode)
+const hasTopLeftFooter = ref(!!slots['top-left'])
+const hasTopRightFooter = ref(!!slots['top-right'])
+const hasBottomLeftFooter = ref(!!slots['bottom-left'])
+const hasBottomRightFooter = ref(!!slots['bottom-right'])
+
+onUpdated(() => {
+    // Slots are not reactive therefore we need to update our checks based on the onUpdated
+    // life cycle hook, using a computed would not work here.
+    hasTopLeftFooter.value = !!slots['top-left']
+    hasBottomLeftFooter.value = !!slots['bottom-left']
+    hasBottomRightFooter.value = !!slots['bottom-right']
+})
 </script>
 
 <template>
@@ -20,25 +26,18 @@ const isEmbed = computed(() => store.state.ui.embedMode)
         :class="{ 'map-footer-fullscreen': isFullscreenMode }"
         data-cy="app-footer"
     >
-        <div class="map-footer-top" :class="{ 'map-footer-top-embed': isEmbed }">
-            <div v-if="isEmbed" id="map-footer-scale-line-embed" class="p-1" />
-            <MapFooterAttributionList />
-            <div v-if="!isEmbed">
-                <div class="map-background-selector">
-                    <BackgroundSelector />
-                </div>
-                <div id="map-footer-scale-line-mobile" class="p-1" />
-            </div>
+        <div v-if="hasTopLeftFooter || hasTopRightFooter" class="map-footer-top">
+            <slot name="top-left" />
+            <span v-if="hasTopRightFooter" class="map-footer-top-spacer" />
+            <slot name="top-right" />
         </div>
-        <div id="map-footer-middle-0" class="map-footer-middle">
-            <!-- teleport for: Infobox, Profile, ... -->
+        <div class="map-footer-middle">
+            <slot name="middle" />
         </div>
-        <div v-if="!isEmbed" class="map-footer-bottom">
-            <div id="map-footer-scale-line" />
-            <div id="map-footer-mouse-tracker" class="d-flex gap-1 align-items-center" />
-            <span class="map-footer-bottom-spacer" />
-            <MapFooterAppVersion />
-            <MapFooterAppCopyright />
+        <div v-if="hasBottomLeftFooter || hasBottomRightFooter" class="map-footer-bottom">
+            <slot name="bottom-left" @vue:updated="handleSlotChange" />
+            <span v-if="hasBottomRightFooter" class="map-footer-bottom-spacer" />
+            <slot name="bottom-right" />
         </div>
     </div>
 </template>
@@ -71,17 +70,11 @@ $flex-gap: 1em;
         z-index: $zindex-footer;
         display: flex;
         align-items: flex-end;
-        flex-direction: row-reverse;
+        flex-direction: row;
         justify-content: space-between;
-        .map-background-selector {
-            padding: $screen-padding-for-ui-elements;
-        }
-        @include respond-above(phone) {
-            flex-direction: column-reverse;
-        }
 
-        &-embed {
-            flex-direction: row;
+        &-spacer {
+            flex-grow: 1;
         }
     }
 
@@ -102,17 +95,13 @@ $flex-gap: 1em;
         background-color: rgba($white, 0.9);
         font-size: 0.6rem;
 
-        display: none;
+        display: flex;
         align-items: center;
         gap: 0 $flex-gap;
         flex-wrap: wrap;
 
         &-spacer {
             flex-grow: 1;
-        }
-
-        @include respond-above(phone) {
-            display: flex;
         }
     }
 }

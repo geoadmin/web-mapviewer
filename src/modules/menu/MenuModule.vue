@@ -165,7 +165,7 @@ function toggleMenu() {
                         @click="toggleMenu"
                     >
                         <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-1">{{
+                        <span class="ms-2">{{
                             i18n.t(showMenu ? 'close_menu' : 'open_menu')
                         }}</span>
                     </button>
