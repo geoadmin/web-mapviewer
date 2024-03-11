@@ -126,6 +126,8 @@ describe('Test mouse position and interactions', () => {
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
             cy.get('[data-cy="map"]').rightclick()
+            cy.wait('@convert-to-w3w')
+            cy.wait('@coordinates-for-height')
 
             cy.get('[data-cy="location-popup"]').should('be.visible')
             cy.log('the LocationPopUp is visible')
@@ -135,10 +137,13 @@ describe('Test mouse position and interactions', () => {
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')
 
-            cy.get('[data-cy="drawing-toolbox-close-button"]').click()
+            cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
+                .should('be.visible')
+                .click()
+            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.false')
             // closing the menu if mobile
             cy.closeMenuIfMobile()
-            cy.get('[data-cy="map"]').rightclick()
+            cy.get('[data-cy="map"]').should('be.visible').rightclick()
 
             cy.wait('@convert-to-w3w')
             cy.fixture('what3word.fixture').then((fakeW3w) => {

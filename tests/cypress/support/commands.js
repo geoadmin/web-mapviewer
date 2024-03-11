@@ -310,6 +310,7 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
             return active === target
         },
         {
+            timeout: 10000,
             customMessage: 'all layers have been loaded',
             errorMsg: 'Timeout waiting for all layers to be loaded',
         }
@@ -561,7 +562,7 @@ Cypress.Commands.add('closeMenuIfMobile', () => {
                 cy.get('[data-cy="menu-button"]').click()
             }
             // waiting on the animation to finish by grabbing the content of the menu and assessing its (in)visibility
-            cy.get('[data-cy="menu-tray-inner"]').should('not.be.visible')
+            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
 })
