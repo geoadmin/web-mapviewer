@@ -2,6 +2,7 @@ import { gpx as gpxToGeoJSON, kml as kmlToGeoJSON } from '@mapbox/togeojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
 import distance from '@turf/distance'
 import { point } from '@turf/helpers'
+import { polygon } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
@@ -17,6 +18,18 @@ const store = useStore()
 const iconSize = computed(() => store.state.features.iconSize)
 
 const pixelToleranceForIdentify = 10
+
+function referenceSquare() {
+    const tmp = [
+        [
+            [9.462838083712173, 47.053778354848696],
+            [9.64991119652574, 47.071774335270135],
+            [9.534408224383448, 47.27902841584959],
+            [9.462838083712173, 47.053778354848696],
+        ],
+    ]
+    return polygon(tmp)
+}
 
 /**
  * @param {Array} coordinates
@@ -56,6 +69,16 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
             switch (geometry?.type) {
                 case 'Polygon':
                 case 'MultiPolygon':
+                    console.log(
+                        'debug: MultiPolygon geometry',
+                        typeof geometry,
+                        JSON.stringify(geometry, null, 4)
+                    )
+                    console.log(
+                        'debug: MultiPolygon referencePolygon',
+                        typeof referenceSquare(),
+                        JSON.stringify(referenceSquare(), null, 4)
+                    )
                     return booleanPointInPolygon(coordinateWGS84, geometry)
                 case 'LineString':
                 case 'MultiLineString':
@@ -65,6 +88,7 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
                         }) <= distanceThreshold
                     )
                 case 'Point':
+                    return booleanPointInPolygon(coordinateWGS84, referenceSquare())
                     return (
                         distance(coordinateWGS84, geometry, { units: 'meters' }) <=
                         distanceThreshold

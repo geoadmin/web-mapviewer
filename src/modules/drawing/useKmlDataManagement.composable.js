@@ -56,10 +56,12 @@ export default function useSaveKmlOnChange(drawingLayerDirectReference) {
             saveState.value = DrawingState.SAVING
             const features = drawingLayer.getSource().getFeatures()
             for (let i = 0; i < features.length; i++) {
-                features[i].values_.unique_string_name =
-                    features[i].values_.editableFeature._icon._name
-                features[i].values_.unique_string_scale =
-                    features[i].values_.editableFeature._iconSize._iconScale
+                if (features[i].values_.type === 'marker') {
+                    features[i].values_.unique_string_name =
+                        features[i].values_.editableFeature._icon._name
+                    features[i].values_.unique_string_scale =
+                        features[i].values_.editableFeature._iconSize._iconScale
+                }
             }
             const kmlData = generateKmlString(projection.value, features)
             if (!activeKmlLayer.value?.adminId) {
