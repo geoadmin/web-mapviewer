@@ -284,6 +284,33 @@ describe('Test parsing of legacy URL param into new params', () => {
             })
         })
         describe('ensure layers parameter handler for feature preselection works as intended', () => {
+            // This function deals mostly with the special parameters and features id order,
+            // As they are not important, but could break the tests if we made a simple string comparison
+            // layer.id@time=123@features=1,2 is the same end result as layer.id@features=2,1@time=123
+            function compareLayersStrings(layerString1, layerString2) {
+                const [layer1AndParams, visibility1, opacity1] = layerString1.split(',')
+                const [layer2AndParams, visibility2, opacity2] = layerString2.split(',')
+                expect(visibility1).to.eq(visibility2)
+                expect(opacity1).to.eq(opacity2)
+                const layer1Split = layer1AndParams.split('@')
+                const layer2Split = layer2AndParams.split('@')
+                layer1Split.sort()
+                layer2Split.sort()
+                expect(layer1Split.length).to.eq(layer2Split.length)
+                for (let i = 0; i < layer1Split.length; i++) {
+                    if (layer1Split[i].includes('features')) {
+                        expect(layer2Split[i].includes('features')).to.eq(true)
+                        const features_1 = layer1Split[i].split('=')[1].split(':')
+
+                        const features_2 = layer2Split[i].split('=')[1].split(':')
+                        features_1.sort()
+                        features_2.sort()
+                        expect(features_1.join(':')).to.eq(features_2.join(':'))
+                    } else {
+                        expect(layer1Split[i]).to.eq(layer2Split[i])
+                    }
+                }
+            }
             it('checks that all possible layers given as parameter return what we expect', () => {
                 const layersParams = [
                     'layer.id;layer.id2',
@@ -306,7 +333,10 @@ describe('Test parsing of legacy URL param into new params', () => {
                     )
                 })
                 for (let i = 0; i < results.length; i++) {
-                    expect(expectedResults[i]).to.eq(results[i])
+                    const [layer1, layer2] = results[i].split(';')
+                    const [expectedLayer1, expectedLayer2] = expectedResults[i].split(';')
+                    compareLayersStrings(layer1, expectedLayer1)
+                    compareLayersStrings(layer2, expectedLayer2)
                 }
             })
         })

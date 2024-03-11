@@ -332,7 +332,7 @@ Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false 
                 let targetLegacyFeaturePreselection = 0
                 state.layers.activeLayers.forEach((layer) => {
                     targetLegacyFeaturePreselection += Boolean(
-                        layer.geoAdminID in queryParams &&
+                        Object.keys(queryParams).includes(layer.id) &&
                             !queryParams.layers?.includes(layer.geoAdminID)
                     )
                 })

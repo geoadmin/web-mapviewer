@@ -449,12 +449,19 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
-    context('Bod Layer Id import', () => {
+
+    context('Feature Pre Selection Import', () => {
         function checkFeatures(featuresIds) {
             cy.readStoreValue('state.features.selectedFeatures').then((features) => {
                 cy.wrap(features.length).should('be.equal', featuresIds.length)
+                const modifiedFeaturesIds = featuresIds.map(
+                    // feature.id returns a string in the form of `layer.id-feature.id`
+                    // thus a small adaptation to check we get the correct result
+                    (featureId) => `${features[0].layer.id}-${featureId}`
+                )
+
                 features.forEach((feature) => {
-                    cy.wrap(featuresIds.includes(feature._id)).should('be.true')
+                    cy.wrap(modifiedFeaturesIds.includes(feature.id)).should('be.true')
                 })
             })
         }
@@ -492,7 +499,7 @@ describe('Test on legacy param import', () => {
                         featuresIds.push(features[i].id.toString())
                     }
                     const params = {}
-                    params[layer] = featuresIds.join(',')
+                    params[features[0].layerBodId] = featuresIds.join(',')
                     cy.goToMapView(params, false)
                     checkFeatures(featuresIds)
                 })
