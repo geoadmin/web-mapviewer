@@ -1,6 +1,6 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { onMounted } from 'vue'
 import { onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,28 +9,14 @@ import { useStore } from 'vuex'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
-import TimeSlider from '@/modules/menu/components/timeslider/TimeSlider.vue'
-import FullScreenButton from '@/modules/menu/components/toolboxRight/FullScreenButton.vue'
-import GeolocButton from '@/modules/menu/components/toolboxRight/GeolocButton.vue'
-import TimeSliderButton from '@/modules/menu/components/toolboxRight/TimeSliderButton.vue'
-import Toggle3dButton from '@/modules/menu/components/toolboxRight/Toggle3dButton.vue'
-import ZoomButtons from '@/modules/menu/components/toolboxRight/ZoomButtons.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const dispatcher = { dispatcher: 'MenuModule.vue' }
 
-const showTimeSlider = ref(false)
-
 const i18n = useI18n()
 const store = useStore()
 
-const isGeolocationActive = computed(() => store.state.geolocation.active)
-const isGeolocationDenied = computed(() => store.state.geolocation.denied)
 const showMenu = computed(() => store.state.ui.showMenu)
-const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
-const previewYear = computed(() => store.state.layers.previewYear)
-const inDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
-const is3dActive = computed(() => store.state.cesium.active)
 
 const isHeaderShown = computed(() => store.getters.isHeaderShown)
 const isPhoneMode = computed(() => store.getters.isPhoneMode)
@@ -38,16 +24,8 @@ const isDesktopMode = computed(() => store.getters.isDesktopMode)
 const isMenuShown = computed(() => store.getters.isMenuShown)
 const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
 
 const menuTray = ref(null)
-
-watch(previewYear, () => {
-    // hiding the time slider if the preview has been cleared
-    if (!previewYear.value) {
-        showTimeSlider.value = false
-    }
-})
 
 // Watch for changes on component mount
 onMounted(() => {
@@ -69,15 +47,6 @@ const updateMenuTrayWidth = () => {
     }
 }
 
-function toggleGeolocation() {
-    store.dispatch('toggleGeolocation', dispatcher)
-}
-function increaseZoom() {
-    store.dispatch('increaseZoom', dispatcher)
-}
-function decreaseZoom() {
-    store.dispatch('decreaseZoom', dispatcher)
-}
 function toggleMenu() {
     store.dispatch('toggleMenu', dispatcher)
 }
@@ -92,44 +61,6 @@ function toggleMenu() {
             <BlackBackdrop v-if="isPhoneMode && isMenuShown" @click="toggleMenu" />
         </transition>
         <HeaderWithSearch v-if="isHeaderShown" class="header" />
-        <div
-            v-if="visibleLayersWithTimeConfig.length"
-            class="time-sliders m-1 position-absolute"
-            :class="{
-                'dev-disclaimer-present': hasDevSiteWarning,
-            }"
-        >
-            <TimeSlider v-if="showTimeSlider" />
-        </div>
-        <div
-            class="toolbox-right m-1 position-absolute end-0"
-            :class="{
-                'dev-disclaimer-present': hasDevSiteWarning,
-                'drawing-mode': inDrawingMode,
-                'fullscreen-mode': isFullscreenMode,
-            }"
-            data-cy="toolbox-right"
-        >
-            <FullScreenButton v-if="!inDrawingMode" />
-            <GeolocButton
-                v-if="!isFullscreenMode && !inDrawingMode"
-                :is-active="isGeolocationActive"
-                :is-denied="isGeolocationDenied"
-                @click="toggleGeolocation"
-            />
-            <ZoomButtons
-                v-if="!isFullscreenMode && !is3dActive"
-                @zoom-in="increaseZoom"
-                @zoom-out="decreaseZoom"
-            />
-            <Toggle3dButton v-if="!isFullscreenMode && !inDrawingMode" />
-            <div v-if="!isFullscreenMode" id="toolbox-compass-button" />
-            <TimeSliderButton
-                v-if="visibleLayersWithTimeConfig.length && !inDrawingMode"
-                :active="showTimeSlider"
-                @click="showTimeSlider = !showTimeSlider"
-            />
-        </div>
         <DebugToolbar v-if="hasDevSiteWarning" class="position-absolute end-0 debug-toolbar" />
         <div
             class="menu-tray-container position-absolute w-100 h-100"
@@ -199,26 +130,6 @@ $openCloseButtonHeight: 2.5rem;
     .header {
         position: relative;
     }
-    .time-sliders {
-        left: 0;
-        width: calc(100% - $map-button-diameter - $spacer);
-    }
-    .toolbox-right,
-    .time-sliders {
-        margin: $screen-padding-for-ui-elements;
-        top: $header-height;
-        &.dev-disclaimer-present {
-            top: $header-height + $dev-disclaimer-height;
-        }
-        &.fullscreen-mode,
-        &.dev-disclaimer-present.fullscreen-mode {
-            top: 0;
-        }
-        &.drawing-mode,
-        &.dev-disclaimer-present.drawing-mode {
-            top: $drawing-tools-height-mobile;
-        }
-    }
     .debug-toolbar {
         top: 66%;
     }
@@ -274,34 +185,9 @@ $openCloseButtonHeight: 2.5rem;
         }
     }
 }
-@include respond-above(sm) {
-    .menu {
-        .time-sliders {
-            top: $header-height + $openCloseButtonHeight;
-            &.dev-disclaimer-present {
-                top: $header-height + $openCloseButtonHeight + $dev-disclaimer-height;
-            }
-        }
-    }
-}
+
 @include respond-above(lg) {
     .menu {
-        .time-sliders {
-            left: $menu-tray-width;
-            transform: none;
-            width: calc(100% - $map-button-diameter - $menu-tray-width - $spacer);
-        }
-        .toolbox-right,
-        .time-sliders {
-            top: 2 * $header-height;
-            &.dev-disclaimer-present {
-                top: 2 * $header-height + $dev-disclaimer-height;
-            }
-            &.drawing-mode,
-            &.dev-disclaimer-present.drawing-mode {
-                top: $header-height;
-            }
-        }
         .menu-tray-container {
             top: 2 * $header-height;
             max-height: calc(100% - 2 * $header-height - $openCloseButtonHeight);

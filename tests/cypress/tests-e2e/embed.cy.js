@@ -11,6 +11,14 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="mouse-position-select"]').should('not.exist')
         cy.get('[data-cy="mouse-position"]').should('not.exist')
 
+        cy.get('[data-cy="zoom-in"]').should('be.visible')
+        cy.get('[data-cy="zoom-out"]').should('be.visible')
+        cy.get('[data-cy="3d-button"]').should('be.visible')
+
+        cy.get('[data-cy="geolocation-button"]').should('not.exist')
+        cy.get('[data-cy="toolbox-fullscreen-button"]').should('not.exist')
+        cy.get('[data-cy="time-slider-button"]').should('not.exist')
+
         cy.get('[data-cy="app-version"]').should('not.exist')
         cy.get('[data-cy^=app-copyright-]').should('not.exist')
 
@@ -44,23 +52,31 @@ describe('Testing the embed view', () => {
         cy.log('Test with non default query parameters')
         cy.log('Test with a specific layer: test-1.wms.layer')
         cy.goToEmbedView({
-            queryParams: { layers: 'test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f' },
+            queryParams: {
+                layers: 'test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer',
+            },
         })
 
         cy.get('[data-cy="app-header"]').should('not.exist')
         cy.get('[data-cy="menu-tray"]').should('not.exist')
 
+        cy.get('[data-cy="time-slider-button"]').should('not.exist')
+
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
         cy.readStoreValue('getters.visibleLayers').then((layers) => {
-            expect(layers).to.be.an('Array').length(2)
+            expect(layers).to.be.an('Array').length(3)
             expect(layers[0].id).to.eq('test-1.wms.layer')
             expect(layers[0].opacity).to.eq(0.75)
             expect(layers[1].id).to.eq('test.wmts.layer')
             expect(layers[1].opacity).to.eq(0.5)
+            expect(layers[2].id).to.eq('test.timeenabled.wmts.layer')
         })
 
         cy.get('[data-cy="layer-copyright-attribution.test-1.wms.layer"]').should('be.visible')
         cy.get('[data-cy="layer-copyright-attribution.test.wmts.layer"]').should('be.visible')
+        cy.get('[data-cy="layer-copyright-attribution.timeenabled.wmts.layer"]').should(
+            'be.visible'
+        )
     })
 })

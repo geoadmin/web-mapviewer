@@ -11,6 +11,8 @@ import MapFooterAppVersion from '@/modules/map/components/footer/MapFooterAppVer
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersMouseTracker from '@/modules/map/components/openlayers/OpenLayersMouseTracker.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
+import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
+import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
 import { UIModes } from '@/store/modules/ui.store'
@@ -21,14 +23,14 @@ const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/Drawi
 const store = useStore()
 
 const is3DActive = computed(() => store.state.cesium.active)
-const isDrawing = computed(() => store.state.ui.showDrawingOverlay)
+const isDrawingMode = computed(() => store.state.ui.showDrawingOverlay)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
 
 const loadDrawingModule = computed(() => {
     return (
         (!activeKmlLayer.value || activeKmlLayer.value?.kmlData) &&
-        isDrawing.value &&
+        isDrawingMode.value &&
         !is3DActive.value
     )
 })
@@ -41,6 +43,15 @@ onMounted(() => {
 <template>
     <div id="map-view">
         <MapModule>
+            <MenuModule />
+            <MapToolbox
+                :geoloc-button="!isDrawingMode"
+                :full-screen-button="!isDrawingMode"
+                :toggle3d-button="!isDrawingMode"
+                compass-button
+            >
+                <TimeSliderButton v-if="!isDrawingMode" />
+            </MapToolbox>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule v-if="loadDrawingModule" />
             <template #footer>
@@ -74,7 +85,6 @@ onMounted(() => {
                 </MapFooter>
             </template>
         </MapModule>
-        <MenuModule />
         <I18nModule />
     </div>
 </template>

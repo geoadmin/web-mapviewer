@@ -105,7 +105,7 @@ function toggleShowLayerExtents() {
 </template>
 
 <style lang="scss" scoped>
-@import '@/modules/menu/scss/toolbox-buttons';
+@import '@/modules/map/scss/toolbox-buttons';
 .debug-tools {
     $debugToolWidth: 12.5rem;
     $debugToolHeaderWidth: 2rem;
