@@ -316,18 +316,18 @@ const actions = {
      *   of the debug console)
      */
     setCameraPosition({ commit }, { position, dispatcher }) {
-        const wrappedPosition =
-            position && Object.keys(position)?.length === 6
-                ? {
-                      x: position.x,
-                      y: position.y,
-                      z: position.z,
-                      // wrapping all angle-based values so that they do not exceed a full-circle value
-                      roll: wrapDegrees(position.roll),
-                      pitch: wrapDegrees(position.pitch),
-                      heading: wrapDegrees(position.heading),
-                  }
-                : null
+        // position can be null (in 2d mode), therefore do not wrap it in this case
+        const wrappedPosition = position
+            ? {
+                  x: position.x,
+                  y: position.y,
+                  z: position.z,
+                  // wrapping all angle-based values so that they do not exceed a full-circle value
+                  roll: wrapDegrees(position.roll),
+                  pitch: wrapDegrees(position.pitch),
+                  heading: wrapDegrees(position.heading),
+              }
+            : null
         commit('setCameraPosition', { position: wrappedPosition, dispatcher })
     },
     setProjection({ commit, state }, { projection, dispatcher }) {
