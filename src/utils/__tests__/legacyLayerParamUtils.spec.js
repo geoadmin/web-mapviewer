@@ -9,6 +9,7 @@ import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import {
+    createLayersParamForFeaturePreselection,
     getLayersFromLegacyUrlParams,
     isLegacyParams,
     parseOpacity,
@@ -280,6 +281,33 @@ describe('Test parsing of legacy URL param into new params', () => {
                     expect(isLegacyParams('#?test=false')).to.equal(false)
                     expect(isLegacyParams('#/?test=false')).to.equal(false)
                 })
+            })
+        })
+        describe('ensure layers parameter handler for feature preselection works as intended', () => {
+            it('checks that all possible layers given as parameter return what we expect', () => {
+                const layersParams = [
+                    'layer.id;layer.id2',
+                    'layer.id,,0.3;layer.id2',
+                    'layer.id@time=1234;layer.id2',
+                    'layer.id@features=3:4:5;layer.id2',
+                    'layer.id@features=3:4:5@time=1234,f,0.2;layer.id2',
+                ]
+                const expectedResults = [
+                    'layer.id@features=1:2:3;layer.id2',
+                    'layer.id@features=1:2:3,,0.3;layer.id2',
+                    'layer.id@time=1234@features=1:2:3;layer.id2',
+                    'layer.id@features=1:2:3:4:5;layer.id2',
+                    'layer.id@features=1:2:3:4:5@time=1234,f,0.2;layer.id2',
+                ]
+                const results = []
+                layersParams.forEach((params) => {
+                    results.push(
+                        createLayersParamForFeaturePreselection('layer.id', '1,2,3', params)
+                    )
+                })
+                for (let i = 0; i < results.length; i++) {
+                    expect(expectedResults[i]).to.eq(results[i])
+                }
             })
         })
     })

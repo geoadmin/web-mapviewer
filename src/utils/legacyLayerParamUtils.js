@@ -172,9 +172,19 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
     })
 }
 
-export function handleBodLayerIdParam(params, store, newQuery) {
+/**
+ * Parse all params to check if a layer-id=features-ids parameter has been sent. If this is the
+ * case, we either add the layers parameter if it doesn't exist, add the layer to the existing
+ * layers param if it exists and the layer is not part of it, or we need to insert the features to
+ * the existing layer
+ *
+ * @param {Object} params The parameters sent to the legacy router, as a key - value pair object
+ * @param {Store} store
+ * @param {Query} newQuery
+ */
+export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
     params.forEach((param_value, param_key) => {
-        if (store.state.layers.config.find((layer) => layer.id === param_key)) {
+        if (store.state.layers.config.some((layer) => layer.id === param_key)) {
             const featuresIds = param_value.split(',').join(':')
             if (newQuery.layers?.includes(param_key)) {
                 newQuery.layers = createLayersParamForFeaturePreselection(
@@ -198,14 +208,15 @@ export function handleBodLayerIdParam(params, store, newQuery) {
  * @param {String} layers The new Query layers parameter, a semicolon separated string
  * @returns
  */
-function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
+export function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
     const featuresArray = featuresIds.split(',')
     // we go through each layer
     const layersArray = layers.split(';')
     for (let layerIndex = 0; layerIndex < layersArray.length; layerIndex++) {
-        if (layersArray[layerIndex].includes(layerId)) {
+        const [layerIdWithCustomParams, visible, opacity] = layersArray[layerIndex].split(',')
+        if (layerIdWithCustomParams.split['@'][0] === layerId) {
             // here, we manipulate the layer string for which we received a parameter
-            const [layerIdWithCustomParams, visible, opacity] = layersArray[layerIndex].split(',')
+
             // we declare the string that will replace the current string
             let layerString = layerIdWithCustomParams
 
@@ -217,7 +228,7 @@ function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
                     if (splittedLayer[i].includes('features')) {
                         // we mix the features and ensure the unicity of each feature id
                         const featuresIds = splittedLayer[i].split('=')[1].split(':')
-                        featuresIds.split(',').forEach((feature_id) => {
+                        featuresIds.split.forEach((feature_id) => {
                             if (!featuresArray.includes(feature_id)) {
                                 featuresArray.push(feature_id)
                             }
@@ -229,7 +240,7 @@ function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
                 }
             }
             // we add the features ids to the layer
-            layerString = `${layerString}@features=${featuresArray.joins(':')}`
+            layerString = `${layerString}@features=${featuresArray.join(':')}`
             if (visible || opacity) {
                 // we add back the visibility and the opacity
                 layerString = `${layerString},${visible},${opacity}`
@@ -237,5 +248,5 @@ function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
             layersArray[layerIndex] = layerString
         }
     }
-    return layersArray.joins(';')
+    return layersArray.join(';')
 }
