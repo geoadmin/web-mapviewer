@@ -3,6 +3,7 @@
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
+import { CrossHairs } from '@/store/modules/position.store'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 
 describe('Test on legacy param import', () => {
@@ -63,6 +64,22 @@ describe('Test on legacy param import', () => {
 
             cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
 
+            // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
+            // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
+            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                // the app applies a rounding to the 6th decimal for lon/lat
+                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
+            })
+        })
+        it('center where expected when given a X, Y coordinate', () => {
+            cy.goToMapView(
+                {
+                    X: 2660000,
+                    Y: 1200000,
+                },
+                false
+            )
             // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
@@ -257,7 +274,7 @@ describe('Test on legacy param import', () => {
                     layers: `test.wms.layer,WMS||${layerName}||${url}||${layerId}||1.3.0`,
                     layers_opacity: '1,1',
                     layers_visibility: 'false,true',
-                    layers_timestam: ',',
+                    layers_timestamp: ',',
                 },
                 false
             )
@@ -272,7 +289,7 @@ describe('Test on legacy param import', () => {
                 expect(externalLayer.name).to.eq(layerName)
                 expect(externalLayer.isLoading).to.false
             })
-            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestam=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
+            const expectedHash = `#/map?layers=test.wms.layer,f,1;WMS%7C${url}%7C${layerId}&layers_timestamp=,&lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech`
             cy.location().should((location) => {
                 expect(location.hash).to.eq(expectedHash)
                 expect(location.search).to.eq('')
@@ -322,6 +339,18 @@ describe('Test on legacy param import', () => {
                 const query = new URLSearchParams(hash.replace('#/map?', ''))
                 query.sort()
                 expect(query.toString()).to.equal(expectedQuery.toString())
+            })
+        })
+        it('Sets the background layer correctly', () => {
+            cy.goToMapView(
+                {
+                    bgLayer: 'test.background.layer2',
+                },
+                false
+            )
+            cy.readStoreValue('state.layers.currentBackgroundLayer').then((bgLayer) => {
+                expect(bgLayer).to.not.be.null
+                expect(bgLayer.id).to.eq('test.background.layer2')
             })
         })
     })
@@ -410,5 +439,112 @@ describe('Test on legacy param import', () => {
             // EPSG is set to 3857
             cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
         })
+    })
+
+    context('Extra Parameter Imports', () => {
+        it('sets the language correctly', () => {
+            cy.goToMapView({ lang: 'it' }, false)
+            cy.readStoreValue('state.i18n.lang').should('eq', 'it')
+        })
+
+        it('shows the correct crosshair', () => {
+            function checkCrosshair(crossHair) {
+                cy.readStoreValue('state.position').then((positionStore) => {
+                    expect(positionStore.crossHairPosition).to.eql(positionStore.center)
+                    switch (crossHair) {
+                        case 'cross':
+                            expect(positionStore.crossHair).to.eq(CrossHairs.cross)
+
+                            break
+                        case 'circle':
+                            expect(positionStore.crossHair).to.eq(CrossHairs.circle)
+
+                            break
+                        case 'bowl':
+                            expect(positionStore.crossHair).to.eq(CrossHairs.bowl)
+
+                            break
+                        case 'point':
+                            expect(positionStore.crossHair).to.eq(CrossHairs.point)
+
+                            break
+                        case 'marker':
+                            expect(positionStore.crossHair).to.eq(CrossHairs.marker)
+
+                            break
+                    }
+                })
+            }
+            const legacyCrossHairTypes = ['cross, circle, bowl, point, marker']
+            legacyCrossHairTypes.forEach((crossHair) => {
+                cy.goToMapView({ crosshair: crossHair }, false)
+                checkCrosshair(crossHair)
+            })
+        })
+
+        it('shows the compare slider at the correct position', () => {
+            cy.goToMapView(
+                {
+                    layers: 'test-1.wms.layer',
+                    swipe_ratio: '0.3',
+                },
+                false
+            )
+            // initial slider position is width * 0.3 -20
+            cy.get('[data-cy="compare_slider"]').then((slider) => {
+                cy.readStoreValue('state.ui.width').then((width) => {
+                    cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
+                })
+            })
+            cy.readStoreValue('state.ui.compareRatio').should('be.equal', 0.3)
+
+            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
+            cy.get('[data-cy="compare_slider"]').should('be.visible')
+        })
+        // TO DO : showtooltip, integrated in the bod layer id param
+        // TO DO 2 : time
+        // TO DO 3 : topic (it's below, need to remember to do it)
+        // TO DO 4 : finished
+    })
+    context(
+        'Test geolocation with geolocation authorized',
+        {
+            env: {
+                browserPermissions: {
+                    geolocation: 'allow',
+                },
+            },
+        },
+        () => {
+            // lon/lat to mock up the Geolocation API (see beforeEach)
+            const latitude = 47.5
+            const longitude = 6.8
+            // same position but in EPSG:2056 (default projection of the app)
+            const [x, y] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [longitude, latitude])
+
+            beforeEach(() => {
+                cy.goToMapView({}, false, { latitude, longitude })
+                cy.get('[data-cy="geolocation-button"]').should('be.visible').click()
+            })
+
+            it("Doesn't prompt the user if geolocation has previously been authorized", () => {
+                cy.on('window:alert', () => {
+                    throw new Error('Should not prompt for geolocation API permission again')
+                })
+                cy.readStoreValue('state.geolocation.active').should('be.true')
+            })
+
+            it('Uses the values given by the Geolocation API to feed the store', () => {
+                cy.readStoreValue('state.geolocation.position').then((position) => {
+                    expect(position).to.be.an('Array')
+                    expect(position.length).to.eq(2)
+                    expect(position[0]).to.approximately(x, 0.1)
+                    expect(position[1]).to.approximately(y, 0.1)
+                })
+            })
+        }
+    )
+    context('Topics Import', () => {
+        it('shows the correct topic ', () => {}) // topic
     })
 })
