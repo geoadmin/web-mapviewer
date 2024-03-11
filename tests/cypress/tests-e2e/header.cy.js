@@ -71,12 +71,14 @@ describe('Test functions for the header / search bar', () => {
             // waiting for page reload
             cy.wait('@layers')
             cy.wait('@topics')
+            cy.waitMapIsReady()
         }
         const clickOnConfederationText = () => {
             cy.get('[data-cy="menu-swiss-confederation-text"]').click()
             // waiting for page reload
             cy.wait('@layers')
             cy.wait('@topics')
+            cy.waitMapIsReady()
         }
         const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
             cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
