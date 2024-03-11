@@ -214,7 +214,7 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
     const layersArray = layers.split(';')
     for (let layerIndex = 0; layerIndex < layersArray.length; layerIndex++) {
         const [layerIdWithCustomParams, visible, opacity] = layersArray[layerIndex].split(',')
-        if (layerIdWithCustomParams.split['@'][0] === layerId) {
+        if (layerIdWithCustomParams.split('@')[0] === layerId) {
             // here, we manipulate the layer string for which we received a parameter
 
             // we declare the string that will replace the current string
@@ -228,7 +228,7 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
                     if (splittedLayer[i].includes('features')) {
                         // we mix the features and ensure the unicity of each feature id
                         const featuresIds = splittedLayer[i].split('=')[1].split(':')
-                        featuresIds.split.forEach((feature_id) => {
+                        featuresIds.forEach((feature_id) => {
                             if (!featuresArray.includes(feature_id)) {
                                 featuresArray.push(feature_id)
                             }

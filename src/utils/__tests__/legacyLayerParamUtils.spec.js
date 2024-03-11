@@ -297,7 +297,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                     'layer.id@features=1:2:3,,0.3;layer.id2',
                     'layer.id@time=1234@features=1:2:3;layer.id2',
                     'layer.id@features=1:2:3:4:5;layer.id2',
-                    'layer.id@features=1:2:3:4:5@time=1234,f,0.2;layer.id2',
+                    'layer.id@time=1234@features=1:2:3:4:5,f,0.2;layer.id2',
                 ]
                 const results = []
                 layersParams.forEach((params) => {
