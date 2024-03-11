@@ -33,7 +33,9 @@ const isCurrentlyDrawing = computed(() => store.state.ui.showDrawingOverlay)
 const projection = computed(() => store.state.position.projection)
 const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
 const isTooltipFeatureInfo = computed(() => store.getters.tooltipFeatureInfo)
-const isBottomPanelFeatureInfo = computed(() => store.getters.bottomPanelFeatureInfo)
+const tooltipIsInDefaultPosition = computed(
+    () => store.state.ui.FeatureInfoPosition === FeatureInfoPositions.DEFAULT
+)
 const editableFeatures = computed(() =>
     selectedFeatures.value.filter((feature) => feature.isEditable)
 )
@@ -95,8 +97,8 @@ watch(nonEditableFeature, () => {
         nonEditableFeature.value.filter((feature) =>
             ['Point', 'MultiPoint'].includes(feature.geometry?.type)
         ).length === nonEditableFeature.value.length
-    if (!isBottomPanelFeatureInfo.value && !containsOnlyPoints) {
-        // we need to also go to 'BOTTOMPANEL' if we are on 'NONE', here
+    if (isTooltipFeatureInfo.value && tooltipIsInDefaultPosition.value && !containsOnlyPoints) {
+        // check if we're in default
         store.dispatch('setFeatureInfoPosition', {
             featureInfo: FeatureInfoPositions.BOTTOMPANEL,
             dispatcher: dispatcher,

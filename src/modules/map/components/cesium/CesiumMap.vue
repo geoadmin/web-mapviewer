@@ -192,8 +192,8 @@ export default {
                 (l) => l instanceof GeoAdminWMTSLayer || l instanceof GeoAdminWMSLayer
             )
         },
-        isFeatureInfoInBottomPanel() {
-            return !this.tooltipFeatureInfo
+        isFeatureInfoInTooltip() {
+            return this.tooltipFeatureInfo
         },
         visiblePrimitiveLayers() {
             return this.visibleLayers.filter(
@@ -201,7 +201,7 @@ export default {
             )
         },
         showFeaturesPopover() {
-            return !this.isFeatureInfoInBottomPanel && this.selectedFeatures.length > 0
+            return this.isFeatureInfoInTooltip && this.selectedFeatures.length > 0
         },
         editFeature() {
             return this.selectedFeatures.find((feature) => feature.isEditable)
