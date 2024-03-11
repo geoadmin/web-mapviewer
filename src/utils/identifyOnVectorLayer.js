@@ -6,33 +6,22 @@ import { polygon } from '@turf/helpers'
 import pointToLineDistance from '@turf/point-to-line-distance'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { WGS84 } from '@/utils/coordinates/coordinateSystems'
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import log from '@/utils/logging'
-const store = useStore()
-
-const projection = computed(() => store.state.position.projection)
 
 const pixelToleranceForIdentify = 10
 
-function referenceTriangle() {
-    const tmp = [
-        [
-            [9.462838083712173, 47.053778354848696],
-            [9.64991119652574, 47.071774335270135],
-            [9.534408224383448, 47.27902841584959],
-            [9.462838083712173, 47.053778354848696],
-        ],
-    ]
-    return polygon(tmp)
+function effectiveResolution(resolution, zoom) {
+    if (zoom % 1 > 0.5) {
+        return resolution / (zoom % 1)
+    } else return resolution / ((zoom % 1) + 1)
 }
 
-function referenceSquare(coordinates, name, scale) {
-    const s = 0.125
+function referenceSquare(coordinates, name, scale, resolution_scaling) {
+    const s = 0.105 * resolution_scaling
     let tmp = [
         [1, 1],
         [1, -1],
@@ -45,8 +34,37 @@ function referenceSquare(coordinates, name, scale) {
     return polygon([tmp])
 }
 
-function referencePolygon(coordinates, name, scale) {
-    return referenceSquare(coordinates, name, scale)
+function referenceMarker(coordinates, name, scale, resolution_scaling) {
+    const s = 0.15 * resolution_scaling * 0.01
+    let tmp = [
+        [6, 0],
+        [36, 44],
+        [36, 81],
+        [16, 100],
+        [-16, 100],
+        [-36, 81],
+        [-36, 44],
+        [-6, 0],
+        [6, 0],
+    ]
+    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
+    console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
+    return polygon([tmp])
+}
+
+function referencePolygon(feature, resolution) {
+    const name = feature.properties.unique_string_name
+    const scale = feature.properties.unique_string_scale
+    const coordinates = feature.geometry.coordinates
+
+    const default_resolution = 500
+    const resolution_scaling = resolution / default_resolution
+
+    if (name != '001-marker') {
+        return referenceSquare(coordinates, name, scale, resolution_scaling)
+    } else {
+        return referenceMarker(coordinates, name, scale, resolution_scaling)
+    }
 }
 
 /**
@@ -73,7 +91,8 @@ function reprojectCoordinates(coordinates, targetProjection) {
     return reprojectedCoordinates
 }
 
-function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
+function identifyInGeoJson(geoJson, coordinate, projection, resolution, zoom) {
+    console.log('debug: zoom', zoom, resolution, effectiveResolution(resolution, zoom))
     const features = []
     const distanceThreshold = pixelToleranceForIdentify * resolution
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
@@ -81,24 +100,12 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
         // only keeping feature with geometry (required to run Turf below)
         .filter((feature) => feature.geometry)
         .filter((feature) => {
-            const name = feature.properties.unique_string_name
-            const scale = feature.properties.unique_string_scale
-            console.log('debug: ', name, scale)
+            console.log('debug: feature', JSON.stringify(feature, null, 4))
             const { geometry } = transformIntoTurfEquivalent(feature.geometry)
             // calculating distance with point coordinate, depending on the geometry type
             switch (geometry?.type) {
                 case 'Polygon':
                 case 'MultiPolygon':
-                    //console.log(
-                    //    'debug: MultiPolygon geometry',
-                    //    typeof geometry,
-                    //    JSON.stringify(geometry, null, 4)
-                    //)
-                    //console.log(
-                    //    'debug: MultiPolygon referencePolygon',
-                    //    typeof referencePolygon(),
-                    //    JSON.stringify(referencePolygon(), null, 4)
-                    //)
                     return booleanPointInPolygon(coordinateWGS84, geometry)
                 case 'LineString':
                 case 'MultiLineString':
@@ -108,10 +115,9 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
                         }) <= distanceThreshold
                     )
                 case 'Point':
-                    console.log('debug: ', JSON.stringify(projection, null, 4))
                     return booleanPointInPolygon(
                         coordinateWGS84,
-                        referencePolygon(feature.geometry.coordinates, name, scale)
+                        referencePolygon(feature, effectiveResolution(resolution, zoom))
                     )
                     return (
                         distance(coordinateWGS84, geometry, { units: 'meters' }) <=
@@ -197,11 +203,11 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
  * @returns {SelectableFeature[]} The feature found at the coordinate, or an empty array if none
  *   were found
  */
-export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolution) {
+export function identifyKMLFeatureAt(kmlLayer, coordinate, projection, resolution, zoom) {
     if (kmlLayer?.kmlData) {
         const parseKml = new DOMParser().parseFromString(kmlLayer.kmlData, 'text/xml')
         const convertedKml = kmlToGeoJSON(parseKml)
-        return identifyInGeoJson(convertedKml, coordinate, projection, resolution).map(
+        return identifyInGeoJson(convertedKml, coordinate, projection, resolution, zoom).map(
             (feature) => {
                 return new LayerFeature(
                     kmlLayer,

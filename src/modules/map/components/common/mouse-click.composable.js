@@ -40,6 +40,7 @@ export function useMouseOnMap() {
     )
     const currentMapResolution = computed(() => store.getters.resolution)
     const currentProjection = computed(() => store.state.position.projection)
+    const currentZoom = computed(() => store.state.position.zoom)
     const isCurrentlyTrackingGeoLocation = computed(
         () => store.state.geolocation.active && store.state.geolocation.tracking
     )
@@ -85,7 +86,8 @@ export function useMouseOnMap() {
                         kmlLayer,
                         coordinate,
                         currentProjection.value,
-                        currentMapResolution.value
+                        currentMapResolution.value,
+                        currentZoom.value
                     )
                 )
             })
