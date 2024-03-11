@@ -76,80 +76,62 @@ function onClose() {
 </script>
 
 <template>
-    <teleport to="#map-footer-middle-0">
-        <div
-            v-show="showContainer"
-            class="infobox card rounded-0"
-            data-cy="infobox"
-            @contextmenu.stop
-        >
-            <div
-                class="infobox-header card-header d-flex justify-content-end"
-                data-cy="infobox-header"
+    <div v-show="showContainer" class="infobox card rounded-0" data-cy="infobox" @contextmenu.stop>
+        <div class="infobox-header card-header d-flex justify-content-end" data-cy="infobox-header">
+            <button
+                v-if="showFloatingToggle"
+                class="btn btn-light btn-sm d-flex align-items-center"
+                data-cy="infobox-toggle-floating"
+                @click.stop="onToggleFloating"
             >
-                <button
-                    v-if="showFloatingToggle"
-                    class="btn btn-light btn-sm d-flex align-items-center"
-                    data-cy="infobox-toggle-floating"
-                    @click.stop="onToggleFloating"
-                >
-                    <FontAwesomeIcon icon="caret-up" />
-                </button>
-                <button
-                    class="btn btn-light btn-sm d-flex align-items-center"
-                    @click.stop="onPrint"
-                >
-                    <FontAwesomeIcon icon="print" />
-                </button>
-                <button
-                    class="btn btn-light btn-sm d-flex align-items-center"
-                    data-cy="infobox-minimize-maximize"
-                    @click="onToggleContent"
-                >
-                    <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
-                    <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
-                </button>
-                <button
-                    class="btn btn-light btn-sm d-flex align-items-center"
-                    data-cy="infobox-close"
-                    @click.stop="onClose"
-                >
-                    <FontAwesomeIcon icon="times" />
-                </button>
-            </div>
-
-            <div
-                v-show="showContent"
-                ref="content"
-                class="infobox-content"
-                data-cy="infobox-content"
+                <FontAwesomeIcon icon="caret-up" />
+            </button>
+            <button class="btn btn-light btn-sm d-flex align-items-center" @click.stop="onPrint">
+                <FontAwesomeIcon icon="print" />
+            </button>
+            <button
+                class="btn btn-light btn-sm d-flex align-items-center"
+                data-cy="infobox-minimize-maximize"
+                @click="onToggleContent"
             >
-                <FeatureElevationProfile
-                    v-if="showElevationProfile && !isCombo"
-                    class="card-body"
-                    :feature="selectedFeature"
-                    :read-only="!showDrawingOverlay"
-                    :projection="projection"
-                />
-
-                <FeatureCombo
-                    v-else-if="isCombo"
-                    class="card-body"
-                    :feature="selectedFeature"
-                    :read-only="!showDrawingOverlay"
-                />
-
-                <FeatureEdit
-                    v-else-if="isEdit"
-                    class="card-body"
-                    :feature="selectedFeature"
-                    :read-only="!showDrawingOverlay"
-                />
-
-                <FeatureList v-else-if="isList" />
-            </div>
+                <FontAwesomeIcon v-if="!showContent" icon="window-maximize" />
+                <FontAwesomeIcon v-if="showContent" icon="window-minimize" />
+            </button>
+            <button
+                class="btn btn-light btn-sm d-flex align-items-center"
+                data-cy="infobox-close"
+                @click.stop="onClose"
+            >
+                <FontAwesomeIcon icon="times" />
+            </button>
         </div>
-    </teleport>
+
+        <div v-show="showContent" ref="content" class="infobox-content" data-cy="infobox-content">
+            <FeatureElevationProfile
+                v-if="showElevationProfile && !isCombo"
+                class="card-body"
+                :feature="selectedFeature"
+                :read-only="!showDrawingOverlay"
+                :projection="projection"
+            />
+
+            <FeatureCombo
+                v-else-if="isCombo"
+                class="card-body"
+                :feature="selectedFeature"
+                :read-only="!showDrawingOverlay"
+            />
+
+            <FeatureEdit
+                v-else-if="isEdit"
+                class="card-body"
+                :feature="selectedFeature"
+                :read-only="!showDrawingOverlay"
+            />
+
+            <FeatureList v-else-if="isList" />
+        </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
