@@ -187,14 +187,19 @@ export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
         if (store.state.layers.config.some((layer) => layer.id === param_key)) {
             const featuresIds = param_value.split(',').join(':')
             if (newQuery.layers?.includes(param_key)) {
+                // the layer given as key is also in the query 'layers'
+                // we need to ensure all params are kept intact
                 newQuery.layers = createLayersParamForFeaturePreselection(
                     param_key,
                     param_value,
                     newQuery.layers
                 )
             } else if (newQuery.layers) {
+                // there is a 'layers' query, but the layer given as key is not part of it,
+                // we simply add the layer and its features at the end of the existing query
                 newQuery.layers = newQuery.layers + `;${param_key}@features=${featuresIds}`
             } else {
+                // there was not 'layers' param within the query, we create one for this layer.
                 newQuery.layers = `${param_key}@features=${featuresIds}`
             }
         }
@@ -209,8 +214,12 @@ export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
  * @returns
  */
 export function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
-    const featuresArray = featuresIds.split(',')
-    // we go through each layer
+    // if the features Ids are null, we replace them with an empty array
+    // we also remove all empty strings from the featuresIds
+    const featuresArray = (featuresIds ? featuresIds.split(',') : []).filter(
+        (featureId) => featureId !== ''
+    ) // we go through each layer
+    console.log(featuresArray)
     const layersArray = layers.split(';')
     for (let layerIndex = 0; layerIndex < layersArray.length; layerIndex++) {
         const [layerIdWithCustomParams, visible, opacity] = layersArray[layerIndex].split(',')
@@ -239,8 +248,11 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
                     }
                 }
             }
-            // we add the features ids to the layer
-            layerString = `${layerString}@features=${featuresArray.join(':')}`
+            // we add the features ids to the layer if there are features to add
+            layerString =
+                featuresArray.length > 0
+                    ? `${layerString}@features=${featuresArray.join(':')}`
+                    : layerString
             if (visible || opacity) {
                 // we add back the visibility and the opacity
                 layerString = `${layerString},${visible},${opacity}`

@@ -284,6 +284,14 @@ describe('Test parsing of legacy URL param into new params', () => {
             })
         })
         describe('ensure layers parameter handler for feature preselection works as intended', () => {
+            /**
+             * Small precision regarding the createLayersParamForFeaturePreselection, which is what
+             * we are testing here : This function is only called when : there is a layer-id
+             * parameter set and that layer is already within the query 'layers' parameters. This
+             * means we do not need to test if there is no param_key set, or if there is no layers
+             * set
+             */
+
             // This function deals mostly with the special parameters and features id order,
             // As they are not important, but could break the tests if we made a simple string comparison
             // layer.id@time=123@features=1,2 is the same end result as layer.id@features=2,1@time=123
@@ -311,33 +319,108 @@ describe('Test parsing of legacy URL param into new params', () => {
                     }
                 }
             }
-            it('checks that all possible layers given as parameter return what we expect', () => {
-                const layersParams = [
-                    'layer.id;layer.id2',
-                    'layer.id,,0.3;layer.id2',
-                    'layer.id@time=1234;layer.id2',
-                    'layer.id@features=3:4:5;layer.id2',
-                    'layer.id@features=3:4:5@time=1234,f,0.2;layer.id2',
-                ]
-                const expectedResults = [
-                    'layer.id@features=1:2:3;layer.id2',
-                    'layer.id@features=1:2:3,,0.3;layer.id2',
-                    'layer.id@time=1234@features=1:2:3;layer.id2',
-                    'layer.id@features=1:2:3:4:5;layer.id2',
-                    'layer.id@time=1234@features=1:2:3:4:5,f,0.2;layer.id2',
-                ]
-                const results = []
-                layersParams.forEach((params) => {
-                    results.push(
-                        createLayersParamForFeaturePreselection('layer.id', '1,2,3', params)
-                    )
-                })
-                for (let i = 0; i < results.length; i++) {
-                    const [layer1, layer2] = results[i].split(';')
-                    const [expectedLayer1, expectedLayer2] = expectedResults[i].split(';')
-                    compareLayersStrings(layer1, expectedLayer1)
-                    compareLayersStrings(layer2, expectedLayer2)
+            function testLayersStringCreation(params) {
+                const result = createLayersParamForFeaturePreselection(
+                    params.layerId,
+                    params.featuresId,
+                    params.layers
+                )
+
+                const [layer1, layer2] = result.split(';')
+                const [expectedLayer1, expectedLayer2] = params.expectedResult.split(';')
+                compareLayersStrings(layer1, expectedLayer1)
+                compareLayersStrings(layer2, expectedLayer2)
+            }
+            it('adds a Feature parameter when the layer has no parameter at all', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3;layer.id2',
                 }
+                testLayersStringCreation(params)
+            })
+            it('adds a Feature parameter when the layer only has visibility and opacity params', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id,,0.3;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3,,0.3;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('adds a Feature parameter when there is a time parameter given', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@time=1234;layer.id2',
+                    expectedResult: 'layer.id@time=1234@features=1:2:3;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it("combines existing features between the already given features and the legacy parameter's features", () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@features=3:4:5;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3:4:5;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('combines existing features when all parameters are set', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@features=3:4:5@time=1234,f,0.2;layer.id2',
+                    expectedResult: 'layer.id@time=1234@features=1:2:3:4:5,f,0.2;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('does not add a feature parameter when the feature ids are an empty string', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: '',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('does not add a feature parameter when the feature ids are null', () => {
+                // I am not certain this is possible, but I prefer to test it anyway
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: null,
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('does not add a feature parameter when the feature ids are all empty strings', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('adds a feature value for each non empty string in the features ids', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,34',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id@features=1:34;layer.id2',
+                }
+                testLayersStringCreation(params)
+            })
+            it('preserve an existing feature parameter when there are no features Ids to add', () => {
+                const params = {
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,',
+                    layers: 'layer.id@features=12:14;layer.id2',
+                    expectedResult: 'layer.id@features=12:14;layer.id2',
+                }
+                testLayersStringCreation(params)
             })
         })
     })

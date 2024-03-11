@@ -127,6 +127,12 @@ const addCesiumTilesetIntercepts = () => {
     }).as('cesiumTerrainConfig')
 }
 
+const addHtmlPopupIntercepts = () => {
+    cy.intercept('**/MapServer/**/htmlPopup**', {
+        fixture: 'html-popup.fixture.html',
+    }).as('htmlPopup')
+}
+
 export function getDefaultFixturesAndIntercepts() {
     return {
         addVueRouterIntercept,
@@ -142,6 +148,7 @@ export function getDefaultFixturesAndIntercepts() {
         addSecondIconsFixtureAndIntercept,
         addGeoJsonIntercept,
         addCesiumTilesetIntercepts,
+        addHtmlPopupIntercepts,
     }
 }
 

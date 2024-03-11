@@ -466,17 +466,6 @@ describe('Test on legacy param import', () => {
             })
         }
 
-        beforeEach(() => {
-            // add intercept for layer config
-            cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
-                fixture: 'layers.fixture',
-            })
-            // add intercept for the html popup
-            cy.intercept('**/MapServer/**/htmlPopup**', {
-                fixture: 'html-popup.fixture.html',
-            })
-        })
-
         describe('Checks that the legacy bod layer id translate in the new implementation', () => {
             it('Select a few features and shows the tooltip in its correct spot', () => {
                 const features = []
