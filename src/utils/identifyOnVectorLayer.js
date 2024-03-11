@@ -15,11 +15,11 @@ import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJs
 import log from '@/utils/logging'
 const store = useStore()
 
-const iconSize = computed(() => store.state.features.iconSize)
+const projection = computed(() => store.state.position.projection)
 
 const pixelToleranceForIdentify = 10
 
-function referenceSquare() {
+function referenceTriangle() {
     const tmp = [
         [
             [9.462838083712173, 47.053778354848696],
@@ -29,6 +29,24 @@ function referenceSquare() {
         ],
     ]
     return polygon(tmp)
+}
+
+function referenceSquare(coordinates, name, scale) {
+    const s = 0.125
+    let tmp = [
+        [1, 1],
+        [1, -1],
+        [-1, -1],
+        [-1, 1],
+        [1, 1],
+    ]
+    tmp = tmp.map((v) => [v[0] * s + coordinates[0], v[1] * s + coordinates[1]])
+    console.log('debug: MultiPolygon referencePolygon', JSON.stringify(tmp, null, 4))
+    return polygon([tmp])
+}
+
+function referencePolygon(coordinates, name, scale) {
+    return referenceSquare(coordinates, name, scale)
 }
 
 /**
@@ -63,22 +81,24 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
         // only keeping feature with geometry (required to run Turf below)
         .filter((feature) => feature.geometry)
         .filter((feature) => {
-            console.log('debug: ', JSON.stringify(feature, null, 4))
+            const name = feature.properties.unique_string_name
+            const scale = feature.properties.unique_string_scale
+            console.log('debug: ', name, scale)
             const { geometry } = transformIntoTurfEquivalent(feature.geometry)
             // calculating distance with point coordinate, depending on the geometry type
             switch (geometry?.type) {
                 case 'Polygon':
                 case 'MultiPolygon':
-                    console.log(
-                        'debug: MultiPolygon geometry',
-                        typeof geometry,
-                        JSON.stringify(geometry, null, 4)
-                    )
-                    console.log(
-                        'debug: MultiPolygon referencePolygon',
-                        typeof referenceSquare(),
-                        JSON.stringify(referenceSquare(), null, 4)
-                    )
+                    //console.log(
+                    //    'debug: MultiPolygon geometry',
+                    //    typeof geometry,
+                    //    JSON.stringify(geometry, null, 4)
+                    //)
+                    //console.log(
+                    //    'debug: MultiPolygon referencePolygon',
+                    //    typeof referencePolygon(),
+                    //    JSON.stringify(referencePolygon(), null, 4)
+                    //)
                     return booleanPointInPolygon(coordinateWGS84, geometry)
                 case 'LineString':
                 case 'MultiLineString':
@@ -88,7 +108,11 @@ function identifyInGeoJson(geoJson, coordinate, projection, resolution) {
                         }) <= distanceThreshold
                     )
                 case 'Point':
-                    return booleanPointInPolygon(coordinateWGS84, referenceSquare())
+                    console.log('debug: ', JSON.stringify(projection, null, 4))
+                    return booleanPointInPolygon(
+                        coordinateWGS84,
+                        referencePolygon(feature.geometry.coordinates, name, scale)
+                    )
                     return (
                         distance(coordinateWGS84, geometry, { units: 'meters' }) <=
                         distanceThreshold
