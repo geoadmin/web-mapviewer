@@ -1,5 +1,6 @@
 import { START_LOCATION } from 'vue-router'
 
+import { MAP_VIEWS } from '@/router/viewNames'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import log from '@/utils/logging'
 import { getUrlQuery } from '@/utils/utils'
@@ -26,7 +27,11 @@ const appLoadingManagementRouterPlugin = (router, store) => {
         const isLegacyUrl = isLegacyParams(window?.location?.search)
 
         const unRegisterRouterHook = router.beforeEach((to, from) => {
-            if (from === START_LOCATION && to.name === 'MapView' && to.meta.requiresAppReady) {
+            if (
+                from === START_LOCATION &&
+                MAP_VIEWS.includes(to.name) &&
+                to.meta.requiresAppReady
+            ) {
                 // Upon application startup we need to first get the language and
                 // topic from the URL in order to quickly load the layers config and
                 // topics. We do this as early as possible as we need topics and config to define

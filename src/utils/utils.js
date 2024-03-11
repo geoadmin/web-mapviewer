@@ -188,3 +188,65 @@ export function getUrlQuery() {
         window.location.search || window.location.hash.replace('#/map?', '')
     )
 }
+
+/**
+ * Parse a URL hash fragment
+ *
+ * We use query in the hash fragment, the standard new URL doesn't parse the query from the hash,
+ * this function does and return the URL object with the hash fragment without query and the the
+ * query separated.
+ *
+ * @param {string} url
+ * @returns {{ urlObj: URL; hash: string; query: string }} Parsed url
+ */
+export function parseUrlHashQuery(url) {
+    const urlObj = new URL(url)
+    // extract query from hash
+    let queryIndex = urlObj.hash.indexOf('?')
+    queryIndex = queryIndex >= 0 ? queryIndex : urlObj.hash.length
+    const hash = urlObj.hash.substring(0, queryIndex)
+    const query = urlObj.hash.substring(queryIndex)
+    return {
+        urlObj,
+        hash,
+        query,
+    }
+}
+
+/**
+ * Transform a /#/map url to /#/embed url
+ *
+ * If the URL is not a SCHEME://DOMAIN/#/map then it is returned unchanged.
+ *
+ * @param {string} url Url to transform on /#/embed
+ * @returns {string} Url transformed to /#/embed
+ */
+export function transformUrlMapToEmbed(url) {
+    const { urlObj, hash, query } = parseUrlHashQuery(url)
+    if (urlObj.pathname !== '/') {
+        return url
+    }
+    if (hash === '#/map') {
+        urlObj.hash = `#/embed${query}`
+    }
+    return urlObj.toString()
+}
+
+/**
+ * Transform a /#/embed url to /#/map url
+ *
+ * If the URL is not a SCHEME://DOMAIN/#/embed then it is returned unchanged.
+ *
+ * @param {string} url Url to transform on /#/map
+ * @returns {string} Url transformed to /#/map
+ */
+export function transformUrlEmbedToMap(url) {
+    const { urlObj, hash, query } = parseUrlHashQuery(url)
+    if (urlObj.pathname !== '/') {
+        return url
+    }
+    if (hash === '#/embed') {
+        urlObj.hash = `#/map${query}`
+    }
+    return urlObj.toString()
+}

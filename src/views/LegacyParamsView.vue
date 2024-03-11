@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useStore } from 'vuex'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
@@ -7,13 +7,20 @@ import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 const store = useStore()
 
-const embedded = computed(() => store.state.ui.embeddedMode)
+const props = defineProps({
+    embed: {
+        type: Boolean,
+        default: false,
+    },
+})
+const { embed } = toRefs(props)
+
 const showLoadingBar = computed(() => store.state.ui.showLoadingBar)
 </script>
 
 <template>
     <div id="splashscreen">
-        <HeaderWithSearch v-if="!embedded" />
+        <HeaderWithSearch v-if="!embed" />
         <LoadingBar v-if="showLoadingBar" />
     </div>
 </template>
