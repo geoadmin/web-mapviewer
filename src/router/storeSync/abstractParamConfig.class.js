@@ -139,14 +139,15 @@ export default class AbstractParamConfig {
      * Sets the store values according to the URL. Returns a promise that will resolve when the
      * store is up-to-date.
      *
+     * @param {VueRouter.Route} to
      * @param {Vuex.Store} store
      * @param {Object | String | Number | Boolean | null} query The value found in the query
      * @returns {Promise<any>}
      */
-    populateStoreWithQueryValue(store, query) {
+    populateStoreWithQueryValue(to, store, query) {
         return new Promise((resolve, reject) => {
             if (store && this.setValuesInStore) {
-                const promiseSetValuesInStore = this.setValuesInStore(store, query)
+                const promiseSetValuesInStore = this.setValuesInStore(to, store, query)
                 if (promiseSetValuesInStore) {
                     promiseSetValuesInStore.then(() => {
                         resolve()

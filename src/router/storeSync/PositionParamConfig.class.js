@@ -12,7 +12,7 @@ export function readCenterFromUrlParam(urlParamValue) {
     return null
 }
 
-function dispatchCenterFromUrlIntoStore(store, urlParamValue) {
+function dispatchCenterFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const center = readCenterFromUrlParam(urlParamValue)
     if (center) {

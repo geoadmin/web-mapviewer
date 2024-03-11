@@ -30,7 +30,7 @@ export function readCameraFromUrlParam(urlParamValue) {
     return null
 }
 
-function dispatchCameraFromUrlIntoStore(store, urlParamValue) {
+function dispatchCameraFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const camera = readCameraFromUrlParam(urlParamValue)
     if (camera) {

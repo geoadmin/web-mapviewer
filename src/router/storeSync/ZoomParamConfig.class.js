@@ -9,7 +9,7 @@ export function readZoomFromUrlParam(urlParamValue) {
     return null
 }
 
-function dispatchZoomFromUrlIntoStore(store, urlParamValue) {
+function dispatchZoomFromUrlIntoStore(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const zoom = readZoomFromUrlParam(urlParamValue)
     if (zoom) {
