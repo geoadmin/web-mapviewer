@@ -32,9 +32,6 @@ export default {
         featureIds: [],
     },
     getters: {
-        isCurrentlyDrawing(state) {
-            return state.mode !== null
-        },
         isDrawingEmpty(state) {
             return state.featureIds.length === 0
         },

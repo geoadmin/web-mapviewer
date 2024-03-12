@@ -137,10 +137,8 @@ describe('Test mouse position and interactions', () => {
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')
 
-            cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
-                .should('be.visible')
-                .click()
-            cy.readStoreValue('state.ui.showDrawingOverlay').should('be.false')
+            cy.closeDrawingMode()
+
             // closing the menu if mobile
             cy.closeMenuIfMobile()
 

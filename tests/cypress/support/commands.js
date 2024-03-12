@@ -213,13 +213,14 @@ Cypress.Commands.add(
         cy.visit(`/${withHash ? '#/' : ''}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
-        // waiting for the app to load and layers to be configured.
-        cy.waitMapIsReady()
-        cy.waitAllLayersLoaded({ queryParams, legacy: !withHash })
         // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
         const isLegacy3d =
             'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
         const is3d = '3d' in queryParams && queryParams['3d'] === true
+
+        // waiting for the app to load and layers to be configured.
+        cy.waitMapIsReady({ olMap: !(is3d || isLegacy3d) })
+        cy.waitAllLayersLoaded({ queryParams, legacy: !withHash })
 
         if (is3d || isLegacy3d) {
             cy.get('[data-cy="cesium-map"]').should('be.visible')
@@ -275,8 +276,14 @@ Cypress.Commands.add(
         cy.visit(`${legacy ? '/embed.html' : '/#/embed'}${flattenedQueryParams}`, {
             onBeforeLoad: (win) => mockGeolocation(win, geolocationMockupOptions),
         })
+
+        // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
+        const isLegacy3d =
+            'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
+        const is3d = '3d' in queryParams && queryParams['3d'] === true
+
         // waiting for the app to load and layers to be configured.
-        cy.waitMapIsReady()
+        cy.waitMapIsReady({ olMap: !(is3d || isLegacy3d) })
         cy.waitAllLayersLoaded({ queryParams, legacy })
 
         cy.get('[data-cy="ol-map"]', { timeout: 10000 }).should('be.visible')
@@ -285,10 +292,15 @@ Cypress.Commands.add(
 
 /**
  * Wait until the map has been rendered and is ready. This is useful and needed during the
- * application startup phase
+ * application startup phase and also after changing views that might disable click on the map like
+ * for example the drawing mode
  */
-Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000 } = {}) => {
+Cypress.Commands.add('waitMapIsReady', ({ timeout = 15000, olMap = true } = {}) => {
     cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
+    // We also need to wait for the pointer event to be set
+    if (olMap) {
+        cy.window().its('mapPointerEventReady', { timeout: 10000 }).should('be.true')
+    }
 })
 
 Cypress.Commands.add('waitAllLayersLoaded', ({ queryParams = {}, legacy = false } = {}) => {

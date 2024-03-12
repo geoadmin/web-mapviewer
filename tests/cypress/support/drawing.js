@@ -129,6 +129,19 @@ Cypress.Commands.add('openDrawingMode', () => {
         cy.get('[data-cy="menu-button"]').click()
     }
     cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
+    // Make sure that the map pointer events are unregistered to avoid intereference with drawing
+    // pointer events
+    cy.window().its('mapPointerEventReady').should('be.false')
+})
+
+Cypress.Commands.add('closeDrawingMode', () => {
+    cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
+        .should('be.visible')
+        .click()
+    cy.window().its('store.state.ui.showDrawingOverlay').should('be.false')
+    // In drawing mode the click event on the map are removed therefore we need to wait that
+    // they are added again begore continuing testing
+    cy.waitMapIsReady()
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
@@ -166,6 +179,8 @@ export async function getKmlFromRequest(req) {
             `Failed to parse the multipart/form-data of the KML request payload for ${req.method} ${req.url}`
         ).to.be.false
     }
+    console.log(`getKMLRequest ${req.method} ${req.url} body=${req.body}`)
+    console.log(`getKMLRequest ${req.method} ${req.url} blob=${paramBlob}`)
     try {
         return new TextDecoder().decode(pako.ungzip(paramBlob))
     } catch (error) {
